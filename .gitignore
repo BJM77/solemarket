@@ -1,0 +1,31 @@
+
+# Next.js
+.next
+.next/
+/_next/
+
+# Dependencies
+node_modules/
+node_modules
+.pnp
+.pnp.js
+
+
+# Firebase
+.firebase/
+.firebase
+firebase.json.backup
+firebase-debug.log
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+
+# Env
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPERS ---
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    
+    function isOwner(userId) { 
+      return request.auth.uid == userId; 
+    }
+    
+    // TODO: Migrate to Custom Claims for better scalability
+    function isSuperAdmin() { 
+      return isSignedIn() && request.auth.uid == 'O5nCLgbIaRRRF369K0kjgT59io73';
+    } 
+
+    // --- PRIMARY COLLECTIONS ---
+
+    // Products: Public read, Authenticated create, Owner/Admin update/delete
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.resource.data.sellerId == request.auth.uid
+                    && request.resource.data.price > 0;
+      allow update, delete: if isSignedIn() && (resource.data.sellerId == request.auth.uid || isSuperAdmin());
+    }
+    
+    // Categories: Public read, Admin write
+    match /categories/{categoryId} {
+      allow read, list: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // Reviews: Public read, Buyer create, Admin update/delete
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // Orders: Involved parties only
+    match /orders/{orderId} {
+        allow read, update: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+        allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+    }
+
+    // Platform Stats: Consolidated Rule
+    match /platform_stats/{statId} {
+      // Allow public read for global stats (if that's desired behavior for homepage), otherwise restricted
+      // If homepage uses Client SDK to read stats, this needs to be 'if true'. 
+      // If homepage uses Server Action (Admin SDK), this can be restrictive.
+      // Assuming public stats for now based on current app behavior:
+      allow read: if true; 
+      allow write: if isSuperAdmin();
+    }
+
+    // Users: Owner or Admin management
+    match /users/{userId} {
+      allow get: if true; // Profile pages
+      allow list: if isSuperAdmin();
+      allow create, update, delete: if request.auth.uid == userId || isSuperAdmin();
+
+      // Subcollections
+      match /favorites/{favoriteId} {
+         allow read, write: if request.auth.uid == userId;
+      }
+      
+      match /private/wishlist/{itemId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+
+    // Settings: Public READ (for app config), Admin WRITE (Critical Fix)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // Conversations: Participants only
+    match /conversations/{conversationId} {
+      allow read, write: if isSignedIn() && request.auth.uid in resource.data.participantIds;
+
+      match /messages/{messageId} {
+         allow read, write: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+      }
+    }
+
+    // Notifications: Recipient only
+    match /notifications/{notificationId} {
+      allow read, update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow create: if false; // Only backend admin SDK creates these
+    }
+
+    // Donations: Public read (transparency), Admin only write (implicit by absence of allow write)
+    match /donations/{donationId} {
+      allow read: if isSignedIn();
+    }
+
+    // Forum Posts & Replies
+    match /forum_posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    match /forum_replies/{replyId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    // Verification Requests
+    match /verification_requests/{requestId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isSuperAdmin());
+      allow update: if isSuperAdmin();
+    }
+  }
+}

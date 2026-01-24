@@ -1,0 +1,53 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A vibrant collection of various collectibles neatly arranged.",
+      "imageUrl": "https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb2xsZWN0aWJsZXMlMjBjb2xsZWN0aW9ufGVufDB8fHx8MTc2NTI4OTY5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "collectibles collection"
+    },
+    {
+      "id": "category-cards",
+      "description": "A hand holding a fan of trading cards.",
+      "imageUrl": "https://images.unsplash.com/photo-1621568670868-24a7dfc590e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0cmFkaW5nJTIwY2FyZHN8ZW58MHx8fHwxNzY1Mjg5Njk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "trading cards"
+    },
+    {
+      "id": "category-coins",
+      "description": "A close-up of a rare, old coin.",
+      "imageUrl": "https://images.unsplash.com/photo-1567426291582-747f5734b4a3?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "rare coin"
+    },
+    {
+      "id": "category-collectibles",
+      "description": "A shelf with various pop culture figurines.",
+      "imageUrl": "https://images.unsplash.com/photo-1593454228919-2fac26621fee?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "collectible figurines"
+    },
+    {
+      "id": "category-shoes",
+      "description": "A collection of rare and colorful sneakers.",
+      "imageUrl": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1587&q=80",
+      "imageHint": "collectible sneakers"
+    },
+    {
+      "id": "product-card-1",
+      "description": "A holographic trading card of a dragon.",
+      "imageUrl": "https://images.unsplash.com/photo-1620939959519-2089b4a7d529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dHJhZGluZyUyMGNhcmR8ZW58MHx8fHwxNzY1Mjg5Njk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "trading card"
+    },
+    {
+      "id": "product-coin-1",
+      "description": "An ancient silver coin with an emperor's face.",
+      "imageUrl": "https://images.unsplash.com/photo-1628238289537-1cb4a0ef0c20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzaWx2ZXIlMjBjb2lufGVufDB8fHx8MTc2NTI4OTY5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "silver coin"
+    },
+    {
+      "id": "product-comic-1",
+      "description": "A vintage comic book in mint condition.",
+      "imageUrl": "https://images.unsplash.com/photo-1531501410720-c8d437636169?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21pYyUyMGJvb2t8ZW58MHx8fHwxNzY1Mjg5Njk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "comic book"
+    }
+  ]
+}
