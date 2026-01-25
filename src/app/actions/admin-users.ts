@@ -85,10 +85,13 @@ export async function createNewUser(
  * Get all users for the admin panel.
  */
 export async function getAllUsers(idToken: string): Promise<{ users?: AdminUser[], error?: string }> {
-     try {
+    try {
         const decodedToken = await verifyIdToken(idToken);
-        if (decodedToken.role !== 'superadmin') { // Super admin check
-            return { error: 'Permission denied.' };
+        // Check for admin or superadmin role
+        const role = decodedToken.role || (decodedToken.admin ? 'admin' : null);
+        if (role !== 'superadmin' && role !== 'admin') {
+            console.error('Permission denied. User role:', role);
+            return { error: 'Permission denied. Admins only.' };
         }
 
         const userRecords = await admin.auth().listUsers();
@@ -124,7 +127,7 @@ export async function getAllUsers(idToken: string): Promise<{ users?: AdminUser[
 
     } catch (error: any) {
         console.error('Error fetching users:', error);
-        return { error: 'Failed to fetch users.' };
+        return { error: error.message || 'Failed to fetch users.' };
     }
 }
 
@@ -138,7 +141,7 @@ export async function updateUserRole(idToken: string, userId: string, newRole: U
         if (decodedToken.role !== 'superadmin') { // Super admin check
             return { success: false, message: 'Permission denied.' };
         }
-        
+
         const canSell = ['seller', 'admin', 'superadmin'].includes(newRole);
 
         await firestoreDb.collection('users').doc(userId).update({
@@ -163,10 +166,10 @@ export async function toggleUserBan(idToken: string, userId: string, currentStat
         if (decodedToken.role !== 'superadmin') {
             return { success: false, message: 'Permission denied.' };
         }
-        
+
         const isDisabled = currentStatus === 'active';
         await admin.auth().updateUser(userId, { disabled: isDisabled });
-        
+
         revalidatePath('/admin/users');
         return { success: true, message: `User has been ${isDisabled ? 'banned' : 'unbanned'}.` };
 

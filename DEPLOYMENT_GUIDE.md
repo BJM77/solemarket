@@ -84,16 +84,16 @@ env:
 {
   "scripts": {
     "dev": "next dev --port 9004",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start"
   }
 }
 ```
 
 **Key Points:**
-- ✅ Forces webpack usage with `--webpack` flag
-- ✅ Prevents Turbopack (which has symlink issues in Cloud Build)
-- ✅ No `yarn.lock` file (uses npm/package-lock.json only)
+- ✅ Uses standard `next build` command
+- ✅ No `yarn.lock` file (uses npm/package-lock.json only) to prevent symlink issues
+- ✅ Relies on default Next.js build behavior (which works correctly with npm structure)
 
 ---
 
@@ -160,13 +160,13 @@ it points out of the filesystem root
 **Solution:**
 1. ✅ Delete `yarn.lock` file
 2. ✅ Keep only `package-lock.json`
-3. ✅ Add `--webpack` flag to build script
+3. ✅ Use standard `next build` command (remove any `--webpack` flags if added, as they break path aliases)
 4. ✅ Remove any `turbopack: {}` config from `next.config.js`
 
 ```bash
 rm yarn.lock
-# Update package.json: "build": "next build --webpack"
-git add -A && git commit -m "Force webpack build"
+# Ensure package.json has: "build": "next build"
+git add -A && git commit -m "Fix build: use npm only"
 git push origin main
 ```
 
@@ -298,7 +298,7 @@ if (!serviceAccountJson) {
 ### Pre-Deployment
 - [ ] All code committed and pushed to GitHub main branch
 - [ ] No `yarn.lock` file in repository (use npm only)
-- [ ] `package.json` build script uses `--webpack` flag
+- [ ] `package.json` build script uses standard `next build`
 - [ ] `apphosting.yaml` has all required environment variables
 - [ ] Secrets granted access via Firebase CLI
 - [ ] DNS records configured in Cloudflare

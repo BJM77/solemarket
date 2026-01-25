@@ -22,11 +22,29 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
     const [message, setMessage] = useState<string>("");
 
     const runTest = async () => {
-        // This function is now a placeholder.
-        // In a real app, you would fetch(endpoint) here.
-        setStatus('idle');
+        if (!endpoint) return;
+
+        setStatus('loading');
+        setMessage("");
         setLatency(null);
-        setMessage("This is a placeholder and does not perform a real test.");
+
+        try {
+            const res = await fetch(endpoint);
+            const data = await res.json();
+
+            if (res.ok && (data.status === 'healthy' || data.status === 'success')) {
+                setStatus('success');
+                setLatency(data.latency);
+            } else {
+                setStatus('error');
+                setLatency(data.latency);
+                setMessage(data.error || data.details?.message || "Service unhealthy");
+            }
+        } catch (error: any) {
+            console.error("Connection test failed:", error);
+            setStatus('error');
+            setMessage(error.message || "Network error");
+        }
     };
 
     return (
@@ -43,7 +61,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">Status</span>
                     <Badge variant={status === 'success' ? 'default' : status === 'error' ? 'destructive' : 'secondary'}
-                           className={cn(status === 'success' && "bg-green-500 hover:bg-green-600")}>
+                        className={cn(status === 'success' && "bg-green-500 hover:bg-green-600")}>
                         {status === 'idle' ? 'Unknown' : status === 'loading' ? 'Testing...' : status === 'success' ? 'Online' : 'Offline'}
                     </Badge>
                 </div>
@@ -65,7 +83,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
                     size="sm"
                     className="w-full"
                     onClick={runTest}
-                    disabled={true} // Disabled as it's a mock
+                    disabled={status === 'loading'}
                 >
                     <RefreshCw className={cn("mr-2 h-3 w-3")} />
                     Test Connection
