@@ -52,7 +52,7 @@
     "genkit": "latest",
     "lucide-react": "^0.363.0",
     "nanoid": "^5.0.7",
-    "next": "^16.1.1",
+    "next": "^15.1.6",
     "papaparse": "^5.4.1",
     "react": "^18",
     "react-cropper": "^2.3.3",
@@ -73,7 +73,7 @@
     "autoprefixer": "^10.4.23",
     "dotenv": "^17.2.3",
     "eslint": "latest",
-    "eslint-config-next": "latest",
+    "eslint-config-next": "^15.1.6",
     "postcss": "^8.4.38",
     "typescript": "^5"
   }
