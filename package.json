@@ -70,7 +70,7 @@
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.4.23",
     "dotenv": "^17.2.3",
     "eslint": "latest",
     "eslint-config-next": "latest",
