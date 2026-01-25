@@ -8,7 +8,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -139,6 +139,20 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               />
             ) : null}
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+              {product.isVault && (
+                <Badge 
+                  variant="default" 
+                  className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md cursor-pointer z-20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open('/vault', '_blank');
+                  }}
+                >
+                  <ShieldCheck className="h-3 w-3" />
+                  Vault
+                </Badge>
+              )}
               {hasViewed && (
                 <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-sm">
                   <Eye className="h-3 w-3" />
@@ -224,6 +238,20 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       <Link href={`/product/${product.id}`} className="contents">
         <div className="aspect-[4/5] bg-gray-100 dark:bg-white/10 relative overflow-hidden">
           <div className="absolute top-3 left-3 z-10 flex gap-2">
+            {product.isVault && (
+              <Badge 
+                variant="default" 
+                className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg cursor-pointer z-20"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open('/vault', '_blank');
+                }}
+              >
+                <ShieldCheck className="h-3 w-3" />
+                Vault
+              </Badge>
+            )}
             {hasViewed && (
               <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm">
                 <Eye className="h-3 w-3" />

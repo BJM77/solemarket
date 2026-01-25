@@ -25,13 +25,17 @@ export const productFormSchema = z.object({
     isPrivate: z.boolean().default(false),
     isDraft: z.boolean().default(false),
     quantity: z.number().int().min(1).default(1),
+    
+    // Feature Flags (Added for new features)
+    isVault: z.boolean().optional(),
+    isReverseBidding: z.boolean().optional(),
+    autoRepricingEnabled: z.boolean().optional(),
 
     // Auction fields
     isAuction: z.boolean().optional(),
     startingBid: z.number().min(0).optional(),
     auctionEndTime: z.any().optional(), // Timestamp handling can be complex in zod, using any or coercion
     buyItNowPrice: z.number().min(0).optional(),
-    autoRepricingEnabled: z.boolean().optional(),
     minStockQuantity: z.number().optional(),
 });
 

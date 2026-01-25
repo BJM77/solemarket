@@ -1,7 +1,7 @@
 'use client';
 import Hero from "@/components/home/Hero";
 import { Suspense, useState, useEffect } from "react";
-import { getPublicProductCount } from "@/lib/firebase/firestore";
+import { fetchProductCount } from "@/app/actions/stats";
 import { SearchBar } from "@/components/layout/search-bar";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 
@@ -12,7 +12,7 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const count = await getPublicProductCount();
+        const count = await fetchProductCount();
         setProductCount(count);
       } catch (e: any) {
         console.error("Homepage stats error:", e);

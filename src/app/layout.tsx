@@ -19,7 +19,7 @@ const inter = Inter({
 });
 
 // SITE_URL must be set in production environment variables.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9003';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -1,13 +1,12 @@
 
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
 import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
 import type { Metadata } from 'next';
 import type { Product, UserProfile, Review } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import ProductDetailsClient from './ProductDetailsClient';
+
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -63,9 +62,9 @@ export default async function ProductPage({ params }: Props) {
   let seller: UserProfile | null = null;
   if (product.sellerId) {
     try {
-      const sellerRef = doc(db, 'users', product.sellerId);
-      const sellerSnap = await getDoc(sellerRef);
-      if (sellerSnap.exists()) {
+      const { firestoreDb } = await import('@/lib/firebase/admin');
+      const sellerSnap = await firestoreDb.collection('users').doc(product.sellerId).get();
+      if (sellerSnap.exists) {
         const sellerData = sellerSnap.data();
         // Serialize timestamps to plain objects
         const serializedSeller: any = { id: sellerSnap.id };
@@ -87,6 +86,8 @@ export default async function ProductPage({ params }: Props) {
   const initialReviews = await getReviewsForProduct(id);
 
 
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -102,7 +103,7 @@ export default async function ProductPage({ params }: Props) {
       priceCurrency: 'AUD',
       price: product.price,
       availability: product.status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/product/${product.id}`,
+      url: `${SITE_URL}/product/${product.id}`,
       seller: {
         '@type': 'Organization',
         name: product.sellerName || 'Picksy Seller'
@@ -133,19 +134,19 @@ export default async function ProductPage({ params }: Props) {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+        item: `${SITE_URL}/`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: product.category,
-        item: `${process.env.NEXT_PUBLIC_SITE_URL}/${product.category.toLowerCase().replace(/\s+/g, '-')}`,
+        item: `${SITE_URL}/${product.category.toLowerCase().replace(/\s+/g, '-')}`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: product.title,
-        item: `${process.env.NEXT_PUBLIC_SITE_URL}/product/${product.id}`,
+        item: `${SITE_URL}/product/${product.id}`,
       },
     ],
   };

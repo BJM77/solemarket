@@ -1,13 +1,11 @@
-
 'use client';
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, VideoOff, Trash2, CheckCircle, X } from 'lucide-react';
+import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ARCameraOverlay } from '@/components/ar-camera-overlay';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -30,6 +28,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
     const [selectedCamera, setSelectedCamera] = useState<string>('');
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isCameraLoading, setIsCameraLoading] = useState(false);
 
     // Multi-shot state
     const [capturedFiles, setCapturedFiles] = useState<File[]>([]);
@@ -41,36 +40,80 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
     useEffect(() => {
         return () => {
             capturedPreviews.forEach(url => URL.revokeObjectURL(url));
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
         };
-    }, [capturedPreviews]);
+    }, [capturedPreviews, stream]);
+
+    // Check for iOS Safari specifics on mount
+    useEffect(() => {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (isIOS && isSafari) {
+             // iOS Safari requires https or localhost
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                setError('Camera requires HTTPS on iOS Safari');
+            }
+        }
+    }, []);
 
 
     const startCamera = useCallback(async (deviceId: string) => {
+        setIsCameraLoading(true);
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
         setError(null);
+        
         try {
-            const newStream = await navigator.mediaDevices.getUserMedia({
+            // Constraints with fallback support
+            const constraints: MediaStreamConstraints = {
                 video: {
                     deviceId: deviceId ? { exact: deviceId } : undefined,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    aspectRatio: { ideal: 16/9 }
+                    aspectRatio: { ideal: 16/9 },
+                    facingMode: deviceId ? undefined : 'environment' // Default to back camera
                 }
-            });
+            };
+
+            const newStream = await navigator.mediaDevices.getUserMedia(constraints);
             setStream(newStream);
             setHasCameraPermission(true);
+            
             if (videoRef.current) {
                 videoRef.current.srcObject = newStream;
+                // iOS Safari requires playing immediately
+                await videoRef.current.play();
             }
+
             const devices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = devices.filter(device => device.kind === 'videoinput');
             setCameras(videoDevices);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error accessing camera:", err);
-            setError("Could not access the selected camera. It might be in use or permissions are denied.");
-            setHasCameraPermission(false);
+            
+            // Retry with simpler constraints if it failed
+            if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+                try {
+                    const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    setStream(fallbackStream);
+                    setHasCameraPermission(true);
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = fallbackStream;
+                        await videoRef.current.play();
+                    }
+                } catch (fallbackErr) {
+                    setError("Could not access camera even with fallback settings.");
+                    setHasCameraPermission(false);
+                }
+            } else {
+                setError("Could not access the selected camera. It might be in use or permissions are denied.");
+                setHasCameraPermission(false);
+            }
+        } finally {
+            setIsCameraLoading(false);
         }
     }, [stream]);
 
@@ -83,21 +126,23 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             return;
         }
         try {
-            const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
-            if (permission.state === 'denied') {
-                setHasCameraPermission(false);
-                setError("Camera permission denied. Please enable camera access in your browser settings.");
-                return;
-            }
+            // iOS Safari: Check for Permission specifically if possible, otherwise just try
+            // Note: navigator.permissions is not fully supported on iOS Safari yet, so we proceed to try getUserMedia
+            
+            // Try to get initial stream to prompt permission
+            setIsCameraLoading(true);
             await navigator.mediaDevices.getUserMedia({ video: true }).then(s => s.getTracks().forEach(t => t.stop()));
             setHasCameraPermission(true);
+            
             const devices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            
             if (videoDevices.length === 0) {
                 setError("No camera devices found.");
                 setHasCameraPermission(false);
                 return;
             }
+            
             setCameras(videoDevices);
             const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back'));
             const selectedDeviceId = backCamera ? backCamera.deviceId : videoDevices[0].deviceId;
@@ -106,7 +151,9 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         } catch (err) {
             console.error("Camera initialization failed:", err);
             setHasCameraPermission(false);
-            setError("Camera permission was denied. Please enable it in your browser settings to use this feature.");
+            setError("Camera permission was denied. Please enable it in your browser settings.");
+        } finally {
+            setIsCameraLoading(false);
         }
     }, [startCamera]);
 
@@ -216,26 +263,31 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         <video
                             ref={videoRef}
                             autoPlay
-                            playsInline
+                            playsInline // REQUIRED for iOS Safari
                             muted
                             className="absolute inset-0 w-full h-full object-cover"
                         />
-                        {hasCameraPermission === false && (
+                        {isCameraLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/50">
+                                <Loader2 className="h-12 w-12 text-indigo-500 animate-spin" />
+                            </div>
+                        )}
+                        {hasCameraPermission === false && !isCameraLoading && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-6 text-center z-40">
                                 <VideoOff className="h-12 w-12 text-red-500 mb-4" />
                                 <h3 className="text-white font-bold mb-2">Camera Access Denied</h3>
                                 <p className="text-white/60 text-sm">{error || "Please check your browser settings."}</p>
                             </div>
                         )}
-                        {hasCameraPermission && <ARCameraOverlay guideType={captureMode === 'default' ? 'card' : captureMode} />}
+                        {hasCameraPermission && !isCameraLoading && <ARCameraOverlay guideType={captureMode === 'default' ? 'card' : captureMode} />}
 
                         <div className="absolute bottom-8 left-0 right-0 flex justify-center z-50">
                             <button
                                 onClick={takePhoto}
-                                disabled={!stream || !hasCameraPermission || capturedFiles.length >= maxFiles}
+                                disabled={!stream || !hasCameraPermission || capturedFiles.length >= maxFiles || isCameraLoading}
                                 className={cn(
                                     "w-20 h-20 rounded-full border-4 border-white flex items-center justify-center transition-all active:scale-95",
-                                    capturedFiles.length >= maxFiles ? "opacity-50 cursor-not-allowed border-slate-500" : "hover:bg-white/20"
+                                    (capturedFiles.length >= maxFiles || isCameraLoading) ? "opacity-50 cursor-not-allowed border-slate-500" : "hover:bg-white/20"
                                 )}
                             >
                                 <div className="w-16 h-16 rounded-full bg-white shadow-lg" />
@@ -247,7 +299,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/20">
                             {capturedPreviews.map((url, idx) => (
                                 <div key={url} className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-white/20 group">
-                                    <Image src={url} alt={`Capture ${idx}`} className="w-full h-full object-cover" width={64} height={64} />
+                                    <Image src={url} alt={`Capture ${idx}`} className="w-full h-full object-cover" width={64} height={64} style={{ WebkitUserSelect: 'none', WebkitTransform: 'translateZ(0)' }} />
                                     <button
                                         onClick={() => removeCapturedImage(idx)}
                                         className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

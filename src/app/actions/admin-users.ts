@@ -98,12 +98,22 @@ export async function getAllUsers(idToken: string): Promise<{ users?: AdminUser[
             return { users: [] };
         }
 
-        // Fetch all profiles in one go
-        const profilesSnap = await firestoreDb.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', uids).get();
+        // Fetch all profiles in chunks (Firestore 'in' limit is 10)
+        const chunk = (arr: string[], size: number) => {
+            const out = [];
+            for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+            return out;
+        };
+
         const profilesMap = new Map<string, UserProfile>();
-        profilesSnap.forEach(doc => {
-            profilesMap.set(doc.id, { id: doc.id, ...doc.data() } as UserProfile);
-        });
+        const uidChunks = chunk(uids, 10);
+
+        for (const chunkUids of uidChunks) {
+            const snap = await firestoreDb.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', chunkUids).get();
+            snap.forEach(doc => {
+                profilesMap.set(doc.id, { id: doc.id, ...doc.data() } as UserProfile);
+            });
+        }
 
         const adminUsers: AdminUser[] = userRecords.users.map(user => {
             const profile = profilesMap.get(user.uid);

@@ -7,13 +7,13 @@ export async function getPlatformStats(idToken: string): Promise<{ totalItems?: 
   try {
     // Verify the user is an admin
     const decodedToken = await verifyIdToken(idToken);
-    
+
     // Fetch the user's role directly from Firestore to ensure accuracy
     // This avoids reliance on custom claims which might not be set immediately
     const userDoc = await firestoreDb.collection('users').doc(decodedToken.uid).get();
-    
+
     if (!userDoc.exists) {
-        return { error: 'User profile not found.' };
+      return { error: 'User profile not found.' };
     }
 
     const userData = userDoc.data();
@@ -27,24 +27,38 @@ export async function getPlatformStats(idToken: string): Promise<{ totalItems?: 
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
-        // Return zeros if the doc hasn't been created yet
-        return { totalItems: 0, totalRevenue: 0 };
+      // Return zeros if the doc hasn't been created yet
+      return { totalItems: 0, totalRevenue: 0 };
     }
 
     const data = docSnap.data();
     return {
-        totalItems: data?.totalItems || 0,
-        totalRevenue: data?.totalRevenue || 0
+      totalItems: data?.totalItems || 0,
+      totalRevenue: data?.totalRevenue || 0
     };
   } catch (error: any) {
     console.error("[Stats Action] Failed to fetch platform stats:", {
-        message: error.message,
-        code: error.code,
-        stack: error.stack
+      message: error.message,
+      code: error.code,
+      stack: error.stack
     });
     // Return an error payload
-    return { 
-        error: `Server Error: ${error.message}`
+    return {
+      error: `Server Error: ${error.message}`
     };
+  }
+}
+
+export async function fetchProductCount(): Promise<number> {
+  try {
+    const snapshot = await firestoreDb
+      .collection('products')
+      .where('status', '==', 'available')
+      .count()
+      .get();
+    return snapshot.data().count;
+  } catch (error) {
+    console.error('Error fetching product count:', error);
+    return 0;
   }
 }

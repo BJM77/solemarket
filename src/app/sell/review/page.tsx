@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -42,6 +41,10 @@ function ReviewPageContent() {
   }, [router]);
 
   const handleSubmit = async (asDraft: boolean) => {
+    console.log('=== REVIEW PAGE SUBMIT START ===');
+    console.log('listingData:', listingData);
+    console.log('asDraft:', asDraft);
+
     if (!listingData) {
       toast({ title: 'No listing data found.', variant: 'destructive' });
       return;
@@ -64,7 +67,10 @@ function ReviewPageContent() {
         status: asDraft ? 'draft' : 'available',
       };
       
+      console.log('productData to send:', productData);
+
       const result = await createProductAction(idToken, productData);
+      console.log('createProductAction result:', result);
 
       if (!result.success) {
         throw new Error(result.error);
@@ -93,7 +99,7 @@ function ReviewPageContent() {
     return <ReviewPageSkeleton />;
   }
   
-  const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber } = listingData;
+  const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber, isVault } = listingData;
 
   return (
     <main className="flex-1 max-w-[960px] mx-auto w-full px-6 py-8">
@@ -130,6 +136,12 @@ function ReviewPageContent() {
                   <Check className="h-3 w-3" />
                   PREVIEW
                 </span>
+                {isVault && (
+                    <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-emerald-200">
+                      <ShieldCheck className="h-3 w-3" />
+                      VAULT PROTECTED
+                    </span>
+                )}
               </div>
               <h2 className="text-2xl font-bold mb-4 leading-tight">{title}</h2>
               
@@ -204,4 +216,3 @@ export default function ReviewPage() {
         </Suspense>
     );
 }
-

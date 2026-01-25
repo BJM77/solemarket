@@ -43,7 +43,11 @@ export function UserNav() {
   }
 
   if (!user) {
-    return null;
+    return (
+      <Button asChild variant="default" size="sm">
+        <Link href="/sign-in">Sign In</Link>
+      </Button>
+    );
   }
 
   const getInitials = (name?: string | null) => {

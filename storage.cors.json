@@ -1,22 +1,19 @@
 [
   {
     "origin": [
-      "http://localhost:9004",
-      "https://studio--studio-8322868971-8ca89.us-central1.hosted.app",
-      "https://studio-8322868971-8ca89.web.app",
-      "https://studio-8322868971-8ca89.firebaseapp.com"
+      "*"
     ],
     "method": [
       "GET",
-      "POST",
+      "HEAD",
       "PUT",
+      "POST",
       "DELETE",
       "OPTIONS"
     ],
     "responseHeader": [
       "Content-Type",
-      "Authorization",
-      "X-Goog-Resumable"
+      "x-goog-resumable"
     ],
     "maxAgeSeconds": 3600
   }

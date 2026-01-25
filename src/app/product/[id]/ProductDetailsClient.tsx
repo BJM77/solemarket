@@ -185,40 +185,40 @@ export default function ProductDetailsClient({
         }
     };
 
-    useEffect(() => {
-        if (!productId || viewRecordedRef.current === productId) return;
+    // useEffect(() => {
+    //     if (!productId || viewRecordedRef.current === productId) return;
 
-        // We mark it as recorded immediately to prevent double-firing due to StrictMode or fast renders
-        viewRecordedRef.current = productId;
+    //     // We mark it as recorded immediately to prevent double-firing due to StrictMode or fast renders
+    //     viewRecordedRef.current = productId;
 
-        const recordView = async () => {
-            const productRef = doc(db, 'products', productId);
-            const updates: any = { views: increment(1) }; // Always increment total views
+    //     const recordView = async () => {
+    //         const productRef = doc(db, 'products', productId);
+    //         const updates: any = { views: increment(1) }; // Always increment total views
 
-            if (user?.uid) {
-                // Fetch the product doc once to check viewedByUsers
-                const snap = await getDocs(query(collection(db, 'products'), where('__name__', '==', productId)));
-                const prodData = snap.docs[0]?.data();
-                const hasViewed = prodData?.viewedByUsers?.includes(user.uid);
-                
-                if (!hasViewed) {
-                    updates.uniqueViews = increment(1);
-                    updates.viewedByUsers = arrayUnion(user.uid);
-                }
-                updates.lastViewedTimestamp = serverTimestamp();
-            } else {
-                updates.lastViewedTimestamp = serverTimestamp();
-            }
+    //         if (user?.uid) {
+    //             // Fetch the product doc once to check viewedByUsers
+    //             const snap = await getDocs(query(collection(db, 'products'), where('__name__', '==', productId)));
+    //             const prodData = snap.docs[0]?.data();
+    //             const hasViewed = prodData?.viewedByUsers?.includes(user.uid);
 
-            try {
-                await updateDoc(productRef, updates);
-            } catch (error) {
-                console.error("Failed to record product view:", error);
-            }
-        };
+    //             if (!hasViewed) {
+    //                 updates.uniqueViews = increment(1);
+    //                 updates.viewedByUsers = arrayUnion(user.uid);
+    //             }
+    //             updates.lastViewedTimestamp = serverTimestamp();
+    //         } else {
+    //             updates.lastViewedTimestamp = serverTimestamp();
+    //         }
 
-        recordView();
-    }, [productId, user?.uid]); // Removed 'product' and 'isProductLoading' to avoid loops
+    //         try {
+    //             await updateDoc(productRef, updates);
+    //         } catch (error) {
+    //             console.error("Failed to record product view:", error);
+    //         }
+    //     };
+
+    //     recordView();
+    // }, [productId, user?.uid]); // Removed 'product' and 'isProductLoading' to avoid loops
 
     useEffect(() => {
         if (product) {
