@@ -3,6 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  turbopack: {}, // Empty config to silence Turbopack warning
   serverExternalPackages: [
     'firebase-admin',
     '@genkit-ai/google-genai',
