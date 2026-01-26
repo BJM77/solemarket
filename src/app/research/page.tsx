@@ -13,6 +13,7 @@ import { useUser } from '@/firebase';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const CameraScanner = dynamic(() => import('@/components/research/camera-scanner'), {
     loading: () => (
@@ -23,6 +24,21 @@ const CameraScanner = dynamic(() => import('@/components/research/camera-scanner
     ),
     ssr: false,
 });
+
+// Fallback component for CameraScanner error boundary
+function CameraScannerFallback({ error, resetErrorBoundary }: any) {
+    return (
+        <div className="w-full max-w-[12rem] aspect-[9/16] flex flex-col items-center justify-center bg-muted rounded-xl p-4">
+            <div className="text-destructive mb-2 font-bold">Scan Failed</div>
+            <p className="text-xs text-muted-foreground text-center mb-4">
+                {error?.message || 'Unable to load scanner'}
+            </p>
+            <Button variant="outline" size="sm" onClick={resetErrorBoundary}>
+                Try Again
+            </Button>
+        </div>
+    );
+}
 
 const HistoryLog = dynamic(() => import('@/components/research/history-log'), {
     ssr: false,
@@ -190,11 +206,13 @@ export default function ResearchPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center gap-4">
-                        <CameraScanner
-                            playersToKeep={namesToKeep}
-                            onScanComplete={handleScanComplete}
-                            onAddNameToKeep={handleAddNameToKeep}
-                        />
+                        <ErrorBoundary FallbackComponent={CameraScannerFallback}>
+                            <CameraScanner
+                                playersToKeep={namesToKeep}
+                                onScanComplete={handleScanComplete}
+                                onAddNameToKeep={handleAddNameToKeep}
+                            />
+                        </ErrorBoundary>
                         <div className="flex gap-2 mt-4">
                             <Button variant="outline" asChild size="sm">
                                 <Link href="/research/keep-list">
