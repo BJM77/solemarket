@@ -33,25 +33,31 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
     // Multi-shot state
     const [capturedFiles, setCapturedFiles] = useState<File[]>([]);
     const [capturedPreviews, setCapturedPreviews] = useState<string[]>([]);
-    
+
     const { toast } = useToast();
 
-     // Cleanup previews on unmount
+    // Cleanup previews on unmount or change
     useEffect(() => {
         return () => {
             capturedPreviews.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [capturedPreviews]);
+
+    // Cleanup stream on unmount or stream change
+    useEffect(() => {
+        return () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
         };
-    }, [capturedPreviews, stream]);
+    }, [stream]);
 
     // Check for iOS Safari specifics on mount
     useEffect(() => {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         if (isIOS && isSafari) {
-             // iOS Safari requires https or localhost
+            // iOS Safari requires https or localhost
             if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
                 setError('Camera requires HTTPS on iOS Safari');
             }
@@ -65,7 +71,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             stream.getTracks().forEach(track => track.stop());
         }
         setError(null);
-        
+
         try {
             // Constraints with fallback support
             const constraints: MediaStreamConstraints = {
@@ -73,7 +79,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                     deviceId: deviceId ? { exact: deviceId } : undefined,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    aspectRatio: { ideal: 16/9 },
+                    aspectRatio: { ideal: 16 / 9 },
                     facingMode: deviceId ? undefined : 'environment' // Default to back camera
                 }
             };
@@ -81,7 +87,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             const newStream = await navigator.mediaDevices.getUserMedia(constraints);
             setStream(newStream);
             setHasCameraPermission(true);
-            
+
             if (videoRef.current) {
                 videoRef.current.srcObject = newStream;
                 // iOS Safari requires playing immediately
@@ -93,7 +99,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             setCameras(videoDevices);
         } catch (err: any) {
             console.error("Error accessing camera:", err);
-            
+
             // Retry with simpler constraints if it failed
             if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
                 try {
@@ -128,21 +134,21 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         try {
             // iOS Safari: Check for Permission specifically if possible, otherwise just try
             // Note: navigator.permissions is not fully supported on iOS Safari yet, so we proceed to try getUserMedia
-            
+
             // Try to get initial stream to prompt permission
             setIsCameraLoading(true);
             await navigator.mediaDevices.getUserMedia({ video: true }).then(s => s.getTracks().forEach(t => t.stop()));
             setHasCameraPermission(true);
-            
+
             const devices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            
+
             if (videoDevices.length === 0) {
                 setError("No camera devices found.");
                 setHasCameraPermission(false);
                 return;
             }
-            
+
             setCameras(videoDevices);
             const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back'));
             const selectedDeviceId = backCamera ? backCamera.deviceId : videoDevices[0].deviceId;
@@ -183,9 +189,14 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
 
         const videoWidth = video.videoWidth;
         const videoHeight = video.videoHeight;
-        
+
+        // Reset canvas dimensions to match the current video frame
         canvas.width = videoWidth;
         canvas.height = videoHeight;
+
+        // Clear any previous drawing
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
         context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
         canvas.toBlob((blob) => {
@@ -256,7 +267,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 </SelectContent>
                             </Select>
                         )}
-                         <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-white/70 hover:text-white" onClick={() => setIsDialogOpen(false)}><X /></Button>
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-white/70 hover:text-white" onClick={() => setIsDialogOpen(false)}><X /></Button>
                     </div>
 
                     <div className="relative w-full h-[60vh] md:h-[70vh] bg-black flex items-center justify-center overflow-hidden">
@@ -311,14 +322,14 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                     </Badge>
                                 </div>
                             ))}
-                             {capturedFiles.length < maxFiles && (
+                            {capturedFiles.length < maxFiles && (
                                 <div className="w-16 h-16 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center text-white/20 text-xs">
                                     {maxFiles - capturedFiles.length} left
                                 </div>
                             )}
                         </div>
                         <div className="flex gap-3 mt-2">
-                             <Button
+                            <Button
                                 variant="outline"
                                 className="flex-1 bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
                                 onClick={() => setIsDialogOpen(false)}

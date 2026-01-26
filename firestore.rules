@@ -89,7 +89,8 @@ service cloud.firestore {
 
     // Notifications: Recipient only
     match /notifications/{notificationId} {
-      allow read, update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow read, list: if isSignedIn() && (resource == null || resource.data.recipientId == request.auth.uid);
+      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
       allow create: if false; // Only backend admin SDK creates these
     }
 

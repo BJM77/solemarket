@@ -66,7 +66,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Permissions-Policy',
-            value: 'camera=*', // Allow camera from any origin to fix permission issues
+            value: 'camera=(self)', // Allow camera from same origin
           },
         ],
       },

@@ -91,25 +91,27 @@ export const FirebaseProvider: React.FC<{
       const oneTimeSetup = async (user: User) => {
         try {
           console.log("[Setup] Starting one-time setup for user:", user.uid);
-          
+
           // Identify super admin by UID or email list
           const isSuperAdminUser = user.uid === 'O5nCLgbIaRRRF369K0kjgT59io73' || (user.email && SUPER_ADMIN_EMAILS.includes(user.email));
-          
+
           if (isSuperAdminUser) {
             console.log("[Setup] User identified as Super Admin.");
             const userRef = doc(db, 'users', user.uid);
             const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists() && !userSnap.data().isAdmin) {
-              console.log("[Setup] Updating existing user profile with admin flag...");
-              await setDoc(userRef, { isAdmin: true }, { merge: true });
-              console.log("[Setup] Admin flag set.");
+
+            if (userSnap.exists() && (!userSnap.data().isAdmin || userSnap.data().role !== 'superadmin')) {
+              console.log("[Setup] Updating existing user profile with admin role...");
+              await setDoc(userRef, { isAdmin: true, role: 'superadmin', canSell: true }, { merge: true });
+              console.log("[Setup] Admin role set.");
             } else if (!userSnap.exists()) {
               console.log("[Setup] Creating new super admin profile...");
               await setDoc(userRef, {
                 email: user.email,
                 displayName: user.displayName || 'Super Admin',
                 isAdmin: true,
+                role: 'superadmin',
+                canSell: true,
                 createdAt: new Date(),
               }, { merge: true });
               console.log("[Setup] Super admin profile created.");

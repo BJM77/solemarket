@@ -58,21 +58,23 @@ if (!admin.apps.length) {
     }
 }
 
-// Safety check before exporting to prevent module crash if init failed completely
+// FINAL SAFETY CHECK: Ensure app is initialized to prevent module-level crashes
 if (!admin.apps.length) {
-    console.error('❌ CRITICAL: Firebase Admin app not initialized. Attempting emergency init...');
+    console.error('❌ CRITICAL: Firebase Admin app not initialized. Using fallback to prevent crash.');
     try {
         admin.initializeApp({
             projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-8322868971-8ca89',
+            // No credential means ADC or unauthenticated (fails gracefully later, doesn't crash app start)
         });
+        console.log('⚠️ Firebase Admin initialized in FALLBACK mode.');
     } catch (e) {
-        console.error('❌ CRITICAL: Emergency init failed.', e);
+        console.error('❌ CRITICAL: Emergency init failed. Server actions may crash.', e);
     }
 }
 
 // Export initialized services
 const firestoreDb = admin.firestore();
 const auth = admin.auth();
-const storage = admin.storage(); // Also export storage
+const storage = admin.storage();
 
 export { admin, firestoreDb, auth, storage };

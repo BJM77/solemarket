@@ -27,7 +27,7 @@ export function ARCameraOverlay({ guideType }: ARCameraOverlayProps) {
     >
       <div
         style={guideStyles[guideType]}
-        className="bg-white/10 backdrop-blur-[2px]"
+        className="shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"
       />
     </div>
   );

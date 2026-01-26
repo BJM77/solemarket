@@ -101,6 +101,8 @@ export default function CameraScanner({
                     });
                     if (videoRef.current) {
                         videoRef.current.srcObject = stream;
+                        // Ensure video plays (critical for iOS)
+                        await videoRef.current.play();
                     }
                 } catch (err: any) {
                     console.error('Camera access denied:', err);
@@ -160,6 +162,7 @@ export default function CameraScanner({
             return;
         }
 
+        console.log("Starting scan...");
         setProcessingState('scanning');
         setScanResult(null);
 
@@ -173,6 +176,8 @@ export default function CameraScanner({
             return;
         }
 
+        // Clean buffer and draw
+        context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageDataUri = canvas.toDataURL('image/jpeg');
 
@@ -180,6 +185,7 @@ export default function CameraScanner({
             const resizedImage = await resizeImage(imageDataUri);
 
             const { playerName } = await quickScan({ cardImageDataUri: resizedImage });
+            console.log("Quick scan result:", playerName);
 
             const preliminaryCheck = playersToKeep.find(p => p.name.toLowerCase() === playerName.toLowerCase());
 
@@ -197,6 +203,7 @@ export default function CameraScanner({
             const extractedDetails = await extractCardName({
                 cardImageDataUri: resizedImage,
             });
+            console.log("Detailed scan result:", extractedDetails);
 
             const { isKeeper, isPrizmRookie } = verifyCard(extractedDetails, playersToKeep);
 
