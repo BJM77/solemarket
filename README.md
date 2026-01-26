@@ -19,3 +19,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Deploy on Firebase
 
 This project is configured for deployment on Firebase App Hosting and Firebase Hosting.
+ 
