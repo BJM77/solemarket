@@ -59,6 +59,7 @@ export async function fetchProductCount(): Promise<number> {
     return snapshot.data().count;
   } catch (error) {
     console.error('Error fetching product count:', error);
+    // Return 0 instead of throwing, to prevent 500 error on frontend
     return 0;
   }
 }
