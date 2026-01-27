@@ -411,6 +411,19 @@ export default function CreateListingPage() {
           </div>
         </main>
       </div>
+
+      {/* Mobile Fixed Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-50 md:hidden pb-safe">
+        <Button
+          onClick={handleReview}
+          disabled={isSubmitting}
+          className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-12 shadow-lg"
+        >
+          {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Eye className="h-5 w-5 mr-2" />}
+          Review Listing
+        </Button>
+      </div>
+
       <EbayPriceLookup isOpen={showPriceLookup} onClose={() => setShowPriceLookup(false)} onPriceSelect={(p) => { form.setValue('price', p); setShowPriceLookup(false); }} searchParams={{ title: form.getValues('title'), year: form.getValues('year') }} />
     </Form>
   );
