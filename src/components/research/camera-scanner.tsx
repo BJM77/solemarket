@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Loader, CameraOff, Sparkles, PlusCircle, Gem, Camera, ShoppingCart } from 'lucide-react';
+import { Loader, CameraOff, Sparkles, PlusCircle, Gem, Camera, ShoppingCart, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { extractCardName } from '@/ai/flows/extract-card-name';
@@ -76,6 +76,7 @@ export default function CameraScanner({
 }: CameraScannerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
     const [isCameraActive, setIsCameraActive] = useState(false);
     const [processingState, setProcessingState] = useState<ProcessingState>('idle');
@@ -142,44 +143,21 @@ export default function CameraScanner({
         router.push('/sell/create?from=research');
     }, [scanResult, router]);
 
-    const scan = useCallback(async () => {
-        if (
-            processingState !== 'idle' ||
-            !videoRef.current ||
-            !canvasRef.current ||
-            !isCameraActive
-        ) {
-            return;
-        }
+    const processImage = useCallback(async (imageDataUri: string) => {
+        if (processingState !== 'idle') return;
 
         if (!playersToKeep || playersToKeep.length === 0) {
             toast({
                 variant: 'destructive',
                 title: 'Setup Required',
-                description:
-                    "Please add players to your 'keep list' before scanning.",
+                description: "Please add players to your 'keep list' before scanning.",
             });
             return;
         }
 
-        console.log("Starting scan...");
+        console.log("Processing image...");
         setProcessingState('scanning');
         setScanResult(null);
-
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const context = canvas.getContext('2d');
-        if (!context) {
-            setProcessingState('idle');
-            return;
-        }
-
-        // Clean buffer and draw
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageDataUri = canvas.toDataURL('image/jpeg');
 
         try {
             const resizedImage = await resizeImage(imageDataUri);
@@ -243,7 +221,38 @@ export default function CameraScanner({
         } finally {
             setProcessingState('idle');
         }
-    }, [processingState, playersToKeep, onScanComplete, toast, isCameraActive]);
+    }, [processingState, playersToKeep, onScanComplete, toast]);
+
+    const scan = useCallback(async () => {
+        if (!videoRef.current || !canvasRef.current || !isCameraActive) return;
+
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        if (!context) return;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataUri = canvas.toDataURL('image/jpeg');
+
+        await processImage(imageDataUri);
+    }, [isCameraActive, processImage]);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            processImage(result);
+        };
+        reader.readAsDataURL(file);
+        // Reset input so same file can be selected again
+        e.target.value = '';
+    };
 
     const handleAddName = useCallback(() => {
         if (scanResult && !scanResult.isKeeper) {
@@ -264,7 +273,7 @@ export default function CameraScanner({
     );
 
     return (
-        <div className="w-full max-w-[12rem] aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : toggleCamera}>
+        <div className="w-full max-w-[12rem] aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : undefined}>
             <video
                 ref={videoRef}
                 autoPlay
@@ -274,11 +283,28 @@ export default function CameraScanner({
             />
             <canvas ref={canvasRef} className="hidden" />
 
-            {!isCameraActive && (
+            {!isCameraActive && !cameraError && (
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
                     <Camera className="w-16 h-16 text-primary-foreground mb-4" />
                     <h3 className="text-xl font-bold text-white mb-2">Camera Off</h3>
-                    <p className="text-muted-foreground">Click to start camera</p>
+                    <div className="flex flex-col gap-2 w-full">
+                        <Button onClick={toggleCamera} size="sm" variant="secondary" className="w-full font-semibold">
+                            Start Camera
+                        </Button>
+                        <div className="relative">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                            <Button onClick={() => fileInputRef.current?.click()} size="sm" variant="outline" className="w-full bg-transparent text-white border-white/30 hover:bg-white/10">
+                                <Upload className="mr-2 h-3 w-3" />
+                                Upload Image
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -295,7 +321,20 @@ export default function CameraScanner({
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
                     <CameraOff className="w-16 h-16 text-destructive mb-4" />
                     <h3 className="text-xl font-bold text-white mb-2">Camera Error</h3>
-                    <p className="text-muted-foreground">{cameraError}</p>
+                    <p className="text-muted-foreground text-xs mb-4">{cameraError}</p>
+                    <div className="relative w-full">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                        />
+                        <Button onClick={() => fileInputRef.current?.click()} size="sm" variant="outline" className="w-full bg-white text-black hover:bg-white/90">
+                            <Upload className="mr-2 h-3 w-3" />
+                            Upload Image Instead
+                        </Button>
+                    </div>
                 </div>
             )}
 

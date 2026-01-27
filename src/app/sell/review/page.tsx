@@ -12,15 +12,15 @@ import { createProductAction } from '@/app/actions/products';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerEmail' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
-    imageUrls: string[];
+  imageUrls: string[];
 };
 
 function ReviewPageSkeleton() {
-    return (
-        <div className="flex justify-center items-center h-screen">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-    );
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    </div>
+  );
 }
 
 function ReviewPageContent() {
@@ -49,7 +49,7 @@ function ReviewPageContent() {
       toast({ title: 'No listing data found.', variant: 'destructive' });
       return;
     }
-    
+
     setSubmitAction(asDraft ? 'draft' : 'publish');
     setIsSubmitting(true);
 
@@ -66,7 +66,7 @@ function ReviewPageContent() {
         isDraft: asDraft,
         status: asDraft ? 'draft' : 'available',
       };
-      
+
       console.log('productData to send:', productData);
 
       const result = await createProductAction(idToken, productData);
@@ -98,7 +98,7 @@ function ReviewPageContent() {
   if (!listingData) {
     return <ReviewPageSkeleton />;
   }
-  
+
   const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber, isVault } = listingData;
 
   return (
@@ -121,14 +121,14 @@ function ReviewPageContent() {
               <Image src={imageUrls[0]} alt={title} fill className="object-cover" />
             </div>
             {imageUrls.length > 1 && (
-                <div className="absolute bottom-4 left-4 flex gap-2">
-                    <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-sm border border-white/20">
-                        + {imageUrls.length -1} Photos
-                    </span>
-                </div>
+              <div className="absolute bottom-4 left-4 flex gap-2">
+                <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-sm border border-white/20">
+                  + {imageUrls.length - 1} Photos
+                </span>
+              </div>
             )}
           </div>
-          
+
           <div className="md:w-1/2 p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -137,61 +137,61 @@ function ReviewPageContent() {
                   PREVIEW
                 </span>
                 {isVault && (
-                    <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-emerald-200">
-                      <ShieldCheck className="h-3 w-3" />
-                      VAULT PROTECTED
-                    </span>
+                  <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-emerald-200">
+                    <ShieldCheck className="h-3 w-3" />
+                    VAULT PROTECTED
+                  </span>
                 )}
               </div>
               <h2 className="text-2xl font-bold mb-4 leading-tight">{title}</h2>
-              
+
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {condition && (
-                    <div className="p-3 bg-background rounded-lg border">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Condition</p>
-                        <p className="text-lg font-semibold">{condition}</p>
-                    </div>
+                  <div className="p-3 bg-background rounded-lg border">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Condition</p>
+                    <p className="text-lg font-semibold">{condition}</p>
+                  </div>
                 )}
-                 {year && (
-                    <div className="p-3 bg-background rounded-lg border">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Year</p>
-                        <p className="text-lg font-semibold">{year}</p>
-                    </div>
+                {year && (
+                  <div className="p-3 bg-background rounded-lg border">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Year</p>
+                    <p className="text-lg font-semibold">{year}</p>
+                  </div>
                 )}
-                 {(category || subCategory) && (
-                    <div className="p-3 bg-background rounded-lg border col-span-2">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Category</p>
-                        <p className="text-base font-semibold flex items-center gap-2">
-                           {category} {subCategory && `/ ${subCategory}`}
-                        </p>
-                    </div>
+                {(category || subCategory) && (
+                  <div className="p-3 bg-background rounded-lg border col-span-2">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Category</p>
+                    <p className="text-base font-semibold flex items-center gap-2">
+                      {category} {subCategory && `/ ${subCategory}`}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Listing Price</p>
-              <p className="text-4xl font-black text-primary">${price.toFixed(2)}</p>
+              <p className="text-4xl font-black text-primary">${Number(price || 0).toFixed(2)}</p>
             </div>
           </div>
         </div>
       </div>
-      
-        <div className="space-y-3">
-            <h2 className="text-xl font-bold">Shipping &amp; Logistics</h2>
-             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
-                <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                            <Info className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold">Logistics</p>
-                            <p className="text-sm text-muted-foreground">Shipping and returns are managed between buyer and seller.</p>
-                        </div>
-                    </div>
-                </div>
+
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold">Shipping &amp; Logistics</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <Info className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">Logistics</p>
+                <p className="text-sm text-muted-foreground">Shipping and returns are managed between buyer and seller.</p>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
 
 
       <div className="flex flex-col sm:flex-row items-center gap-4 justify-center py-6 mt-10 border-t">
@@ -200,19 +200,19 @@ function ReviewPageContent() {
           Publish Listing
         </Button>
         <Button variant="outline" onClick={() => handleSubmit(true)} disabled={isSubmitting} className="w-full sm:w-auto px-8 py-4 text-lg font-semibold rounded-xl h-16">
-           {isSubmitting && submitAction === 'draft' ? <Loader2 className="animate-spin" /> : <Package />}
+          {isSubmitting && submitAction === 'draft' ? <Loader2 className="animate-spin" /> : <Package />}
           Save as Draft
         </Button>
       </div>
-       <p className="text-center text-xs text-gray-400 mt-6">By publishing, you agree to Picksy's Seller Terms of Service and Privacy Policy.</p>
+      <p className="text-center text-xs text-gray-400 mt-6">By publishing, you agree to Picksy's Seller Terms of Service and Privacy Policy.</p>
     </main>
   );
 }
 
 export default function ReviewPage() {
-    return (
-        <Suspense fallback={<ReviewPageSkeleton />}>
-            <ReviewPageContent />
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={<ReviewPageSkeleton />}>
+      <ReviewPageContent />
+    </Suspense>
+  );
 }
