@@ -44,9 +44,9 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const currentSearchParams = useMemo(() => {
     const params: ProductSearchParams = { ...initialFilterState };
     searchParams.forEach((value, key) => {
-      if (key === 'priceRange') {
+      if (key === 'priceRange' || key === 'yearRange') {
         params[key] = value.split(',').map(Number) as [number, number];
-      } else if (key === 'conditions' || key === 'sellers') {
+      } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
         params[key] = value.split(',');
       } else {
         params[key] = value;

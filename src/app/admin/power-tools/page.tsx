@@ -2,7 +2,7 @@
 
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,11 @@ import {
     QrCode,
     Package,
     Settings,
-    Zap,
-    DollarSign
+    Zap
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { getAdminStats, type AdminStats } from '@/app/actions/admin-stats';
 
 const powerTools = [
     {
@@ -86,6 +86,7 @@ const powerTools = [
 export default function PowerToolsPage() {
     const { user, isUserLoading } = useUser();
     const router = useRouter();
+    const [stats, setStats] = useState<AdminStats | null>(null);
 
     const isSuperAdmin = user?.email && SUPER_ADMIN_EMAILS.includes(user.email);
 
@@ -94,6 +95,16 @@ export default function PowerToolsPage() {
             router.push('/');
         }
     }, [isSuperAdmin, isUserLoading, router]);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (isSuperAdmin) {
+                const data = await getAdminStats();
+                setStats(data);
+            }
+        };
+        fetchStats();
+    }, [isSuperAdmin]);
 
     if (isUserLoading) {
         return (
@@ -169,25 +180,33 @@ export default function PowerToolsPage() {
                 <Card>
                     <CardHeader className="pb-3">
                         <CardDescription>Total Listings</CardDescription>
-                        <CardTitle className="text-3xl">-</CardTitle>
+                        <CardTitle className="text-3xl">
+                            {stats ? stats.totalListings.toLocaleString() : '-'}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader className="pb-3">
                         <CardDescription>Active Sellers</CardDescription>
-                        <CardTitle className="text-3xl">-</CardTitle>
+                        <CardTitle className="text-3xl">
+                            {stats ? stats.activeSellers.toLocaleString() : '-'}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader className="pb-3">
                         <CardDescription>Total Revenue</CardDescription>
-                        <CardTitle className="text-3xl">-</CardTitle>
+                        <CardTitle className="text-3xl">
+                            {stats ? `$${stats.totalRevenue.toLocaleString()}` : '-'}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader className="pb-3">
                         <CardDescription>Pending Orders</CardDescription>
-                        <CardTitle className="text-3xl">-</CardTitle>
+                        <CardTitle className="text-3xl">
+                            {stats ? stats.pendingOrders.toLocaleString() : '-'}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
             </div>

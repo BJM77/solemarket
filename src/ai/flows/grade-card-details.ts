@@ -1,3 +1,5 @@
+'use server';
+
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { gradeCardDetailsSchema, type GradeCardDetailsOutput } from '@/ai/schemas/grading-schemas';
@@ -16,13 +18,13 @@ export type { GradeCardDetailsOutput };
 
 const gradeCardDetailsPrompt = ai.definePrompt({
     name: 'gradeCardDetailsPrompt',
-    model: 'googleai/gemini-1.5-flash-latest',
-    input: { 
+    model: 'googleai/gemini-1.5-flash',
+    input: {
         schema: z.object({
-            frontImage: z.string(), 
-            backImage: z.string().optional(), 
+            frontImage: z.string(),
+            backImage: z.string().optional(),
             cardName: z.string().optional()
-        }) 
+        })
     },
     output: { schema: gradeCardDetailsSchema },
     prompt: `You are an expert trading card grader with deep knowledge of PSA, BGS, and CGC grading standards.
@@ -105,7 +107,7 @@ export async function gradeCardDetails(input: {
         backImage: input.backImageDataUri,
         cardName: input.cardName,
     });
-    
+
     if (!output) {
         throw new Error("Failed to generate grading details");
     }

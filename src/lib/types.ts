@@ -105,6 +105,9 @@ export type ProductSearchParams = {
   view?: 'grid' | 'list';
   priceRange?: [number, number];
   conditions?: string[];
+  categories?: string[];
+  sellers?: string[];
+  yearRange?: [number, number];
 };
 
 

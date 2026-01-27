@@ -6,69 +6,132 @@ import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryCon
 const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams): Promise<{ products: Product[], hasMore: boolean }> {
-  
-  const { page = 1, sort = 'createdAt-desc', q, category, subCategory, conditions, priceRange, sellers } = searchParams;
+
+  const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange } = searchParams;
 
   const productsRef = collection(db, 'products');
   let constraints: QueryConstraint[] = [where('isDraft', '==', false)];
 
   // Build constraints based on search params
-  if (category) {
-      constraints.push(where('category', '==', category));
-  }
-  if (subCategory) {
-      constraints.push(where('subCategory', '==', subCategory));
-  }
-  if (conditions && conditions.length > 0) {
-      constraints.push(where('condition', 'in', conditions));
-  }
-  if (sellers && sellers.length > 0) {
-      // Firestore 'in' query is limited to 30 items.
-      constraints.push(where('sellerId', 'in', sellers.slice(0, 30)));
-  }
-  if (priceRange) {
-      if (priceRange[0] > 0) {
-          constraints.push(where('price', '>=', priceRange[0]));
-      }
-      if (priceRange[1] < 5000) { 
-          constraints.push(where('price', '<=', priceRange[1]));
-      }
+
+  // Handle Multi-select Categories
+  if (categories && categories.length > 0) {
+    constraints.push(where('category', 'in', categories.slice(0, 30)));
+  } else if (category) {
+    // Fallback for single category
+    constraints.push(where('category', '==', category));
   }
 
-  const [sortField, sortDirection] = sort.split('-') as ['createdAt' | 'price', 'asc' | 'desc'];
-  constraints.push(orderBy(sortField, sortDirection));
+  if (subCategory) {
+    constraints.push(where('subCategory', '==', subCategory));
+  }
+  if (conditions && conditions.length > 0) {
+    constraints.push(where('condition', 'in', conditions));
+  }
+  if (sellers && sellers.length > 0) {
+    constraints.push(where('sellerId', 'in', sellers.slice(0, 30)));
+  }
+
+  // Firestore allows only ONE field to have inequality filters.
+  // We prioritize Price Range for DB filtering as it's more common.
+  // Year Range will be filtered in-memory if Price Range is also active.
+  let filterYearInMemory = false;
+
+  if (priceRange) {
+    if (priceRange[0] > 0) {
+      constraints.push(where('price', '>=', priceRange[0]));
+    }
+    if (priceRange[1] < 10000) {
+      constraints.push(where('price', '<=', priceRange[1]));
+    }
+    // If price range is active, we MUST filter year in memory
+    if (yearRange) {
+      filterYearInMemory = true;
+    }
+  } else if (yearRange) {
+    // No price range, so we can use DB filtering for year
+    if (yearRange[0] > 1900) {
+      constraints.push(where('year', '>=', yearRange[0]));
+    }
+    if (yearRange[1] < new Date().getFullYear()) {
+      constraints.push(where('year', '<=', yearRange[1]));
+    }
+  }
+
+  const [sortField, sortDirection] = sort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
+
+  // If we rely on inequality, the first orderBy must be on that field.
+  // Firestore Requirement: "If you include a filter with a range comparison (<, <=, >, >=), your first ordering must be on the same field."
+  let orderByConstraints: QueryConstraint[] = [];
+
+  if (priceRange && (priceRange[0] > 0 || priceRange[1] < 10000)) {
+    if (sortField !== 'price') {
+      // We must order by price first, then the user's sort.
+      orderByConstraints.push(orderBy('price', sortDirection === 'desc' ? 'desc' : 'asc'));
+
+      orderByConstraints.push(orderBy(sortField, sortDirection));
+    } else {
+      orderByConstraints.push(orderBy('price', sortDirection));
+    }
+  } else if (!filterYearInMemory && yearRange && (yearRange[0] > 1900 || yearRange[1] < new Date().getFullYear())) {
+    // Filtering by Year in DB
+    // Ensure sorting by year is handled
+    if (sortField !== 'year') {
+      orderByConstraints.push(orderBy('year', sortDirection === 'desc' ? 'desc' : 'asc'));
+      orderByConstraints.push(orderBy(sortField, sortDirection));
+    } else {
+      orderByConstraints.push(orderBy('year', sortDirection));
+    }
+  } else {
+    // No range filters, standard sort
+    orderByConstraints.push(orderBy(sortField, sortDirection));
+  }
+
+  // Apply constraints
+  const finalConstraints = [...constraints, ...orderByConstraints];
+
+  // Pagination
+  // Note: Pagination with in-memory filtering (Search, Year override) is tricky.
+  // We'll fetch a larger batch if we know we are filtering in memory, but for now stick to PAGE_SIZE
+  // and accept that pages might be shorter.
 
   let finalQuery: Query<DocumentData>;
 
   if (page > 1) {
     const prevPageLimit = (page - 1) * PAGE_SIZE;
-    const prevPagesQuery = query(productsRef, ...constraints, limit(prevPageLimit));
+    const prevPagesQuery = query(productsRef, ...finalConstraints, limit(prevPageLimit));
     const prevPagesSnapshot = await getDocs(prevPagesQuery);
     const lastVisible = prevPagesSnapshot.docs[prevPagesSnapshot.docs.length - 1];
-    
+
     if (lastVisible) {
-      finalQuery = query(productsRef, ...constraints, startAfter(lastVisible), limit(PAGE_SIZE));
+      finalQuery = query(productsRef, ...finalConstraints, startAfter(lastVisible), limit(PAGE_SIZE));
     } else {
-      // This case handles if page number is out of bounds, though it shouldn't happen with correct hasMore logic
-      finalQuery = query(productsRef, ...constraints, limit(PAGE_SIZE));
+      finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
     }
   } else {
-    finalQuery = query(productsRef, ...constraints, limit(PAGE_SIZE));
+    finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
   }
-  
+
   const querySnapshot = await getDocs(finalQuery);
-  
+
   let products = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   } as Product));
 
-  // Client-side search filtering if 'q' is present
+  // In-Memory Filters
   if (q) {
-      const lowercasedTerm = q.toLowerCase();
-      products = products.filter(p => p.title.toLowerCase().includes(lowercasedTerm) || (p.description && p.description.toLowerCase().includes(lowercasedTerm)));
+    const lowercasedTerm = q.toLowerCase();
+    products = products.filter(p => p.title.toLowerCase().includes(lowercasedTerm) || (p.description && p.description.toLowerCase().includes(lowercasedTerm)));
   }
-  
+
+  if (filterYearInMemory && yearRange) {
+    products = products.filter(p => {
+      if (!p.year) return false;
+      return p.year >= yearRange[0] && p.year <= yearRange[1];
+    });
+  }
+
   const hasMore = querySnapshot.docs.length === PAGE_SIZE;
 
   return { products, hasMore };
