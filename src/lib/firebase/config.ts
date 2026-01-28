@@ -28,7 +28,14 @@ let db: Firestore;
 
 if (!getApps().length) {
   if (!firebaseConfig.apiKey) {
-    throw new Error("Missing Firebase API Key. Please set NEXT_PUBLIC_FIREBASE_API_KEY in your .env file");
+    if (typeof window === 'undefined') {
+      // Build time or Server side without keys - safe to ignore or partial init?
+      // But if we throw, build fails.
+      // Let's log warning and proceed? But initializeApp will fail with empty config?
+      console.warn("⚠️ Missing Firebase API Key during server/build. functionality may be limited.");
+    } else {
+      throw new Error("Missing Firebase API Key. Please set NEXT_PUBLIC_FIREBASE_API_KEY");
+    }
   }
   app = initializeApp(firebaseConfig);
 

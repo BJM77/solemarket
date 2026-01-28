@@ -23,8 +23,19 @@ env:
     secret: FIREBASE_ADMIN_PROJECT_ID
 
 
-  # Public Config - These must be set in the Firebase Console if not provided here.
-  # Removing them from YAML to avoid validation errors, as they have no defaultValue.
+  # Public Config
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyBilO8ugwKfbJcboDEscBW0KxcVKSgsz98"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "studio-8322868971-8ca89.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "studio-8322868971-8ca89"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "studio-8322868971-8ca89.firebasestorage.app"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "295202021748"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:295202021748:web:24b96032447b758a034c21"
 
     
   # Application Config
