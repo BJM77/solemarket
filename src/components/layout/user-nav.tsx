@@ -32,6 +32,7 @@ export function UserNav() {
   const { canSell, isSuperAdmin: isClaimSuperAdmin, isLoading: permissionsLoading } = useUserPermissions();
   const isSuperAdmin = isClaimSuperAdmin || (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -65,7 +66,7 @@ export function UserNav() {
     return name[0];
   };
 
-  const [isOpen, setIsOpen] = useState(false);
+
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -87,19 +88,17 @@ export function UserNav() {
         <DropdownMenuSeparator />
         {isSuperAdmin && (
           <>
-            <DropdownMenuItem onClick={() => {
-              setIsOpen(false);
-              router.push("/admin");
-            }}>
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Admin Dashboard</span>
+            <DropdownMenuItem asChild>
+              <Link href="/admin">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin Dashboard</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setIsOpen(false);
-              router.push("/admin/power-tools");
-            }}>
-              <Zap className="mr-2 h-4 w-4" />
-              <span>Power Tools</span>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/power-tools">
+                <Zap className="mr-2 h-4 w-4" />
+                <span>Power Tools</span>
+              </Link>
             </DropdownMenuItem>
           </>
         )}
