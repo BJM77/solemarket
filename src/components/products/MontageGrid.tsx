@@ -87,41 +87,44 @@ export default function MontageGrid({ products, lastProductRef }: MontageGridPro
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3, delay: index * 0.02 }}
+            className="group relative aspect-square w-full h-full overflow-hidden rounded-md"
           >
-            <Link href={`/product/${product.id}`} className="group block relative aspect-square w-full h-full overflow-hidden rounded-md">
-              <Image
-                src={product.imageUrls[0]}
-                alt={product.title}
-                fill
-                sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12.5vw, 10vw"
-                className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-              {hasViewed && (
-                <div className="absolute top-1 left-1 z-10">
-                  <div className="bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                    <Eye className="h-3 w-3" />
-                  </div>
-                </div>
-              )}
-
-              {isSuperAdmin && (
-                <button
-                  onClick={(e) => handleDelete(e, product.id)}
-                  className="absolute top-1 right-1 z-20 bg-red-600/80 hover:bg-red-700 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                  disabled={deletingId === product.id}
-                >
-                  {deletingId === product.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                </button>
-              )}
-
-              <div className="absolute bottom-1 right-1">
-                <span className="bg-black/50 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
-                  ${product.price.toFixed(0)}
-                </span>
-              </div>
+            <Link href={`/product/${product.id}`} className="absolute inset-0 z-0">
+              <span className="sr-only">View {product.title}</span>
             </Link>
+
+            <Image
+              src={product.imageUrls[0]}
+              alt={product.title}
+              fill
+              sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12.5vw, 10vw"
+              className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+            {hasViewed && (
+              <div className="absolute top-1 left-1 z-10 pointer-events-none">
+                <div className="bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                  <Eye className="h-3 w-3" />
+                </div>
+              </div>
+            )}
+
+            {isSuperAdmin && (
+              <button
+                onClick={(e) => handleDelete(e, product.id)}
+                className="absolute top-1 right-1 z-20 bg-red-600/80 hover:bg-red-700 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                disabled={deletingId === product.id}
+              >
+                {deletingId === product.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+              </button>
+            )}
+
+            <div className="absolute bottom-1 right-1 pointer-events-none">
+              <span className="bg-black/50 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
+                ${product.price.toFixed(0)}
+              </span>
+            </div>
           </motion.div>
         )
       })}
