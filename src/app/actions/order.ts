@@ -12,7 +12,17 @@ interface CartItem {
     quantity: number;
 }
 
-export async function createOrderAction(items: CartItem[], idToken: string) {
+interface OrderOptions {
+    shippingMethod: 'pickup' | 'shipping';
+    shippingAddress?: {
+        street: string;
+        city: string;
+        state: string;
+        zip: string;
+    };
+}
+
+export async function createOrderAction(items: CartItem[], idToken: string, options?: OrderOptions) {
     if (!items || items.length === 0) {
         return { error: 'Your cart is empty.' };
     }
@@ -53,7 +63,7 @@ export async function createOrderAction(items: CartItem[], idToken: string) {
             }
 
             // 3. Calculate Total (server-side)
-            const shippingCost = subtotal > 50 ? 0 : 7.99;
+            const shippingCost = options?.shippingMethod === 'shipping' ? 12.00 : 0;
             const taxRate = 0.08;
             const taxAmount = subtotal * taxRate;
             const totalAmount = subtotal + shippingCost + taxAmount;
@@ -63,10 +73,15 @@ export async function createOrderAction(items: CartItem[], idToken: string) {
             const newOrder = {
                 items: items, // Contains IDs and quantities
                 totalAmount,
+                subtotal,
+                shippingCost,
+                taxAmount,
                 buyerId,
                 buyerEmail,
                 status: 'processing',
                 paymentMethod: 'Cash on Delivery',
+                shippingMethod: options?.shippingMethod || 'pickup',
+                shippingAddress: options?.shippingAddress || null,
                 createdAt: FieldValue.serverTimestamp(),
             };
 

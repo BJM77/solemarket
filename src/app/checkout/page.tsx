@@ -1,33 +1,47 @@
-
 'use client';
 
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, ArrowLeft, Loader2 } from 'lucide-react';
-import { useId, useState, useTransition } from 'react';
+import { ShoppingBag, ArrowLeft, Loader2, Truck, Store } from 'lucide-react';
+import { useState, useTransition } from 'react';
 import { useUser } from '@/firebase';
-import type { CartItem } from '@/context/CartContext';
 import { createOrderAction } from '@/app/actions/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
-
 export default function CheckoutPage() {
-  const { items, cartTotal, clearCart, itemCount, setIsCartOpen } = useCart();
+  const { items, cartTotal, clearCart, itemCount, setIsCartOpen, shippingMethod, setShippingMethod } = useCart();
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useUser();
   const [isPending, startTransition] = useTransition();
 
-  const shippingCost = cartTotal > 50 ? 0 : 7.99;
-  const taxRate = 0.08; // 8% tax
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: '',
+    street: '',
+    city: '',
+    state: '',
+    zip: '',
+  });
+
+  // Flat rate shipping logic
+  const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;
+  const taxRate = 0.08; 
   const taxAmount = cartTotal * taxRate;
   const totalAmount = cartTotal + shippingCost + taxAmount;
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShippingAddress(prev => ({ ...prev, [name]: value }));
+  };
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +49,13 @@ export default function CheckoutPage() {
         toast({ title: "Please sign in to place an order.", variant: 'destructive'});
         router.push('/sign-in?redirect=/checkout');
         return;
+    }
+
+    if (shippingMethod === 'shipping') {
+        if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.zip || !shippingAddress.state || !shippingAddress.fullName) {
+            toast({ title: "Please fill in all shipping details.", variant: 'destructive' });
+            return;
+        }
     }
 
     startTransition(async () => {
@@ -48,7 +69,14 @@ export default function CheckoutPage() {
         const cartItemsForAction = items.map(item => ({ id: item.id, quantity: item.quantity }));
         
         try {
-            const result = await createOrderAction(cartItemsForAction, idToken);
+            const result = await createOrderAction(
+                cartItemsForAction, 
+                idToken,
+                {
+                    shippingMethod,
+                    shippingAddress: shippingMethod === 'shipping' ? shippingAddress : undefined
+                }
+            );
 
             if (result.error) {
                 throw new Error(result.error);
@@ -101,17 +129,130 @@ export default function CheckoutPage() {
           {/* Shipping and Payment Info */}
           <div>
             <form onSubmit={handlePlaceOrder} className="space-y-8">
+              {/* Delivery Method Selection */}
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Delivery Method</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup 
+                        value={shippingMethod} 
+                        onValueChange={(val) => setShippingMethod(val as 'pickup' | 'shipping')}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    >
+                        <div>
+                            <RadioGroupItem value="pickup" id="pickup" className="peer sr-only" />
+                            <Label
+                                htmlFor="pickup"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                                <Store className="mb-3 h-6 w-6" />
+                                <span className="font-semibold">Local Pickup</span>
+                                <span className="text-sm text-muted-foreground mt-1">Meet Seller Directly</span>
+                                <span className="text-sm font-bold text-green-600 mt-2">Free</span>
+                            </Label>
+                        </div>
+                        <div>
+                            <RadioGroupItem value="shipping" id="shipping" className="peer sr-only" />
+                            <Label
+                                htmlFor="shipping"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                                <Truck className="mb-3 h-6 w-6" />
+                                <span className="font-semibold">Flat Rate Shipping</span>
+                                <span className="text-sm text-muted-foreground mt-1">Delivered to you</span>
+                                <span className="text-sm font-bold text-primary mt-2">$12.00</span>
+                            </Label>
+                        </div>
+                    </RadioGroup>
+                  </CardContent>
+              </Card>
+
+              {/* Shipping Address Form - Only if Shipping Selected */}
+              {shippingMethod === 'shipping' && (
+                  <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
+                      <CardHeader>
+                          <CardTitle>Shipping Address</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                          <div className="grid gap-2">
+                              <Label htmlFor="fullName">Full Name</Label>
+                              <Input 
+                                id="fullName" 
+                                name="fullName" 
+                                value={shippingAddress.fullName} 
+                                onChange={handleAddressChange} 
+                                required 
+                                placeholder="John Doe"
+                              />
+                          </div>
+                          <div className="grid gap-2">
+                              <Label htmlFor="street">Street Address</Label>
+                              <Input 
+                                id="street" 
+                                name="street" 
+                                value={shippingAddress.street} 
+                                onChange={handleAddressChange} 
+                                required 
+                                placeholder="123 Main St"
+                              />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                              <div className="grid gap-2">
+                                  <Label htmlFor="city">City</Label>
+                                  <Input 
+                                    id="city" 
+                                    name="city" 
+                                    value={shippingAddress.city} 
+                                    onChange={handleAddressChange} 
+                                    required 
+                                  />
+                              </div>
+                              <div className="grid gap-2">
+                                  <Label htmlFor="state">State</Label>
+                                  <Input 
+                                    id="state" 
+                                    name="state" 
+                                    value={shippingAddress.state} 
+                                    onChange={handleAddressChange} 
+                                    required 
+                                  />
+                              </div>
+                          </div>
+                          <div className="grid gap-2">
+                              <Label htmlFor="zip">ZIP / Postal Code</Label>
+                              <Input 
+                                id="zip" 
+                                name="zip" 
+                                value={shippingAddress.zip} 
+                                onChange={handleAddressChange} 
+                                required 
+                              />
+                          </div>
+                      </CardContent>
+                  </Card>
+              )}
+
+              {/* Payment Section (Mock for COD/Stripe) */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Cash on Delivery (COD)</CardTitle>
+                  <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">You will pay the seller directly upon receiving the item. Please arrange a safe meeting location.</p>
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                     <p className="font-semibold">Cash on Delivery (COD) / Direct Arrangement</p>
+                     <p className="text-sm text-muted-foreground mt-1">
+                        {shippingMethod === 'pickup' 
+                            ? "You will pay the seller directly upon meeting." 
+                            : "Seller will contact you for payment (e.g., Bank Transfer, PayPal) before shipping."
+                        }
+                     </p>
+                  </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Place Order (COD)
+                    <Button type="submit" size="lg" className="w-full h-12 text-lg" disabled={isPending}>
+                        {isPending && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                        Place Order (${totalAmount.toFixed(2)})
                     </Button>
                 </CardFooter>
               </Card>
@@ -149,11 +290,11 @@ export default function CheckoutPage() {
                     <span>${cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="text-muted-foreground">Shipping ({shippingMethod})</span>
                     <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
                   </div>
                    <div className="flex justify-between">
-                    <span className="text-muted-foreground">Taxes (Est.)</span>
+                    <span className="text-muted-foreground">Taxes (Est. 8%)</span>
                     <span>${taxAmount.toFixed(2)}</span>
                   </div>
                 </div>

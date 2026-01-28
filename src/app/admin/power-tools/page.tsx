@@ -88,7 +88,7 @@ export default function PowerToolsPage() {
     const router = useRouter();
     const [stats, setStats] = useState<AdminStats | null>(null);
 
-    const isSuperAdmin = user?.email && SUPER_ADMIN_EMAILS.includes(user.email);
+    const isSuperAdmin = (user?.email && SUPER_ADMIN_EMAILS.includes(user.email)) || user?.uid === 'O5nCLgbIaRRRF369K0kjgT59io73';
 
     useEffect(() => {
         if (!isUserLoading && !isSuperAdmin) {

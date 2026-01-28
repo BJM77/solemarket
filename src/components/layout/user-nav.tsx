@@ -5,6 +5,8 @@
 import Link from 'next/link';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { signOutUser } from '@/lib/firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRouter } from 'next/navigation';
 import { Shield, Zap } from 'lucide-react';
 import { doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -64,8 +65,10 @@ export function UserNav() {
     return name[0];
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
@@ -84,17 +87,19 @@ export function UserNav() {
         <DropdownMenuSeparator />
         {isSuperAdmin && (
           <>
-            <DropdownMenuItem asChild>
-              <Link href="/admin">
-                <Shield className="mr-2 h-4 w-4" />
-                <span>Admin Dashboard</span>
-              </Link>
+            <DropdownMenuItem onClick={() => {
+              setIsOpen(false);
+              router.push("/admin");
+            }}>
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Admin Dashboard</span>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/admin/power-tools">
-                <Zap className="mr-2 h-4 w-4" />
-                <span>Power Tools</span>
-              </Link>
+            <DropdownMenuItem onClick={() => {
+              setIsOpen(false);
+              router.push("/admin/power-tools");
+            }}>
+              <Zap className="mr-2 h-4 w-4" />
+              <span>Power Tools</span>
             </DropdownMenuItem>
           </>
         )}
