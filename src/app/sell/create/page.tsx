@@ -26,6 +26,7 @@ import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { EbayPriceLookup } from '@/components/sell/EbayPriceLookup';
 import { doc } from 'firebase/firestore';
+import { saveDraftListing } from '@/app/actions/sell';
 
 const VAULT_MINIMUM_PRICE = 0;
 
@@ -119,8 +120,8 @@ export default function CreateListingPage() {
     const validFiles: File[] = [];
     const newPreviews: string[] = [];
     newFiles.forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: `Image ${file.name} is too large (max 10MB).`, variant: 'destructive' });
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: `Image ${file.name} is too large (max 5MB).`, variant: 'destructive' });
         return;
       }
       validFiles.push(file);
@@ -218,8 +219,25 @@ export default function CreateListingPage() {
       const data = form.getValues();
       const imageFiles = data.imageFiles.filter(f => f instanceof File) as File[];
       const imageUrls = await uploadImages(imageFiles, `products/${user.uid}`);
-      sessionStorage.setItem('listingReviewData', JSON.stringify({ ...data, imageUrls, imageFiles: [] }));
-      router.push('/sell/review');
+
+      const draftId = await saveDraftListing(user.uid, {
+        title: data.title,
+        description: data.description,
+        price: data.price,
+        category: data.category,
+        subCategory: data.subCategory,
+        condition: data.condition,
+        manufacturer: data.manufacturer,
+        year: data.year,
+        cardNumber: data.cardNumber,
+        quantity: data.quantity,
+        isReverseBidding: data.isReverseBidding,
+        autoRepricingEnabled: data.autoRepricingEnabled,
+        isVault: data.isVault,
+        imageUrls: imageUrls
+      });
+
+      router.push(`/sell/review?draftId=${draftId}`);
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -349,10 +367,10 @@ export default function CreateListingPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="category" render={({ field }) => (
-                      <FormItem><FormLabel>Category</FormLabel><Select onValueChange={(val) => { field.onChange(val); form.setValue('subCategory', ''); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl><SelectContent>{CATEGORIES_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Category</FormLabel><Select onValueChange={(val) => { field.onChange(val); form.setValue('subCategory', ''); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl><SelectContent>{CATEGORIES_OPTIONS.map((c: string) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="condition" render={({ field }) => (
-                      <FormItem><FormLabel>Condition</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Condition" /></SelectTrigger></FormControl><SelectContent>{CONDITION_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Condition</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Condition" /></SelectTrigger></FormControl><SelectContent>{CONDITION_OPTIONS.map((c: string) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                   </div>
 
@@ -409,11 +427,23 @@ export default function CreateListingPage() {
               </Card>
             </div>
           </div>
+
+          <div className="mt-8 flex justify-end">
+            <Button
+              onClick={handleReview}
+              disabled={isSubmitting}
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-white font-bold h-14 px-8 text-lg shadow-lg w-full md:w-auto"
+            >
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Eye className="h-5 w-5 mr-2" />}
+              Review Listing
+            </Button>
+          </div>
         </main>
-      </div>
+      </div >
 
       {/* Mobile Fixed Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-50 md:hidden pb-safe">
+      < div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-50 md:hidden pb-safe" >
         <Button
           onClick={handleReview}
           disabled={isSubmitting}
@@ -422,9 +452,9 @@ export default function CreateListingPage() {
           {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Eye className="h-5 w-5 mr-2" />}
           Review Listing
         </Button>
-      </div>
+      </div >
 
       <EbayPriceLookup isOpen={showPriceLookup} onClose={() => setShowPriceLookup(false)} onPriceSelect={(p) => { form.setValue('price', p); setShowPriceLookup(false); }} searchParams={{ title: form.getValues('title'), year: form.getValues('year') }} />
-    </Form>
+    </Form >
   );
 }

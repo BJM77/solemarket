@@ -178,7 +178,17 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 </Button>
                             </div>
                         </>
-                    ) : null}
+                    ) : (
+                        <div className="space-y-1">
+                            <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Account</h3>
+                            <Button variant="ghost" className="justify-start w-full" onClick={() => handleLinkClick('/sign-in')}>
+                                <LogIn className="mr-3 h-5 w-5" /> Sign In
+                            </Button>
+                            <Button variant="ghost" className="justify-start w-full" onClick={() => handleLinkClick('/sign-up')}>
+                                <User className="mr-3 h-5 w-5" /> Create Account
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </ScrollArea>

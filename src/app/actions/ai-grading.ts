@@ -18,5 +18,10 @@ export async function suggestListingDetailsAction(input: {
     title?: string;
     idToken?: string;
 }): Promise<SuggestListingDetailsOutput> {
-    return await suggestListingDetailsFlow(input);
+    try {
+        return await suggestListingDetailsFlow(input);
+    } catch (error: any) {
+        console.error('suggestListingDetailsAction error:', error);
+        throw error;
+    }
 }

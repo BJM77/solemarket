@@ -42,6 +42,7 @@ import ReviewForm from '@/components/reviews/ReviewForm';
 import ReviewList from '@/components/reviews/ReviewList';
 import { placeBid, acceptBid } from '@/services/bidding';
 import { deleteProductByAdmin } from '@/app/actions/admin';
+import { createProductAction, recordProductView } from '@/app/actions/products';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Trash2, DollarSign } from 'lucide-react';
 import {
@@ -185,40 +186,22 @@ export default function ProductDetailsClient({
         }
     };
 
-    // useEffect(() => {
-    //     if (!productId || viewRecordedRef.current === productId) return;
+    useEffect(() => {
+        if (!productId || viewRecordedRef.current === productId) return;
 
-    //     // We mark it as recorded immediately to prevent double-firing due to StrictMode or fast renders
-    //     viewRecordedRef.current = productId;
+        // We mark it as recorded immediately to prevent double-firing due to StrictMode or fast renders
+        viewRecordedRef.current = productId;
 
-    //     const recordView = async () => {
-    //         const productRef = doc(db, 'products', productId);
-    //         const updates: any = { views: increment(1) }; // Always increment total views
+        const recordView = async () => {
+            try {
+                await recordProductView(productId, user?.uid);
+            } catch (error) {
+                console.error("Failed to record product view:", error);
+            }
+        };
 
-    //         if (user?.uid) {
-    //             // Fetch the product doc once to check viewedByUsers
-    //             const snap = await getDocs(query(collection(db, 'products'), where('__name__', '==', productId)));
-    //             const prodData = snap.docs[0]?.data();
-    //             const hasViewed = prodData?.viewedByUsers?.includes(user.uid);
-
-    //             if (!hasViewed) {
-    //                 updates.uniqueViews = increment(1);
-    //                 updates.viewedByUsers = arrayUnion(user.uid);
-    //             }
-    //             updates.lastViewedTimestamp = serverTimestamp();
-    //         } else {
-    //             updates.lastViewedTimestamp = serverTimestamp();
-    //         }
-
-    //         try {
-    //             await updateDoc(productRef, updates);
-    //         } catch (error) {
-    //             console.error("Failed to record product view:", error);
-    //         }
-    //     };
-
-    //     recordView();
-    // }, [productId, user?.uid]); // Removed 'product' and 'isProductLoading' to avoid loops
+        recordView();
+    }, [productId, user?.uid]);
 
     useEffect(() => {
         if (product) {

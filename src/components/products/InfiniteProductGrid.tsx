@@ -71,7 +71,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     // Only query users if authenticated to avoid permission errors
     if (!user) return null;
     return query(collection(db, 'users'), where('accountType', '==', 'seller'));
-  }, [user]);
+  }, [user?.uid]);
   const { data: fetchedUsers } = useCollection<UserProfile>(usersQuery);
 
   const availableSellers = useMemo(() => {

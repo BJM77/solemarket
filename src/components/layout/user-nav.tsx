@@ -43,7 +43,16 @@ export function UserNav() {
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className="flex items-center gap-2">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/sign-in">Sign In</Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link href="/sign-up">Sign Up</Link>
+        </Button>
+      </div>
+    );
   }
 
   const getInitials = (name?: string | null) => {

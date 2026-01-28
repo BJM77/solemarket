@@ -36,12 +36,18 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
 
     const { toast } = useToast();
 
-    // Cleanup previews on unmount or change
+    // Track previews for cleanup to avoid closure staleness on unmount
+    const previewsRef = useRef<string[]>([]);
+    useEffect(() => {
+        previewsRef.current = capturedPreviews;
+    }, [capturedPreviews]);
+
+    // Cleanup previews strictly on unmount
     useEffect(() => {
         return () => {
-            capturedPreviews.forEach(url => URL.revokeObjectURL(url));
+            previewsRef.current.forEach(url => URL.revokeObjectURL(url));
         };
-    }, [capturedPreviews]);
+    }, []);
 
     // Cleanup stream on unmount or stream change
     useEffect(() => {

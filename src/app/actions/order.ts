@@ -5,6 +5,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
+import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 
 interface CartItem {
     id: string;
@@ -72,13 +73,26 @@ export async function createOrderAction(items: CartItem[], idToken: string) {
             t.set(orderRef, newOrder);
 
             // Fetch full item details for the confirmation page
-            const itemsWithDetails = productDocs.map((doc, i) => ({
-                ...(doc.data() as Product),
-                id: doc.id,
-                quantity: items[i].quantity,
-            }));
+            const itemsWithDetails = productDocs.map((doc, i) => {
+                return serializeFirestoreDoc({
+                    ...(doc.data() as Product),
+                    id: doc.id,
+                    quantity: items[i].quantity,
+                });
+            });
+            
+            // We need to resolve the serverTimestamp sentinel to a client-friendly value (e.g. now)
+            // because we can't read back the written time within the same transaction easily/efficiently
+            // without a fresh read which might be overkill.
+            const serializedOrder = {
+                 ...newOrder,
+                 createdAt: new Date().toISOString(), // Approximation for client display
+                 orderId: orderRef.id,
+                 items: itemsWithDetails,
+                 totalAmount
+            };
 
-            return { ...newOrder, orderId: orderRef.id, items: itemsWithDetails, totalAmount };
+            return serializedOrder;
         });
 
         return { order: orderDetails };

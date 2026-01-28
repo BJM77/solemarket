@@ -1,12 +1,12 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
@@ -33,15 +33,36 @@ export default function ProductImageGallery({ images, title, isCard, condition, 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
 
-  const goToPrevious = (e?: React.MouseEvent) => {
+  const goToPrevious = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
+  }, [images.length]);
 
-  const goToNext = (e?: React.MouseEvent) => {
+  const goToNext = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
     setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
+  }, [images.length]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          goToPrevious(e);
+          break;
+        case 'ArrowRight':
+          goToNext(e);
+          break;
+        case 'Escape':
+          setIsFullscreen(false);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen, goToPrevious, goToNext]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -172,6 +193,13 @@ export default function ProductImageGallery({ images, title, isCard, condition, 
       {/* Fullscreen Modal */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
         <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 bg-black/95 border-none shadow-none flex flex-col">
+          <DialogTitle className="sr-only">
+            Full-screen view of {title}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Viewing image {selectedIndex + 1} of {images.length}. Use arrow buttons or arrow keys to navigate.
+          </DialogDescription>
+
           <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden">
             <Image
               src={images[selectedIndex]}

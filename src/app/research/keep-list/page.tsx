@@ -12,7 +12,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { Player } from '@/lib/research-types';
-import { defaultPlayers } from '@/lib/research-types';
+import { getResearchPreferences, addPlayerToKeepList, removePlayerFromKeepList } from '@/app/actions/research';
 
 export default function KeepListPage() {
     const [players, setPlayers] = useState<Player[]>([]);
@@ -31,23 +31,21 @@ export default function KeepListPage() {
 
     useEffect(() => {
         if (user) {
-            const storedNames = localStorage.getItem('namesToKeep');
-            if (storedNames) {
+            const loadData = async () => {
                 try {
-                    const parsed = JSON.parse(storedNames);
-                    setPlayers(Array.isArray(parsed) ? parsed : defaultPlayers);
-                } catch {
-                    setPlayers(defaultPlayers);
+                    const data = await getResearchPreferences(user.uid);
+                    setPlayers(data);
+                } catch (error) {
+                    toast({ title: "Failed to load preferences", variant: "destructive" });
+                } finally {
+                    setIsLoading(false);
                 }
-            } else {
-                setPlayers(defaultPlayers);
-                localStorage.setItem('namesToKeep', JSON.stringify(defaultPlayers));
-            }
-            setIsLoading(false);
+            };
+            loadData();
         }
-    }, [user]);
+    }, [user, toast]);
 
-    const handleAddPlayer = () => {
+    const handleAddPlayer = async () => {
         if (!newPlayerName.trim()) {
             toast({ title: 'Enter a player name', variant: 'destructive' });
             return;
@@ -59,18 +57,33 @@ export default function KeepListPage() {
         }
 
         const newPlayer: Player = { name: newPlayerName.trim(), sport: newPlayerSport };
-        const updated = [...players, newPlayer].sort((a, b) => a.name.localeCompare(b.name));
-        setPlayers(updated);
-        localStorage.setItem('namesToKeep', JSON.stringify(updated));
+
+        // Optimistic
+        setPlayers(prev => [...prev, newPlayer].sort((a, b) => a.name.localeCompare(b.name)));
         setNewPlayerName('');
-        toast({ title: 'Player added!', description: `${newPlayer.name} added to keep list` });
+
+        try {
+            if (user) {
+                await addPlayerToKeepList(user.uid, newPlayer);
+                toast({ title: 'Player added!', description: `${newPlayer.name} added to keep list` });
+            }
+        } catch (error) {
+            toast({ title: "Failed to save to server", variant: "destructive" });
+        }
     };
 
-    const handleDeletePlayer = (name: string) => {
-        const updated = players.filter(p => p.name !== name);
-        setPlayers(updated);
-        localStorage.setItem('namesToKeep', JSON.stringify(updated));
-        toast({ title: 'Player removed' });
+    const handleDeletePlayer = async (name: string) => {
+        // Optimistic
+        setPlayers(prev => prev.filter(p => p.name !== name));
+
+        try {
+            if (user) {
+                await removePlayerFromKeepList(user.uid, name);
+                toast({ title: 'Player removed' });
+            }
+        } catch (error) {
+            toast({ title: "Failed to sync with server", variant: "destructive" });
+        }
     };
 
     if (isUserLoading || isLoading || !user) {

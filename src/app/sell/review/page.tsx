@@ -8,7 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { Loader2, Package, Send, ArrowLeft, ShieldCheck, Check, Info } from 'lucide-react';
 import type { Product } from '@/lib/types';
-import { createProductAction } from '@/app/actions/products';
+import { getDraftListing, publishListing } from '@/app/actions/sell';
+import { useSearchParams } from 'next/navigation';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerEmail' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
@@ -31,64 +32,49 @@ function ReviewPageContent() {
   const [submitAction, setSubmitAction] = useState<'publish' | 'draft' | null>(null);
   const [listingData, setListingData] = useState<ListingFormData | null>(null);
 
+  const searchParams = useSearchParams();
+  const draftId = searchParams.get('draftId');
+
   useEffect(() => {
-    const data = sessionStorage.getItem('listingReviewData');
-    if (data) {
-      setListingData(JSON.parse(data));
-    } else {
-      router.replace('/sell/create');
-    }
-  }, [router]);
+    if (!user || !draftId) return;
+
+    const loadDraft = async () => {
+      try {
+        const data = await getDraftListing(draftId, user.uid);
+        if (data) {
+          setListingData(data);
+        } else {
+          router.replace('/sell/create');
+        }
+      } catch (error) {
+        console.error("Failed to load draft:", error);
+        toast({ title: "Error loading draft", variant: "destructive" });
+        router.replace('/sell/create');
+      }
+    };
+    loadDraft();
+  }, [user, draftId, router]);
 
   const handleSubmit = async (asDraft: boolean) => {
-    console.log('=== REVIEW PAGE SUBMIT START ===');
-    console.log('listingData:', listingData);
-    console.log('asDraft:', asDraft);
-
-    if (!listingData) {
-      toast({ title: 'No listing data found.', variant: 'destructive' });
-      return;
-    }
+    if (!listingData || !draftId || !user) return;
 
     setSubmitAction(asDraft ? 'draft' : 'publish');
     setIsSubmitting(true);
 
-    const idToken = await getCurrentUserIdToken();
-    if (!user || !idToken) {
-      toast({ title: 'You must be signed in.', variant: 'destructive' });
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const productData: Partial<Product> = {
-        ...listingData,
-        isDraft: asDraft,
-        status: asDraft ? 'draft' : 'available',
-      };
-
-      console.log('productData to send:', productData);
-
-      const result = await createProductAction(idToken, productData);
-      console.log('createProductAction result:', result);
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
-      sessionStorage.removeItem('listingReviewData');
-
       if (asDraft) {
+        // It's already saved as a draft on creation/update
         toast({ title: 'Listing saved as a draft!' });
         router.push(`/sell/dashboard`);
       } else {
+        // Publish
+        await publishListing(draftId, user.uid);
         toast({ title: 'Listing Published Successfully!' });
-        router.push(`/product/${result.productId}`);
+        router.push(`/product/${draftId}`);
       }
-
     } catch (error: any) {
-      console.error("Create listing error:", error);
-      toast({ title: 'Failed to create listing', description: error.message, variant: 'destructive' });
+      console.error("Publish error:", error);
+      toast({ title: 'Failed to publish listing', description: error.message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
       setSubmitAction(null);
@@ -117,8 +103,14 @@ function ReviewPageContent() {
       <div className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-xl shadow-primary/5 border border-gray-100 dark:border-gray-800 mb-10">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2 relative group">
-            <div className="aspect-square bg-muted">
-              <Image src={imageUrls[0]} alt={title} fill className="object-cover" />
+            <div className="aspect-square bg-muted relative">
+              <Image 
+                src={imageUrls[0]} 
+                alt={title} 
+                fill 
+                className="object-cover" 
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
             </div>
             {imageUrls.length > 1 && (
               <div className="absolute bottom-4 left-4 flex gap-2">

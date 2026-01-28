@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ErrorBoundary } from 'react-error-boundary';
+import { getResearchPreferences, addPlayerToKeepList, getScanHistory, addScanResult, deleteScanResult } from '@/app/actions/research';
 
 const CameraScanner = dynamic(() => import('@/components/research/camera-scanner'), {
     loading: () => (
@@ -60,49 +61,33 @@ export default function ResearchPage() {
 
     useEffect(() => {
         if (user) {
-            const loadData = () => {
-                // Load names to keep
-                const storedNames = localStorage.getItem('namesToKeep');
-                if (storedNames) {
-                    try {
-                        const parsedNames = JSON.parse(storedNames);
-                        if (Array.isArray(parsedNames)) {
-                            setNamesToKeep(parsedNames);
-                        } else {
-                            throw new Error('Stored names are not in the correct array format.');
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse namesToKeep from localStorage, falling back to default.', error);
-                        setNamesToKeep(defaultPlayers);
-                        localStorage.setItem('namesToKeep', JSON.stringify(defaultPlayers));
-                    }
-                } else {
-                    setNamesToKeep(defaultPlayers);
-                    localStorage.setItem('namesToKeep', JSON.stringify(defaultPlayers));
+            const loadData = async () => {
+                try {
+                    const [prefs, hist] = await Promise.all([
+                        getResearchPreferences(user.uid),
+                        getScanHistory(user.uid)
+                    ]);
+                    setNamesToKeep(prefs);
+                    setHistory(hist);
+                } catch (error) {
+                    console.error("Failed to load research data:", error);
+                    toast({
+                        title: "Error",
+                        description: "Could not load your research data.",
+                        variant: "destructive"
+                    });
+                } finally {
+                    setIsLoading(false);
                 }
-
-                // Load scan history
-                const storedHistory = localStorage.getItem('scanHistory');
-                if (storedHistory) {
-                    try {
-                        const parsedHistory = JSON.parse(storedHistory).map((item: any) => ({
-                            ...item,
-                            timestamp: new Date(item.timestamp),
-                        }));
-                        setHistory(parsedHistory);
-                    } catch (error) {
-                        console.error('Failed to parse scanHistory from localStorage.', error);
-                        setHistory([]);
-                    }
-                }
-
-                setIsLoading(false);
             };
             loadData();
         }
-    }, [user]);
+    }, [user, toast]);
 
-    const handleAddPlayer = useCallback((player: Player) => {
+    const handleAddPlayer = useCallback(async (player: Player) => {
+        if (!user) return;
+
+        // Optimistic update
         setNamesToKeep((prevNames) => {
             if (prevNames.some(p => p.name.toLowerCase() === player.name.toLowerCase())) {
                 toast({
@@ -111,15 +96,25 @@ export default function ResearchPage() {
                 });
                 return prevNames;
             }
-            const newNames = [...prevNames, player].sort((a, b) => a.name.localeCompare(b.name));
-            localStorage.setItem('namesToKeep', JSON.stringify(newNames));
+            return [...prevNames, player].sort((a, b) => a.name.localeCompare(b.name));
+        });
+
+        try {
+            await addPlayerToKeepList(user.uid, player);
             toast({
                 title: 'Player Added',
                 description: `"${player.name}" has been added to your keep list.`,
             });
-            return newNames;
-        });
-    }, [toast]);
+        } catch (error) {
+            console.error("Failed to add player:", error);
+            toast({
+                title: "Error",
+                description: "Failed to save player to server.",
+                variant: "destructive"
+            });
+            // Revert logic could go here if needed
+        }
+    }, [user, toast]);
 
     const handleAddNameToKeep = useCallback((name: string, sport: string = 'Uncategorized') => {
         const newPlayer: Player = { name, sport: sport as Player['sport'] };
@@ -127,7 +122,7 @@ export default function ResearchPage() {
     }, [handleAddPlayer]);
 
     const handleScanComplete = useCallback(
-        (result: {
+        async (result: {
             name: string;
             isKeeper: boolean;
             imageDataUri: string;
@@ -142,39 +137,59 @@ export default function ResearchPage() {
                 source?: string | null;
             };
         }) => {
-            setHistory((prevHistory) => {
-                const playerAlreadyHasImage = prevHistory.some(
-                    (item) => item.name === result.name && item.imageDataUri
-                );
+            if (!user) return;
 
-                const newItem: ScanHistoryItem = {
-                    id: nanoid(),
-                    name: result.name,
-                    isKeeper: result.isKeeper,
-                    isPrizmRookie: result.isPrizmRookie,
-                    brand: result.brand,
-                    cardType: result.cardType,
-                    sport: result.sport,
-                    cardYear: result.cardYear,
-                    salesData: result.salesData,
-                    timestamp: new Date(),
-                    imageDataUri: result.isKeeper && !playerAlreadyHasImage ? result.imageDataUri : undefined,
-                };
-                const updatedHistory = [newItem, ...prevHistory].slice(0, 100);
-                localStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
-                return updatedHistory;
-            });
+            const newItem: ScanHistoryItem = {
+                id: nanoid(),
+                name: result.name,
+                isKeeper: result.isKeeper,
+                isPrizmRookie: result.isPrizmRookie,
+                brand: result.brand,
+                cardType: result.cardType,
+                sport: result.sport,
+                cardYear: result.cardYear,
+                salesData: result.salesData,
+                timestamp: new Date(),
+                imageDataUri: result.imageDataUri, // We might want to upload this to storage in a real app
+            };
+
+            // Optimistic update
+            setHistory(prev => [newItem, ...prev]);
+
+            try {
+                await addScanResult(user.uid, newItem);
+            } catch (error) {
+                console.error("Failed to save scan result:", error);
+                toast({
+                    title: "Warning",
+                    description: "Scan saved locally but failed to sync to server.",
+                    variant: "destructive"
+                });
+            }
         },
-        []
+        [user, toast]
     );
 
-    const handleDeleteItem = useCallback((id: string) => {
-        setHistory((prevHistory) => {
-            const updatedHistory = prevHistory.filter((item) => item.id !== id);
-            localStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
-            return updatedHistory;
-        });
-    }, []);
+    const handleDeleteItem = useCallback(async (id: string) => {
+        if (!user) return;
+
+        // Optimistic
+        setHistory(prev => prev.filter(item => item.id !== id));
+
+        try {
+            await deleteScanResult(user.uid, id);
+        } catch (error) {
+            console.error("Failed to delete history item:", error);
+            toast({
+                title: "Error",
+                description: "Failed to delete item from server.",
+                variant: "destructive"
+            });
+            // Could revert here by reloading history
+            const hist = await getScanHistory(user.uid);
+            setHistory(hist);
+        }
+    }, [user, toast]);
 
     if (isUserLoading || isLoading || !user) {
         return (

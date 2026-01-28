@@ -6,6 +6,17 @@ export interface Player {
     prizmRookieYear?: number;
 }
 
+export const defaultPlayers: Player[] = [
+    { name: 'LeBron James', sport: 'Basketball' },
+    { name: 'Michael Jordan', sport: 'Basketball' },
+    { name: 'Tom Brady', sport: 'Football' },
+    { name: 'Patrick Mahomes', sport: 'Football' },
+    { name: 'Mike Trout', sport: 'Baseball' },
+    { name: 'Shohei Ohtani', sport: 'Baseball' },
+    { name: 'Lionel Messi', sport: 'Soccer' },
+    { name: 'Cristiano Ronaldo', sport: 'Soccer' },
+];
+
 export interface ScanHistoryItem {
     id: string;
     name: string;

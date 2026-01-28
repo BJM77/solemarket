@@ -10,8 +10,44 @@ import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema } f
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 
 export async function suggestListingDetails(input: import('./schemas').SuggestListingDetailsInput): Promise<import('./schemas').SuggestListingDetailsOutput> {
-    await verifyIdToken(input.idToken);
-    return await suggestListingDetailsFlow(input);
+    try {
+        console.log('🚀 [Server] suggestListingDetails called');
+        console.log('📊 [Server] Input images count:', input.photoDataUris?.length);
+
+        await verifyIdToken(input.idToken);
+
+        // Pre-process images: Convert URLs to Data URIs (Base64)
+        // This ensures Gemini receives the image data directly, avoiding access/CORS issues with Firebase Storage URLs.
+        if (input.photoDataUris && input.photoDataUris.length > 0) {
+            console.log('🔄 [Server] converting URLs to Base64...');
+            const processedImages = await Promise.all(input.photoDataUris.map(async (uri) => {
+                if (uri.startsWith('http')) {
+                    try {
+                        const response = await fetch(uri);
+                        if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const base64String = Buffer.from(arrayBuffer).toString('base64');
+                        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+                        // Return standard data URI format
+                        return `data:${mimeType};base64,${base64String}`;
+                    } catch (fetchErr) {
+                        console.error('❌ [Server] Failed to fetch image for AI analysis:', fetchErr);
+                        throw new Error('Failed to download one or more images for analysis.');
+                    }
+                }
+                return uri; // Already a data URI or invalid
+            }));
+
+            input.photoDataUris = processedImages;
+            console.log('✅ [Server] Conversion complete. Payload ready.');
+        }
+
+        return await suggestListingDetailsFlow(input);
+
+    } catch (error: any) {
+        console.error('❌ [Server] suggestListingDetails failed:', error);
+        throw new Error(error.message || 'AI analysis service failed.');
+    }
 }
 export type SuggestListingDetailsOutput = import('./schemas').SuggestListingDetailsOutput;
 

@@ -91,11 +91,13 @@ service cloud.firestore {
       }
     }
 
-    // Notifications: Recipient only
+    // Notifications: Recipient only or Admin
+    // Notifications: Recipient only or Admin
     match /notifications/{notificationId} {
-      allow read, list: if isSignedIn() && (resource == null || resource.data.recipientId == request.auth.uid);
-      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
-      allow create: if false; // Only backend admin SDK creates these
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.recipientId == request.auth.uid);
+      allow get: if isSuperAdmin() || (isSignedIn() && resource.data.recipientId == request.auth.uid);
+      allow update: if isSuperAdmin() || (isSignedIn() && resource.data.recipientId == request.auth.uid);
+      allow create: if false; 
     }
 
     // Donations: Public read (transparency), Admin only write (implicit by absence of allow write)

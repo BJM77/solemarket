@@ -63,6 +63,17 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
             return;
         }
 
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        const oversizedFiles = imageFiles.filter(f => f.size > maxFileSize);
+        if (oversizedFiles.length > 0) {
+            toast({
+                title: "Files Too Large",
+                description: "Some images exceed the 10MB limit. Please resize them.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         setIsGrading(true);
         try {
             if (!user) {
@@ -114,6 +125,17 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
             toast({
                 title: "No Images",
                 description: "Please upload at least one photo of your card.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        const oversizedFiles = imageFiles.filter(f => f.size > maxFileSize);
+        if (oversizedFiles.length > 0) {
+            toast({
+                title: "Files Too Large",
+                description: "Some images exceed the 10MB limit. Please resize them.",
                 variant: "destructive"
             });
             return;

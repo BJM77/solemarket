@@ -8,6 +8,8 @@ import { Star, Loader, ArrowLeft, Gem, DollarSign } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useUser } from '@/firebase';
 import type { ScanHistoryItem } from '@/lib/research-types';
+import { getScanHistory } from '@/app/actions/research';
+import { useToast } from '@/hooks/use-toast';
 import { formatCardDetails } from '@/lib/card-logic';
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
@@ -17,6 +19,7 @@ export default function CollectionPage() {
     const [isLoading, setIsLoading] = useState(true);
     const { user, isUserLoading } = useUser();
     const router = useRouter();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!isUserLoading && !user) {
@@ -26,22 +29,24 @@ export default function CollectionPage() {
 
     useEffect(() => {
         if (user) {
-            const storedHistory = localStorage.getItem('scanHistory');
-            if (storedHistory) {
+            const loadData = async () => {
                 try {
-                    const parsed = JSON.parse(storedHistory).map((item: any) => ({
-                        ...item,
-                        timestamp: new Date(item.timestamp),
-                    }));
-                    // Filter only keepers with images
-                    setKeepers(parsed.filter((item: ScanHistoryItem) => item.isKeeper && item.imageDataUri));
-                } catch {
+                    const parsed = await getScanHistory(user.uid);
+                    // Filter only keepers where image is present (optional: server could return all)
+                    // The getScanHistory action returns a list.
+                    // We only want keepers here.
+                    setKeepers(parsed.filter((item) => item.isKeeper && item.imageDataUri));
+                } catch (error) {
+                    console.error('Failed to load collection:', error);
+                    toast({ title: "Failed to load collection", variant: "destructive" });
                     setKeepers([]);
+                } finally {
+                    setIsLoading(false);
                 }
-            }
-            setIsLoading(false);
+            };
+            loadData();
         }
-    }, [user]);
+    }, [user, toast]);
 
     if (isUserLoading || isLoading || !user) {
         return (

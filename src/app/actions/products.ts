@@ -93,3 +93,32 @@ export async function createProductAction(
         return { success: false, error: error.message || 'An unexpected error occurred.' };
     }
 }
+
+export async function recordProductView(productId: string, userId?: string) {
+    const productRef = firestoreDb.collection('products').doc(productId);
+
+    return firestoreDb.runTransaction(async (transaction) => {
+        const productDoc = await transaction.get(productRef);
+
+        if (!productDoc.exists) {
+            // Silently fail if product doesn't exist to avoid client errors
+            return;
+        }
+
+        const updates: any = {
+            views: admin.firestore.FieldValue.increment(1),
+            lastViewedTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        if (userId) {
+            const data = productDoc.data();
+            const viewedByUsers = data?.viewedByUsers || [];
+            if (!viewedByUsers.includes(userId)) {
+                updates.uniqueViews = admin.firestore.FieldValue.increment(1);
+                updates.viewedByUsers = admin.firestore.FieldValue.arrayUnion(userId);
+            }
+        }
+
+        transaction.update(productRef, updates);
+    });
+}

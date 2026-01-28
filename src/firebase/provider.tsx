@@ -141,7 +141,6 @@ export const FirebaseProvider: React.FC<{
         }
       };
 
-
       const unsubscribe = onAuthStateChanged(
         authService,
         (firebaseUser) => { // Raw Firebase user

@@ -27,7 +27,8 @@ const mapUserRecordToAdminUser = (user: any, profile?: UserProfile): AdminUser =
     canSell: profile?.canSell || false,
     disabled: user.disabled,
     lastSignInTime: user.metadata.lastSignInTime,
-    createdAt: profile?.createdAt,
+    // Convert Firestore Timestamp to string or Date to a serializable format
+    createdAt: profile?.createdAt && (profile.createdAt as any).toDate ? (profile.createdAt as any).toDate().toISOString() : profile?.createdAt,
 });
 
 /**

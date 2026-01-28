@@ -8,7 +8,9 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager
 } from "firebase/firestore";
-import { getStorage, FirebaseStorage } from "firebase/storage";
+import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
+import { connectAuthEmulator } from "firebase/auth";
+import { connectFirestoreEmulator } from "firebase/firestore";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -71,6 +73,9 @@ if (typeof window !== 'undefined') {
       console.log('✅ Firebase running in PRODUCTION mode (emulators disabled)');
     } else if (useEmulators) {
       console.log('🔧 Firebase running in DEVELOPMENT mode with emulators');
+      connectAuthEmulator(auth, "http://localhost:9099");
+      connectFirestoreEmulator(db, "localhost", 8080);
+      connectStorageEmulator(storage, "localhost", 9199);
     } else {
       console.log('🔧 Firebase running in DEVELOPMENT mode (no emulators)');
     }
