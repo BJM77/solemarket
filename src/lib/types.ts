@@ -102,7 +102,7 @@ export type ProductSearchParams = {
   page?: number;
   limit?: number;
   sort?: string;
-  view?: 'grid' | 'list';
+  view?: 'grid' | 'list' | 'compact' | 'montage';
   priceRange?: [number, number];
   conditions?: string[];
   categories?: string[];

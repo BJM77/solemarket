@@ -7,7 +7,7 @@ import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Filter, Grid } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Filter, Grid, Rows } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import { CollectorCardsFilterTrigger } from '../filters/collector-cards-filter-trigger';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
@@ -19,7 +19,7 @@ import MontageGrid from './MontageGrid';
 import Image from 'next/image';
 import Link from 'next/link';
 
-type ViewMode = 'grid' | 'list' | 'montage';
+type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
 
 const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
@@ -224,6 +224,21 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       return <MontageGrid products={products} lastProductRef={lastProductElementRef} />;
     }
 
+    if (viewMode === 'compact') {
+      return (
+        <div className="bg-card rounded-lg border shadow-sm divide-y">
+          {products.map((product, index) => {
+            const isLastElement = index === products.length - 1;
+            return (
+              <div ref={isLastElement ? lastProductElementRef : null} key={`${product.id}-${index}`}>
+                <ProductCard product={product} viewMode="compact" isAdmin={isAdmin} />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
 
     return (
       <motion.div layout className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-x-6 gap-y-8">
@@ -277,9 +292,10 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
           </Select>
 
           <div className="flex items-center rounded-md border bg-card p-1 h-10">
-            <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')}><LayoutGrid /></Button>
-            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('list')}><List /></Button>
-            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('montage')}><Grid /></Button>
+            <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-4 w-4" /></Button>
+            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('list')} title="List View"><List className="h-4 w-4" /></Button>
+            <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('compact')} title="Compact View"><Rows className="h-4 w-4" /></Button>
+            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('montage')} title="Mosaic View"><Grid className="h-4 w-4" /></Button>
           </div>
           <AdvancedFilterPanel
             currentFilters={currentSearchParams}

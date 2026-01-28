@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +42,7 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
 interface ProductCardProps {
   product: Product;
-  viewMode?: 'grid' | 'list';
+  viewMode?: 'grid' | 'list' | 'compact' | 'montage';
   isAdmin?: boolean;
 }
 
@@ -164,6 +164,79 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
     return null; // Don't render the card if it has been deleted
   }
 
+  if (viewMode === 'compact') {
+    return (
+      <div className="group relative flex items-center justify-between border-b border-gray-100 dark:border-white/5 py-2 px-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+        <div className="flex items-center gap-3 overflow-hidden">
+          {product.status === 'sold' && (
+            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold flex-shrink-0">
+              Sold
+            </Badge>
+          )}
+          <Link
+            href={`/product/${product.id}`}
+            className="text-sm font-semibold truncate hover:text-primary transition-colors"
+          >
+            {product.title}
+          </Link>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-1.5 py-0.5 rounded flex-shrink-0">
+            {product.category}
+          </span>
+          {product.grade && (
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded flex-shrink-0">
+              {product.grade}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                  onClick={handleRenew}
+                  disabled={isRenewing}
+                >
+                  {isRenewing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-3 w-3" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-red-600 hover:bg-red-50"
+                  onClick={() => setIsDeleting(true)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            <span className="text-sm font-bold w-20 text-right">
+              ${product.price.toLocaleString()}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                handleAddToCart(e);
+              }}
+            >
+              Buy
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (viewMode === 'list') {
     return (
       <div className="group relative flex flex-col sm:flex-row gap-4 rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all hover:shadow-md">
@@ -251,8 +324,8 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
               <p className="text-lg font-bold relative z-20">${product.price?.toLocaleString() || '0.00'}</p>
             </div>
             <h3 className="text-lg font-semibold text-foreground group-hover:text-primary leading-tight">
-              <Link 
-                href={`/product/${product.id}`} 
+              <Link
+                href={`/product/${product.id}`}
                 className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded-sm after:absolute after:inset-0 after:z-0"
               >
                 {product.title}
@@ -372,8 +445,8 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
       <div className="p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2 relative">
           <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-2">
-            <Link 
-              href={`/product/${product.id}`} 
+            <Link
+              href={`/product/${product.id}`}
               className="hover:underline focus:outline-none after:absolute after:inset-0 after:z-0"
             >
               {product.title}
@@ -386,13 +459,13 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
             <p className="text-2xl font-black text-[#0d121b] dark:text-white tracking-tight">${product.price.toLocaleString()}</p>
           </div>
-          <Button 
-            size="sm" 
-            className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all active:scale-95 relative z-20" 
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              handleAddToCart(e); 
+          <Button
+            size="sm"
+            className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all active:scale-95 relative z-20"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleAddToCart(e);
             }}
           >
             Buy It
