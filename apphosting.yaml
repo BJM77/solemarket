@@ -39,7 +39,7 @@ env:
 
     
   # Application Config
-  - variable: NEXT_PUBLIC_APP_URL
+  - variable: NEXT_PUBLIC_SITE_URL
     value: "https://picksy.au"
   - variable: NEXT_PUBLIC_USE_EMULATORS
     value: "false"

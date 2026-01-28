@@ -432,10 +432,6 @@ export default function ProductDetailsClient({
                                         <span>#{product.cardNumber}</span>
                                     </div>
                                 )}
-                                <div className="flex items-center gap-1.5">
-                                    <Eye className="w-4 h-4" />
-                                    <span>{product.views || 0} views</span>
-                                </div>
                             </div>
 
                             <p className="text-gray-600 mt-4">{product.description}</p>

@@ -47,9 +47,10 @@ service cloud.firestore {
       allow update, delete: if isSuperAdmin();
     }
 
-    // Orders: Involved parties only
+    // Orders: Involved parties only or Super Admin
     match /orders/{orderId} {
-        allow read, update: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+        allow read, update: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isSuperAdmin());
+        allow list: if isSignedIn() && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId || isSuperAdmin());
         allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
     }
 
