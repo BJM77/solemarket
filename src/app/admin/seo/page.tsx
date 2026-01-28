@@ -1,3 +1,4 @@
+'use client';
 
 import { useState, useEffect, useTransition } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
