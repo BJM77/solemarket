@@ -41,4 +41,5 @@ env*
 !firestore.indexes.json
 !storage.cors.json
 !cors.json
+!firebase.json
 temp_env_local.txt
