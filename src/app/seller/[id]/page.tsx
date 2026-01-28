@@ -80,7 +80,7 @@ export default function SellerPage() {
     return query(
         collection(db, 'products'), 
         where('sellerId', '==', sellerId),
-        where('isDraft', '!=', true)
+        where('isDraft', '==', false)
     );
   }, [firestore, sellerId]);
   const { data: products, isLoading: loadingProducts } = useCollection<Product>(productsQuery);
