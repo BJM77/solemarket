@@ -43,3 +43,4 @@ env*
 !cors.json
 !firebase.json
 temp_env_local.txt
+secrets_staging/

@@ -59,9 +59,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('picksy-cart', JSON.stringify(items));
         } catch (error) {
           console.error("Failed to save cart to localStorage", error);
+          toast({
+            title: "Cart Save Failed",
+            description: "Your cart couldn't be saved locally. It might be full.",
+            variant: "destructive"
+          });
         }
     }
-  }, [items]);
+  }, [items, toast]);
 
   const addItem = useCallback((product: Product, quantity: number = 1) => {
     setItems((prevItems) => {

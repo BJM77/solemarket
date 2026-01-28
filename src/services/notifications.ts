@@ -66,13 +66,17 @@ export async function markAllAsRead(userId: string) {
     );
 
     const snapshot = await getDocs(q);
-    const batch = writeBatch(db);
+    const docs = snapshot.docs;
+    const batchSize = 500;
 
-    snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, { read: true });
-    });
-
-    await batch.commit();
+    for (let i = 0; i < docs.length; i += batchSize) {
+        const batch = writeBatch(db);
+        const chunk = docs.slice(i, i + batchSize);
+        chunk.forEach(doc => {
+            batch.update(doc.ref, { read: true });
+        });
+        await batch.commit();
+    }
 }
 
 export async function getSuperAdminId(): Promise<string | null> {

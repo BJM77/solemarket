@@ -117,7 +117,9 @@ export function useDoc<T = any>(
   
   if(memoizedDocRef && !(memoizedDocRef as any).__memo) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('A query passed to useDoc was not properly memoized using useMemoFirebase. This will cause infinite render loops.');
+      const errorMsg = 'A query passed to useDoc was not properly memoized using useMemoFirebase. This will cause infinite render loops.';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
   }
 

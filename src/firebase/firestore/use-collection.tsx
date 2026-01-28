@@ -125,7 +125,9 @@ export function useCollection<T = any>(
   
   if(memoizedTargetRefOrQuery && !(memoizedTargetRefOrQuery as any).__memo) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('A query passed to useCollection was not properly memoized using useMemoFirebase. This will cause infinite render loops.');
+      const errorMsg = 'A query passed to useCollection was not properly memoized using useMemoFirebase. This will cause infinite render loops.';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
   }
 

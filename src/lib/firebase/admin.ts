@@ -1,4 +1,5 @@
 
+import 'server-only';
 import * as admin from 'firebase-admin';
 import path from 'path';
 import fs from 'fs';
@@ -38,7 +39,7 @@ function initializeFirebaseAdmin() {
     try {
         // Priority 1: Application Default Credentials (production/GCP)
         if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-            console.log('Using GOOGLE_APPLICATION_CREDENTIALS for Firebase Admin');
+            console.log('✅ Firebase Admin: Using GOOGLE_APPLICATION_CREDENTIALS');
             return admin.initializeApp({
                 ...config,
                 credential: admin.credential.applicationDefault(),
@@ -48,7 +49,7 @@ function initializeFirebaseAdmin() {
         // Priority 2: Service Account JSON from Environment Variable
         const saJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
         if (saJson) {
-            console.log('Using Service Account JSON from env for Firebase Admin');
+            console.log('✅ Firebase Admin: Using Service Account JSON from env');
             try {
                 const serviceAccount = JSON.parse(saJson.replace(/\\n/g, '\n'));
                 return admin.initializeApp({
@@ -56,14 +57,14 @@ function initializeFirebaseAdmin() {
                     credential: admin.credential.cert(serviceAccount),
                 });
             } catch (error) {
-                console.error('Failed to parse SERVICE_ACCOUNT_JSON:', error);
+                console.error('❌ Firebase Admin: Failed to parse SERVICE_ACCOUNT_JSON:', error);
                 throw new Error('Invalid SERVICE_ACCOUNT_JSON format');
             }
         }
 
         // Priority 2.5: Individual Secret Environment Variables (App Hosting/Secrets)
         if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-            console.log('Using Individual Secrets for Firebase Admin');
+            console.log('✅ Firebase Admin: Using Individual Secrets');
             try {
                 // Handle private key newlines
                 const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
@@ -76,7 +77,7 @@ function initializeFirebaseAdmin() {
                     }),
                 });
             } catch (error) {
-                console.error('Failed to initialize with individual secrets:', error);
+                console.error('❌ Firebase Admin: Failed to initialize with individual secrets:', error);
             }
         }
 
@@ -84,7 +85,7 @@ function initializeFirebaseAdmin() {
         // Only attempt this if we are likely in a local environment
         const saPath = path.resolve(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
         if (fs.existsSync(saPath)) {
-            console.log('Using local service account file for Firebase Admin');
+            console.log('✅ Firebase Admin: Using local service account file');
             return admin.initializeApp({
                 ...config,
                 credential: admin.credential.cert(require(saPath)),
@@ -92,7 +93,7 @@ function initializeFirebaseAdmin() {
         }
 
         // Priority 4: Default ADC Fallback (useful if running in Cloud Run/Functions without explicitly set env var)
-        console.log('Falling back to default Application Default Credentials');
+        console.log('ℹ️ Firebase Admin: Falling back to default Application Default Credentials');
         return admin.initializeApp({
             ...config,
             credential: admin.credential.applicationDefault(),
