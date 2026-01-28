@@ -61,6 +61,25 @@ function initializeFirebaseAdmin() {
             }
         }
 
+        // Priority 2.5: Individual Secret Environment Variables (App Hosting/Secrets)
+        if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
+            console.log('Using Individual Secrets for Firebase Admin');
+            try {
+                // Handle private key newlines
+                const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
+                return admin.initializeApp({
+                    ...config,
+                    credential: admin.credential.cert({
+                        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
+                        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+                        privateKey: privateKey,
+                    }),
+                });
+            } catch (error) {
+                console.error('Failed to initialize with individual secrets:', error);
+            }
+        }
+
         // Priority 3: File-based Service Account (Development/Local)
         // Only attempt this if we are likely in a local environment
         const saPath = path.resolve(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
