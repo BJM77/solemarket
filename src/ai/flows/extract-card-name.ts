@@ -39,7 +39,7 @@ export async function extractCardName(
 
 const prompt = ai.definePrompt({
     name: 'extractCardNamePrompt',
-    model: 'googleai/gemini-1.5-flash',
+    model: 'googleai/gemini-flash-latest',
     input: { schema: ExtractCardNameInputSchema },
     output: { schema: ExtractCardNameOutputSchema },
     prompt: `You are an expert at analyzing trading cards. Extract all available information from this card image:

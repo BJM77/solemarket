@@ -13,8 +13,12 @@ service cloud.firestore {
     
     // TODO: Migrate to Custom Claims for better scalability
     function isSuperAdmin() { 
-      return isSignedIn() && request.auth.uid == 'O5nCLgbIaRRRF369K0kjgT59io73';
+      return isSignedIn() && (request.auth.token.role == 'superadmin' || request.auth.uid == 'O5nCLgbIaRRRF369K0kjgT59io73');
     } 
+
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.admin == true || isSuperAdmin());
+    }
 
     // --- PRIMARY COLLECTIONS ---
 
@@ -117,6 +121,12 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isSuperAdmin());
       allow update: if isSuperAdmin();
+    }
+
+    // Audit Logs: Super Admin only
+    match /audit_logs/{logId} {
+      allow read, list: if isSuperAdmin();
+      allow write: if false; // Only backend admin SDK creates these
     }
   }
 }

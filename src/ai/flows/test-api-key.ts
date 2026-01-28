@@ -15,13 +15,13 @@ const testApiKeyOutputSchema = z.object({
 });
 
 export async function testApiKey(idToken: string): Promise<z.infer<typeof testApiKeyOutputSchema>> {
-    const decodedToken = await verifyIdToken(idToken);
-    const userRole = decodedToken.role;
+  const decodedToken = await verifyIdToken(idToken);
+  const userRole = decodedToken.role;
 
-    if (userRole !== 'admin' && userRole !== 'superadmin') {
-        throw new Error('You do not have permission to perform this action.');
-    }
-    return await testApiKeyFlow();
+  if (userRole !== 'admin' && userRole !== 'superadmin') {
+    throw new Error('You do not have permission to perform this action.');
+  }
+  return await testApiKeyFlow();
 }
 
 const testApiKeyFlow = ai.defineFlow(
@@ -33,7 +33,7 @@ const testApiKeyFlow = ai.defineFlow(
     try {
       const result = await ai.generate({
         prompt: 'Give me a one-sentence fun fact about collectible trading cards.',
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'googleai/gemini-flash-latest',
         output: {
           schema: z.object({
             fact: z.string(),
@@ -58,7 +58,7 @@ const testApiKeyFlow = ai.defineFlow(
       } else {
         errorMessage = error.message;
       }
-      
+
       return {
         status: 'Error',
         message: errorMessage,

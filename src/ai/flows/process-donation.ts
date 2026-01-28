@@ -46,7 +46,7 @@ const processDonationFlow = ai.defineFlow(
 
         const result = await ai.generate({
             prompt: `The user ${input.fullName} (${input.email}) is donating ${input.quantity} of ${input.donationType}. Their description is: "${input.description}". Please generate a brief, friendly thank you message and then call the email tool to send them the shipping label.`,
-            model: 'googleai/gemini-1.5-flash-latest',
+            model: 'googleai/gemini-flash-latest',
             tools: [sendConfirmationEmailTool],
             output: {
                 schema: z.object({
@@ -54,9 +54,9 @@ const processDonationFlow = ai.defineFlow(
                 }),
             },
         });
-        
+
         const toolCalls = result.toolRequests;
-        if(toolCalls.length === 0) {
+        if (toolCalls.length === 0) {
             throw new Error("The model did not request to send the confirmation email.");
         }
 

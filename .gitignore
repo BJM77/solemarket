@@ -32,3 +32,12 @@ yarn-error.log*
 
 env*
 .env.production
+
+# Service Accounts
+*.json
+!package.json
+!tsconfig.json
+!components.json
+!firestore.indexes.json
+!storage.cors.json
+!cors.json

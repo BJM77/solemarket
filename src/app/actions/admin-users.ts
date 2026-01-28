@@ -1,19 +1,10 @@
 
 'use server';
 
-import * as admin from 'firebase-admin';
-import { UserRecord } from 'firebase-admin/auth';
-import { firestoreDb } from '@/lib/firebase/admin';
+import { auth, firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { UserProfile, UserRole } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
-
-// Initialize admin SDK if not already done
-if (!admin.apps.length) {
-    try {
-        admin.initializeApp();
-    } catch (e) { console.error('Firebase admin initialization error', e); }
-}
 
 export type ActionResponse = {
     success: boolean;
@@ -26,7 +17,7 @@ export interface AdminUser extends UserProfile {
     lastSignInTime?: string;
 }
 
-const mapUserRecordToAdminUser = (user: UserRecord, profile?: UserProfile): AdminUser => ({
+const mapUserRecordToAdminUser = (user: any, profile?: UserProfile): AdminUser => ({
     uid: user.uid,
     id: user.uid,
     displayName: user.displayName || profile?.displayName || 'N/A',
@@ -71,6 +62,9 @@ export async function createNewUser(
             createdAt: new Date() as any, // Firestore admin SDK handles this
         };
         await firestoreDb.collection('users').doc(userRecord.uid).set(profileData);
+
+        // Set custom claims for role-based security in server actions
+        await admin.auth().setCustomUserClaims(userRecord.uid, { role, admin: ['admin', 'superadmin'].includes(role) });
 
         revalidatePath('/admin/users');
         return { success: true, message: `User ${displayName} created successfully.` };
@@ -147,6 +141,12 @@ export async function updateUserRole(idToken: string, userId: string, newRole: U
         await firestoreDb.collection('users').doc(userId).update({
             role: newRole,
             canSell: canSell,
+        });
+
+        // Sync to custom claims
+        await admin.auth().setCustomUserClaims(userId, {
+            role: newRole,
+            admin: ['admin', 'superadmin'].includes(newRole)
         });
 
         revalidatePath('/admin/users');

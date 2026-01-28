@@ -41,7 +41,7 @@ export async function quickScan(
 
 const prompt = ai.definePrompt({
     name: 'quickScanPrompt',
-    model: 'googleai/gemini-1.5-flash',
+    model: 'googleai/gemini-flash-latest',
     input: { schema: QuickScanInputSchema },
     output: { schema: QuickScanOutputSchema },
     prompt: `You are an expert at Optical Character Recognition on trading cards. Your ONLY job is to extract the player's full name from the provided card image. Return ONLY the name.

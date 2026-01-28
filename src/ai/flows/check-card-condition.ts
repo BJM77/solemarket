@@ -22,7 +22,7 @@ export async function checkCardCondition(input: import('./schemas').CardConditio
 
 const cardConditionPrompt = ai.definePrompt({
     name: 'cardConditionPrompt',
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'googleai/gemini-flash-latest',
     input: { schema: cardConditionInputSchema },
     output: { schema: cardConditionOutputSchema },
     prompt: `You are a professional trading card grader with expertise from a leading company like PSA or BGS.

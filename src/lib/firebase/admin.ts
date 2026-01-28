@@ -1,17 +1,28 @@
 
 import * as admin from 'firebase-admin';
 import type { ServiceAccount } from 'firebase-admin';
+import * as path from 'path';
+import * as fs from 'fs';
 
 if (!admin.apps.length) {
     const isProduction = process.env.NODE_ENV === 'production';
     const serviceAccountJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
     const useEmulators = process.env.NEXT_PUBLIC_USE_EMULATORS === 'true';
 
+    const saFile = 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json';
+    const saPath = path.resolve(process.cwd(), saFile);
+    let saJson = serviceAccountJson;
+
+    if (!saJson && fs.existsSync(saPath)) {
+        saJson = fs.readFileSync(saPath, 'utf8');
+        console.log(`📂 Found service account file: ${saFile}`);
+    }
+
     try {
-        if (serviceAccountJson) {
-            // Priority 1: Service Account JSON (Works in Prod & Dev if variable is set)
+        if (saJson) {
+            // Priority 1: Service Account JSON
             try {
-                let serviceAccount = JSON.parse(serviceAccountJson);
+                let serviceAccount = JSON.parse(saJson);
                 // Fix common string escaping issues
                 if (typeof serviceAccount === 'string') {
                     serviceAccount = JSON.parse(serviceAccount);

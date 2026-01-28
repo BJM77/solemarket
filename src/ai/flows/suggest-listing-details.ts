@@ -17,7 +17,7 @@ export type SuggestListingDetailsOutput = import('./schemas').SuggestListingDeta
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',
-    model: 'googleai/gemini-1.5-flash',
+    model: 'googleai/gemini-flash-latest',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
     prompt: `You are an expert in valuing and listing collectibles. Analyze the provided information (images and/or title) to generate listing details.

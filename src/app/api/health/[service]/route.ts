@@ -16,12 +16,13 @@ export async function GET(
         switch (service) {
             case 'ai':
                 // Check if API key is configured
-                if (process.env.GOOGLE_GENAI_API_KEY) {
+                const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+                if (apiKey) {
                     status = 'healthy';
                 } else {
                     status = 'degraded';
-                    details.error = 'Missing GOOGLE_GENAI_API_KEY';
-                    throw new Error('Missing GOOGLE_GENAI_API_KEY');
+                    details.error = 'Missing AI API Key (GOOGLE_GENAI_API_KEY or GEMINI_API_KEY)';
+                    throw new Error('Missing AI API Key');
                 }
                 break;
 
