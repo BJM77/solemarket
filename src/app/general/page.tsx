@@ -16,6 +16,7 @@ export default function GeneralPage() {
         return query(
             collection(firestore, 'products'),
             where('category', '==', 'General'),
+            where('isDraft', '==', false),
             orderBy('createdAt', 'desc'),
             limit(100)
         );

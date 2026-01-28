@@ -16,6 +16,7 @@ export default function ComicsPage() {
         return query(
             collection(firestore, 'products'), 
             where('subCategory', '==', 'Comics'),
+            where('isDraft', '==', false),
             orderBy('createdAt', 'desc'), 
             limit(100));
     }, [firestore]);

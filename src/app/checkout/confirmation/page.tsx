@@ -8,7 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CheckCircle2, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, ShoppingBag, AlertTriangle, MessageSquare, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { lodgeDispute } from '@/app/actions/disputes';
+import { useUser } from '@/firebase';
 import type { CartItem } from '@/context/CartContext';
 
 interface OrderDetails {
@@ -19,7 +26,45 @@ interface OrderDetails {
 
 export default function ConfirmationPage() {
     const [order, setOrder] = useState<OrderDetails | null>(null);
+    const [isDisputeOpen, setIsDisputeOpen] = useState(false);
+    const [disputeReason, setDisputeReason] = useState('');
+    const [disputeDescription, setDisputeDescription] = useState('');
+    const [isSubmittingDispute, setIsSubmittingDispute] = useState(false);
+
     const router = useRouter();
+    const { toast } = useToast();
+    const { user } = useUser();
+
+    const handleLodgeDispute = async () => {
+        if (!order || !user) return;
+        if (!disputeReason || !disputeDescription) {
+            toast({ title: "Please fill in all fields.", variant: "destructive" });
+            return;
+        }
+
+        setIsSubmittingDispute(true);
+        try {
+            const result = await lodgeDispute({
+                orderId: order.orderId,
+                initiatorId: user.uid,
+                initiatorName: user.displayName || 'Unknown User',
+                initiatorRole: 'buyer',
+                reason: disputeReason,
+                description: disputeDescription,
+            });
+
+            if (result.success) {
+                toast({ title: "Dispute Lodged", description: result.message });
+                setIsDisputeOpen(false);
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsSubmittingDispute(false);
+        }
+    };
 
     useEffect(() => {
         const savedOrder = sessionStorage.getItem('lastOrder');
@@ -87,10 +132,69 @@ export default function ConfirmationPage() {
                             <span>${order.totalAmount.toFixed(2)}</span>
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-col gap-4">
                         <Button size="lg" className="w-full" asChild>
                             <Link href="/">Continue Shopping</Link>
                         </Button>
+
+                        <div className="w-full pt-4 border-t border-dashed">
+                            <Dialog open={isDisputeOpen} onOpenChange={setIsDisputeOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-destructive flex items-center gap-2">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        Have an issue? Dispute this order
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle className="flex items-center gap-2">
+                                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                                            Conflict Resolution Protocol
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Please provide details regarding the issue with your order. An admin will arbitrate the dispute.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label>Reason for Dispute</Label>
+                                            <Select value={disputeReason} onValueChange={setDisputeReason}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a reason" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Item not received">Item not received</SelectItem>
+                                                    <SelectItem value="Item not as described">Item not as described</SelectItem>
+                                                    <SelectItem value="Damaged during shipping">Damaged during shipping</SelectItem>
+                                                    <SelectItem value="Fraudulent activity">Fraudulent activity</SelectItem>
+                                                    <SelectItem value="Other">Other</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Detailed Description</Label>
+                                            <Textarea
+                                                placeholder="Explain the situation in detail..."
+                                                value={disputeDescription}
+                                                onChange={(e) => setDisputeDescription(e.target.value)}
+                                                className="min-h-[120px]"
+                                            />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setIsDisputeOpen(false)}>Cancel</Button>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={handleLodgeDispute}
+                                            disabled={isSubmittingDispute}
+                                        >
+                                            {isSubmittingDispute ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <MessageSquare className="mr-2 h-4 w-4" />}
+                                            Lodge Protocol
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     </CardFooter>
                 </Card>
             </div>

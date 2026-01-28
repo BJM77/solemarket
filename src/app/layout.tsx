@@ -23,6 +23,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-AU': '/',
+    },
+  },
   title: {
     default: 'Picksy | The AI-Powered Collectibles Marketplace',
     template: '%s | Picksy',

@@ -28,7 +28,7 @@ export default function ConsignPage() {
                             <Button
                                 size="lg"
                                 className="bg-white text-indigo-700 hover:bg-indigo-50 font-bold text-lg py-7 px-8"
-                                onClick={() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
                             >
                                 Get a Free Valuation
                             </Button>
@@ -161,7 +161,7 @@ export default function ConsignPage() {
                                 <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">1</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">Initial Consultation</h3>
-                                    <p className="text-gray-600 text-lg">Contact Ben to discuss your collection. We'll provide a free, no-obligation assessment and valuation estimate.</p>
+                                    <p className="text-gray-600 text-lg">Submit an enquiry to discuss your collection. We'll provide a free, no-obligation assessment and valuation estimate.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-8">
@@ -188,7 +188,7 @@ export default function ConsignPage() {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Testimonials Section */}
                 <div className="bg-gray-100/70 py-16 mb-20 rounded-xl">
                     <div className="max-w-4xl mx-auto text-center">
@@ -207,7 +207,7 @@ export default function ConsignPage() {
                                     <p className="font-semibold">- David R., Private Collector</p>
                                 </CardContent>
                             </Card>
-                             <Card className="bg-white">
+                            <Card className="bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex mb-2">
                                         <Star className="text-yellow-400" />
@@ -216,7 +216,7 @@ export default function ConsignPage() {
                                         <Star className="text-yellow-400" />
                                         <Star className="text-yellow-400" />
                                     </div>
-                                    <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's coin collection, but Ben handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
+                                    <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's coin collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
                                     <p className="font-semibold">- Sarah L., Estate Seller</p>
                                 </CardContent>
                             </Card>
@@ -262,41 +262,24 @@ export default function ConsignPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div id="contact-section" className="relative max-w-6xl mx-auto bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl p-8 md:p-12 overflow-hidden">
+                <div id="enquiry-form" className="relative max-w-6xl mx-auto bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl p-8 md:p-12 overflow-hidden">
                     <div className="absolute -top-10 -left-10 w-24 h-24 bg-white/10 rounded-full"></div>
                     <div className="absolute -bottom-12 -right-8 w-32 h-32 bg-white/10 rounded-full"></div>
-                    
+
                     <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
                         <div className="text-left">
                             <h2 className="text-4xl md:text-5xl font-bold mb-4">
                                 Ready to Unlock the Value of Your Collection?
                             </h2>
                             <p className="text-xl mb-8 text-blue-100">
-                                Fill out the form or contact Ben directly for a free, no-obligation consultation.
+                                Submit the enquiry form below for a free, no-obligation consultation. Our team will review your collection and get back to you within 24-48 hours.
                             </p>
 
                             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md">
-                                <h3 className="text-2xl font-semibold mb-4">Contact Ben Mackie</h3>
-                                <div className="space-y-4">
-                                    <a
-                                        href="tel:0422225265"
-                                        className="flex items-center gap-3 text-lg hover:text-blue-200 transition-colors"
-                                    >
-                                        <div className="bg-white/20 p-2 rounded-full">
-                                            <Phone className="h-5 w-5" />
-                                        </div>
-                                        <span className="font-mono tracking-wider">0422 225 265</span>
-                                    </a>
-                                    <a
-                                        href="mailto:consign@picksy.au"
-                                        className="flex items-center gap-3 text-lg hover:text-blue-200 transition-colors"
-                                    >
-                                        <div className="bg-white/20 p-2 rounded-full">
-                                            <Mail className="h-5 w-5" />
-                                        </div>
-                                        <span>consign@picksy.au</span>
-                                    </a>
-                                </div>
+                                <h3 className="text-2xl font-semibold mb-4">Expert Guidance</h3>
+                                <p className="text-blue-100 italic">
+                                    "We treat every collection with the respect it deserves, ensuring you get maximum market value with zero hassle."
+                                </p>
                             </div>
                         </div>
 

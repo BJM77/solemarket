@@ -15,7 +15,12 @@ export default function CollectiblesPage() {
 
     const productsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        return query(collection(firestore, 'products'), where('category', 'in', COLLECTIBLES_CATEGORIES), orderBy('createdAt', 'desc'), limit(100));
+        return query(
+            collection(firestore, 'products'), 
+            where('category', 'in', COLLECTIBLES_CATEGORIES), 
+            where('isDraft', '==', false),
+            orderBy('createdAt', 'desc'), 
+            limit(100));
     }, [firestore]);
 
     const { data: products, isLoading } = useCollection<Product>(productsQuery);

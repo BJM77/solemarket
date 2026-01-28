@@ -1,8 +1,6 @@
-
 'use server';
 
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, query, where, orderBy, limit, getDocs, updateDoc, doc, Timestamp, writeBatch } from 'firebase/firestore';
+import { firestoreDb, admin as firebaseAdmin } from '@/lib/firebase/admin';
 import { Notification } from '@/lib/types';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
@@ -26,51 +24,56 @@ export async function sendNotification(
         message,
         link,
         read: false,
-        createdAt: Timestamp.now()
+        createdAt: firebaseAdmin.firestore.Timestamp.now() as any
     };
 
-    await addDoc(collection(db, NOTIFICATIONS_COL), notification);
+    await firestoreDb.collection(NOTIFICATIONS_COL).add(notification);
 }
 
 /**
  * Get the latest notifications for the current user.
+ * Note: Returning this to the client might require converting Timestamps to Dates/Strings.
  */
 export async function getUserNotifications(userId: string, limitCount = 20) {
-    const q = query(
-        collection(db, NOTIFICATIONS_COL),
-        where('recipientId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-    );
+    const snapshot = await firestoreDb.collection(NOTIFICATIONS_COL)
+        .where('recipientId', '==', userId)
+        .orderBy('createdAt', 'desc')
+        .limit(limitCount)
+        .get();
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            ...data,
+            // Convert Admin Timestamp to a format more likely to be serialized or handled by the client
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt
+        } as any;
+    });
 }
 
 /**
  * Mark a specific notification as read.
  */
 export async function markAsRead(notificationId: string) {
-    const ref = doc(db, NOTIFICATIONS_COL, notificationId);
-    await updateDoc(ref, { read: true });
+    const ref = firestoreDb.collection(NOTIFICATIONS_COL).doc(notificationId);
+    await ref.update({ read: true });
 }
 
 /**
  * Mark all notifications for a user as read.
  */
 export async function markAllAsRead(userId: string) {
-    const q = query(
-        collection(db, NOTIFICATIONS_COL),
-        where('recipientId', '==', userId),
-        where('read', '==', false)
-    );
+    const snapshot = await firestoreDb.collection(NOTIFICATIONS_COL)
+        .where('recipientId', '==', userId)
+        .where('read', '==', false)
+        .get();
 
-    const snapshot = await getDocs(q);
-    const docs = snapshot.docs;
     const batchSize = 500;
+    const docs = snapshot.docs;
 
     for (let i = 0; i < docs.length; i += batchSize) {
-        const batch = writeBatch(db);
+        const batch = firestoreDb.batch();
         const chunk = docs.slice(i, i + batchSize);
         chunk.forEach(doc => {
             batch.update(doc.ref, { read: true });
@@ -86,10 +89,17 @@ export async function getSuperAdminId(): Promise<string | null> {
             return SUPER_ADMIN_UIDS[0];
         }
 
-        const q = query(collection(db, 'users'), where('email', 'in', SUPER_ADMIN_EMAILS), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            return querySnapshot.docs[0].id;
+        if (SUPER_ADMIN_EMAILS.length === 0) {
+            return null;
+        }
+
+        const snapshot = await firestoreDb.collection('users')
+            .where('email', 'in', SUPER_ADMIN_EMAILS)
+            .limit(1)
+            .get();
+
+        if (!snapshot.empty) {
+            return snapshot.docs[0].id;
         }
         return null;
     } catch (error) {

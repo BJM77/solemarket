@@ -1,8 +1,7 @@
 'use server';
 
 import { z } from "zod";
-import { db } from "@/lib/firebase/config";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { firestoreDb, admin as firebaseAdmin } from "@/lib/firebase/admin";
 import { sendNotification, getSuperAdminId } from "@/services/notifications";
 
 const ConsignmentSchema = z.object({
@@ -17,7 +16,15 @@ const ConsignmentSchema = z.object({
 export type ConsignmentState = {
     success?: boolean;
     error?: string;
-    fields?: {
+    errors?: {
+        name?: string[];
+        email?: string[];
+        phone?: string[];
+        itemType?: string[];
+        estimatedValue?: string[];
+        description?: string[];
+    };
+    values?: {
         name?: string;
         email?: string;
         phone?: string;
@@ -47,7 +54,8 @@ export async function submitConsignmentInquiry(
         return {
             success: false,
             error: "Please correct the errors below.",
-            fields: validatedFields.error.flatten().fieldErrors as any,
+            errors: validatedFields.error.flatten().fieldErrors as any,
+            values: rawData as any,
         };
     }
 
@@ -55,7 +63,7 @@ export async function submitConsignmentInquiry(
         const { name, email, phone, itemType, estimatedValue, description } = validatedFields.data;
 
         // 1. Save to Firestore
-        await addDoc(collection(db, "consignment_inquiries"), {
+        await firestoreDb.collection("consignment_inquiries").add({
             name,
             email,
             phone: phone || null,
@@ -63,7 +71,7 @@ export async function submitConsignmentInquiry(
             estimatedValue,
             description,
             status: "new",
-            createdAt: Timestamp.now(),
+            createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
         });
 
         // 2. Notify Admin
@@ -113,6 +121,6 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
     console.log(`[SIMULATED EMAIL] To: ${email}`);
     console.log(`[SIMULATED EMAIL] Subject: We received your consignment inquiry`);
     console.log(`[SIMULATED EMAIL] Body: Hi ${name}, thanks for reaching out! We'll be in touch shortly.`);
-    
+
     return Promise.resolve();
 }

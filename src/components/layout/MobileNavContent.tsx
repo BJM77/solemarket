@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Coins, CreditCard, Gem, BookOpen, Stamp, Gamepad2, Search
+    Coins, CreditCard, Gem, BookOpen, Stamp, Gamepad2, Search, X
 } from 'lucide-react';
 import type { Category, UserProfile } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -38,7 +38,6 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), orderBy('name')), []);
     const { data: categories } = useCollection<Category>(categoriesQuery);
 
-    // 2. Group Categories by Section
     const groupedCategories = useMemo(() => {
         const mainSections = {
             'collector-cards': { label: 'Collector Cards', icon: CreditCard, href: '/collector-cards', items: [] as Category[] },
@@ -61,6 +60,13 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
         return mainSections;
     }, [categories]);
 
+    // 3. Fetch User Favorites
+    const favoritesQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(collection(db, 'users', user.uid, 'favorite_categories'), orderBy('name'));
+    }, [user?.uid]);
+    const { data: favoriteCategories, isLoading: isFavoritesLoading } = useCollection<any>(favoritesQuery);
+
     const handleLinkClick = (href: string) => {
         router.push(href);
         setIsOpen(false);
@@ -70,6 +76,16 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
         await signOutUser();
         setIsOpen(false);
         router.push('/');
+    };
+
+    const handleToggleFavorite = async (e: React.MouseEvent, cat: Category) => {
+        e.stopPropagation();
+        const { toggleFavoriteCategory } = await import('@/app/actions/user-preferences');
+        const { getCurrentUserIdToken } = await import('@/lib/firebase/auth');
+        const idToken = await getCurrentUserIdToken();
+        if (idToken) {
+            await toggleFavoriteCategory(idToken, cat.id, cat.name, cat.href || `/category/${cat.id}`);
+        }
     };
 
     return (
@@ -99,9 +115,50 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     )}
                 </nav>
 
-                {/* Dynamic Categories Accordion */}
-                <div className="py-2">
-                    <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Categories</h3>
+                {/* Favorite Categories Section */}
+                {user && (
+                    <div className="py-2">
+                        <h3 className="px-4 text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-3 flex items-center justify-between">
+                            Favorite Categories
+                            <Heart className="h-3 w-3 fill-primary text-primary" />
+                        </h3>
+                        {isFavoritesLoading ? (
+                            <div className="space-y-2 px-4">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
+                        ) : favoriteCategories && favoriteCategories.length > 0 ? (
+                            <div className="flex flex-col space-y-1">
+                                {favoriteCategories.map((fav: any) => (
+                                    <Button
+                                        key={fav.id}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="justify-start h-10 px-4 group"
+                                        onClick={() => handleLinkClick(fav.href)}
+                                    >
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary mr-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                        <span className="flex-1 text-left">{fav.name}</span>
+                                        <div
+                                            onClick={(e) => handleToggleFavorite(e, fav as Category)}
+                                            className="ml-auto p-1 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-full transition-all"
+                                        >
+                                            <X className="h-3 w-3 text-destructive" />
+                                        </div>
+                                    </Button>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="px-4 text-xs text-muted-foreground italic">
+                                Save your favorite categories below to see them here.
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {/* Full Categories Accordion (Explore) */}
+                <div className="py-2 border-t border-dashed pt-4">
+                    <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Explore All</h3>
                     <Accordion type="multiple" className="w-full">
                         {Object.entries(groupedCategories).map(([section, data]) => {
                             if (data.items.length === 0) return null;
@@ -125,17 +182,29 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                             >
                                                 View All {data.label}
                                             </Button>
-                                            {data.items.map((cat) => (
-                                                <Button
-                                                    key={cat.id}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="justify-start text-muted-foreground h-8"
-                                                    onClick={() => handleLinkClick(cat.href || `/category/${cat.id}`)}
-                                                >
-                                                    {cat.name}
-                                                </Button>
-                                            ))}
+                                            {data.items.map((cat) => {
+                                                const isFav = favoriteCategories?.some((f: any) => f.id === cat.id);
+                                                return (
+                                                    <div key={cat.id} className="flex items-center group/item">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="justify-start text-muted-foreground h-8 flex-1"
+                                                            onClick={() => handleLinkClick(cat.href || `/category/${cat.id}`)}
+                                                        >
+                                                            {cat.name}
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                                            onClick={(e) => handleToggleFavorite(e, cat)}
+                                                        >
+                                                            <Heart className={`h-3 w-3 ${isFav ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>
@@ -178,17 +247,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 </Button>
                             </div>
                         </>
-                    ) : (
-                        <div className="space-y-1">
-                            <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Account</h3>
-                            <Button variant="ghost" className="justify-start w-full" onClick={() => handleLinkClick('/sign-in')}>
-                                <LogIn className="mr-3 h-5 w-5" /> Sign In
-                            </Button>
-                            <Button variant="ghost" className="justify-start w-full" onClick={() => handleLinkClick('/sign-up')}>
-                                <User className="mr-3 h-5 w-5" /> Create Account
-                            </Button>
-                        </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </ScrollArea>

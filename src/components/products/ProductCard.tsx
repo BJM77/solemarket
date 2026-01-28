@@ -4,11 +4,12 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +24,7 @@ import { QuickView } from './QuickView';
 import { Timestamp } from 'firebase/firestore';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { deleteProductByAdmin } from '@/app/actions/admin';
+import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,15 +43,18 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 interface ProductCardProps {
   product: Product;
   viewMode?: 'grid' | 'list';
+  isAdmin?: boolean;
 }
 
-export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
+export default function ProductCard({ product, viewMode = 'grid', isAdmin = false }: ProductCardProps) {
   const { addItem } = useCart();
   const { toast } = useToast();
   const { user } = useUser();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [isRenewing, setIsRenewing] = useState(false);
   const { viewedProductIds } = useViewedProducts();
+  const router = useRouter();
 
   const hasViewed = viewedProductIds.includes(product.id);
 
@@ -101,6 +105,42 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     }
   };
 
+  const handleRenew = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSuperAdmin) return;
+    setIsRenewing(true);
+
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication session expired.");
+
+      const result = await renewProductByAdmin(product.id, idToken);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: "Listing Renewed",
+        description: result.message,
+      });
+
+      router.refresh();
+      // Force a soft refresh to show the updated date internally if needed, 
+      // though user said keep it hidden.
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Renewal Failed",
+        description: error.message || "An error occurred.",
+      });
+    } finally {
+      setIsRenewing(false);
+    }
+  };
+
 
   const getFormattedDate = (dateValue: any) => {
     if (!dateValue) return '';
@@ -140,8 +180,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             ) : null}
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
               {product.isVault && (
-                <Badge 
-                  variant="default" 
+                <Badge
+                  variant="default"
                   className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md cursor-pointer z-20"
                   onClick={(e) => {
                     e.preventDefault();
@@ -216,16 +256,34 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 {product.description}
               </p>
             </div>
-            <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={product.sellerAvatar} />
-                  <AvatarFallback>{product.sellerName?.[0]}</AvatarFallback>
-                </Avatar>
-                <span>{product.sellerName}</span>
+            {isAdmin && (
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t" onClick={(e) => e.preventDefault()}>
+                <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0" title="Edit">
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-blue-600 border-blue-100 hover:bg-blue-50"
+                  onClick={handleRenew}
+                  disabled={isRenewing}
+                  title="Renew Listing"
+                >
+                  {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-red-600 border-red-100 hover:bg-red-50"
+                  onClick={() => setIsDeleting(true)}
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-              <span>{getFormattedDate(product.createdAt)}</span>
-            </div>
+            )}
           </div>
         </div>
       </Link>
@@ -239,8 +297,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         <div className="aspect-[4/5] bg-gray-100 dark:bg-white/10 relative overflow-hidden">
           <div className="absolute top-3 left-3 z-10 flex gap-2">
             {product.isVault && (
-              <Badge 
-                variant="default" 
+              <Badge
+                variant="default"
                 className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg cursor-pointer z-20"
                 onClick={(e) => {
                   e.preventDefault();
@@ -323,10 +381,35 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               Buy It
             </Button>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/10 flex items-center justify-between text-xs text-gray-400">
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {getFormattedDate(product.createdAt)}</span>
-            <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {product.views || 0} views</span>
-          </div>
+          {isAdmin && (
+            <div className="mt-4 pt-4 border-t flex items-center gap-3" onClick={(e) => e.preventDefault()}>
+              <Button variant="secondary" size="sm" asChild className="h-9 flex-1 gap-2" title="Edit">
+                <Link href={`/sell/create?edit=${product.id}`}>
+                  <Edit className="h-4 w-4" />
+                  Edit
+                </Link>
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 w-9 p-0 text-blue-600"
+                onClick={handleRenew}
+                disabled={isRenewing}
+                title="Renew Listing"
+              >
+                {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 w-9 p-0 text-red-600"
+                onClick={() => setIsDeleting(true)}
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </Link>
     </div>

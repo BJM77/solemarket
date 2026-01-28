@@ -9,18 +9,19 @@ import { db } from '@/lib/firebase/config';
 import type { UserProfile } from '@/lib/types';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
-import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading: isAuthLoading } = useUser();
+  const { isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
   const router = useRouter();
-  const pathname = usePathname(); // Get the current path
+  const pathname = usePathname();
 
-  const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+  const isUserLoading = isAuthLoading || isPermissionsLoading;
 
   useEffect(() => {
     const checkAdmin = async () => {

@@ -6,6 +6,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
+import { getSystemSettingsAdmin } from '@/services/settings-service';
 
 interface CartItem {
     id: string;
@@ -41,11 +42,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             for (let i = 0; i < items.length; i++) {
                 const doc = productDocs[i];
                 const item = items[i];
-                
+
                 if (!doc.exists) {
                     throw new Error(`Product with ID ${item.id} not found.`);
                 }
-                
+
                 const product = doc.data() as Product;
 
                 if ((product.quantity || 0) < item.quantity) {
@@ -56,15 +57,22 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 subtotal += product.price * item.quantity;
 
                 // Prepare inventory deduction
-                t.update(doc.ref, { 
+                t.update(doc.ref, {
                     quantity: FieldValue.increment(-item.quantity),
                     status: (product.quantity || 0) - item.quantity === 0 ? 'sold' : product.status,
                 });
             }
 
             // 3. Calculate Total (server-side)
-            const shippingCost = options?.shippingMethod === 'shipping' ? 12.00 : 0;
-            const taxRate = 0.08;
+            const settings = await getSystemSettingsAdmin();
+            const freightCharge = settings.freightCharge;
+            const threshold = settings.freeShippingThreshold;
+            const taxRate = settings.standardTaxRate;
+
+            const shippingCost = options?.shippingMethod === 'shipping'
+                ? (subtotal >= threshold ? 0 : freightCharge)
+                : 0;
+
             const taxAmount = subtotal * taxRate;
             const totalAmount = subtotal + shippingCost + taxAmount;
 
@@ -95,16 +103,16 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     quantity: items[i].quantity,
                 });
             });
-            
+
             // We need to resolve the serverTimestamp sentinel to a client-friendly value (e.g. now)
             // because we can't read back the written time within the same transaction easily/efficiently
             // without a fresh read which might be overkill.
             const serializedOrder = {
-                 ...newOrder,
-                 createdAt: new Date().toISOString(), // Approximation for client display
-                 orderId: orderRef.id,
-                 items: itemsWithDetails,
-                 totalAmount
+                ...newOrder,
+                createdAt: new Date().toISOString(), // Approximation for client display
+                orderId: orderRef.id,
+                items: itemsWithDetails,
+                totalAmount
             };
 
             return serializedOrder;

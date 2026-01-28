@@ -25,7 +25,7 @@ const PAGE_SIZE = 24;
 const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
 
 
-function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterState = {} }: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams> }) {
+function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterState = {}, isAdmin = false }: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -56,7 +56,18 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   }, [searchParams, initialFilterState]);
 
   // Filter specific states, derived from URL
-  const viewMode = (currentSearchParams.view as ViewMode) || 'grid';
+  const [viewMode, setViewMode] = useState<ViewMode>((currentSearchParams.view as ViewMode) || 'grid');
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+    if (currentSearchParams.view) {
+      setViewMode(currentSearchParams.view as ViewMode);
+    } else if (window.innerWidth < 640) {
+      setViewMode('montage'); // Default to mosaic on mobile
+    }
+  }, [currentSearchParams.view]);
+
   const sortOrder = currentSearchParams.sort || 'createdAt-desc';
   const priceRange = currentSearchParams.priceRange || [0, 5000];
   const selectedConditions = useMemo(() => currentSearchParams.conditions || [], [currentSearchParams.conditions]);
@@ -202,7 +213,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
               transition={{ duration: 0.3 }}
               ref={isLastElement ? lastProductElementRef : null}
               key={`${product.id}-${index}`}>
-              <ProductCard product={product} viewMode={viewMode} />
+              <ProductCard product={product} viewMode={viewMode} isAdmin={isAdmin} />
             </motion.div>
           })}
         </div>
@@ -226,7 +237,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
             transition={{ duration: 0.3, delay: (index % PAGE_SIZE) * 0.05 }}
             ref={isLastElement ? lastProductElementRef : null}
             key={`${product.id}-${index}`}>
-            <ProductCard product={product} viewMode={viewMode} />
+            <ProductCard product={product} viewMode={viewMode} isAdmin={isAdmin} />
           </motion.div>
         })}
       </motion.div>
@@ -265,7 +276,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
             </SelectContent>
           </Select>
 
-          <div className="hidden sm:flex items-center rounded-md border bg-card p-1 h-10">
+          <div className="flex items-center rounded-md border bg-card p-1 h-10">
             <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')}><LayoutGrid /></Button>
             <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('list')}><List /></Button>
             <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('montage')}><Grid /></Button>
@@ -298,7 +309,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   );
 }
 
-export default function InfiniteProductGrid(props: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams> }) {
+export default function InfiniteProductGrid(props: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean }) {
   return (
     <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>}>
       <InfiniteProductGridInner {...props} />

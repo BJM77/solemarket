@@ -12,7 +12,12 @@ export default function BullionPage() {
     const { firestore } = useFirebase();
     const productsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        return query(collection(firestore, 'products'), where('category', '==', 'Bullion'), orderBy('createdAt', 'desc'), limit(100));
+        return query(
+            collection(firestore, 'products'), 
+            where('category', '==', 'Bullion'), 
+            where('isDraft', '==', false),
+            orderBy('createdAt', 'desc'), 
+            limit(100));
     }, [firestore]);
 
     const { data: products, isLoading } = useCollection<Product>(productsQuery);

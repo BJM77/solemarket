@@ -1,6 +1,6 @@
-
 import 'server-only';
 import * as admin from 'firebase-admin';
+export { admin };
 import path from 'path';
 import fs from 'fs';
 

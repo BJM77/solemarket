@@ -19,8 +19,9 @@ import {
     Zap
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { getAdminStats, type AdminStats } from '@/app/actions/admin-stats';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [
     {
@@ -84,11 +85,12 @@ const powerTools = [
 ];
 
 export default function PowerToolsPage() {
-    const { user, isUserLoading } = useUser();
+    const { user, isUserLoading: isAuthLoading } = useUser();
+    const { isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
     const router = useRouter();
     const [stats, setStats] = useState<AdminStats | null>(null);
 
-    const isSuperAdmin = (user?.email && SUPER_ADMIN_EMAILS.includes(user.email)) || user?.uid === 'O5nCLgbIaRRRF369K0kjgT59io73';
+    const isUserLoading = isAuthLoading || isPermissionsLoading;
 
     useEffect(() => {
         if (!isUserLoading && !isSuperAdmin) {

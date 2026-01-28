@@ -13,11 +13,39 @@ import { testApiKey } from '@/ai/flows/test-api-key';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Truck, DollarSign, Percent } from "lucide-react";
+import { getSystemSettings, saveSystemSettings, type SystemSettings } from './actions';
+import { useEffect } from 'react';
 
 export default function AdminSettingsPage() {
     const { toast } = useToast();
     const [isTesting, startTestTransition] = useTransition();
+    const [isSavingShipping, startShippingTransition] = useTransition();
     const [testResult, setTestResult] = useState<{ status: string; message: string } | null>(null);
+    const [settings, setSettings] = useState<SystemSettings>({
+        freightCharge: 12.00,
+        freeShippingThreshold: 150.00,
+        standardTaxRate: 0.10
+    });
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            const data = await getSystemSettings();
+            setSettings(data);
+        };
+        loadSettings();
+    }, []);
+
+    const handleSaveShippingSettings = () => {
+        startShippingTransition(async () => {
+            const result = await saveSystemSettings(settings);
+            toast({
+                title: result.success ? 'Settings Saved' : 'Save Failed',
+                description: result.message,
+                variant: result.success ? 'default' : 'destructive',
+            });
+        });
+    };
 
     const handleTestApiKey = () => {
         startTestTransition(async () => {
@@ -82,6 +110,67 @@ export default function AdminSettingsPage() {
                             </Alert>
                         )}
                     </CardContent>
+                </Card>
+
+                {/* Shipping & Logistics */}
+                <Card className="p-10 rounded-2xl">
+                    <CardHeader className="px-0 pt-0 mb-8">
+                        <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
+                            <Truck className="w-6 h-6 text-primary" /> Shipping & Logistics
+                        </CardTitle>
+                        <CardDescription>Configure shipping rates and thresholds.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-0 space-y-6">
+                        <div className="space-y-4">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <DollarSign className="w-3 h-3" /> Standard Freight Charge (AUD)
+                            </Label>
+                            <Input
+                                type="number"
+                                value={settings.freightCharge}
+                                onChange={(e) => setSettings({ ...settings, freightCharge: parseFloat(e.target.value) })}
+                                className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <AlertTriangle className="w-3 h-3" /> Free Shipping Threshold (AUD)
+                            </Label>
+                            <Input
+                                type="number"
+                                value={settings.freeShippingThreshold}
+                                onChange={(e) => setSettings({ ...settings, freeShippingThreshold: parseFloat(e.target.value) })}
+                                className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <Percent className="w-3 h-3" /> Standard Tax Rate
+                            </Label>
+                            <Input
+                                type="number"
+                                step="0.01"
+                                value={settings.standardTaxRate}
+                                onChange={(e) => setSettings({ ...settings, standardTaxRate: parseFloat(e.target.value) })}
+                                className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter className="px-0 pt-8 mt-4 border-t">
+                        <Button
+                            onClick={handleSaveShippingSettings}
+                            disabled={isSavingShipping}
+                            className="w-full h-12 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+                        >
+                            {isSavingShipping ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                            ) : (
+                                <><Save className="w-4 h-4 mr-2" /> Save Logistics Settings</>
+                            )}
+                        </Button>
+                    </CardFooter>
                 </Card>
 
                 {/* Color Palette */}

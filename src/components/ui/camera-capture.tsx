@@ -265,9 +265,9 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                     <SelectValue placeholder="Switch Camera" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {cameras.map(cam => (
-                                        <SelectItem key={cam.deviceId} value={cam.deviceId}>
-                                            {cam.label || `Camera ${cameras.indexOf(cam) + 1}`}
+                                    {cameras.map((cam, idx) => (
+                                        <SelectItem key={cam.deviceId || idx} value={cam.deviceId || `cam-${idx}`}>
+                                            {cam.label || `Camera ${idx + 1}`}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

@@ -83,3 +83,50 @@ export async function deleteProductByAdmin(
         };
     }
 }
+
+/**
+ * An admin-only action to renew a product listing by updating its createdAt date to now.
+ */
+export async function renewProductByAdmin(
+    productId: string,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !idToken) {
+        return { success: false, error: 'Product ID and authentication token are required.' };
+    }
+
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const userRole = decodedToken.role;
+
+        if (userRole !== 'superadmin') {
+            return {
+                success: false,
+                error: 'You do not have permission to perform this action.',
+            };
+        }
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const admin = require('firebase-admin');
+        await productRef.update({
+            createdAt: admin.firestore.Timestamp.now()
+        });
+
+        return {
+            success: true,
+            message: `Product listing has been renewed.`,
+        };
+    } catch (error: any) {
+        console.error('Admin Renew Product Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred during renewal.',
+        };
+    }
+}

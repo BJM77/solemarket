@@ -228,3 +228,21 @@ export interface Category {
   section: string;
   href?: string;
 }
+
+export interface Dispute {
+  id: string;
+  orderId: string;
+  transactionId?: string;
+  initiatorId: string; // The user who lodged the dispute
+  initiatorName: string;
+  initiatorRole: 'buyer' | 'seller';
+  reason: string;
+  description: string;
+  evidenceUrls?: string[];
+  status: 'open' | 'under_review' | 'resolved' | 'dismissed';
+  resolution?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  resolvedAt?: Timestamp;
+  resolvedBy?: string; // Admin ID
+}

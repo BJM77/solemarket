@@ -9,6 +9,7 @@ export default function AdminProductsPage() {
             <InfiniteProductGrid
                 pageTitle="Product Registry"
                 pageDescription="Review, manage, and edit all product listings on the platform."
+                isAdmin={true}
             />
         </motion.div>
     );

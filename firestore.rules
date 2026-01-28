@@ -13,7 +13,10 @@ service cloud.firestore {
     
     // TODO: Migrate to Custom Claims for better scalability
     function isSuperAdmin() { 
-      return isSignedIn() && (request.auth.token.role == 'superadmin' || request.auth.uid == 'O5nCLgbIaRRRF369K0kjgT59io73');
+      return isSignedIn() && (
+        request.auth.uid == 'O5nCLgbIaRRRF369K0kjgT59io73' || 
+        (request.auth.token.keys().hasAny(['role']) && request.auth.token.role == 'superadmin')
+      );
     } 
 
     function isAdmin() {

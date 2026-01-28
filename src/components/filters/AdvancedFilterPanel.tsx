@@ -283,14 +283,14 @@ export default function AdvancedFilterPanel({
                     <div className="space-y-3">
                         <Label className="text-base font-semibold">Minimum Seller Rating</Label>
                         <Select
-                            value={String(localFilters.minRating || '')}
-                            onValueChange={(value) => handleLocalChange('minRating', value ? Number(value) : undefined)}
+                            value={localFilters.minRating ? String(localFilters.minRating) : 'all-ratings'}
+                            onValueChange={(value) => handleLocalChange('minRating', value === 'all-ratings' ? undefined : Number(value))}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Any rating" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">Any Rating</SelectItem>
+                                <SelectItem value="all-ratings">Any Rating</SelectItem>
                                 <SelectItem value="4.5">4.5 ⭐ & up</SelectItem>
                                 <SelectItem value="4.0">4.0 ⭐ & up</SelectItem>
                                 <SelectItem value="3.5">3.5 ⭐ & up</SelectItem>

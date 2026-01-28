@@ -13,7 +13,12 @@ export default function NotesPage() {
     const { firestore } = useFirebase();
     const productsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        return query(collection(firestore, 'products'), where('category', '==', 'Coins'), orderBy('createdAt', 'desc'), limit(100));
+        return query(
+            collection(firestore, 'products'), 
+            where('category', '==', 'Coins'), 
+            where('isDraft', '==', false),
+            orderBy('createdAt', 'desc'), 
+            limit(100));
     }, [firestore]);
 
     const { data: products, isLoading } = useCollection<Product>(productsQuery);
