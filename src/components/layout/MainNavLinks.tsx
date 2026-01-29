@@ -52,6 +52,13 @@ export function MainNavLinks() {
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link href="/dealsafe">
+              DealSafe
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
         {user && (
           <NavigationMenuItem>
             <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
