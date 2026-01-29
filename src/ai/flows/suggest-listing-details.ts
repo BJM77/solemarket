@@ -1,16 +1,11 @@
-
 'use server';
 
-/**
- * @fileOverview A flow to suggest listing details based on uploaded images.
- * This uses a generative AI model to analyze images and suggest a title, description, price, etc.
- */
 import { ai } from '@/ai/genkit';
-import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema } from './schemas';
+import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema, type SuggestListingDetailsInput, type SuggestListingDetailsOutput } from './schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { logAIUsage } from '@/services/ai-usage';
 
-export async function suggestListingDetails(input: import('./schemas').SuggestListingDetailsInput): Promise<import('./schemas').SuggestListingDetailsOutput> {
+export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<SuggestListingDetailsOutput> {
     try {
         console.log('🚀 [Server] suggestListingDetails called');
         console.log('📊 [Server] Input images count:', input.photoDataUris?.length);
@@ -56,7 +51,6 @@ export async function suggestListingDetails(input: import('./schemas').SuggestLi
         throw new Error(error.message || 'AI analysis service failed.');
     }
 }
-export type SuggestListingDetailsOutput = import('./schemas').SuggestListingDetailsOutput;
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',

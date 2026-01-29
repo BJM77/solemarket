@@ -6,6 +6,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { logAIUsage } from '@/services/ai-usage';
 
 const ExtractCardNameInputSchema = z.object({
     cardImageDataUri: z
@@ -13,6 +14,7 @@ const ExtractCardNameInputSchema = z.object({
         .describe(
             "A photo of a trading card, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
         ),
+    userId: z.string().optional().describe('User ID for logging'),
 });
 type ExtractCardNameInput = z.infer<typeof ExtractCardNameInputSchema>;
 
@@ -34,6 +36,10 @@ export async function extractCardName(
     input: ExtractCardNameInput
 ): Promise<ExtractCardNameOutput> {
     const result = await extractCardNameFlow(input);
+
+    // Log Usage
+    await logAIUsage('Full Card Scan', 'vision_analysis', input.userId);
+
     return result;
 }
 

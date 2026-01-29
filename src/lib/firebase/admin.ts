@@ -38,7 +38,7 @@ function initializeFirebaseAdmin() {
 
     try {
         // Priority 1: Application Default Credentials (production/GCP)
-        if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        if (process.env.GOOGLE_APPLICATION_CREDENTIALS && fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
             console.log('✅ Firebase Admin: Using GOOGLE_APPLICATION_CREDENTIALS');
             return admin.initializeApp({
                 ...config,

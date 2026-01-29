@@ -1,13 +1,7 @@
-
 'use server';
 
-/**
- * @fileOverview An AI-powered flow for assessing the condition of collector cards.
- * This flow takes front and back images of a card and returns a detailed condition report.
- */
-
 import { ai } from '@/ai/genkit';
-import { cardConditionInputSchema, cardConditionOutputSchema } from './schemas';
+import { cardConditionInputSchema, cardConditionOutputSchema, type CardConditionInput, type CardConditionOutput } from './schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { logAIUsage } from '@/services/ai-usage';
 
@@ -16,7 +10,7 @@ import { logAIUsage } from '@/services/ai-usage';
  * @param input An object containing data URIs for the front and back images of the card.
  * @returns {Promise<CardConditionOutput>} A promise that resolves to a detailed condition report.
  */
-export async function checkCardCondition(input: import('./schemas').CardConditionInput): Promise<import('./schemas').CardConditionOutput> {
+export async function checkCardCondition(input: CardConditionInput): Promise<CardConditionOutput> {
     const result = await cardConditionFlow(input);
 
     // Log Usage

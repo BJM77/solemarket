@@ -1,22 +1,16 @@
 'use server';
 
-/**
- * @fileOverview A fast flow to extract only the player's name from a card image.
- *
- * - quickScan - A function that handles the player name extraction.
- */
-
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { checkAIRateLimit } from '@/lib/rate-limiter';
+import { logAIUsage } from '@/services/ai-usage';
 
 const QuickScanInputSchema = z.object({
     cardImageDataUri: z
         .string()
         .describe(
-            "A photo of a card, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+            "A photo of a trading card, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
         ),
-    userId: z.string().optional().describe('User ID for rate limiting'),
+    userId: z.string().optional().describe('User ID for logging'),
 });
 type QuickScanInput = z.infer<typeof QuickScanInputSchema>;
 
@@ -30,12 +24,11 @@ export type QuickScanOutput = z.infer<typeof QuickScanOutputSchema>;
 export async function quickScan(
     input: QuickScanInput
 ): Promise<QuickScanOutput> {
-    // Rate limiting check
-    if (input.userId) {
-        checkAIRateLimit(input.userId);
-    }
-
     const result = await quickScanFlow(input);
+
+    // Log Usage
+    await logAIUsage('Quick Card Scan', 'vision_analysis', input.userId);
+
     return result;
 }
 

@@ -16,7 +16,10 @@ const nextConfig = {
         'studio-8322868971-8ca89.web.app',
         'picksy.au',
         'www.picksy.au',
-        'localhost:9004'
+        'localhost:9004',
+        'localhost:9005',
+        '127.0.0.1:9004',
+        '127.0.0.1:9005'
       ],
     },
   },
