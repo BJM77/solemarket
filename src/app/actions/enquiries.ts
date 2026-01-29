@@ -5,7 +5,7 @@ import { firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { revalidatePath } from 'next/cache';
 
-export type EnquiryType = 'dealsafe' | 'general' | 'support';
+export type EnquiryType = 'dealsafe' | 'consign' | 'general' | 'support';
 
 export interface EnquiryData {
     name: string;

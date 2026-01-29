@@ -61,8 +61,8 @@ export default function AdminEnquiriesPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-4xl font-black tracking-tight">DealSafe Enquiries</h1>
-                <p className="text-muted-foreground">Manage incoming high-value trade verified concierge requests.</p>
+                <h1 className="text-4xl font-black tracking-tight">Customer Enquiries</h1>
+                <p className="text-muted-foreground">Manage incoming high-value trade concierge and consignment requests.</p>
             </div>
 
             <div className="grid gap-6">
@@ -80,9 +80,14 @@ export default function AdminEnquiriesPage() {
                                     <div className="flex items-center gap-2">
                                         <CardTitle className="text-xl font-bold">{enquiry.name}</CardTitle>
                                         <Badge variant={enquiry.status === 'new' ? 'default' : 'secondary'}>
-                                            {enquiry.status === 'new' ? 'New Request' : enquiry.status}
+                                            {enquiry.status === 'new' ? 'New' : enquiry.status}
                                         </Badge>
-                                        <Badge variant="outline" className="bg-primary/5">{enquiry.type}</Badge>
+                                        <Badge
+                                            variant="outline"
+                                            className={enquiry.type === 'dealsafe' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}
+                                        >
+                                            {enquiry.type === 'dealsafe' ? 'DealSafe' : 'Consignment'}
+                                        </Badge>
                                     </div>
                                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                                         <div className="flex items-center gap-1.5">

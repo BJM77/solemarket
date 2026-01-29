@@ -63,7 +63,7 @@ export async function submitConsignmentInquiry(
         const { name, email, phone, itemType, estimatedValue, description } = validatedFields.data;
 
         // 1. Save to Firestore
-        await firestoreDb.collection("consignment_inquiries").add({
+        const consignmentRef = await firestoreDb.collection("consignment_inquiries").add({
             name,
             email,
             phone: phone || null,
@@ -72,6 +72,19 @@ export async function submitConsignmentInquiry(
             description,
             status: "new",
             createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        // 1b. Duplicate to unified enquiries collection for central management
+        await firestoreDb.collection("enquiries").add({
+            name,
+            email,
+            phoneNumber: phone || null,
+            message: `[CONSIGNMENT] Item: ${itemType} | Estimated Value: ${estimatedValue}\n\nDescription: ${description}`,
+            type: 'consign',
+            status: 'new',
+            subject: `Consignment Inquiry: ${itemType}`,
+            createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+            originalId: consignmentRef.id
         });
 
         // 2. Notify Admin

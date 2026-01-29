@@ -39,10 +39,10 @@ const adminSections = [
         description: "Analyze listings and manage platform risk."
     },
     {
-        title: "DealSafe Enquiries",
+        title: "Customer Enquiries",
         icon: <Mail className="h-8 w-8 text-primary" />,
         href: "/admin/enquiries",
-        description: "Manage concierge requests and expert inquiries."
+        description: "Manage concierge and consignment requests."
     },
 ];
 
