@@ -97,7 +97,7 @@ export default function AIUsagePage() {
                         <DollarSign className="h-4 w-4 text-emerald-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">${stats.totalCost.toFixed(4)}</div>
+                        <div className="text-3xl font-black">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
                         <p className="text-xs text-muted-foreground mt-1 text-emerald-600 font-medium">USD (Projected API Fees)</p>
                     </CardContent>
                 </Card>
@@ -246,7 +246,7 @@ export default function AIUsagePage() {
                         <CardContent className="space-y-4">
                             <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
                                 <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Total Project Cost</div>
-                                <div className="text-xl font-black text-emerald-400">${stats.totalCost.toFixed(4)}</div>
+                                <div className="text-xl font-black text-emerald-400">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
                             </div>
                             <div className="text-xs text-slate-400 leading-relaxed">
                                 You are currently using <span className="text-emerald-400 font-bold">Gemini 1.5 Flash</span>.

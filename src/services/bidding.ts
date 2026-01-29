@@ -17,8 +17,8 @@ export async function placeBid(productId: string, bidderId: string, bidderName: 
         if (!product.isReverseBidding) {
             throw new Error('This product does not accept bids');
         }
-        
-        if(bidderId === product.sellerId) {
+
+        if (bidderId === product.sellerId) {
             throw new Error("You cannot bid on your own item.");
         }
 
@@ -29,11 +29,11 @@ export async function placeBid(productId: string, bidderId: string, bidderName: 
         const allowedMax = baselinePrice * 1.25;
 
         if (amount > allowedMax) {
-            throw new Error(`Bid amount cannot exceed 25% of current highest offer/price ($${allowedMax.toFixed(2)})`);
+            throw new Error(`Bid amount cannot exceed 25% of current highest offer/price ($${(typeof allowedMax === 'number' ? allowedMax : Number(allowedMax)).toFixed(2)})`);
         }
 
         if (amount < product.price) {
-            throw new Error(`Bid must be at least the starting price ($${product.price.toFixed(2)})`);
+            throw new Error(`Bid must be at least the starting price ($${(typeof product.price === 'number' ? product.price : Number(product.price)).toFixed(2)})`);
         }
 
         const newBid: Bid = {
@@ -77,9 +77,9 @@ export async function acceptBid(productId: string, bidId: string) {
             }
             // Optionally mark other pending bids as rejected
             if (bid.status === 'pending') {
-               return { ...bid, status: 'rejected' as const };
+                return { ...bid, status: 'rejected' as const };
             }
-           return bid;
+            return bid;
         });
 
         transaction.update(productRef, {

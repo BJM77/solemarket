@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Sparkles, CheckCircle2, ShieldCheck, TrendingUp, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { gradeCardDetailsAction } from '@/app/actions/ai-grading';
 import { suggestListingDetailsAction } from '@/app/actions/ai-grading';
 import type { GradeCardDetailsOutput } from '@/ai/schemas/grading-schemas';
-import type { SuggestListingDetailsOutput } from '@/ai/flows/suggest-listing-details';
+import type { SuggestListingDetailsOutput } from '@/ai/flows/schemas';
 import { useUser } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 
@@ -371,7 +371,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
                                         Estimated Value
                                     </h4>
                                     <div className="text-2xl font-black text-amber-900 mb-1">
-                                        ${gradingResult.estimatedValue.min.toFixed(2)} - ${gradingResult.estimatedValue.max.toFixed(2)} AUD
+                                        ${formatPrice(gradingResult.estimatedValue.min)} - ${formatPrice(gradingResult.estimatedValue.max)} AUD
                                     </div>
                                     <p className="text-sm text-amber-800">{gradingResult.estimatedValue.notes}</p>
                                 </div>
@@ -393,7 +393,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
 
                             <div className="grid gap-2">
                                 <SuggestionRow label="Title" value={listingResult.title} />
-                                <SuggestionRow label="Price" value={`$${listingResult.price.toFixed(2)} AUD`} />
+                                <SuggestionRow label="Price" value={`$${formatPrice(listingResult.price)} AUD`} />
                                 <SuggestionRow label="Condition" value={listingResult.condition} />
                                 <SuggestionRow label="Category" value={listingResult.category} />
                                 {listingResult.year && <SuggestionRow label="Year" value={String(listingResult.year)} />}

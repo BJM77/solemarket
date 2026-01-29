@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/lib/utils';
 import { lodgeDispute } from '@/app/actions/disputes';
 import { useUser } from '@/firebase';
 import type { CartItem } from '@/context/CartContext';
@@ -122,14 +123,14 @@ export default function ConfirmationPage() {
                                         <p className="font-medium line-clamp-1">{item.title}</p>
                                         <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                     </div>
-                                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                                    <p className="font-medium">${formatPrice(item.price * item.quantity)}</p>
                                 </div>
                             ))}
                         </div>
                         <Separator />
                         <div className="py-6 flex justify-between font-bold text-lg">
                             <span>Total Paid</span>
-                            <span>${order.totalAmount.toFixed(2)}</span>
+                            <span>${formatPrice(order.totalAmount)}</span>
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">

@@ -11,6 +11,7 @@ import type { Product } from '@/lib/types';
 import { getDraftListing, publishListing } from '@/app/actions/sell';
 import { useSearchParams } from 'next/navigation';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { formatPrice } from '@/lib/utils';
 
 type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerEmail' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
   imageUrls: string[];
@@ -104,11 +105,11 @@ function ReviewPageContent() {
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2 relative group">
             <div className="aspect-square bg-muted relative">
-              <Image 
-                src={imageUrls[0]} 
-                alt={title} 
-                fill 
-                className="object-cover" 
+              <Image
+                src={imageUrls[0]}
+                alt={title}
+                fill
+                className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
@@ -162,7 +163,7 @@ function ReviewPageContent() {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Listing Price</p>
-              <p className="text-4xl font-black text-primary">${Number(price || 0).toFixed(2)}</p>
+              <p className="text-4xl font-black text-primary">${formatPrice(price)}</p>
             </div>
           </div>
         </div>

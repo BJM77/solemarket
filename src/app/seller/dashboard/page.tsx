@@ -125,10 +125,10 @@ export default function SellerDashboard() {
   }
 
   const statCards = [
-    { label: 'Potential Revenue', value: `$${stats.totalRevenue.toFixed(2)}`, change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-100' },
+    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-100' },
     { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '+1.4%', icon: TrendingUp, color: 'text-purple-600 bg-purple-100' },
-    { label: 'Seller Rating', value: `${stats.averageRating.toFixed(1)}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
+    { label: 'Conversion Rate', value: `${typeof stats.conversionRate === 'number' ? stats.conversionRate.toFixed(1) : '0.0'}%`, change: '+1.4%', icon: TrendingUp, color: 'text-purple-600 bg-purple-100' },
+    { label: 'Seller Rating', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
   ];
 
   return (

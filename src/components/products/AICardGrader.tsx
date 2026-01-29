@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import type { SuggestListingDetailsOutput } from '@/ai/flows/schemas';
+import { useUser } from '@/firebase';
 
 const fileToDataUri = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -29,6 +30,7 @@ interface AICardGraderProps {
 }
 
 export default function AICardGrader({ onGradeComplete, onApplySuggestions, imageFiles }: AICardGraderProps) {
+  const { user } = useUser();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<SuggestListingDetailsOutput | null>(null);
   const { toast } = useToast();
@@ -45,8 +47,12 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
           imageFiles.map(file => fileToDataUri(file))
         );
 
+        const idToken = await user?.getIdToken();
+        if (!idToken) throw new Error("Authentication required");
+
         const gradingReport = await suggestListingDetails({
           photoDataUris: dataUris,
+          idToken: idToken,
         });
 
         setResult(gradingReport);
@@ -106,7 +112,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
               <div className="grid gap-2 text-sm">
                 <AISuggestion label="Title" value={result.title} />
-                <AISuggestion label="Price" value={`$${result.price.toFixed(2)}`} />
+                <AISuggestion label="Price" value={`$${formatPrice(result.price)}`} />
                 <AISuggestion label="Condition" value={result.condition} />
                 <AISuggestion label="Year" value={String(result.year)} />
               </div>

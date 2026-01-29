@@ -19,15 +19,16 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/utils';
 
 // Define types
 interface Seller extends UserProfile {
-    rating?: number;
-    totalSales?: number;
-    isVerified?: boolean;
-    responseTime?: string;
-    joinDate?: string;
-    description?: string;
+  rating?: number;
+  totalSales?: number;
+  isVerified?: boolean;
+  responseTime?: string;
+  joinDate?: string;
+  description?: string;
 }
 
 function SellerProfileSkeleton() {
@@ -46,7 +47,7 @@ function SellerProfileSkeleton() {
         <div className="lg:col-span-3">
           <Skeleton className="h-10 w-full max-w-sm mb-6" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => <Skeleton key={i} className="aspect-square h-48 w-full" />)}
+            {[...Array(6)].map((_, i) => <Skeleton key={i} className="aspect-square h-48 w-full" />)}
           </div>
         </div>
       </div>
@@ -58,7 +59,7 @@ export default function SellerPage() {
   const pathname = usePathname();
   const router = useRouter();
   const sellerId = pathname.split('/').pop() || '';
-  
+
   const { firestore } = useFirebase();
   const { user } = useUser();
 
@@ -74,13 +75,13 @@ export default function SellerPage() {
     );
   }, [firestore, sellerId]);
   const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery);
-  
+
   const productsQuery = useMemoFirebase(() => {
     if (!firestore || !sellerId) return null;
     return query(
-        collection(db, 'products'), 
-        where('sellerId', '==', sellerId),
-        where('isDraft', '==', false)
+      collection(db, 'products'),
+      where('sellerId', '==', sellerId),
+      where('isDraft', '==', false)
     );
   }, [firestore, sellerId]);
   const { data: products, isLoading: loadingProducts } = useCollection<Product>(productsQuery);
@@ -90,57 +91,57 @@ export default function SellerPage() {
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
 
-   const handleStartConversation = async () => {
-        if (!user || !seller) {
-            if (!user) router.push(`/sign-in?redirect=/seller/${sellerId}`);
-            return;
-        }
+  const handleStartConversation = async () => {
+    if (!user || !seller) {
+      if (!user) router.push(`/sign-in?redirect=/seller/${sellerId}`);
+      return;
+    }
 
-        if (user.uid === seller.id) {
-            toast({ title: "You can't message yourself.", variant: 'destructive' });
-            return;
-        }
+    if (user.uid === seller.id) {
+      toast({ title: "You can't message yourself.", variant: 'destructive' });
+      return;
+    }
 
-        const conversationQuery = query(
-            collection(db, 'conversations'),
-            where('participantIds', 'array-contains', user.uid)
-        );
+    const conversationQuery = query(
+      collection(db, 'conversations'),
+      where('participantIds', 'array-contains', user.uid)
+    );
 
-        const querySnapshot = await getDocs(conversationQuery);
-        let existingConversation: any = null;
+    const querySnapshot = await getDocs(conversationQuery);
+    let existingConversation: any = null;
 
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.participantIds.includes(seller.id)) {
-                existingConversation = { id: doc.id, ...data };
-            }
-        });
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.participantIds.includes(seller.id)) {
+        existingConversation = { id: doc.id, ...data };
+      }
+    });
 
-        if (existingConversation) {
-            router.push(`/messages/${existingConversation.id}`);
-        } else {
-            const newConversationRef = await addDoc(collection(db, 'conversations'), {
-                participantIds: [user.uid, seller.id],
-                participants: {
-                    [user.uid]: {
-                        displayName: user.displayName,
-                        photoURL: user.photoURL,
-                    },
-                    [seller.id]: {
-                        displayName: seller.displayName,
-                        photoURL: seller.photoURL,
-                    }
-                },
-                lastMessage: {
-                    text: `New conversation with ${seller.displayName}`,
-                    senderId: user.uid,
-                    timestamp: serverTimestamp(),
-                },
-                createdAt: serverTimestamp(),
-            });
-            router.push(`/messages/${newConversationRef.id}`);
-        }
-    };
+    if (existingConversation) {
+      router.push(`/messages/${existingConversation.id}`);
+    } else {
+      const newConversationRef = await addDoc(collection(db, 'conversations'), {
+        participantIds: [user.uid, seller.id],
+        participants: {
+          [user.uid]: {
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          },
+          [seller.id]: {
+            displayName: seller.displayName,
+            photoURL: seller.photoURL,
+          }
+        },
+        lastMessage: {
+          text: `New conversation with ${seller.displayName}`,
+          senderId: user.uid,
+          timestamp: serverTimestamp(),
+        },
+        createdAt: serverTimestamp(),
+      });
+      router.push(`/messages/${newConversationRef.id}`);
+    }
+  };
 
   if (loadingSeller || loadingProducts) return <SellerProfileSkeleton />;
 
@@ -182,27 +183,27 @@ export default function SellerPage() {
                 <div className="flex items-center gap-2 mt-4">
                   <div className="flex items-center gap-1">
                     <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-bold">{averageRating.toFixed(1)}</span>
+                    <span className="font-bold">{typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'}</span>
                   </div>
                   <span className="text-muted-foreground text-sm">({reviews?.length || 0} reviews)</span>
                 </div>
-                
+
                 {seller.isVerified && (
-                    <div className="flex items-center gap-2 mt-2 text-blue-600">
-                        <ShieldCheck className="h-5 w-5" />
-                        <span className="text-sm font-medium">Verified Seller</span>
-                    </div>
+                  <div className="flex items-center gap-2 mt-2 text-blue-600">
+                    <ShieldCheck className="h-5 w-5" />
+                    <span className="text-sm font-medium">Verified Seller</span>
+                  </div>
                 )}
-                
+
                 <Button className="w-full mt-6" onClick={handleStartConversation}>
-                    <Mail className="mr-2 h-4 w-4" /> Message Seller
+                  <Mail className="mr-2 h-4 w-4" /> Message Seller
                 </Button>
-                 {seller.bio && (
+                {seller.bio && (
                   <div className="text-left w-full mt-6 pt-4 border-t">
                     <h4 className="font-semibold text-sm mb-2 text-muted-foreground">About Me</h4>
                     <p className="text-sm text-gray-600">{seller.bio}</p>
                   </div>
-                 )}
+                )}
               </CardContent>
             </Card>
           </div>
@@ -210,22 +211,22 @@ export default function SellerPage() {
           {/* Right Content */}
           <div className="lg:col-span-3">
             <Tabs defaultValue="listings">
-                <TabsList className="grid w-full grid-cols-2 max-w-sm">
-                    <TabsTrigger value="listings"><ShoppingBag className="w-4 h-4 mr-2"/>Listings ({products?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="reviews"><MessageSquare className="w-4 h-4 mr-2"/>Reviews ({reviews?.length || 0})</TabsTrigger>
-                </TabsList>
-                <TabsContent value="listings" className="mt-8">
-                    {products && products.length > 0 ? (
-                        <ProductGrid products={products} />
-                    ) : (
-                        <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                            <p className="text-muted-foreground">This seller has no active listings.</p>
-                        </div>
-                    )}
-                </TabsContent>
-                <TabsContent value="reviews" className="mt-8">
-                    <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
-                </TabsContent>
+              <TabsList className="grid w-full grid-cols-2 max-w-sm">
+                <TabsTrigger value="listings"><ShoppingBag className="w-4 h-4 mr-2" />Listings ({products?.length || 0})</TabsTrigger>
+                <TabsTrigger value="reviews"><MessageSquare className="w-4 h-4 mr-2" />Reviews ({reviews?.length || 0})</TabsTrigger>
+              </TabsList>
+              <TabsContent value="listings" className="mt-8">
+                {products && products.length > 0 ? (
+                  <ProductGrid products={products} />
+                ) : (
+                  <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                    <p className="text-muted-foreground">This seller has no active listings.</p>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="reviews" className="mt-8">
+                <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
+              </TabsContent>
             </Tabs>
           </div>
         </div>

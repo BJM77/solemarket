@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
+import { formatPrice } from '@/lib/utils';
 
 function DashboardSkeleton() {
   return (
@@ -98,10 +99,10 @@ export default function SellerDashboard() {
   }
 
   const statCards = [
-    { label: 'Potential Revenue', value: `$${stats.totalRevenue.toFixed(2)}`, change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-100' },
+    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-100' },
     { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '+1.4%', icon: TrendingUp, color: 'text-purple-600 bg-purple-100' },
-    { label: 'Seller Rating', value: `${stats.averageRating.toFixed(1)}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
+    { label: 'Conversion Rate', value: `${typeof stats.conversionRate === 'number' ? stats.conversionRate.toFixed(1) : '0.0'}%`, change: '+1.4%', icon: TrendingUp, color: 'text-purple-600 bg-purple-100' },
+    { label: 'Seller Rating', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
   ];
 
   return (
@@ -169,7 +170,7 @@ export default function SellerDashboard() {
                               <span className="font-medium line-clamp-2">{product.title}</span>
                             </div>
                           </TableCell>
-                          <TableCell>${product.price.toFixed(2)}</TableCell>
+                          <TableCell>${formatPrice(product.price)}</TableCell>
                           <TableCell>{(product as any).views || 0}</TableCell>
                           <TableCell>{product.createdAt ? formatDistanceToNow(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : product.createdAt, { addSuffix: true }) : 'N/A'}</TableCell>
                           <TableCell className="text-right">

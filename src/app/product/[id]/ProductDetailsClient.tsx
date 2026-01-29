@@ -30,7 +30,7 @@ import {
     Hash
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
 import { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy, updateDoc, increment, arrayUnion, Timestamp } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
@@ -409,7 +409,7 @@ export default function ProductDetailsClient({
 
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="text-4xl font-bold text-gray-900">
-                                    ${product.price.toFixed(2)}
+                                    ${formatPrice(product.price)}
                                 </div>
                             </div>
 
@@ -503,7 +503,7 @@ export default function ProductDetailsClient({
                                             <div className="flex items-center gap-3 mt-1">
                                                 <div className="flex items-center gap-1">
                                                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                    <span className="text-sm font-medium">{seller.rating?.toFixed(1) || 'N/A'}</span>
+                                                    <span className="text-sm font-medium">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
                                                     <span className="text-xs text-gray-500">({seller.totalSales || 0} sales)</span>
                                                 </div>
                                             </div>

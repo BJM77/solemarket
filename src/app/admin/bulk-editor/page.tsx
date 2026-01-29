@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { getProductsForBulkEdit } from './actions';
+import { getProductsForBulkEdit, bulkUpdateProducts } from './actions';
+import { Timestamp } from 'firebase/firestore';
 import type { Product } from '@/lib/types';
 import {
     Table,
@@ -27,6 +28,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/lib/utils';
 
 
 const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
@@ -166,7 +168,7 @@ export default function BulkEditorPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="font-medium">{product.title}</TableCell>
-                                <TableCell>${product.price.toFixed(2)}</TableCell>
+                                <TableCell>${formatPrice(product.price)}</TableCell>
                                 <TableCell>{product.condition}</TableCell>
                                 <TableCell>
                                     <Badge variant={product.status === 'available' ? 'default' : 'outline'}>
@@ -174,7 +176,7 @@ export default function BulkEditorPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    {product.createdAt ? format(new Date(product.createdAt.seconds * 1000), 'PPP') : 'N/A'}
+                                    {product.createdAt ? format(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : new Date(product.createdAt), 'PPP') : 'N/A'}
                                 </TableCell>
                             </TableRow>
                         ))}

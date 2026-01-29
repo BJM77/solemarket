@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/utils';
 
 export function CartDrawer() {
     const { items, removeItem, updateQuantity, cartTotal, itemCount, isCartOpen, setIsCartOpen } = useCart();
@@ -33,7 +34,7 @@ export function CartDrawer() {
                         Your Cart ({itemCount})
                     </SheetTitle>
                 </SheetHeader>
-                
+
                 <Separator />
 
                 {items.length === 0 ? (
@@ -67,7 +68,7 @@ export function CartDrawer() {
                                             <div>
                                                 <h4 className="font-semibold line-clamp-2 leading-tight">{item.title}</h4>
                                                 <p className="text-sm font-bold text-primary mt-1">
-                                                    ${item.price.toFixed(2)}
+                                                    ${formatPrice(item.price)}
                                                 </p>
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
@@ -104,12 +105,12 @@ export function CartDrawer() {
                                 ))}
                             </div>
                         </ScrollArea>
-                        
+
                         <SheetFooter className="px-6 pb-6 pt-4 mt-auto border-t">
                             <div className="w-full space-y-4">
                                 <div className="flex justify-between text-lg font-semibold">
                                     <span>Subtotal</span>
-                                    <span>${cartTotal.toFixed(2)}</span>
+                                    <span>${formatPrice(cartTotal)}</span>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-center">
                                     Shipping and taxes will be calculated at checkout.
