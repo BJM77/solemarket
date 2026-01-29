@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, UserCheck, Banknote, PackageCheck, Lock, Handshake, CheckCircle2, Scale, ShoppingCart } from "lucide-react";
+import { DealSafeEnquiryDialog } from "./EnquiryDialog";
 
 const buyerBenefits = [
     {
@@ -130,9 +131,11 @@ export default function DealSafePage() {
                         Whether you're buying a 1st Edition Charizard or selling a rare historical coin, protect your investment with Picksy's most trusted service.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-xl border-2 transition-all hover:bg-white">
-                            Contact an Expert
-                        </Button>
+                        <DealSafeEnquiryDialog>
+                            <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-xl border-2 transition-all hover:bg-white">
+                                Contact an Expert
+                            </Button>
+                        </DealSafeEnquiryDialog>
                     </div>
                 </div>
             </div>

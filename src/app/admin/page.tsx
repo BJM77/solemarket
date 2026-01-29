@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Package, Users, Settings, ShieldAlert, FileText } from "lucide-react";
+import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail } from "lucide-react";
 import Link from 'next/link';
 import { AdminStatsGrid } from "@/components/admin/StatsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,10 +39,10 @@ const adminSections = [
         description: "Analyze listings and manage platform risk."
     },
     {
-        title: "Content Management",
-        icon: <FileText className="h-8 w-8 text-primary" />,
-        href: "/admin/categories",
-        description: "Manage dynamic categories and site content."
+        title: "DealSafe Enquiries",
+        icon: <Mail className="h-8 w-8 text-primary" />,
+        href: "/admin/enquiries",
+        description: "Manage concierge requests and expert inquiries."
     },
 ];
 

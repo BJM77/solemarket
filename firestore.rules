@@ -137,5 +137,11 @@ service cloud.firestore {
       allow read, list: if isSuperAdmin();
       allow write: if false; // Only backend admin SDK creates these
     }
+    // Enquiries: Authenticated create, Super Admin only read/list
+    match /enquiries/{enquiryId} {
+      allow create: if true; // Allow anyone to send an enquiry (even guest if needed, though app usually requires sign in)
+      allow read, list: if isSuperAdmin();
+      allow update, delete: if isSuperAdmin();
+    }
   }
 }
