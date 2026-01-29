@@ -31,7 +31,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy, updateDoc, increment } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
@@ -65,19 +65,19 @@ export default function ProductDetails({ productId, initialProduct }: { productI
     const { user, isUserLoading } = useUser();
     const { addItem, updateQuantity: updateCartQuantity } = useCart();
     const { markAsViewed } = useViewedProducts();
-    
+
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [seller, setSeller] = useState<Seller | null>(null);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [loadingRelated, setLoadingRelated] = useState(true);
-    
+
     // Bidding State
     const [bidAmount, setBidAmount] = useState('');
     const [biddingLoading, setBiddingLoading] = useState(false);
 
     const { firestore } = useFirebase();
-    
+
     const productRef = useMemoFirebase(() => firestore ? doc(db, 'products', productId) : null, [firestore, productId]);
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
         initialData: initialProduct,
@@ -178,9 +178,9 @@ export default function ProductDetails({ productId, initialProduct }: { productI
             router.push(`/messages/${newConversationRef.id}`);
         }
     };
-    
+
     // Increment view count
-     useEffect(() => {
+    useEffect(() => {
         if (productId && productRef) {
             const incrementView = async () => {
                 await updateDoc(productRef, {
@@ -195,7 +195,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
         if (product) {
             markAsViewed(productId);
             // Fetch seller and related products
-             const fetchExtraData = async () => {
+            const fetchExtraData = async () => {
                 setLoadingRelated(true);
                 if (product.sellerId) {
                     const sellerRef = doc(db, 'users', product.sellerId);
@@ -241,11 +241,11 @@ export default function ProductDetails({ productId, initialProduct }: { productI
             })
         }
     }, [productError, toast]);
-    
+
     if (!product && !isProductLoading) {
         notFound();
     }
-    
+
     if (!product) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -264,7 +264,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                             <Skeleton className="h-4 w-1/4" />
                             <Skeleton className="h-9 w-3/4" />
                             <Skeleton className="h-10 w-1/3" />
-                             <div className="flex gap-4">
+                            <div className="flex gap-4">
                                 <Skeleton className="h-5 w-1/4" />
                                 <Skeleton className="h-5 w-1/4" />
                             </div>
@@ -272,8 +272,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         </div>
                         <Skeleton className="h-12 w-full" />
                         <div className="flex gap-3">
-                             <Skeleton className="h-12 flex-1" />
-                             <Skeleton className="h-12 flex-1" />
+                            <Skeleton className="h-12 flex-1" />
+                            <Skeleton className="h-12 flex-1" />
                         </div>
                         <Skeleton className="h-20 w-full" />
                     </div>
@@ -446,11 +446,11 @@ export default function ProductDetails({ productId, initialProduct }: { productI
 
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="text-4xl font-bold text-gray-900">
-                                    ${product.price.toFixed(2)}
+                                    ${formatPrice(product.price)}
                                 </div>
                             </div>
-                            
-                             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+
+                            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
                                 {product.year && (
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-4 h-4" />
@@ -463,7 +463,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         <span>{product.manufacturer}</span>
                                     </div>
                                 )}
-                                 <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1.5">
                                     <Eye className="w-4 h-4" />
                                     <span>{(product as any).views || 0} views</span>
                                 </div>
@@ -488,9 +488,9 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 </AlertDescription>
                             </Alert>
                         )}
-                        
+
                         <div className="space-y-4 pt-4 border-t">
-                             {(!product.isReverseBidding || user?.uid === product.sellerId) && (
+                            {(!product.isReverseBidding || user?.uid === product.sellerId) && (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <Button
                                         size="lg"
@@ -511,76 +511,76 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         Buy Now
                                     </Button>
                                 </div>
-                             )}
+                            )}
                         </div>
 
                         {product.isReverseBidding && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="font-semibold text-lg">Bids</h3>
-                                        <Badge variant="secondary">{product.bids?.length || 0} Bids</Badge>
-                                    </div>
-                                    {product.bids && product.bids.length > 0 ? (
-                                        <div className="space-y-2 border p-3 rounded-lg max-h-60 overflow-y-auto bg-gray-50/50">
-                                            {[...product.bids].sort((a, b) => b.amount - a.amount).map((bid) => (
-                                                <div key={bid.id} className="flex justify-between items-center p-3 bg-white border rounded shadow-sm">
-                                                    <div>
-                                                        <div className="font-medium flex items-center gap-2">
-                                                            {bid.bidderName}
-                                                            {bid.bidderId === user?.uid && <Badge variant="outline" className="text-[10px] h-5">You</Badge>}
-                                                        </div>
-                                                        <div className="text-gray-500 text-xs mt-0.5">
-                                                            {bid.timestamp?.seconds ? new Date(bid.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}
-                                                        </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-semibold text-lg">Bids</h3>
+                                    <Badge variant="secondary">{product.bids?.length || 0} Bids</Badge>
+                                </div>
+                                {product.bids && product.bids.length > 0 ? (
+                                    <div className="space-y-2 border p-3 rounded-lg max-h-60 overflow-y-auto bg-gray-50/50">
+                                        {[...product.bids].sort((a, b) => b.amount - a.amount).map((bid) => (
+                                            <div key={bid.id} className="flex justify-between items-center p-3 bg-white border rounded shadow-sm">
+                                                <div>
+                                                    <div className="font-medium flex items-center gap-2">
+                                                        {bid.bidderName}
+                                                        {bid.bidderId === user?.uid && <Badge variant="outline" className="text-[10px] h-5">You</Badge>}
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="font-bold text-lg">${bid.amount.toFixed(2)}</span>
-                                                        {user?.uid === product.sellerId && bid.status === 'pending' && (
-                                                            <Button size="sm" onClick={() => handleAcceptBid(bid.id)}>Accept</Button>
-                                                        )}
-                                                        {bid.status === 'accepted' && <Badge className="bg-green-500 hover:bg-green-600">Accepted</Badge>}
+                                                    <div className="text-gray-500 text-xs mt-0.5">
+                                                        {bid.timestamp?.seconds ? new Date(bid.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center p-6 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
-                                            <p>No bids yet. Be the first to make an offer!</p>
-                                        </div>
-                                    )}
-
-                                    {(!user || user.uid !== product.sellerId) ? (
-                                        <div className="flex gap-3 pt-2">
-                                            <div className="relative flex-1">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
-                                                <Input
-                                                    type="number"
-                                                    placeholder="Enter bid"
-                                                    className="pl-8 h-12 text-lg"
-                                                    value={bidAmount}
-                                                    onChange={(e) => setBidAmount(e.target.value)}
-                                                />
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-bold text-lg">${formatPrice(bid.amount)}</span>
+                                                    {user?.uid === product.sellerId && bid.status === 'pending' && (
+                                                        <Button size="sm" onClick={() => handleAcceptBid(bid.id)}>Accept</Button>
+                                                    )}
+                                                    {bid.status === 'accepted' && <Badge className="bg-green-500 hover:bg-green-600">Accepted</Badge>}
+                                                </div>
                                             </div>
-                                            <Button
-                                                onClick={handlePlaceBid}
-                                                disabled={biddingLoading || !bidAmount}
-                                                size="lg"
-                                                className="px-8"
-                                            >
-                                                {biddingLoading ? <Loader2 className="animate-spin w-5 h-5" /> : "Place Bid"}
-                                            </Button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center p-6 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
+                                        <p>No bids yet. Be the first to make an offer!</p>
+                                    </div>
+                                )}
+
+                                {(!user || user.uid !== product.sellerId) ? (
+                                    <div className="flex gap-3 pt-2">
+                                        <div className="relative flex-1">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
+                                            <Input
+                                                type="number"
+                                                placeholder="Enter bid"
+                                                className="pl-8 h-12 text-lg"
+                                                value={bidAmount}
+                                                onChange={(e) => setBidAmount(e.target.value)}
+                                            />
                                         </div>
-                                    ) : (
-                                        <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
-                                            <InfoIcon className="w-4 h-4" />
-                                            <span>You are the seller. You can accept offers from the list above.</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                        <Button
+                                            onClick={handlePlaceBid}
+                                            disabled={biddingLoading || !bidAmount}
+                                            size="lg"
+                                            className="px-8"
+                                        >
+                                            {biddingLoading ? <Loader2 className="animate-spin w-5 h-5" /> : "Place Bid"}
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
+                                        <InfoIcon className="w-4 h-4" />
+                                        <span>You are the seller. You can accept offers from the list above.</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {seller && (
-                             <Card>
+                            <Card>
                                 <CardContent className="pt-6">
                                     <div className="flex items-center gap-3 mb-4">
                                         <Avatar className="h-12 w-12 border">
@@ -641,8 +641,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                             <Card>
                                 <CardContent className="pt-6">
                                     <div className="prose max-w-none text-gray-600">
-                                       <p>{product.description}</p>
-                                       {/* Additional details would be rendered here */}
+                                        <p>{product.description}</p>
+                                        {/* Additional details would be rendered here */}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -653,7 +653,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                 {relatedProducts.length > 0 && (
                     <div className="lg:col-span-2 mt-16">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
-                        {loadingRelated ? <ProductGridSkeleton count={4}/> : <ProductGrid products={relatedProducts} />}
+                        {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
                     </div>
                 )}
             </div>

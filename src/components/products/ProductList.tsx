@@ -9,14 +9,15 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import EmptyState from '../ui/EmptyState';
 import { Package } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
 interface ProductListProps {
-    products: Product[];
+  products: Product[];
 }
 
 export default function ProductList({ products }: ProductListProps) {
   if (!products || products.length === 0) {
-    return <EmptyState 
+    return <EmptyState
       icon={<Package className="h-12 w-12 text-muted-foreground" />}
       title="No Products Found"
       description="Try adjusting your search or filters to find what you're looking for."
@@ -41,7 +42,7 @@ export default function ProductList({ products }: ProductListProps) {
             <TableRow key={product.id}>
               <TableCell>
                 <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
-                    <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
+                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
                 </div>
               </TableCell>
               <TableCell className="font-medium">{product.title}</TableCell>
@@ -49,10 +50,10 @@ export default function ProductList({ products }: ProductListProps) {
                 <Badge variant="outline">{product.condition}</Badge>
               </TableCell>
               <TableCell>{product.sellerName}</TableCell>
-              <TableCell className="text-right font-semibold">${product.price.toFixed(2)}</TableCell>
+              <TableCell className="text-right font-semibold">${formatPrice(product.price)}</TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="ghost" size="sm">
-                    <Link href={`/product/${product.id}`}>View</Link>
+                  <Link href={`/product/${product.id}`}>View</Link>
                 </Button>
               </TableCell>
             </TableRow>

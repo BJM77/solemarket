@@ -20,6 +20,7 @@ import { deleteProductByAdmin } from '@/app/actions/admin';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { formatPrice } from '@/lib/utils';
 
 export default function MontageGrid({ products, lastProductRef }: MontageGridProps) {
   const { viewedProductIds } = useViewedProducts();
@@ -122,7 +123,7 @@ export default function MontageGrid({ products, lastProductRef }: MontageGridPro
 
             <div className="absolute bottom-1 right-1 pointer-events-none">
               <span className="bg-black/50 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
-                ${product.price.toFixed(0)}
+                ${formatPrice(product.price)}
               </span>
             </div>
           </motion.div>

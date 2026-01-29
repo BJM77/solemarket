@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
+import { formatPrice } from '@/lib/utils';
 
 function DashboardSkeleton() {
   return (
@@ -197,7 +198,7 @@ export default function SellerDashboard() {
                               <span className="font-medium line-clamp-2">{product.title}</span>
                             </div>
                           </TableCell>
-                          <TableCell>${product.price.toFixed(2)}</TableCell>
+                          <TableCell>{formatPrice(product.price)}</TableCell>
                           <TableCell>{(product as any).views || 0}</TableCell>
                           <TableCell>
                             <Badge variant={product.status === 'draft' ? 'secondary' : 'default'} className={product.status === 'draft' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700'}>

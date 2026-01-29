@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { useState } from 'react';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { formatPrice } from '@/lib/utils';
 
 interface QuickViewProps {
   product: Product;
@@ -54,12 +55,12 @@ export function QuickView({ product }: QuickViewProps) {
       description: "A link to this product has been copied to your clipboard."
     });
   }
-  
+
   const handleAddToCart = () => {
     addItem(product);
     toast({
-        title: "Added to Cart!",
-        description: `${product.title} is now in your cart.`
+      title: "Added to Cart!",
+      description: `${product.title} is now in your cart.`
     });
     setIsOpen(false);
   }
@@ -68,26 +69,26 @@ export function QuickView({ product }: QuickViewProps) {
     <Dialog open={isOpen} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full mt-2">
-            <Eye className="mr-2 h-4 w-4" />
-            Quick View
+          <Eye className="mr-2 h-4 w-4" />
+          Quick View
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl w-full h-auto md:h-[80vh] flex flex-col md:flex-row p-0">
-          <DialogTitle className="sr-only">{`Quick view of ${product.title}`}</DialogTitle>
-          <DialogDescription className="sr-only">{`View details for ${product.title}, add to cart, or see more.`}</DialogDescription>
-        
+        <DialogTitle className="sr-only">{`Quick view of ${product.title}`}</DialogTitle>
+        <DialogDescription className="sr-only">{`View details for ${product.title}, add to cart, or see more.`}</DialogDescription>
+
         {/* Left Side: Image Gallery */}
         <div className="md:w-1/2 p-6 flex flex-col">
-          <ProductImageGallery 
-            images={product.imageUrls} 
-            title={product.title} 
-            isCard={product.category === 'Collector Cards'} 
+          <ProductImageGallery
+            images={product.imageUrls}
+            title={product.title}
+            isCard={product.category === 'Collector Cards'}
           />
         </div>
 
         {/* Right Side: Product Details */}
         <div className="md:w-1/2 p-6 flex flex-col bg-gray-50/50 overflow-y-auto">
-          
+
           <div className="space-y-3">
             <Badge variant="outline">{product.category}</Badge>
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight font-headline">{product.title}</h1>
@@ -100,40 +101,40 @@ export function QuickView({ product }: QuickViewProps) {
           </div>
 
           <Separator className="my-5" />
-          
+
           <div className="space-y-4">
-            <p className="text-3xl font-bold text-foreground">${product.price.toFixed(2)}</p>
-            
+            <p className="text-3xl font-bold text-foreground">${formatPrice(product.price)}</p>
+
             <div className="text-sm text-muted-foreground">
-                {product.description}
+              {product.description}
             </div>
           </div>
-          
+
           <div className="mt-auto pt-6 space-y-4">
-             <div className="flex items-center gap-4">
-                <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Buy It
-                </Button>
-                <Button size="icon" variant="outline" onClick={handleFavorite}>
-                    <Heart className="h-5 w-5" />
-                </Button>
-                <Button size="icon" variant="outline" onClick={handleShare}>
-                    <Share2 className="h-5 w-5" />
-                </Button>
-             </div>
-             {canEdit && (
-                <Button asChild variant="secondary" className="w-full">
-                    <Link href={`/sell/edit/${product.id}`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Listing
-                    </Link>
-                </Button>
-             )}
-             <Button asChild variant="ghost" className="w-full">
-                <Link href={`/product/${product.id}`}>
-                    View Full Product Details →
+            <div className="flex items-center gap-4">
+              <Button size="lg" className="flex-1" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                Buy It
+              </Button>
+              <Button size="icon" variant="outline" onClick={handleFavorite}>
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button size="icon" variant="outline" onClick={handleShare}>
+                <Share2 className="h-5 w-5" />
+              </Button>
+            </div>
+            {canEdit && (
+              <Button asChild variant="secondary" className="w-full">
+                <Link href={`/sell/edit/${product.id}`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Listing
                 </Link>
+              </Button>
+            )}
+            <Button asChild variant="ghost" className="w-full">
+              <Link href={`/product/${product.id}`}>
+                View Full Product Details →
+              </Link>
             </Button>
           </div>
         </div>

@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, ArrowLeft, Loader2, Truck, Store } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 import { useState, useTransition } from 'react';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/order';
@@ -181,7 +182,7 @@ export default function CheckoutPage() {
                         <span className="font-semibold">Flat Rate Shipping</span>
                         <span className="text-sm text-muted-foreground mt-1">Delivered to you</span>
                         <span className="text-sm font-bold text-primary mt-2">
-                          {cartTotal >= settings.freeShippingThreshold ? 'FREE' : `$${settings.freightCharge.toFixed(2)}`}
+                          {cartTotal >= settings.freeShippingThreshold ? 'FREE' : `$${formatPrice(settings.freightCharge)}`}
                         </span>
                       </Label>
                     </div>
@@ -273,7 +274,7 @@ export default function CheckoutPage() {
                 <CardFooter>
                   <Button type="submit" size="lg" className="w-full h-12 text-lg" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-                    Place Order (${totalAmount.toFixed(2)})
+                    Place Order (${formatPrice(totalAmount)})
                   </Button>
                 </CardFooter>
               </Card>
@@ -300,7 +301,7 @@ export default function CheckoutPage() {
                         <p className="font-medium line-clamp-1">{item.title}</p>
                         <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium">${formatPrice(item.price * item.quantity)}</p>
                     </div>
                   ))}
                 </div>
@@ -308,21 +309,21 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>${formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping ({shippingMethod})</span>
-                    <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
+                    <span>{shippingCost === 0 ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Taxes (Est. {(taxRate * 100).toFixed(0)}%)</span>
-                    <span>${taxAmount.toFixed(2)}</span>
+                    <span>${formatPrice(taxAmount)}</span>
                   </div>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${totalAmount.toFixed(2)}</span>
+                  <span>${formatPrice(totalAmount)}</span>
                 </div>
               </CardContent>
             </Card>

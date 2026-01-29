@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { formatPrice } from '@/lib/utils';
 
 
 interface ProductCardProps {
@@ -218,7 +219,7 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
               </div>
             )}
             <span className="text-sm font-bold w-20 text-right">
-              ${product.price.toLocaleString()}
+              ${formatPrice(product.price)}
             </span>
             <Button
               size="sm"
@@ -321,7 +322,7 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
           <div className="relative">
             <div className="flex items-center justify-between mb-1">
               <Badge variant="outline" className="text-xs relative z-20">{product.category}</Badge>
-              <p className="text-lg font-bold relative z-20">${product.price?.toLocaleString() || '0.00'}</p>
+              <p className="text-lg font-bold relative z-20">${formatPrice(product.price)}</p>
             </div>
             <h3 className="text-lg font-semibold text-foreground group-hover:text-primary leading-tight">
               <Link
@@ -457,7 +458,7 @@ export default function ProductCard({ product, viewMode = 'grid', isAdmin = fals
         <div className="flex items-end justify-between mt-4 flex-grow">
           <div className="relative z-20">
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
-            <p className="text-2xl font-black text-[#0d121b] dark:text-white tracking-tight">${product.price.toLocaleString()}</p>
+            <p className="text-2xl font-black text-[#0d121b] dark:text-white tracking-tight">${formatPrice(product.price)}</p>
           </div>
           <Button
             size="sm"
