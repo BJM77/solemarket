@@ -9,6 +9,7 @@
 import { ai } from '@/ai/genkit';
 import { cardConditionInputSchema, cardConditionOutputSchema } from './schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { logAIUsage } from '@/services/ai-usage';
 
 /**
  * Assesses the condition of a collector card based on its images.
@@ -16,8 +17,13 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
  * @returns {Promise<CardConditionOutput>} A promise that resolves to a detailed condition report.
  */
 export async function checkCardCondition(input: import('./schemas').CardConditionInput): Promise<import('./schemas').CardConditionOutput> {
-    await verifyIdToken(input.idToken);
-    return await cardConditionFlow(input);
+    const result = await cardConditionFlow(input);
+
+    // Log Usage
+    const decodedToken = await verifyIdToken(input.idToken);
+    await logAIUsage('Quick Card Scan', 'vision_analysis', decodedToken.uid);
+
+    return result;
 }
 
 const cardConditionPrompt = ai.definePrompt({

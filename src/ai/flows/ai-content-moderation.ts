@@ -3,6 +3,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { logAIUsage } from '@/services/ai-usage';
 
 const ModerateContentInputSchema = z.object({
     productName: z.string().describe('The name of the product.'),
@@ -45,8 +46,13 @@ export type ModerateContentOutput = z.infer<typeof ModerateContentOutputSchema>;
 export async function moderateContent(
     input: ModerateContentInput
 ): Promise<ModerateContentOutput> {
-    await verifyIdToken(input.idToken);
-    return moderateContentFlow(input);
+    const result = await moderateContentFlow(input);
+
+    // Log Usage
+    const decodedToken = await verifyIdToken(input.idToken);
+    await logAIUsage('Content Moderation', 'moderation', decodedToken.uid);
+
+    return result;
 }
 
 const moderateContentPrompt = ai.definePrompt({

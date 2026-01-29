@@ -1,7 +1,8 @@
 'use server';
 
-import { db } from '@/lib/firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { firestoreDb as db } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
+import { verifyIdToken } from '@/lib/firebase/auth-admin';
 
 const SETTINGS_DOC_ID = 'system_settings';
 
@@ -11,23 +12,38 @@ export interface SystemSettings {
     standardTaxRate?: number;
 }
 
-export async function saveSystemSettings(settings: SystemSettings) {
+export async function saveSystemSettings(settings: SystemSettings, idToken?: string) {
     try {
-        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
-        await setDoc(settingsRef, settings, { merge: true });
+        if (idToken) {
+            const decodedToken = await verifyIdToken(idToken);
+            const userRef = db.collection('users').doc(decodedToken.uid);
+            const userSnap = await userRef.get();
+            const userData = userSnap.data();
+
+            if (userData?.role !== 'superadmin') {
+                throw new Error('Unauthorized: Super Admin access required.');
+            }
+        }
+
+        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+        await settingsRef.set({
+            ...settings,
+            updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+
         return { success: true, message: 'Settings updated successfully.' };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error saving system settings:', error);
-        return { success: false, message: 'Failed to update settings.' };
+        return { success: false, message: error.message || 'Failed to update settings.' };
     }
 }
 
 export async function getSystemSettings(): Promise<SystemSettings> {
     try {
-        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
-        const docSnap = await getDoc(settingsRef);
+        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+        const docSnap = await settingsRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             return docSnap.data() as SystemSettings;
         }
 

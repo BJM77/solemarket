@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail } from "lucide-react";
+import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail, Brain } from "lucide-react";
 import Link from 'next/link';
 import { AdminStatsGrid } from "@/components/admin/StatsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,6 +43,12 @@ const adminSections = [
         icon: <Mail className="h-8 w-8 text-primary" />,
         href: "/admin/enquiries",
         description: "Manage concierge and consignment requests."
+    },
+    {
+        title: "AI Usage",
+        icon: <Brain className="h-8 w-8 text-primary" />,
+        href: "/admin/ai-usage",
+        description: "Monitor AI requests and token costs."
     },
 ];
 

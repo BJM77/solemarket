@@ -8,6 +8,7 @@
 import { ai } from '@/ai/genkit';
 import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema } from './schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { logAIUsage } from '@/services/ai-usage';
 
 export async function suggestListingDetails(input: import('./schemas').SuggestListingDetailsInput): Promise<import('./schemas').SuggestListingDetailsOutput> {
     try {
@@ -42,7 +43,13 @@ export async function suggestListingDetails(input: import('./schemas').SuggestLi
             console.log('✅ [Server] Conversion complete. Payload ready.');
         }
 
-        return await suggestListingDetailsFlow(input);
+        const result = await suggestListingDetailsFlow(input);
+
+        // Log Usage
+        const decodedToken = await verifyIdToken(input.idToken);
+        await logAIUsage('Listing Suggestion', 'vision_analysis', decodedToken.uid);
+
+        return result;
 
     } catch (error: any) {
         console.error('❌ [Server] suggestListingDetails failed:', error);

@@ -4,6 +4,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { gradeCardDetailsSchema, type GradeCardDetailsOutput } from '@/ai/schemas/grading-schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { logAIUsage } from '@/services/ai-usage';
 
 export type { GradeCardDetailsOutput };
 
@@ -111,6 +112,10 @@ export async function gradeCardDetails(input: {
     if (!output) {
         throw new Error("Failed to generate grading details");
     }
+
+    // Log Usage
+    const decodedToken = await verifyIdToken(input.idToken);
+    await logAIUsage('Advanced Card Grading', 'grading', decodedToken.uid);
 
     return output;
 }

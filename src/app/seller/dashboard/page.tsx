@@ -5,7 +5,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { useFirebase, useCollection, useUser, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, Timestamp, getDocs, updateDoc } from 'firebase/firestore';
 import type { Product, Review } from '@/lib/types';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +49,7 @@ export default function SellerDashboard() {
 
   const userIdQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'products'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
+    return query(collection(firestore, 'products'), where('userId', '==', user.uid));
   }, [firestore, user?.uid]);
 
   const { data: sellerProducts, isLoading: sellerLoading } = useCollection<Product>(sellerIdQuery);
@@ -145,6 +145,7 @@ export default function SellerDashboard() {
                 New Listing
               </Link>
             </Button>
+            <SyncListingsButton userId={user.uid} />
           </div>
         </div>
 
@@ -262,3 +263,67 @@ export default function SellerDashboard() {
     </div>
   );
 }
+function SyncListingsButton({ userId }: { userId: string }) {
+  const { firestore } = useFirebase();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { toast } = useToast();
+
+  const handleSync = async () => {
+    if (!firestore || !userId) return;
+    setIsSyncing(true);
+    try {
+      // Find all products where userId matches
+      const q = query(collection(firestore, 'products'), where('userId', '==', userId));
+      const snapshot = await getDocs(q);
+      let count = 0;
+
+      const promises = snapshot.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+        const updates: any = {};
+
+        // Fix missing sellerId
+        if (!data.sellerId || data.sellerId !== userId) {
+          updates.sellerId = userId;
+        }
+
+        // Fix missing isDraft for available listings
+        if (data.status === 'available' && data.isDraft !== false) {
+          updates.isDraft = false;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await updateDoc(docSnap.ref, updates);
+          count++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (count > 0) {
+        toast({ title: 'Sync Complete', description: `Successfully recovered and updated ${count} listings.` });
+        window.location.reload();
+      } else {
+        toast({ title: 'Sync Finished', description: 'No missing data was found for your listings.' });
+      }
+    } catch (error: any) {
+      console.error('Sync failed:', error);
+      toast({ title: 'Sync Failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      onClick={handleSync}
+      disabled={isSyncing}
+      className="border-primary text-primary hover:bg-primary/5"
+    >
+      {isSyncing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <TrendingUp className="h-4 w-4 mr-2" />}
+      Sync Listings
+    </Button>
+  );
+}
+
+import { useToast } from '@/hooks/use-toast';

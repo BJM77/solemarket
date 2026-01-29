@@ -38,12 +38,21 @@ export default function AdminSettingsPage() {
 
     const handleSaveShippingSettings = () => {
         startShippingTransition(async () => {
-            const result = await saveSystemSettings(settings);
-            toast({
-                title: result.success ? 'Settings Saved' : 'Save Failed',
-                description: result.message,
-                variant: result.success ? 'default' : 'destructive',
-            });
+            try {
+                const idToken = await getCurrentUserIdToken();
+                const result = await saveSystemSettings(settings, idToken || undefined);
+                toast({
+                    title: result.success ? 'Settings Saved' : 'Save Failed',
+                    description: result.message,
+                    variant: result.success ? 'default' : 'destructive',
+                });
+            } catch (error: any) {
+                toast({
+                    title: 'Save Failed',
+                    description: error.message,
+                    variant: 'destructive',
+                });
+            }
         });
     };
 

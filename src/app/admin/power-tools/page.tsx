@@ -16,7 +16,8 @@ import {
     QrCode,
     Package,
     Settings,
-    Zap
+    Zap,
+    Brain
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
@@ -24,6 +25,13 @@ import { getAdminStats, type AdminStats } from '@/app/actions/admin-stats';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [
+    {
+        title: 'AI Intelligence Console',
+        description: 'Track AI usage, tokens, and estimated costs in real-time',
+        icon: Brain,
+        href: '/admin/ai-usage',
+        color: 'bg-emerald-500',
+    },
     {
         title: 'Bulk Image Lister',
         description: 'Upload multiple images and let AI create listings',
