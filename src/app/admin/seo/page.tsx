@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Globe, Search, Save, FileCode, MapPin, Loader2, Sparkles } from 'lucide-react';
+import { Globe, Search, Save, FileCode, MapPin, Loader2, Sparkles, ExternalLink, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { getSEOSettings, saveSEOSettings, type SEOSettings } from './actions';
 
@@ -172,6 +172,120 @@ export default function SEOPage() {
                                 Deploy SEO Updates
                             </Button>
                         </CardFooter>
+                    </Card>
+
+                    {/* Search Engine Registration Section */}
+                    <Card className="border-2 border-emerald-100 shadow-lg">
+                        <CardHeader className="bg-emerald-50/50">
+                            <CardTitle className="flex items-center gap-2 text-emerald-800">
+                                <Search className="h-5 w-5" />
+                                Search Engine Registration Console
+                            </CardTitle>
+                            <CardDescription className="text-emerald-700/80">
+                                Manually register Picksy with major search engines to accelerate indexing and visibility in Australia.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-8">
+                            {/* Google Search Console */}
+                            <div className="flex flex-col md:flex-row gap-6 p-6 rounded-xl border bg-white shadow-sm border-emerald-100">
+                                <div className="flex-grow space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <Globe className="h-6 w-6 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-lg text-slate-900 leading-tight">Google Search Console</h4>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Priority: Critical (85% AU Market Share)</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 text-sm text-slate-600">
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Requirement:</strong> Verify ownership via DNS TXT record (Add to your domain provider) or HTML File upload.</p>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Action:</strong> Submit <code>https://picksy.au/sitemap.xml</code> after verification.</p>
+                                        </div>
+                                    </div>
+                                    <Button variant="default" className="bg-blue-600 hover:bg-blue-700 font-bold" asChild>
+                                        <a href="https://search.google.com/search-console" target="_blank">
+                                            Open Google Console <ExternalLink className="ml-2 h-4 w-4" />
+                                        </a>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Bing & Yahoo */}
+                            <div className="flex flex-col md:flex-row gap-6 p-6 rounded-xl border bg-white shadow-sm border-emerald-100">
+                                <div className="flex-grow space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-emerald-100 rounded-lg">
+                                            <Search className="h-6 w-6 text-emerald-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-lg text-slate-900 leading-tight">Bing Webmaster Tools</h4>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold font-mon">Powers Bing, Yahoo & DuckDuckGo</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 text-sm text-slate-600">
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Requirement:</strong> Can automatically import verification from Google Search Console (Recommended).</p>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Note:</strong> Injects your metadata into the Microsoft Search ecosystem.</p>
+                                        </div>
+                                    </div>
+                                    <Button variant="outline" className="border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-bold" asChild>
+                                        <a href="https://www.bing.com/webmasters" target="_blank">
+                                            Open Bing Webmaster <ExternalLink className="ml-2 h-4 w-4" />
+                                        </a>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Apple Business Connect */}
+                            <div className="flex flex-col md:flex-row gap-6 p-6 rounded-xl border bg-white shadow-sm border-emerald-100">
+                                <div className="flex-grow space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-slate-100 rounded-lg">
+                                            <div className="h-6 w-6 flex items-center justify-center font-bold text-slate-900 italic">A</div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-lg text-slate-900 leading-tight">Apple Business Connect</h4>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Important for iOS Spotlight & Maps</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 text-sm text-slate-600">
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Requirement:</strong> Registered Australian business address (ABN optional but helpful).</p>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <p><strong>Benefit:</strong> Puts Picksy on Apple Maps and enhances Siri search results.</p>
+                                        </div>
+                                    </div>
+                                    <Button variant="secondary" className="font-bold flex items-center justify-center" asChild>
+                                        <a href="https://businessconnect.apple.com/" target="_blank">
+                                            Register with Apple <ExternalLink className="ml-2 h-4 w-4" />
+                                        </a>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <Card className="bg-amber-50 border-amber-200">
+                                <CardContent className="p-4 flex items-start gap-3">
+                                    <ShieldCheck className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-900">Verification Tip</p>
+                                        <p className="text-xs text-amber-800/80">Most search engines will ask you to add a Code snippet to your <code>&lt;head&gt;</code>. You can do this by editing the environment variables in App Hosting or updating the metadata in <code>layout.tsx</code>.</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </CardContent>
                     </Card>
                 </div>
 
