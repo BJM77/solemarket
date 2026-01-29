@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: 'Picksy | The AI-Powered Collectibles Marketplace',
+    default: 'Picksy | The Premier Marketplace for Collectors',
     template: '%s | Picksy',
   },
-  description: 'Buy, sell, and trade cards, coins, and comics with AI-assisted pricing and verification. Australia\'s premier collectibles marketplace.',
+  description: 'Buy, sell, and trade cards, coins, and comics. Picksy is the premier marketplace for collectors.',
   other: {
     'geo.region': 'AU',
     'geo.placename': 'Australia',
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Picksy - Australia's Premier Collectibles Marketplace",
-    description: "Discover unique collectibles, vintage items, trading cards, and coins. Australian marketplace with local shipping only.",
+    title: "Picksy - The Premier Marketplace for Collectors",
+    description: "Discover unique collectibles, vintage items, trading cards, and coins. Picksy is the premier marketplace for collectors.",
     images: [`${SITE_URL}/og-image.jpg`],
   },
   robots: {
@@ -81,7 +81,7 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Picksy',
-              description: 'Australia\'s premier collectibles marketplace',
+              description: 'Picksy is the premier marketplace for collectors',
               url: SITE_URL,
               logo: `${SITE_URL}/logo.png`,
               areaServed: {

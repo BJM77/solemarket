@@ -26,7 +26,7 @@ export default function Footer() {
           <div className="flex items-center gap-2 text-primary mb-6">
             <Logo />
           </div>
-          <p className="text-sm text-gray-500 max-w-xs">The world's most trusted AI-powered marketplace for ultra-high-end collectibles.</p>
+          <p className="text-sm text-gray-500 max-w-xs">Picksy is the premier marketplace for collectors</p>
         </div>
         {Object.entries(footerLinks).map(([category, links]) => (
           <div key={category}>

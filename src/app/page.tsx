@@ -31,8 +31,8 @@ export default function HomePage() {
       <div className="max-w-[1440px] mx-auto px-4 md:px-10">
         <div className="py-16 border-t border-[#e7ebf3] dark:border-white/10">
           <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl font-black">Can't find your grail?</h2>
-            <p className="text-gray-500 dark:text-gray-400">Describe what you're looking for, and our AI will scour global private collections and upcoming auctions.</p>
+            <h2 className="text-3xl font-black">Find It Here</h2>
+            <p className="text-gray-500 dark:text-gray-400">Picksy is the premier marketplace for collectors. Search our curated selection of high-value cards, coins, and comics.</p>
             <SearchBar className="relative flex items-center h-16" inputClassName="h-16 text-base pl-6 pr-32 rounded-2xl shadow-lg" buttonClassName="absolute right-3 h-10 px-6 rounded-xl" />
           </div>
         </div>

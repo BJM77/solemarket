@@ -5,7 +5,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 
 export interface DraftListingData {
-    userId: string;
+    sellerId: string;
     title: string;
     description: string;
     price: number;
@@ -21,6 +21,7 @@ export interface DraftListingData {
     isVault: boolean;
     imageUrls: string[];
     status: 'draft' | 'available';
+    isDraft: boolean;
     createdAt: FieldValue;
     updatedAt: FieldValue;
 }
@@ -36,8 +37,9 @@ export async function saveDraftListing(userId: string, data: Omit<DraftListingDa
 
     const listingData = {
         ...data,
-        userId,
+        sellerId: userId,
         status: 'draft',
+        isDraft: true,
         updatedAt: FieldValue.serverTimestamp(),
     };
 
@@ -75,7 +77,7 @@ export async function getDraftListing(draftId: string, userId: string): Promise<
         }
 
         const data = docSnap.data();
-        if (data?.userId !== userId) {
+        if (data?.sellerId !== userId && data?.userId !== userId) {
             throw new Error("Unauthorized access to this listing.");
         }
 
@@ -94,14 +96,27 @@ export async function publishListing(draftId: string, userId: string): Promise<v
 
     const docRef = db.collection('products').doc(draftId);
     const docSnap = await docRef.get();
+    const data = docSnap.data();
 
-    if (!docSnap.exists || docSnap.data()?.userId !== userId) {
+    const userRef = db.collection('users').doc(userId);
+    const userSnap = await userRef.get();
+
+    if (docSnap.exists && (data?.sellerId === userId || data?.userId === userId)) {
+        const updateData: any = {
+            status: 'available',
+            isDraft: false,
+            updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        if (userSnap.exists) {
+            const userData = userSnap.data();
+            updateData.sellerName = userData?.displayName || 'Unknown Seller';
+            updateData.sellerEmail = userData?.email || '';
+            updateData.sellerAvatar = userData?.photoURL || '';
+        }
+
+        await docRef.update(updateData);
+    } else {
         throw new Error("Unauthorized or invalid listing.");
     }
-
-    await docRef.update({
-        status: 'available',
-        updatedAt: FieldValue.serverTimestamp(),
-        isDraft: false
-    });
 }

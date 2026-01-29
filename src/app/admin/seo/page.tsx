@@ -58,8 +58,8 @@ export default function SEOPage() {
     return (
         <div className="container mx-auto py-8 space-y-8">
             <PageHeader
-                title="Google Organic Search Strategy"
-                description="Optimize Picksy for Australian collectors and local search visibility."
+                title="Marketplace Search Strategy"
+                description="Picksy is the premier marketplace for collectors. Optimize for Australian collectors and local search visibility."
             />
 
             <div className="grid gap-8 lg:grid-cols-12">
@@ -141,7 +141,7 @@ export default function SEOPage() {
                                     className="min-h-[100px]"
                                     value={settings.defaultDescription}
                                     onChange={(e) => setSettings({ ...settings, defaultDescription: e.target.value })}
-                                    placeholder="The premier Australian marketplace for grading, buying, and selling collector cards, coins, and memorabilia."
+                                    placeholder="Picksy is the premier marketplace for collectors. Buy, sell, and trade cards, coins, and comics."
                                 />
                             </div>
                             <div className="space-y-2">

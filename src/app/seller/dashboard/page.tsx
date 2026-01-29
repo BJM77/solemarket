@@ -42,12 +42,38 @@ export default function SellerDashboard() {
   const { firestore } = useFirebase();
   const { user, isUserLoading } = useUser();
 
-  const userProductsQuery = useMemoFirebase(() => {
+  const sellerIdQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'products'), where('sellerId', '==', user.uid), orderBy('createdAt', 'desc'));
   }, [firestore, user?.uid]);
 
-  const { data: products, isLoading: productsLoading } = useCollection<Product>(userProductsQuery);
+  const userIdQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'products'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
+  }, [firestore, user?.uid]);
+
+  const { data: sellerProducts, isLoading: sellerLoading } = useCollection<Product>(sellerIdQuery);
+  const { data: userProducts, isLoading: userLoading } = useCollection<Product>(userIdQuery);
+
+  const products = useMemo(() => {
+    if (!sellerProducts && !userProducts) return [];
+
+    // Combine products from both queries and remove duplicates by ID
+    const combined = [...(sellerProducts || []), ...(userProducts || [])];
+    const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
+
+    // Ensure all products have a sellerId for consistency in the UI
+    return unique.map(p => ({
+      ...p,
+      sellerId: p.sellerId || (p as any).userId
+    })).sort((a, b) => {
+      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toMillis() : new Date(a.createdAt as any).getTime();
+      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toMillis() : new Date(b.createdAt as any).getTime();
+      return dateB - dateA;
+    });
+  }, [sellerProducts, userProducts]);
+
+  const productsLoading = sellerLoading || userLoading;
 
   const sellerReviewsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -154,6 +180,7 @@ export default function SellerDashboard() {
                         <TableHead>Product</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Views</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead>Listed</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -171,6 +198,11 @@ export default function SellerDashboard() {
                           </TableCell>
                           <TableCell>${product.price.toFixed(2)}</TableCell>
                           <TableCell>{(product as any).views || 0}</TableCell>
+                          <TableCell>
+                            <Badge variant={product.status === 'draft' ? 'secondary' : 'default'} className={product.status === 'draft' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700'}>
+                              {product.status || 'Published'}
+                            </Badge>
+                          </TableCell>
                           <TableCell>{product.createdAt ? formatDistanceToNow(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : product.createdAt, { addSuffix: true }) : 'N/A'}</TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm" asChild>

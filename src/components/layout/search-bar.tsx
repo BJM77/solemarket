@@ -24,17 +24,17 @@ export function SearchBar({ className, inputClassName, buttonClassName }: { clas
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
       <Input
         type="search"
-        placeholder="Find your next holy grail with AI..."
+        placeholder="Find It Here"
         className={cn("w-full pl-10 bg-[#e7ebf3] dark:bg-white/5 border-transparent focus:bg-white dark:focus:bg-background-dark focus-within:border-primary/50", inputClassName)}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-            <kbd className="hidden sm:inline-flex items-center gap-1 rounded border bg-white dark:bg-white/10 px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                <span className="text-xs">⌘</span>K
-            </kbd>
-            {buttonClassName && <Button type="submit" className={buttonClassName}>AI Search</Button>}
-        </div>
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+        <kbd className="hidden sm:inline-flex items-center gap-1 rounded border bg-white dark:bg-white/10 px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+        {buttonClassName && <Button type="submit" className={buttonClassName}>Search</Button>}
+      </div>
     </form>
   );
 }
