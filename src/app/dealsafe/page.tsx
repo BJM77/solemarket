@@ -130,9 +130,6 @@ export default function DealSafePage() {
                         Whether you're buying a 1st Edition Charizard or selling a rare historical coin, protect your investment with Picksy's most trusted service.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <Button size="lg" className="h-14 px-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105">
-                            Start a DealSafe Listing
-                        </Button>
                         <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-xl border-2 transition-all hover:bg-white">
                             Contact an Expert
                         </Button>
