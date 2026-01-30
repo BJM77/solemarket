@@ -4,7 +4,7 @@ import { firestoreDb as db, auth as adminAuth, storageAdmin } from '@/lib/fireba
 import { FieldValue } from 'firebase-admin/firestore';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 
-export async function quickSaveAndPublish(idToken: string, data: any, imageDataUri?: string) {
+export async function quickSaveAndPublish(idToken: string, data: any, imageDataUris: string[] = []) {
     try {
         const decodedToken = await verifyIdToken(idToken);
         const userId = decodedToken.uid;
@@ -19,23 +19,27 @@ export async function quickSaveAndPublish(idToken: string, data: any, imageDataU
 
         let imageUrls = data.imageUrls || [];
 
-        // If a data URI is provided, upload it to storage
-        if (imageDataUri && imageDataUri.startsWith('data:')) {
-            const matches = imageDataUri.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-            if (matches && matches.length === 3) {
-                const type = matches[1];
-                const buffer = Buffer.from(matches[2], 'base64');
-                const fileName = `products/${userId}/fast_${Date.now()}.jpg`;
-                const file = storageAdmin.bucket().file(fileName);
+        // Upload multiple images
+        if (imageDataUris.length > 0) {
+            for (let i = 0; i < imageDataUris.length; i++) {
+                const uri = imageDataUris[i];
+                if (uri && uri.startsWith('data:')) {
+                    const matches = uri.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+                    if (matches && matches.length === 3) {
+                        const type = matches[1];
+                        const buffer = Buffer.from(matches[2], 'base64');
+                        const fileName = `products/${userId}/fast_${Date.now()}_${i}.jpg`;
+                        const file = storageAdmin.bucket().file(fileName);
 
-                await file.save(buffer, {
-                    metadata: { contentType: type },
-                    public: true
-                });
+                        await file.save(buffer, {
+                            metadata: { contentType: type },
+                            public: true
+                        });
 
-                // Get public URL
-                const publicUrl = `https://storage.googleapis.com/${storageAdmin.bucket().name}/${fileName}`;
-                imageUrls.push(publicUrl);
+                        const publicUrl = `https://storage.googleapis.com/${storageAdmin.bucket().name}/${fileName}`;
+                        imageUrls.push(publicUrl);
+                    }
+                }
             }
         }
 

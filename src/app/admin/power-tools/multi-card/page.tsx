@@ -5,23 +5,17 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Camera,
     Zap,
     Save,
     RotateCcw,
     Sparkles,
-    CheckCircle2,
     Loader2,
-    X,
-    AlertCircle,
     ChevronLeft,
-    History,
-    Package
+    Trash2,
+    Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -42,38 +36,20 @@ export default function MultiCardPage() {
 
     // State
     const [stream, setStream] = useState<MediaStream | null>(null);
-    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [capturedImages, setCapturedImages] = useState<string[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [sessionCount, setSessionCount] = useState(0);
-    const [lastSaved, setLastSaved] = useState<string | null>(null);
-
-    // Form State (Flattened for speed)
-    const [formData, setFormData] = useState({
-        title: '',
-        price: '',
-        category: 'Collector Cards',
-        subCategory: 'Trading Cards',
-        condition: 'Near Mint',
-        year: '',
-        manufacturer: '',
-        cardNumber: '',
-        description: ''
-    });
+    const [title, setTitle] = useState('');
+    const [aiData, setAiData] = useState<any>(null);
 
     // Handle Authentication & Permissions
     useEffect(() => {
         if (!isUserLoading && !isPermissionsLoading) {
             if (!isSuperAdmin) {
                 router.push('/admin/power-tools');
-                toast({
-                    title: "Access Denied",
-                    description: "This tool is restricted to Super Admins.",
-                    variant: "destructive"
-                });
             }
         }
-    }, [isSuperAdmin, isUserLoading, isPermissionsLoading, router, toast]);
+    }, [isSuperAdmin, isUserLoading, isPermissionsLoading, router]);
 
     const startCamera = useCallback(async () => {
         try {
@@ -95,25 +71,20 @@ export default function MultiCardPage() {
             }
         } catch (err) {
             console.error("Error starting camera:", err);
-            toast({
-                title: "Camera Error",
-                description: "Could not access camera. Please check permissions.",
-                variant: "destructive"
-            });
         }
-    }, [stream, toast]);
+    }, [stream]);
 
     useEffect(() => {
-        if (isSuperAdmin && !capturedImage) {
+        if (isSuperAdmin) {
             startCamera();
         }
         return () => {
             if (stream) stream.getTracks().forEach(track => track.stop());
         };
-    }, [isSuperAdmin, capturedImage, startCamera]);
+    }, [isSuperAdmin, startCamera]);
 
     const takePicture = () => {
-        if (!videoRef.current || !canvasRef.current) return;
+        if (!videoRef.current || !canvasRef.current || capturedImages.length >= 5) return;
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -125,49 +96,33 @@ export default function MultiCardPage() {
 
         // Target ratio 5:7 (Portrait for cards)
         const targetRatio = 5 / 7;
-        let sourceX = 0;
-        let sourceY = 0;
-        let sourceWidth = videoWidth;
-        let sourceHeight = videoHeight;
+        let sourceX = 0, sourceY = 0, sourceWidth = videoWidth, sourceHeight = videoHeight;
 
         if (videoWidth / videoHeight > targetRatio) {
-            // Video is too wide, crop sides
             sourceWidth = videoHeight * targetRatio;
             sourceX = (videoWidth - sourceWidth) / 2;
         } else {
-            // Video is too tall, crop top/bottom
             sourceHeight = videoWidth / targetRatio;
             sourceY = (videoHeight - sourceHeight) / 2;
         }
 
-        // Final canvas dimensions (keep it efficient for AI)
-        const canvasHeight = 700;
-        const canvasWidth = 500;
+        canvas.width = 500;
+        canvas.height = 700;
 
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-
-        context.drawImage(
-            video,
-            sourceX, sourceY, sourceWidth, sourceHeight, // Source crop
-            0, 0, canvasWidth, canvasHeight              // Destination
-        );
+        context.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, 500, 700);
 
         const dataUri = canvas.toDataURL('image/jpeg', 0.8);
-        setCapturedImage(dataUri);
+        const newImages = [...capturedImages, dataUri];
+        setCapturedImages(newImages);
 
-        // Stop stream to save resources while reviewing
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            setStream(null);
+        // Auto-trigger AI on FIRST image if title is empty
+        if (newImages.length === 1 && !title) {
+            handleAiFill(dataUri);
         }
-
-        // Auto-trigger AI fill (Optimized for "Power Tool" speed)
-        handleAiFill(dataUri);
     };
 
     const handleAiFill = async (imageToAnalyze?: string) => {
-        const img = imageToAnalyze || capturedImage;
+        const img = imageToAnalyze || capturedImages[0];
         if (!img || !user) return;
 
         setIsAnalyzing(true);
@@ -179,351 +134,180 @@ export default function MultiCardPage() {
             });
 
             if (result) {
-                setFormData(prev => ({
-                    ...prev,
-                    title: result.title || prev.title,
-                    price: result.price?.toString() || prev.price,
-                    category: result.category || prev.category,
-                    subCategory: result.subCategory || prev.subCategory,
-                    condition: result.condition || prev.condition,
-                    year: result.year?.toString() || prev.year,
-                    manufacturer: result.manufacturer || prev.manufacturer,
-                    cardNumber: result.cardNumber || prev.cardNumber,
-                    description: result.description || prev.description
-                }));
-                toast({
-                    title: "AI Analysis Complete",
-                    description: "Details filled successfully.",
-                });
+                setTitle(result.title);
+                setAiData(result);
             }
         } catch (error) {
             console.error("AI Fill error:", error);
-            toast({
-                title: "AI Error",
-                description: "Failed to analyze image.",
-                variant: "destructive"
-            });
         } finally {
             setIsAnalyzing(false);
         }
     };
 
     const handleSave = async () => {
-        if (!user || !capturedImage) return;
+        if (!user || capturedImages.length === 0 || !title) return;
 
         setIsSaving(true);
         try {
             const idToken = await user.getIdToken();
+            // Map AI data to form
             const result = await quickSaveAndPublish(idToken, {
-                ...formData,
-                price: parseFloat(formData.price) || 0,
+                ...aiData,
+                title,
+                category: aiData?.category || 'Collector Cards',
+                subCategory: aiData?.subCategory || 'Sports Cards',
+                condition: aiData?.condition || 'Excellent',
+                price: aiData?.price || 0,
                 quantity: 1,
-                isReverseBidding: false,
-                autoRepricingEnabled: false,
-                isVault: false,
-            }, capturedImage);
+            }, capturedImages);
 
             if (result.success) {
-                setSessionCount(prev => prev + 1);
-                setLastSaved(formData.title);
-                toast({
-                    title: "Card Saved & Published!",
-                    description: `Successfully added ${formData.title}`,
-                });
+                toast({ title: "Card Listed Successfully!" });
                 resetAndNext();
             } else {
                 throw new Error(result.error);
             }
         } catch (error: any) {
-            toast({
-                title: "Save Failed",
-                description: error.message,
-                variant: "destructive"
-            });
+            toast({ title: "Failed to save", description: error.message, variant: "destructive" });
         } finally {
             setIsSaving(false);
         }
     };
 
     const resetAndNext = () => {
-        setCapturedImage(null);
-        setFormData({
-            title: '',
-            price: '',
-            category: 'Collector Cards',
-            subCategory: 'Trading Cards',
-            condition: 'Near Mint',
-            year: '',
-            manufacturer: '',
-            cardNumber: '',
-            description: ''
-        });
-        startCamera();
+        setCapturedImages([]);
+        setTitle('');
+        setAiData(null);
     };
 
-    const retake = () => {
-        setCapturedImage(null);
-        startCamera();
+    const removeImage = (index: number) => {
+        setCapturedImages(prev => prev.filter((_, i) => i !== index));
     };
 
     if (isUserLoading || isPermissionsLoading) {
-        return (
-            <div className="flex h-screen items-center justify-center bg-slate-950">
-                <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
-            </div>
-        );
+        return <div className="h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
     }
 
     if (!isSuperAdmin) return null;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30">
-            {/* Session Header */}
-            <div className="bg-slate-900/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => router.push('/admin/power-tools')}
-                            className="text-slate-400 hover:text-white"
-                        >
-                            <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                        <div className="flex flex-col">
-                            <h1 className="text-lg font-bold flex items-center gap-2">
-                                <Zap className="h-4 w-4 text-indigo-400" />
-                                MultiCard Fast Lister
-                            </h1>
-                            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Super Admin Power Tool</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <div className="hidden md:flex items-center gap-2 bg-slate-800/50 px-3 py-1 rounded-full border border-white/5">
-                            <History className="h-3 w-3 text-slate-400" />
-                            <span className="text-xs text-slate-300">Last: <span className="text-indigo-400 font-medium">{lastSaved || 'None'}</span></span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4 text-emerald-400" />
-                            <span className="text-sm font-bold">{sessionCount} <span className="text-slate-500 font-normal">listed</span></span>
-                        </div>
-                    </div>
+        <div className="fixed inset-0 h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden">
+            {/* Minimal Header */}
+            <div className="flex items-center justify-between px-4 py-2 border-b">
+                <Button variant="ghost" size="sm" onClick={() => router.push('/admin/power-tools')}>
+                    <ChevronLeft className="h-4 w-4 mr-1" /> Back
+                </Button>
+                <div className="text-xs font-bold tracking-tighter uppercase text-muted-foreground">Fast Card Lister</div>
+                <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className={cn("size-1.5 rounded-full", capturedImages.length >= i ? "bg-primary" : "bg-neutral-200 dark:bg-neutral-800")} />
+                    ))}
                 </div>
             </div>
 
-            <main className="container mx-auto px-4 py-6 max-w-7xl">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Camera Viewport - Fills remaining space */}
+            <div className="relative flex-1 bg-black overflow-hidden m-2 rounded-2xl shadow-inner group">
+                <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                />
+                <ARCameraOverlay guideType="card" />
 
-                    {/* Camera / Preview Section */}
-                    <div className="space-y-4">
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl glass-effect">
-                            <AnimatePresence mode="wait">
-                                {!capturedImage ? (
-                                    <motion.div
-                                        key="camera"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="absolute inset-0"
-                                    >
-                                        <video
-                                            ref={videoRef}
-                                            autoPlay
-                                            playsInline
-                                            muted
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <ARCameraOverlay guideType="card" />
-                                        <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none">
-                                            <div className="w-full h-full border border-white/20 rounded-xl" />
-                                        </div>
-                                        <div className="absolute bottom-8 left-0 right-0 flex justify-center">
-                                            <button
-                                                onClick={takePicture}
-                                                className="group relative w-20 h-20 rounded-full border-4 border-white/50 p-1 transition-all hover:scale-105 active:scale-95"
-                                            >
-                                                <div className="w-full h-full rounded-full bg-white shadow-xl group-hover:bg-indigo-50" />
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="preview"
-                                        initial={{ opacity: 0, scale: 1.1 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="absolute inset-0"
-                                    >
-                                        <img
-                                            src={capturedImage}
-                                            alt="Captured"
-                                            className="w-full h-full object-contain bg-slate-900"
-                                        />
-                                        <div className="absolute top-4 right-4 flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                onClick={retake}
-                                                className="bg-slate-900/80 backdrop-blur-md border border-white/10"
-                                            >
-                                                <RotateCcw className="h-4 w-4 mr-2" />
-                                                Retake
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <Button
-                                className="flex-1 h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg shadow-lg shadow-indigo-500/20"
-                                onClick={takePicture}
-                                disabled={!!capturedImage}
+                {/* Captured Slots Overlay */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    {capturedImages.map((img, idx) => (
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            key={idx}
+                            className="relative size-12 rounded-lg border-2 border-white/50 overflow-hidden shadow-lg group/img"
+                        >
+                            <img src={img} className="w-full h-full object-cover" alt="Capture" />
+                            <button
+                                onClick={() => removeImage(idx)}
+                                className="absolute inset-0 bg-red-500/80 items-center justify-center hidden group-hover/img:flex"
                             >
-                                <Camera className="mr-2 h-6 w-6" />
-                                Take Picture
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="h-14 w-14 rounded-2xl border-white/10 bg-slate-900/50"
-                                onClick={retake}
-                                disabled={!capturedImage}
-                            >
-                                <RotateCcw className="h-5 w-5" />
-                            </Button>
+                                <Trash2 className="size-4 text-white" />
+                            </button>
+                        </motion.div>
+                    ))}
+                    {capturedImages.length < 5 && (
+                        <div className="size-12 rounded-lg border-2 border-white/20 border-dashed flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                            <span className="text-white/40 text-xs font-bold">{capturedImages.length + 1}</span>
                         </div>
-                    </div>
+                    )}
+                </div>
 
-                    {/* Form Section */}
-                    <div className="space-y-6">
-                        <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl">
-                            <CardHeader className="border-b border-white/5 bg-white/5">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <CardTitle className="text-xl">Card Details</CardTitle>
-                                        <CardDescription className="text-slate-400 font-mono text-xs">Verify AI suggestions before saving</CardDescription>
-                                    </div>
-                                    {isAnalyzing && (
-                                        <Badge variant="secondary" className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 animate-pulse">
-                                            <Sparkles className="h-3 w-3 mr-1" />
-                                            AI ANALYZING...
-                                        </Badge>
-                                    )}
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-6 space-y-6">
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-400 text-xs">Listing Title</Label>
-                                        <Input
-                                            placeholder="Card name, year, grade..."
-                                            value={formData.title}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            className="bg-slate-950/50 border-white/10 h-12 text-lg font-medium focus:ring-indigo-500/50"
-                                        />
-                                    </div>
+                {/* Shutter Button Overlay */}
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-8">
+                    <button
+                        onClick={() => setCapturedImages([])}
+                        className="p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white active:scale-90"
+                    >
+                        <RotateCcw className="size-5" />
+                    </button>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-400 text-xs">Price (AUD)</Label>
-                                            <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">$</span>
-                                                <Input
-                                                    type="text"
-                                                    placeholder="0.00"
-                                                    value={formData.price}
-                                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                                    className="bg-slate-950/50 border-white/10 pl-8 h-12 text-emerald-400 font-bold text-lg"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-400 text-xs">Condition</Label>
-                                            <Input
-                                                value={formData.condition}
-                                                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                                                className="bg-slate-950/50 border-white/10 h-12"
-                                            />
-                                        </div>
-                                    </div>
+                    <button
+                        onClick={takePicture}
+                        className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-white/20 backdrop-blur-sm group-active:bg-white/40"
+                    >
+                        <div className="size-16 rounded-full bg-white shadow-xl" />
+                    </button>
 
-                                    <div className="grid grid-cols-3 gap-4 text-xs">
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-400 text-xs">Year</Label>
-                                            <Input
-                                                placeholder="2024"
-                                                value={formData.year}
-                                                onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                                                className="bg-slate-950/50 border-white/10 h-10"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-400 text-xs">Brand</Label>
-                                            <Input
-                                                placeholder="Panini"
-                                                value={formData.manufacturer}
-                                                onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-                                                className="bg-slate-950/50 border-white/10 h-10"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-400 text-xs">Card #</Label>
-                                            <Input
-                                                placeholder="101"
-                                                value={formData.cardNumber}
-                                                onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                                                className="bg-slate-950/50 border-white/10 h-10"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                    <div className="size-11" /> {/* Spacer */}
+                </div>
+            </div>
 
-                                <div className="pt-4 flex flex-col gap-3">
-                                    <Button
-                                        variant="secondary"
-                                        className="h-12 rounded-xl bg-white/5 hover:bg-white/10 border-white/5 text-slate-300"
-                                        onClick={() => handleAiFill()}
-                                        disabled={!capturedImage || isAnalyzing}
-                                    >
-                                        {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                                        Force AI Auto Fill
-                                    </Button>
-
-                                    <Button
-                                        className="h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl shadow-xl shadow-emerald-500/20 active:scale-[0.98] transition-all"
-                                        onClick={handleSave}
-                                        disabled={!capturedImage || isSaving || !formData.title}
-                                    >
-                                        {isSaving ? (
-                                            <Loader2 className="h-6 w-6 animate-spin" />
-                                        ) : (
-                                            <>
-                                                <Save className="mr-3 h-6 w-6" />
-                                                SAVE & PUBLISH
-                                            </>
-                                        )}
-                                    </Button>
-
-                                    <p className="text-[10px] text-center text-slate-500 font-medium">
-                                        Clicking save will instantly list the card and return to camera
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
+            {/* Controls Bar - Optimized for Mobile */}
+            <div className="p-4 bg-background border-t flex flex-col gap-3">
+                <div className="flex gap-2 items-center">
+                    <div className="relative flex-1">
+                        <Input
+                            placeholder="Card Title (Auto-fills...)"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="h-14 rounded-xl text-md pr-12 focus-visible:ring-primary shadow-sm"
+                        />
+                        <button
+                            onClick={() => handleAiFill()}
+                            disabled={capturedImages.length === 0 || isAnalyzing}
+                            className={cn(
+                                "absolute right-2 top-2 p-2 rounded-lg transition-colors",
+                                isAnalyzing ? "text-primary animate-pulse" : "text-muted-foreground hover:text-primary"
+                            )}
+                        >
+                            {isAnalyzing ? <Loader2 className="size-6 animate-spin" /> : <Sparkles className="size-6" />}
+                        </button>
                     </div>
                 </div>
-            </main>
+
+                <div className="flex gap-2">
+                    <Button
+                        onClick={handleSave}
+                        disabled={capturedImages.length === 0 || !title || isSaving}
+                        className="flex-1 h-14 rounded-xl text-lg font-black tracking-tight flex gap-2 shadow-lg active:scale-95"
+                    >
+                        {isSaving ? (
+                            <Loader2 className="size-5 animate-spin" />
+                        ) : (
+                            <>
+                                <Save className="size-5" />
+                                SAVE & PUBLISH
+                            </>
+                        )}
+                    </Button>
+                    {sessionStorage.getItem('multi_listed_count') && (
+                        <div className="h-14 px-4 bg-secondary rounded-xl flex items-center justify-center border font-mono font-bold text-primary">
+                            {sessionStorage.getItem('multi_listed_count')}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             <canvas ref={canvasRef} className="hidden" />
-
-            <style jsx global>{`
-                .glass-effect {
-                    background: rgba(15, 23, 42, 0.6);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                }
-            `}</style>
         </div>
     );
 }
