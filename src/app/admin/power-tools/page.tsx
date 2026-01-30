@@ -92,10 +92,24 @@ const powerTools = [
     },
     {
         title: 'MultiCard Fast Lister',
-        description: 'Super-fast single-shot listing tool for pro admins',
+        description: 'Super-fast 5:7 capture for trading cards',
         icon: Zap,
         href: '/admin/power-tools/multi-card',
         color: 'bg-indigo-600',
+    },
+    {
+        title: 'MultiCoin Fast Lister',
+        description: 'Rapid 1:1 capture for coins and currency',
+        icon: Zap,
+        href: '/admin/power-tools/multi-coin',
+        color: 'bg-amber-500',
+    },
+    {
+        title: 'MultiGen Fast Lister',
+        description: 'Wide 16:9 capture for general memorabilia',
+        icon: Zap,
+        href: '/admin/power-tools/multi-gen',
+        color: 'bg-emerald-600',
     },
 ];
 
