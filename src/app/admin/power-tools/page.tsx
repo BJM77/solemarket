@@ -90,6 +90,13 @@ const powerTools = [
         color: 'bg-cyan-500',
         comingSoon: true,
     },
+    {
+        title: 'MultiCard Fast Lister',
+        description: 'Super-fast single-shot listing tool for pro admins',
+        icon: Zap,
+        href: '/admin/power-tools/multi-card',
+        color: 'bg-indigo-600',
+    },
 ];
 
 export default function PowerToolsPage() {
