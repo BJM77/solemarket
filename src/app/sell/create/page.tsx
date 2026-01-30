@@ -29,7 +29,39 @@ import { EbayPriceLookup } from '@/components/sell/EbayPriceLookup';
 import { doc } from 'firebase/firestore';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
 
-// ... existing imports
+const formSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  price: z.coerce.number().min(0, 'Price must be 0 or more'),
+  category: z.string().min(1, 'Category is required'),
+  subCategory: z.string().optional(),
+  condition: z.string().min(1, 'Condition is required'),
+  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
+  isReverseBidding: z.boolean().default(false),
+  autoRepricingEnabled: z.boolean().default(false),
+  isVault: z.boolean().default(false),
+  imageFiles: z.array(z.any()).default([]),
+  // Specs
+  year: z.coerce.number().optional(),
+  manufacturer: z.string().optional(),
+  cardNumber: z.string().optional(),
+  grade: z.string().optional(),
+  gradingCompany: z.string().optional(),
+  certNumber: z.string().optional(),
+  denomination: z.string().optional(),
+  mintMark: z.string().optional(),
+  country: z.string().optional(),
+  metal: z.string().optional(),
+  purity: z.string().optional(),
+  weight: z.string().optional(),
+  dimensions: z.string().optional(),
+  material: z.string().optional(),
+  authentication: z.string().optional(),
+  authenticationNumber: z.string().optional(),
+  signer: z.string().optional(),
+});
+
+type ListingFormValues = z.infer<typeof formSchema>;
 
 export default function CreateListingPage() {
   const router = useRouter();
