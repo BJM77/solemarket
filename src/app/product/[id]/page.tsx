@@ -151,6 +151,15 @@ export default async function ProductPage({ params }: Props) {
     ],
   };
 
+  // Fetch adjacent products (gracefully handle missing index)
+  const { getAdjacentProducts } = await import('@/app/actions/products');
+  let adjacentProducts: { prevId: string | null; nextId: string | null } = { prevId: null, nextId: null };
+  try {
+    adjacentProducts = await getAdjacentProducts(id, product.createdAt);
+  } catch (error) {
+    console.warn('Adjacent products unavailable (index may not exist yet):', error);
+  }
+
   // The client component handles all interactive logic
   return (
     <>
@@ -168,6 +177,7 @@ export default async function ProductPage({ params }: Props) {
           initialProduct={product}
           initialSeller={seller}
           initialReviews={initialReviews}
+          adjacentProducts={adjacentProducts}
         />
       </Suspense>
     </>

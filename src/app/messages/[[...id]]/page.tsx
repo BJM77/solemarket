@@ -53,6 +53,11 @@ type Conversation = {
     title: string;
     imageUrl: string;
   };
+  orderContext?: {
+    id: string;
+    status: string;
+    total: number;
+  };
 };
 
 type Message = {
@@ -70,7 +75,7 @@ function ConversationList({
   currentConversationId: string | null;
 }) {
   const { user } = useUser();
-  
+
   return (
     <div
       className={cn(
@@ -83,47 +88,52 @@ function ConversationList({
       </div>
       <ScrollArea className="flex-1">
         {conversations.length === 0 ? (
-            <div className="text-center p-8 text-gray-500">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                No conversations yet.
-            </div>
+          <div className="text-center p-8 text-gray-500">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            No conversations yet.
+          </div>
         ) : (
-            conversations.map((convo) => {
-                const otherParticipantId = convo.participantIds.find(id => id !== user?.uid)!;
-                const otherParticipant = convo.participants[otherParticipantId];
-                return (
-                    <Link href={`/messages/${convo.id}`} key={convo.id}>
-                        <div
-                        className={cn(
-                            'p-4 flex items-start gap-4 cursor-pointer border-b hover:bg-gray-100',
-                            convo.id === currentConversationId && 'bg-primary/5'
-                        )}
-                        >
-                            <Avatar>
-                                <AvatarImage src={otherParticipant?.photoURL} />
-                                <AvatarFallback>{otherParticipant?.displayName?.[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 overflow-hidden">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="font-semibold truncate">{otherParticipant?.displayName}</h3>
-                                    <span className="text-xs text-gray-400 flex-shrink-0">
-                                        {convo.lastMessage.timestamp && formatDistanceToNow(convo.lastMessage.timestamp.toDate(), { addSuffix: true })}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-500 truncate mt-1">
-                                    {convo.lastMessage.senderId === user?.uid && 'You: '}
-                                    {convo.lastMessage.text}
-                                </p>
-                                {convo.productContext && (
-                                    <div className="text-xs text-muted-foreground truncate mt-1 italic">
-                                        re: {convo.productContext.title}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </Link>
-                );
-            })
+          conversations.map((convo) => {
+            const otherParticipantId = convo.participantIds.find(id => id !== user?.uid)!;
+            const otherParticipant = convo.participants[otherParticipantId];
+            return (
+              <Link href={`/messages/${convo.id}`} key={convo.id}>
+                <div
+                  className={cn(
+                    'p-4 flex items-start gap-4 cursor-pointer border-b hover:bg-gray-100',
+                    convo.id === currentConversationId && 'bg-primary/5'
+                  )}
+                >
+                  <Avatar>
+                    <AvatarImage src={otherParticipant?.photoURL} />
+                    <AvatarFallback>{otherParticipant?.displayName?.[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold truncate">{otherParticipant?.displayName}</h3>
+                      <span className="text-xs text-gray-400 flex-shrink-0">
+                        {convo.lastMessage.timestamp && formatDistanceToNow(convo.lastMessage.timestamp.toDate(), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 truncate mt-1">
+                      {convo.lastMessage.senderId === user?.uid && 'You: '}
+                      {convo.lastMessage.text}
+                    </p>
+                    {convo.productContext && (
+                      <div className="text-xs text-muted-foreground truncate mt-1 italic">
+                        re: {convo.productContext.title}
+                      </div>
+                    )}
+                    {convo.orderContext && (
+                      <div className="text-[10px] font-black uppercase text-primary truncate mt-1 tracking-widest bg-primary/5 px-2 py-0.5 rounded-sm inline-block">
+                        Order #{convo.orderContext.id.slice(-8).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            );
+          })
         )}
       </ScrollArea>
     </div>
@@ -147,9 +157,9 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
     // Fetch conversation details
     const convoUnsub = onSnapshot(doc(db, 'conversations', conversationId), (doc) => {
-        if(doc.exists()) {
-            setConversation({ id: doc.id, ...doc.data() } as Conversation);
-        }
+      if (doc.exists()) {
+        setConversation({ id: doc.id, ...doc.data() } as Conversation);
+      }
     });
 
     // Fetch messages
@@ -182,29 +192,29 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       text: messageText,
       timestamp: serverTimestamp(),
     };
-    
+
     await addDoc(collection(db, 'conversations', conversationId, 'messages'), messageData);
-    
+
     // Update last message in conversation
     const convoRef = doc(db, 'conversations', conversationId);
     await updateDoc(convoRef, {
-        lastMessage: {
-            text: messageText,
-            senderId: user.uid,
-            timestamp: serverTimestamp(),
-        }
+      lastMessage: {
+        text: messageText,
+        senderId: user.uid,
+        timestamp: serverTimestamp(),
+      }
     });
 
   };
 
   if (!conversation) {
     return (
-        <div className="flex-1 flex items-center justify-center text-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
+      <div className="flex-1 flex items-center justify-center text-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     )
   }
-  
+
   const otherParticipantId = conversation.participantIds.find(id => id !== user?.uid)!;
   const otherParticipant = conversation.participants[otherParticipantId];
 
@@ -213,7 +223,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       {/* Header */}
       <div className="p-4 border-b flex items-center gap-4">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => router.push('/messages')}>
-            <ArrowLeft />
+          <ArrowLeft />
         </Button>
         <Avatar>
           <AvatarImage src={otherParticipant.photoURL} />
@@ -225,16 +235,36 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       </div>
 
       {conversation.productContext && (
-        <div className="p-3 border-b bg-gray-50">
-            <Link href={`/product/${conversation.productContext.id}`} className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg">
-                <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                    <Image src={conversation.productContext.imageUrl} alt={conversation.productContext.title} fill className="object-cover" />
-                </div>
-                <div className="flex-1">
-                    <p className="text-sm font-semibold line-clamp-1">{conversation.productContext.title}</p>
-                    <p className="text-xs text-primary">View Item</p>
-                </div>
-            </Link>
+        <div className="p-3 border-b bg-gray-50/50">
+          <Link href={`/product/${conversation.productContext.id}`} className="flex items-center gap-3 hover:bg-white/50 p-2 rounded-xl transition-all border border-transparent hover:border-slate-100">
+            <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-slate-100">
+              <Image src={conversation.productContext.imageUrl} alt={conversation.productContext.title} fill className="object-cover" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Product Protocol</p>
+              <p className="text-sm font-bold text-slate-900 line-clamp-1">{conversation.productContext.title}</p>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      {conversation.orderContext && (
+        <div className="p-3 border-b bg-slate-900 text-white">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/10 rounded-lg">
+                <Package className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Active Order Tracking</p>
+                <p className="text-xs font-bold font-mono">#{conversation.orderContext.id.toUpperCase()}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Status</p>
+              <p className="text-xs font-bold text-primary uppercase">{conversation.orderContext.status}</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -315,12 +345,12 @@ export default function MessagesPage() {
     return () => unsubscribe();
   }, [user?.uid]);
 
-  if(loading) {
-      return (
-        <div className="w-full flex items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin" />
-        </div>
-      )
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -331,15 +361,15 @@ export default function MessagesPage() {
         conversationId ? 'flex' : 'hidden md:flex'
       )}>
         {conversationId ? (
-            <ConversationView conversationId={conversationId} />
+          <ConversationView conversationId={conversationId} />
         ) : (
-            <div className="flex-1 flex items-center justify-center text-center p-8">
-                <div className="text-gray-500">
-                    <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                    <h2 className="text-xl font-semibold">Select a conversation</h2>
-                    <p>Or start a new one from a product page.</p>
-                </div>
+          <div className="flex-1 flex items-center justify-center text-center p-8">
+            <div className="text-gray-500">
+              <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <h2 className="text-xl font-semibold">Select a conversation</h2>
+              <p>Or start a new one from a product page.</p>
             </div>
+          </div>
         )}
       </div>
     </>

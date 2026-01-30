@@ -5,12 +5,30 @@ import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryCon
 
 const PAGE_SIZE = 24;
 
-export async function getProducts(searchParams: ProductSearchParams): Promise<{ products: Product[], hasMore: boolean }> {
+export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean }> {
 
   const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange } = searchParams;
 
   const productsRef = collection(db, 'products');
-  let constraints: QueryConstraint[] = [where('isDraft', '==', false)];
+  let constraints: QueryConstraint[] = [];
+
+  // Admin sees all, others see only 'available'
+  if (userRole === 'admin' || userRole === 'superadmin') {
+    // Admins can see everything, but usually want to see non-drafts unless specified
+    // We'll leave it open or filter by status if provided in searchParams
+    // If no specific filter, maybe show all?
+    // For the main grid, we usually don't want 'sold' items unless asked.
+    // But for now, let's just NOT filter by status if admin, unless they want to.
+    if (searchParams.status) {
+      constraints.push(where('status', '==', searchParams.status));
+    } else {
+      constraints.push(where('isDraft', '==', false)); // Legacy/Basic check
+    }
+  } else {
+    // Public/Business/Seller
+    constraints.push(where('status', '==', 'available'));
+  }
+
 
   // Build constraints based on search params
 
@@ -120,17 +138,47 @@ export async function getProducts(searchParams: ProductSearchParams): Promise<{ 
   } as Product));
 
   // In-Memory Filters
-  if (q) {
-    const lowercasedTerm = q.toLowerCase();
-    products = products.filter(p => p.title.toLowerCase().includes(lowercasedTerm) || (p.description && p.description.toLowerCase().includes(lowercasedTerm)));
-  }
+  const now = new Date();
 
-  if (filterYearInMemory && yearRange) {
-    products = products.filter(p => {
-      if (!p.year) return false;
-      return p.year >= yearRange[0] && p.year <= yearRange[1];
-    });
-  }
+  // Tiered Access Filtering
+  const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
+
+  products = products.filter(p => {
+    // 1. Text Search
+    if (q) {
+      const lowercasedTerm = q.toLowerCase();
+      if (!p.title.toLowerCase().includes(lowercasedTerm) && (!p.description || !p.description.toLowerCase().includes(lowercasedTerm))) {
+        return false;
+      }
+    }
+
+    // 2. Year Filter (if in memory)
+    if (filterYearInMemory && yearRange && p.year) {
+      if (p.year < yearRange[0] || p.year > yearRange[1]) return false;
+    }
+
+    // 3. Public Release Timing (for non-business/non-admin)
+    if (!isBusinessOrHigher) {
+      const releaseAt = p.publicReleaseAt as any;
+      if (releaseAt) {
+        // Handle Firestore Timestamp or Date object or serialized
+        let releaseDate: Date | null = null;
+        if (typeof releaseAt.toDate === 'function') {
+          releaseDate = releaseAt.toDate();
+        } else if (releaseAt.seconds) {
+          releaseDate = new Date(releaseAt.seconds * 1000);
+        } else if (releaseAt instanceof Date) {
+          releaseDate = releaseAt;
+        }
+
+        if (releaseDate && releaseDate > now) {
+          return false; // Not yet public
+        }
+      }
+    }
+
+    return true;
+  });
 
   const hasMore = querySnapshot.docs.length === PAGE_SIZE;
 

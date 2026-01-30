@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -10,12 +9,13 @@ import Footer from '@/components/layout/Footer';
 import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
-import { Inter } from 'next/font/google';
+import { Outfit } from 'next/font/google';
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-outfit',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
 });
 
 // SITE_URL must be set in production environment variables.
@@ -72,8 +72,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${inter.variable}`}>
-      <body className="font-body antialiased overflow-x-hidden" suppressHydrationWarning>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable}`}>
+      <body className="font-outfit antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

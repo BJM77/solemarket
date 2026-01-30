@@ -17,6 +17,7 @@ interface ProductImageGalleryProps {
   isCard: boolean;
   condition?: string;
   isAuthenticated?: boolean;
+  category?: string;
 }
 
 const conditionColors: Record<string, string> = {
@@ -28,10 +29,26 @@ const conditionColors: Record<string, string> = {
   'Poor': 'bg-red-100 text-red-800 border-red-200',
 };
 
-export default function ProductImageGallery({ images, title, isCard, condition, isAuthenticated }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ images, title, isCard, condition, isAuthenticated, category }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
+
+  const getAspectRatio = (cat?: string) => {
+    switch (cat) {
+      case 'Coins':
+        return 'aspect-square';
+      case 'Memorabilia':
+      case 'Collectibles':
+      case 'General':
+        return 'aspect-video';
+      case 'Collector Cards':
+      default:
+        return 'aspect-[5/7]';
+    }
+  };
+
+  const aspectRatio = getAspectRatio(category);
 
   const goToPrevious = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
@@ -86,7 +103,7 @@ export default function ProductImageGallery({ images, title, isCard, condition, 
       <div className="space-y-4">
         {/* Main Image */}
         <div
-          className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-zoom-in"
+          className={cn("relative bg-gray-100 rounded-lg overflow-hidden group cursor-zoom-in", aspectRatio)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={() => setIsFullscreen(true)}
@@ -104,7 +121,7 @@ export default function ProductImageGallery({ images, title, isCard, condition, 
                 src={images[selectedIndex]}
                 alt={`${title} - Image ${selectedIndex + 1}`}
                 fill
-                className="object-contain transition-transform duration-200 ease-out"
+                className="object-cover transition-transform duration-200 ease-out group-hover:scale-105"
                 style={zoomStyle}
                 priority={selectedIndex === 0}
                 sizes="(max-width: 768px) 100vw, 50vw"

@@ -97,14 +97,12 @@ export default function CheckoutPage() {
             shippingAddress: shippingMethod === 'shipping' ? shippingAddress : undefined
           }
         );
-
         if (result.error) {
           throw new Error(result.error);
         }
 
-        // Store order details in session storage for confirmation page
-        if (result.order) {
-          sessionStorage.setItem('lastOrder', JSON.stringify(result.order));
+        if (result.orders) {
+          sessionStorage.setItem('lastOrders', JSON.stringify(result.orders));
         }
 
         clearCart();

@@ -2,13 +2,13 @@
 'use client';
 
 interface ARCameraOverlayProps {
-  guideType: 'card' | 'coin';
+  guideType: 'card' | 'coin' | 'general';
 }
 
 export function ARCameraOverlay({ guideType }: ARCameraOverlayProps) {
   const guideStyles = {
     card: {
-      aspectRatio: '1 / 1.4', // Standard trading card aspect ratio
+      aspectRatio: '5 / 7', // Standard trading card aspect ratio
       width: '80%',
       border: '2px dashed white',
       borderRadius: '4%',
@@ -18,6 +18,12 @@ export function ARCameraOverlay({ guideType }: ARCameraOverlayProps) {
       width: '70%',
       border: '2px dashed white',
       borderRadius: '50%',
+    },
+    general: {
+      aspectRatio: '16 / 9',
+      width: '85%',
+      border: '2px dashed white',
+      borderRadius: '2%',
     },
   };
 

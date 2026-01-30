@@ -8,6 +8,7 @@ import { doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile } from '@/lib/types';
 import AdminSidebar from '@/components/layout/AdminSidebar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -46,8 +47,10 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen">
       <AdminSidebar />
-      <div className="flex flex-col flex-1">
-        <header className="flex h-16 items-center justify-end border-b bg-background px-4">
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <header className="flex h-16 items-center justify-between border-b bg-background px-4 shrink-0">
+          <SidebarTrigger className="lg:hidden" />
+          <div className="flex-1" />
           <NotificationBell />
         </header>
         <main key={pathname} className="flex-1 p-4 sm:p-6 lg:p-8 bg-muted/20">

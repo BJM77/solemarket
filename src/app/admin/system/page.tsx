@@ -8,6 +8,8 @@ import { AlertCircle, CheckCircle2, Server, Key, Activity } from 'lucide-react';
 import { AuditLogViewer } from '@/components/admin/system/AuditLogViewer';
 import { SeedDatabaseButton } from '@/components/admin/system/SeedDatabaseButton';
 
+import { DataMigrationPanel } from '@/components/admin/system/DataMigrationPanel';
+
 export const metadata: Metadata = {
   title: 'System Health | Admin',
   description: 'Monitor API connections and system status.',
@@ -84,6 +86,7 @@ export default function SystemPage() {
                 </div>
                 <SeedDatabaseButton />
               </div>
+              <DataMigrationPanel />
             </CardContent>
           </Card>
         </TabsContent>

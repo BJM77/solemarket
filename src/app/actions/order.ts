@@ -29,99 +29,148 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
     }
 
     try {
-        // 1. Verify User
         const decodedToken = await verifyIdToken(idToken);
-        const { uid: buyerId, email: buyerEmail } = decodedToken;
+        const { uid: buyerId, email: buyerEmail, name: buyerName } = decodedToken;
 
-        const orderDetails = await firestoreDb.runTransaction(async (t) => {
-            let subtotal = 0;
+        const results = await firestoreDb.runTransaction(async (t) => {
             const productRefs = items.map(item => firestoreDb.collection('products').doc(item.id));
             const productDocs = await t.getAll(...productRefs);
 
-            // 2. Validate Price & Stock
+            // 1. Group items by seller
+            const sellerGroups: Record<string, { items: any[], subtotal: number, sellerName: string }> = {};
+
             for (let i = 0; i < items.length; i++) {
                 const doc = productDocs[i];
                 const item = items[i];
 
-                if (!doc.exists) {
-                    throw new Error(`Product with ID ${item.id} not found.`);
-                }
-
+                if (!doc.exists) throw new Error(`Product ${item.id} not found.`);
                 const product = doc.data() as Product;
 
                 if ((product.quantity || 0) < item.quantity) {
-                    throw new Error(`Not enough stock for ${product.title}. Only ${product.quantity} left.`);
+                    throw new Error(`Not enough stock for ${product.title}.`);
                 }
 
-                // Use the database price, not the client price
-                subtotal += product.price * item.quantity;
+                const sellerId = product.sellerId;
+                if (!sellerGroups[sellerId]) {
+                    sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };
+                }
 
-                // Prepare inventory deduction
+                const itemTotal = product.price * item.quantity;
+                sellerGroups[sellerId].items.push({
+                    id: item.id,
+                    title: product.title,
+                    price: product.price,
+                    quantity: item.quantity,
+                    image: product.imageUrls?.[0] || '',
+                    sellerId: product.sellerId,
+                });
+                sellerGroups[sellerId].subtotal += itemTotal;
+
+                // Deduct inventory
                 t.update(doc.ref, {
                     quantity: FieldValue.increment(-item.quantity),
                     status: (product.quantity || 0) - item.quantity === 0 ? 'sold' : product.status,
                 });
             }
 
-            // 3. Calculate Total (server-side)
             const settings = await getSystemSettingsAdmin();
-            const freightCharge = settings.freightCharge;
-            const threshold = settings.freeShippingThreshold;
-            const taxRate = settings.standardTaxRate;
+            const groupOrderId = `GRP-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+            const createdOrders = [];
 
-            const shippingCost = options?.shippingMethod === 'shipping'
-                ? (subtotal >= threshold ? 0 : freightCharge)
-                : 0;
+            // 2. Create an order for each seller
+            for (const [sellerId, group] of Object.entries(sellerGroups)) {
+                const orderRef = firestoreDb.collection('orders').doc();
 
-            const taxAmount = subtotal * taxRate;
-            const totalAmount = subtotal + shippingCost + taxAmount;
+                // For now, split shipping cost proportionally or apply to first? 
+                // Let's keep it simple: each unique seller order might have its own shipping if we were advanced, 
+                // but for now we'll just split the total order's logic.
+                // Re-calculating per-seller order:
+                const shippingCost = options?.shippingMethod === 'shipping'
+                    ? (group.subtotal >= settings.freeShippingThreshold ? 0 : settings.freightCharge)
+                    : 0;
 
-            // 4. Create Order Document
-            const orderRef = firestoreDb.collection('orders').doc();
-            const newOrder = {
-                items: items, // Contains IDs and quantities
-                totalAmount,
-                subtotal,
-                shippingCost,
-                taxAmount,
-                buyerId,
-                buyerEmail,
-                status: 'processing',
-                paymentMethod: 'Cash on Delivery',
-                shippingMethod: options?.shippingMethod || 'pickup',
-                shippingAddress: options?.shippingAddress || null,
-                createdAt: FieldValue.serverTimestamp(),
-            };
+                const taxAmount = group.subtotal * settings.standardTaxRate;
+                const totalAmount = group.subtotal + shippingCost + taxAmount;
 
-            t.set(orderRef, newOrder);
+                const newOrder = {
+                    groupOrderId,
+                    items: group.items,
+                    totalAmount,
+                    subtotal: group.subtotal,
+                    shippingCost,
+                    taxAmount,
+                    buyerId,
+                    buyerEmail,
+                    buyerName: buyerName || buyerEmail,
+                    sellerId,
+                    sellerName: group.sellerName,
+                    status: 'processing',
+                    paymentStatus: 'pending',
+                    paymentMethod: 'Cash on Delivery',
+                    shippingMethod: options?.shippingMethod || 'pickup',
+                    shippingAddress: options?.shippingAddress || null,
+                    createdAt: FieldValue.serverTimestamp(),
+                    updatedAt: FieldValue.serverTimestamp(),
+                };
 
-            // Fetch full item details for the confirmation page
-            const itemsWithDetails = productDocs.map((doc, i) => {
-                return serializeFirestoreDoc({
-                    ...(doc.data() as Product),
-                    id: doc.id,
-                    quantity: items[i].quantity,
-                });
-            });
+                t.set(orderRef, newOrder);
+                createdOrders.push({ id: orderRef.id, ...newOrder });
+            }
 
-            // We need to resolve the serverTimestamp sentinel to a client-friendly value (e.g. now)
-            // because we can't read back the written time within the same transaction easily/efficiently
-            // without a fresh read which might be overkill.
-            const serializedOrder = {
-                ...newOrder,
-                createdAt: new Date().toISOString(), // Approximation for client display
-                orderId: orderRef.id,
-                items: itemsWithDetails,
-                totalAmount
-            };
-
-            return serializedOrder;
+            return createdOrders;
         });
 
-        return { order: orderDetails };
+        // Serialize for client
+        const serializedOrders = results.map(order => serializeFirestoreDoc({
+            ...order,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        }));
+
+        return { orders: serializedOrders };
 
     } catch (error: any) {
         console.error('Order creation failed:', error);
         return { error: error.message || 'An unexpected error occurred.' };
+    }
+}
+
+/**
+ * Updates the status of an order.
+ */
+export async function updateOrderStatus(idToken: string, orderId: string, status: string, trackingInfo?: { carrier: string, trackingNumber: string }) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const { uid: userId } = decodedToken;
+
+        const orderRef = firestoreDb.collection('orders').doc(orderId);
+        const orderSnap = await orderRef.get();
+
+        if (!orderSnap.exists) throw new Error("Order not found.");
+        const orderData = orderSnap.data();
+
+        // Check if the user is the seller of this order or an admin
+        const isOwner = orderData?.sellerId === userId;
+        const isStaff = ['admin', 'superadmin'].includes(decodedToken.role);
+
+        if (!isOwner && !isStaff) {
+            throw new Error("Unauthorized access.");
+        }
+
+        const updates: any = {
+            status,
+            updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        if (trackingInfo) {
+            updates.shippingCarrier = trackingInfo.carrier;
+            updates.trackingNumber = trackingInfo.trackingNumber;
+        }
+
+        await orderRef.update(updates);
+        return { success: true, message: `Order marked as ${status}.` };
+    } catch (error: any) {
+        console.error("Update order status failed:", error);
+        return { success: false, message: error.message || "Failed to update order." };
     }
 }

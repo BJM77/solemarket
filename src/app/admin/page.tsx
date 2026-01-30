@@ -15,7 +15,8 @@ import { useUser } from "@/firebase";
 interface PlatformStats {
     totalRevenue: number;
     activeSellers: number;
-    disputeCount: number;
+    suspendedSellers: number;
+    pendingApprovals: number;
     totalItems: number;
 }
 
@@ -45,12 +46,19 @@ const adminSections = [
         description: "Manage concierge and consignment requests."
     },
     {
+        title: "User Management",
+        icon: <Users className="h-8 w-8 text-primary" />,
+        href: "/admin/users",
+        description: "Manage accounts, roles, and seller approvals."
+    },
+    {
         title: "AI Usage",
         icon: <Brain className="h-8 w-8 text-primary" />,
         href: "/admin/ai-usage",
         description: "Monitor AI requests and token costs."
     },
 ];
+
 
 export default function AdminDashboardPage() {
     const { user } = useUser();
@@ -74,8 +82,9 @@ export default function AdminDashboardPage() {
                 setStats({
                     totalRevenue: fetchedStats.totalRevenue || 0,
                     totalItems: fetchedStats.totalItems || 0,
-                    activeSellers: 1, // Mock value
-                    disputeCount: 0 // Mock value
+                    activeSellers: fetchedStats.activeSellers || 0,
+                    suspendedSellers: fetchedStats.suspendedSellers || 0,
+                    pendingApprovals: fetchedStats.pendingApprovals || 0
                 });
             } catch (error: any) {
                 console.error("Failed to fetch platform stats", error);
@@ -89,7 +98,7 @@ export default function AdminDashboardPage() {
 
     const displayStats = {
         revenue: stats?.totalRevenue || 0,
-        alerts: stats?.disputeCount || 0,
+        pendingApprovals: stats?.pendingApprovals || 0,
         sellers: stats?.activeSellers || 0,
         items: stats?.totalItems || 0,
     };

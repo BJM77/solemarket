@@ -19,7 +19,8 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, cn } from '@/lib/utils';
+import { Phone } from 'lucide-react'; // Import Phone icon
 
 // Define types
 interface Seller extends UserProfile {
@@ -59,6 +60,8 @@ export default function SellerPage() {
   const pathname = usePathname();
   const router = useRouter();
   const sellerId = pathname.split('/').pop() || '';
+  const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+
 
   const { firestore } = useFirebase();
   const { user } = useUser();
@@ -177,7 +180,8 @@ export default function SellerPage() {
                   <AvatarImage src={seller.photoURL || ''} alt={seller.displayName || 'Seller'} />
                   <AvatarFallback className="text-4xl">{getInitials(seller.displayName)}</AvatarFallback>
                 </Avatar>
-                <h1 className="text-2xl font-bold font-headline">{seller.displayName}</h1>
+                <h1 className="text-2xl font-bold font-headline">{seller.businessName || seller.displayName}</h1>
+                {seller.businessName && <p className="text-sm font-medium text-gray-500">{seller.displayName}</p>}
                 <p className="text-sm text-muted-foreground">Joined {joinDate}</p>
 
                 <div className="flex items-center gap-2 mt-4">
@@ -198,6 +202,16 @@ export default function SellerPage() {
                 <Button className="w-full mt-6" onClick={handleStartConversation}>
                   <Mail className="mr-2 h-4 w-4" /> Message Seller
                 </Button>
+                {seller.phoneNumber && (
+                  <Button
+                    variant={isPhoneRevealed ? "secondary" : "outline"}
+                    className={cn("w-full mt-2", isPhoneRevealed ? "bg-green-100 text-green-800 hover:bg-green-200" : "")}
+                    onClick={() => setIsPhoneRevealed(true)}
+                  >
+                    <Phone className="mr-2 h-4 w-4" />
+                    {isPhoneRevealed ? seller.phoneNumber : "Show Phone Number"}
+                  </Button>
+                )}
                 {seller.bio && (
                   <div className="text-left w-full mt-6 pt-4 border-t">
                     <h4 className="font-semibold text-sm mb-2 text-muted-foreground">About Me</h4>

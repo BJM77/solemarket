@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,10 +150,10 @@ export default function KeepListPage() {
                             <CardDescription>Players you're collecting</CardDescription>
                         </div>
                         <Button variant="outline" asChild>
-                            <a href="/research">
+                            <Link href="/research">
                                 <List className="mr-2 h-4 w-4" />
                                 Back to Scanner
-                            </a>
+                            </Link>
                         </Button>
                     </div>
                 </CardHeader>

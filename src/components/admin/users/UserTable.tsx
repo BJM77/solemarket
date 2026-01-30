@@ -15,6 +15,8 @@ interface UserTableProps {
     users: AdminUser[];
     onEditRole: (user: AdminUser) => void;
     onToggleBan: (userId: string, currentStatus: 'active' | 'banned') => void;
+    onToggleStop: (userId: string, onStop: boolean) => void;
+    onWarn: (userId: string) => void;
     isPending: boolean;
 }
 
@@ -31,7 +33,7 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
     }
 };
 
-export function UserTable({ users, onEditRole, onToggleBan, isPending }: UserTableProps) {
+export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn, isPending }: UserTableProps) {
     return (
         <div className="rounded-md border bg-card">
             <Table>
@@ -61,12 +63,30 @@ export function UserTable({ users, onEditRole, onToggleBan, isPending }: UserTab
                                 <RoleBadge role={user.role || 'viewer'} />
                             </TableCell>
                             <TableCell>
-                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                    !user.disabled ? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20' :
-                                    'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
-                                }`}>
-                                    {!user.disabled ? 'Active' : 'Banned'}
-                                </span>
+                                <div className="flex flex-col gap-1">
+                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${!user.disabled ? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20' :
+                                        'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
+                                        }`}>
+                                        {!user.disabled ? 'Auth Active' : 'Auth Banned'}
+                                    </span>
+                                    {user.onStop && (
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                                Seller On Stop
+                                            </span>
+                                            {user.stopReason && (
+                                                <span className="text-[9px] text-amber-600 font-medium px-2 italic max-w-[150px] truncate">
+                                                    Reason: {user.stopReason}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {user.warningCount && user.warningCount > 0 && (
+                                        <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                                            {user.warningCount} Warning{user.warningCount > 1 ? 's' : ''}
+                                        </span>
+                                    )}
+                                </div>
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
                                 {user.lastSignInTime ? format(new Date(user.lastSignInTime), 'MMM d, yyyy') : 'Never'}
@@ -94,6 +114,25 @@ export function UserTable({ users, onEditRole, onToggleBan, isPending }: UserTab
                                         >
                                             {!user.disabled ? <><Ban className="mr-2 h-4 w-4" /> Ban User</> : "Unban User"}
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-orange-600"
+                                            onClick={() => onWarn(user.id)}
+                                        >
+                                            <Shield className="mr-2 h-4 w-4" /> Issue Warning
+                                        </DropdownMenuItem>
+
+                                        {user.role === 'seller' && (
+                                            <DropdownMenuItem
+                                                className={!user.onStop ? "text-amber-600" : "text-emerald-600"}
+                                                onClick={() => onToggleStop(user.id, !user.onStop)}
+                                            >
+                                                {!user.onStop ? (
+                                                    <><Shield className="mr-2 h-4 w-4" /> Put on Stop</>
+                                                ) : (
+                                                    <><BadgeCheck className="mr-2 h-4 w-4" /> Activate Seller</>
+                                                )}
+                                            </DropdownMenuItem>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </TableCell>

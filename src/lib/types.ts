@@ -25,7 +25,7 @@ export type SafeUser = {
   getIdTokenResult: (forceRefresh?: boolean) => Promise<{ claims: { [key: string]: any; }; }>;
 } | null;
 
-export type UserRole = 'viewer' | 'seller' | 'admin' | 'superadmin';
+export type UserRole = 'viewer' | 'seller' | 'business' | 'admin' | 'superadmin';
 
 export type UserProfile = {
   id: string;
@@ -45,6 +45,21 @@ export type UserProfile = {
   // New Role-Based Access Fields
   role?: UserRole;
   canSell?: boolean;
+  sellerStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  listingLimit?: number;
+  agreementAccepted?: boolean;
+  agreementAcceptedAt?: Timestamp;
+  // Payouts & Stripe
+  stripeAccountId?: string;
+  stripeEnabled?: boolean;
+  totalEarnings?: number;
+  onStop?: boolean; // If true, seller is suspended and listings are hidden
+  stopReason?: string; // Reason for suspension
+  // New Contact & Management Fields
+  phoneNumber?: string;
+  businessName?: string; // For Business users (Slug can be derived or stored in storeName)
+  warningCount?: number;
+  isBanned?: boolean;
 };
 
 export type Product = {
@@ -59,8 +74,11 @@ export type Product = {
   sellerEmail: string;
   sellerAvatar?: string;
   imageUrls: string[];
-  status: 'available' | 'sold' | 'draft';
+  status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold'; // Added on_hold
+  holdReason?: string;
   isPrivate?: boolean;
+  approvedAt?: Timestamp;
+  publicReleaseAt?: Timestamp;
   gradingCompany?: 'PSA' | 'BGS' | 'CGC' | 'SGC' | 'Raw';
   grade?: string;
   certNumber?: string;
@@ -91,6 +109,7 @@ export type Product = {
   bidHistory?: Bid[];
   autoRepricingEnabled?: boolean;
   minStockQuantity?: number;
+  contactCallCount?: number; // Analytics for phone reveals
 };
 
 export type ProductSearchParams = {

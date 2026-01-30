@@ -29,7 +29,7 @@ const Sidebar = React.forwardRef<
       }}
       className={cn(
         "flex flex-col border-r transition-all duration-300 ease-in-out bg-background z-40",
-        effectiveOpen ? "w-64" : "w-20",
+        effectiveOpen ? "w-64" : "w-0 lg:w-20 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto border-none lg:border-r",
         className
       )}
       {...props}
@@ -116,38 +116,7 @@ const SidebarMenuButton = React.forwardRef<
       )}
       {...props}
     >
-      {React.Children.map(children, (child, index) => {
-        // Icon - always show (first child)
-        if (index === 0 && React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            className: cn("h-5 w-5 shrink-0", (child.props as any).className),
-          } as any)
-        }
-        // Text - show only when expanded (second child)
-        if (index === 1) {
-          // Handle both direct strings and span elements with text
-          if (typeof child === "string" || (React.isValidElement(child) && child.type === "span")) {
-            const text = typeof child === "string" ? child : child.props.children
-            return (
-              <span
-                className={cn(
-                  "whitespace-nowrap transition-all duration-300 overflow-hidden",
-                  effectiveOpen
-                    ? "opacity-100 translate-x-0 max-w-full"
-                    : "opacity-0 max-w-0 -translate-x-2 pointer-events-none absolute"
-                )}
-              >
-                {text}
-              </span>
-            )
-          }
-        }
-        // Any other children (like motion.div for active indicator)
-        if (index > 1) {
-          return child
-        }
-        return null
-      })}
+      {children}
     </Button>
   )
 
@@ -180,7 +149,7 @@ const SidebarTrigger = React.forwardRef<
       variant="ghost"
       size="icon"
       onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      className={cn("hidden lg:flex", className)}
+      className={cn("flex", className)}
       {...props}
     >
       {isSidebarOpen ? <PanelLeftClose /> : <PanelRightClose />}

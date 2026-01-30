@@ -13,9 +13,7 @@ export default function Header() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-        setIsClient(true);
-    }, 0);
+    setIsClient(true);
   }, []);
 
   return (
@@ -28,17 +26,17 @@ export default function Header() {
           </Link>
           {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
         </div>
-        
+
         <div className="hidden md:flex items-center gap-8">
           {isClient && <MainNavLinks />}
         </div>
-        
+
         <div className="flex items-center justify-end gap-2">
-            {isClient && (
-              <Suspense fallback={<div className="h-10 w-24 bg-muted/20 rounded-md" />}>
-                <HeaderActions />
-              </Suspense>
-            )}
+          {isClient && (
+            <Suspense fallback={<div className="h-10 w-24 bg-muted/20 rounded-md" />}>
+              <HeaderActions />
+            </Suspense>
+          )}
         </div>
       </div>
     </header>

@@ -9,10 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getAllUsers, updateUserRole, toggleUserBan, type AdminUser, type ActionResponse } from '@/app/actions/admin-users';
+import { getAllUsers, updateUserRole, toggleUserBan, approveSeller, rejectSeller, setUserOnStop, issueWarning, type AdminUser, type ActionResponse } from '@/app/actions/admin-users';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from '@/lib/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SellerApprovals } from './SellerApprovals';
+
 
 
 export default function UserManagementClient() {
@@ -54,7 +57,7 @@ export default function UserManagementClient() {
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              user.email.toLowerCase().includes(searchQuery.toLowerCase());
+            user.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesRole = roleFilter === 'all' || user.role === roleFilter;
         return matchesSearch && matchesRole;
     });
@@ -88,6 +91,45 @@ export default function UserManagementClient() {
         handleAction(() => toggleUserBan(idToken, userId, currentStatus));
     };
 
+    const handleToggleStop = async (userId: string, onStop: boolean) => {
+        const idToken = await getCurrentUserIdToken();
+        if (!idToken) return;
+
+        let reason = '';
+        if (onStop) {
+            const input = window.prompt("Reason for putting seller on stop:");
+            if (input === null) return; // Cancelled
+            reason = input;
+        }
+
+        handleAction(() => setUserOnStop(idToken, userId, onStop, reason));
+    };
+
+    const handleApproveSeller = async (userId: string) => {
+        const idToken = await getCurrentUserIdToken();
+        if (!idToken) return;
+        handleAction(() => approveSeller(idToken, userId));
+    };
+
+    const handleRejectSeller = async (userId: string) => {
+        const idToken = await getCurrentUserIdToken();
+        if (!idToken) return;
+        const reason = window.prompt("Reason for rejection:");
+        if (reason === null) return;
+        handleAction(() => rejectSeller(idToken, userId, reason));
+    };
+
+    const handleWarnUser = async (userId: string) => {
+        const idToken = await getCurrentUserIdToken();
+        if (!idToken) return;
+
+        const reason = window.prompt("Reason for warning (User will be banned on 2nd warning):");
+        if (!reason) return;
+
+        handleAction(() => issueWarning(idToken, userId, reason));
+    };
+
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-4 rounded-lg border shadow-sm">
@@ -119,16 +161,48 @@ export default function UserManagementClient() {
                 </div>
             </div>
 
-            {isLoading ? (
-                <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>
-            ) : (
-                <UserTable
-                    users={filteredUsers}
-                    onEditRole={handleEditRole}
-                    onToggleBan={handleToggleBan}
-                    isPending={isPending}
-                />
-            )}
+            <Tabs defaultValue="all" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+                    <TabsTrigger value="all">All Users</TabsTrigger>
+                    <TabsTrigger value="pending" className="relative">
+                        Seller Approvals
+                        {users.filter(u => u.sellerStatus === 'pending').length > 0 && (
+                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] text-white font-bold">
+                                {users.filter(u => u.sellerStatus === 'pending').length}
+                            </span>
+                        )}
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="all" className="mt-6">
+                    {isLoading ? (
+                        <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                    ) : (
+                        <UserTable
+                            users={filteredUsers}
+                            onEditRole={handleEditRole}
+                            onToggleBan={handleToggleBan}
+                            onToggleStop={handleToggleStop}
+                            onWarn={handleWarnUser}
+                            isPending={isPending}
+                        />
+                    )}
+                </TabsContent>
+
+                <TabsContent value="pending" className="mt-6">
+                    {isLoading ? (
+                        <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                    ) : (
+                        <SellerApprovals
+                            users={users}
+                            onApprove={handleApproveSeller}
+                            onReject={handleRejectSeller}
+                            isPending={isPending}
+                        />
+                    )}
+                </TabsContent>
+            </Tabs>
+
 
             {selectedUser && (
                 <UserRoleDialog
@@ -140,7 +214,7 @@ export default function UserManagementClient() {
                     onUpdateRole={handleUpdateRole}
                 />
             )}
-            
+
             <CreateUserDialog
                 isOpen={isCreateDialogOpen}
                 onClose={() => {

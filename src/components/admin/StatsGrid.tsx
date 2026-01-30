@@ -2,18 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, ShieldAlert, Users, Package } from "lucide-react";
 
 interface AdminStatsGridProps {
-    stats: {
-        revenue: number;
-        alerts: number;
-        sellers: number;
-        items: number;
-    }
+  stats: {
+    revenue: number;
+    pendingApprovals: number;
+    sellers: number;
+    items: number;
+  }
 }
 
 export function AdminStatsGrid({ stats }: AdminStatsGridProps) {
   const items = [
     { title: "Revenue", value: `$${stats.revenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
-    { title: "Risk Alerts", value: stats.alerts, icon: ShieldAlert, color: "text-red-500" },
+    { title: "Pending Approvals", value: stats.pendingApprovals, icon: ShieldAlert, color: "text-amber-500" },
     { title: "Active Sellers", value: stats.sellers, icon: Users, color: "text-blue-500" },
     { title: "Total Items", value: stats.items, icon: Package, color: "text-purple-500" },
   ];

@@ -3,7 +3,14 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 
-export async function getPlatformStats(idToken: string): Promise<{ totalItems?: number; totalRevenue?: number; error?: string }> {
+export async function getPlatformStats(idToken: string): Promise<{
+  totalItems?: number;
+  totalRevenue?: number;
+  activeSellers?: number;
+  suspendedSellers?: number;
+  pendingApprovals?: number;
+  error?: string;
+}> {
   try {
     // Verify the user is an admin
     const decodedToken = await verifyIdToken(idToken);
@@ -23,18 +30,30 @@ export async function getPlatformStats(idToken: string): Promise<{ totalItems?: 
       return { error: 'You do not have permission to view platform statistics.' };
     }
 
-    const docRef = firestoreDb.collection('platform_stats').doc('global');
-    const docSnap = await docRef.get();
+    const globalRef = firestoreDb.collection('platform_stats').doc('global');
+    const globalSnap = await globalRef.get();
+    const globalData = globalSnap.data();
 
-    if (!docSnap.exists) {
-      // Return zeros if the doc hasn't been created yet
-      return { totalItems: 0, totalRevenue: 0 };
-    }
+    // Fetch dynamic counts
+    const activeSellersSnap = await firestoreDb.collection('users')
+      .where('role', '==', 'seller')
+      .where('onStop', '==', false)
+      .count().get();
 
-    const data = docSnap.data();
+    const suspendedSellersSnap = await firestoreDb.collection('users')
+      .where('onStop', '==', true)
+      .count().get();
+
+    const pendingApprovalsSnap = await firestoreDb.collection('users')
+      .where('sellerStatus', '==', 'pending')
+      .count().get();
+
     return {
-      totalItems: data?.totalItems || 0,
-      totalRevenue: data?.totalRevenue || 0
+      totalItems: globalData?.totalItems || 0,
+      totalRevenue: globalData?.totalRevenue || 0,
+      activeSellers: activeSellersSnap.data().count,
+      suspendedSellers: suspendedSellersSnap.data().count,
+      pendingApprovals: pendingApprovalsSnap.data().count
     };
   } catch (error: any) {
     console.error("[Stats Action] Failed to fetch platform stats:", {

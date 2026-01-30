@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, Loader, ArrowLeft, Gem, DollarSign } from 'lucide-react';
@@ -65,16 +66,16 @@ export default function CollectionPage() {
 
             <div className="flex gap-4 mt-6 mb-8">
                 <Button variant="outline" asChild>
-                    <a href="/research">
+                    <Link href="/research">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Scanner
-                    </a>
+                    </Link>
                 </Button>
                 <Button variant="outline" asChild>
-                    <a href="/research/keep-list">
+                    <Link href="/research/keep-list">
                         <Star className="mr-2 h-4 w-4" />
                         Keep List
-                    </a>
+                    </Link>
                 </Button>
             </div>
 
@@ -87,7 +88,7 @@ export default function CollectionPage() {
                             Scan cards and keeper cards will appear here
                         </p>
                         <Button asChild>
-                            <a href="/research">Start Scanning</a>
+                            <Link href="/research">Start Scanning</Link>
                         </Button>
                     </CardContent>
                 </Card>

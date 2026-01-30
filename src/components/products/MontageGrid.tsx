@@ -73,7 +73,7 @@ export default function MontageGrid({ products, lastProductRef }: MontageGridPro
   return (
     <motion.div
       layout
-      className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2"
+      className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2"
     >
       {products.map((product, index) => {
         const isLastElement = index === products.length - 1;
@@ -90,7 +90,7 @@ export default function MontageGrid({ products, lastProductRef }: MontageGridPro
             transition={{ duration: 0.3, delay: index * 0.02 }}
             className="group relative aspect-square w-full h-full overflow-hidden rounded-md"
           >
-            <Link href={`/product/${product.id}`} className="absolute inset-0 z-10">
+            <Link href={`/product/${product.id}`} className="absolute inset-0 z-10" title={product.title}>
               <span className="sr-only">View {product.title}</span>
             </Link>
 

@@ -9,6 +9,7 @@ import { SearchCommand } from '@/components/search/SearchCommand';
 import { NotificationBell } from '../notifications/NotificationBell';
 import Link from 'next/link';
 import { useUser } from '@/firebase/auth/use-user';
+import { LogIn, UserPlus } from 'lucide-react';
 
 export default function HeaderActions() {
     const { itemCount, setIsCartOpen } = useCart();
@@ -23,7 +24,23 @@ export default function HeaderActions() {
                 </Button>
             </div>
 
-            <NotificationBell />
+
+            {!user ? (
+                <div className="flex items-center gap-1">
+                    <Button asChild variant="ghost" size="icon" aria-label="Sign In">
+                        <Link href="/sign-in">
+                            <LogIn className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                    <Button asChild variant="ghost" size="icon" aria-label="Register">
+                        <Link href="/sign-up">
+                            <UserPlus className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                </div>
+            ) : (
+                <NotificationBell />
+            )}
 
             {user && (
                 <div className="hidden md:flex items-center gap-2">

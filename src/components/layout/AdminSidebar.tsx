@@ -16,7 +16,6 @@ import {
 import {
     LayoutDashboard,
     Box,
-    Shapes,
     MessageSquareWarning,
     BarChart,
     ShieldCheck,
@@ -27,16 +26,24 @@ import {
     Users,
     Globe,
     Activity,
-    ListChecks
+    ListChecks,
+    Gavel,
+    Briefcase,
+    Sparkles
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { motion } from "framer-motion";
 import { useUser } from "@/firebase";
 import { useSidebar } from "@/components/layout/sidebar-provider";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
+// Navigation Items Configuration
 const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/admin/products/approvals", icon: Gavel, label: "Approvals" },
+    { href: "/admin/products/new", icon: Sparkles, label: "New Listings" },
+    { href: "/admin/sellers", icon: Briefcase, label: "Sellers" },
     { href: "/admin/products", icon: Box, label: "Products" },
     { href: "/admin/management", icon: ListChecks, label: "Management" },
     { href: "/admin/users", icon: Users, label: "Users" },
@@ -58,8 +65,19 @@ const sysItems = [
 export default function AdminSidebar() {
     const pathname = usePathname();
     const { user } = useUser();
-    const { isSidebarOpen, isHovered } = useSidebar();
-    const effectiveOpen = isSidebarOpen || isHovered;
+    const { isSidebarOpen, setIsSidebarOpen, isHovered } = useSidebar();
+
+    // Track mobile stats to handle click-outside or close-on-navigate
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 
     return (
         <Sidebar>
@@ -96,17 +114,26 @@ export default function AdminSidebar() {
 
                 <SidebarMenu className="space-y-1">
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
                         return (
                             <SidebarMenuItem key={item.href}>
-                                <Link href={item.href}>
-                                    <SidebarMenuButton
-                                        isActive={isActive}
-                                        tooltip={item.label}
-                                        className="relative group overflow-hidden"
-                                    >
-                                        <item.icon />
-                                        <span>{item.label}</span>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={isActive}
+                                    tooltip={item.label}
+                                    className="relative group overflow-hidden"
+                                    onClick={() => {
+                                        if (isMobile) setIsSidebarOpen(false);
+                                    }}
+                                >
+                                    <Link href={item.href} className="flex items-center gap-3 w-full">
+                                        <item.icon className="h-5 w-5 shrink-0" />
+                                        <span className={cn(
+                                            "whitespace-nowrap transition-all duration-300 overflow-hidden text-sm font-medium",
+                                            effectiveOpen ? "opacity-100 w-auto translate-x-0" : "opacity-0 w-0 -translate-x-2 absolute"
+                                        )}>
+                                            {item.label}
+                                        </span>
                                         {isActive && effectiveOpen && (
                                             <motion.div
                                                 layoutId="active-pill"
@@ -114,8 +141,8 @@ export default function AdminSidebar() {
                                                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                             />
                                         )}
-                                    </SidebarMenuButton>
-                                </Link>
+                                    </Link>
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                         );
                     })}
@@ -125,35 +152,58 @@ export default function AdminSidebar() {
                     {effectiveOpen && <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-2 mb-2">Integrity</div>}
                     <SidebarMenu className="space-y-1">
                         {integrityItems.map((item) => {
-                            const isActive = pathname === item.href;
+                            const isActive = pathname.startsWith(item.href);
                             return (
                                 <SidebarMenuItem key={item.href}>
-                                    <Link href={item.href}>
-                                        <SidebarMenuButton isActive={isActive} tooltip={item.label}>
-                                            <item.icon />
-                                            <span>{item.label}</span>
-                                        </SidebarMenuButton>
-                                    </Link>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isActive}
+                                        tooltip={item.label}
+                                        onClick={() => {
+                                            if (isMobile) setIsSidebarOpen(false);
+                                        }}
+                                    >
+                                        <Link href={item.href} className="flex items-center gap-3 w-full">
+                                            <item.icon className="h-5 w-5 shrink-0" />
+                                            <span className={cn(
+                                                "whitespace-nowrap transition-all duration-300 overflow-hidden text-sm font-medium",
+                                                effectiveOpen ? "opacity-100 w-auto translate-x-0" : "opacity-0 w-0 -translate-x-2 absolute"
+                                            )}>
+                                                {item.label}
+                                            </span>
+                                        </Link>
+                                    </SidebarMenuButton>
                                 </SidebarMenuItem>
                             );
                         })}
                     </SidebarMenu>
                 </div>
 
-
                 <div className="my-4 px-4">
                     {effectiveOpen && <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-2 mb-2">Configuration</div>}
                     <SidebarMenu className="space-y-1">
                         {sysItems.map((item) => {
-                            const isActive = pathname === item.href;
+                            const isActive = pathname.startsWith(item.href);
                             return (
                                 <SidebarMenuItem key={item.href}>
-                                    <Link href={item.href}>
-                                        <SidebarMenuButton isActive={isActive} tooltip={item.label}>
-                                            <item.icon />
-                                            <span>{item.label}</span>
-                                        </SidebarMenuButton>
-                                    </Link>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isActive}
+                                        tooltip={item.label}
+                                        onClick={() => {
+                                            if (isMobile) setIsSidebarOpen(false);
+                                        }}
+                                    >
+                                        <Link href={item.href} className="flex items-center gap-3 w-full">
+                                            <item.icon className="h-5 w-5 shrink-0" />
+                                            <span className={cn(
+                                                "whitespace-nowrap transition-all duration-300 overflow-hidden text-sm font-medium",
+                                                effectiveOpen ? "opacity-100 w-auto translate-x-0" : "opacity-0 w-0 -translate-x-2 absolute"
+                                            )}>
+                                                {item.label}
+                                            </span>
+                                        </Link>
+                                    </SidebarMenuButton>
                                 </SidebarMenuItem>
                             );
                         })}

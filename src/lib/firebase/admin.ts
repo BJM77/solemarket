@@ -48,17 +48,23 @@ function initializeFirebaseAdmin() {
 
         // Priority 2: Service Account JSON from Environment Variable
         const saJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+        console.log('🔍 Firebase Admin Check: saJson length:', saJson?.length || 0);
         if (saJson) {
             console.log('✅ Firebase Admin: Using Service Account JSON from env');
             try {
-                const serviceAccount = JSON.parse(saJson.replace(/\\n/g, '\n'));
+                const serviceAccount = JSON.parse(saJson);
+                if (serviceAccount.private_key) {
+                    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+                }
                 return admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert(serviceAccount),
                 });
-            } catch (error) {
-                console.error('❌ Firebase Admin: Failed to parse SERVICE_ACCOUNT_JSON:', error);
-                throw new Error('Invalid SERVICE_ACCOUNT_JSON format');
+            } catch (error: any) {
+                console.error('❌ Firebase Admin: Failed to parse SERVICE_ACCOUNT_JSON:', error.message);
+                // Also log a snippet of the string to help debug (without showing the whole private key)
+                console.log('🔍 saJson snippet:', saJson.substring(0, 50) + '...');
+                throw new Error(`Invalid SERVICE_ACCOUNT_JSON format: ${error.message}`);
             }
         }
 

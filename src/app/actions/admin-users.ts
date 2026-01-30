@@ -14,6 +14,8 @@ export type ActionResponse = {
 export interface AdminUser extends UserProfile {
     uid: string;
     disabled: boolean;
+    onStop: boolean;
+    stopReason?: string;
     lastSignInTime?: string;
 }
 
@@ -29,14 +31,20 @@ const mapUserRecordToAdminUser = (user: any, profile?: UserProfile): AdminUser =
     lastSignInTime: user.metadata.lastSignInTime,
     // Convert Firestore Timestamp to string or Date to a serializable format
     createdAt: profile?.createdAt && (profile.createdAt as any).toDate ? (profile.createdAt as any).toDate().toISOString() : profile?.createdAt,
+    sellerStatus: profile?.sellerStatus || 'none',
+    agreementAccepted: profile?.agreementAccepted || false,
+    listingLimit: profile?.listingLimit || 0,
+    onStop: profile?.onStop || false,
+    stopReason: profile?.stopReason,
 });
+
 
 /**
  * Super-admin action to create a new user.
  */
 export async function createNewUser(
     idToken: string,
-    userData: { email: string; password; displayName: string; role: UserRole; }
+    userData: { email: string; password: string; displayName: string; role: UserRole; }
 ): Promise<ActionResponse> {
     try {
         const decodedToken = await verifyIdToken(idToken);
@@ -171,11 +179,188 @@ export async function toggleUserBan(idToken: string, userId: string, currentStat
         const isDisabled = currentStatus === 'active';
         await admin.auth().updateUser(userId, { disabled: isDisabled });
 
+        // Sync to Firestore
+        await firestoreDb.collection('users').doc(userId).update({
+            isBanned: isDisabled,
+            onStop: isDisabled, // Ensure selling is stopped if banned
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
         revalidatePath('/admin/users');
         return { success: true, message: `User has been ${isDisabled ? 'banned' : 'unbanned'}.` };
 
     } catch (error: any) {
         console.error('Error toggling ban:', error);
         return { success: false, message: 'Failed to update user status.' };
+    }
+}
+
+/**
+ * Approve a pending seller application.
+ */
+export async function approveSeller(idToken: string, userId: string): Promise<ActionResponse> {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+            return { success: false, message: 'Permission denied.' };
+        }
+
+        await firestoreDb.collection('users').doc(userId).update({
+            sellerStatus: 'approved',
+            canSell: true,
+            role: 'seller', // Automatically promote to seller role
+        });
+
+        // Set custom claims
+        await admin.auth().setCustomUserClaims(userId, { role: 'seller' });
+
+        revalidatePath('/admin/users');
+        return { success: true, message: "Seller application approved." };
+    } catch (error: any) {
+        console.error('Error approving seller:', error);
+        return { success: false, message: 'Failed to approve seller.' };
+    }
+}
+
+/**
+ * Reject a pending seller application.
+ */
+export async function rejectSeller(idToken: string, userId: string, reason: string): Promise<ActionResponse> {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+            return { success: false, message: 'Permission denied.' };
+        }
+
+        await firestoreDb.collection('users').doc(userId).update({
+            sellerStatus: 'rejected',
+            canSell: false,
+            rejectionReason: reason
+        });
+
+        revalidatePath('/admin/users');
+        return { success: true, message: "Seller application rejected." };
+    } catch (error: any) {
+        console.error('Error rejecting seller:', error);
+        return { success: false, message: 'Failed to reject seller.' };
+    }
+}
+
+/**
+ * Puts a user on "stop" (suspended) or reactivates them.
+ * If suspended, all their listings are automatically unpublished.
+ */
+export async function setUserOnStop(idToken: string, userId: string, onStop: boolean, reason?: string): Promise<ActionResponse> {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+            return { success: false, message: 'Permission denied.' };
+        }
+
+        const userRef = firestoreDb.collection('users').doc(userId);
+
+        await firestoreDb.runTransaction(async (transaction) => {
+            // 1. Update user profile
+            const updates: any = {
+                onStop,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (onStop && reason) {
+                updates.stopReason = reason;
+            } else if (!onStop) {
+                updates.stopReason = admin.firestore.FieldValue.delete();
+            }
+
+            transaction.update(userRef, updates);
+
+            // 2. Handle listings visibility
+            const productsRef = firestoreDb.collection('products');
+            const sellerProducts = await productsRef.where('sellerId', '==', userId).get();
+
+            sellerProducts.forEach(doc => {
+                if (onStop) {
+                    // SUSPENDING: Only hide products that are currently NOT drafts
+                    if (doc.data().isDraft === false) {
+                        transaction.update(doc.ref, {
+                            isDraft: true,
+                            suspendedByAdmin: true,
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                } else {
+                    // REACTIVATING: Only restore products that were hidden by this process
+                    if (doc.data().suspendedByAdmin === true) {
+                        transaction.update(doc.ref, {
+                            isDraft: false,
+                            suspendedByAdmin: admin.firestore.FieldValue.delete(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                }
+            });
+        });
+
+        revalidatePath('/admin/users');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: onStop
+                ? "Seller placed on stop. All active listings have been unpublished."
+                : "Seller reactivated. Previously auto-hidden listings are now public."
+        };
+    } catch (error: any) {
+        console.error('Error toggling seller stop:', error);
+        return { success: false, message: 'Failed to update seller status.' };
+    }
+}
+
+/**
+ * Issue a warning to a user.
+ * If user reaches 2 warnings, they are automatically banned.
+ */
+export async function issueWarning(idToken: string, userId: string, reason: string): Promise<ActionResponse> {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+            return { success: false, message: 'Permission denied.' };
+        }
+
+        const userRef = firestoreDb.collection('users').doc(userId);
+
+        // Transaction to increment warning and check for ban
+        await firestoreDb.runTransaction(async (transaction) => {
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists) throw new Error("User not found");
+
+            const data = userDoc.data() as UserProfile;
+            const currentWarnings = data.warningCount || 0;
+            const newWarnings = currentWarnings + 1;
+
+            const updates: any = {
+                warningCount: newWarnings,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            // If 2 warnings, BAN user
+            if (newWarnings >= 2) {
+                updates.isBanned = true;
+                updates.onStop = true; // Also stop selling
+                updates.stopReason = "Banned due to excessive warnings.";
+
+                // Disable in Auth
+                await admin.auth().updateUser(userId, { disabled: true });
+            }
+
+            transaction.update(userRef, updates);
+        });
+
+        revalidatePath('/admin/users');
+        return { success: true, message: "Warning issued." };
+
+    } catch (error: any) {
+        console.error("Issue warning error:", error);
+        return { success: false, message: error.message };
     }
 }

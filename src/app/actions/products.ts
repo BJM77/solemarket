@@ -32,54 +32,50 @@ export async function createProductAction(
         }
 
         const userProfile = userSnap.data() as UserProfile;
-        console.log('User Profile:', {
-            uid: decodedToken.uid,
-            email: decodedToken.email,
-            role: userProfile.role,
-            canSell: userProfile.canSell,
-            profileExists: userSnap.exists,
-        });
+        const userRole = userProfile.role || 'viewer';
 
         // Check for permission to sell
-        if (userProfile.role !== 'superadmin' && userProfile.canSell !== true) {
-            console.error('PERMISSION DENIED: User cannot sell');
+        if (userRole !== 'superadmin' && userRole !== 'admin' && userProfile.canSell !== true) {
             return { success: false, error: 'You do not have permission to list products.' };
+        }
+
+        // Limit check for personal sellers
+        if (userRole === 'seller') {
+            const userProductsSnap = await firestoreDb.collection('products')
+                .where('sellerId', '==', decodedToken.uid)
+                .where('status', 'in', ['available', 'pending_approval'])
+                .count()
+                .get();
+
+            if (userProductsSnap.data().count >= 20) {
+                return { success: false, error: 'Personal sellers are limited to 20 active items. Upgrade to Business to list more.' };
+            }
         }
 
         const productsCollection = firestoreDb.collection("products");
         const docRef = productsCollection.doc(); // Auto-generate ID
 
-        // Validate incoming data against schema
-        console.log('Validating data...');
-        console.log('Raw productData before validation:', JSON.stringify(productData, null, 2));
         const validationResult = productFormSchema.safeParse(productData);
-
         if (!validationResult.success) {
-            console.error('VALIDATION FAILED!');
-            console.error('Validation Errors:', JSON.stringify(validationResult.error.errors, null, 2));
             const errorMessages = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
             return { success: false, error: `Validation Failed: ${errorMessages}` };
         }
 
-        console.log('Validation successful.');
         const validData = validationResult.data;
 
-        // Note: validData from Zod might strip unknown keys if not configured to passthrough.
-        // We ensure we cast it to Product structure for Firestore.
-
         const finalData: Product = {
-            ...validData, // Safe spread of validated properties
+            ...validData,
             id: docRef.id,
             sellerId: decodedToken.uid,
             sellerEmail: decodedToken.email || '',
             sellerName: userProfile.displayName,
             sellerAvatar: userProfile.photoURL,
-            // Cast timestamps because Admin SDK uses a different class than client/type definition might expect
+            // All new listings require approval
+            status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
         };
 
-        console.log('Saving to Firestore...');
         await docRef.set(finalData);
         console.log('Product saved:', docRef.id);
 
@@ -121,4 +117,49 @@ export async function recordProductView(productId: string, userId?: string) {
 
         transaction.update(productRef, updates);
     });
+}
+
+export async function getAdjacentProducts(currentId: string, createdAt: any) {
+    try {
+        const productsRef = firestoreDb.collection('products');
+
+        // Parse createdAt
+        let timestamp;
+        if (createdAt && typeof createdAt.toDate === 'function') {
+            timestamp = createdAt;
+        } else if (createdAt && createdAt.seconds) {
+            timestamp = admin.firestore.Timestamp.fromMillis(createdAt.seconds * 1000);
+        } else if (createdAt instanceof Date) {
+            timestamp = admin.firestore.Timestamp.fromDate(createdAt);
+        } else if (typeof createdAt === 'string' || typeof createdAt === 'number') {
+            timestamp = admin.firestore.Timestamp.fromDate(new Date(createdAt));
+        } else {
+            // Fallback if no valid date
+            return { prevId: null, nextId: null };
+        }
+
+        // Previous (Newer items) - createdAt > current
+        const prevQuery = productsRef
+            .where('status', '==', 'available')
+            .where('createdAt', '>', timestamp)
+            .orderBy('createdAt', 'asc')
+            .limit(1);
+
+        // Next (Older items) - createdAt < current
+        const nextQuery = productsRef
+            .where('status', '==', 'available')
+            .where('createdAt', '<', timestamp)
+            .orderBy('createdAt', 'desc')
+            .limit(1);
+
+        const [prevSnap, nextSnap] = await Promise.all([prevQuery.get(), nextQuery.get()]);
+
+        return {
+            prevId: !prevSnap.empty ? prevSnap.docs[0].id : null,
+            nextId: !nextSnap.empty ? nextSnap.docs[0].id : null
+        };
+    } catch (error) {
+        console.error("Error fetching adjacent products:", error);
+        return { prevId: null, nextId: null };
+    }
 }

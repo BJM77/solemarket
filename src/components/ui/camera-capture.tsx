@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 interface CameraCaptureProps {
     onCapture: (files: File[]) => void;
     maxSizeMB?: number;
-    captureMode?: 'card' | 'coin' | 'default';
+    captureMode?: 'card' | 'coin' | 'general' | 'default';
     variant?: 'button' | 'hero';
     maxFiles?: number;
 }

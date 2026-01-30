@@ -5,6 +5,8 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { getProducts } from '@/services/product-service';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
+import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { LayoutGrid, List, Loader2, Filter, Grid, Rows } from 'lucide-react';
@@ -18,6 +20,22 @@ import { motion } from 'framer-motion';
 import MontageGrid from './MontageGrid';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { bulkUpdateProductPrice } from '@/app/actions/product-updates';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { X } from 'lucide-react';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -38,6 +56,14 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+
+  // Bulk Edit State
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [bulkPrice, setBulkPrice] = useState<string>('');
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const observer = useRef<IntersectionObserver>();
 
@@ -77,6 +103,8 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const [isExclusionMode, setIsExclusionMode] = useState<boolean>(false);
 
   const { user } = useUser();
+  const { userProfile } = useUserPermissions();
+  const userRole = userProfile?.role;
 
   const usersQuery = useMemoFirebase(() => {
     // Only query users if authenticated to avoid permission errors
@@ -121,22 +149,25 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     if (loadingRef.current || !hasMoreRef.current) return;
 
     loadingRef.current = true;
-    setLoading(true);
+    // Don't set loading(true) here for every page, only initial is controlled by useEffect usually
+    // But for better UX maybe? No, infinite scroll usually doesn't show big loader.
 
     pageRef.current += 1;
+    const currentPage = pageRef.current;
 
     try {
       const { products: newProducts, hasMore: newHasMore } = await getProducts({
         ...currentSearchParams,
-        page: pageRef.current,
+        page: currentPage,
         limit: PAGE_SIZE,
-      });
+      }, userRole as string);
 
       setProducts(prev => {
-        if (pageRef.current === 1) return newProducts;
-        const uniqueIds = new Set(prev.map(p => p.id));
-        const filteredNewProducts = newProducts.filter(p => !uniqueIds.has(p.id));
-        return [...prev, ...filteredNewProducts];
+        if (currentPage === 1) return newProducts;
+        // Convert both IDs to strings ensuring consistency
+        const existingIds = new Set(prev.map(p => String(p.id)));
+        const uniqueNew = newProducts.filter(p => !existingIds.has(String(p.id)));
+        return [...prev, ...uniqueNew];
       });
 
       hasMoreRef.current = newHasMore;
@@ -148,7 +179,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [currentSearchParams]);
+  }, [currentSearchParams, userRole]);
 
   useEffect(() => {
     pageRef.current = 0;
@@ -175,18 +206,72 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     if (node) observer.current.observe(node);
   }, [loadMoreProducts]);
 
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(products.map(p => p.id)));
+    }
+  }, [products, selectedIds]);
+
+  const handleBulkUpdatePrice = async () => {
+    if (!bulkPrice || isNaN(Number(bulkPrice))) {
+      toast({ title: "Invalid Price", variant: "destructive" });
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Auth required");
+
+      const result = await bulkUpdateProductPrice(Array.from(selectedIds), Number(bulkPrice), idToken);
+      if (result.success) {
+        toast({ title: "Bulk Update Successful", description: `Updated ${selectedIds.size} listings.` });
+        setIsBulkDialogOpen(false);
+        setSelectedIds(new Set());
+        setIsSelectionMode(false);
+        window.location.reload(); // Simple refresh for now
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
+  const skeletonAspectRatio = useMemo(() => {
+    const category = currentSearchParams.category || initialFilterState.category;
+    if (category === 'Coins') return 'aspect-square';
+    if (category === 'Memorabilia' || category === 'Collectibles' || category === 'General') return 'aspect-video';
+    return 'aspect-[5/7]';
+  }, [currentSearchParams.category, initialFilterState.category]);
+
   const renderProducts = () => {
+    console.log('[DEBUG renderProducts]', {
+      viewMode,
+      productsLength: products.length,
+      loading,
+      hasMore,
+      firstProductTitle: products[0]?.title
+    });
+
     if (products.length === 0 && loading) {
       return (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-x-6 gap-y-8">
-          {[...Array(18)].map((_, i) => (
-            <div key={i} className="space-y-2">
-              <div className="bg-muted aspect-[5/7] rounded-lg shimmer" />
-              <div className="space-y-2">
-                <div className="h-4 bg-muted rounded w-3/4 shimmer" />
-                <div className="h-5 bg-muted rounded w-1/2 shimmer" />
-              </div>
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
+          {[...Array(12)].map((_, i) => (
+            <ProductCardSkeleton key={i} aspectRatio={skeletonAspectRatio} />
           ))}
         </div>
       )
@@ -213,7 +298,14 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
               transition={{ duration: 0.3 }}
               ref={isLastElement ? lastProductElementRef : null}
               key={`${product.id}-${index}`}>
-              <ProductCard product={product} viewMode={viewMode} isAdmin={isAdmin} />
+              <ProductCard
+                product={product}
+                viewMode={viewMode}
+                isAdmin={isAdmin}
+                selectable={isSelectionMode}
+                selected={selectedIds.has(product.id)}
+                onToggleSelect={() => toggleSelection(product.id)}
+              />
             </motion.div>
           })}
         </div>
@@ -231,7 +323,14 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
             const isLastElement = index === products.length - 1;
             return (
               <div ref={isLastElement ? lastProductElementRef : null} key={`${product.id}-${index}`}>
-                <ProductCard product={product} viewMode="compact" isAdmin={isAdmin} />
+                <ProductCard
+                  product={product}
+                  viewMode="compact"
+                  isAdmin={isAdmin}
+                  selectable={isSelectionMode}
+                  selected={selectedIds.has(product.id)}
+                  onToggleSelect={() => toggleSelection(product.id)}
+                />
               </div>
             );
           })}
@@ -241,21 +340,23 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
 
     return (
-      <motion.div layout className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-x-6 gap-y-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
         {products.map((product, index) => {
           const isLastElement = index === products.length - 1;
-          return <motion.div
-            layout
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, delay: (index % PAGE_SIZE) * 0.05 }}
+          return <div
             ref={isLastElement ? lastProductElementRef : null}
             key={`${product.id}-${index}`}>
-            <ProductCard product={product} viewMode={viewMode} isAdmin={isAdmin} />
-          </motion.div>
+            <ProductCard
+              product={product}
+              viewMode={viewMode}
+              isAdmin={isAdmin}
+              selectable={isSelectionMode}
+              selected={selectedIds.has(product.id)}
+              onToggleSelect={() => toggleSelection(product.id)}
+            />
+          </div>
         })}
-      </motion.div>
+      </div>
     );
   };
 
@@ -308,6 +409,61 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         </div>
       </header>
 
+      {isAdmin && (
+        <div className="mb-4 flex items-center justify-between bg-secondary/20 p-2 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Button variant={isSelectionMode ? "default" : "outline"} size="sm" onClick={() => {
+              setIsSelectionMode(!isSelectionMode);
+              if (isSelectionMode) setSelectedIds(new Set());
+            }}>
+              {isSelectionMode ? "Cancel Selection" : "Bulk Edit"}
+            </Button>
+            {isSelectionMode && (
+              <div className="flex items-center gap-2 ml-2">
+                <Checkbox
+                  checked={selectedIds.size === products.length && products.length > 0}
+                  onCheckedChange={selectAll}
+                />
+                <span className="text-sm">Select All Loaded</span>
+              </div>
+            )}
+          </div>
+          {isSelectionMode && selectedIds.size > 0 && (
+            <div className="flex items-center gap-2 animate-in fade-in">
+              <span className="text-sm font-medium mr-2">{selectedIds.size} Selected</span>
+              <Dialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">Edit Price</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Bulk Update Price</DialogTitle>
+                    <DialogDescription>
+                      Set a new price for {selectedIds.size} selected items.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <Input
+                      type="number"
+                      placeholder="New Price"
+                      value={bulkPrice}
+                      onChange={(e) => setBulkPrice(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsBulkDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleBulkUpdatePrice} disabled={isBulkUpdating}>
+                      {isBulkUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Update Prices
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
+        </div>
+      )}
+
       {renderProducts()}
 
       {loading && products.length > 0 && (
@@ -325,10 +481,4 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   );
 }
 
-export default function InfiniteProductGrid(props: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean }) {
-  return (
-    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>}>
-      <InfiniteProductGridInner {...props} />
-    </Suspense>
-  )
-}
+export default InfiniteProductGridInner;

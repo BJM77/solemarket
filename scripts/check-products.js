@@ -1,50 +1,77 @@
-
+require('dotenv').config({ path: '.env.local' });
 const admin = require('firebase-admin');
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
 
-// Initialize Firebase Admin (using ADC or service account if available)
-if (process.env.SERVICE_ACCOUNT_JSON) {
-  const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
-  initializeApp({
-    credential: cert(serviceAccount)
-  });
-} else {
-  initializeApp({
-      projectId: 'studio-8322868971-8ca89'
+// Initialize Admin SDK
+if (!admin.apps.length) {
+  const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '{}');
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   });
 }
 
-const db = getFirestore();
+const db = admin.firestore();
 
 async function checkProducts() {
-  console.log('Searching for "Fix Test" and "Charizard"...');
+  try {
+    console.log('Fetching all products from Firestore...\n');
 
-  const productsRef = db.collection('products');
-  const snapshot = await productsRef.get();
+    const snapshot = await db.collection('products').limit(50).get();
 
-  if (snapshot.empty) {
-    console.log('No products found in collection.');
-    return;
-  }
+    console.log(`Total products found: ${snapshot.size}\n`);
 
-  let found = 0;
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const title = data.title || '';
-    if (title.includes('Fix Test') || title.includes('Charizard')) {
-      console.log(`\nFOUND PRODUCT: ${doc.id}`);
-      console.log(`Title: ${data.title}`);
-      console.log(`Status: ${data.status}`); // Check if there is a status field
-      console.log(`isDraft: ${data.isDraft}`);
-      console.log(`SellerID: ${data.sellerId}`);
-      found++;
+    if (snapshot.empty) {
+      console.log('❌ No products found in the database!');
+      return;
     }
-  });
 
-  if (found === 0) {
-      console.log('None of the suspect products were found in the DB.');
+    console.log('Product Details:');
+    console.log('================\n');
+
+    snapshot.docs.forEach((doc, index) => {
+      const data = doc.data();
+      console.log(`${index + 1}. Product ID: ${doc.id}`);
+      console.log(`   Title: ${data.title || 'N/A'}`);
+      console.log(`   Status: ${data.status || 'MISSING'}`);
+      console.log(`   isDraft: ${data.isDraft !== undefined ? data.isDraft : 'MISSING'}`);
+      console.log(`   Price: ${data.price !== undefined ? data.price : 'MISSING'}`);
+      console.log(`   Category: ${data.category || 'N/A'}`);
+      console.log(`   CreatedAt: ${data.createdAt ? 'Present' : 'MISSING'}`);
+      console.log(`   Seller ID: ${data.sellerId || 'N/A'}`);
+      console.log('');
+    });
+
+    // Count by status
+    const statusCounts = {};
+    const draftCounts = { draft: 0, notDraft: 0, missing: 0 };
+
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const status = data.status || 'NO_STATUS';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+      if (data.isDraft === true) draftCounts.draft++;
+      else if (data.isDraft === false) draftCounts.notDraft++;
+      else draftCounts.missing++;
+    });
+
+    console.log('\nStatus Breakdown:');
+    console.log('=================');
+    Object.entries(statusCounts).forEach(([status, count]) => {
+      console.log(`${status}: ${count}`);
+    });
+
+    console.log('\nisDraft Breakdown:');
+    console.log('==================');
+    console.log(`isDraft=true: ${draftCounts.draft}`);
+    console.log(`isDraft=false: ${draftCounts.notDraft}`);
+    console.log(`isDraft missing: ${draftCounts.missing}`);
+
+  } catch (error) {
+    console.error('❌ Error checking products:', error);
+  } finally {
+    process.exit(0);
   }
 }
 
-checkProducts().catch(console.error);
+checkProducts();
