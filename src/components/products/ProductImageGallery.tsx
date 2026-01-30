@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,7 @@ const conditionColors: Record<string, string> = {
   'Poor': 'bg-red-100 text-red-800 border-red-200',
 };
 
-export default function ProductImageGallery({ images, title, isCard, condition, isAuthenticated, category }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ images = [], title, isCard, condition, isAuthenticated, category }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
@@ -109,24 +109,31 @@ export default function ProductImageGallery({ images, title, isCard, condition, 
           onClick={() => setIsFullscreen(true)}
         >
           <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full h-full pointer-events-none"
-            >
-              <Image
-                src={images[selectedIndex]}
-                alt={`${title} - Image ${selectedIndex + 1}`}
-                fill
-                className="object-cover transition-transform duration-200 ease-out group-hover:scale-105"
-                style={zoomStyle}
-                priority={selectedIndex === 0}
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </motion.div>
+            {images.length > 0 ? (
+              <motion.div
+                key={selectedIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="relative w-full h-full pointer-events-none"
+              >
+                <Image
+                  src={images[selectedIndex]}
+                  alt={`${title} - Image ${selectedIndex + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-200 ease-out group-hover:scale-105"
+                  style={zoomStyle}
+                  priority={selectedIndex === 0}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </motion.div>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+                <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
+                <span className="text-xs font-medium">No Image Available</span>
+              </div>
+            )}
           </AnimatePresence>
 
           {/* Navigation Arrows */}
