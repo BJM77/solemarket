@@ -310,407 +310,392 @@ export default function ProductDetailsClient({
                 description: err.message,
             });
         }
-        const handleAcceptBid = async (bidId: string) => {
-            try {
-                await acceptBid(product.id, bidId);
-                toast({
-                    title: "Bid Accepted",
-                    description: "You have accepted the offer!",
-                });
-            } catch (err: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: err.message,
-                });
+    };
+
+    const handleRevealPhone = async () => {
+        if (!user) {
+            router.push(`/sign-in?redirect=/product/${product?.id}`);
+            return;
+        }
+
+        setIsPhoneRevealed(true);
+        // Fire and forget - count the reveal
+        try {
+            await incrementProductContactCount(productId);
+        } catch (e) {
+            console.error("Failed to increment contact count", e);
+        }
+    };
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        if (!isSuperAdmin) return;
+        setIsDeleting(true);
+
+        try {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Authentication session expired.");
+
+            const result = await deleteProductByAdmin(productId, idToken);
+
+            if (!result.success) {
+                throw new Error(result.error);
             }
-        };
 
-        const handleRevealPhone = async () => {
-            if (!user) {
-                router.push(`/sign-in?redirect=/product/${product?.id}`);
-                return;
-            }
+            toast({
+                title: "Product Deleted",
+                description: result.message,
+            });
+            router.push('/browse');
 
-            setIsPhoneRevealed(true);
-            // Fire and forget - count the reveal
-            try {
-                await incrementProductContactCount(productId);
-            } catch (e) {
-                console.error("Failed to increment contact count", e);
-            }
-        };
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Deletion Failed",
+                description: error.message || "An error occurred.",
+            });
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
-        const handleDelete = async (e: React.MouseEvent) => {
-            e.preventDefault();
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <div className="container mx-auto px-4 py-8">
+                <div className="flex items-center justify-between mb-6">
+                    <Button
+                        variant="ghost"
+                        onClick={() => router.back()}
+                        className="hover:bg-transparent hover:text-primary p-0 h-auto font-medium"
+                    >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Back to Results
+                    </Button>
 
-            if (!isSuperAdmin) return;
-            setIsDeleting(true);
-
-            try {
-                const idToken = await getCurrentUserIdToken();
-                if (!idToken) throw new Error("Authentication session expired.");
-
-                const result = await deleteProductByAdmin(productId, idToken);
-
-                if (!result.success) {
-                    throw new Error(result.error);
-                }
-
-                toast({
-                    title: "Product Deleted",
-                    description: result.message,
-                });
-                router.push('/browse');
-
-            } catch (error: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Deletion Failed",
-                    description: error.message || "An error occurred.",
-                });
-            } finally {
-                setIsDeleting(false);
-            }
-        };
-
-        return (
-            <div className="min-h-screen bg-gray-50">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
                         <Button
-                            variant="ghost"
-                            onClick={() => router.back()}
-                            className="hover:bg-transparent hover:text-primary p-0 h-auto font-medium"
+                            variant="outline"
+                            size="sm"
+                            disabled={!adjacentProducts.prevId}
+                            onClick={() => adjacentProducts.prevId && router.push(`/product/${adjacentProducts.prevId}`)}
+                            title="Previous Item (Newer)"
                         >
                             <ChevronLeft className="h-4 w-4 mr-1" />
-                            Back to Results
+                            Prev
                         </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!adjacentProducts.nextId}
+                            onClick={() => adjacentProducts.nextId && router.push(`/product/${adjacentProducts.nextId}`)}
+                            title="Next Item (Older)"
+                        >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                    </div>
+                </div>
 
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={!adjacentProducts.prevId}
-                                onClick={() => adjacentProducts.prevId && router.push(`/product/${adjacentProducts.prevId}`)}
-                                title="Previous Item (Newer)"
-                            >
-                                <ChevronLeft className="h-4 w-4 mr-1" />
-                                Prev
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={!adjacentProducts.nextId}
-                                onClick={() => adjacentProducts.nextId && router.push(`/product/${adjacentProducts.nextId}`)}
-                                title="Next Item (Older)"
-                            >
-                                Next
-                                <ChevronRight className="h-4 w-4 ml-1" />
-                            </Button>
-                        </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+                    <div className="lg:max-w-sm mx-auto w-full space-y-4">
+                        <ProductImageGallery
+                            images={product.imageUrls}
+                            title={product.title}
+                            isCard={product.category === 'Collector Cards'}
+                            category={product.category}
+                            condition={product.condition}
+                        />
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-                        <div className="lg:max-w-sm mx-auto w-full space-y-4">
-                            <ProductImageGallery
-                                images={product.imageUrls}
-                                title={product.title}
-                                isCard={product.category === 'Collector Cards'}
-                                category={product.category}
-                                condition={product.condition}
-                            />
-                        </div>
-
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <Badge variant="outline" className="text-xs">
-                                        {product.category} {product.subCategory && `> ${product.subCategory}`}
-                                    </Badge>
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={toggleFavorite}
-                                            className="h-9 w-9"
-                                        >
-                                            <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-9 w-9">
-                                            <Share2 className="h-5 w-5" />
-                                        </Button>
-                                        {isSuperAdmin && (
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
-                                                        {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete the product "{product.title}".
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.title}</h1>
-
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="text-4xl font-bold text-gray-900">
-                                        ${formatPrice(product.price)}
-                                    </div>
-                                </div>
-
-                                <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
-                                    {product.year && (
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>Year: {product.year}</span>
-                                        </div>
-                                    )}
-                                    {product.manufacturer && (
-                                        <div className="flex items-center gap-1.5">
-                                            <Copyright className="w-4 h-4" />
-                                            <span>{product.manufacturer}</span>
-                                        </div>
-                                    )}
-                                    {product.cardNumber && (
-                                        <div className="flex items-center gap-1.5">
-                                            <Hash className="w-4 h-4" />
-                                            <span>#{product.cardNumber}</span>
-                                        </div>
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <Badge variant="outline" className="text-xs">
+                                    {product.category} {product.subCategory && `> ${product.subCategory}`}
+                                </Badge>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={toggleFavorite}
+                                        className="h-9 w-9"
+                                    >
+                                        <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                                        <Share2 className="h-5 w-5" />
+                                    </Button>
+                                    {isSuperAdmin && (
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
+                                                    {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the product "{product.title}".
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     )}
                                 </div>
-
-                                <p className="text-gray-600 mt-4">{product.description}</p>
                             </div>
 
-                            {(product.quantity && product.quantity > 0) ? (
-                                <Alert className="bg-green-50 border-green-200">
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
-                                    <AlertDescription className="text-green-800">
-                                        <span className="font-semibold">In Stock</span>
-                                    </AlertDescription>
-                                </Alert>
-                            ) : (
-                                <Alert variant="destructive">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertDescription>
-                                        <span className="font-semibold">Out of Stock</span>
-                                    </AlertDescription>
-                                </Alert>
-                            )}
+                            <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.title}</h1>
 
-                            <div className="space-y-4 pt-4 border-t">
-                                {(!product.isReverseBidding || user?.uid === product.sellerId) && (
-                                    <div className="flex flex-col sm:flex-row gap-3">
-                                        <Button
-                                            size="lg"
-                                            className="flex-1"
-                                            onClick={handleAddToCart}
-                                            disabled={!product.quantity || product.quantity === 0}
-                                        >
-                                            <ShoppingCart className="h-5 w-5 mr-2" />
-                                            Buy It
-                                        </Button>
-                                        <Button
-                                            size="lg"
-                                            variant="outline"
-                                            className="flex-1"
-                                            onClick={() => toast({ title: "Make Offer", description: "This feature is coming soon!" })}
-                                        >
-                                            <DollarSign className="h-5 w-5 mr-2" />
-                                            Make Offer
-                                        </Button>
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="text-4xl font-bold text-gray-900">
+                                    ${formatPrice(product.price)}
+                                </div>
+                            </div>
 
+                            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+                                {product.year && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-4 h-4" />
+                                        <span>Year: {product.year}</span>
+                                    </div>
+                                )}
+                                {product.manufacturer && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Copyright className="w-4 h-4" />
+                                        <span>{product.manufacturer}</span>
+                                    </div>
+                                )}
+                                {product.cardNumber && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Hash className="w-4 h-4" />
+                                        <span>#{product.cardNumber}</span>
                                     </div>
                                 )}
                             </div>
 
-                            {product.isReverseBidding && user && (
-                                <BiddingInterface
-                                    product={product}
-                                    user={user}
-                                    onAcceptBid={handleAcceptBid}
-                                />
-                            )}
+                            <p className="text-gray-600 mt-4">{product.description}</p>
+                        </div>
 
-                            {seller && (
-                                <Card>
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <Avatar className="h-12 w-12 border">
-                                                <AvatarImage src={seller.photoURL || ''} />
-                                                <AvatarFallback>{seller.displayName?.[0]}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-gray-900 flex items-center gap-1">
-                                                    {seller.displayName}
-                                                    {seller.isVerified && <ShieldCheck className="h-4 w-4 text-blue-500" />}
-                                                </h3>
-                                                <div className="flex items-center gap-3 mt-1">
-                                                    <div className="flex items-center gap-1">
-                                                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                        <span className="text-sm font-medium">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
-                                                        <span className="text-xs text-gray-500">({seller.totalSales || 0} sales)</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={`/seller/${product.sellerId}`}>
-                                                    View Shop <ChevronRight className="w-4 h-4 ml-1" />
-                                                </Link>
-                                            </Button>
-                                        </div>
+                        {(product.quantity && product.quantity > 0) ? (
+                            <Alert className="bg-green-50 border-green-200">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <AlertDescription className="text-green-800">
+                                    <span className="font-semibold">In Stock</span>
+                                </AlertDescription>
+                            </Alert>
+                        ) : (
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>
+                                    <span className="font-semibold">Out of Stock</span>
+                                </AlertDescription>
+                            </Alert>
+                        )}
 
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button variant="outline" size="sm" onClick={handleStartConversation}>
-                                                <MessageSquare className="h-4 w-4 mr-2" />
-                                                Message
-                                            </Button>
-                                            {seller.phoneNumber && (
-                                                <Button
-                                                    variant={isPhoneRevealed ? "secondary" : "default"}
-                                                    size="sm"
-                                                    onClick={handleRevealPhone}
-                                                    className={cn(isPhoneRevealed ? "bg-green-100 text-green-800 hover:bg-green-200" : "")}
-                                                >
-                                                    <Phone className="h-4 w-4 mr-2" />
-                                                    {isPhoneRevealed ? seller.phoneNumber : "Show Phone"}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                        <div className="space-y-4 pt-4 border-t">
+                            {(!product.isReverseBidding || user?.uid === product.sellerId) && (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <Button
+                                        size="lg"
+                                        className="flex-1"
+                                        onClick={handleAddToCart}
+                                        disabled={!product.quantity || product.quantity === 0}
+                                    >
+                                        <ShoppingCart className="h-5 w-5 mr-2" />
+                                        Buy It
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => toast({ title: "Make Offer", description: "This feature is coming soon!" })}
+                                    >
+                                        <DollarSign className="h-5 w-5 mr-2" />
+                                        Make Offer
+                                    </Button>
+
+                                </div>
                             )}
                         </div>
-                    </div>
 
-                    <div className="lg:col-span-2 mt-12">
-                        <Tabs defaultValue="details" className="space-y-6">
-                            <TabsList className="grid grid-cols-2 w-full max-w-sm">
-                                <TabsTrigger value="details">Item Details</TabsTrigger>
-                                <TabsTrigger value="reviews">Reviews ({reviews?.length || 0})</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="details">
-                                <Card className="border-none shadow-none bg-transparent">
-                                    <CardContent className="px-0 pt-0">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                                            <div className="space-y-4">
-                                                <h3 className="font-semibold text-lg border-b pb-2">Product Description</h3>
-                                                <div className="prose max-w-none text-gray-600">
-                                                    <p className="whitespace-pre-line">{product.description}</p>
+                        {product.isReverseBidding && user && (
+                            <BiddingInterface
+                                product={product}
+                                user={user}
+                                onAcceptBid={handleAcceptBid}
+                            />
+                        )}
+
+                        {seller && (
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <Avatar className="h-12 w-12 border">
+                                            <AvatarImage src={seller.photoURL || ''} />
+                                            <AvatarFallback>{seller.displayName?.[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-900 flex items-center gap-1">
+                                                {seller.displayName}
+                                                {seller.isVerified && <ShieldCheck className="h-4 w-4 text-blue-500" />}
+                                            </h3>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <div className="flex items-center gap-1">
+                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                    <span className="text-sm font-medium">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
+                                                    <span className="text-xs text-gray-500">({seller.totalSales || 0} sales)</span>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <Button variant="outline" size="sm" asChild>
+                                            <Link href={`/seller/${product.sellerId}`}>
+                                                View Shop <ChevronRight className="w-4 h-4 ml-1" />
+                                            </Link>
+                                        </Button>
+                                    </div>
 
-                                            <div className="space-y-4">
-                                                <h3 className="font-semibold text-lg border-b pb-2">Specifications</h3>
-                                                <dl className="grid grid-cols-2 gap-y-4 text-sm">
-                                                    <dt className="text-muted-foreground font-medium">Category</dt>
-                                                    <dd className="font-semibold text-gray-900">{product.category}</dd>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleStartConversation}>
+                                            <MessageSquare className="h-4 w-4 mr-2" />
+                                            Message
+                                        </Button>
+                                        {seller.phoneNumber && (
+                                            <Button
+                                                variant={isPhoneRevealed ? "secondary" : "default"}
+                                                size="sm"
+                                                onClick={handleRevealPhone}
+                                                className={cn(isPhoneRevealed ? "bg-green-100 text-green-800 hover:bg-green-200" : "")}
+                                            >
+                                                <Phone className="h-4 w-4 mr-2" />
+                                                {isPhoneRevealed ? seller.phoneNumber : "Show Phone"}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                </div>
 
-                                                    {product.subCategory && (
-                                                        <>
-                                                            <dt className="text-muted-foreground font-medium">Sub-category</dt>
-                                                            <dd className="font-semibold text-gray-900">{product.subCategory}</dd>
-                                                        </>
-                                                    )}
-
-                                                    <dt className="text-muted-foreground font-medium">Condition</dt>
-                                                    <dd className="font-semibold text-gray-900">
-                                                        <Badge variant="secondary" className="font-semibold">
-                                                            {product.condition}
-                                                        </Badge>
-                                                    </dd>
-
-                                                    {product.year && (
-                                                        <>
-                                                            <dt className="text-muted-foreground font-medium">Year</dt>
-                                                            <dd className="font-semibold text-gray-900">{product.year}</dd>
-                                                        </>
-                                                    )}
-
-                                                    {product.manufacturer && (
-                                                        <>
-                                                            <dt className="text-muted-foreground font-medium">Manufacturer</dt>
-                                                            <dd className="font-semibold text-gray-900">{product.manufacturer}</dd>
-                                                        </>
-                                                    )}
-
-                                                    {product.cardNumber && (
-                                                        <>
-                                                            <dt className="text-muted-foreground font-medium">Card Number</dt>
-                                                            <dd className="font-semibold text-gray-900">#{product.cardNumber}</dd>
-                                                        </>
-                                                    )}
-
-                                                    {product.gradingCompany && product.gradingCompany !== 'Raw' && (
-                                                        <>
-                                                            <dt className="text-muted-foreground font-medium">Grading Co.</dt>
-                                                            <dd className="font-semibold text-gray-900">{product.gradingCompany}</dd>
-
-                                                            <dt className="text-muted-foreground font-medium">Grade</dt>
-                                                            <dd className="font-semibold text-gray-900">{product.grade}</dd>
-
-                                                            {product.certNumber && (
-                                                                <>
-                                                                    <dt className="text-muted-foreground font-medium">Certification</dt>
-                                                                    <dd className="font-semibold text-gray-900">{product.certNumber}</dd>
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    <dt className="text-muted-foreground font-medium">Product ID</dt>
-                                                    <dd className="font-mono text-xs text-gray-500 uppercase">{product.id}</dd>
-                                                </dl>
+                <div className="lg:col-span-2 mt-12">
+                    <Tabs defaultValue="details" className="space-y-6">
+                        <TabsList className="grid grid-cols-2 w-full max-w-sm">
+                            <TabsTrigger value="details">Item Details</TabsTrigger>
+                            <TabsTrigger value="reviews">Reviews ({reviews?.length || 0})</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="details">
+                            <Card className="border-none shadow-none bg-transparent">
+                                <CardContent className="px-0 pt-0">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-lg border-b pb-2">Product Description</h3>
+                                            <div className="prose max-w-none text-gray-600">
+                                                <p className="whitespace-pre-line">{product.description}</p>
                                             </div>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
 
-                            <TabsContent value="reviews">
-                                <Suspense fallback={<Loader2 className="animate-spin" />}>
-                                    {isUserLoading ? (
-                                        <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
-                                    ) : (
-                                        <div className="space-y-8">
-                                            <ReviewForm
-                                                user={user}
-                                                productId={product.id}
-                                                productTitle={product.title}
-                                                sellerId={product.sellerId}
-                                            />
-                                            <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-lg border-b pb-2">Specifications</h3>
+                                            <dl className="grid grid-cols-2 gap-y-4 text-sm">
+                                                <dt className="text-muted-foreground font-medium">Category</dt>
+                                                <dd className="font-semibold text-gray-900">{product.category}</dd>
+
+                                                {product.subCategory && (
+                                                    <>
+                                                        <dt className="text-muted-foreground font-medium">Sub-category</dt>
+                                                        <dd className="font-semibold text-gray-900">{product.subCategory}</dd>
+                                                    </>
+                                                )}
+
+                                                <dt className="text-muted-foreground font-medium">Condition</dt>
+                                                <dd className="font-semibold text-gray-900">
+                                                    <Badge variant="secondary" className="font-semibold">
+                                                        {product.condition}
+                                                    </Badge>
+                                                </dd>
+
+                                                {product.year && (
+                                                    <>
+                                                        <dt className="text-muted-foreground font-medium">Year</dt>
+                                                        <dd className="font-semibold text-gray-900">{product.year}</dd>
+                                                    </>
+                                                )}
+
+                                                {product.manufacturer && (
+                                                    <>
+                                                        <dt className="text-muted-foreground font-medium">Manufacturer</dt>
+                                                        <dd className="font-semibold text-gray-900">{product.manufacturer}</dd>
+                                                    </>
+                                                )}
+
+                                                {product.cardNumber && (
+                                                    <>
+                                                        <dt className="text-muted-foreground font-medium">Card Number</dt>
+                                                        <dd className="font-semibold text-gray-900">#{product.cardNumber}</dd>
+                                                    </>
+                                                )}
+
+                                                {product.gradingCompany && product.gradingCompany !== 'Raw' && (
+                                                    <>
+                                                        <dt className="text-muted-foreground font-medium">Grading Co.</dt>
+                                                        <dd className="font-semibold text-gray-900">{product.gradingCompany}</dd>
+
+                                                        <dt className="text-muted-foreground font-medium">Grade</dt>
+                                                        <dd className="font-semibold text-gray-900">{product.grade}</dd>
+
+                                                        {product.certNumber && (
+                                                            <>
+                                                                <dt className="text-muted-foreground font-medium">Certification</dt>
+                                                                <dd className="font-semibold text-gray-900">{product.certNumber}</dd>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
+
+                                                <dt className="text-muted-foreground font-medium">Product ID</dt>
+                                                <dd className="font-mono text-xs text-gray-500 uppercase">{product.id}</dd>
+                                            </dl>
                                         </div>
-                                    )}
-                                </Suspense>
-                            </TabsContent>
-                        </Tabs>
-                    </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
 
-                    {
-                        relatedProducts.length > 0 && (
-                            <div className="lg:col-span-2 mt-16">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
-                                {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
-                            </div>
-                        )
-                    }
-                </div >
+                        <TabsContent value="reviews">
+                            <Suspense fallback={<Loader2 className="animate-spin" />}>
+                                {isUserLoading ? (
+                                    <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
+                                ) : (
+                                    <div className="space-y-8">
+                                        <ReviewForm
+                                            user={user}
+                                            productId={product.id}
+                                            productTitle={product.title}
+                                            sellerId={product.sellerId}
+                                        />
+                                        <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
+                                    </div>
+                                )}
+                            </Suspense>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                {
+                    relatedProducts.length > 0 && (
+                        <div className="lg:col-span-2 mt-16">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
+                            {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
+                        </div>
+                    )
+                }
             </div >
-        );
-    }
+        </div >
+    );
 }

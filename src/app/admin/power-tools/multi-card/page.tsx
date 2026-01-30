@@ -35,12 +35,12 @@ export default function MultiCardPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // State
-    const [stream, setStream] = useState<MediaStream | null>(null);
     const [capturedImages, setCapturedImages] = useState<string[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [title, setTitle] = useState('');
     const [aiData, setAiData] = useState<any>(null);
+    const streamRef = useRef<MediaStream | null>(null);
 
     // Handle Authentication & Permissions
     useEffect(() => {
@@ -53,8 +53,8 @@ export default function MultiCardPage() {
 
     const startCamera = useCallback(async () => {
         try {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
             }
 
             const newStream = await navigator.mediaDevices.getUserMedia({
@@ -65,21 +65,25 @@ export default function MultiCardPage() {
                 }
             });
 
-            setStream(newStream);
+            streamRef.current = newStream;
             if (videoRef.current) {
                 videoRef.current.srcObject = newStream;
+                videoRef.current.play().catch(e => console.error("Video play error:", e));
             }
         } catch (err) {
             console.error("Error starting camera:", err);
         }
-    }, [stream]);
+    }, []);
 
     useEffect(() => {
         if (isSuperAdmin) {
             startCamera();
         }
         return () => {
-            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+                streamRef.current = null;
+            }
         };
     }, [isSuperAdmin, startCamera]);
 
