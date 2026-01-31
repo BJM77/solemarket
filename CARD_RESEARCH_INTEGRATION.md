@@ -175,6 +175,11 @@ To test the integration:
 ## 🎁 Bonus Features
 
 - Keep list with default sports stars
+- **Comprehensive Pokemon Keep List**:
+  - **The "Big Three"**: Charizard, Pikachu, Umbreon, Rayquaza, Lugia
+  - **Gen 1 Favorites**: Blastoise, Venusaur, Mewtwo, Gengar, Dragonite, Gyrados, and more
+  - **Eeveelutions**: All forms including Sylveon, Umbreon, and the classic trio
+  - **Legendaries**: Giratina, Arceus, Rayquaza, Dialga, Palkia, etc.
 - Export capability (ready for future)
 - Collection view (placeholder for future)
 - Hot Wheels mode (can be added later)
