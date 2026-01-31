@@ -9,7 +9,7 @@ import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Filter, Grid, Rows } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Filter, Grid, Rows, Trophy, Coins, History, Zap, Layers } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import { CollectorCardsFilterTrigger } from '../filters/collector-cards-filter-trigger';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
@@ -313,7 +313,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     }
 
     if (viewMode === 'montage') {
-      return <MontageGrid products={products} lastProductRef={lastProductElementRef} />;
+      return <MontageGrid products={products} lastProductRef={lastProductElementRef} isAdmin={isAdmin} />;
     }
 
     if (viewMode === 'compact') {
@@ -391,6 +391,45 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
               <SelectItem value="price-desc">Price: High to Low</SelectItem>
             </SelectContent>
           </Select>
+
+          <div className="flex items-center gap-1 bg-card border rounded-md p-1 h-10 mr-2 sm:mr-4">
+            <Button
+              variant={currentSearchParams.category === 'Collector Cards' ? 'secondary' : 'ghost'}
+              size="icon"
+              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Collector Cards' && "bg-indigo-100 text-indigo-600")}
+              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Collector Cards' ? null : 'Collector Cards')}
+              title="Cards"
+            >
+              <Trophy className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={currentSearchParams.category === 'Coins' ? 'secondary' : 'ghost'}
+              size="icon"
+              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Coins' && "bg-amber-100 text-amber-600")}
+              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Coins' ? null : 'Coins')}
+              title="Coins"
+            >
+              <Coins className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={currentSearchParams.category === 'Memorabilia' ? 'secondary' : 'ghost'}
+              size="icon"
+              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Memorabilia' && "bg-emerald-100 text-emerald-600")}
+              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Memorabilia' ? null : 'Memorabilia')}
+              title="Memorabilia"
+            >
+              <History className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={!currentSearchParams.category ? 'secondary' : 'ghost'}
+              size="icon"
+              className={cn("h-8 w-8 transition-all", !currentSearchParams.category && "bg-slate-100 text-slate-600")}
+              onClick={() => handleFilterChange('category', null)}
+              title="General / All"
+            >
+              <Zap className="h-4 w-4" />
+            </Button>
+          </div>
 
           <div className="flex items-center rounded-md border bg-card p-1 h-10">
             <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-4 w-4" /></Button>

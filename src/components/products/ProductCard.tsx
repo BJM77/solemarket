@@ -374,28 +374,30 @@ export default function ProductCard({
           )}
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                  className="h-9 w-9 text-blue-600 hover:bg-blue-50"
                   onClick={handleRenew}
                   disabled={isRenewing}
+                  title="Renew"
                 >
-                  {isRenewing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                  {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-700 hover:bg-slate-100" asChild title="Edit">
                   <Link href={`/sell/create?edit=${product.id}`}>
-                    <Edit className="h-3 w-3" />
+                    <Edit className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-red-600 hover:bg-red-50"
-                  onClick={() => setIsDeleting(true)}
+                  className="h-9 w-9 text-red-600 hover:bg-red-50"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }}
+                  title="Delete"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             )}
@@ -619,7 +621,18 @@ export default function ProductCard({
         </div>
         <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-20 scale-90 sm:scale-100 origin-top-right">
           {(isSuperAdmin || isAdmin) && (
-            <div onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
+                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-slate-700 hover:bg-white shadow-sm border border-slate-200" asChild title="Edit">
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm border border-slate-200" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} title="Delete">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
@@ -641,6 +654,7 @@ export default function ProductCard({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              {/* ... dialog remains ... */}
               <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
                 <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                   <AlertDialogHeader>

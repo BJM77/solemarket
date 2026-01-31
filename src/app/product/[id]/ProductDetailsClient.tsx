@@ -500,26 +500,25 @@ export default function ProductDetailsClient({
 
                         <div className="space-y-4 pt-4 border-t">
                             {(!product.isReverseBidding || user?.uid === product.sellerId) && (
-                                <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="flex flex-row gap-3">
                                     <Button
                                         size="lg"
-                                        className="flex-1"
+                                        className="flex-1 h-20 text-lg font-bold"
                                         onClick={handleAddToCart}
                                         disabled={!product.quantity || product.quantity === 0}
                                     >
-                                        <ShoppingCart className="h-5 w-5 mr-2" />
+                                        <ShoppingCart className="h-6 w-6 mr-2" />
                                         Buy It
                                     </Button>
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="flex-1"
+                                        className="flex-1 h-20 text-lg font-bold"
                                         onClick={() => toast({ title: "Make Offer", description: "This feature is coming soon!" })}
                                     >
-                                        <DollarSign className="h-5 w-5 mr-2" />
+                                        <DollarSign className="h-6 w-6 mr-2" />
                                         Make Offer
                                     </Button>
-
                                 </div>
                             )}
                         </div>

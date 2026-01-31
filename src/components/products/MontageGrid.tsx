@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 export interface MontageGridProps {
   products: Product[];
   lastProductRef?: (node: HTMLDivElement) => void;
+  isAdmin?: boolean;
 }
 
 import { useViewedProducts } from '@/context/ViewedProductsContext';
@@ -22,13 +23,14 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
 
-export default function MontageGrid({ products, lastProductRef }: MontageGridProps) {
+export default function MontageGrid({ products, lastProductRef, isAdmin = false }: MontageGridProps) {
   const { viewedProductIds } = useViewedProducts();
   const { user } = useUser();
   const { toast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+  const canManage = isAdmin || isSuperAdmin;
 
   const handleDelete = async (e: React.MouseEvent, productId: string) => {
     e.preventDefault();
@@ -111,14 +113,26 @@ export default function MontageGrid({ products, lastProductRef }: MontageGridPro
               </div>
             )}
 
-            {isSuperAdmin && (
-              <button
-                onClick={(e) => handleDelete(e, product.id)}
-                className="absolute top-1 right-1 z-20 bg-red-600/80 hover:bg-red-700 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                disabled={deletingId === product.id}
-              >
-                {deletingId === product.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-              </button>
+            {canManage && (
+              <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-blue-600"
+                  asChild
+                >
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+                <button
+                  onClick={(e) => handleDelete(e, product.id)}
+                  className="bg-red-600/80 hover:bg-red-700 text-white p-1 rounded-md"
+                  disabled={deletingId === product.id}
+                >
+                  {deletingId === product.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                </button>
+              </div>
             )}
 
             <div className="absolute bottom-1 right-1 pointer-events-none">

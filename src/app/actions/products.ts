@@ -134,29 +134,35 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
         } else if (typeof createdAt === 'string' || typeof createdAt === 'number') {
             timestamp = admin.firestore.Timestamp.fromDate(new Date(createdAt));
         } else {
-            // Fallback if no valid date
             return { prevId: null, nextId: null };
         }
 
-        // Previous (Newer items) - createdAt > current
-        const prevQuery = productsRef
-            .where('status', '==', 'available')
+        // We fetch multiple neighboring items and filter for 'available' status in memory
+        // to avoid requiring a composite index on (status, createdAt).
+        // This is much more robust for dynamic filtering.
+
+        // Previous (Newer items)
+        const prevSnap = await productsRef
             .where('createdAt', '>', timestamp)
             .orderBy('createdAt', 'asc')
-            .limit(1);
+            .limit(5)
+            .get();
 
-        // Next (Older items) - createdAt < current
-        const nextQuery = productsRef
-            .where('status', '==', 'available')
+        // Next (Older items)
+        const nextSnap = await productsRef
             .where('createdAt', '<', timestamp)
             .orderBy('createdAt', 'desc')
-            .limit(1);
+            .limit(5)
+            .get();
 
-        const [prevSnap, nextSnap] = await Promise.all([prevQuery.get(), nextQuery.get()]);
+        const findFirstAvailable = (docs: admin.firestore.QueryDocumentSnapshot[]) => {
+            const match = docs.find(doc => doc.data().status === 'available');
+            return match ? match.id : null;
+        };
 
         return {
-            prevId: !prevSnap.empty ? prevSnap.docs[0].id : null,
-            nextId: !nextSnap.empty ? nextSnap.docs[0].id : null
+            prevId: findFirstAvailable(prevSnap.docs),
+            nextId: findFirstAvailable(nextSnap.docs)
         };
     } catch (error) {
         console.error("Error fetching adjacent products:", error);
