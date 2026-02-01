@@ -110,11 +110,11 @@ export default function AdvancedFilterPanel({
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-                <Button variant="outline" className="relative">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
-                    Filters
+                <Button variant="outline" className="relative px-2 sm:px-4">
+                    <SlidersHorizontal className="sm:mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Filters</span>
                     {activeFilterCount > 0 && (
-                        <Badge className="ml-2 px-1.5 min-w-[20px] h-5" variant="default">
+                        <Badge className="ml-1 sm:ml-2 px-1.5 min-w-[20px] h-5" variant="default">
                             {activeFilterCount}
                         </Badge>
                     )}

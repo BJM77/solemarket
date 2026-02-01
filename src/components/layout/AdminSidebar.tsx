@@ -77,6 +77,13 @@ export default function AdminSidebar() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Close sidebar on navigation change (for mobile)
+    useEffect(() => {
+        if (isMobile && isSidebarOpen) {
+            setIsSidebarOpen(false);
+        }
+    }, [pathname, isMobile, setIsSidebarOpen]); // Removed isSidebarOpen from deps to avoid loop if changed elsewhere, but usually okay
+
     const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 
     return (

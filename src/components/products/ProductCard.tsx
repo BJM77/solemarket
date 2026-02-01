@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +55,7 @@ interface ProductCardProps {
   selectable?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
+  onOpenPriceAssistant?: (product: Product) => void;
 }
 
 export default function ProductCard({
@@ -63,7 +64,8 @@ export default function ProductCard({
   isAdmin = false,
   selectable = false,
   selected = false,
-  onToggleSelect
+  onToggleSelect,
+  onOpenPriceAssistant
 }: ProductCardProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -146,6 +148,21 @@ export default function ProductCard({
       >
         ${formatPrice(product.price)}
         {isAdmin && <Edit className="h-3 w-3 opacity-20" />}
+        {isSuperAdmin && onOpenPriceAssistant && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-6 w-6 ml-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 relative z-30"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpenPriceAssistant(product);
+            }}
+            title="Price Assistant"
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
     );
   };

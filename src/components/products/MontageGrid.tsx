@@ -4,7 +4,7 @@ import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import EmptyState from '../ui/EmptyState';
-import { Package, Eye, Trash2, Loader2, Edit } from 'lucide-react';
+import { Package, Eye, Trash2, Loader2, Edit, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../ui/button';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
@@ -20,9 +20,10 @@ export interface MontageGridProps {
   products: Product[];
   lastProductRef?: (node: HTMLDivElement) => void;
   isAdmin?: boolean;
+  onOpenPriceAssistant?: (product: Product) => void;
 }
 
-export default function MontageGrid({ products, lastProductRef, isAdmin = false }: MontageGridProps) {
+export default function MontageGrid({ products, lastProductRef, isAdmin = false, onOpenPriceAssistant }: MontageGridProps) {
 
   const { viewedProductIds } = useViewedProducts();
   const { user } = useUser();
@@ -115,6 +116,21 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false 
 
             {canManage && (
               <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {isSuperAdmin && onOpenPriceAssistant && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-indigo-600"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onOpenPriceAssistant(product);
+                    }}
+                    title="Price Assistant"
+                  >
+                    <TrendingUp className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   size="icon"

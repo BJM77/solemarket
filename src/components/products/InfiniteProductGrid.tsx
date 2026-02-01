@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
@@ -67,6 +68,10 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Price Assistant State
+  const [assistantProduct, setAssistantProduct] = useState<{ id: string, title: string, price: number } | null>(null);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   const observer = useRef<IntersectionObserver>();
 
@@ -254,6 +259,15 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     }
   };
 
+  const openPriceAssistant = useCallback((product: Product) => {
+    setAssistantProduct({
+      id: product.id,
+      title: product.title,
+      price: product.price
+    });
+    setIsAssistantOpen(true);
+  }, []);
+
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
     if (category === 'Coins') return 'aspect-square';
@@ -308,6 +322,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
                 selectable={isSelectionMode}
                 selected={selectedIds.has(product.id)}
                 onToggleSelect={() => toggleSelection(product.id)}
+                onOpenPriceAssistant={openPriceAssistant}
               />
             </motion.div>
           })}
@@ -316,7 +331,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     }
 
     if (viewMode === 'montage') {
-      return <MontageGrid products={products} lastProductRef={lastProductElementRef} isAdmin={isAdmin} />;
+      return <MontageGrid products={products} lastProductRef={lastProductElementRef} isAdmin={isAdmin} onOpenPriceAssistant={openPriceAssistant} />;
     }
 
     if (viewMode === 'compact') {
@@ -333,6 +348,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
                   selectable={isSelectionMode}
                   selected={selectedIds.has(product.id)}
                   onToggleSelect={() => toggleSelection(product.id)}
+                  onOpenPriceAssistant={openPriceAssistant}
                 />
               </div>
             );
@@ -356,6 +372,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
               selectable={isSelectionMode}
               selected={selectedIds.has(product.id)}
               onToggleSelect={() => toggleSelection(product.id)}
+              onOpenPriceAssistant={openPriceAssistant}
             />
           </div>
         })}
@@ -379,75 +396,75 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
   return (
     <div className="container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen">
-      <header className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
-        <div>
+      <header className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-6">
+        <div className="w-full sm:w-auto">
           <PageHeader title={pageTitle} description={pageDescription} />
         </div>
-        <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
-            <SelectTrigger className="w-[180px] h-10 hidden sm:flex">
-              <SelectValue placeholder="Sort by" />
+            <SelectTrigger className="w-[140px] sm:w-[180px] h-9 sm:h-10 text-xs sm:text-sm">
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="createdAt-desc">Newest</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              <SelectItem value="price-asc">Price: Low-High</SelectItem>
+              <SelectItem value="price-desc">Price: High-Low</SelectItem>
             </SelectContent>
           </Select>
 
-          <div className="flex items-center gap-1 bg-card border rounded-md p-1 h-10 mr-2 sm:mr-4">
+          <div className="flex items-center gap-0.5 sm:gap-1 bg-card border rounded-md p-0.5 sm:p-1 h-9 sm:h-10">
             <Button
               variant={currentSearchParams.category === 'Collector Cards' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Collector Cards' && "bg-indigo-100 text-indigo-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Collector Cards' && "bg-indigo-100 text-indigo-600")}
               asChild
               title="Cards"
             >
               <Link href="/collector-cards">
-                <CreditCard className="h-4 w-4" />
+                <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </Button>
             <Button
               variant={currentSearchParams.category === 'Coins' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Coins' && "bg-amber-100 text-amber-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Coins' && "bg-amber-100 text-amber-600")}
               asChild
               title="Coins"
             >
               <Link href="/coins">
-                <Coins className="h-4 w-4" />
+                <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </Button>
             <Button
               variant={currentSearchParams.category === 'Memorabilia' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Memorabilia' && "bg-emerald-100 text-emerald-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Memorabilia' && "bg-emerald-100 text-emerald-600")}
               asChild
               title="Memorabilia"
             >
               <Link href="/collectibles">
-                <span className="text-xs font-bold">M</span>
+                <span className="text-[10px] sm:text-xs font-bold">M</span>
               </Link>
             </Button>
             <Button
               variant={currentSearchParams.category === 'General' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'General' && "bg-slate-100 text-slate-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'General' && "bg-slate-100 text-slate-600")}
               asChild
               title="General"
             >
               <Link href="/general">
-                <span className="text-xs font-bold">G</span>
+                <span className="text-[10px] sm:text-xs font-bold">G</span>
               </Link>
             </Button>
           </div>
 
 
-          <div className="flex items-center rounded-md border bg-card p-1 h-10">
-            <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-4 w-4" /></Button>
-            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('list')} title="List View"><List className="h-4 w-4" /></Button>
-            <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('compact')} title="Compact View"><Rows className="h-4 w-4" /></Button>
-            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('montage')} title="Mosaic View"><Grid className="h-4 w-4" /></Button>
+          <div className="flex items-center rounded-md border bg-card p-0.5 sm:p-1 h-9 sm:h-10">
+            <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
+            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('montage')} title="Mosaic View"><Grid className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
+            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden xs:flex" onClick={() => handleViewChange('list')} title="List View"><List className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
+            <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex" onClick={() => handleViewChange('compact')} title="Compact View"><Rows className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
           </div>
           <AdvancedFilterPanel
             currentFilters={currentSearchParams}
@@ -527,6 +544,14 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         <div className="py-12 text-center text-muted-foreground">
           <p>You&apos;ve reached the end of the list.</p>
         </div>
+      )}
+
+      {assistantProduct && (
+        <PriceAssistantModal
+          isOpen={isAssistantOpen}
+          onClose={() => setIsAssistantOpen(false)}
+          product={assistantProduct}
+        />
       )}
     </div>
   );
