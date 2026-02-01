@@ -37,12 +37,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Category name is required.'),
   section: z.string().min(2, 'Section slug is required (e.g., collector-cards).'),
-  href: z.string().min(1, 'Href is required (e.g., /collector-cards/sports).')
+  href: z.string().min(1, 'Href is required (e.g., /collector-cards/sports).'),
+  showOnHomepage: z.boolean().default(false),
+  isPopular: z.boolean().default(false),
+  order: z.number().int().default(0)
 });
+
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
@@ -56,9 +62,17 @@ export default function CategoriesPage() {
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: '', section: '', href: '' },
+    defaultValues: {
+      name: '',
+      section: '',
+      href: '',
+      showOnHomepage: false,
+      isPopular: false,
+      order: 0
+    },
   });
-  
+
+
   useEffect(() => {
     if (!firestore) return; // Wait for firestore to be available
     const q = query(collection(firestore, 'categories'), orderBy('name', 'asc'));
@@ -67,20 +81,35 @@ export default function CategoriesPage() {
       setCategories(cats);
       setIsLoading(false);
     }, (error) => {
-        console.error("Error fetching categories: ", error);
-        toast({ title: 'Failed to load categories.', description: error.message, variant: 'destructive' });
-        setIsLoading(false);
+      console.error("Error fetching categories: ", error);
+      toast({ title: 'Failed to load categories.', description: error.message, variant: 'destructive' });
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, [firestore, toast]); // Add firestore and toast to dependency array
-  
+
   useEffect(() => {
     if (editingCategory) {
-      form.reset(editingCategory);
+      form.reset({
+        name: editingCategory.name,
+        section: editingCategory.section,
+        href: editingCategory.href || '',
+        showOnHomepage: editingCategory.showOnHomepage || false,
+        isPopular: editingCategory.isPopular || false,
+        order: editingCategory.order || 0
+      });
     } else {
-      form.reset({ name: '', section: '', href: '' });
+      form.reset({
+        name: '',
+        section: '',
+        href: '',
+        showOnHomepage: false,
+        isPopular: false,
+        order: 0
+      });
     }
   }, [editingCategory, form]);
+
 
   const onSubmit = async (values: CategoryFormValues) => {
     if (!firestore) return;
@@ -101,14 +130,14 @@ export default function CategoriesPage() {
       setIsSubmitting(false);
     }
   };
-  
+
   const deleteCategory = async (id: string) => {
     if (!firestore) return;
     try {
-        await deleteDoc(doc(firestore, 'categories', id));
-        toast({ title: 'Category deleted successfully.' });
+      await deleteDoc(doc(firestore, 'categories', id));
+      toast({ title: 'Category deleted successfully.' });
     } catch (error: any) {
-        toast({ title: 'Failed to delete category.', description: error.message, variant: 'destructive' });
+      toast({ title: 'Failed to delete category.', description: error.message, variant: 'destructive' });
     }
   }
 
@@ -131,15 +160,41 @@ export default function CategoriesPage() {
                   <FormField control={form.control} name="section" render={({ field }) => (
                     <FormItem><FormLabel>Section Slug</FormLabel><FormControl><Input placeholder="e.g., collector-cards" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
-                   <FormField control={form.control} name="href" render={({ field }) => (
+                  <FormField control={form.control} name="href" render={({ field }) => (
                     <FormItem><FormLabel>Link Href</FormLabel><FormControl><Input placeholder="e.g., /collector-cards/sports" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
+                  <FormField control={form.control} name="order" render={({ field }) => (
+                    <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <div className="flex flex-col gap-4 py-2">
+                    <FormField control={form.control} name="showOnHomepage" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Show on Homepage</FormLabel>
+                        </div>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="isPopular" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Mark as Popular</FormLabel>
+                        </div>
+                      </FormItem>
+                    )} />
+                  </div>
+
                   <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
                     {editingCategory ? 'Update Category' : 'Add Category'}
                   </Button>
                   {editingCategory && (
-                      <Button variant="outline" className="w-full" onClick={() => setEditingCategory(null)}>Cancel Edit</Button>
+                    <Button variant="outline" className="w-full" onClick={() => setEditingCategory(null)}>Cancel Edit</Button>
                   )}
                 </form>
               </Form>
@@ -159,7 +214,11 @@ export default function CategoriesPage() {
                       <TableHead>Name</TableHead>
                       <TableHead>Section</TableHead>
                       <TableHead>Href</TableHead>
+                      <TableHead>Homepage</TableHead>
+                      <TableHead>Popular</TableHead>
+                      <TableHead>Order</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
+
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -168,23 +227,27 @@ export default function CategoriesPage() {
                         <TableCell className="font-medium">{cat.name}</TableCell>
                         <TableCell>{cat.section}</TableCell>
                         <TableCell>{cat.href}</TableCell>
+                        <TableCell>{cat.showOnHomepage ? 'Yes' : 'No'}</TableCell>
+                        <TableCell>{cat.isPopular ? 'Yes' : 'No'}</TableCell>
+                        <TableCell>{cat.order || 0}</TableCell>
                         <TableCell className="text-right space-x-1">
+
                           <Button variant="ghost" size="icon" onClick={() => setEditingCategory(cat)}><Edit className="h-4 w-4" /></Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
-                                <AlertDialogHeader>
+                              <AlertDialogHeader>
                                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the category.
+                                  This action cannot be undone. This will permanently delete the category.
                                 </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => deleteCategory(cat.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                                </AlertDialogFooter>
+                              </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
                         </TableCell>

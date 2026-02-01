@@ -28,7 +28,8 @@ export default function GeneralPage() {
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <PageHeader
-                    title="General Listings"
+                    title="General"
+
                     description="Everything else. Second-hand treasures and general items."
                 />
             </div>

@@ -4,17 +4,10 @@ import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import EmptyState from '../ui/EmptyState';
-import { Package } from 'lucide-react';
+import { Package, Eye, Trash2, Loader2, Edit } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-export interface MontageGridProps {
-  products: Product[];
-  lastProductRef?: (node: HTMLDivElement) => void;
-  isAdmin?: boolean;
-}
-
+import { Button } from '../ui/button';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
-import { Eye, Trash2, Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { useState } from 'react';
 import { deleteProductByAdmin } from '@/app/actions/admin';
@@ -23,7 +16,14 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
 
+export interface MontageGridProps {
+  products: Product[];
+  lastProductRef?: (node: HTMLDivElement) => void;
+  isAdmin?: boolean;
+}
+
 export default function MontageGrid({ products, lastProductRef, isAdmin = false }: MontageGridProps) {
+
   const { viewedProductIds } = useViewedProducts();
   const { user } = useUser();
   const { toast } = useToast();

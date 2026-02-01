@@ -9,7 +9,8 @@ import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Filter, Grid, Rows, Trophy, Coins, History, Zap, Layers } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Filter, Grid, Rows, CreditCard, Coins, Layers } from 'lucide-react';
+
 import { PageHeader } from '../layout/PageHeader';
 import { CollectorCardsFilterTrigger } from '../filters/collector-cards-filter-trigger';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
@@ -36,6 +37,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -397,39 +400,48 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
               variant={currentSearchParams.category === 'Collector Cards' ? 'secondary' : 'ghost'}
               size="icon"
               className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Collector Cards' && "bg-indigo-100 text-indigo-600")}
-              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Collector Cards' ? null : 'Collector Cards')}
+              asChild
               title="Cards"
             >
-              <Trophy className="h-4 w-4" />
+              <Link href="/collector-cards">
+                <CreditCard className="h-4 w-4" />
+              </Link>
             </Button>
             <Button
               variant={currentSearchParams.category === 'Coins' ? 'secondary' : 'ghost'}
               size="icon"
               className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Coins' && "bg-amber-100 text-amber-600")}
-              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Coins' ? null : 'Coins')}
+              asChild
               title="Coins"
             >
-              <Coins className="h-4 w-4" />
+              <Link href="/coins">
+                <Coins className="h-4 w-4" />
+              </Link>
             </Button>
             <Button
               variant={currentSearchParams.category === 'Memorabilia' ? 'secondary' : 'ghost'}
               size="icon"
               className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'Memorabilia' && "bg-emerald-100 text-emerald-600")}
-              onClick={() => handleFilterChange('category', currentSearchParams.category === 'Memorabilia' ? null : 'Memorabilia')}
+              asChild
               title="Memorabilia"
             >
-              <History className="h-4 w-4" />
+              <Link href="/collectibles">
+                <span className="text-xs font-bold">M</span>
+              </Link>
             </Button>
             <Button
-              variant={!currentSearchParams.category ? 'secondary' : 'ghost'}
+              variant={currentSearchParams.category === 'General' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-8 w-8 transition-all", !currentSearchParams.category && "bg-slate-100 text-slate-600")}
-              onClick={() => handleFilterChange('category', null)}
-              title="General / All"
+              className={cn("h-8 w-8 transition-all", currentSearchParams.category === 'General' && "bg-slate-100 text-slate-600")}
+              asChild
+              title="General"
             >
-              <Zap className="h-4 w-4" />
+              <Link href="/general">
+                <span className="text-xs font-bold">G</span>
+              </Link>
             </Button>
           </div>
+
 
           <div className="flex items-center rounded-md border bg-card p-1 h-10">
             <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-4 w-4" /></Button>

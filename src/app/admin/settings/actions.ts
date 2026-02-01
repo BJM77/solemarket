@@ -10,7 +10,9 @@ export interface SystemSettings {
     freightCharge: number;
     freeShippingThreshold: number;
     standardTaxRate?: number;
+    homepageCategoryMode?: 'manual' | 'popular' | 'default';
 }
+
 
 export async function saveSystemSettings(settings: SystemSettings, idToken?: string) {
     try {
@@ -52,13 +54,16 @@ export async function getSystemSettings(): Promise<SystemSettings> {
             freightCharge: 12.00,
             freeShippingThreshold: 150.00,
             standardTaxRate: 0.10,
+            homepageCategoryMode: 'default'
         };
+
     } catch (error) {
         console.error('Error fetching system settings:', error);
         return {
             freightCharge: 12.00,
             freeShippingThreshold: 150.00,
             standardTaxRate: 0.10,
+            homepageCategoryMode: 'default'
         };
     }
 }

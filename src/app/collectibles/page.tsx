@@ -16,10 +16,10 @@ export default function CollectiblesPage() {
     const productsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
         return query(
-            collection(firestore, 'products'), 
-            where('category', 'in', COLLECTIBLES_CATEGORIES), 
+            collection(firestore, 'products'),
+            where('category', 'in', COLLECTIBLES_CATEGORIES),
             where('isDraft', '==', false),
-            orderBy('createdAt', 'desc'), 
+            orderBy('createdAt', 'desc'),
             limit(100));
     }, [firestore]);
 
@@ -29,12 +29,13 @@ export default function CollectiblesPage() {
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <PageHeader
-                    title="General Collectibles"
+                    title="Memorabilia"
+
                     description="A wide array of treasures from various categories."
                 />
             </div>
             <Suspense fallback={<div className="container mx-auto px-4"><ProductGridSkeleton count={20} /></div>}>
-                 {isLoading ? <div className="container mx-auto px-4"><ProductGridSkeleton count={20} /></div> : <MontageGrid products={products || []} />}
+                {isLoading ? <div className="container mx-auto px-4"><ProductGridSkeleton count={20} /></div> : <MontageGrid products={products || []} />}
             </Suspense>
         </div>
     );

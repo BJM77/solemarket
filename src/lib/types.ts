@@ -246,7 +246,11 @@ export interface Category {
   slug?: string;
   section: string;
   href?: string;
+  showOnHomepage?: boolean;
+  isPopular?: boolean;
+  order?: number;
 }
+
 
 export interface Dispute {
   id: string;

@@ -13,8 +13,10 @@ import { testApiKey } from '@/ai/flows/test-api-key';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Truck, DollarSign, Percent } from "lucide-react";
+import { Truck, DollarSign, Percent, Layout } from "lucide-react";
 import { getSystemSettings, saveSystemSettings, type SystemSettings } from './actions';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { useEffect } from 'react';
 
 export default function AdminSettingsPage() {
@@ -182,7 +184,60 @@ export default function AdminSettingsPage() {
                     </CardFooter>
                 </Card>
 
+                {/* Homepage Categories */}
+                <Card className="p-10 rounded-2xl">
+                    <CardHeader className="px-0 pt-0 mb-8">
+                        <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
+                            <Layout className="w-6 h-6 text-primary" /> Homepage Categories
+                        </CardTitle>
+                        <CardDescription>Select how categories are displayed on the homepage.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-0">
+                        <RadioGroup
+                            value={settings.homepageCategoryMode || 'default'}
+                            onValueChange={(val: any) => setSettings({ ...settings, homepageCategoryMode: val })}
+                            className="grid gap-4"
+                        >
+                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-bold uppercase tracking-tight">Recommended Selection</span>
+                                    <span className="text-xs text-muted-foreground font-medium">Show only categories manually selected in Admin.</span>
+                                </div>
+                                <RadioGroupItem value="manual" id="manual" />
+                            </label>
+                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-bold uppercase tracking-tight">Most Popular</span>
+                                    <span className="text-xs text-muted-foreground font-medium">Show categories marked as popular.</span>
+                                </div>
+                                <RadioGroupItem value="popular" id="popular" />
+                            </label>
+                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-bold uppercase tracking-tight">Default (Top Categories)</span>
+                                    <span className="text-xs text-muted-foreground font-medium">Show categories based on their display order.</span>
+                                </div>
+                                <RadioGroupItem value="default" id="default" />
+                            </label>
+                        </RadioGroup>
+                    </CardContent>
+                    <CardFooter className="px-0 pt-8 mt-4 border-t">
+                        <Button
+                            onClick={handleSaveShippingSettings}
+                            disabled={isSavingShipping}
+                            className="w-full h-12 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+                        >
+                            {isSavingShipping ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                            ) : (
+                                <><Save className="w-4 h-4 mr-2" /> Save Homepage Settings</>
+                            )}
+                        </Button>
+                    </CardFooter>
+                </Card>
+
                 {/* Color Palette */}
+
                 <Card className="p-10 rounded-2xl">
                     <CardHeader className="px-0 pt-0 mb-8">
                         <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
