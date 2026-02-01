@@ -88,6 +88,12 @@ export default function AdminSidebar() {
 
     return (
         <Sidebar>
+            {isMobile && isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-[35] lg:hidden animate-in fade-in"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
             <SidebarHeader className="p-6">
                 <div className="flex items-center justify-between w-full">
                     {effectiveOpen ? (

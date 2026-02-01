@@ -105,6 +105,9 @@ export function UserNav() {
           <DropdownMenuItem asChild>
             <Link href="/profile/favorites">My Favorites</Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/profile/orders">My Purchases</Link>
+          </DropdownMenuItem>
           {canSell && (
             <DropdownMenuItem asChild>
               <Link href="/profile/listings">My Listings</Link>

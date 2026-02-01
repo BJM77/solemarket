@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +29,9 @@ import {
     Loader2,
     Info as InfoIcon,
     Copyright,
-    ChevronRight
+    ChevronRight,
+    X as CloseIcon,
+    Maximize2
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn, formatPrice } from '@/lib/utils';
@@ -67,6 +70,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
     const { markAsViewed } = useViewedProducts();
 
     const [selectedImage, setSelectedImage] = useState(0);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [seller, setSeller] = useState<Seller | null>(null);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -372,12 +376,23 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 alt={product.title}
                                 fill
                                 className={cn(
-                                    'object-cover',
+                                    'object-cover cursor-zoom-in transition-transform duration-500 hover:scale-110',
                                     isCoin ? 'rounded-full' : ''
                                 )}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 priority
+                                onClick={() => setIsLightboxOpen(true)}
                             />
+                            <div className="absolute bottom-4 right-4 z-10">
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="bg-white/80 backdrop-blur-sm rounded-full shadow-lg"
+                                    onClick={() => setIsLightboxOpen(true)}
+                                >
+                                    <Maximize2 className="h-4 w-4" />
+                                </Button>
+                            </div>
                             <div className="absolute top-4 left-4 flex flex-col gap-2">
                                 <Badge className={cn("border-none", conditionColors[product.condition as string] || 'bg-gray-100')}>
                                     {product.condition}
@@ -390,6 +405,46 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 )}
                             </div>
                         </div>
+
+                        {/* Lightbox Overlay */}
+                        <AnimatePresence>
+                            {isLightboxOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-10"
+                                    onClick={() => setIsLightboxOpen(false)}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.9, opacity: 0 }}
+                                        className="relative max-w-5xl w-full aspect-square md:aspect-[4/3] flex items-center justify-center"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="relative w-full h-full flex items-center justify-center">
+                                            <Image
+                                                src={product.imageUrls[selectedImage]}
+                                                alt={product.title}
+                                                fill
+                                                className="object-contain"
+                                                sizes="100vw"
+                                                priority
+                                            />
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute top-4 right-4 text-white hover:bg-white/10 rounded-full h-10 w-10"
+                                            onClick={() => setIsLightboxOpen(false)}
+                                        >
+                                            <CloseIcon className="h-6 w-6" />
+                                        </Button>
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                         {product.imageUrls.length > 1 && (
                             <div className="flex gap-2 overflow-x-auto pb-2">

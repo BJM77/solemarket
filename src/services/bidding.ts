@@ -26,15 +26,8 @@ export async function placeBid(productId: string, bidderId: string, bidderName: 
         const highestBidAmount = currentBids.reduce((max, bid) => Math.max(max, bid.amount), 0);
         const baselinePrice = Math.max(product.price, highestBidAmount);
 
-        const allowedMax = baselinePrice * 1.25;
-
-        if (amount > allowedMax) {
-            throw new Error(`Bid amount cannot exceed 25% of current highest offer/price ($${(typeof allowedMax === 'number' ? allowedMax : Number(allowedMax)).toFixed(2)})`);
-        }
-
-        if (amount < product.price) {
-            throw new Error(`Bid must be at least the starting price ($${(typeof product.price === 'number' ? product.price : Number(product.price)).toFixed(2)})`);
-        }
+        // Relaxed restrictions for "Offers"
+        // Sellers can decide to accept low offers or high offers.
 
         const newBid: Bid = {
             id: crypto.randomUUID(),

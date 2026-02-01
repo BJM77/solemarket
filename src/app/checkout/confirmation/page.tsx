@@ -175,7 +175,7 @@ export default function ConfirmationPage() {
                             <Link href="/">Back to Marketplace</Link>
                         </Button>
                         <Button variant="outline" size="lg" className="flex-1 font-bold rounded-xl h-12 border-slate-200" asChild>
-                            <Link href="/orders">View Purchases</Link>
+                            <Link href="/profile/orders">View Purchases</Link>
                         </Button>
                     </div>
                 </div>
