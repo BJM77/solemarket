@@ -3,6 +3,10 @@
 import { z } from "zod";
 import { firestoreDb, admin as firebaseAdmin } from "@/lib/firebase/admin";
 import { sendNotification, getSuperAdminId } from "@/services/notifications";
+import { Resend } from 'resend';
+
+// Initialize Resend with API Key (simulated success if key missing to prevent crash)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ConsignmentSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -99,8 +103,12 @@ export async function submitConsignmentInquiry(
             );
         }
 
-        // 3. Send Confirmation Email (Simulated)
-        await sendConfirmationEmail(email, name);
+        // 3. Send Emails (Admin Notification + User Confirmation)
+        // We use Promise.allSettled to ensure one failing doesn't stop the other
+        await Promise.allSettled([
+            sendAdminNotificationEmail(validatedFields.data),
+            sendConfirmationEmail(email, name)
+        ]);
 
         return {
             success: true,
@@ -115,25 +123,65 @@ export async function submitConsignmentInquiry(
     }
 }
 
+
 /**
- * Sends a confirmation email to the user.
- * 
- * TODO: Integrate with a real email service provider (e.g., Resend, SendGrid, AWS SES).
- * Currently, this function simulates sending an email by logging to the console.
+ * Sends a confirmation email to the user using Resend.
  */
 async function sendConfirmationEmail(email: string, name: string): Promise<void> {
-    // In a production environment, you would use an email SDK here.
-    // Example with Resend:
-    // await resend.emails.send({
-    //   from: 'Consignments <consign@picksy.au>',
-    //   to: email,
-    //   subject: 'We received your consignment inquiry',
-    //   react: EmailTemplate({ name }),
-    // });
+    if (!process.env.RESEND_API_KEY) {
+        console.warn('RESEND_API_KEY is not set. Skipping email sending.');
+        return;
+    }
 
-    console.log(`[SIMULATED EMAIL] To: ${email}`);
-    console.log(`[SIMULATED EMAIL] Subject: We received your consignment inquiry`);
-    console.log(`[SIMULATED EMAIL] Body: Hi ${name}, thanks for reaching out! We'll be in touch shortly.`);
+    try {
+        await resend.emails.send({
+            from: 'Picksy Consignments <consign@picksy.au>',
+            to: email,
+            subject: 'We received your consignment inquiry',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1>Thanks for reaching out, ${name}!</h1>
+                    <p>We have received your consignment inquiry and our team will review it shortly.</p>
+                    <p>We typically respond within 1-2 business days.</p>
+                    <hr />
+                    <p style="color: #666; font-size: 12px;">Picksy Marketplace - The Premier Marketplace for Collectors</p>
+                </div>
+            `,
+        });
+        console.log(`[EMAIL SENT] To: ${email} via Resend`);
+    } catch (error) {
+        console.error('Failed to send confirmation email:', error);
+        // Don't throw, just log error so the user flow isn't interrupted
+    }
+}
 
-    return Promise.resolve();
+/**
+ * Sends a notification email to the admin.
+ */
+async function sendAdminNotificationEmail(data: any): Promise<void> {
+    if (!process.env.RESEND_API_KEY) return;
+
+    // In a real app, fetch this from config or env
+    const ADMIN_EMAIL = 'ben@picksy.au'; // Default fallback or use env var
+
+    try {
+        await resend.emails.send({
+            from: 'Picksy Bot <system@picksy.au>',
+            to: ADMIN_EMAIL,
+            subject: `New Consignment: ${data.itemType} ($${data.estimatedValue})`,
+            html: `
+                <h2>New Consignment Inquiry</h2>
+                <p><strong>Name:</strong> ${data.name}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                <p><strong>Item Type:</strong> ${data.itemType}</p>
+                <p><strong>Est. Value:</strong> ${data.estimatedValue}</p>
+                <p><strong>Description:</strong><br/>${data.description}</p>
+                <hr />
+                <a href="https://picksy.au/admin/consignments">View in Admin Dashboard</a>
+            `,
+        });
+    } catch (error) {
+        console.error('Failed to send admin notification email:', error);
+    }
 }

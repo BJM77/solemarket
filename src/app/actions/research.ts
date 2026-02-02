@@ -82,6 +82,41 @@ export async function removePlayerFromKeepList(uid: string, playerName: string):
     }
 }
 
+/**
+ * Bulk add multiple players to the keep list at once.
+ */
+export async function bulkAddPlayersToKeepList(uid: string, players: Player[]): Promise<Player[]> {
+    try {
+        const docRef = getUserRef(uid).collection('research').doc('preferences');
+        const docSnap = await docRef.get();
+
+        let currentList: Player[] = defaultPlayers;
+        if (docSnap.exists) {
+            const data = docSnap.data();
+            currentList = (data?.namesToKeep as Player[]) || defaultPlayers;
+        }
+
+        // Filter out duplicates (case-insensitive)
+        const existingNames = new Set(currentList.map(p => p.name.toLowerCase()));
+        const newPlayers = players.filter(p => !existingNames.has(p.name.toLowerCase()));
+
+        if (newPlayers.length === 0) {
+            console.log('All players already exist in the keep list');
+            return currentList;
+        }
+
+        // Merge and sort
+        const newList = [...currentList, ...newPlayers].sort((a, b) => a.name.localeCompare(b.name));
+
+        await docRef.set({ namesToKeep: newList }, { merge: true });
+        console.log(`Added ${newPlayers.length} new players to keep list`);
+        return newList;
+    } catch (error) {
+        console.error('Error bulk adding players to keep list:', error);
+        throw new Error('Failed to bulk update keep list');
+    }
+}
+
 
 /**
  * Fetch scan history for a user.

@@ -1,4 +1,3 @@
-
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function PrivacyPage() {
@@ -6,61 +5,48 @@ export default function PrivacyPage() {
     <div className="container py-12 md:py-16">
       <PageHeader
         title="Privacy Policy"
-        description="Last Updated: October 26, 2023"
+        description="Last Updated: February 2026"
       />
       <div className="prose lg:prose-lg max-w-4xl mx-auto mt-8">
         <p>
-          This Privacy Policy describes Our policies and procedures on the collection,
-          use and disclosure of Your information when You use the Service and tells
-          You about Your privacy rights and how the law protects You.
-        </p>
-        <p>
-          We use Your Personal data to provide and improve the Service. By using the
-          Service, You agree to the collection and use of information in accordance
-          with this Privacy Policy.
+          At Picksy ("we", "us", "our"), we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and disclose your personal information in accordance with the <strong>Privacy Act 1988 (Cth)</strong> and the <strong>Australian Privacy Principles (APPs).</strong>
         </p>
 
-        <h2>Interpretation and Definitions</h2>
-        <h3>Interpretation</h3>
-        <p>
-          The words of which the initial letter is capitalized have meanings
-          defined under the following conditions. The following definitions shall
-          have the same meaning regardless of whether they appear in singular or in
-          plural.
-        </p>
-
-        <h2>Collecting and Using Your Personal Data</h2>
-        <h3>Types of Data Collected</h3>
-        <h4>Personal Data</h4>
-        <p>
-          While using Our Service, We may ask You to provide Us with certain
-          personally identifiable information that can be used to contact or
-          identify You. Personally identifiable information may include, but is not
-          limited to: Email address, First name and last name, Phone number,
-          Address, State, Province, ZIP/Postal code, City, Usage Data.
-        </p>
-        <h4>Usage Data</h4>
-        <p>
-          Usage Data is collected automatically when using the Service. Usage Data
-          may include information such as Your Device's Internet Protocol address
-          (e.g. IP address), browser type, browser version, the pages of our
-          Service that You visit, the time and date of Your visit, the time spent
-          on those pages, unique device identifiers and other diagnostic data.
-        </p>
-
-        <h2>Use of Your Personal Data</h2>
-        <p>The Company may use Personal Data for the following purposes:</p>
+        <h2>1. Information We Collect</h2>
+        <p>We collect information that is necessary to provide our services to you as a marketplace for collectors. This includes:</p>
         <ul>
-          <li>To provide and maintain our Service, including to monitor the usage of our Service.</li>
-          <li>To manage Your Account: to manage Your registration as a user of the Service.</li>
-          <li>For the performance of a contract: the development, compliance and undertaking of the purchase contract for the products, items or services You have purchased or of any other contract with Us through the Service.</li>
-          <li>To contact You: To contact You by email, telephone calls, SMS, or other equivalent forms of electronic communication.</li>
+          <li><strong>Identity Data:</strong> Name, username, and for sellers, identity verification documents (e.g., driver's license) for KYC compliance.</li>
+          <li><strong>Contact Data:</strong> Billing address, delivery address, email address, and telephone numbers.</li>
+          <li><strong>Financial Data:</strong> Bank account and payment card details (processed securely by our payment providers, not stored directly on our servers).</li>
+          <li><strong>Transaction Data:</strong> Details about payments to and from you and other details of products you have purchased or sold.</li>
+          <li><strong>Profile Data:</strong> Your username, purchases or orders made by you, your interests, preferences, and feedback.</li>
         </ul>
 
-        <h2>Contact Us</h2>
+        <h2>2. How We Use Your Information</h2>
+        <p>We use your data to:</p>
+        <ul>
+          <li>Facilitate the buying and selling of collectibles, including shipping and payments.</li>
+          <li>Verify your identity to maintain a safe marketplace and prevent fraud.</li>
+          <li>Send you transactional emails (order confirmations, shipping updates).</li>
+          <li>Provide customer support.</li>
+          <li>Comply with legal obligations, such as tax reporting and anti-money laundering laws.</li>
+        </ul>
+
+        <h2>3. Data Security & Retention</h2>
         <p>
-          If you have any questions about this Privacy Policy, You can contact us:
-          By email: legal@picksy.com
+          We implement appropriate security measures to prevent your personal data from being accidentally lost, used, or accessed in an unauthorized way. We retain your personal data only for as long as necessary to fulfil the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.
+        </p>
+
+        <h2>4. Your Rights</h2>
+        <p>
+          Under the Privacy Act, you have the right to access the personal information we hold about you and to ask for it to be corrected if it is inaccurate. You may also ask us to delete your data in certain circumstances.
+        </p>
+
+        <h2>5. Contact Us</h2>
+        <p>
+          If you have any questions about this Privacy Policy, please contact our Privacy Officer at: <br />
+          <strong>Email:</strong> privacy@picksy.au <br />
+          <strong>Address:</strong> Picksy Marketplace, Perth, Western Australia
         </p>
       </div>
     </div>

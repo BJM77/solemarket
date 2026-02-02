@@ -1,4 +1,3 @@
-
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function TermsPage() {
@@ -6,42 +5,49 @@ export default function TermsPage() {
     <div className="container py-12 md:py-16">
       <PageHeader
         title="Terms of Service"
-        description="Last Updated: October 26, 2023"
+        description="Last Updated: February 2026"
       />
       <div className="prose lg:prose-lg max-w-4xl mx-auto mt-8">
-        <h2>1. Agreement to Terms</h2>
+        <h2>1. Introduction</h2>
         <p>
-          By using our Service, you agree to be bound by these Terms. If you
-          don’t agree to be bound by these Terms, do not use the Service.
-        </p>
-        
-        <h2>2. Privacy Policy</h2>
-        <p>
-          Please refer to our Privacy Policy for information on how we collect,
-          use and disclose information from our users. You acknowledge and
-          agree that your use of the Service is subject to our Privacy Policy.
+          Welcome to Picksy ("Company", "we", "our", "us"). These Terms of Service ("Terms") govern your use of our website and services (collectively, the "Service").
+          By accessing or using the Service, you agree to be bound by these Terms.
         </p>
 
-        <h2>3. Content Ownership</h2>
+        <h2>2. Buying and Selling</h2>
         <p>
-            We do not claim any ownership rights in any User Content and nothing in these Terms will be deemed to restrict any rights that you may have to use and exploit your User Content.
+          <strong>Selling:</strong> By listing an item on Picksy, you verify that you are the legal owner of the item and that its description (including condition and authenticity) is accurate. You agree to ship sold items within 3 business days.
         </p>
-        
-        <h2>4. Prohibitions</h2>
-        <p>You agree not to do any of the following:</p>
-        <ul>
-          <li>Post, upload, publish, submit or transmit any Content that: (i) infringes, misappropriates or violates a third party’s patent, copyright, trademark, trade secret, moral rights or other intellectual property rights, or rights of publicity or privacy; (ii) violates, or encourages any conduct that would violate, any applicable law or regulation or would give rise to civil liability;</li>
-          <li>Use, display, mirror or frame the Service or any individual element within the Service, Picksy’s name, any Picksy trademark, logo or other proprietary information, or the layout and design of any page or form contained on a page, without Picksy’s express written consent;</li>
-        </ul>
-        
-        <h2>5. Termination</h2>
         <p>
-            We may terminate your access to and use of the Service, at our sole discretion, at any time and without notice to you.
+          <strong>Buying:</strong> When you purchase an item, you agree to pay the listed price plus any applicable shipping and service fees. All sales are final unless the item received is significantly different from its description.
         </p>
 
-        <h2>Contact Us</h2>
+        <h2>3. Fees and Payments</h2>
         <p>
-          If you have any questions about these Terms, please contact us at legal@picksy.com.
+          You agree to pay the fees for using the Service as described on our Fees page. All fees are in Australian Dollars (AUD).
+          We use third-party payment processors (Stripe/PayPal) to handle secure transactions.
+        </p>
+
+        <h2>4. Shipping and Delivery</h2>
+        <p>
+          Sellers are responsible for packaging items securely to prevent damage. We recommend using tracked shipping services (e.g., Australia Post with tracking) for all orders.
+          Picksy is not liable for items lost in transit if no tracking was provided.
+        </p>
+
+        <h2>5. Refunds and Returns</h2>
+        <p>
+          <strong>Picksy Guarantee:</strong> If an item arrives damaged or is not as described, you may request a refund within 3 days of delivery.
+          We comply with the <strong>Australian Consumer Law</strong> under the Competition andConsumer Act 2010 (Cth). Our goods come with guarantees that cannot be excluded under the Australian Consumer Law.
+        </p>
+
+        <h2>6. Prohibited Items</h2>
+        <p>
+          You may not buy or sell counterfeit items, stolen goods, or any items listed in our Prohibited Items Policy.
+        </p>
+
+        <h2>7. Contact Us</h2>
+        <p>
+          If you have any questions about these Terms, please contact us at legal@picksy.au.
         </p>
       </div>
     </div>
