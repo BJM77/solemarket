@@ -1,0 +1,34 @@
+# Site Audit & SEO Verification
+
+- [ ] **SEO Audit**
+    - [x] Verify Global Metadata (`layout.tsx`) <!-- id: 0 -->
+    - [x] Verify Dynamic Metadata (`product/[id]/page.tsx`) <!-- id: 1 -->
+    - [x] Check Sitemap & Robots (`sitemap.ts`, `robots.ts`) <!-- id: 2 -->
+    - [x] Check Structured Data (JSON-LD) <!-- id: 3 -->
+    - [x] Verify Image Optimization (`next/image`, `alt` tags) <!-- id: 4 -->
+- [ ] **Content & Structure Review**
+    - [x] Check for Legal Pages (Privacy, Terms) <!-- id: 5 -->
+    - [x] Check for Core Pages (About, Contact) <!-- id: 6 -->
+- [ ] **Code Analysis**
+    - [x] Scan for critical `TODO`s or `FIXME`s <!-- id: 7 -->
+- [x] **Final Report**
+    - [x] Compile findings and recommendations <!-- id: 8 -->
+- [x] **Email Integration**
+    - [x] Install `resend` package <!-- id: 9 -->
+    - [x] Update `src/app/consign/actions.ts` with Resend logic <!-- id: 10 -->
+- [x] **Content Pages (Essential)**
+    - [x] Audit existing pages <!-- id: 11 -->
+    - [x] Update Privacy Policy <!-- id: 12 -->
+    - [x] Update Terms of Service <!-- id: 13 -->
+    - [x] Create Contact Page (Functional Fix) <!-- id: 14 -->
+    - [x] Update DMCA & Safety Tips <!-- id: 15 -->
+- [x] **Feature: Verified Seller Filter**
+    - [x] Update Data Model & API <!-- id: 16 -->
+    - [x] Add UI Toggle <!-- id: 17 -->
+    - [x] Update Creation Logic <!-- id: 18 -->
+- [/] **Feature: Featured Listings & SEO**
+    - [x] Add `isFeatured` to Product Schema <!-- id: 19 -->
+    - [x] Enhance JSON-LD in Product Page <!-- id: 21 -->
+    - [x] **Data Integrity** (New)
+        - [x] Create safe backfill script (`scripts/fix-data-integrity.ts`)
+    - [/] Update Sort Logic in `product-service` (Disabled pending user run of backfill) <!-- id: 20 -->

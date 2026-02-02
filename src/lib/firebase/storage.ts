@@ -8,7 +8,7 @@ function sanitizePath(path: string): string {
   const sanitized = path.replace(/\.\./g, '').replace(/\/\//g, '/');
 
   // Ensure path starts with allowed prefixes
-  const allowedPrefixes = ['products/', 'media-library/', 'temp-analysis/'];
+  const allowedPrefixes = ['products/', 'media-library/', 'temp-analysis/', 'grading-temp/'];
   if (!allowedPrefixes.some(prefix => sanitized.startsWith(prefix))) {
     console.warn(`Upload path ${sanitized} does not start with whitelisted prefix. Defaulting to 'media-library/'.`);
     return 'media-library/';

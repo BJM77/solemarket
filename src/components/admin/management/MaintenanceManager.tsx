@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +26,7 @@ export default function MaintenanceManager() {
             // Fetch products matching the search term
             const result = await getProducts({ q: searchTerm, page: 1, limit: 50 });
             setProducts(result.products);
-            
+
             if (result.products.length === 0) {
                 toast({
                     title: "No products found",
@@ -55,7 +56,7 @@ export default function MaintenanceManager() {
             if (!idToken) throw new Error("Not authenticated");
 
             const result = await deleteProductByAdmin(productId, idToken);
-            
+
             if (result.success) {
                 toast({
                     title: "Product Deleted",
@@ -85,14 +86,14 @@ export default function MaintenanceManager() {
                     Force Delete Products
                 </CardTitle>
                 <CardDescription>
-                    Search for specific listings (e.g., "Fix Test", "Charizard") and permanently remove them from the database. 
+                    Search for specific listings (e.g., "Fix Test", "Charizard") and permanently remove them from the database.
                     This tool bypasses standard checks and is intended for cleanup.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="flex gap-4 mb-6">
-                    <Input 
-                        placeholder="Enter product title..." 
+                    <Input
+                        placeholder="Enter product title..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -105,15 +106,15 @@ export default function MaintenanceManager() {
 
                 <div className="space-y-2">
                     {products.length > 0 && (
-                         <div className="text-sm text-muted-foreground mb-2">Found {products.length} matching products:</div>
+                        <div className="text-sm text-muted-foreground mb-2">Found {products.length} matching products:</div>
                     )}
-                    
+
                     {products.map(product => (
                         <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
                             <div className="flex items-center gap-3">
                                 {product.imageUrls && product.imageUrls[0] && (
                                     <div className="h-10 w-10 relative rounded overflow-hidden bg-muted">
-                                        <img src={product.imageUrls[0]} alt="" className="object-cover w-full h-full" />
+                                        <NextImage src={product.imageUrls[0]} alt="" fill className="object-cover" />
                                     </div>
                                 )}
                                 <div>
@@ -121,9 +122,9 @@ export default function MaintenanceManager() {
                                     <div className="text-xs text-muted-foreground">ID: {product.id} | Price: ${product.price}</div>
                                 </div>
                             </div>
-                            <Button 
-                                variant="destructive" 
-                                size="sm" 
+                            <Button
+                                variant="destructive"
+                                size="sm"
                                 onClick={() => handleDelete(product.id, product.title)}
                                 disabled={deletingId === product.id}
                             >

@@ -92,8 +92,8 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
 
             // 3. Call AI Action with URLs and Token
             const result = await gradeCardDetailsAction({
-                frontImageDataUri: frontImage,
-                backImageDataUri: backImage,
+                frontImageUrl: frontImage,
+                backImageUrl: backImage,
                 idToken: token
             });
 
@@ -156,7 +156,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
 
             // 3. Call AI Action
             const result = await suggestListingDetailsAction({
-                photoDataUris: uploadedUrls,
+                photoUrls: uploadedUrls,
                 idToken: token
             });
 

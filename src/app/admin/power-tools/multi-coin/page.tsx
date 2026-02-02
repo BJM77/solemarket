@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
@@ -228,7 +229,7 @@ export default function MultiCoinPage() {
                             key={idx}
                             className="relative size-12 rounded-lg border-2 border-amber-500/50 overflow-hidden shadow-lg group/img"
                         >
-                            <img src={img} className="w-full h-full object-cover" alt="Capture" />
+                            <NextImage src={img} width={48} height={48} className="w-full h-full object-cover" alt="Capture" unoptimized />
                             <button
                                 onClick={() => removeImage(idx)}
                                 className="absolute inset-0 bg-red-500/80 items-center justify-center hidden group-hover/img:flex"
