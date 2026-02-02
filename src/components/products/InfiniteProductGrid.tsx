@@ -9,7 +9,7 @@ import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Filter, Grid, Rows, CreditCard, Coins, Layers } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Filter, Grid, Rows, CreditCard, Coins, Layers, ShieldCheck } from 'lucide-react';
 
 import { PageHeader } from '../layout/PageHeader';
 import { CollectorCardsFilterTrigger } from '../filters/collector-cards-filter-trigger';
@@ -82,6 +82,8 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         params[key] = value.split(',').map(Number) as [number, number];
       } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
         params[key] = value.split(',');
+      } else if (key === 'verifiedOnly') {
+        params[key] = value === 'true';
       } else {
         params[key] = value;
       }
@@ -466,14 +468,32 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
             <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden xs:flex" onClick={() => handleViewChange('list')} title="List View"><List className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
             <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex" onClick={() => handleViewChange('compact')} title="Compact View"><Rows className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
           </div>
-          <AdvancedFilterPanel
-            currentFilters={currentSearchParams}
-            onFilterChange={(newFilters) => {
-              const newQuery = createQueryString(newFilters);
-              router.push(`${pathname}?${newQuery}`, { scroll: false });
-            }}
-            onClearFilters={() => router.push(pathname, { scroll: false })}
-          />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2 bg-card border rounded-md px-3 h-9 sm:h-10">
+              <Checkbox
+                id="verified-filter"
+                checked={currentSearchParams.verifiedOnly || false}
+                onCheckedChange={(checked) => handleFilterChange('verifiedOnly', checked ? 'true' : null)}
+              />
+              <label
+                htmlFor="verified-filter"
+                className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1.5"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                <span className="hidden sm:inline">Verified Only</span>
+                <span className="sm:hidden">Verified</span>
+              </label>
+            </div>
+
+            <AdvancedFilterPanel
+              currentFilters={currentSearchParams}
+              onFilterChange={(newFilters) => {
+                const newQuery = createQueryString(newFilters);
+                router.push(`${pathname}?${newQuery}`, { scroll: false });
+              }}
+              onClearFilters={() => router.push(pathname, { scroll: false })}
+            />
+          </div>
         </div>
       </header>
 

@@ -206,6 +206,7 @@ export async function publishListing(draftId: string, userId: string): Promise<v
             sellerName: userData?.displayName || 'Unknown Seller',
             sellerEmail: userData?.email || '',
             sellerAvatar: userData?.photoURL || '',
+            sellerVerified: userData?.isVerified || false,
         };
 
         await docRef.update(updateData);

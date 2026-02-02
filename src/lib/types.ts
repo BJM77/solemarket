@@ -73,6 +73,7 @@ export type Product = {
   sellerName: string;
   sellerEmail: string;
   sellerAvatar?: string;
+  sellerVerified?: boolean;
   imageUrls: string[];
   status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold'; // Added on_hold
   holdReason?: string;
@@ -111,6 +112,7 @@ export type Product = {
   minStockQuantity?: number;
   contactCallCount?: number; // Analytics for phone reveals
   isNegotiable?: boolean;
+  isFeatured?: boolean;
 };
 
 export type ProductSearchParams = {
@@ -128,6 +130,7 @@ export type ProductSearchParams = {
   categories?: string[];
   sellers?: string[];
   yearRange?: [number, number];
+  verifiedOnly?: boolean;
 };
 
 

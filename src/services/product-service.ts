@@ -67,6 +67,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     constraints.push(where('sellerId', 'in', sellers.slice(0, 30)));
   }
 
+  // Verified Only Filter
+  if (searchParams.verifiedOnly) {
+    constraints.push(where('sellerVerified', '==', true));
+  }
+
   // Firestore allows only ONE field to have inequality filters.
   // We prioritize Price Range for DB filtering as it's more common.
   // Year Range will be filtered in-memory if Price Range is also active.
@@ -98,6 +103,18 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // If we rely on inequality, the first orderBy must be on that field.
   // Firestore Requirement: "If you include a filter with a range comparison (<, <=, >, >=), your first ordering must be on the same field."
   let orderByConstraints: QueryConstraint[] = [];
+
+  // Logic:
+  // 1. If we have inequality filters (price/year range), we MUST sort by that field first. Featured sorting might be compromised or require client-side merge.
+  // 2. If NO inequality filters, we can sort by isFeatured first.
+
+  const hasInequalityFilter = (priceRange && (priceRange[0] > 0 || priceRange[1] < 10000)) ||
+    (!filterYearInMemory && yearRange && (yearRange[0] > 1900 || yearRange[1] < new Date().getFullYear()));
+
+  if (!hasInequalityFilter) {
+    // Prioritize Featured items if no range filters interfere
+    orderByConstraints.push(orderBy('isFeatured', 'desc'));
+  }
 
   if (priceRange && (priceRange[0] > 0 || priceRange[1] < 10000)) {
     if (sortField !== 'price') {

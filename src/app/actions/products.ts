@@ -70,6 +70,7 @@ export async function createProductAction(
             sellerEmail: decodedToken.email || '',
             sellerName: userProfile.displayName,
             sellerAvatar: userProfile.photoURL,
+            sellerVerified: userProfile.isVerified || false,
             // All new listings require approval
             status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,

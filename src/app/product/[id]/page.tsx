@@ -12,6 +12,18 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+function getConditionSchema(condition?: string) {
+  const map: Record<string, string> = {
+    'Mint': 'NewCondition',
+    'Near Mint': 'LikeNewCondition',
+    'Excellent': 'VeryGoodCondition',
+    'Good': 'GoodCondition',
+    'Fair': 'UsedCondition',
+    'Poor': 'DamagedCondition',
+  };
+  return map[condition || ''] || 'UsedCondition';
+}
+
 // Generate dynamic metadata for SEO - This MUST be in a Server Component
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -103,6 +115,7 @@ export default async function ProductPage({ params }: Props) {
       priceCurrency: 'AUD',
       price: product.price,
       availability: product.status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+      itemCondition: `https://schema.org/${getConditionSchema(product.condition)}`,
       url: `${SITE_URL}/product/${product.id}`,
       seller: {
         '@type': 'Organization',
