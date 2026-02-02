@@ -69,6 +69,13 @@ async function main() {
                 needsUpdate = true;
             }
 
+            // Check status (Legacy backfill)
+            if (!data.status) {
+                updateData.status = data.isDraft ? 'draft' : 'available';
+                needsUpdate = true;
+                console.log(`Setting status for ${doc.id}: ${updateData.status}`);
+            }
+
             // Check sellerVerified
             const shouldBeVerified = verifiedSellerIds.has(data.sellerId);
             if (data.sellerVerified !== shouldBeVerified) {
