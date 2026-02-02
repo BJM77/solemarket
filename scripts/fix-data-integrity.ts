@@ -8,21 +8,32 @@ async function main() {
 
     let app;
 
-    // Try to find service account file
-    const files = fs.readdirSync(process.cwd());
-    const saFile = files.find((f: string) => f.startsWith('studio-') && f.endsWith('.json'));
+    // Load environment variables from .env.local
+    require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
 
-    if (saFile) {
-        console.log(`Found service account file: ${saFile}`);
-        const saPath = path.resolve(process.cwd(), saFile);
+    if (process.env.SERVICE_ACCOUNT_JSON) {
+        console.log('Found SERVICE_ACCOUNT_JSON in environment.');
+        const sa = JSON.parse(process.env.SERVICE_ACCOUNT_JSON);
         app = admin.initializeApp({
-            credential: admin.credential.cert(require(saPath))
+            credential: admin.credential.cert(sa)
         });
     } else {
-        console.log('No service account file found, trying ADC...');
-        app = admin.initializeApp({
-            credential: admin.credential.applicationDefault()
-        });
+        // Fallback to checking for studio-*.json files or other secrets
+        const files = fs.readdirSync(process.cwd());
+        const saFile = files.find((f: string) => f.startsWith('studio-') && f.endsWith('.json'));
+
+        if (saFile) {
+            console.log(`Found service account file: ${saFile}`);
+            const saPath = path.resolve(process.cwd(), saFile);
+            app = admin.initializeApp({
+                credential: admin.credential.cert(require(saPath))
+            });
+        } else {
+            console.log('No service account found in ENV or file, trying ADC...');
+            app = admin.initializeApp({
+                credential: admin.credential.applicationDefault()
+            });
+        }
     }
 
     const db = app.firestore();
