@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Info as InfoIcon, Clock, TrendingUp } from 'lucide-react';
 import { Bid, Product, SafeUser } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { placeBid, acceptBid } from '@/services/bidding';
+import { placeBidAction } from '@/app/actions/bidding';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 interface BiddingInterfaceProps {
     product: Product;
@@ -27,7 +28,15 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
 
         try {
             setLoading(true);
-            await placeBid(product.id, user.uid, user.displayName || 'Anonymous', parseFloat(bidAmount));
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Please sign in to place an offer.");
+
+            const result = await placeBidAction(product.id, idToken, parseFloat(bidAmount));
+
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+
             toast({
                 title: "Bid Placed",
                 description: "Your offer has been sent to the seller!",
@@ -73,8 +82,8 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ delay: index * 0.05 }}
                                 className={`flex justify-between items-center p-4 rounded-2xl border transition-all ${bid.status === 'accepted'
-                                        ? 'bg-green-50 border-green-200'
-                                        : 'bg-white/50 border-white/60 hover:border-indigo-200 shadow-sm'
+                                    ? 'bg-green-50 border-green-200'
+                                    : 'bg-white/50 border-white/60 hover:border-indigo-200 shadow-sm'
                                     }`}
                             >
                                 <div className="flex flex-col">

@@ -110,6 +110,7 @@ export type Product = {
   autoRepricingEnabled?: boolean;
   minStockQuantity?: number;
   contactCallCount?: number; // Analytics for phone reveals
+  isNegotiable?: boolean;
 };
 
 export type ProductSearchParams = {
@@ -137,6 +138,7 @@ export type Bid = {
   amount: number;
   timestamp: Timestamp; // Firestore timestamp
   status: 'pending' | 'accepted' | 'rejected';
+  paymentIntentId?: string; // For binding offers
 };
 
 export interface Donation {

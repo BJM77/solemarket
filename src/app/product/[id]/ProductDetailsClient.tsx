@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
@@ -40,7 +39,7 @@ import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import ReviewList from '@/components/reviews/ReviewList';
-import { placeBid, acceptBid } from '@/services/bidding';
+import { acceptBidAction } from '@/app/actions/bidding';
 import { deleteProductByAdmin } from '@/app/actions/admin';
 import { createProductAction, recordProductView } from '@/app/actions/products';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
@@ -62,6 +61,7 @@ import { BiddingInterface } from '@/components/products/BiddingInterface';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { incrementProductContactCount } from '@/app/actions/product-updates';
+import { OfferModal } from '@/components/products/OfferModal';
 
 export default function ProductDetailsClient({
     productId,
@@ -298,7 +298,15 @@ export default function ProductDetailsClient({
 
     const handleAcceptBid = async (bidId: string) => {
         try {
-            await acceptBid(product.id, bidId);
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Authentication session expired.");
+
+            const result = await acceptBidAction(product.id, idToken, bidId);
+
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+
             toast({
                 title: "Bid Accepted",
                 description: "You have accepted the offer!",
@@ -510,15 +518,22 @@ export default function ProductDetailsClient({
                                         <ShoppingCart className="h-6 w-6 mr-2" />
                                         Buy It
                                     </Button>
-                                    <Button
-                                        size="lg"
-                                        variant="outline"
-                                        className="flex-1 h-20 text-lg font-bold"
-                                        onClick={() => toast({ title: "Make Offer", description: "This feature is coming soon!" })}
-                                    >
-                                        <DollarSign className="h-6 w-6 mr-2" />
-                                        Make Offer
-                                    </Button>
+                                    {product.isNegotiable && (
+                                        <OfferModal
+                                            product={product}
+                                            user={user}
+                                            trigger={
+                                                <Button
+                                                    size="lg"
+                                                    variant="outline"
+                                                    className="flex-1 h-20 text-lg font-bold"
+                                                >
+                                                    <DollarSign className="h-6 w-6 mr-2" />
+                                                    Make Offer
+                                                </Button>
+                                            }
+                                        />
+                                    )}
                                 </div>
                             )}
                         </div>

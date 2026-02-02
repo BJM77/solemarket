@@ -362,19 +362,26 @@ export default function ProductCard({
   if (viewMode === 'compact') {
     return (
       <div className="group relative flex items-center justify-between border-b border-gray-100 dark:border-white/5 py-2 px-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-        <div className="flex items-center gap-3 overflow-hidden">
+        {!selectable && (
+          <Link
+            href={`/product/${product.id}`}
+            className="absolute inset-0 z-0"
+            title={product.title}
+          >
+            <span className="sr-only">View {product.title}</span>
+          </Link>
+        )}
+        <div className="relative z-10 flex items-center gap-3 overflow-hidden pointer-events-none">
           {product.status === 'sold' && (
-            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold flex-shrink-0">
+            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold flex-shrink-0 pointer-events-auto">
               Sold
             </Badge>
           )}
-          <Link
-            href={`/product/${product.id}`}
-            className="text-sm font-semibold truncate hover:text-primary transition-colors"
-            title={product.title}
+          <span
+            className="text-sm font-semibold truncate hover:text-primary transition-colors pointer-events-auto"
           >
             {product.title}
-          </Link>
+          </span>
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-1.5 py-0.5 rounded flex-shrink-0">
             {product.category}
           </span>
@@ -385,13 +392,13 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="relative z-10 flex items-center gap-4 flex-shrink-0">
           {selectable && (
-            <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="mr-2" />
+            <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="mr-2 pointer-events-auto" />
           )}
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-1.5 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -418,19 +425,21 @@ export default function ProductCard({
                 </Button>
               </div>
             )}
-            <span className="text-sm font-bold w-full text-right flex justify-end">
+            <span className="text-sm font-bold w-full text-right flex justify-end pointer-events-auto">
               <PriceDisplay />
             </span>
             <Button
               size="sm"
               variant="outline"
-              className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white"
+              className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white pointer-events-auto"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 handleAddToCart(e);
               }}
             >
               Buy
+              <span className="sr-only"> now: {product.title} for ${formatPrice(product.price)}</span>
             </Button>
           </div>
         </div>
@@ -536,26 +545,30 @@ export default function ProductCard({
             )}
           </div>
         </div>
-        <div className="p-4 flex flex-col justify-between flex-grow">
-          <div className="relative">
+        {!selectable && (
+          <Link
+            href={`/product/${product.id}`}
+            className="absolute inset-0 z-0"
+            title={product.title}
+          >
+            <span className="sr-only">View {product.title}</span>
+          </Link>
+        )}
+        <div className="p-4 flex flex-col justify-between flex-grow relative z-10 pointer-events-none">
+          <div>
             <div className="flex items-center justify-between mb-1">
-              <Badge variant="outline" className="text-xs relative z-20">{product.category}</Badge>
-              <div className="relative z-20 font-bold text-lg"><PriceDisplay /></div>
+              <Badge variant="outline" className="text-xs pointer-events-auto">{product.category}</Badge>
+              <div className="font-bold text-lg pointer-events-auto"><PriceDisplay /></div>
             </div>
             <h3 className="text-lg font-semibold text-foreground group-hover:text-primary leading-tight">
-              <Link
-                href={`/product/${product.id}`}
-                className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded-sm after:absolute after:inset-0 after:z-0"
-              >
-                {product.title}
-              </Link>
+              {product.title}
             </h3>
-            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 relative z-20">
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
               {product.description}
             </p>
           </div>
-          {isAdmin && (
-            <div className="flex items-center gap-2 mt-4 pt-4 border-t" onClick={(e) => e.stopPropagation()}>
+          {(isAdmin || isSuperAdmin) && (
+            <div className="flex items-center gap-2 mt-4 pt-4 border-t pointer-events-auto" onClick={(e) => e.stopPropagation()}>
               <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0" title="Edit">
                 <Link href={`/sell/create?edit=${product.id}`}>
                   <Edit className="h-4 w-4" />
@@ -652,7 +665,7 @@ export default function ProductCard({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
+                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" aria-label="More options">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -697,7 +710,7 @@ export default function ProductCard({
           >
             <Image
               src={product.imageUrls[0]}
-              alt={product.title}
+              alt={`Product image for ${product.title}`}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
@@ -707,30 +720,34 @@ export default function ProductCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
-      <div className="p-3 sm:p-5 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-1 sm:mb-2 relative">
+      {!selectable && (
+        <Link
+          href={`/product/${product.id}`}
+          className="absolute inset-0 z-0"
+          title={product.title}
+        >
+          <span className="sr-only">View {product.title}</span>
+        </Link>
+      )}
+      <div className="p-3 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none">
+        <div className="flex justify-between items-start mb-1 sm:mb-2">
           <h3 className="text-sm sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2.5rem] sm:min-h-0">
-            <Link
-              href={`/product/${product.id}`}
-              className="hover:underline focus:outline-none after:absolute after:inset-0 after:z-0"
-            >
-              {product.title}
-            </Link>
+            {product.title}
           </h3>
-          {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded relative z-20">{product.grade}</span>}
+          {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto">{product.grade}</span>}
         </div>
         <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">
-          <div className="relative z-20">
+          <div className="pointer-events-auto">
             <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
             <div className="text-lg sm:text-2xl font-black text-[#0d121b] dark:text-white tracking-tight">
               <PriceDisplay />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pointer-events-auto">
             {product.status === 'pending_approval' && isSuperAdmin ? (
               <Button
                 size="sm"
-                className="h-8 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95 relative z-20"
+                className="h-8 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95"
                 onClick={handleApprove}
                 disabled={isApproving}
               >
@@ -740,7 +757,7 @@ export default function ProductCard({
             ) : (
               <Button
                 size="sm"
-                className="h-8 sm:h-10 bg-primary hover:bg-primary/90 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95 relative z-20"
+                className="h-8 sm:h-10 bg-primary hover:bg-primary/90 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -754,7 +771,7 @@ export default function ProductCard({
           </div>
         </div>
         {isAdmin && (
-          <div className="mt-4 pt-4 border-t flex items-center gap-3 relative z-20" onClick={(e) => e.stopPropagation()}>
+          <div className="mt-4 pt-4 border-t flex items-center gap-3 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
             <Button variant="secondary" size="sm" asChild className="h-9 flex-1 gap-2" title="Edit">
               <Link href={`/sell/create?edit=${product.id}`}>
                 <Edit className="h-4 w-4" />

@@ -1,6 +1,6 @@
 
 import { MetadataRoute } from 'next';
-import { getCategories } from '@/lib/firebase/firestore';
+import { getCategories, getActiveProductIds } from '@/lib/firebase/firestore';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://picksy.com.au';
@@ -47,12 +47,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
 
-  // In a real application, you would also programmatically fetch all product IDs
-  // to add dynamic product pages to the sitemap. This would require a more
-  // advanced, paginated sitemap generation strategy for performance.
-  // For example:
-  // const products = await getAllProductIds();
-  // const productRoutes = products.map(id => ({ url: `${baseUrl}/product/${id}`, ... }));
+  const productIds = await getActiveProductIds(500); // Limit to top 500 for performance
+  const productRoutes: MetadataRoute.Sitemap = productIds.map(id => ({
+    url: `${baseUrl}/product/${id}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.6,
+  }));
 
-  return [...staticRoutes, ...categoryRoutes];
+  return [...staticRoutes, ...categoryRoutes, ...productRoutes];
 }

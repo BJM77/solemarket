@@ -112,3 +112,18 @@ export async function getPublicProductCount(): Promise<number> {
         return 0;
     }
 }
+
+export async function getActiveProductIds(limitCount = 1000): Promise<string[]> {
+    try {
+        const snapshot = await firestoreDb.collection('products')
+            .where('status', '==', 'available')
+            .where('isDraft', '==', false)
+            .limit(limitCount)
+            .get();
+
+        return snapshot.docs.map(doc => doc.id);
+    } catch (e: any) {
+        console.error("Failed to fetch active product IDs:", e.message);
+        return [];
+    }
+}

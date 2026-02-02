@@ -9,6 +9,7 @@ import {
   persistentMultipleTabManager
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
+import { getPerformance, Performance } from "firebase/performance";
 import { connectAuthEmulator } from "firebase/auth";
 import { connectFirestoreEmulator } from "firebase/firestore";
 
@@ -64,11 +65,17 @@ if (!getApps().length) {
 // to prevent errors during server-side rendering or build steps.
 let auth: Auth;
 let storage: FirebaseStorage;
+let perf: Performance | undefined;
 
 if (typeof window !== 'undefined') {
   try {
     auth = getAuth(app);
     storage = getStorage(app);
+
+    // Initialize performance monitoring on the client in production
+    if (process.env.NODE_ENV === 'production') {
+      perf = getPerformance(app);
+    }
 
     // CRITICAL: Ensure we're NEVER in emulator mode in production
     const useEmulators = process.env.NEXT_PUBLIC_USE_EMULATORS === 'true';
@@ -92,4 +99,4 @@ if (typeof window !== 'undefined') {
 }
 
 // @ts-ignore - auth and storage may be uninitialized on the server
-export { app, auth, db, storage };
+export { app, auth, db, storage, perf };

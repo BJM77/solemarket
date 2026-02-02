@@ -38,6 +38,7 @@ const formSchema = z.object({
   condition: z.string().min(1, 'Condition is required'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
   isReverseBidding: z.boolean().default(false),
+  isNegotiable: z.boolean().default(false),
   autoRepricingEnabled: z.boolean().default(false),
   isVault: z.boolean().default(false),
   imageFiles: z.array(z.any()).default([]),
@@ -93,6 +94,7 @@ export default function CreateListingPage() {
       condition: '',
       quantity: 1,
       isReverseBidding: false,
+      isNegotiable: false,
       autoRepricingEnabled: false,
       isVault: false,
       imageFiles: [],
@@ -471,6 +473,70 @@ export default function CreateListingPage() {
                   <FormField control={form.control} name="quantity" render={({ field }) => (
                     <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl></FormItem>
                   )} />
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" /> Selling Options
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="isNegotiable"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Allow Offers</FormLabel>
+                          <FormDescription className="text-[10px]">Buyers can make binding offers on this item.</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isReverseBidding"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Reverse Bidding</FormLabel>
+                          <FormDescription className="text-[10px]">Lowest bid wins (Dutch auction style).</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isVault"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Vault Item</FormLabel>
+                          <FormDescription className="text-[10px]">Specifically marked as a vaulted investment item.</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
             </div>

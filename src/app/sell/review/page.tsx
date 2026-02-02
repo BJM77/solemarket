@@ -86,7 +86,7 @@ function ReviewPageContent() {
     return <ReviewPageSkeleton />;
   }
 
-  const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber, isVault } = listingData;
+  const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber, isVault, isNegotiable, isReverseBidding } = listingData;
 
   return (
     <main className="flex-1 max-w-[960px] mx-auto w-full px-6 py-8">
@@ -132,7 +132,19 @@ function ReviewPageContent() {
                 {isVault && (
                   <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-emerald-200">
                     <ShieldCheck className="h-3 w-3" />
-                    VAULT PROTECTED
+                    VAULT
+                  </span>
+                )}
+                {isNegotiable && (
+                  <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-indigo-200">
+                    <DollarSign className="h-3 w-3" />
+                    NEGOTIABLE
+                  </span>
+                )}
+                {isReverseBidding && (
+                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-orange-200">
+                    <ArrowLeft className="h-3 w-3" />
+                    REVERSE BIDDING
                   </span>
                 )}
               </div>
