@@ -21,32 +21,41 @@ export async function createUserProfile(uid: string, data: Partial<UserProfile>)
   }, { merge: true });
 }
 
-export async function updateUserProfile(user: SafeUser, data: { displayName: string; bio?: string }) {
-    if (!user || !auth.currentUser) {
-        throw new Error("User not authenticated.");
-    }
+export async function updateUserProfile(user: SafeUser, data: {
+  displayName: string;
+  bio?: string;
+  storeName?: string;
+  storeDescription?: string;
+  bannerUrl?: string;
+}) {
+  if (!user || !auth.currentUser) {
+    throw new Error("User not authenticated.");
+  }
 
-    // Update Firebase Auth profile
-    await updateProfile(auth.currentUser, {
-        displayName: data.displayName,
-    });
+  // Update Firebase Auth profile
+  await updateProfile(auth.currentUser, {
+    displayName: data.displayName,
+  });
 
-    // Update Firestore profile
-    const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
-        displayName: data.displayName,
-        bio: data.bio || '',
-    });
+  // Update Firestore profile
+  const userDocRef = doc(db, 'users', user.uid);
+  await updateDoc(userDocRef, {
+    displayName: data.displayName,
+    bio: data.bio || '',
+    storeName: data.storeName || '',
+    storeDescription: data.storeDescription || '',
+    bannerUrl: data.bannerUrl || '',
+  });
 }
 
 export async function deleteProduct(productId: string) {
-    if (!productId) throw new Error("Product ID is required.");
-    const productRef = doc(db, 'products', productId);
-    await deleteDoc(productRef);
+  if (!productId) throw new Error("Product ID is required.");
+  const productRef = doc(db, 'products', productId);
+  await deleteDoc(productRef);
 }
 
 
-export async function createDonation(donationData: Omit<Donation, "id" | "createdAt" | "status">) {
+export async function createDonation(donationData: Omit<Donation, "id" | "createdAt" | "status">, idToken: string) {
   const donationPayload = {
     ...donationData,
     status: "Pending Label" as const,
@@ -55,7 +64,7 @@ export async function createDonation(donationData: Omit<Donation, "id" | "create
   const docRef = await addDoc(collection(db, "donations"), donationPayload);
 
   // Trigger AI Flow
-  await processDonation({ donationId: docRef.id, ...donationData, quantity: donationData.quantity.toString() });
-  
+  await processDonation({ donationId: docRef.id, ...donationData, quantity: donationData.quantity.toString(), idToken });
+
   return docRef.id;
 }

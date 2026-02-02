@@ -58,6 +58,8 @@ export type UserProfile = {
   // New Contact & Management Fields
   phoneNumber?: string;
   businessName?: string; // For Business users (Slug can be derived or stored in storeName)
+  bannerUrl?: string;
+  isFounder?: boolean;
   warningCount?: number;
   isBanned?: boolean;
 };
