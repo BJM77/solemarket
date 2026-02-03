@@ -130,9 +130,6 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const [postcode, setPostcode] = useState<string>("");
   const [isExclusionMode, setIsExclusionMode] = useState<boolean>(false);
 
-  const { user } = useUser();
-  const { userProfile } = useUserPermissions();
-  const userRole = userProfile?.role;
 
   const usersQuery = useMemoFirebase(() => {
     // Only query users if authenticated to avoid permission errors
