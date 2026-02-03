@@ -112,7 +112,6 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
   // Filter specific states, derived from URL
   const [viewMode, setViewMode] = useState<ViewMode>((currentSearchParams.view as ViewMode) || 'grid');
-  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
