@@ -31,7 +31,6 @@ export function EbayPriceLookup({
       if (year) parts.push(year.toString());
       if (title) parts.push(title);
       const newQuery = parts.join(' ').trim();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchQuery(prev => prev !== newQuery ? newQuery : prev);
     }
   }, [isOpen, title, year]);

@@ -61,6 +61,8 @@ interface Seller extends UserProfile {
 }
 
 
+
+
 // Main product component
 export default function ProductDetails({ productId, initialProduct }: { productId: string; initialProduct: Product }) {
     const router = useRouter();
@@ -77,8 +79,10 @@ export default function ProductDetails({ productId, initialProduct }: { productI
     const [loadingRelated, setLoadingRelated] = useState(true);
 
     // Bidding State
+    // Bidding State
     const [bidAmount, setBidAmount] = useState('');
     const [biddingLoading, setBiddingLoading] = useState(false);
+
 
     const { firestore } = useFirebase();
 
@@ -712,6 +716,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                     </div>
                 )}
             </div>
+
+
         </div>
     );
 }

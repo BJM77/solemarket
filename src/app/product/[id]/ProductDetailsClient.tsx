@@ -62,6 +62,7 @@ import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { incrementProductContactCount } from '@/app/actions/product-updates';
 import { OfferModal } from '@/components/products/OfferModal';
+import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 
 export default function ProductDetailsClient({
     productId,
@@ -86,6 +87,7 @@ export default function ProductDetailsClient({
     const [loadingRelated, setLoadingRelated] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false); // State for phone reveal
+    const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
     const viewRecordedRef = useRef<string | null>(null);
 
     // Super admin check
@@ -133,8 +135,9 @@ export default function ProductDetailsClient({
 
     const handleStartConversation = async () => {
         if (!user || !product || !seller) {
-            if (!user) {
-                router.push(`/sign-in?redirect=/product/${product?.id}`);
+            if (!user && product && seller) {
+                // Open guest message dialog instead of redirecting
+                setIsGuestMessageOpen(true);
             }
             return;
         }
@@ -709,7 +712,19 @@ export default function ProductDetailsClient({
                         </div>
                     )
                 }
+
             </div >
+
+            {/* Guest Message Dialog */}
+            {product && seller && (
+                <GuestMessageDialog
+                    isOpen={isGuestMessageOpen}
+                    onClose={() => setIsGuestMessageOpen(false)}
+                    sellerId={seller.id}
+                    productId={product.id}
+                    productTitle={product.title}
+                />
+            )}
         </div >
     );
 }
