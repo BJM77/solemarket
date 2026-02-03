@@ -61,25 +61,25 @@ function SignInFormInner() {
     if (error) {
       let errorMessage = "An unknown error occurred. Please try again.";
       // Use the new, more descriptive error handling
-      switch(error.code) {
-          case 'auth/invalid-credential':
-          case 'auth/user-not-found':
-          case 'auth/wrong-password':
-              errorMessage = "Invalid email or password. Please try again.";
-              break;
-          case 'auth/too-many-requests':
-              errorMessage = "Too many sign-in attempts. Please try again later.";
-              break;
-          case 'auth/network-request-failed':
-              errorMessage = "Network error. Please check your internet connection.";
-              break;
-          case 'auth/invalid-api-key':
-              errorMessage = "The API key is invalid. Please check your .env configuration and ensure the key is enabled in your Google Cloud console.";
-              break;
-          default:
-              // For any other errors, show the raw message from Firebase to aid debugging.
-              errorMessage = error.message;
-              break;
+      switch (error.code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          errorMessage = "Invalid email or password. Please try again.";
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = "Too many sign-in attempts. Please try again later.";
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = "Network error. Please check your internet connection.";
+          break;
+        case 'auth/invalid-api-key':
+          errorMessage = "The API key is invalid. Please check your .env configuration and ensure the key is enabled in your Google Cloud console.";
+          break;
+        default:
+          // For any other errors, show the raw message from Firebase to aid debugging.
+          errorMessage = error.message;
+          break;
       }
 
       toast({
@@ -89,17 +89,34 @@ function SignInFormInner() {
       });
       setIsLoading(false);
     } else {
+      // Get ID token and set session cookie
+      try {
+        const { auth } = await import("@/lib/firebase/config");
+        if (auth?.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          await fetch("/api/auth/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+          });
+        }
+      } catch (e) {
+        console.error("Failed to set session cookie", e);
+      }
+
       toast({
         title: "Success!",
         description: "You have successfully signed in.",
+        duration: 3000,
       });
       // Use Next.js router to force a full page reload and ensure auth state is updated.
-      router.push(redirectUrl);
+      // We use window.location to ensure a hard reload which refreshes server components/middleware state
+      window.location.href = redirectUrl;
     }
   }
 
   if (!mounted) {
-      return null;
+    return null;
   }
 
   return (
@@ -151,9 +168,9 @@ function SignInFormInner() {
 }
 
 export default function SignInForm() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <SignInFormInner />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInFormInner />
+    </Suspense>
+  )
 }
