@@ -250,12 +250,12 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     console.log('[DEBUG renderProducts]', {
       viewMode,
       productsLength: products.length,
-      loading,
-      hasMore,
+      isLoading,
+      hasNextPage,
       firstProductTitle: products[0]?.title
     });
 
-    if (products.length === 0 && loading) {
+    if (products.length === 0 && isLoading) {
       return (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
           {[...Array(12)].map((_, i) => (
@@ -265,7 +265,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       )
     }
 
-    if (products.length === 0 && !loading) {
+    if (products.length === 0 && !isLoading) {
       return (
         <p className="col-span-full text-center text-muted-foreground py-12">
           No products found matching your criteria.
