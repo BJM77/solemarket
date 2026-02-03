@@ -24,7 +24,7 @@ const nextConfig = {
     },
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // ignoreBuildErrors: true, // Re-enabling strict checks
   },
   images: {
     formats: ['image/avif', 'image/webp'],

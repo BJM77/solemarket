@@ -49,7 +49,7 @@ export function useUserPermissions(): UserPermissions {
 
     return {
         isSuperAdmin: role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
-        isAdmin: role === 'admin' || role === 'superadmin' || userProfile.isAdmin === true || SUPER_ADMIN_UIDS.includes(user.uid),
+        isAdmin: role === 'admin' || role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
         canSell: userProfile.canSell === true || role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
         isLoading: false,
         userProfile,

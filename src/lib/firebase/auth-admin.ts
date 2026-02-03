@@ -1,5 +1,6 @@
 
 import { auth } from '@/lib/firebase/admin';
+import { cookies } from 'next/headers';
 
 /**
  * Verifies the Firebase ID token on the server side.
@@ -22,5 +23,21 @@ export async function verifyIdToken(idToken: string) {
     }
 
     throw new Error('Invalid or expired authentication token.');
+  }
+}
+
+export async function getAuthenticatedUser() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
+
+  if (!sessionCookie) {
+    return null;
+  }
+
+  try {
+    const decodedToken = await verifyIdToken(sessionCookie);
+    return decodedToken;
+  } catch (error) {
+    return null;
   }
 }

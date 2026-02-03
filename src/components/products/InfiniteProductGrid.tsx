@@ -48,7 +48,7 @@ const PAGE_SIZE = 24;
 const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
 
 
-function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterState = {}, isAdmin = false }: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean }) {
+function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterState = {}, isAdmin = false, initialData }: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean, initialData?: any }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -91,10 +91,11 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       limit: PAGE_SIZE
     }, userRole as string),
     initialPageParam: 1,
+    initialData: initialData ? { pages: [initialData], pageParams: [1] } : undefined, // Hydrate with server data
     getNextPageParam: (lastPage, allPages) => lastPage.hasMore ? allPages.length + 1 : undefined,
     staleTime: 1000 * 60 * 2, // 2 minutes
-    enabled: hasMounted, // Only fetch after component has mounted
-    refetchOnMount: true,
+    enabled: hasMounted, // Only fetch after component has mounted (or immediately if initialData provided? No, react-query handles this)
+    refetchOnMount: !initialData, // Don't refetch immediately if we have server data
   });
 
 

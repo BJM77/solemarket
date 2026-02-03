@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { moderateContent, type ModerateContentOutput } from '@/ai/flows/ai-content-moderation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export default function ModerationPage() {
   const [productName, setProductName] = useState('');
@@ -28,7 +29,10 @@ export default function ModerationPage() {
     setIsLoading(true);
     setResult(null);
     try {
-      const analysisResult = await moderateContent({ productName, productDescription });
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication required");
+
+      const analysisResult = await moderateContent({ productName, productDescription, idToken });
       setResult(analysisResult);
     } catch (error: any) {
       console.error('Moderation Error:', error);
@@ -44,14 +48,14 @@ export default function ModerationPage() {
 
   return (
     <div>
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">
-                Content Moderation Lab
-            </h1>
-            <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs">
-                Use AI to analyze listings for policy violations, spam, or inappropriate content.
-            </p>
-        </motion.div>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">
+          Content Moderation Lab
+        </h1>
+        <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs">
+          Use AI to analyze listings for policy violations, spam, or inappropriate content.
+        </p>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
         <Card className="p-6 rounded-xl">
@@ -59,11 +63,11 @@ export default function ModerationPage() {
             <CardTitle className="text-xl font-bold">Content to Analyze</CardTitle>
           </CardHeader>
           <CardContent className="px-0 space-y-4">
-             <Input 
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-                placeholder="Product Name..."
-                className="placeholder:text-muted-foreground rounded-xl"
+            <Input
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="Product Name..."
+              className="placeholder:text-muted-foreground rounded-xl"
             />
             <Textarea
               value={productDescription}
@@ -117,21 +121,21 @@ export default function ModerationPage() {
                   </div>
 
                   <div className="border p-4 rounded-xl">
-                      <p className="font-medium mb-2">Violations</p>
-                      {result.policyViolations.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
-                          {result.policyViolations.map((cat) => (
-                              <Badge key={cat} variant="destructive">{cat}</Badge>
-                          ))}
-                          </div>
-                      ) : (
-                          <p className="text-muted-foreground text-xs">None</p>
-                      )}
+                    <p className="font-medium mb-2">Violations</p>
+                    {result.policyViolations.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {result.policyViolations.map((cat) => (
+                          <Badge key={cat} variant="destructive">{cat}</Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-xs">None</p>
+                    )}
                   </div>
-                  
+
                   <div className="border p-4 rounded-xl">
-                      <p className="font-medium mb-2">AI Explanation</p>
-                      <p className="text-muted-foreground text-xs italic">{result.explanation}</p>
+                    <p className="font-medium mb-2">AI Explanation</p>
+                    <p className="text-muted-foreground text-xs italic">{result.explanation}</p>
                   </div>
                 </motion.div>
               )}

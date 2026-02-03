@@ -1,26 +1,21 @@
-'use client';
 import Hero from "@/components/home/Hero";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense } from "react";
 import { fetchProductCount } from "@/app/actions/stats";
 import { SearchBar } from "@/components/layout/search-bar";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 
-export default function HomePage() {
-  const [productCount, setProductCount] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const count = await fetchProductCount();
-        setProductCount(count);
-      } catch (e: any) {
-        console.error("Homepage stats error:", e);
-        setError("Could not load marketplace stats.");
-      }
-    }
-    fetchStats();
-  }, []);
+export default async function HomePage() {
+  let productCount: number | null = null;
+  let error: string | null = null;
+
+  try {
+    productCount = await fetchProductCount();
+  } catch (e: any) {
+    console.error("Homepage stats error:", e);
+    error = "Could not load marketplace stats.";
+  }
 
   return (
     <main>

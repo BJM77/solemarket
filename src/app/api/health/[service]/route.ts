@@ -4,9 +4,10 @@ import { firestoreDb, auth } from '@/lib/firebase/admin';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { service: string } }
+    props: { params: Promise<{ service: string }> }
 ) {
-    const { service } = await params;
+    const params = await props.params;
+    const { service } = params;
     const start = Date.now();
 
     try {

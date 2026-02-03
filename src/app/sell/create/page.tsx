@@ -172,8 +172,8 @@ export default function CreateListingPage() {
     }
   }, [listingType, form]);
 
-  const CATEGORIES_OPTIONS = marketplaceOptions?.categories || ['Collector Cards', 'Coins', 'Collectibles', 'General'];
-  const CONDITION_OPTIONS = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
+  const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Collector Cards', 'Coins', 'Collectibles', 'General'];
+  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
   const SUB_CATEGORIES: Record<string, string[]> = {
     'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
     'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
@@ -277,6 +277,7 @@ export default function CreateListingPage() {
 
       const draftId = await saveDraftListing(user.uid, {
         ...cleanData,
+        description: cleanData.description || '',
         imageUrls: finalImageUrls
       }, editId || undefined);
 

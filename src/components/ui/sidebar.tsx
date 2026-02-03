@@ -116,7 +116,30 @@ const SidebarMenuButton = React.forwardRef<
       )}
       {...props}
     >
-      {children}
+      {React.Children.map(children, (child, index) => {
+        // Always render the first child (Icon)
+        if (index === 0) return child
+
+        // Handle the second child (Text label)
+        if (index === 1) {
+          if (typeof child === "string" || (React.isValidElement(child) && child.type === "span")) {
+            const text = typeof child === "string" ? child : child.props.children
+            return (
+              <span
+                className={cn(
+                  "whitespace-nowrap transition-all duration-300 overflow-hidden",
+                  effectiveOpen
+                    ? "opacity-100 translate-x-0 max-w-full"
+                    : "opacity-0 max-w-0 -translate-x-2 pointer-events-none absolute"
+                )}
+              >
+                {text}
+              </span>
+            )
+          }
+        }
+        return null
+      })}
     </Button>
   )
 

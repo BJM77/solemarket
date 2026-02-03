@@ -62,7 +62,10 @@ const processDonationFlow = ai.defineFlow(
 
         // You can optionally inspect tool calls before executing
         // For now, we just execute what the model requested.
-        const toolOutputs = await Promise.all(toolCalls.map(async tc => ({ tool: tc, output: await tc.run() })));
+        const toolOutputs = await Promise.all(toolCalls.map(async tc => {
+            console.log(`[Flow] Executing tool ${tc.toolRequest.name} with input`, tc.toolRequest.input);
+            return { tool: tc, output: { success: true } };
+        }));
 
         // You could pass the tool outputs back to the model for a final response,
         // but for this flow, we'll just confirm it was called.

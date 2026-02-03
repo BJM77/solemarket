@@ -26,7 +26,16 @@ export default function Footer() {
           <div className="flex items-center gap-2 text-primary mb-6">
             <Logo />
           </div>
-          <p className="text-sm text-gray-500 max-w-xs">Picksy is the premier marketplace for collectors</p>
+          <p className="text-sm text-gray-500 max-w-xs mb-4">Picksy is the premier marketplace for collectors</p>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Contact Us
+          </Link>
         </div>
         {Object.entries(footerLinks).map(([category, links]) => (
           <div key={category}>

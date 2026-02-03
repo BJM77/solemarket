@@ -8,7 +8,8 @@ import { Auth, User, onAuthStateChanged, signInWithEmailAndPassword, createUserW
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import type { SafeUser } from './auth/use-user';
 import { app, auth as authInstance, db } from '@/lib/firebase/config';
-import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { syncUserOnLogin } from '@/app/actions/auth';
 
 /**
  * Creates a plain, serializable object from a Firebase User object.
@@ -88,64 +89,30 @@ export const FirebaseProvider: React.FC<{
         return;
       }
 
-      const oneTimeSetup = async (user: User) => {
-        try {
-          console.log("[Setup] Starting one-time setup for user:", user.uid);
-
-          // Identify super admin by UID or email list
-          const isSuperAdminUser = user.uid === 'O5nCLgbIaRRRF369K0kjgT59io73' || (user.email && SUPER_ADMIN_EMAILS.includes(user.email));
-
-          if (isSuperAdminUser) {
-            console.log("[Setup] User identified as Super Admin.");
-            const userRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (userSnap.exists() && (!userSnap.data().isAdmin || userSnap.data().role !== 'superadmin')) {
-              console.log("[Setup] Updating existing user profile with admin role...");
-              await setDoc(userRef, { isAdmin: true, role: 'superadmin', canSell: true }, { merge: true });
-              console.log("[Setup] Admin role set.");
-            } else if (!userSnap.exists()) {
-              console.log("[Setup] Creating new super admin profile...");
-              await setDoc(userRef, {
-                email: user.email,
-                displayName: user.displayName || 'Super Admin',
-                isAdmin: true,
-                role: 'superadmin',
-                canSell: true,
-                createdAt: new Date(),
-              }, { merge: true });
-              console.log("[Setup] Super admin profile created.");
-            }
-
-            console.log("[Setup] Checking platform stats...");
-            const statsRef = doc(db, 'platform_stats', 'global');
-            try {
-              const statsSnap = await getDoc(statsRef);
-              if (!statsSnap.exists()) {
-                console.log("[Setup] Initializing platform stats...");
-                await setDoc(statsRef, {
-                  totalRevenue: 0,
-                  activeSellers: 0,
-                  disputeCount: 0,
-                  totalItems: 0,
-                });
-                console.log("[Setup] Platform stats initialized.");
-              }
-            } catch (statsErr) {
-              console.warn("[Setup] Optional: Platform stats check failed (likely permissions):", statsErr);
-            }
-          }
-          console.log("[Setup] Setup process complete.");
-        } catch (error) {
-          console.error("[Setup] Critical setup error:", error);
-        }
-      };
-
       const unsubscribe = onAuthStateChanged(
         authService,
-        (firebaseUser) => { // Raw Firebase user
+        async (firebaseUser) => { // Raw Firebase user
           if (firebaseUser) {
-            oneTimeSetup(firebaseUser).catch(console.error);
+            try {
+              const token = await firebaseUser.getIdToken();
+              // 1. Sync Session Cookie
+              await fetch("/api/auth/session", {
+                method: "POST",
+                body: JSON.stringify({ idToken: token }),
+              });
+
+              // 2. Sync User Data (Server Action)
+              // Dynamically import to avoid server-action-in-client-component issues if not carefully handled, 
+              // though importing server action in client component IS allowed in Next.js.
+              // We'll use the imported function.
+              await syncUserOnLogin(token);
+
+            } catch (err) {
+              console.error("Failed to sync session/user:", err);
+            }
+          } else {
+            // Clear session cookie
+            await fetch("/api/auth/session", { method: "DELETE" });
           }
           setUserAuthState({ user: getSafeUser(firebaseUser), isUserLoading: false, userError: null });
         },

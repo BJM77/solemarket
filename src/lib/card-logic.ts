@@ -19,7 +19,7 @@ export function verifyCard(
     const isPrizmRookie =
         isKeeper &&
         extractedDetails.cardBrand?.toLowerCase().includes('prizm') === true &&
-        extractedDetails.cardType?.toLowerCase().includes('rookie') === true;
+        extractedDetails.cardColor?.toLowerCase().includes('rookie') === true;
 
     return { isKeeper, isPrizmRookie };
 }
@@ -30,7 +30,7 @@ export function verifyCard(
 export function formatCardDetails(item: {
     name: string;
     brand?: string;
-    cardType?: string;
+    cardColor?: string;
     sport?: string;
     cardYear?: number | null;
 }): string {
@@ -38,7 +38,7 @@ export function formatCardDetails(item: {
 
     if (item.cardYear) parts.push(`${item.cardYear}`);
     if (item.brand) parts.push(item.brand);
-    if (item.cardType) parts.push(item.cardType);
+    if (item.cardColor) parts.push(item.cardColor);
     if (item.sport) parts.push(item.sport);
 
     return parts.join(' • ');

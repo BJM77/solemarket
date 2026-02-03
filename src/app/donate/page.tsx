@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { createDonation } from "@/lib/firebase/client-ops";
+import { getCurrentUserIdToken } from "@/lib/firebase/auth";
 import { Gift, Package, Send } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
@@ -63,7 +64,13 @@ export default function DonatePage() {
   async function onSubmit(values: DonationFormValues) {
     setIsLoading(true);
     try {
-      await createDonation(values);
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) {
+        toast({ title: "Please sign in", description: "You must be signed in to make a donation.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+      await createDonation(values, idToken);
       toast({
         title: "Donation Submitted!",
         description:

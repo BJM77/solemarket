@@ -9,7 +9,7 @@ import {
   persistentMultipleTabManager
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
-import { getPerformance, Performance } from "firebase/performance";
+import { getPerformance, FirebasePerformance } from "firebase/performance";
 import { connectAuthEmulator } from "firebase/auth";
 import { connectFirestoreEmulator } from "firebase/firestore";
 
@@ -65,7 +65,7 @@ if (!getApps().length) {
 // to prevent errors during server-side rendering or build steps.
 let auth: Auth;
 let storage: FirebaseStorage;
-let perf: Performance | undefined;
+let perf: FirebasePerformance | undefined;
 
 if (typeof window !== 'undefined') {
   try {

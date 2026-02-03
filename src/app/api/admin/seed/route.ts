@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
 
         // Seed Categories
         const categories: Category[] = [
-            { id: 'cat_cards', name: 'Trading Cards', description: 'Collectible trading cards', imageUrl: PlaceHolderImages.find(i => i.id === 'category-cards')?.imageUrl, slug: 'trading-cards' },
-            { id: 'cat_coins', name: 'Coins & Paper Money', description: 'Rare coins and currency', imageUrl: PlaceHolderImages.find(i => i.id === 'category-coins')?.imageUrl, slug: 'coins-paper-money' },
-            { id: 'cat_comics', name: 'Comics', description: 'Vintage and modern comics', imageUrl: PlaceHolderImages.find(i => i.id === 'product-comic-1')?.imageUrl, slug: 'comics' },
-            { id: 'cat_memorabilia', name: 'Sports Memorabilia', description: 'Signed gear and apparel', imageUrl: PlaceHolderImages.find(i => i.id === 'hero')?.imageUrl, slug: 'sports-memorabilia' },
+            { id: 'cat_cards', name: 'Trading Cards', description: 'Collectible trading cards', imageUrl: PlaceHolderImages.find(i => i.id === 'category-cards')?.imageUrl, slug: 'trading-cards', section: 'Marketplace' },
+            { id: 'cat_coins', name: 'Coins & Paper Money', description: 'Rare coins and currency', imageUrl: PlaceHolderImages.find(i => i.id === 'category-coins')?.imageUrl, slug: 'coins-paper-money', section: 'Marketplace' },
+            { id: 'cat_comics', name: 'Comics', description: 'Vintage and modern comics', imageUrl: PlaceHolderImages.find(i => i.id === 'product-comic-1')?.imageUrl, slug: 'comics', section: 'Marketplace' },
+            { id: 'cat_memorabilia', name: 'Sports Memorabilia', description: 'Signed gear and apparel', imageUrl: PlaceHolderImages.find(i => i.id === 'hero')?.imageUrl, slug: 'sports-memorabilia', section: 'Marketplace' },
         ];
 
         const categoryBatch = firestoreDb.batch();

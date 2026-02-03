@@ -7,9 +7,9 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 interface ShopPageProps {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
 export async function generateMetadata({ params }: ShopPageProps): Promise<Metadata> {

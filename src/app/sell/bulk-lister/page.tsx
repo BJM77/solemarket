@@ -119,6 +119,7 @@ function BulkListerPage() {
         const dataUri = await fileToDataUri(card.file);
         const suggestions = await suggestListingDetails({
           photoDataUris: [dataUri],
+          idToken,
         });
 
         // 2. Upload image
@@ -146,7 +147,7 @@ function BulkListerPage() {
         // 4. Create product via Server Action
         const result = await createProductAction(idToken, productData);
         if (!result.success) {
-            throw new Error(result.error);
+          throw new Error(result.error);
         }
         createdCount++;
       } catch (error: any) {
@@ -174,7 +175,7 @@ function BulkListerPage() {
         title="Bulk AI Lister"
         description="Upload photos of your cards, set your prices, and let our AI do the heavy lifting."
       />
-       <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
+      <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
 
       <Card>
         <CardHeader>

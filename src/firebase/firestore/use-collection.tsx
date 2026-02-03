@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useFirebase } from '../provider'; 
+import { useFirebase } from '../provider';
 
 /** Utility type to add an 'id' field to a given type T. */
 export type WithId<T> = T & { id: string };
@@ -53,13 +53,14 @@ export interface InternalQuery extends Query<DocumentData> {
  * @returns {UseCollectionResult<T>} Object with data, isLoading, error.
  */
 export function useCollection<T = any>(
-    memoizedTargetRefOrQuery: ((CollectionReference<DocumentData> | Query<DocumentData>) & {__memo?: boolean})  | null | undefined,
+  memoizedTargetRefOrQuery: ((CollectionReference<DocumentData> | Query<DocumentData>) & { __memo?: boolean }) | null | undefined,
+  options?: { initialData?: WithId<T>[] | null }
 ): UseCollectionResult<T> {
   type ResultItemType = WithId<T>;
   type StateDataType = ResultItemType[] | null;
 
-  const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Start as true
+  const [data, setData] = useState<StateDataType>(options?.initialData || null);
+  const [isLoading, setIsLoading] = useState<boolean>(!options?.initialData); // Start as false if initialData is provided
   const [error, setError] = useState<FirestoreError | Error | null>(null);
   const { isUserLoading } = useFirebase();
 
@@ -82,9 +83,9 @@ export function useCollection<T = any>(
     }
 
     const path: string =
-        memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
+      memoizedTargetRefOrQuery.type === 'collection'
+        ? (memoizedTargetRefOrQuery as CollectionReference).path
+        : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
 
     setTimeout(() => {
       setIsLoading(true);
@@ -104,17 +105,17 @@ export function useCollection<T = any>(
       },
       (error: FirestoreError) => {
         if (error.code === 'permission-denied') {
-            const contextualError = new FirestorePermissionError({
-                operation: 'list',
-                path,
-            });
-            setError(contextualError);
-            errorEmitter.emit('permission-error', contextualError);
+          const contextualError = new FirestorePermissionError({
+            operation: 'list',
+            path,
+          });
+          setError(contextualError);
+          errorEmitter.emit('permission-error', contextualError);
         } else {
-            console.error("Firestore Error:", error);
-            setError(error);
+          console.error("Firestore Error:", error);
+          setError(error);
         }
-        
+
         setData(null);
         setIsLoading(false);
       }
@@ -122,8 +123,8 @@ export function useCollection<T = any>(
 
     return () => unsubscribe();
   }, [memoizedTargetRefOrQuery, isUserLoading]);
-  
-  if(memoizedTargetRefOrQuery && !(memoizedTargetRefOrQuery as any).__memo) {
+
+  if (memoizedTargetRefOrQuery && !(memoizedTargetRefOrQuery as any).__memo) {
     if (process.env.NODE_ENV === 'development') {
       const errorMsg = 'A query passed to useCollection was not properly memoized using useMemoFirebase. This will cause infinite render loops.';
       console.error(errorMsg);

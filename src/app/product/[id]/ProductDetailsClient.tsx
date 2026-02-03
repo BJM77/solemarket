@@ -97,7 +97,7 @@ export default function ProductDetailsClient({
     });
 
     const sellerRef = useMemoFirebase(() => product?.sellerId ? doc(db, 'users', product.sellerId) : null, [product?.sellerId]);
-    const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller });
+    const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller ?? undefined });
 
     const reviewsQuery = useMemoFirebase(() =>
         query(

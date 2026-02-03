@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+
 import { z } from "zod";
 import {
     moderateContent,
@@ -51,7 +53,16 @@ export async function moderateProductAction(
     }
 
     try {
-        const result = await moderateContent(validatedFields.data);
+        const cookieStore = await cookies();
+        const idToken = cookieStore.get('session')?.value;
+
+        if (!idToken) {
+            return {
+                error: "Authentication required for moderation.",
+            };
+        }
+
+        const result = await moderateContent({ ...validatedFields.data, idToken });
         return {
             result,
             message: "Content moderated successfully.",
@@ -94,7 +105,16 @@ export async function detectFraudAction(
     }
 
     try {
-        const result = await detectFraud(validatedFields.data);
+        const cookieStore = await cookies();
+        const idToken = cookieStore.get('session')?.value;
+
+        if (!idToken) {
+            return {
+                error: "Authentication required for fraud analysis.",
+            };
+        }
+
+        const result = await detectFraud({ ...validatedFields.data, idToken });
         return {
             result,
             message: "Fraud analysis complete.",

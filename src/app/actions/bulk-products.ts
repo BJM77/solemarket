@@ -18,7 +18,7 @@ type BulkCreateProductData = {
     imageUrls: string[];
 };
 
-export type BulkCreateProductResult = 
+export type BulkCreateProductResult =
     | { success: true; count: number; }
     | { success: false; error: string; };
 
@@ -46,7 +46,7 @@ export async function bulkCreateProductsFromCSV(
 
         productsData.forEach(productData => {
             const docRef = productsCollection.doc(); // Auto-generate ID
-            
+
             const finalData: Product = {
                 ...(productData as Omit<Product, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName' | 'sellerAvatar' | 'status' | 'isDraft' | 'createdAt' | 'updatedAt'>),
                 id: docRef.id,
@@ -56,10 +56,10 @@ export async function bulkCreateProductsFromCSV(
                 sellerAvatar: userProfile.photoURL,
                 status: 'available',
                 isDraft: false,
-                createdAt: admin.firestore.FieldValue.serverTimestamp() as admin.firestore.Timestamp,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp() as admin.firestore.Timestamp,
+                createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
             };
-            
+
             batch.set(docRef, finalData);
         });
 

@@ -10,28 +10,23 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=*, microphone=(), geolocation=()');
 
-  // 2. Route Protection (Requires Cookie Sync)
-  // Since we are currently using client-side Firebase Auth, the server doesn't see the user's token by default.
-  // To enable the blocking logic below, you must implement a mechanism to sync the Fireabse ID token to a 'session' cookie.
-
-  /* 
+  // 2. Route Protection
   const session = request.cookies.get('session') || request.cookies.get('__session');
   const isAuth = !!session;
- 
+
   // Protect Admin Routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!isAuth) {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }
- 
+
   // Protect Seller Routes
   if (request.nextUrl.pathname.startsWith('/sell')) {
     if (!isAuth) {
-       return NextResponse.redirect(new URL('/sign-in', request.url));
+      return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }
-  */
 
   return response;
 }

@@ -3,6 +3,7 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import type { Product, Review, Category, Seller } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
+import { cache } from 'react';
 
 // Helper to serialize Admin Timestamps to plain objects for Client Components
 const serializeData = (docData: any, docId: string) => {
@@ -31,7 +32,7 @@ const serializeData = (docData: any, docId: string) => {
     return serialized;
 };
 
-export async function getProductById(id: string): Promise<Product | null> {
+export const getProductById = cache(async (id: string): Promise<Product | null> => {
     try {
         const docSnap = await firestoreDb.collection('products').doc(id).get();
         if (docSnap.exists) {
@@ -42,7 +43,7 @@ export async function getProductById(id: string): Promise<Product | null> {
         console.error(`Failed to fetch product ${id}:`, e.message);
         return null;
     }
-}
+});
 
 export async function getReviewsForProduct(productId: string): Promise<Review[]> {
     try {
