@@ -77,9 +77,8 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 
-  const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
 
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
 
   // Bulk Edit State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
