@@ -92,7 +92,9 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     }, userRole as string),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => lastPage.hasMore ? allPages.length + 1 : undefined,
-    staleTime: 1000 * 60 * 2, // 2 minutes,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    enabled: hasMounted, // Only fetch after component has mounted
+    refetchOnMount: true,
   });
 
 
