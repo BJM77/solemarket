@@ -27,6 +27,7 @@ export async function updateUserProfile(user: SafeUser, data: {
   storeName?: string;
   storeDescription?: string;
   bannerUrl?: string;
+  shopSlug?: string;
 }) {
   if (!user || !auth.currentUser) {
     throw new Error("User not authenticated.");
@@ -45,6 +46,7 @@ export async function updateUserProfile(user: SafeUser, data: {
     storeName: data.storeName || '',
     storeDescription: data.storeDescription || '',
     bannerUrl: data.bannerUrl || '',
+    shopSlug: data.shopSlug || '',
   });
 }
 

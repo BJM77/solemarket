@@ -62,6 +62,7 @@ export type UserProfile = {
   isFounder?: boolean;
   warningCount?: number;
   isBanned?: boolean;
+  shopSlug?: string;
 };
 
 export type Product = {

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { getProducts } from '@/services/product-service';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
@@ -52,14 +53,33 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [hasMounted, setHasMounted] = useState(false);
+  const { user } = useUser();
+  const { userProfile } = useUserPermissions();
+  const userRole = userProfile?.role;
 
-  const loadingRef = useRef(false);
-  const hasMoreRef = useRef(true);
-  const pageRef = useRef(0);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    isLoading
+  } = useInfiniteQuery({
+    queryKey: ['products', currentSearchParams, userRole],
+    queryFn: ({ pageParam = 1 }) => getProducts({
+      ...currentSearchParams,
+      page: pageParam,
+      limit: PAGE_SIZE
+    }, userRole as string),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => lastPage.hasMore ? allPages.length + 1 : undefined,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
 
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Bulk Edit State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -155,66 +175,18 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     handleFilterChange('view', mode);
   };
 
-  const loadMoreProducts = useCallback(async () => {
-    if (loadingRef.current || !hasMoreRef.current) return;
-
-    loadingRef.current = true;
-    // Don't set loading(true) here for every page, only initial is controlled by useEffect usually
-    // But for better UX maybe? No, infinite scroll usually doesn't show big loader.
-
-    pageRef.current += 1;
-    const currentPage = pageRef.current;
-
-    try {
-      const { products: newProducts, hasMore: newHasMore } = await getProducts({
-        ...currentSearchParams,
-        page: currentPage,
-        limit: PAGE_SIZE,
-      }, userRole as string);
-
-      setProducts(prev => {
-        if (currentPage === 1) return newProducts;
-        // Convert both IDs to strings ensuring consistency
-        const existingIds = new Set(prev.map(p => String(p.id)));
-        const uniqueNew = newProducts.filter(p => !existingIds.has(String(p.id)));
-        return [...prev, ...uniqueNew];
-      });
-
-      hasMoreRef.current = newHasMore;
-      setHasMore(newHasMore);
-
-    } catch (error) {
-      console.error("Failed to load products:", error);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [currentSearchParams, userRole]);
-
-  useEffect(() => {
-    pageRef.current = 0;
-    setProducts([]);
-    hasMoreRef.current = true;
-    setHasMore(true);
-    loadingRef.current = false;
-    setLoading(true);
-    loadMoreProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-
   const lastProductElementRef = useCallback((node: HTMLDivElement) => {
-    if (loadingRef.current) return;
+    if (isLoading || isFetchingNextPage) return;
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMoreRef.current) {
-        loadMoreProducts();
+      if (entries[0].isIntersecting && hasNextPage) {
+        fetchNextPage();
       }
     });
 
     if (node) observer.current.observe(node);
-  }, [loadMoreProducts]);
+  }, [fetchNextPage, hasNextPage, isLoading, isFetchingNextPage]);
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -554,13 +526,13 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
       {renderProducts()}
 
-      {loading && products.length > 0 && (
+      {isFetchingNextPage && (
         <div className="flex justify-center mt-8">
           <Loader2 className="animate-spin" />
         </div>
       )}
 
-      {!hasMore && products.length > 0 && (
+      {!hasNextPage && products.length > 0 && (
         <div className="py-12 text-center text-muted-foreground">
           <p>You&apos;ve reached the end of the list.</p>
         </div>

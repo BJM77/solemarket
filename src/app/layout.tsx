@@ -10,6 +10,7 @@ import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
 import { Outfit } from 'next/font/google';
+import QueryProvider from '@/providers/QueryProvider';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -97,19 +98,21 @@ export default function RootLayout({
         />
         <ErrorBoundary>
           <FirebaseProvider>
-            <SidebarProvider>
-              <CartProvider>
-                <ViewedProductsProvider>
-                  <GoogleAnalytics />
-                  <Header />
-                  <main className="min-h-screen">
-                    {children}
-                  </main>
-                  <Footer />
-                  <CartDrawer />
-                </ViewedProductsProvider>
-              </CartProvider>
-            </SidebarProvider>
+            <QueryProvider>
+              <SidebarProvider>
+                <CartProvider>
+                  <ViewedProductsProvider>
+                    <GoogleAnalytics />
+                    <Header />
+                    <main className="min-h-screen">
+                      {children}
+                    </main>
+                    <Footer />
+                    <CartDrawer />
+                  </ViewedProductsProvider>
+                </CartProvider>
+              </SidebarProvider>
+            </QueryProvider>
           </FirebaseProvider>
           <Toaster />
         </ErrorBoundary>

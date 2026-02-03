@@ -5,25 +5,7 @@ import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryCon
 
 const PAGE_SIZE = 24;
 
-// Simple memory cache for products
-interface CacheEntry {
-  data: { products: Product[], hasMore: boolean };
-  timestamp: number;
-}
-const productCache = new Map<string, CacheEntry>();
-const CACHE_EXPIRATION_MS = 2 * 60 * 1000; // 2 minutes
-
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean }> {
-  // Create a unique key for the current search
-  const cacheKey = JSON.stringify({ ...searchParams, userRole });
-
-  // Check cache
-  const cached = productCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_EXPIRATION_MS) {
-    console.log('[CACHE HIT] Returning cached products for:', cacheKey);
-    return cached.data;
-  }
-
   const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange } = searchParams;
 
   const productsRef = collection(db, 'products');
@@ -217,9 +199,6 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const hasMore = querySnapshot.docs.length === PAGE_SIZE;
 
   const result = { products, hasMore };
-
-  // Store in cache
-  productCache.set(cacheKey, { data: result, timestamp: Date.now() });
 
   return result;
 }

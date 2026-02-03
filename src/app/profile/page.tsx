@@ -13,7 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useUser } from '@/firebase';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CheckCircle2, ShoppingBag, AlertTriangle, MessageSquare, Loader2, Edit } from 'lucide-react';
+import { CheckCircle2, ShoppingBag, AlertTriangle, MessageSquare, Loader2, Edit, Globe, ExternalLink, Image as ImageIcon, Check, X } from 'lucide-react';
+import { isSlugAvailable } from '@/app/actions/seller';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -35,6 +36,12 @@ const profileSchema = z.object({
   storeName: z.string().min(2, 'Store name must be at least 2 characters.').optional(),
   storeDescription: z.string().max(500, 'Description cannot exceed 500 characters.').optional(),
   bannerUrl: z.string().url('Please enter a valid URL.').or(z.literal('')).optional(),
+  shopSlug: z.string()
+    .min(3, 'Slug must be at least 3 characters.')
+    .max(30, 'Slug cannot exceed 30 characters.')
+    .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.')
+    .or(z.literal(''))
+    .optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -43,6 +50,7 @@ export default function ProfileDetailsPage() {
   const { user } = useUser();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -61,9 +69,33 @@ export default function ProfileDetailsPage() {
         storeName: (user as any).storeName || '',
         storeDescription: (user as any).storeDescription || '',
         bannerUrl: (user as any).bannerUrl || '',
+        shopSlug: (user as any).shopSlug || '',
       });
     }
   }, [user, form]);
+
+  const watchSlug = form.watch('shopSlug');
+
+  useEffect(() => {
+    const checkSlug = async () => {
+      if (!watchSlug || watchSlug === (user as any)?.shopSlug) {
+        setSlugStatus('idle');
+        return;
+      }
+
+      if (watchSlug.length < 3 || !/^[a-z0-9-]+$/.test(watchSlug)) {
+        setSlugStatus('idle');
+        return;
+      }
+
+      setSlugStatus('checking');
+      const available = await isSlugAvailable(watchSlug, user?.uid);
+      setSlugStatus(available ? 'available' : 'taken');
+    };
+
+    const timer = setTimeout(checkSlug, 500);
+    return () => clearTimeout(timer);
+  }, [watchSlug, user?.uid, (user as any)?.shopSlug]);
 
   const onSubmit = (data: ProfileFormValues) => {
     if (!user) {
@@ -135,11 +167,22 @@ export default function ProfileDetailsPage() {
                 )}
               />
 
-              <div className="pt-4 border-t">
-                <h3 className="text-lg font-semibold mb-4 text-slate-900 flex items-center gap-2">
-                  <ShoppingBag className="h-5 w-5 text-primary" />
-                  Storefront Branding
-                </h3>
+              <div className="pt-6 border-t space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <ShoppingBag className="h-5 w-5 text-primary" />
+                    Storefront Branding
+                  </h3>
+                  <Button variant="outline" size="sm" asChild className="gap-2 h-8 text-xs">
+                    <Link href={`/shop/${(user as any)?.shopSlug || user?.uid}`} target="_blank">
+                      <ExternalLink className="h-3 w-3" />
+                      Preview Shop
+                    </Link>
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Customize your dedicated shop page to stand out to buyers.
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -160,10 +203,47 @@ export default function ProfileDetailsPage() {
                     name="bannerUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Banner Image URL</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                          Banner Image URL
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://..." {...field} />
+                          <Input placeholder="https://vibrant-banner-image.jpg" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="shopSlug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                          Custom Shop URL
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                              picksy.au/shop/
+                            </span>
+                            <Input
+                              placeholder="your-shop-name"
+                              className="pl-[104px]"
+                              {...field}
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              {slugStatus === 'checking' && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                              {slugStatus === 'available' && <Check className="h-4 w-4 text-emerald-500" />}
+                              {slugStatus === 'taken' && <X className="h-4 w-4 text-destructive" />}
+                            </div>
+                          </div>
+                        </FormControl>
+                        {slugStatus === 'taken' && (
+                          <p className="text-[0.8rem] font-medium text-destructive">This URL is already taken.</p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -190,7 +270,7 @@ export default function ProfileDetailsPage() {
 
               <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" asChild className="gap-2">
-                  <Link href={`/shop/${user?.uid}`}>
+                  <Link href={`/shop/${(user as any)?.shopSlug || user?.uid}`}>
                     <ShoppingBag className="h-4 w-4" />
                     View My Shop
                   </Link>

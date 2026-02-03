@@ -126,6 +126,8 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                   style={zoomStyle}
                   priority={selectedIndex === 0}
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  placeholder="blur"
+                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                 />
               </motion.div>
             ) : (
@@ -207,6 +209,8 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                   alt={`Thumbnail ${index + 1}`}
                   fill
                   className="object-cover"
+                  placeholder="blur"
+                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                 />
               </button>
             ))}

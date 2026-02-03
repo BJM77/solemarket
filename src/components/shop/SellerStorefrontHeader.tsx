@@ -23,6 +23,8 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                         fill
                         className="object-cover"
                         priority
+                        placeholder="blur"
+                        blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                     />
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-80" />
@@ -40,6 +42,8 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                                 alt={profile.displayName}
                                 fill
                                 className="object-cover"
+                                placeholder="blur"
+                                blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                             />
                         ) : (
                             <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground text-3xl font-bold">

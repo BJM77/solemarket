@@ -467,6 +467,8 @@ export default function ProductCard({
                   fill
                   className="object-cover transition-transform duration-300 group-hover/image:scale-105"
                   sizes="(max-width: 640px) 100vw, 192px"
+                  placeholder="blur"
+                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                 />
               </Link>
               <Button
@@ -714,6 +716,8 @@ export default function ProductCard({
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              placeholder="blur"
+              blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
             />
           </Link>
         )}

@@ -4,6 +4,7 @@ import { getSellerProfile } from '@/app/actions/seller';
 import { SellerStorefrontHeader } from '@/components/shop/SellerStorefrontHeader';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 interface ShopPageProps {
     params: {
@@ -12,7 +13,8 @@ interface ShopPageProps {
 }
 
 export async function generateMetadata({ params }: ShopPageProps): Promise<Metadata> {
-    const { profile } = await getSellerProfile(params.id);
+    const { id } = await params;
+    const { profile } = await getSellerProfile(id);
 
     if (!profile) {
         return {
@@ -31,10 +33,16 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 }
 
 export default async function ShopPage({ params }: ShopPageProps) {
-    const { profile, error } = await getSellerProfile(params.id);
+    const { id } = await params;
+    const { profile, error } = await getSellerProfile(id);
 
     if (error || !profile) {
         notFound();
+    }
+
+    // Redirect to slug-based URL if a slug exists and the current path uses the ID
+    if (profile.shopSlug && id === profile.id) {
+        redirect(`/shop/${profile.shopSlug}`);
     }
 
     return (
@@ -54,7 +62,7 @@ export default async function ShopPage({ params }: ShopPageProps) {
 
                     <InfiniteProductGrid
                         pageTitle=""
-                        initialFilterState={{ sellers: [params.id] }}
+                        initialFilterState={{ sellers: [id] }}
                     />
                 </div>
             </div>
