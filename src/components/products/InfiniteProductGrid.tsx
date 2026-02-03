@@ -53,10 +53,28 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+
   const [hasMounted, setHasMounted] = useState(false);
   const { user } = useUser();
   const { userProfile } = useUserPermissions();
   const userRole = userProfile?.role;
+
+  // Define currentSearchParams BEFORE using it in useInfiniteQuery
+  const currentSearchParams = useMemo(() => {
+    const params: ProductSearchParams = { ...initialFilterState };
+    searchParams.forEach((value, key) => {
+      if (key === 'priceRange' || key === 'yearRange') {
+        params[key] = value.split(',').map(Number) as [number, number];
+      } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
+        params[key] = value.split(',');
+      } else if (key === 'verifiedOnly') {
+        params[key] = value === 'true';
+      } else {
+        params[key] = value;
+      }
+    });
+    return params;
+  }, [searchParams, initialFilterState]);
 
   const {
     data,
@@ -74,7 +92,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     }, userRole as string),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => lastPage.hasMore ? allPages.length + 1 : undefined,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 2, // 2 minutes,
   });
 
 
@@ -93,22 +111,6 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   const observer = useRef<IntersectionObserver>();
-
-  const currentSearchParams = useMemo(() => {
-    const params: ProductSearchParams = { ...initialFilterState };
-    searchParams.forEach((value, key) => {
-      if (key === 'priceRange' || key === 'yearRange') {
-        params[key] = value.split(',').map(Number) as [number, number];
-      } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
-        params[key] = value.split(',');
-      } else if (key === 'verifiedOnly') {
-        params[key] = value === 'true';
-      } else {
-        params[key] = value;
-      }
-    });
-    return params;
-  }, [searchParams, initialFilterState]);
 
   // Filter specific states, derived from URL
   const [viewMode, setViewMode] = useState<ViewMode>((currentSearchParams.view as ViewMode) || 'grid');
