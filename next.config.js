@@ -76,7 +76,7 @@ const nextConfig = {
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      connect-src 'self' https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; 
+      connect-src 'self' https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://firebaseinstallations.googleapis.com https://firebaselogging.googleapis.com; 
       upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim();
 
