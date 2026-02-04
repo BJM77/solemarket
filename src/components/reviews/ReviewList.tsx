@@ -14,25 +14,25 @@ interface ReviewListProps {
 }
 
 function ReviewSkeleton() {
-    return (
-        <div className="flex gap-4">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-            </div>
-        </div>
-    )
+  return (
+    <div className="flex gap-4">
+      <Skeleton className="h-10 w-10 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
+  )
 }
 
 export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
   if (isLoading) {
     return (
-        <div className="space-y-6">
-            <ReviewSkeleton />
-            <ReviewSkeleton />
-        </div>
+      <div className="space-y-6">
+        <ReviewSkeleton />
+        <ReviewSkeleton />
+      </div>
     )
   }
 
@@ -60,16 +60,30 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold">{review.buyerName}</h4>
                   <span className="text-xs text-muted-foreground">
-                    {review.createdAt && formatDistanceToNow(review.createdAt.toDate(), { addSuffix: true })}
+                    {(() => {
+                      if (!review.createdAt) return '';
+                      let date: Date | null = null;
+
+                      if ((review.createdAt as any).toDate) {
+                        date = (review.createdAt as any).toDate();
+                      } else if (typeof review.createdAt === 'string') {
+                        date = new Date(review.createdAt);
+                      } else if ((review.createdAt as any).seconds) {
+                        date = new Date((review.createdAt as any).seconds * 1000);
+                      }
+
+                      return date && !isNaN(date.getTime())
+                        ? formatDistanceToNow(date, { addSuffix: true })
+                        : '';
+                    })()}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-1">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${
-                        i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-                      }`}
+                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                        }`}
                     />
                   ))}
                 </div>

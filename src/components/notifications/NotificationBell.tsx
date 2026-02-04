@@ -101,7 +101,15 @@ export function NotificationBell() {
                   <p className="font-semibold text-sm">{notif.title}</p>
                   <p className="text-xs text-muted-foreground">{notif.message}</p>
                   <p className="text-xs text-muted-foreground/80 mt-1">
-                    {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt.seconds * 1000), { addSuffix: true }) : 'Just now'}
+                    {(() => {
+                      if (!notif.createdAt) return 'Just now';
+                      const date = typeof notif.createdAt === 'string'
+                        ? new Date(notif.createdAt)
+                        : new Date((notif.createdAt as any).seconds * 1000);
+                      return !isNaN(date.getTime())
+                        ? formatDistanceToNow(date, { addSuffix: true })
+                        : 'Just now';
+                    })()}
                   </p>
                 </div>
               </Link>
