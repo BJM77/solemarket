@@ -31,6 +31,8 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
         // Use Promise.all for concurrency
         await Promise.all(sellersSnapshot.docs.map(async (doc) => {
             const userData = doc.data() as UserProfile;
+            
+            if (!doc.id) return;
 
             // Basic check to ensure they actually look like a seller (have a store name or are verified)
             // or just list them all. User request implies "list of sellers".

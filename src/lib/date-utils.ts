@@ -8,15 +8,22 @@ export function safeDate(input: any): Date {
     if (!input) return new Date();
 
     // If it's already a Date
-    if (input instanceof Date) return input;
+    if (input instanceof Date) {
+        return isNaN(input.getTime()) ? new Date() : input;
+    }
 
     // If it's a Firestore Timestamp (has toDate method)
     if (typeof input.toDate === 'function') {
-        return input.toDate();
+        try {
+            return input.toDate();
+        } catch (e) {
+            return new Date();
+        }
     }
 
     // If it's a serialized Timestamp (has seconds/nanoseconds but lost methods)
     if (typeof input.seconds === 'number') {
+        if (isNaN(input.seconds)) return new Date();
         return new Date(input.seconds * 1000);
     }
 

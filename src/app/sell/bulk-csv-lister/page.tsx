@@ -52,10 +52,10 @@ export default function BulkCsvListerPage() {
       setCsvFile(file);
       setParsedData([]);
       setValidationErrors([]);
-      Papa.parse<CSVRow>(file, {
+      Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: (results: any) => {
           const errors: string[] = [];
           if (results.errors.length > 0) {
             errors.push('CSV parsing failed. Check for formatting errors.');
