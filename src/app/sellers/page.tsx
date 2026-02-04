@@ -61,7 +61,17 @@ export default async function SellersPage() {
                                             <p className="text-sm text-muted-foreground truncate">{seller.displayName}</p>
                                         )}
                                         <p className="text-xs text-gray-500 mt-1">
-                                            Joined {seller.createdAt ? new Date(seller.createdAt.seconds * 1000).toLocaleDateString() : 'Recently'}
+                                            Joined {(() => {
+                                                const date = typeof seller.createdAt === 'string'
+                                                    ? new Date(seller.createdAt)
+                                                    : seller.createdAt && (seller.createdAt as any).seconds
+                                                        ? new Date((seller.createdAt as any).seconds * 1000)
+                                                        : null;
+
+                                                return date && !isNaN(date.getTime())
+                                                    ? date.toLocaleDateString()
+                                                    : 'Recently';
+                                            })()}
                                         </p>
                                     </div>
                                 </div>
