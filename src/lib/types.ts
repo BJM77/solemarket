@@ -134,6 +134,7 @@ export type ProductSearchParams = {
   sellers?: string[];
   yearRange?: [number, number];
   verifiedOnly?: boolean;
+  lastId?: string;
 };
 
 

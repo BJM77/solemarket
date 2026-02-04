@@ -1,11 +1,12 @@
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
-import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
+import { serializeFirestoreData } from '@/lib/utils';
 
 const PAGE_SIZE = 24;
 
-export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean }> {
+export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string }> {
   const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange } = searchParams;
 
   const productsRef = collection(db, 'products');
@@ -131,16 +132,15 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   let finalQuery: Query<DocumentData>;
 
-  if (page > 1) {
-    const prevPageLimit = (page - 1) * PAGE_SIZE;
-    const prevPagesQuery = query(productsRef, ...finalConstraints, limit(prevPageLimit));
-    const prevPagesSnapshot = await getDocs(prevPagesQuery);
-    const lastVisible = prevPagesSnapshot.docs[prevPagesSnapshot.docs.length - 1];
+  if (searchParams.lastId) {
+    const lastDocRef = doc(db, 'products', searchParams.lastId);
+    const lastDocSnap = await getDoc(lastDocRef);
 
-    if (lastVisible) {
-      finalQuery = query(productsRef, ...finalConstraints, startAfter(lastVisible), limit(PAGE_SIZE));
+    if (lastDocSnap.exists()) {
+      finalQuery = query(productsRef, ...finalConstraints, startAfter(lastDocSnap), limit(PAGE_SIZE));
     } else {
-      finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
+      // Cursor invalid or not found, return empty
+      return { products: [], hasMore: false };
     }
   } else {
     finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
@@ -148,10 +148,10 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   const querySnapshot = await getDocs(finalQuery);
 
-  let products = querySnapshot.docs.map(doc => ({
+  let products = querySnapshot.docs.map(doc => serializeFirestoreData({
     id: doc.id,
     ...doc.data()
-  } as Product));
+  }) as Product);
 
   // In-Memory Filters
   const now = new Date();
@@ -197,8 +197,9 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   });
 
   const hasMore = querySnapshot.docs.length === PAGE_SIZE;
+  const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
 
-  const result = { products, hasMore };
+  const result = { products, hasMore, lastVisibleId };
 
   return result;
 }
@@ -207,9 +208,9 @@ export async function getAllProducts(): Promise<Product[]> {
   const productsRef = collection(db, 'products');
   const q = query(productsRef, where('isDraft', '==', false), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
-  const products = querySnapshot.docs.map(doc => ({
+  const products = querySnapshot.docs.map(doc => serializeFirestoreData({
     id: doc.id,
     ...doc.data()
-  } as Product));
+  }) as Product);
   return products;
 }

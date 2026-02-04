@@ -2,6 +2,7 @@
 
 import { firestoreDb } from "@/lib/firebase/admin";
 import { UserProfile, Product } from "@/lib/types";
+import { serializeFirestoreData } from "@/lib/utils";
 
 export type SellerWithCategories = UserProfile & {
     categories: string[];
@@ -58,7 +59,7 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
             });
 
             sellers.push({
-                ...userData,
+                ...(serializeFirestoreData(userData) as UserProfile),
                 id: doc.id,
                 categories: Array.from(categorySet),
                 productCount: productsSnapshot.size // This is just the limit size, ideally count()

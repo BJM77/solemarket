@@ -85,14 +85,14 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     isLoading
   } = useInfiniteQuery({
     queryKey: ['products', currentSearchParams, userRole],
-    queryFn: ({ pageParam = 1 }) => getProducts({
+    queryFn: ({ pageParam }) => getProducts({
       ...currentSearchParams,
-      page: pageParam,
+      lastId: pageParam as string | undefined,
       limit: PAGE_SIZE
     }, userRole as string),
-    initialPageParam: 1,
-    initialData: initialData ? { pages: [initialData], pageParams: [1] } : undefined, // Hydrate with server data
-    getNextPageParam: (lastPage, allPages) => lastPage.hasMore ? allPages.length + 1 : undefined,
+    initialPageParam: undefined,
+    initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined, // Hydrate with server data
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.lastVisibleId : undefined,
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: hasMounted, // Only fetch after component has mounted (or immediately if initialData provided? No, react-query handles this)
     refetchOnMount: !initialData, // Don't refetch immediately if we have server data
@@ -282,7 +282,6 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
           {products.map((product, index) => {
             const isLastElement = index === products.length - 1;
             return <motion.div
-              layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -526,7 +525,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
 
       {renderProducts()}
 
-      {isFetchingNextPage && (
+      {isFetchingNextPage && hasNextPage && (
         <div className="flex justify-center mt-8">
           <Loader2 className="animate-spin" />
         </div>
