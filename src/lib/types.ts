@@ -116,6 +116,7 @@ export type Product = {
   contactCallCount?: number; // Analytics for phone reveals
   isNegotiable?: boolean;
   isFeatured?: boolean;
+  title_lowercase?: string;
 };
 
 export type ProductSearchParams = {

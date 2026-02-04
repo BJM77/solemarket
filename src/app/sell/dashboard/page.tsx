@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, safeDate } from '@/lib/utils';
 
 function DashboardSkeleton() {
   return (
@@ -172,7 +172,7 @@ export default function SellerDashboard() {
                           </TableCell>
                           <TableCell>${formatPrice(product.price)}</TableCell>
                           <TableCell>{(product as any).views || 0}</TableCell>
-                          <TableCell>{product.createdAt ? formatDistanceToNow(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : product.createdAt, { addSuffix: true }) : 'N/A'}</TableCell>
+                          <TableCell>{safeDate(product.createdAt) ? formatDistanceToNow(safeDate(product.createdAt)!, { addSuffix: true }) : 'N/A'}</TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm" asChild>
                               <Link href={`/product/${product.id}`}>View</Link>

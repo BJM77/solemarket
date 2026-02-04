@@ -1,26 +1,22 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getProducts } from '@/services/product-service';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Filter, Grid, Rows, CreditCard, Coins, Layers, ShieldCheck } from 'lucide-react';
-
+import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
-import { CollectorCardsFilterTrigger } from '../filters/collector-cards-filter-trigger';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { motion } from 'framer-motion';
 import MontageGrid from './MontageGrid';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { bulkUpdateProductPrice } from '@/app/actions/product-updates';
@@ -37,24 +33,30 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
 
-const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
-
-
-function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterState = {}, isAdmin = false, initialData }: { pageTitle: string, pageDescription?: string, initialFilterState?: Partial<ProductSearchParams>, isAdmin?: boolean, initialData?: any }) {
+function InfiniteProductGridInner({
+  pageTitle,
+  pageDescription,
+  initialFilterState = {},
+  isAdmin = false,
+  initialData
+}: {
+  pageTitle: string,
+  pageDescription?: string,
+  initialFilterState?: Partial<ProductSearchParams>,
+  isAdmin?: boolean,
+  initialData?: any
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-
-  const [hasMounted, setHasMounted] = useState(false);
   const { user } = useUser();
   const { userProfile } = useUserPermissions();
   const userRole = userProfile?.role;
@@ -64,12 +66,16 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     const params: ProductSearchParams = { ...initialFilterState };
     searchParams.forEach((value, key) => {
       if (key === 'priceRange' || key === 'yearRange') {
-        params[key] = value.split(',').map(Number) as [number, number];
+        try {
+          params[key] = value.split(',').map(Number) as [number, number];
+        } catch {
+          // Ignore invalid formats
+        }
       } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
         params[key] = value.split(',');
       } else if (key === 'verifiedOnly') {
         params[key] = value === 'true';
-      } else {
+      } else if (value) {
         params[key] = value;
       }
     });
@@ -82,7 +88,9 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
     hasNextPage,
     isFetchingNextPage,
     status,
-    isLoading
+    isLoading,
+    error,
+    isError
   } = useInfiniteQuery({
     queryKey: ['products', currentSearchParams, userRole],
     queryFn: ({ pageParam }) => getProducts({
@@ -91,13 +99,12 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       limit: PAGE_SIZE
     }, userRole as string),
     initialPageParam: undefined,
-    initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined, // Hydrate with server data
+    initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
     getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.lastVisibleId : undefined,
     staleTime: 1000 * 60 * 2, // 2 minutes
-    enabled: hasMounted, // Only fetch after component has mounted (or immediately if initialData provided? No, react-query handles this)
-    refetchOnMount: !initialData, // Don't refetch immediately if we have server data
+    enabled: true,
+    refetchOnMount: !initialData,
   });
-
 
   const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
 
@@ -113,41 +120,94 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const [assistantProduct, setAssistantProduct] = useState<{ id: string, title: string, price: number } | null>(null);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
-  const observer = useRef<IntersectionObserver>();
+  // Use a ref for the observer to avoid recreating it
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const observerElementRef = useRef<HTMLDivElement | null>(null);
 
   // Filter specific states, derived from URL
   const [viewMode, setViewMode] = useState<ViewMode>((currentSearchParams.view as ViewMode) || 'grid');
 
   useEffect(() => {
-    setHasMounted(true);
     if (currentSearchParams.view) {
       setViewMode(currentSearchParams.view as ViewMode);
-    } else if (window.innerWidth < 640) {
-      setViewMode('montage'); // Default to mosaic on mobile
+    } else if (typeof window !== 'undefined' && window.innerWidth < 640) {
+      setViewMode('montage');
     }
   }, [currentSearchParams.view]);
 
+
+
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Setup intersection observer
+  const setupObserver = useCallback((node: HTMLDivElement) => {
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+
+    // Don't setup if loading or no more pages
+    if (isLoading || isFetchingNextPage || !hasNextPage || !node) {
+      return;
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1
+      }
+    );
+
+    observerRef.current.observe(node);
+    observerElementRef.current = node;
+  }, [fetchNextPage, hasNextPage, isLoading, isFetchingNextPage]);
+
+  // Re-setup observer when dependencies change
+  useEffect(() => {
+    if (observerElementRef.current) {
+      const node = observerElementRef.current;
+      observerRef.current?.disconnect();
+      setupObserver(node);
+    }
+  }, [setupObserver]);
+
+  const lastProductElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      setupObserver(node);
+    } else if (observerRef.current && observerElementRef.current === node) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+      observerElementRef.current = null;
+    }
+  }, [setupObserver]);
+
   const sortOrder = currentSearchParams.sort || 'createdAt-desc';
-  const priceRange = currentSearchParams.priceRange || [0, 5000];
   const selectedConditions = useMemo(() => currentSearchParams.conditions || [], [currentSearchParams.conditions]);
   const selectedSellers = useMemo(() => currentSearchParams.sellers || [], [currentSearchParams.sellers]);
 
-  const [postcode, setPostcode] = useState<string>("");
-  const [isExclusionMode, setIsExclusionMode] = useState<boolean>(false);
-
-
   const usersQuery = useMemoFirebase(() => {
-    // Only query users if authenticated to avoid permission errors
     if (!user) return null;
     return query(collection(db, 'users'), where('accountType', '==', 'seller'));
   }, [user?.uid]);
+
   const { data: fetchedUsers } = useCollection<UserProfile>(usersQuery);
-
-  const availableSellers = useMemo(() => {
-    if (!fetchedUsers) return [];
-    return fetchedUsers as unknown as UserProfile[];
-  }, [fetchedUsers]);
-
+  const availableSellers = useMemo(() => fetchedUsers || [], [fetchedUsers]);
 
   const createQueryString = useCallback(
     (newParams: Record<string, string | string[] | [number, number] | null>) => {
@@ -174,19 +234,6 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   const handleViewChange = (mode: ViewMode) => {
     handleFilterChange('view', mode);
   };
-
-  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
-    if (isLoading || isFetchingNextPage) return;
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    });
-
-    if (node) observer.current.observe(node);
-  }, [fetchNextPage, hasNextPage, isLoading, isFetchingNextPage]);
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -222,7 +269,9 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         setIsBulkDialogOpen(false);
         setSelectedIds(new Set());
         setIsSelectionMode(false);
-        window.location.reload(); // Simple refresh for now
+        // Instead of reloading, you could invalidate the query cache
+        // queryClient.invalidateQueries({ queryKey: ['products'] });
+        window.location.reload();
       } else {
         throw new Error(result.error);
       }
@@ -250,13 +299,16 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
   }, [currentSearchParams.category, initialFilterState.category]);
 
   const renderProducts = () => {
-    console.log('[DEBUG renderProducts]', {
-      viewMode,
-      productsLength: products.length,
-      isLoading,
-      hasNextPage,
-      firstProductTitle: products[0]?.title
-    });
+    if (isError) {
+      return (
+        <Alert variant="destructive" className="col-span-full">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load products. {error instanceof Error ? error.message : 'Unknown error'}
+          </AlertDescription>
+        </Alert>
+      );
+    }
 
     if (products.length === 0 && isLoading) {
       return (
@@ -265,7 +317,7 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
             <ProductCardSkeleton key={i} aspectRatio={skeletonAspectRatio} />
           ))}
         </div>
-      )
+      );
     }
 
     if (products.length === 0 && !isLoading) {
@@ -281,30 +333,40 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         <div className="space-y-4">
           {products.map((product, index) => {
             const isLastElement = index === products.length - 1;
-            return <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              ref={isLastElement ? lastProductElementRef : null}
-              key={`${product.id}-${index}`}>
-              <ProductCard
-                product={product}
-                viewMode={viewMode}
-                isAdmin={isAdmin}
-                selectable={isSelectionMode}
-                selected={selectedIds.has(product.id)}
-                onToggleSelect={() => toggleSelection(product.id)}
-                onOpenPriceAssistant={openPriceAssistant}
-              />
-            </motion.div>
+            return (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                ref={isLastElement ? lastProductElementRef : null}
+                key={`${product.id}-${index}`}
+              >
+                <ProductCard
+                  product={product}
+                  viewMode={viewMode}
+                  isAdmin={isAdmin}
+                  selectable={isSelectionMode}
+                  selected={selectedIds.has(product.id)}
+                  onToggleSelect={() => toggleSelection(product.id)}
+                  onOpenPriceAssistant={openPriceAssistant}
+                />
+              </motion.div>
+            );
           })}
         </div>
       );
     }
 
     if (viewMode === 'montage') {
-      return <MontageGrid products={products} lastProductRef={lastProductElementRef} isAdmin={isAdmin} onOpenPriceAssistant={openPriceAssistant} />;
+      return (
+        <MontageGrid
+          products={products}
+          lastProductRef={lastProductElementRef}
+          isAdmin={isAdmin}
+          onOpenPriceAssistant={openPriceAssistant}
+        />
+      );
     }
 
     if (viewMode === 'compact') {
@@ -330,42 +392,31 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
       );
     }
 
-
+    // Default grid view
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
         {products.map((product, index) => {
           const isLastElement = index === products.length - 1;
-          return <div
-            ref={isLastElement ? lastProductElementRef : null}
-            key={`${product.id}-${index}`}>
-            <ProductCard
-              product={product}
-              viewMode={viewMode}
-              isAdmin={isAdmin}
-              selectable={isSelectionMode}
-              selected={selectedIds.has(product.id)}
-              onToggleSelect={() => toggleSelection(product.id)}
-              onOpenPriceAssistant={openPriceAssistant}
-            />
-          </div>
+          return (
+            <div
+              ref={isLastElement ? lastProductElementRef : null}
+              key={`${product.id}-${index}`}
+            >
+              <ProductCard
+                product={product}
+                viewMode={viewMode}
+                isAdmin={isAdmin}
+                selectable={isSelectionMode}
+                selected={selectedIds.has(product.id)}
+                onToggleSelect={() => toggleSelection(product.id)}
+                onOpenPriceAssistant={openPriceAssistant}
+              />
+            </div>
+          );
         })}
       </div>
     );
   };
-
-  const handleConditionSelection = useCallback((c: string) => {
-    const newConditions = selectedConditions.includes(c)
-      ? selectedConditions.filter(sc => sc !== c)
-      : [...selectedConditions, c];
-    handleFilterChange('conditions', newConditions.length > 0 ? newConditions : null);
-  }, [selectedConditions, handleFilterChange]);
-
-  const handleSellerSelection = useCallback((sellerId: string) => {
-    const newSellers = selectedSellers.includes(sellerId)
-      ? selectedSellers.filter(id => id !== sellerId)
-      : [...selectedSellers, sellerId];
-    handleFilterChange('sellers', newSellers.length > 0 ? newSellers : null);
-  }, [selectedSellers, handleFilterChange]);
 
   return (
     <div className="container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen">
@@ -523,20 +574,34 @@ function InfiniteProductGridInner({ pageTitle, pageDescription, initialFilterSta
         </div>
       )}
 
+      {/* Products grid */}
       {renderProducts()}
 
+      {/* Loading indicator */}
       {isFetchingNextPage && hasNextPage && (
         <div className="flex justify-center mt-8">
-          <Loader2 className="animate-spin" />
+          <Loader2 className="animate-spin h-8 w-8" />
+          <span className="ml-2 text-sm text-muted-foreground">Loading more...</span>
         </div>
       )}
 
+      {/* Fallback load more button */}
+      {!isFetchingNextPage && hasNextPage && products.length > 0 && (
+        <div className="flex justify-center mt-8">
+          <Button variant="outline" onClick={() => fetchNextPage()}>
+            Load More
+          </Button>
+        </div>
+      )}
+
+      {/* End of list message */}
       {!hasNextPage && products.length > 0 && (
         <div className="py-12 text-center text-muted-foreground">
           <p>You&apos;ve reached the end of the list.</p>
         </div>
       )}
 
+      {/* Price Assistant Modal */}
       {assistantProduct && (
         <PriceAssistantModal
           isOpen={isAssistantOpen}

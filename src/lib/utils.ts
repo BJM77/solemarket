@@ -49,3 +49,40 @@ export function serializeFirestoreData(data: any): any {
 
   return data;
 }
+
+export function safeDate(value: any): Date | undefined {
+  if (!value) return undefined;
+
+  // Handle standard Date objects
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? undefined : value;
+  }
+
+  // Handle Firestore Timestamps (with toDate method)
+  if (typeof value === 'object' && typeof value.toDate === 'function') {
+    try {
+        return value.toDate();
+    } catch {
+        return undefined;
+    }
+  }
+
+  // Handle serialized Firestore Timestamps { seconds, nanoseconds }
+  if (typeof value === 'object' && 'seconds' in value) {
+    const millis = value.seconds * 1000;
+    return isNaN(millis) ? undefined : new Date(millis);
+  }
+
+  // Handle numbers (milliseconds)
+  if (typeof value === 'number') {
+    return isNaN(value) ? undefined : new Date(value);
+  }
+
+  // Handle ISO strings
+  if (typeof value === 'string') {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? undefined : d;
+  }
+
+  return undefined;
+}

@@ -10,13 +10,20 @@ export default async function BrowsePage({
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
 
   // Initial Server Fetch
-  const initialProductsData = await getProducts({
-    q: searchTerm,
-    category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined,
-    sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
-    page: 1,
-    limit: 24
-  });
+  let initialProductsData;
+  try {
+    initialProductsData = await getProducts({
+      q: searchTerm,
+      category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined,
+      sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
+      page: 1,
+      limit: 24
+    });
+  } catch (error) {
+    console.error("Initial fetch failed (likely missing index):", error);
+    // return undefined to let client fetch and show error
+    initialProductsData = undefined;
+  }
 
   return (
     <InfiniteProductGrid

@@ -56,79 +56,81 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
 
   // Firestore allows only ONE field to have inequality filters.
-  // We prioritize Price Range for DB filtering as it's more common.
-  // Year Range will be filtered in-memory if Price Range is also active.
-  let filterYearInMemory = false;
+  // We prioritize 'range' filters in this order:
+  // 1. Text Search (q) - Prefix search on title_lowercase (REQUIRES sort by title_lowercase)
+  // 2. Price Range - Inequality on price (REQUIRES sort by price)
+  // 3. Year Range - Inequality on year (REQUIRES sort by year)
 
-  if (priceRange) {
-    if (priceRange[0] > 0) {
-      constraints.push(where('price', '>=', priceRange[0]));
-    }
-    if (priceRange[1] < 10000) {
-      constraints.push(where('price', '<=', priceRange[1]));
-    }
-    // If price range is active, we MUST filter year in memory
-    if (yearRange) {
-      filterYearInMemory = true;
-    }
-  } else if (yearRange) {
-    // No price range, so we can use DB filtering for year
-    if (yearRange[0] > 1900) {
-      constraints.push(where('year', '>=', yearRange[0]));
-    }
-    if (yearRange[1] < new Date().getFullYear()) {
-      constraints.push(where('year', '<=', yearRange[1]));
-    }
-  }
+  // NOTE: If multiple range filters are requested, we can only support ONE in Firestore.
+  // The others must be done in-memory.
+  // Priority: Search > Price > Year (because Search is the most "active" user intent)
+
+  let filterYearInMemory = false;
+  let filterPriceInMemory = false;
 
   const [sortField, sortDirection] = sort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
-
-  // If we rely on inequality, the first orderBy must be on that field.
-  // Firestore Requirement: "If you include a filter with a range comparison (<, <=, >, >=), your first ordering must be on the same field."
   let orderByConstraints: QueryConstraint[] = [];
 
-  // Logic:
-  // 1. If we have inequality filters (price/year range), we MUST sort by that field first. Featured sorting might be compromised or require client-side merge.
-  // 2. If NO inequality filters, we can sort by isFeatured first.
+  if (q) {
+    // SCENARIO 1: TEXT SEARCH
+    // Firestore Limitation: Range filter (>=, <=) on 'title_lowercase' requires sort by 'title_lowercase' first.
+    // We cannot sort by Price or Date first.
 
-  const hasInequalityFilter = (priceRange && (priceRange[0] > 0 || priceRange[1] < 10000)) ||
-    (!filterYearInMemory && yearRange && (yearRange[0] > 1900 || yearRange[1] < new Date().getFullYear()));
+    // Convert query to lowercase for case-insensitive prefix search
+    const qLower = q.toLowerCase();
 
-  if (!hasInequalityFilter) {
-    // Prioritize Featured items if no range filters interfere
-    orderByConstraints.push(orderBy('isFeatured', 'desc'));
-  }
+    // Prefix Search: title >= "batman" AND title <= "batman" + "\uf8ff"
+    constraints.push(where('title_lowercase', '>=', qLower));
+    constraints.push(where('title_lowercase', '<=', qLower + '\uf8ff'));
 
-  if (priceRange && (priceRange[0] > 0 || priceRange[1] < 10000)) {
+    // FORCED SORT: Must sort by title_lowercase ASC for prefix search to work
+    orderByConstraints.push(orderBy('title_lowercase', 'asc'));
+
+    // Any other range filters (Price, Year) must be done IN-MEMORY
+    if (priceRange) filterPriceInMemory = true;
+    if (yearRange) filterYearInMemory = true;
+
+  } else if (priceRange && ((priceRange[0] > 0) || (priceRange[1] < 10000))) {
+    // SCENARIO 2: PRICE RANGE (No Search)
+    constraints.push(where('price', '>=', priceRange[0]));
+    constraints.push(where('price', '<=', priceRange[1]));
+
+    // Must sort by price first
     if (sortField !== 'price') {
-      // We must order by price first, then the user's sort.
-      orderByConstraints.push(orderBy('price', sortDirection === 'desc' ? 'desc' : 'asc'));
-
-      orderByConstraints.push(orderBy(sortField, sortDirection));
+      orderByConstraints.push(orderBy('price', sortDirection === 'desc' ? 'desc' : 'asc')); // Primary sort to satisfy range
+      orderByConstraints.push(orderBy(sortField, sortDirection)); // Secondary sort
     } else {
       orderByConstraints.push(orderBy('price', sortDirection));
     }
-  } else if (!filterYearInMemory && yearRange && (yearRange[0] > 1900 || yearRange[1] < new Date().getFullYear())) {
-    // Filtering by Year in DB
-    // Ensure sorting by year is handled
-    if (sortField !== 'year') {
-      orderByConstraints.push(orderBy('year', sortDirection === 'desc' ? 'desc' : 'asc'));
-      orderByConstraints.push(orderBy(sortField, sortDirection));
-    } else {
-      orderByConstraints.push(orderBy('year', sortDirection));
+
+    if (yearRange) filterYearInMemory = true;
+
+  } else if (yearRange && ((yearRange[0] > 1900) || (yearRange[1] < new Date().getFullYear()))) {
+    // SCENARIO 3: YEAR RANGE (No Search, No Price)
+    // Note: we check filterYearInMemory here just to be safe, but logic above sets it false initially
+    if (!filterYearInMemory) {
+      constraints.push(where('year', '>=', yearRange[0]));
+      constraints.push(where('year', '<=', yearRange[1]));
+
+      if (sortField !== 'year') {
+        orderByConstraints.push(orderBy('year', sortDirection === 'desc' ? 'desc' : 'asc'));
+        orderByConstraints.push(orderBy(sortField, sortDirection));
+      } else {
+        orderByConstraints.push(orderBy('year', sortDirection));
+      }
     }
   } else {
-    // No range filters, standard sort
+    // SCENARIO 4: STANDARD SORT (No Ranges)
+    // No inequality filters, so we can sort by whatever we want.
+    // Prioritize Featured items if no range filters interfere
+    if (sortField === 'createdAt' || sortField === 'views') {
+      orderByConstraints.push(orderBy('isFeatured', 'desc'));
+    }
     orderByConstraints.push(orderBy(sortField, sortDirection));
   }
 
   // Apply constraints
   const finalConstraints = [...constraints, ...orderByConstraints];
-
-  // Pagination
-  // Note: Pagination with in-memory filtering (Search, Year override) is tricky.
-  // We'll fetch a larger batch if we know we are filtering in memory, but for now stick to PAGE_SIZE
-  // and accept that pages might be shorter.
 
   let finalQuery: Query<DocumentData>;
 
@@ -139,7 +141,6 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     if (lastDocSnap.exists()) {
       finalQuery = query(productsRef, ...finalConstraints, startAfter(lastDocSnap), limit(PAGE_SIZE));
     } else {
-      // Cursor invalid or not found, return empty
       return { products: [], hasMore: false };
     }
   } else {
@@ -160,16 +161,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
 
   products = products.filter(p => {
-    // 1. Text Search
-    if (q) {
-      const lowercasedTerm = q.toLowerCase();
-      if (!p.title.toLowerCase().includes(lowercasedTerm) && (!p.description || !p.description.toLowerCase().includes(lowercasedTerm))) {
-        return false;
-      }
-    }
+    // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
 
-    // 2. Year Filter (if in memory)
+    // 2. Year Filter (in memory)
     if (filterYearInMemory && yearRange && p.year) {
+      // Manual check for yearRange existence to satisfy TS, though logic guarantees it
       if (p.year < yearRange[0] || p.year > yearRange[1]) return false;
     }
 
