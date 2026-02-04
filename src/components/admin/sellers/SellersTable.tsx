@@ -134,7 +134,16 @@ export function SellersTable() {
                                         )}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">
-                                        {user.createdAt ? formatDistanceToNow(new Date(user.createdAt.seconds * 1000), { addSuffix: true }) : 'N/A'}
+                                        {(() => {
+                                            if (!user.createdAt) return 'N/A';
+                                            const date = typeof user.createdAt === 'string'
+                                                ? new Date(user.createdAt)
+                                                : new Date((user.createdAt as any).seconds * 1000);
+
+                                            return !isNaN(date.getTime())
+                                                ? formatDistanceToNow(date, { addSuffix: true })
+                                                : 'N/A';
+                                        })()}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon">
