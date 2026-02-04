@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { getProductsForBulkEdit, bulkUpdateProducts } from './actions';
-import { Timestamp } from 'firebase/firestore';
 import type { Product } from '@/lib/types';
 import {
     Table,
@@ -19,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -29,7 +27,9 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/utils';
-
+import { Input } from '@/components/ui/input';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { safeDate } from '@/lib/date-utils';
 
 const CONDITION_OPTIONS = ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
 const STATUS_OPTIONS = ['available', 'sold', 'draft'];
@@ -39,7 +39,9 @@ export default function BulkEditorPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+    const [isUpdating, setIsUpdating] = useState(false);
 
+    // Bulk action states
     const [newPrice, setNewPrice] = useState<string>('');
     const [newCondition, setNewCondition] = useState<string>('');
     const [newStatus, setNewStatus] = useState<string>('');
@@ -47,12 +49,18 @@ export default function BulkEditorPage() {
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            const fetchedProducts = await getProductsForBulkEdit();
-            setProducts(fetchedProducts);
-            setLoading(false);
+            try {
+                const fetchedProducts = await getProductsForBulkEdit();
+                setProducts(fetchedProducts);
+            } catch (error) {
+                console.error("Failed to fetch products", error);
+                toast({ title: "Error", description: "Failed to load products", variant: "destructive" });
+            } finally {
+                setLoading(false);
+            }
         }
         fetchProducts();
-    }, []);
+    }, [toast]);
 
     const handleSelectProduct = (productId: string, isSelected: boolean) => {
         setSelectedProductIds(prev => {
@@ -75,162 +83,176 @@ export default function BulkEditorPage() {
         }
     };
 
-
-    const [isUpdating, setIsUpdating] = useState(false);
-
     const handleApplyChanges = async () => {
+        if (selectedProductIds.size === 0) return;
+
         setIsUpdating(true);
-        const updates: any = {};
-        if (newPrice) updates.price = parseFloat(newPrice);
-        if (newCondition) updates.condition = newCondition;
-        if (newStatus) updates.status = newStatus;
+        try {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) {
+                toast({ title: "Auth Error", description: "Please sign in again.", variant: "destructive" });
+                return;
+            }
 
-        const result = await bulkUpdateProducts(Array.from(selectedProductIds), updates);
+            const updates: any = {};
+            if (newPrice) updates.price = parseFloat(newPrice);
+            if (newCondition) updates.condition = newCondition;
+            if (newStatus) updates.status = newStatus;
 
-        if (result.success) {
-            toast({
-                title: "Success",
-                description: result.message,
-            });
-            // Refetch products
-            const fetchedProducts = await getProductsForBulkEdit();
-            setProducts(fetchedProducts);
-            setSelectedProductIds(new Set());
-            setNewPrice('');
-            setNewCondition('');
-            setNewStatus('');
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: result.message,
-            });
+            if (Object.keys(updates).length === 0) {
+                toast({ title: "No changes", description: "Select at least one field to update." });
+                return;
+            }
+
+            const result = await bulkUpdateProducts(Array.from(selectedProductIds), updates, idToken);
+
+            if (result.success) {
+                toast({
+                    title: "Success",
+                    description: result.message,
+                });
+                // Refetch products
+                const fetchedProducts = await getProductsForBulkEdit();
+                setProducts(fetchedProducts);
+                setSelectedProductIds(new Set());
+                setNewPrice('');
+                setNewCondition('');
+                setNewStatus('');
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: result.message,
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            toast({ title: "Error", description: "Failed to update.", variant: "destructive" });
+        } finally {
+            setIsUpdating(false);
         }
-        setIsUpdating(false);
     };
 
-
-    const isAllSelected = products.length > 0 && selectedProductIds.size === products.length;
-    const isSomeSelected = selectedProductIds.size > 0 && selectedProductIds.size < products.length;
-
     if (loading) {
-        return (
-            <div className="container mx-auto py-8 text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-                <p className="mt-4 text-muted-foreground">Loading products...</p>
-            </div>
-        );
+        return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-8 w-8" /></div>;
     }
 
     return (
-        <div className="container mx-auto py-8">
+        <div className="container py-8 space-y-6">
             <PageHeader
                 title="Bulk Editor"
-                description="Select products to edit their prices, conditions, and statuses in bulk."
+                description="Manage multiple listings efficiently."
             />
 
-            <div className="mt-8">
+            <div className="bg-white p-4 rounded-lg border shadow-sm space-y-4">
+                <div className="flex flex-wrap items-end gap-4">
+                    <div className="grid gap-1.5 w-full sm:w-auto">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">Set Price</label>
+                        <Input
+                            type="number"
+                            placeholder="New Price"
+                            value={newPrice}
+                            onChange={(e) => setNewPrice(e.target.value)}
+                            className="w-32"
+                        />
+                    </div>
+                    <div className="grid gap-1.5 w-full sm:w-auto">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">Set Condition</label>
+                        <Select value={newCondition} onValueChange={setNewCondition}>
+                            <SelectTrigger className="w-40">
+                                <SelectValue placeholder="Condition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {CONDITION_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid gap-1.5 w-full sm:w-auto">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">Set Status</label>
+                        <Select value={newStatus} onValueChange={setNewStatus}>
+                            <SelectTrigger className="w-40">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button
+                        onClick={handleApplyChanges}
+                        disabled={isUpdating || selectedProductIds.size === 0}
+                        className="mb-0.5"
+                    >
+                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Apply to {selectedProductIds.size} Selected
+                    </Button>
+                </div>
+            </div>
+
+            <div className="border rounded-lg overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[50px]">
+                            <TableHead className="w-12">
                                 <Checkbox
-                                    checked={isAllSelected || isSomeSelected ? (isAllSelected ? true : "indeterminate") : false}
-                                    onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
-                                    aria-label="Select all"
+                                    checked={products.length > 0 && selectedProductIds.size === products.length}
+                                    onCheckedChange={handleSelectAll}
                                 />
                             </TableHead>
-                            <TableHead className="w-[80px]">Image</TableHead>
-                            <TableHead>Product</TableHead>
+                            <TableHead className="w-16">Image</TableHead>
+                            <TableHead>Title</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Condition</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Created At</TableHead>
+                            <TableHead>Date</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {products.map((product) => (
-                            <TableRow key={product.id} data-state={selectedProductIds.has(product.id) && "selected"}>
+                            <TableRow key={product.id}>
                                 <TableCell>
                                     <Checkbox
                                         checked={selectedProductIds.has(product.id)}
-                                        onCheckedChange={(checked) => handleSelectProduct(product.id, Boolean(checked))}
+                                        onCheckedChange={(checked) => handleSelectProduct(product.id, checked as boolean)}
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <div className="relative h-16 w-16 overflow-hidden rounded-md">
-                                        <Image
-                                            src={product.imageUrls[0] || '/placeholder.png'}
-                                            alt={product.title}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
-                                        />
+                                    <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100">
+                                        {product.imageUrls?.[0] && (
+                                            <Image
+                                                src={product.imageUrls[0]}
+                                                alt={product.title}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        )}
                                     </div>
                                 </TableCell>
-                                <TableCell className="font-medium">{product.title}</TableCell>
+                                <TableCell className="font-medium max-w-xs truncate">{product.title}</TableCell>
                                 <TableCell>${formatPrice(product.price)}</TableCell>
-                                <TableCell>{product.condition}</TableCell>
                                 <TableCell>
-                                    <Badge variant={product.status === 'available' ? 'default' : 'outline'}>
+                                    <Badge variant="outline">{product.condition}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={product.status === 'available' ? 'default' : 'secondary'}>
                                         {product.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>
-                                    {product.createdAt ? format(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : new Date(product.createdAt), 'PPP') : 'N/A'}
+                                <TableCell className="text-muted-foreground text-sm">
+                                    {product.createdAt ? format(safeDate(product.createdAt), 'PPP') : 'N/A'}
                                 </TableCell>
                             </TableRow>
                         ))}
+                        {products.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={7} className="h-24 text-center">
+                                    No products found.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
-                {products.length === 0 && !loading && (
-                    <div className="text-center py-12 text-muted-foreground">No products found.</div>
-                )}
             </div>
-
-            {selectedProductIds.size > 0 && (
-                <div className="mt-8 p-6 border rounded-lg shadow-sm bg-card">
-                    <h3 className="text-lg font-semibold mb-4">Actions for {selectedProductIds.size} selected products</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label className="text-sm font-medium">Price</label>
-                            <Input
-                                type="number"
-                                placeholder="Enter new price"
-                                value={newPrice}
-                                onChange={(e) => setNewPrice(e.target.value)}
-                                className="mt-1"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Condition</label>
-                            <Select value={newCondition} onValueChange={setNewCondition}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Select condition" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {CONDITION_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Status</label>
-                            <Select value={newStatus} onValueChange={setNewStatus}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="mt-6 text-right">
-                        <Button onClick={handleApplyChanges}>
-                            Apply Changes
-                        </Button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

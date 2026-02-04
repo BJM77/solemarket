@@ -28,9 +28,8 @@ service cloud.firestore {
     // Products: Public read, Authenticated create, Owner/Admin update/delete
     match /products/{productId} {
       allow read: if true;
-      allow create: if isSignedIn()
-                    && request.resource.data.sellerId == request.auth.uid
-                    && request.resource.data.price > 0;
+      // LOCKDOWN: Creation must happen via Server Action (createProductAction)
+      allow create: if false; 
       allow update, delete: if isSignedIn() && (resource.data.sellerId == request.auth.uid || isSuperAdmin());
     }
     
@@ -51,7 +50,8 @@ service cloud.firestore {
     match /orders/{orderId} {
         allow read, update: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isSuperAdmin());
         allow list: if isSignedIn() && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId || isSuperAdmin());
-        allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+        // LOCKDOWN: Creation must happen via Server Action
+        allow create: if false;
     }
 
     // Platform Stats: Consolidated Rule
@@ -89,6 +89,8 @@ service cloud.firestore {
     // Conversations: Participants only
     match /conversations/{conversationId} {
       allow read, update, delete: if isSignedIn() && request.auth.uid in resource.data.participantIds;
+      // Keeping conversation creation open for now as it might be used by "Message Seller" direct writes in some legacy components
+      // Ideally this should also be server action, but "Guest Enquiries" handles the specific guest case.
       allow create: if isSignedIn() && request.auth.uid in request.resource.data.participantIds;
 
       match /messages/{messageId} {
@@ -137,9 +139,17 @@ service cloud.firestore {
       allow read, list: if isSuperAdmin();
       allow write: if false; // Only backend admin SDK creates these
     }
-    // Enquiries: Authenticated create, Super Admin only read/list
+    
+    // Enquiries: Locked down (use Server Action)
     match /enquiries/{enquiryId} {
-      allow create: if true; // Allow anyone to send an enquiry (even guest if needed, though app usually requires sign in)
+      allow create: if false; 
+      allow read, list: if isSuperAdmin();
+      allow update, delete: if isSuperAdmin();
+    }
+    
+    // Guest Enquiries: Locked down (use Server Action)
+    match /guest_enquiries/{enquiryId} {
+      allow create: if false; 
       allow read, list: if isSuperAdmin();
       allow update, delete: if isSuperAdmin();
     }

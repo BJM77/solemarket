@@ -7,7 +7,7 @@ import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 export interface DraftListingData {
     sellerId: string;
     title: string;
-    description: string;
+    description?: string;
     price: number;
     category: string;
     subCategory?: string;

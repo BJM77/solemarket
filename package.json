@@ -71,6 +71,7 @@
     "framer-motion": "^11.0.25",
     "genkit": "latest",
     "https-proxy-agent": "^7.0.6",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.363.0",
     "nanoid": "^5.0.7",
     "next": "^15.1.6",

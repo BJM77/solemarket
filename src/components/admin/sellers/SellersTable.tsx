@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { AdminUser } from "@/app/actions/admin-users";
 import { getSellersAndBusinessUsers } from "@/app/actions/admin-sellers";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
@@ -29,7 +29,7 @@ export function SellersTable() {
     const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
     const [sheetOpen, setSheetOpen] = useState(false);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         setLoading(true);
         try {
             const idToken = await getCurrentUserIdToken();
@@ -43,11 +43,11 @@ export function SellersTable() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [toast]);
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     const filteredUsers = users.filter(u =>
         u.displayName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -134,7 +134,7 @@ export function SellersTable() {
                                         )}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">
-                                        {user.createdAt ? formatDistanceToNow(new Date((user.createdAt as any)?.seconds ? (user.createdAt as any).toDate() : user.createdAt), { addSuffix: true }) : 'N/A'}
+                                        {user.createdAt ? formatDistanceToNow(new Date(user.createdAt.seconds * 1000), { addSuffix: true }) : 'N/A'}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon">

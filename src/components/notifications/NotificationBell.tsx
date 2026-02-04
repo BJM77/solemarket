@@ -33,15 +33,15 @@ export function NotificationBell() {
   const notificationsQuery = useMemoFirebase(() => {
     if (!user?.uid) return null;
     return query(
-        collection(db, 'notifications'),
-        where('recipientId', '==', user.uid),
-        orderBy('createdAt', 'desc'), 
-        limit(20)
+      collection(db, 'notifications'),
+      where('recipientId', '==', user.uid),
+      orderBy('createdAt', 'desc'),
+      limit(20)
     );
   }, [user?.uid]);
 
   const { data: notifications, isLoading } = useCollection<Notification>(notificationsQuery);
-  
+
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
   const handleMarkAllRead = () => {
@@ -53,7 +53,7 @@ export function NotificationBell() {
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-        await markAsRead(notification.id);
+      await markAsRead(notification.id);
     }
     // Note: navigation is handled by the Link component
   };
@@ -77,33 +77,33 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 md:w-96" align="end">
         <div className="flex items-center justify-between p-2">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-            {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={handleMarkAllRead} disabled={isPending}>
-                    {isPending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Check className="w-4 h-4 mr-1" />}
-                    Mark all as read
-                </Button>
-            )}
+          <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" onClick={handleMarkAllRead} disabled={isPending}>
+              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+              Mark all as read
+            </Button>
+          )}
         </div>
         <DropdownMenuSeparator />
         <ScrollArea className="h-[300px] md:h-[400px]">
           {isLoading && <div className="flex items-center justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}
           {!isLoading && (!notifications || notifications.length === 0) && (
-             <div className="text-center p-8 text-sm text-muted-foreground">
-                You have no notifications.
-             </div>
+            <div className="text-center p-8 text-sm text-muted-foreground">
+              You have no notifications.
+            </div>
           )}
           {notifications && notifications.map((notif) => (
             <DropdownMenuItem key={notif.id} asChild className={cn("flex items-start gap-3 p-3", !notif.read && "bg-primary/5")}>
               <Link href={notif.link || '#'} onClick={() => handleNotificationClick(notif)}>
-                 {!notif.read && <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0"></div>}
-                 <div className={cn("flex-1", notif.read && "ml-5")}>
-                    <p className="font-semibold text-sm">{notif.title}</p>
-                    <p className="text-xs text-muted-foreground">{notif.message}</p>
-                    <p className="text-xs text-muted-foreground/80 mt-1">
-                        {formatDistanceToNow(notif.createdAt.toDate(), { addSuffix: true })}
-                    </p>
-                 </div>
+                {!notif.read && <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0"></div>}
+                <div className={cn("flex-1", notif.read && "ml-5")}>
+                  <p className="font-semibold text-sm">{notif.title}</p>
+                  <p className="text-xs text-muted-foreground">{notif.message}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-1">
+                    {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt.seconds * 1000), { addSuffix: true }) : 'Just now'}
+                  </p>
+                </div>
               </Link>
             </DropdownMenuItem>
           ))}

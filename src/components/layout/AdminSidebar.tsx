@@ -82,7 +82,8 @@ export default function AdminSidebar() {
         if (isMobile && isSidebarOpen) {
             setIsSidebarOpen(false);
         }
-    }, [pathname, isMobile, setIsSidebarOpen]); // Removed isSidebarOpen from deps to avoid loop if changed elsewhere, but usually okay
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname, isMobile, setIsSidebarOpen]);
 
     const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 

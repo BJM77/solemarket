@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+import { jwtDecode } from 'jwt-decode';
+
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
@@ -12,7 +14,20 @@ export function middleware(request: NextRequest) {
 
   // 2. Route Protection
   const session = request.cookies.get('session') || request.cookies.get('__session');
-  const isAuth = !!session;
+  let isAuth = false;
+
+  if (session?.value) {
+    try {
+      const decoded = jwtDecode(session.value) as any;
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp && decoded.exp > currentTime) {
+        isAuth = true;
+      }
+    } catch (error) {
+      // Invalid token
+      isAuth = false;
+    }
+  }
 
   // Protect Admin Routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
@@ -24,6 +39,9 @@ export function middleware(request: NextRequest) {
   // Protect Seller Routes
   if (request.nextUrl.pathname.startsWith('/sell')) {
     if (!isAuth) {
+      // Allow unauthenticated access if it is just a product review page to reduce friction, 
+      // but strictly protect creation/dashboard pages.
+      // Actually, all /sell routes (dashboard, create) usually require auth.
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }

@@ -69,7 +69,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
         });
 
         return () => unsubscribe();
-    }, [user?.uid]);
+    }, [user?.uid, limit]);
 
     const handleUpdateStatus = (orderId: string, status: string, tracking?: { carrier: string, trackingNumber: string }) => {
         startTransition(async () => {

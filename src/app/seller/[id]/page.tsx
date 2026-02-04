@@ -21,6 +21,7 @@ import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { formatPrice, cn } from '@/lib/utils';
 import { Phone } from 'lucide-react'; // Import Phone icon
+import { safeDate } from '@/lib/date-utils';
 
 // Define types
 interface Seller extends UserProfile {
@@ -166,7 +167,7 @@ export default function SellerPage() {
     return name[0];
   };
 
-  const joinDate = seller.createdAt?.toDate().toLocaleDateString() || new Date().toLocaleDateString();
+  const joinDate = seller.createdAt ? safeDate(seller.createdAt).toLocaleDateString() : new Date().toLocaleDateString();
 
   return (
     <div className="bg-gray-50 min-h-screen">

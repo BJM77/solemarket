@@ -214,9 +214,9 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                             ...sellerData,
                             id: sellerSnap.id,
                             rating: 4.8,
-                            totalSales: 150,
                             isVerified: true,
-                            joinDate: sellerData.createdAt?.toDate().toLocaleDateString() || new Date().toLocaleDateString(),
+                            // Use safeDate helper logic properly here if needed, or just use existing Date logic
+                            joinDate: sellerData.createdAt ? new Date(sellerData.createdAt.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString(),
                         } as Seller);
                     }
                 }

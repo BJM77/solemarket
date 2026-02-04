@@ -65,13 +65,44 @@ const nextConfig = {
     ],
   },
   async headers() {
+    // Content Security Policy
+    const cspHeader = `
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob: https: firebasestorage.googleapis.com;
+      font-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      connect-src 'self' https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; 
+      upgrade-insecure-requests;
+    `.replace(/\s{2,}/g, ' ').trim();
+
     return [
       {
         source: '/(.*)',
         headers: [
           {
+            key: 'Content-Security-Policy',
+            value: cspHeader,
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
             key: 'Permissions-Policy',
-            value: 'camera=(self)', // Allow camera from same origin
+            value: 'camera=(self), microphone=(), geolocation=()', // Allow camera from same origin
           },
         ],
       },
