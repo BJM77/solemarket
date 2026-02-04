@@ -31,7 +31,7 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
         // Use Promise.all for concurrency
         await Promise.all(sellersSnapshot.docs.map(async (doc) => {
             const userData = doc.data() as UserProfile;
-            
+
             if (!doc.id) return;
 
             // Basic check to ensure they actually look like a seller (have a store name or are verified)
@@ -59,6 +59,7 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
 
             sellers.push({
                 ...userData,
+                id: doc.id,
                 categories: Array.from(categorySet),
                 productCount: productsSnapshot.size // This is just the limit size, ideally count()
             });
