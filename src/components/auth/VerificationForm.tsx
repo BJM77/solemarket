@@ -27,7 +27,7 @@ export default function VerificationForm() {
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     // If user is already verified (unlikely to land here if guarded, but good safety)
-    if (user?.isVerified) {
+    if ((user as any)?.isVerified) {
         return (
             <div className="text-center p-8">
                 <div className="bg-green-100 text-green-700 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
@@ -41,7 +41,7 @@ export default function VerificationForm() {
     }
 
     // If pending
-    if (user?.verificationStatus === 'pending' || isSubmitted) {
+    if ((user as any)?.verificationStatus === 'pending' || isSubmitted) {
         return (
             <div className="text-center p-8 max-w-md mx-auto">
                 <div className="bg-blue-100 text-blue-700 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">

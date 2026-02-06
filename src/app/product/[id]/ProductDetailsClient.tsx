@@ -294,7 +294,7 @@ export default function ProductDetailsClient({
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
         }
-        if (user.role !== 'admin' && user.role !== 'superadmin' && !user.isVerified) {
+        if ((user as any).role !== 'admin' && (user as any).role !== 'superadmin' && !(user as any).isVerified) {
             toast({
                 title: "Verification Required",
                 description: "You must verify your identity before adding items to cart.",
