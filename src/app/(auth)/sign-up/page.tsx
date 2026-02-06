@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import SignUpForm from '@/components/auth/SignUpForm';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function SignUpPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignUpFormInner />
+          <SignUpForm />
         </CardContent>
       </Card>
     </div>

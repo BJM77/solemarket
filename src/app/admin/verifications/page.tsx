@@ -150,7 +150,6 @@ export default function AdminVerificationsPage() {
                                     <div className="grid grid-cols-2 gap-2">
                                         {request.documentUrls.map((url, idx) => (
                                             <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block group relative aspect-video bg-gray-100 rounded-md overflow-hidden border hover:border-blue-500 transition-all">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={url} alt={`Doc ${idx + 1}`} className="object-cover w-full h-full" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-all">
                                                     <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
