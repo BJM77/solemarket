@@ -105,13 +105,7 @@ export default function SellerDashboard() {
 
   const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(sellerReviewsQuery);
 
-  const [mockConversionRate, setMockConversionRate] = useState(0);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setMockConversionRate(2.5 + Math.random() * 2);
-    }, 0);
-  }, []);
 
   const stats = useMemo(() => {
     if (!products || !reviews || !orders) {
@@ -137,11 +131,13 @@ export default function SellerDashboard() {
     const totalViews = products.reduce((acc, p) => acc + ((p as any).views || 0), 0);
     const orderCount = orders.length;
 
-    // This is a mock conversion rate as we don't track sessions yet
-    const conversionRate = activeListings > 0 ? mockConversionRate : 0;
+    const soldCount = products.filter(p => p.status === 'sold').length;
+
+    // Real conversion rate calculation
+    const conversionRate = totalViews > 0 ? (soldCount / totalViews) * 100 : 0;
 
     return { totalRevenue, activeListings, averageRating, totalReviews, totalViews, conversionRate, orderCount };
-  }, [products, reviews, orders, mockConversionRate]);
+  }, [products, reviews, orders]);
 
   const listingLimit = userProfile?.listingLimit || 40;
   const listingProgress = (products.length / listingLimit) * 100;

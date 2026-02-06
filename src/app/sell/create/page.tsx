@@ -98,8 +98,8 @@ export default function CreateListingPage() {
       autoRepricingEnabled: false,
       isVault: false,
       imageFiles: [],
-      // Reset all specs
-      year: undefined,
+      // Reset all specs - Use empty strings to prevent 'uncontrolled to controlled' warnings
+      year: '' as any,
       manufacturer: '',
       cardNumber: '',
       grade: '',
@@ -140,13 +140,32 @@ export default function CreateListingPage() {
             }
 
             // Populate form
-            // Ensure date/numbers are correctly typed
+            // Ensure date/numbers are correctly typed and handle potential nulls for controlled inputs
             const formData = {
               ...data,
-              price: Number(data.price),
+              price: Number(data.price || 0),
               quantity: Number(data.quantity || 1),
-              year: data.year ? Number(data.year) : undefined,
+              year: data.year ? Number(data.year) : '',
               imageFiles: data.imageUrls || [], // existing URLs
+              // Ensure all string specs are at least empty strings
+              manufacturer: data.manufacturer || '',
+              cardNumber: data.cardNumber || '',
+              grade: data.grade || '',
+              gradingCompany: data.gradingCompany || '',
+              certNumber: data.certNumber || '',
+              denomination: data.denomination || '',
+              mintMark: data.mintMark || '',
+              country: data.country || '',
+              metal: data.metal || '',
+              purity: data.purity || '',
+              weight: data.weight || '',
+              dimensions: data.dimensions || '',
+              material: data.material || '',
+              authentication: data.authentication || '',
+              authenticationNumber: data.authenticationNumber || '',
+              signer: data.signer || '',
+              description: data.description || '',
+              subCategory: data.subCategory || '',
             };
 
             form.reset(formData);

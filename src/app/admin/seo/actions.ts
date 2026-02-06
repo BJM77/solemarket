@@ -1,7 +1,8 @@
 'use server';
 
-import { db } from '@/lib/firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { firestoreDb } from '@/lib/firebase/admin';
+import { getCurrentUser } from '@/lib/firebase/auth-admin'; // Optional: if we want to add auth check later
+
 
 const SEO_SETTINGS_DOC_ID = 'seo_settings';
 
@@ -28,21 +29,19 @@ export interface SEOSettings {
 
 export async function saveSEOSettings(settings: SEOSettings) {
     try {
-        const settingsRef = doc(db, 'settings', SEO_SETTINGS_DOC_ID);
-        await setDoc(settingsRef, settings, { merge: true });
+        await firestoreDb.collection('settings').doc(SEO_SETTINGS_DOC_ID).set(settings, { merge: true });
         return { success: true, message: 'SEO settings updated successfully.' };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error saving SEO settings:', error);
-        return { success: false, message: 'Failed to update SEO settings.' };
+        return { success: false, message: `Failed to update SEO settings: ${error.message}` };
     }
 }
 
 export async function getSEOSettings(): Promise<SEOSettings> {
     try {
-        const settingsRef = doc(db, 'settings', SEO_SETTINGS_DOC_ID);
-        const docSnap = await getDoc(settingsRef);
+        const docSnap = await firestoreDb.collection('settings').doc(SEO_SETTINGS_DOC_ID).get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             return docSnap.data() as SEOSettings;
         }
 

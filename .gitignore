@@ -46,3 +46,5 @@ secrets_staging/
 
 # Typescript
 *.tsbuildinfo
+# Temporary files
+codes*.txt

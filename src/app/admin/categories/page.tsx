@@ -9,17 +9,12 @@ import {
   collection,
   onSnapshot,
   query,
-  orderBy,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc,
-  serverTimestamp
+  orderBy
 } from 'firebase/firestore';
-import { useFirebase } from '@/firebase'; // Import useFirebase
+import { useFirebase } from '@/firebase';
 import type { Category } from '@/lib/types';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -38,6 +33,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { createCategory, updateCategory, deleteCategory as deleteCategoryAction } from '@/app/actions/admin-categories';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 
 const categorySchema = z.object({
@@ -58,7 +55,7 @@ export default function CategoriesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const { toast } = useToast();
-  const { firestore } = useFirebase(); // Get firestore instance from hook
+  const { firestore } = useFirebase();
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
@@ -74,7 +71,7 @@ export default function CategoriesPage() {
 
 
   useEffect(() => {
-    if (!firestore) return; // Wait for firestore to be available
+    if (!firestore) return;
     const q = query(collection(firestore, 'categories'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const cats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
@@ -86,7 +83,7 @@ export default function CategoriesPage() {
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, [firestore, toast]); // Add firestore and toast to dependency array
+  }, [firestore, toast]);
 
   useEffect(() => {
     if (editingCategory) {
@@ -112,15 +109,17 @@ export default function CategoriesPage() {
 
 
   const onSubmit = async (values: CategoryFormValues) => {
-    if (!firestore) return;
     setIsSubmitting(true);
     try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication failed");
+
       if (editingCategory) {
-        await updateDoc(doc(firestore, 'categories', editingCategory.id), values);
+        await updateCategory(editingCategory.id, values, idToken);
         toast({ title: 'Category updated successfully!' });
         setEditingCategory(null);
       } else {
-        await addDoc(collection(firestore, 'categories'), { ...values, createdAt: serverTimestamp() });
+        await createCategory(values, idToken);
         toast({ title: 'Category added successfully!' });
       }
       form.reset();
@@ -132,9 +131,11 @@ export default function CategoriesPage() {
   };
 
   const deleteCategory = async (id: string) => {
-    if (!firestore) return;
     try {
-      await deleteDoc(doc(firestore, 'categories', id));
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication failed");
+      
+      await deleteCategoryAction(id, idToken);
       toast({ title: 'Category deleted successfully.' });
     } catch (error: any) {
       toast({ title: 'Failed to delete category.', description: error.message, variant: 'destructive' });

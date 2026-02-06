@@ -105,6 +105,10 @@ const SidebarMenuButton = React.forwardRef<
   const { isSidebarOpen, isHovered } = useSidebar()
   const effectiveOpen = isSidebarOpen || isHovered
 
+  const { asChild } = props
+
+  const Comp = asChild ? React.Fragment : React.Fragment
+
   const buttonContent = (
     <Button
       ref={ref}
@@ -116,7 +120,7 @@ const SidebarMenuButton = React.forwardRef<
       )}
       {...props}
     >
-      {React.Children.map(children, (child, index) => {
+      {asChild ? children : React.Children.map(children, (child, index) => {
         // Always render the first child (Icon)
         if (index === 0) return child
 

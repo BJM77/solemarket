@@ -3,6 +3,7 @@
 import { firestoreDb } from "@/lib/firebase/admin";
 import { UserProfile, Product } from "@/lib/types";
 import { serializeFirestoreData } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 
 export type SellerWithCategories = UserProfile & {
     categories: string[];
@@ -70,5 +71,63 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
     } catch (error) {
         console.error("Error fetching sellers:", error);
         return [];
+    }
+}
+
+export async function markAsSold(productId: string, fulfillmentType: string) {
+    try {
+        await firestoreDb.collection('products').doc(productId).update({
+            status: 'sold',
+            fulfillmentStatus: fulfillmentType,
+            soldAt: new Date(),
+        });
+        revalidatePath('/sell/dashboard');
+        return { success: true };
+    } catch (error) {
+        console.error('Error marking product as sold:', error);
+        return { success: false, error: 'Failed to mark as sold' };
+    }
+}
+
+export async function deleteListing(productId: string) {
+    try {
+        await firestoreDb.collection('products').doc(productId).delete();
+        revalidatePath('/sell/dashboard');
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        return { success: false, error: 'Failed to delete listing' };
+    }
+}
+
+export async function updateListing(productId: string, data: any) {
+    try {
+        await firestoreDb.collection('products').doc(productId).update({
+            ...data,
+            updatedAt: new Date(),
+        });
+        revalidatePath('/sell/dashboard');
+        revalidatePath(`/product/${productId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating product:', error);
+        return { success: false, error: 'Failed to update listing' };
+    }
+}
+
+export async function republishListing(productId: string) {
+    try {
+        await firestoreDb.collection('products').doc(productId).update({
+            status: 'available', // Or 'active' depending on your schema. Using 'available' based on previous context.
+            updatedAt: new Date(),
+            soldAt: null, // Clear the sold date
+            fulfillmentStatus: null // Clear fulfillment status
+        });
+        revalidatePath('/sell/dashboard');
+        revalidatePath(`/product/${productId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error republishing product:', error);
+        return { success: false, error: 'Failed to republish listing' };
     }
 }

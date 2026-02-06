@@ -5,10 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, TrendingUp, ExternalLink, CheckCircle2, AlertCircle } from 'lucide-react';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useUser } from '@/firebase';
 import type { StructuredPricingResult } from '@/lib/gemini-parser';
+import { updateProductPrice } from '@/app/actions/admin-pricing';
 
 interface PriceAssistantModalProps {
     isOpen: boolean;
@@ -76,16 +75,18 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
 
     const handleUpdatePrice = async (priceToApply: number) => {
         setLoading(true);
+        setError(null);
         try {
-            const productRef = doc(db, 'products', product.id);
-            await updateDoc(productRef, {
-                price: priceToApply,
-                updatedAt: new Date()
-            });
+            const token = await user?.getIdToken();
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            await updateProductPrice(product.id, priceToApply, token);
             setSuccess(true);
             setTimeout(() => onClose(), 1500);
         } catch (err: any) {
-            setError('Failed to update product price');
+            setError(err.message || 'Failed to update product price');
         } finally {
             setLoading(false);
         }

@@ -70,13 +70,13 @@ const nextConfig = {
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com;
       style-src 'self' 'unsafe-inline';
-      img-src 'self' data: blob: https: firebasestorage.googleapis.com;
+      img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com;
       font-src 'self';
       object-src 'none';
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      connect-src 'self' https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://firebaseinstallations.googleapis.com https://firebaselogging.googleapis.com; 
+      connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com blob: data:;
       upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim();
 
