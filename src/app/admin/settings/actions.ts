@@ -46,7 +46,14 @@ export async function getSystemSettings(): Promise<SystemSettings> {
         const docSnap = await settingsRef.get();
 
         if (docSnap.exists) {
-            return docSnap.data() as SystemSettings;
+            const data = docSnap.data();
+            // Return only the settings fields, excluding Firestore Timestamps
+            return {
+                freightCharge: data?.freightCharge ?? 12.00,
+                freeShippingThreshold: data?.freeShippingThreshold ?? 150.00,
+                standardTaxRate: data?.standardTaxRate ?? 0.10,
+                homepageCategoryMode: data?.homepageCategoryMode ?? 'default'
+            };
         }
 
         // Return defaults if not found

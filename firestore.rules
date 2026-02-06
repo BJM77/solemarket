@@ -153,5 +153,28 @@ service cloud.firestore {
       allow read, list: if isSuperAdmin();
       allow update, delete: if isSuperAdmin();
     }
+
+    // Wanted To Buy (WTB) Listings
+    match /wanted_listings/{listingId} {
+      allow read: if true; // Public viewing
+      allow create: if isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerified == true || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+      );
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // WTB Messages
+    match /wtb_messages/{messageId} {
+      allow read: if isSignedIn() && (resource.data.wtbUserId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+      allow create: if isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerified == true || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+      );
+    }
   }
 }

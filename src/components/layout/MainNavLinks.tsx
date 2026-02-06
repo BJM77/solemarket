@@ -1,7 +1,8 @@
-
 "use client"
 
+import * as React from "react";
 import Link from 'next/link';
+import { features } from '@/lib/features';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/navigation-menu';
 import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { useUser } from '@/firebase';
-import React from 'react';
 import { cn } from '@/lib/utils';
 
 export function MainNavLinks() {
@@ -98,20 +98,35 @@ export function MainNavLinks() {
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/bidsy">
-              Bidsy
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/consign">
-              Consign
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        {features.bidsy && (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="/bidsy" className={navigationMenuTriggerStyle()}>
+                Bidsy
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
+
+        {features.wtb && (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="/wtb" className={navigationMenuTriggerStyle()}>
+                WTB
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
+
+        {features.consignment && (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <Link href="/consign">
+                Consign
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/dealsafe">

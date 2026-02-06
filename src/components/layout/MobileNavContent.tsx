@@ -11,6 +11,8 @@ import { db } from '@/lib/firebase/config';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
     Coins, CreditCard, Gem, BookOpen, Stamp, Gamepad2, Search, X
@@ -136,13 +138,22 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/general')}>
                         <LayoutGrid className="mr-3 h-5 w-5" /> General
                     </Button>
-                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/bidsy')}>
-                        <ShoppingBag className="mr-3 h-5 w-5" /> Bidsy
-                    </Button>
-                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/consign')}>
-                        <Tag className="mr-3 h-5 w-5" /> Consign
-                    </Button>
-                    {user && (
+                    {features.bidsy && (
+                        <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/bidsy')}>
+                            <span className="navLinkText">Bidsy</span>
+                        </Button>
+                    )}
+                    {features.wtb && (
+                        <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/wtb')}>
+                            <span className="navLinkText">WTB</span>
+                        </Button>
+                    )}
+                    {features.consignment && (
+                        <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/consign')}>
+                            <span className="navLinkText">Consign</span>
+                        </Button>
+                    )}
+                    {features.research && user && (
                         <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/research')}>
                             <Search className="mr-3 h-5 w-5" /> Research
                         </Button>

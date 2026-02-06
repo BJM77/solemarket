@@ -283,3 +283,37 @@ export interface Dispute {
   resolvedAt?: Timestamp;
   resolvedBy?: string; // Admin ID
 }
+
+// Wanted To Buy (WTB) Listings
+export interface WantedListing {
+  id: string;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL?: string;
+  title: string;
+  description: string;
+  category?: string;
+  subCategory?: string;
+  maxPrice: number;
+  desiredCondition: 'mint' | 'near-mint' | 'excellent' | 'good' | 'fair' | 'any';
+  location: string;
+  imageUrl?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  status: 'active' | 'fulfilled' | 'cancelled';
+  contactCount: number;
+}
+
+// WTB Contact Messages
+export interface WTBMessage {
+  id: string;
+  wtbListingId: string;
+  wtbListingTitle: string;
+  wtbUserId: string;
+  wtbUserName: string;
+  sellerId: string;
+  sellerName: string;
+  message: string;
+  status: 'pending' | 'read' | 'replied';
+  createdAt: Timestamp;
+}

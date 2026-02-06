@@ -11,6 +11,7 @@ import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
 import { Outfit } from 'next/font/google';
 import QueryProvider from '@/providers/QueryProvider';
+import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -19,11 +20,11 @@ const outfit = Outfit({
   weight: ['300', '400', '500', '600', '700', '800', '900'],
 });
 
-// SITE_URL must be set in production environment variables.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
+// SITE_URL loaded from brand configuration
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(siteUrl),
   alternates: {
     canonical: './',
     languages: {
@@ -31,11 +32,11 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: 'Picksy | The Premier Marketplace for Collectors',
-    template: '%s | Picksy',
+    default: brandConfig.seo.defaultTitle,
+    template: `%s | ${SITE_NAME}`,
   },
-  keywords: ['collectibles', 'trading cards', 'coins', 'bullion', 'comics', 'sports cards', 'Pokemon', 'Magic the Gathering', 'Australian marketplace', 'buy and sell collectibles', 'Picksy', 'numismatics', 'TCG'],
-  description: 'Buy, sell, and trade cards, coins, and comics. Picksy is the premier marketplace for collectors.',
+  keywords: brandConfig.seo.keywords,
+  description: brandConfig.seo.defaultDescription,
   other: {
     'geo.region': 'AU',
     'geo.placename': 'Australia',
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_AU',
     url: './',
-    siteName: 'Picksy',
+    siteName: SITE_NAME,
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
   twitter: {
@@ -79,22 +80,105 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Picksy',
-              description: 'Picksy is the premier marketplace for collectors',
-              url: SITE_URL,
-              logo: `${SITE_URL}/logo.png`,
-              areaServed: {
-                '@type': 'Country',
-                name: 'Australia',
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                '@id': `${siteUrl}/#organization`,
+                name: SITE_NAME,
+                description: brandConfig.company.description,
+                url: siteUrl,
+                logo: {
+                  '@type': 'ImageObject',
+                  url: `${siteUrl}${brandConfig.branding.logoUrl}`,
+                  width: '512',
+                  height: '512'
+                },
+                sameAs: [
+                  brandConfig.seo.facebookUrl,
+                  brandConfig.seo.instagramUrl,
+                  brandConfig.seo.tiktokUrl
+                ].filter(Boolean),
+                areaServed: {
+                  '@type': 'Country',
+                  name: brandConfig.contact.address.country
+                },
+                address: {
+                  '@type': 'PostalAddress',
+                  addressLocality: brandConfig.contact.address.city,
+                  addressRegion: brandConfig.contact.address.state,
+                  postalCode: brandConfig.contact.address.postcode,
+                  addressCountry: brandConfig.contact.address.country,
+                  ...(brandConfig.contact.address.street && { streetAddress: brandConfig.contact.address.street })
+                },
+                contactPoint: {
+                  '@type': 'ContactPoint',
+                  telephone: brandConfig.contact.phone,
+                  contactType: 'customer service',
+                  email: brandConfig.contact.email,
+                  areaServed: brandConfig.contact.address.country,
+                  availableLanguage: ['English']
+                }
               },
-              shippingDestination: {
-                '@type': 'DefinedRegion',
-                addressCountry: 'AU',
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                '@id': `${siteUrl}/#website`,
+                url: siteUrl,
+                name: SITE_NAME,
+                description: brandConfig.seo.defaultDescription,
+                publisher: {
+                  '@id': `${siteUrl}/#organization`
+                },
+                potentialAction: {
+                  '@type': 'SearchAction',
+                  target: {
+                    '@type': 'EntryPoint',
+                    urlTemplate: `${siteUrl}/search?q={search_term_string}`
+                  },
+                  'query-input': 'required name=search_term_string'
+                }
               },
-            }),
+              {
+                '@context': 'https://schema.org',
+                '@type': 'LocalBusiness',
+                '@id': `${siteUrl}/#localbusiness`,
+                name: SITE_NAME,
+                image: `${siteUrl}${brandConfig.branding.ogImageUrl}`,
+                url: siteUrl,
+                telephone: brandConfig.contact.phone,
+                email: brandConfig.contact.email,
+                priceRange: '$$',
+                address: {
+                  '@type': 'PostalAddress',
+                  streetAddress: brandConfig.contact.address.street || '',
+                  addressLocality: brandConfig.contact.address.city,
+                  addressRegion: brandConfig.contact.address.state,
+                  postalCode: brandConfig.contact.address.postcode,
+                  addressCountry: brandConfig.contact.address.country
+                },
+                ...(brandConfig.contact.coordinates && {
+                  geo: {
+                    '@type': 'GeoCoordinates',
+                    latitude: brandConfig.contact.coordinates.latitude,
+                    longitude: brandConfig.contact.coordinates.longitude
+                  }
+                }),
+                openingHoursSpecification: [
+                  {
+                    '@type': 'OpeningHoursSpecification',
+                    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                    opens: '09:00',
+                    closes: '17:00'
+                  }
+                ],
+                sameAs: [
+                  brandConfig.seo.facebookUrl,
+                  brandConfig.seo.instagramUrl,
+                  brandConfig.seo.tiktokUrl
+                ].filter(Boolean)
+              }
+            ]),
           }}
         />
         <ErrorBoundary>

@@ -155,6 +155,107 @@ export default function PartnersPage() {
                 </div>
             </section>
 
+            {/* Platform Comparison Section */}
+            <section className="py-20 bg-muted/20 border-y">
+                <div className="container mx-auto max-w-6xl px-6">
+                    <div className="flex flex-col md:flex-row gap-12 items-start">
+                        <div className="md:w-1/3 sticky top-24">
+                            <Badge variant="outline" className="mb-4 text-primary border-primary">Comparison</Badge>
+                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Picksy vs. Others</h2>
+                            <p className="text-lg text-muted-foreground mb-6">
+                                Picksy shares the robust e-commerce power of traditional builders but is architected as a specialized multi-vendor marketplace tailored specifically for the collectibles hobby.
+                            </p>
+                            <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                                <p className="text-sm font-medium">
+                                    "Picksy gives you the industrial-strength tools of a global platform with the community and niche focus of a specialized marketplace."
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="md:w-2/3 grid sm:grid-cols-2 gap-4">
+                            {[
+                                {
+                                    title: "Marketplace Profile",
+                                    desc: "Instead of building a site from scratch, you get a professional Seller Profile (/seller/[id]) within a high-traffic ecosystem.",
+                                    icon: <Store className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Inventory Mastery",
+                                    desc: "Similar to leading e-commerce tools, we support unlimited listings, variants (condition, year), and automated inventory alerts.",
+                                    icon: <BarChart3 className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Seamless Payments",
+                                    desc: "Integrated Stripe processing for secure checkouts, Apple Pay, and Google Pay, without the complexity of manual setup.",
+                                    icon: <ShieldCheck className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Built-in Traffic",
+                                    desc: "While independent store builders require you to find your own customers, Picksy is the destination. We bring the collectors to you.",
+                                    icon: <Search className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Local SEO Focus",
+                                    desc: "World-class SEO specifically tuned for the Australian market, ensuring your items rank where it matters.",
+                                    icon: <Globe className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Domestic Logistics",
+                                    desc: "Optimized for Australia Post with built-in shipping label generation and real-time tracking.",
+                                    icon: <Zap className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Advanced Analytics",
+                                    desc: "Comprehensive seller dashboards tracking sales, visitor behavior, and inventory performance.",
+                                    icon: <BarChart3 className="w-5 h-5 text-primary" />
+                                },
+                                {
+                                    title: "Bank-Grade Security",
+                                    desc: "Level 1 PCI-DSS compliant infrastructure powered by Google Firebase with 99.9% uptime.",
+                                    icon: <Lock className="w-5 h-5 text-primary" />
+                                }
+                            ].map((item, i) => (
+                                <div key={i} className="p-5 bg-card border rounded-xl hover:border-primary/30 transition-colors">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="p-2 bg-primary/10 rounded-lg">
+                                            {item.icon}
+                                        </div>
+                                        <h4 className="font-bold">{item.title}</h4>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                        {item.desc}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-16 grid md:grid-cols-3 gap-6">
+                        <div className="p-6 bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl shadow-xl">
+                            <Sparkles className="w-8 h-8 mb-4 text-white/80" />
+                            <h3 className="text-xl font-bold mb-2">AI Card Grading</h3>
+                            <p className="text-white/80 text-sm">
+                                Proprietary AI analysis that identifies, grades, and values your cards in seconds—a feature generic platforms simply don't offer.
+                            </p>
+                        </div>
+                        <div className="p-6 bg-slate-800 text-white rounded-2xl shadow-xl">
+                            <BarChart3 className="w-8 h-8 mb-4 text-primary" />
+                            <h3 className="text-xl font-bold mb-2">The Price Assistant</h3>
+                            <p className="text-slate-300 text-sm">
+                                Real-time market data integration helping you price your inventory for maximum profit and faster turnover.
+                            </p>
+                        </div>
+                        <div className="p-6 bg-white border-2 border-primary/20 rounded-2xl shadow-xl">
+                            <Lock className="w-8 h-8 mb-4 text-primary" />
+                            <h3 className="text-xl font-bold mb-2 text-slate-900">The Vault</h3>
+                            <p className="text-slate-600 text-sm">
+                                A trust-first verification service. We verify authenticity before the item ever reaches the buyer, eliminating chargeback risk.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Premier Feature: Research Service */}
             <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>

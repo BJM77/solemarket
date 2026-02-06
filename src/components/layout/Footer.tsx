@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Logo } from '../logo';
 import { NewsletterSignup } from './NewsletterSignup';
+import { SITE_NAME, brandConfig } from '@/config/brand';
 
 const footerLinks = {
   Marketplace: [
@@ -9,6 +10,12 @@ const footerLinks = {
     { name: 'Recently Verified', href: '/browse?sort=verified-desc' },
     { name: 'Auctions', href: '/browse?type=auction' },
     { name: 'Private Sales', href: '/sell' },
+  ],
+  Categories: [
+    { name: 'Sports Cards', href: '/collector-cards/sports' },
+    { name: 'Trading Cards', href: '/collector-cards/trading' },
+    { name: 'Coins & Bullion', href: '/coins' },
+    { name: 'Comics & Books', href: '/collectibles/comics' },
   ],
   Company: [
     { name: 'Our AI Tech', href: '/about' },
@@ -26,7 +33,7 @@ export default function Footer() {
           <div className="flex items-center gap-2 text-primary mb-6">
             <Logo />
           </div>
-          <p className="text-sm text-gray-500 max-w-xs mb-4">Picksy is the premier marketplace for collectors</p>
+          <p className="text-sm text-gray-500 max-w-xs mb-4">{brandConfig.company.tagline}</p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -59,7 +66,7 @@ export default function Footer() {
       </div>
       <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-[#e7ebf3] dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
         <Link href="/log" className="cursor-default hover:text-gray-400 transition-colors">
-          © {new Date().getFullYear()} Picksy AI Technologies Inc. All rights reserved.
+          © {new Date().getFullYear()} {brandConfig.company.legalName}. All rights reserved.
         </Link>
         <div className="flex gap-8">
           <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>

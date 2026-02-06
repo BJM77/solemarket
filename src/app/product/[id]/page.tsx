@@ -39,27 +39,48 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? product.imageUrls
     : ['/og-image.jpg'];
 
-  const description = product.description ? product.description.substring(0, 160) : 'Check out this collectible on Picksy.';
+  const description = product.description
+    ? product.description.substring(0, 160)
+    : `Buy ${product.title} on Picksy. ${product.condition ? `Condition: ${product.condition}.` : ''} Trusted Australian marketplace for collectors.`;
+
+  const keywords = [
+    product.category,
+    product.title,
+    product.manufacturer,
+    product.condition,
+    'Picksy',
+    'Australia',
+    'buy collectibles'
+  ].filter(Boolean) as string[];
 
   return {
-    title: `${product.title} | Picksy`,
+    title: `${product.title} | ${product.category} | Picksy`,
     description: description,
+    keywords: keywords,
     openGraph: {
       title: product.title,
-      description: product.condition ? `${product.condition} condition. ${description}` : description,
+      description: description,
       images: images.map(url => ({ url })),
       type: 'website',
       siteName: 'Picksy Marketplace',
+      url: `/product/${product.id}`,
     },
     twitter: {
       card: 'summary_large_image',
       title: product.title,
       description: description,
       images: images,
+      creator: '@picksyau',
     },
     alternates: {
       canonical: `/product/${product.id}`,
     },
+    other: {
+      'product:price:amount': product.price?.toString() || '0',
+      'product:price:currency': 'AUD',
+      'product:availability': product.status === 'available' ? 'instock' : 'oos',
+      'product:condition': product.condition?.toLowerCase() || 'used',
+    }
   };
 }
 

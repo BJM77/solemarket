@@ -2,6 +2,12 @@
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ShoppingCart, Shield, Upload, DollarSign, Package } from "lucide-react";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'How It Works | Picksy Marketplace',
+  description: 'Learn how to buy and sell collectibles securely on Picksy. From AI-powered listings to secure payments and the Picksy Vault.',
+};
 
 const forBuyers = [
   {
@@ -40,8 +46,43 @@ const forSellers = [
 ];
 
 export default function HowItWorksPage() {
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Is Picksy safe for buyers?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes, Picksy uses secure payment processing and offers the Picksy Vault for high-value item verification to ensure you get exactly what you paid for.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'How do I sell on Picksy?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'You can easily list items using our AI-powered tools. Simply upload a photo, and our AI will help with the description, pricing, and grading.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'What is the Picksy Vault?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The Picksy Vault is a third-party verification and secure storage service for high-value collectibles. It ensures authenticity and eliminates shipping risks.'
+        }
+      }
+    ]
+  };
+
   return (
     <div className="bg-gray-50/50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="container py-12 md:py-16">
         <PageHeader
           title="How Picksy Works"

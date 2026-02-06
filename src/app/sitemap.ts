@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
 
-  const productIds = await getActiveProductIds(500); // Limit to top 500 for performance
+  const productIds = await getActiveProductIds(2000); // Limit to top 2000 for performance
   const productRoutes: MetadataRoute.Sitemap = productIds.map(id => ({
     url: `${baseUrl}/product/${id}`,
     lastModified: new Date(),
