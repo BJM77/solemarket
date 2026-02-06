@@ -29,8 +29,8 @@ export default function InventoryAlertsPage() {
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            const fetchedProducts = await getProductsForBulkEdit(); // Reusing the bulk editor action
-            setProducts(fetchedProducts);
+            const fetchedProducts = (await getProductsForBulkEdit()) as Product[]; // Reusing the bulk editor action
+            setProducts(fetchedProducts as Product[]);
             // Initialize thresholds from existing product data or default to 5
             const initialThresholds = fetchedProducts.reduce((acc, product) => {
                 acc[product.id] = product.minStockQuantity || 5;

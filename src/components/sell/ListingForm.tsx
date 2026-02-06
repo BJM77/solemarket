@@ -59,6 +59,13 @@ const formSchema = z.object({
     authentication: z.string().optional(),
     authenticationNumber: z.string().optional(),
     signer: z.string().optional(),
+    isUntimed: z.boolean().default(false),
+}).refine(data => {
+    if (data.isUntimed) return true;
+    return data.price >= 0.01;
+}, {
+    message: "Price must be at least $0.01",
+    path: ["price"],
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -101,6 +108,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             isNegotiable: initialData.isNegotiable || false,
             autoRepricingEnabled: initialData.autoRepricingEnabled || false,
             isVault: initialData.isVault || false,
+            isUntimed: initialData.isUntimed || false,
             imageFiles: initialData.imageUrls || [],
             year: initialData.year ? Number(initialData.year) : '' as any,
             manufacturer: initialData.manufacturer || '',
@@ -318,7 +326,16 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                 <CardHeader><CardTitle>Price & Quantity</CardTitle></CardHeader>
                                 <CardContent className="grid grid-cols-2 gap-4">
                                     <FormField control={form.control} name="price" render={({ field }) => (
-                                        <FormItem><FormLabel>Price (AUD)</FormLabel><div className="relative"><DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /><FormControl><Input type="number" step="0.01" className="pl-9" {...field} /></FormControl></div><FormMessage /></FormItem>
+                                        <FormItem className={form.watch('isUntimed') ? 'opacity-50 pointer-events-none' : ''}>
+                                            <FormLabel>Price (AUD)</FormLabel>
+                                            <div className="relative">
+                                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                <FormControl>
+                                                    <Input type="number" step="0.01" className="pl-9" {...field} disabled={form.watch('isUntimed')} />
+                                                </FormControl>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
                                     )} />
                                     <FormField control={form.control} name="quantity" render={({ field }) => (
                                         <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl></FormItem>
@@ -436,6 +453,30 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                                     <Switch
                                                         checked={field.value}
                                                         onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="isUntimed"
+                                        render={({ field }) => (
+                                            <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                                                <div className="space-y-0.5">
+                                                    <FormLabel>Untimed Listing</FormLabel>
+                                                    <FormDescription className="text-[10px]">Open for offers, no set price.</FormDescription>
+                                                </div>
+                                                <FormControl>
+                                                    <Switch
+                                                        checked={field.value}
+                                                        onCheckedChange={(checked) => {
+                                                            field.onChange(checked);
+                                                            if (checked) {
+                                                                form.setValue('price', 0);
+                                                                form.setValue('isNegotiable', true);
+                                                            }
+                                                        }}
                                                     />
                                                 </FormControl>
                                             </FormItem>

@@ -3,7 +3,7 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
-import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
+// import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
 
 /**
  * Result type for admin actions, ensuring a consistent response shape.
@@ -57,6 +57,7 @@ export async function deleteProductByAdmin(
         let notificationStatus = '';
         if (product.sellerEmail && product.sellerEmail.trim() !== '') {
             try {
+                const { notifySellerOfRemoval } = await import('@/ai/flows/notify-seller-of-removal');
                 await notifySellerOfRemoval({
                     sellerEmail: product.sellerEmail,
                     sellerName: product.sellerName || 'Seller', // Fallback for sellerName

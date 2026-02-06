@@ -68,7 +68,7 @@ const nextConfig = {
     // Content Security Policy
     const cspHeader = `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com;
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network;
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com;
       font-src 'self';
@@ -76,7 +76,8 @@ const nextConfig = {
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com blob: data:;
+      frame-src https://js.stripe.com https://hooks.stripe.com;
+      connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com https://api.stripe.com https://maps.googleapis.com blob: data:;
       upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim();
 

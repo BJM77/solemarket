@@ -93,23 +93,57 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
             <div className="p-4 space-y-4 pb-20">
                 {/* Main Actions */}
                 <nav className="flex flex-col space-y-1">
-                    <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/collector-cards')}>
-                        <CreditCard className="mr-3 h-5 w-5" /> Cards
-                    </Button>
-                    <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/coins')}>
-                        <Coins className="mr-3 h-5 w-5" /> Coins
-                    </Button>
-                    <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/collectibles')}>
+                    <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="cards" className="border-b-0">
+                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-md">
+                                <div className="flex items-center text-base font-medium">
+                                    <CreditCard className="mr-3 h-5 w-5" /> Cards
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="flex flex-col pl-12 space-y-1">
+                                    <Button variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick('/collector-cards')}>All Cards</Button>
+                                    {['Pokemon', 'NBA', 'WWE', 'NFL', 'AFL', 'Soccer', 'F1', 'Fantasy'].map(sub => (
+                                        <Button key={sub} variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick(`/collector-cards?subCategory=${sub}`)}>
+                                            {sub}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="coins" className="border-b-0">
+                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-md">
+                                <div className="flex items-center text-base font-medium">
+                                    <Coins className="mr-3 h-5 w-5" /> Coins
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="flex flex-col pl-12 space-y-1">
+                                    <Button variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick('/coins')}>All Coins</Button>
+                                    {['$2', '$1', '50c'].map(sub => (
+                                        <Button key={sub} variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick(`/coins?subCategory=${sub}`)}>
+                                            {sub} Coins
+                                        </Button>
+                                    ))}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+
+                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/collectibles')}>
                         <Gem className="mr-3 h-5 w-5" /> Memorabilia
                     </Button>
-                    <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/general')}>
+                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/general')}>
                         <LayoutGrid className="mr-3 h-5 w-5" /> General
                     </Button>
-                    <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/consign')}>
+                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/bidsy')}>
+                        <ShoppingBag className="mr-3 h-5 w-5" /> Bidsy
+                    </Button>
+                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/consign')}>
                         <Tag className="mr-3 h-5 w-5" /> Consign
                     </Button>
                     {user && (
-                        <Button variant="ghost" className="justify-start text-base" onClick={() => handleLinkClick('/research')}>
+                        <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/research')}>
                             <Search className="mr-3 h-5 w-5" /> Research
                         </Button>
                     )}

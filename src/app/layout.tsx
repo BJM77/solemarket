@@ -25,15 +25,16 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: '/',
+    canonical: './',
     languages: {
-      'en-AU': '/',
+      'en-AU': './',
     },
   },
   title: {
     default: 'Picksy | The Premier Marketplace for Collectors',
     template: '%s | Picksy',
   },
+  keywords: ['collectibles', 'trading cards', 'coins', 'bullion', 'comics', 'sports cards', 'Pokemon', 'Magic the Gathering', 'Australian marketplace', 'buy and sell collectibles', 'Picksy', 'numismatics', 'TCG'],
   description: 'Buy, sell, and trade cards, coins, and comics. Picksy is the premier marketplace for collectors.',
   other: {
     'geo.region': 'AU',
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_AU',
-    url: '/',
+    url: './',
     siteName: 'Picksy',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },

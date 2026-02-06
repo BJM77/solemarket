@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,6 +131,30 @@ export default function ProductCard({
             <XIcon className="h-4 w-4" />
           </Button>
         </form>
+      );
+    }
+
+    if (product.isUntimed) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider">
+            Make Offer
+          </span>
+          {(isAdmin || isSuperAdmin) && (
+            <div
+              className={cn("flex items-center gap-2 opacity-50 text-xs", isAdmin && "cursor-pointer hover:bg-muted/50 p-1 rounded")}
+              onClick={(e) => {
+                if (isAdmin) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsEditingPrice(true);
+                }
+              }}
+            >
+              ${formatPrice(product.price)}
+            </div>
+          )}
+        </div>
       );
     }
 
@@ -431,15 +455,25 @@ export default function ProductCard({
             <Button
               size="sm"
               variant="outline"
-              className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white pointer-events-auto"
+              className={cn(
+                "h-8 text-xs font-bold border-primary pointer-events-auto",
+                product.isUntimed
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600"
+                  : "text-primary hover:bg-primary hover:text-white"
+              )}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                handleAddToCart(e);
+                if (product.isUntimed) {
+                  // Navigate to product page for offer
+                  router.push(`/product/${product.id}`);
+                } else {
+                  handleAddToCart(e);
+                }
               }}
             >
-              Buy
-              <span className="sr-only"> now: {product.title} for ${formatPrice(product.price)}</span>
+              {product.isUntimed ? "Make Offer" : "Buy"}
+              <span className="sr-only"> {product.isUntimed ? "on" : "now:"} {product.title} {product.isUntimed ? "" : `for $${formatPrice(product.price)}`}</span>
             </Button>
           </div>
         </div>
@@ -748,7 +782,7 @@ export default function ProductCard({
             </div>
           </div>
           <div className="flex gap-2 pointer-events-auto">
-            {product.status === 'pending_approval' && isSuperAdmin ? (
+            {product.status === 'pending_approval' && isSuperAdmin && (
               <Button
                 size="sm"
                 className="h-8 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95"
@@ -758,18 +792,29 @@ export default function ProductCard({
                 {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4 mr-1" />}
                 Approve
               </Button>
-            ) : (
+            )}
+            {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                className="h-8 sm:h-10 bg-primary hover:bg-primary/90 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95"
+                variant={product.isUntimed ? "default" : "default"}
+                className={cn(
+                  "h-8 sm:h-10 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95",
+                  product.isUntimed
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    : "bg-primary hover:bg-primary/90 text-white"
+                )}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleAddToCart(e);
+                  if (product.isUntimed) {
+                    router.push(`/product/${product.id}`);
+                  } else {
+                    handleAddToCart(e);
+                  }
                 }}
               >
-                <ShoppingCart className="h-4 w-4 mr-1" />
-                Add
+                {product.isUntimed ? <Coins className="h-4 w-4 mr-1" /> : <ShoppingCart className="h-4 w-4 mr-1" />}
+                {product.isUntimed ? "Offer" : "Add"}
               </Button>
             )}
           </div>

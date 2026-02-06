@@ -117,6 +117,7 @@ export type Product = {
   isNegotiable?: boolean;
   isFeatured?: boolean;
   title_lowercase?: string;
+  isUntimed?: boolean;
 };
 
 export type ProductSearchParams = {
@@ -136,6 +137,8 @@ export type ProductSearchParams = {
   yearRange?: [number, number];
   verifiedOnly?: boolean;
   lastId?: string;
+  status?: string;
+  isUntimed?: boolean;
 };
 
 
@@ -146,7 +149,8 @@ export type Bid = {
   amount: number;
   timestamp: Timestamp; // Firestore timestamp
   status: 'pending' | 'accepted' | 'rejected';
-  paymentIntentId?: string; // For binding offers
+  paymentMethodId?: string;
+  stripeSetupIntentId?: string;
 };
 
 export interface Donation {

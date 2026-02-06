@@ -7,7 +7,7 @@ import { Product, Bid } from '@/lib/types';
 import { sendNotification } from '@/services/notifications';
 import { revalidatePath } from 'next/cache';
 
-export async function placeBidAction(productId: string, idToken: string, amount: number) {
+export async function placeBidAction(productId: string, idToken: string, amount: number, paymentMethodId?: string) {
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: bidderId, name: bidderName } = decodedToken;
@@ -46,7 +46,8 @@ export async function placeBidAction(productId: string, idToken: string, amount:
                 bidderName: bidderName || 'Anonymous',
                 amount,
                 timestamp: firebaseAdmin.firestore.Timestamp.now() as any,
-                status: 'pending'
+                status: 'pending',
+                paymentMethodId: paymentMethodId || undefined
             };
 
             transaction.update(productRef, {
@@ -164,5 +165,170 @@ export async function acceptBidAction(productId: string, idToken: string, bidId:
     } catch (error: any) {
         console.error('Accept bid failed:', error);
         return { success: false, error: error.message || 'Failed to accept offer.' };
+    }
+}
+
+export async function rejectBidAction(productId: string, idToken: string, bidId: string) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const { uid: userId } = decodedToken;
+
+        const result = await firestoreDb.runTransaction(async (transaction) => {
+            const productRef = firestoreDb.collection('products').doc(productId);
+            const productSnap = await transaction.get(productRef);
+
+            if (!productSnap.exists) {
+                throw new Error('Product not found');
+            }
+
+            const product = productSnap.data() as Product;
+
+            // Check authorization: must be seller or admin
+            const isSeller = product.sellerId === userId;
+            const isStaff = ['admin', 'superadmin'].includes(decodedToken.role);
+
+            if (!isSeller && !isStaff) {
+                throw new Error('Unauthorized');
+            }
+
+            const bids = product.bids || [];
+            const bidIndex = bids.findIndex(b => b.id === bidId);
+
+            if (bidIndex === -1) {
+                throw new Error("Bid not found.");
+            }
+
+            const bidToReject = bids[bidIndex];
+
+            // Call Stripe to cancel payment intent if necessary (placeholder for now as we don't have the secret key in this scope easily without importing)
+            // Ideally, we would cancel the PaymentIntent here if it was authorized but not captured.
+            // For Bidsy v1, marking as rejected is sufficient to prevent capture.
+
+            bids[bidIndex] = { ...bidToReject, status: 'rejected' };
+
+            transaction.update(productRef, { bids });
+
+            return {
+                bidderId: bidToReject.bidderId,
+                productTitle: product.title,
+                amount: bidToReject.amount
+            };
+        });
+
+        // Notify Bidder
+        await sendNotification(
+            result.bidderId,
+            'system',
+            'Offer Declined',
+            `Your offer of $${result.amount.toLocaleString()} for "${result.productTitle}" was declined.`,
+            `/product/${productId}`
+        );
+
+        revalidatePath(`/product/${productId}`);
+        return { success: true, message: 'Offer rejected.' };
+
+    } catch (error: any) {
+        console.error('Reject bid failed:', error);
+        return { success: false, error: error.message || 'Failed to reject offer.' };
+    }
+}
+
+export async function getSellerProductsWithOffers(idToken: string) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const sellerId = decodedToken.uid;
+
+        // Query products by this seller that handle bids (reverse bidding or negotiable or untimed)
+        // We can't easily query inside the 'bids' array for status='pending' without a collection group index or complex querying.
+        // Instead, we'll fetch the seller's active products and filter in memory for those with pending bids.
+        // Optimisation: We could add a 'hasPendingBids' flag to the product document in the future.
+
+        const productsRef = firestoreDb.collection('products');
+        const snapshot = await productsRef
+            .where('sellerId', '==', sellerId)
+            .where('status', 'in', ['available', 'active'])
+            // We might need to check 'available' or whatever the active status is. 
+            // Based on types.ts, status is 'available' | 'sold' ...
+            .get();
+
+        const productsWithOffers: Product[] = [];
+
+        snapshot.docs.forEach(doc => {
+            const product = { id: doc.id, ...doc.data() } as Product;
+            const hasPendingBids = product.bids?.some(bid => bid.status === 'pending');
+
+            if (hasPendingBids) {
+                productsWithOffers.push(product);
+            }
+        });
+
+        return productsWithOffers;
+
+    } catch (error) {
+        console.error('Error fetching products with offers:', error);
+        return [];
+    }
+}
+
+export async function resetOffersAction(productId: string, idToken: string) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const { uid: userId } = decodedToken;
+
+        const result = await firestoreDb.runTransaction(async (transaction) => {
+            const productRef = firestoreDb.collection('products').doc(productId);
+            const productSnap = await transaction.get(productRef);
+
+            if (!productSnap.exists) {
+                throw new Error('Product not found');
+            }
+
+            const product = productSnap.data() as Product;
+
+            if (product.sellerId !== userId) {
+                throw new Error('Unauthorized');
+            }
+
+            const activeBids = product.bids || [];
+            if (activeBids.length === 0) {
+                return { success: true, message: 'No offers to reset.' };
+            }
+
+            // Archive all bids that are not already accepted/sold (which shouldn't happen here anyway as we filter for available products usually)
+            // But strict logic: pending/rejected -> archived.
+            const updatedBids = activeBids.map(bid => {
+                if (['pending', 'rejected'].includes(bid.status)) {
+                    return { ...bid, status: 'archived' as const };
+                }
+                return bid;
+            });
+
+            transaction.update(productRef, { bids: updatedBids });
+
+            return {
+                success: true,
+                bidsToNotify: activeBids.filter(b => b.status === 'pending')
+            };
+        });
+
+        if (result.success && result.bidsToNotify) {
+            // Notify pending bidders
+            await Promise.all(result.bidsToNotify.map(bid =>
+                sendNotification(
+                    bid.bidderId,
+                    'system',
+                    'Offer Cancelled',
+                    `The seller has reset offers for "${productId}". Your offer has been removed.`,
+                    `/product/${productId}`
+                )
+            ));
+        }
+
+        revalidatePath(`/product/${productId}`);
+        return { success: true, message: 'All offers have been reset.' };
+
+    } catch (error: any) {
+        console.error('Reset offers failed:', error);
+        return { success: false, error: error.message || 'Failed to reset offers.' };
     }
 }

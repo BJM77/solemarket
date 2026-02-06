@@ -17,6 +17,9 @@ export async function createUserProfile(uid: string, data: Partial<UserProfile>)
   await setDoc(doc(db, 'users', uid), {
     id: uid,
     ...data,
+    ...data,
+    isVerified: false,
+    verificationStatus: 'none',
     createdAt: serverTimestamp(),
   }, { merge: true });
 }

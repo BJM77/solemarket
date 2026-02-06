@@ -1,7 +1,7 @@
 'use server';
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { getCurrentUser } from '@/lib/firebase/auth-admin'; // Optional: if we want to add auth check later
+import { getAuthenticatedUser } from '@/lib/firebase/auth-admin'; // Optional: if we want to add auth check later
 
 
 const SEO_SETTINGS_DOC_ID = 'seo_settings';

@@ -56,7 +56,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: product.title,
       description: description,
       images: images,
-    }
+    },
+    alternates: {
+      canonical: `/product/${product.id}`,
+    },
   };
 }
 

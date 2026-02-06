@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, ShoppingBag, Loader2, User as UserIcon } from 'lucide-react';
+import { Heart, ShoppingBag, Loader2, User as UserIcon, DollarSign } from 'lucide-react';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -40,9 +40,9 @@ function ProfileSkeleton() {
           </Card>
         </div>
         <div className="lg:col-span-3">
-            <div className="mb-6">
-                <Skeleton className="h-10 w-64" />
-            </div>
+          <div className="mb-6">
+            <Skeleton className="h-10 w-64" />
+          </div>
           <Skeleton className="h-64 w-full" />
         </div>
       </div>
@@ -51,9 +51,9 @@ function ProfileSkeleton() {
 }
 
 export default function ProfileLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -64,10 +64,11 @@ export default function ProfileLayout({
       router.push('/sign-in?redirect=/profile');
     }
   }, [isUserLoading, user, router]);
-  
+
   const getCurrentTab = () => {
     if (pathname.includes('/favorites')) return 'favorites';
     if (pathname.includes('/listings')) return 'listings';
+    if (pathname.includes('/offers')) return 'offers';
     return 'profile';
   }
 
@@ -76,7 +77,7 @@ export default function ProfileLayout({
   }
 
   if (!user) {
-     return <ProfileSkeleton />; // Show skeleton while redirecting
+    return <ProfileSkeleton />; // Show skeleton while redirecting
   }
 
   return (
@@ -103,21 +104,24 @@ export default function ProfileLayout({
 
         {/* Right Content */}
         <main className="lg:col-span-3">
-            <Tabs value={getCurrentTab()} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 max-w-md mb-6">
-                    <TabsTrigger value="profile" asChild>
-                        <Link href="/profile"><UserIcon className="w-4 h-4 mr-2"/>Profile</Link>
-                    </TabsTrigger>
-                    <TabsTrigger value="listings" asChild>
-                        <Link href="/profile/listings"><ShoppingBag className="w-4 h-4 mr-2"/>My Listings</Link>
-                    </TabsTrigger>
-                    <TabsTrigger value="favorites" asChild>
-                        <Link href="/profile/favorites"><Heart className="w-4 h-4 mr-2"/>Favorites</Link>
-                    </TabsTrigger>
-                </TabsList>
-                {/* The active page content will be rendered here */}
-                {children}
-            </Tabs>
+          <Tabs value={getCurrentTab()} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 max-w-lg mb-6">
+              <TabsTrigger value="profile" asChild>
+                <Link href="/profile"><UserIcon className="w-4 h-4 mr-2" />Profile</Link>
+              </TabsTrigger>
+              <TabsTrigger value="listings" asChild>
+                <Link href="/profile/listings"><ShoppingBag className="w-4 h-4 mr-2" />My Listings</Link>
+              </TabsTrigger>
+              <TabsTrigger value="offers" asChild>
+                <Link href="/profile/offers"><DollarSign className="w-4 h-4 mr-2" />Offers</Link>
+              </TabsTrigger>
+              <TabsTrigger value="favorites" asChild>
+                <Link href="/profile/favorites"><Heart className="w-4 h-4 mr-2" />Favorites</Link>
+              </TabsTrigger>
+            </TabsList>
+            {/* The active page content will be rendered here */}
+            {children}
+          </Tabs>
         </main>
       </div>
     </div>

@@ -89,12 +89,19 @@ export default function MyListingsPage() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           My Listings
         </h1>
-        <Button asChild>
-          <Link href="/sell/create">
-            <Upload className="h-4 w-4 mr-2" />
-            New Listing
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/profile/listings/bulk">
+              Bulk Edit
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/sell/create">
+              <Upload className="h-4 w-4 mr-2" />
+              New Listing
+            </Link>
+          </Button>
+        </div>
       </div>
       {products && products.length > 0 ? (
         <ProductGrid products={products} />

@@ -7,7 +7,7 @@ import { serializeFirestoreData } from '@/lib/utils';
 const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string }> {
-  const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange } = searchParams;
+  const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange, isUntimed } = searchParams;
 
   const productsRef = collection(db, 'products');
   let constraints: QueryConstraint[] = [];
@@ -53,6 +53,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // Verified Only Filter
   if (searchParams.verifiedOnly) {
     constraints.push(where('sellerVerified', '==', true));
+  }
+
+  // Untimed Filter
+  if (isUntimed !== undefined) {
+    constraints.push(where('isUntimed', '==', isUntimed));
   }
 
   // Firestore allows only ONE field to have inequality filters.

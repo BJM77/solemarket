@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 import { getCategories, getActiveProductIds } from '@/lib/firebase/firestore';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://picksy.com.au';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
 
   // Key static routes that should be indexed
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -14,7 +14,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/how-it-works',
     '/safety-tips',
     '/donate',
+    '/donate',
     '/vault',
+    '/bidsy',
     '/collector-cards',
     '/collector-cards/sports',
     '/collector-cards/trading',

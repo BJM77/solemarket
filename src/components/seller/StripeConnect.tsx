@@ -16,15 +16,19 @@ export function StripeConnect({ stripeEnabled = false, stripeAccountId = '' }: {
 
     const handleConnect = () => {
         startTransition(async () => {
-            const idToken = await getCurrentUserIdToken();
-            if (!idToken) return;
+            try {
+                const idToken = await getCurrentUserIdToken();
+                if (!idToken) return;
 
-            const result = await connectStripeAction(idToken);
-            if (result.success) {
-                toast({ title: "Secure Payouts Active", description: result.message });
-                window.location.reload();
-            } else {
-                toast({ title: "Authorization Failed", description: result.message, variant: "destructive" });
+                const result = await connectStripeAction(idToken);
+                if (result.success && result.url) {
+                    toast({ title: "Redirecting to Stripe", description: "Please complete the onboarding details." });
+                    window.location.href = result.url;
+                } else {
+                    toast({ title: "Connection Failed", description: result.message, variant: "destructive" });
+                }
+            } catch (error) {
+                toast({ title: "Error", description: "Something went wrong.", variant: "destructive" });
             }
         });
     };

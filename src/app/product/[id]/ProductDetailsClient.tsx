@@ -290,6 +290,20 @@ export default function ProductDetailsClient({
     }
 
     const handleAddToCart = () => {
+        if (!user) {
+            router.push(`/sign-in?redirect=/product/${product?.id}`);
+            return;
+        }
+        if (user.role !== 'admin' && user.role !== 'superadmin' && !user.isVerified) {
+            toast({
+                title: "Verification Required",
+                description: "You must verify your identity before adding items to cart.",
+                variant: "destructive"
+            });
+            router.push('/verify');
+            return;
+        }
+
         addItem(product, 1);
         toast({
             title: "Added to Cart!",
@@ -464,9 +478,16 @@ export default function ProductDetailsClient({
                             <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.title}</h1>
 
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="text-4xl font-bold text-gray-900">
-                                    ${formatPrice(product.price)}
-                                </div>
+                                {!product.isUntimed && (
+                                    <div className="text-4xl font-bold text-gray-900">
+                                        ${formatPrice(product.price)}
+                                    </div>
+                                )}
+                                {product.isUntimed && (
+                                    <Badge className="text-lg py-1 px-3 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-indigo-200">
+                                        Make Offer
+                                    </Badge>
+                                )}
                             </div>
 
                             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
@@ -512,27 +533,29 @@ export default function ProductDetailsClient({
                         <div className="space-y-4 pt-4 border-t">
                             {(!product.isReverseBidding || user?.uid === product.sellerId) && (
                                 <div className="flex flex-row gap-3">
-                                    <Button
-                                        size="lg"
-                                        className="flex-1 h-20 text-lg font-bold"
-                                        onClick={handleAddToCart}
-                                        disabled={!product.quantity || product.quantity === 0}
-                                    >
-                                        <ShoppingCart className="h-6 w-6 mr-2" />
-                                        Buy It
-                                    </Button>
-                                    {product.isNegotiable && (
+                                    {!product.isUntimed && (
+                                        <Button
+                                            size="lg"
+                                            className="flex-1 h-20 text-lg font-bold"
+                                            onClick={handleAddToCart}
+                                            disabled={!product.quantity || product.quantity === 0}
+                                        >
+                                            <ShoppingCart className="h-6 w-6 mr-2" />
+                                            Buy It
+                                        </Button>
+                                    )}
+                                    {(product.isNegotiable || product.isUntimed) && (
                                         <OfferModal
                                             product={product}
                                             user={user}
                                             trigger={
                                                 <Button
                                                     size="lg"
-                                                    variant="outline"
-                                                    className="flex-1 h-20 text-lg font-bold"
+                                                    variant={product.isUntimed ? "default" : "outline"}
+                                                    className={cn("flex-1 h-20 text-lg font-bold", product.isUntimed && "bg-indigo-600 hover:bg-indigo-700 text-white")}
                                                 >
                                                     <DollarSign className="h-6 w-6 mr-2" />
-                                                    Make Offer
+                                                    {product.isUntimed ? "Make Offer" : "Make Offer"}
                                                 </Button>
                                             }
                                         />
