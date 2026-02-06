@@ -27,7 +27,7 @@ export default function PartnersPage() {
                             <Badge variant="secondary" className="px-3 py-1 text-sm font-medium border-primary/20 bg-primary/10 text-primary mb-2">
                                 Restricted Access • Partner Program
                             </Badge>
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-headline text-foreground">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-headline text-foreground">
                                 Turn Your Shelf Space <br />
                                 <span className="text-primary">Into Global Sales.</span>
                             </h1>
@@ -36,10 +36,10 @@ export default function PartnersPage() {
                                 Leverage AI, security, and SEO to unlock the true value of your inventory.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                <Button size="lg" className="text-base px-8 shadow-lg shadow-primary/20" asChild>
+                                <Button size="lg" className="text-base px-8 shadow-lg shadow-primary/20 h-12" asChild>
                                     <Link href="#contact">Apply for Access</Link>
                                 </Button>
-                                <Button size="lg" variant="outline" className="text-base" asChild>
+                                <Button size="lg" variant="outline" className="text-base h-12" asChild>
                                     <Link href="#features">Explore Benefits</Link>
                                 </Button>
                             </div>
@@ -87,7 +87,7 @@ export default function PartnersPage() {
             {/* Trust & Stats */}
             <section className="border-y bg-muted/30 py-8">
                 <div className="container mx-auto max-w-6xl">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
                         {[
                             { label: "Verified Buyers", value: "100%" },
                             { label: "Search Visibility", value: "Top Tier" },
@@ -113,7 +113,7 @@ export default function PartnersPage() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-3 gap-6 md:gap-8">
                     <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-primary">
                         <CardHeader>
                             <ShieldCheck className="w-10 h-10 text-primary mb-4" />
@@ -162,7 +162,7 @@ export default function PartnersPage() {
                     <div className="flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2">
                             <Badge className="bg-yellow-500 text-black hover:bg-yellow-400 mb-6">New Premium Service</Badge>
-                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Picksy Research & Valuation</h2>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-headline mb-6">Picksy Research & Valuation</h2>
                             <p className="text-slate-300 text-lg mb-8 leading-relaxed">
                                 Have high-value items but unsure of their market price? Don&apos;t leave money on the table.
                                 <br /><br />
@@ -212,7 +212,7 @@ export default function PartnersPage() {
 
             {/* Pricing & Contact */}
             <section id="contact" className="py-24 container mx-auto max-w-6xl px-6">
-                <div className="grid lg:grid-cols-2 gap-16">
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
                     <div className="space-y-8">
                         <div>
                             <h2 className="text-3xl font-bold font-headline mb-4">Flexible, Negotiable Pricing</h2>

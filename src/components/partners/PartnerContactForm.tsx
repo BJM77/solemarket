@@ -101,7 +101,7 @@ export function PartnerContactForm() {
                                 <FormItem>
                                     <FormLabel>Contact Person</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Your Name" {...field} />
+                                        <Input placeholder="Your Name" className="h-12 sm:h-10" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -143,7 +143,7 @@ export function PartnerContactForm() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="store@example.com" type="email" {...field} />
+                                        <Input placeholder="store@example.com" type="email" className="h-12 sm:h-10" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -156,7 +156,7 @@ export function PartnerContactForm() {
                                 <FormItem>
                                     <FormLabel>Phone (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="0400..." {...field} />
+                                        <Input placeholder="0400..." className="h-12 sm:h-10" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -206,7 +206,7 @@ export function PartnerContactForm() {
                         )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" className="w-full h-12" disabled={isLoading}>
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                         Request Partner Access
                     </Button>
