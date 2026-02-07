@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Coins, CreditCard, Gem, BookOpen, Stamp, Gamepad2, Search, X
+    Coins, CreditCard, Gem, BookOpen, Stamp, Gamepad2, Search, X, Scan
 } from 'lucide-react';
 import type { Category, UserProfile } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -148,6 +148,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <span className="navLinkText">WTB</span>
                         </Button>
                     )}
+                    <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/scan')}>
+                        <Scan className="mr-3 h-5 w-5" /> Scan
+                    </Button>
                     {features.consignment && (
                         <Button variant="ghost" className="justify-start text-base px-4" onClick={() => handleLinkClick('/consign')}>
                             <span className="navLinkText">Consign</span>

@@ -118,6 +118,14 @@ export function MainNavLinks() {
           </NavigationMenuItem>
         )}
 
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link href="/scan" className={navigationMenuTriggerStyle()}>
+              Scan
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
         {features.consignment && (
           <NavigationMenuItem>
             <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>

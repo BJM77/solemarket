@@ -8,6 +8,7 @@ const nextConfig = {
     '@genkit-ai/google-genai',
     'genkit',
     '@google-cloud/firestore',
+    'sharp',
   ],
   experimental: {
     serverActions: {
