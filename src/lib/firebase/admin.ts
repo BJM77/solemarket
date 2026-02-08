@@ -70,11 +70,17 @@ function initializeFirebaseAdmin() {
 
         // Priority 2.5: Individual Secret Environment Variables (App Hosting/Secrets)
         if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-            console.log('✅ Firebase Admin: Using Individual Secrets');
+            console.log('✅ Firebase Admin: Attempting to use Individual Secrets');
+            console.log('   FIREBASE_ADMIN_CLIENT_EMAIL is set:', !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL);
+            console.log('   FIREBASE_ADMIN_PRIVATE_KEY length:', process.env.FIREBASE_ADMIN_PRIVATE_KEY?.length);
             try {
-                // Handle private key newlines
-                const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
-                return admin.initializeApp({
+                // Handle private key newlines - support both escaped (\\n) and literal newlines
+                let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+                // Replace escaped literal \n with actual newlines if needed
+                if (privateKey.includes('\\n')) {
+                    privateKey = privateKey.replace(/\\n/g, '\n');
+                }
+                const app = admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert({
                         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
@@ -82,9 +88,15 @@ function initializeFirebaseAdmin() {
                         privateKey: privateKey,
                     }),
                 });
-            } catch (error) {
-                console.error('❌ Firebase Admin: Failed to initialize with individual secrets:', error);
+                console.log('✅ Firebase Admin: Successfully initialized with Individual Secrets');
+                return app;
+            } catch (error: any) {
+                console.error('❌ Firebase Admin: Failed to initialize with individual secrets:', error.message);
             }
+        } else {
+            console.log('⚠️ Firebase Admin: Individual secrets not set, skipping Priority 2.5');
+            console.log('   FIREBASE_ADMIN_PRIVATE_KEY:', !!process.env.FIREBASE_ADMIN_PRIVATE_KEY);
+            console.log('   FIREBASE_ADMIN_CLIENT_EMAIL:', !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL);
         }
 
         // Priority 3: File-based Service Account (Development/Local)
