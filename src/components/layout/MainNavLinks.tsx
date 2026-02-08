@@ -118,12 +118,36 @@ export function MainNavLinks() {
           </NavigationMenuItem>
         )}
 
+
         <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link href="/scan" className={navigationMenuTriggerStyle()}>
-              Scan
-            </Link>
-          </NavigationMenuLink>
+          <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-white dark:bg-slate-900">
+              <li className="row-span-3">
+                <NavigationMenuLink asChild>
+                  <Link
+                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted to-muted/50 p-6 no-underline outline-none focus:shadow-md"
+                    href="/scan"
+                  >
+                    <div className="mb-2 mt-4 text-lg font-medium">
+                      Scan Cards
+                    </div>
+                    <p className="text-sm leading-tight text-muted-foreground">
+                      Use AI to scan and identify your trading cards instantly.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <ListItem title="Scan" href="/scan">
+                AI-powered card scanning and identification
+              </ListItem>
+              {user && (
+                <ListItem title="Research" href="/research">
+                  Research tools and price history analysis
+                </ListItem>
+              )}
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
 
         {features.consignment && (
@@ -143,15 +167,6 @@ export function MainNavLinks() {
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        {user && (
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <Link href="/research">
-                Research
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        )}
       </NavigationMenuList>
     </NavigationMenu>
   );
