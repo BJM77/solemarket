@@ -5,8 +5,8 @@ import { firestoreDb, admin as firebaseAdmin } from "@/lib/firebase/admin";
 import { sendNotification, getSuperAdminId } from "@/services/notifications";
 import { Resend } from 'resend';
 
-// Initialize Resend with API Key (simulated success if key missing to prevent crash)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API Key - use lazy/nullable pattern to prevent crash if key missing
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const ConsignmentSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -128,7 +128,7 @@ export async function submitConsignmentInquiry(
  * Sends a confirmation email to the user using Resend.
  */
 async function sendConfirmationEmail(email: string, name: string): Promise<void> {
-    if (!process.env.RESEND_API_KEY) {
+    if (!resend) {
         console.warn('RESEND_API_KEY is not set. Skipping email sending.');
         return;
     }
@@ -159,7 +159,7 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
  * Sends a notification email to the admin.
  */
 async function sendAdminNotificationEmail(data: any): Promise<void> {
-    if (!process.env.RESEND_API_KEY) return;
+    if (!resend) return;
 
     // In a real app, fetch this from config or env
     const ADMIN_EMAIL = 'ben@picksy.au'; // Default fallback or use env var
