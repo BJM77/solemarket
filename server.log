@@ -542,3 +542,837 @@ Critical dependency: the request of a dependency is an expression
 Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/user-preferences.ts
+ GET /scan 200 in 1097ms
+ GET /scan 200 in 462ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ POST /api/auth/session 200 in 17213ms
+ GET /browse 200 in 20239ms
+ GET / 200 in 20276ms
+ GET /about 200 in 20271ms
+ GET /collector-cards/sports 200 in 20410ms
+ GET /sign-in 200 in 20439ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /general 200 in 5024ms
+ GET /bidsy 200 in 4997ms
+ GET /wtb 200 in 4944ms
+ GET /collectibles 200 in 5108ms
+ GET /sign-up 200 in 5114ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ POST /scan 200 in 7678ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /dealsafe 200 in 7181ms
+ GET /research 200 in 4454ms
+ GET /consign 200 in 7292ms
+ GET /sell/create 200 in 4456ms
+=== SCAN STARTED ===
+User ID: O5nCLgbIaRRRF369K0kjgT59io73
+Image file: 20250809_151851.jpg Size: 5764584 bytes
+Image buffer created, size: 5764584
+Target cards: 38
+✓ Grid detected: 36 cards in 6x6 grid
+
+Processing card 1/36...
+  Cropping card at (0, 0)...
+  ✓ Card cropped, buffer size: 82924
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 1: Unreadable - $5 (bulk)
+
+Processing card 2/36...
+  Cropping card at (666, 0)...
+  ✓ Card cropped, buffer size: 80145
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "Origins",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 2: Unreadable - $5 (bulk)
+
+Processing card 3/36...
+  Cropping card at (1332, 0)...
+  ✓ Card cropped, buffer size: 82282
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 3: Unreadable - $5 (bulk)
+
+Processing card 4/36...
+  Cropping card at (1998, 0)...
+  ✓ Card cropped, buffer size: 76575
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 4: Unreadable - $5 (bulk)
+
+Processing card 5/36...
+  Cropping card at (2664, 0)...
+  ✓ Card cropped, buffer size: 82237
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "RUI HACHIMURA",
+  "set": "PRIZM",
+  "cardNumber": "",
+  "condition": "Unknown"
+
+  Matching card "RUI HACHIMURA" against keep list...
+  ✓ Match result: RUI HACHIMURA (confidence: 0%, value: $5)
+Card 5: RUI HACHIMURA - $5 (bulk)
+
+Processing card 6/36...
+  Cropping card at (3330, 0)...
+  ✓ Card cropped, buffer size: 91917
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 6: Unreadable - $5 (bulk)
+
+Processing card 7/36...
+  Cropping card at (0, 500)...
+  ✓ Card cropped, buffer size: 80586
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+  ✓ Gemini response received: ```json
+{
+  "name": "Jusuf Nurkic",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Jusuf Nurkic" against keep list...
+  ✓ Match result: Jusuf Nurkic (confidence: 0%, value: $5)
+Card 7: Jusuf Nurkic - $5 (bulk)
+
+Processing card 8/36...
+  Cropping card at (666, 500)...
+  ✓ Card cropped, buffer size: 78161
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "CALEB HOUSTAN",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "CALEB HOUSTAN" against keep list...
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /contact 200 in 4159ms
+  ✓ Match result: CALEB HOUSTAN (confidence: 0%, value: $5)
+Card 8: CALEB HOUSTAN - $5 (bulk)
+
+Processing card 9/36...
+  Cropping card at (1332, 500)...
+  ✓ Card cropped, buffer size: 85403
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Zeke Nnaji",
+  "set": "Nuggets",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+  Matching card "Zeke Nnaji" against keep list...
+  ✓ Match result: Zeke Nnaji (confidence: 0%, value: $5)
+Card 9: Zeke Nnaji - $5 (bulk)
+
+Processing card 10/36...
+  Cropping card at (1998, 500)...
+  ✓ Card cropped, buffer size: 83450
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Jeremy Lamb",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Jeremy Lamb" against keep list...
+  ✓ Match result: Jeremy Lamb (confidence: 0%, value: $5)
+Card 10: Jeremy Lamb - $5 (bulk)
+
+Processing card 11/36...
+  Cropping card at (2664, 500)...
+  ✓ Card cropped, buffer size: 91221
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 11: Unreadable - $5 (bulk)
+
+Processing card 12/36...
+  Cropping card at (3330, 500)...
+  ✓ Card cropped, buffer size: 92141
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 12: Unreadable - $5 (bulk)
+
+Processing card 13/36...
+  Cropping card at (0, 1000)...
+  ✓ Card cropped, buffer size: 64770
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Killian Hayes",
+  "set": "Panini Contenders 2021",
+  "cardNumber": "",
+  "condi
+  Matching card "Killian Hayes" against keep list...
+  ✓ Match result: Killian Hayes (confidence: 0%, value: $5)
+Card 13: Killian Hayes - $5 (bulk)
+
+Processing card 14/36...
+  Cropping card at (666, 1000)...
+  ✓ Card cropped, buffer size: 86173
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "CJ McCollum",
+  "set": "20-21",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+
+  Matching card "CJ McCollum" against keep list...
+  ✓ Match result: CJ McCollum (confidence: 100%, value: $100)
+Card 14: CJ McCollum - $100 (keep)
+
+Processing card 15/36...
+  Cropping card at (1332, 1000)...
+  ✓ Card cropped, buffer size: 103971
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Bruce Brown",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Bruce Brown" against keep list...
+  ✓ Match result: Bruce Brown (confidence: 0%, value: $5)
+Card 15: Bruce Brown - $5 (bulk)
+
+Processing card 16/36...
+  Cropping card at (1998, 1000)...
+  ✓ Card cropped, buffer size: 81018
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Eric Paschall",
+  "set": "Mosaic",
+  "cardNumber": "",
+  "condition": "Near Min
+  Matching card "Eric Paschall" against keep list...
+  ✓ Match result: Eric Paschall (confidence: 0%, value: $5)
+Card 16: Eric Paschall - $5 (bulk)
+
+Processing card 17/36...
+  Cropping card at (2664, 1000)...
+  ✓ Card cropped, buffer size: 74137
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "IQ Whitehead",
+  "set": "Select",
+  "cardNumber": "",
+  "condition": "Unknown"
+
+  Matching card "IQ Whitehead" against keep list...
+  ✓ Match result: IQ Whitehead (confidence: 0%, value: $5)
+Card 17: IQ Whitehead - $5 (bulk)
+
+Processing card 18/36...
+  Cropping card at (3330, 1000)...
+  ✓ Card cropped, buffer size: 83110
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Amari Bailey",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Amari Bailey" against keep list...
+  ✓ Match result: Amari Bailey (confidence: 0%, value: $5)
+Card 18: Amari Bailey - $5 (bulk)
+
+Processing card 19/36...
+  Cropping card at (0, 1500)...
+  ✓ Card cropped, buffer size: 88011
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+ POST /scan 200 in 43910ms
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 19: Unreadable - $5 (bulk)
+
+Processing card 20/36...
+  Cropping card at (666, 1500)...
+  ✓ Card cropped, buffer size: 87909
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Keyontae Johnson",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+
+  Matching card "Keyontae Johnson" against keep list...
+  ✓ Match result: Keyontae Johnson (confidence: 0%, value: $5)
+Card 20: Keyontae Johnson - $5 (bulk)
+
+Processing card 21/36...
+  Cropping card at (1332, 1500)...
+  ✓ Card cropped, buffer size: 86212
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Keyontae Johnson",
+  "set": "Prizm",
+  "cardNumber": "",
+  "condition": "Unknow
+  Matching card "Keyontae Johnson" against keep list...
+  ✓ Match result: Keyontae Johnson (confidence: 0%, value: $5)
+Card 21: Keyontae Johnson - $5 (bulk)
+
+Processing card 22/36...
+  Cropping card at (1998, 1500)...
+  ✓ Card cropped, buffer size: 95028
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Noah Clowney",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Noah Clowney" against keep list...
+  ✓ Match result: Noah Clowney (confidence: 0%, value: $5)
+Card 22: Noah Clowney - $5 (bulk)
+
+Processing card 23/36...
+  Cropping card at (2664, 1500)...
+  ✓ Card cropped, buffer size: 83912
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Cassius Stanley",
+  "set": "Prizm",
+  "cardNumber": "",
+  "condition": "Near Mi
+  Matching card "Cassius Stanley" against keep list...
+  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
+Card 23: Cassius Stanley - $5 (bulk)
+
+Processing card 24/36...
+  Cropping card at (3330, 1500)...
+  ✓ Card cropped, buffer size: 84739
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Tari Eason",
+  "set": "Flux Influx Rookie",
+  "cardNumber": "",
+  "condition": 
+  Matching card "Tari Eason" against keep list...
+  ✓ Match result: Tari Eason (confidence: 100%, value: $50)
+Card 24: Tari Eason - $50 (keep)
+
+Processing card 25/36...
+  Cropping card at (0, 2000)...
+  ✓ Card cropped, buffer size: 78110
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "NBA Hoops",
+  "cardNumber": "",
+  "condition": "Unknown"
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 25: Unreadable - $5 (bulk)
+
+Processing card 26/36...
+  Cropping card at (666, 2000)...
+  ✓ Card cropped, buffer size: 79029
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Trendon Watford",
+  "set": "Crown Royale",
+  "cardNumber": "",
+  "condition": "
+  Matching card "Trendon Watford" against keep list...
+  ✓ Match result: Trendon Watford (confidence: 0%, value: $5)
+Card 26: Trendon Watford - $5 (bulk)
+
+Processing card 27/36...
+  Cropping card at (1332, 2000)...
+  ✓ Card cropped, buffer size: 73394
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "Elite",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 27: Unreadable - $5 (bulk)
+
+Processing card 28/36...
+  Cropping card at (1998, 2000)...
+  ✓ Card cropped, buffer size: 75301
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 28: Unreadable - $5 (bulk)
+
+Processing card 29/36...
+  Cropping card at (2664, 2000)...
+  ✓ Card cropped, buffer size: 76023
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 29: Unreadable - $5 (bulk)
+
+Processing card 30/36...
+  Cropping card at (3330, 2000)...
+  ✓ Card cropped, buffer size: 68248
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Unreadable",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Unreadable" against keep list...
+  ✓ Match result: Unreadable (confidence: 0%, value: $5)
+Card 30: Unreadable - $5 (bulk)
+
+Processing card 31/36...
+  Cropping card at (0, 2500)...
+  ✓ Card cropped, buffer size: 66668
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Cassius Stanley",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Cassius Stanley" against keep list...
+  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
+Card 31: Cassius Stanley - $5 (bulk)
+
+Processing card 32/36...
+  Cropping card at (666, 2500)...
+  ✓ Card cropped, buffer size: 62902
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Scoot Henderson",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Scoot Henderson" against keep list...
+  ✓ Match result: Scoot Henderson (confidence: 0%, value: $5)
+Card 32: Scoot Henderson - $5 (bulk)
+
+Processing card 33/36...
+  Cropping card at (1332, 2500)...
+  ✓ Card cropped, buffer size: 59657
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Caleb Houstan",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Caleb Houstan" against keep list...
+  ✓ Match result: Caleb Houstan (confidence: 0%, value: $5)
+Card 33: Caleb Houstan - $5 (bulk)
+
+Processing card 34/36...
+  Cropping card at (1998, 2500)...
+  ✓ Card cropped, buffer size: 62119
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Shaedon Sharpe",
+  "set": "Select Future",
+  "cardNumber": "",
+  "condition": "
+  Matching card "Shaedon Sharpe" against keep list...
+  ✓ Match result: Triple H (confidence: 100%, value: $50)
+Card 34: Triple H - $50 (keep)
+
+Processing card 35/36...
+  Cropping card at (2664, 2500)...
+  ✓ Card cropped, buffer size: 63476
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Aaron Nesmith",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Aaron Nesmith" against keep list...
+  ✓ Match result: Aaron Nesmith (confidence: 0%, value: $5)
+Card 35: Aaron Nesmith - $5 (bulk)
+
+Processing card 36/36...
+  Cropping card at (3330, 2500)...
+  ✓ Card cropped, buffer size: 65405
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Greg Brown III",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+  Matching card "Greg Brown III" against keep list...
+  ✓ Match result: Greg Brown III (confidence: 0%, value: $5)
+Card 36: Greg Brown III - $5 (bulk)
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ GET /scan 200 in 2719ms
+ GET /scan 200 in 197ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ GET /favicon.ico 200 in 1495ms
+ GET /scan 200 in 744ms
+ GET /favicon.ico 200 in 28ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET / 200 in 2702ms
