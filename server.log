@@ -1,0 +1,544 @@
+
+> picksy@0.1.0 dev
+> next dev --port 9004
+
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:9004
+   - Network:      http://192.168.1.154:9004
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 3.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1224ms (160 modules)
+ ○ Compiling /scan ...
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ GET /scan 200 in 16726ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ GET /scan 200 in 910ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ POST /api/auth/session 200 in 19861ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Using Individual Secrets
+ POST /scan 200 in 18352ms
+=== SCAN STARTED ===
+User ID: O5nCLgbIaRRRF369K0kjgT59io73
+Image file: real_cards_test.jpg Size: 5764584 bytes
+Image buffer created, size: 5764584
+Target cards: 20
+✓ Grid detected: 20 cards in 4x5 grid
+
+Processing card 1/20...
+  Cropping card at (0, 0)...
+  ✓ Card cropped, buffer size: 148035
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Jusuf Nurkic",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Near Mint"
+  Matching card "Jusuf Nurkic" against keep list...
+  ✓ Match result: Jusuf Nurkic (confidence: 0%, value: $5)
+Card 1: Jusuf Nurkic - $5 (bulk)
+
+Processing card 2/20...
+  Cropping card at (800, 0)...
+  ✓ Card cropped, buffer size: 145753
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Vernon Carey Jr.",
+  "set": "Rookies",
+  "cardNumber": "",
+  "condition": "Unkn
+  Matching card "Vernon Carey Jr." against keep list...
+  ✓ Match result: Vernon Carey Jr. (confidence: 0%, value: $5)
+Card 2: Vernon Carey Jr. - $5 (bulk)
+
+Processing card 3/20...
+  Cropping card at (1600, 0)...
+  ✓ Card cropped, buffer size: 137955
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Zeke Nnaji",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Zeke Nnaji" against keep list...
+  ✓ Match result: Zeke Nnaji (confidence: 0%, value: $5)
+Card 3: Zeke Nnaji - $5 (bulk)
+
+Processing card 4/20...
+  Cropping card at (2400, 0)...
+  ✓ Card cropped, buffer size: 151024
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Jahmi'us Ramsey",
+  "set": "Rookie Kings",
+  "cardNumber": "",
+  "condition": "
+  Matching card "Jahmi'us Ramsey" against keep list...
+  ✓ Match result: Jahmi'us Ramsey (confidence: 0%, value: $5)
+Card 4: Jahmi'us Ramsey - $5 (bulk)
+
+Processing card 5/20...
+  Cropping card at (3200, 0)...
+  ✓ Card cropped, buffer size: 170489
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Gary Harris & Jakob Poeltl",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition
+  Matching card "Gary Harris & Jakob Poeltl" against keep list...
+  ✓ Match result: Jakob Poeltl (confidence: 90%, value: $100)
+Card 5: Jakob Poeltl - $100 (keep)
+
+Processing card 6/20...
+  Cropping card at (0, 750)...
+  ✓ Card cropped, buffer size: 124441
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Killian Hayes",
+  "set": "2020-21 Panini Contenders Basketball",
+  "cardNumber"
+  Matching card "Killian Hayes" against keep list...
+  ✓ Match result: Killian Hayes (confidence: 0%, value: $5)
+Card 6: Killian Hayes - $5 (bulk)
+
+Processing card 7/20...
+  Cropping card at (800, 750)...
+  ✓ Card cropped, buffer size: 156268
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Malaki Branham",
+  "set": "Prestige 2022-23",
+  "cardNumber": "",
+  "condition"
+  Matching card "Malaki Branham" against keep list...
+  ✓ Match result: Malaki Branham (confidence: 0%, value: $5)
+Card 7: Malaki Branham - $5 (bulk)
+
+Processing card 8/20...
+  Cropping card at (1600, 750)...
+  ✓ Card cropped, buffer size: 169544
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Bruce Brown",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Near Mint"
+
+  Matching card "Bruce Brown" against keep list...
+  ✓ Match result: Bruce Brown (confidence: 0%, value: $5)
+Card 8: Bruce Brown - $5 (bulk)
+
+Processing card 9/20...
+  Cropping card at (2400, 750)...
+  ✓ Card cropped, buffer size: 137622
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Dariq Whitehead",
+  "set": "Select Rookie Revolution",
+  "cardNumber": "",
+  "c
+  Matching card "Dariq Whitehead" against keep list...
+  ✓ Match result: Dariq Whitehead (confidence: 0%, value: $5)
+Card 9: Dariq Whitehead - $5 (bulk)
+
+Processing card 10/20...
+  Cropping card at (3200, 750)...
+  ✓ Card cropped, buffer size: 144562
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Amari Bailey",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+  Matching card "Amari Bailey" against keep list...
+  ✓ Match result: Amari Bailey (confidence: 0%, value: $5)
+Card 10: Amari Bailey - $5 (bulk)
+
+Processing card 11/20...
+  Cropping card at (0, 1500)...
+  ✓ Card cropped, buffer size: 153389
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Ousmane Dieng",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+```
+  Matching card "Ousmane Dieng" against keep list...
+  ✓ Match result: Ousmane Dieng (confidence: 0%, value: $5)
+Card 11: Ousmane Dieng - $5 (bulk)
+
+Processing card 12/20...
+  Cropping card at (800, 1500)...
+  ✓ Card cropped, buffer size: 149883
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Kira Lewis Jr.",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+``
+  Matching card "Kira Lewis Jr." against keep list...
+  ✓ Match result: Kira Lewis Jr. (confidence: 0%, value: $5)
+Card 12: Kira Lewis Jr. - $5 (bulk)
+
+Processing card 13/20...
+  Cropping card at (1600, 1500)...
+  ✓ Card cropped, buffer size: 155454
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+[
+  {
+    "name": "Keyontae Johnson",
+    "set": "Prizm",
+    "cardNumber": "",
+    "conditi
+Failed to parse Gemini response: ```json
+[
+  {
+    "name": "Keyontae Johnson",
+    "set": "Prizm",
+    "cardNumber": "",
+    "condition": "Unknown"
+  },
+  {
+    "name": "Noah Clowney",
+    "set": "",
+    "cardNumber": "",
+    "condition": "Unknown"
+  }
+]
+```
+  Matching card "Unknown" against keep list...
+  ✓ Match result: Unknown (confidence: 0%, value: $5)
+Card 13: Unknown - $5 (bulk)
+
+Processing card 14/20...
+  Cropping card at (2400, 1500)...
+  ✓ Card cropped, buffer size: 141162
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Noah Clowney",
+  "set": "Prizm",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+  Matching card "Noah Clowney" against keep list...
+  ✓ Match result: Noah Clowney (confidence: 0%, value: $5)
+Card 14: Noah Clowney - $5 (bulk)
+
+Processing card 15/20...
+  Cropping card at (3200, 1500)...
+  ✓ Card cropped, buffer size: 143328
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Tari Eason",
+  "set": "Flux Rookie Influx",
+  "cardNumber": "",
+  "condition": 
+  Matching card "Tari Eason" against keep list...
+  ✓ Match result: Tari Eason (confidence: 100%, value: $50)
+Card 15: Tari Eason - $50 (keep)
+
+Processing card 16/20...
+  Cropping card at (0, 2250)...
+  ✓ Card cropped, buffer size: 122408
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Cassius Stanley",
+  "set": "",
+  "cardNumber": "",
+  "condition": "Unknown"
+}
+`
+  Matching card "Cassius Stanley" against keep list...
+  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
+Card 16: Cassius Stanley - $5 (bulk)
+
+Processing card 17/20...
+  Cropping card at (800, 2250)...
+  ✓ Card cropped, buffer size: 122054
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Julian Phillips",
+  "set": "Rated Rookie",
+  "cardNumber": "",
+  "condition": "
+  Matching card "Julian Phillips" against keep list...
+  ✓ Match result: Julian Phillips (confidence: 0%, value: $5)
+Card 17: Julian Phillips - $5 (bulk)
+
+Processing card 18/20...
+  Cropping card at (1600, 2250)...
+  ✓ Card cropped, buffer size: 110514
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Shaedon Sharpe, Jaden Ivey",
+  "set": "Select",
+  "cardNumber": "",
+  "conditio
+  Matching card "Shaedon Sharpe, Jaden Ivey" against keep list...
+  ✓ Match result: Shaedon Sharpe, Jaden Ivey (confidence: 0%, value: $5)
+Card 18: Shaedon Sharpe, Jaden Ivey - $5 (bulk)
+
+Processing card 19/20...
+  Cropping card at (2400, 2250)...
+  ✓ Card cropped, buffer size: 125373
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Aaron Nesmith",
+  "set": "Prizm",
+  "cardNumber": "",
+  "condition": "Unknown"
+
+  Matching card "Aaron Nesmith" against keep list...
+  ✓ Match result: Aaron Nesmith (confidence: 0%, value: $5)
+Card 19: Aaron Nesmith - $5 (bulk)
+
+Processing card 20/20...
+  Cropping card at (3200, 2250)...
+  ✓ Card cropped, buffer size: 117182
+  Generating thumbnail...
+  ✓ Thumbnail generated
+  Calling Gemini Vision API...
+  ✓ Gemini response received: ```json
+{
+  "name": "Greg Brown III",
+  "set": "Optic",
+  "cardNumber": "",
+  "condition": "Unknown"
+  Matching card "Greg Brown III" against keep list...
+  ✓ Match result: Greg Brown III (confidence: 0%, value: $5)
+Card 20: Greg Brown III - $5 (bulk)
+ POST /scan 200 in 74530ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET / 200 in 7730ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
