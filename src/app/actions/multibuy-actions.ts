@@ -169,11 +169,11 @@ export async function setDefaultTemplate(id: string): Promise<{ success: boolean
 /**
  * Calculate multibuy discount for a given quantity
  */
-export function calculateMultibuyDiscount(
+export async function calculateMultibuyDiscount(
     basePrice: number,
     quantity: number,
     tiers: MultibuyTier[]
-): MultibuyDiscount {
+): Promise<MultibuyDiscount> {
     // Find applicable tier (highest quantity that's <= purchased quantity)
     const applicableTier = tiers
         .filter(tier => quantity >= tier.minQuantity)
