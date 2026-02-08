@@ -50,8 +50,11 @@ export async function scanCards(formData: FormData, userId: string): Promise<Sca
         // Initialize Gemini
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            throw new Error('GEMINI_API_KEY not configured');
+            console.error('❌ GEMINI_API_KEY not found in environment');
+            console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('GEMINI') || k.includes('GENAI')));
+            throw new Error('GEMINI_API_KEY not configured. Please add it to your .env.local file.');
         }
+        console.log('✓ Gemini API key found, length:', apiKey.length);
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
