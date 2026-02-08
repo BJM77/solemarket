@@ -118,6 +118,8 @@ export type Product = {
   isFeatured?: boolean;
   title_lowercase?: string;
   isUntimed?: boolean;
+  multibuyEnabled?: boolean;
+  multibuyTiers?: { minQuantity: number; discountPercent: number; }[];
 };
 
 export type ProductSearchParams = {

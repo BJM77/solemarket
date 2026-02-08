@@ -27,6 +27,9 @@ import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { doc } from 'firebase/firestore';
 import { updateListing } from '@/app/actions/seller-actions';
+import { MultibuyTier } from '@/types/multibuy';
+import { getMultibuyTemplates } from '@/app/actions/multibuy-actions';
+import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
 
 const formSchema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -60,6 +63,11 @@ const formSchema = z.object({
     authenticationNumber: z.string().optional(),
     signer: z.string().optional(),
     isUntimed: z.boolean().default(false),
+    multibuyEnabled: z.boolean().default(false),
+    multibuyTiers: z.array(z.object({
+        minQuantity: z.number().min(2),
+        discountPercent: z.number().min(1).max(50),
+    })).default([]),
 }).refine(data => {
     if (data.isUntimed) return true;
     return data.price >= 0.01;
@@ -127,6 +135,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             authentication: initialData.authentication || '',
             authenticationNumber: initialData.authenticationNumber || '',
             signer: initialData.signer || '',
+            multibuyEnabled: initialData.multibuyEnabled || false,
+            multibuyTiers: initialData.multibuyTiers || [],
         },
     });
 
@@ -482,6 +492,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             </FormItem>
                                         )}
                                     />
+                                    <MultibuyConfig form={form} />
                                 </CardContent>
                             </Card>
                         </div>

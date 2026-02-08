@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -682,6 +682,12 @@ export default function ProductCard({
             <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm">
               <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
               Viewed
+            </Badge>
+          )}
+          {product.multibuyEnabled && (
+            <Badge variant="default" className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md">
+              <Package className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              MB
             </Badge>
           )}
         </div>
