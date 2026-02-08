@@ -61,10 +61,10 @@ function initializeFirebaseAdmin() {
                     credential: admin.credential.cert(serviceAccount),
                 });
             } catch (error: any) {
-                console.error('❌ Firebase Admin: Failed to parse SERVICE_ACCOUNT_JSON:', error.message);
-                // Also log a snippet of the string to help debug (without showing the whole private key)
-                console.log('🔍 saJson snippet:', saJson.substring(0, 50) + '...');
-                throw new Error(`Invalid SERVICE_ACCOUNT_JSON format: ${error.message}`);
+                // Don't throw here - log and continue to next priority
+                // This allows production to fall through to ADC if JSON is malformed
+                console.warn('⚠️ Firebase Admin: SERVICE_ACCOUNT_JSON parsing failed, trying other methods...');
+                console.warn('   Error:', error.message);
             }
         }
 
