@@ -127,7 +127,7 @@ export async function getActiveProductIds(limitCount = 1000, offset = 0): Promis
             query = query.offset(offset);
         }
 
-        const snapshot = await query.limit(limitCount).get();
+        const snapshot = await query.limit(limitCount).select().get();
         return snapshot.docs.map(doc => doc.id);
     } catch (e: any) {
         console.error("Failed to fetch active product IDs:", e.message);

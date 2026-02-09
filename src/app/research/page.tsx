@@ -3,18 +3,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
-import { Settings, FileClock, ScanLine, Loader, ShoppingCart, Star, List } from 'lucide-react';
+import { Settings, FileClock, ScanLine, Loader, ShoppingCart, Star, List, Search, ExternalLink, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ScanHistoryItem, Player } from '@/lib/research-types';
 import { defaultPlayers } from '@/lib/research-types';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import dynamic from 'next/dynamic';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getResearchPreferences, addPlayerToKeepList, getScanHistory, addScanResult, deleteScanResult } from '@/app/actions/research';
+import { searchEbaySoldListings } from '@/app/actions/ebay';
+import { EbaySearchResult } from '@/types/priget';
 
 const CameraScanner = dynamic(() => import('@/components/research/camera-scanner'), {
     loading: () => (
@@ -49,6 +53,13 @@ export default function ResearchPage() {
     const [namesToKeep, setNamesToKeep] = useState<Player[]>([]);
     const [history, setHistory] = useState<ScanHistoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // eBay Search State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState<EbaySearchResult[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
+
     const { toast } = useToast();
     const { user, isUserLoading } = useUser();
     const router = useRouter();
@@ -81,6 +92,8 @@ export default function ResearchPage() {
                 }
             };
             loadData();
+        } else {
+            setIsLoading(false);
         }
     }, [user, toast]);
 
@@ -112,7 +125,6 @@ export default function ResearchPage() {
                 description: "Failed to save player to server.",
                 variant: "destructive"
             });
-            // Revert logic could go here if needed
         }
     }, [user, toast]);
 
@@ -185,11 +197,33 @@ export default function ResearchPage() {
                 description: "Failed to delete item from server.",
                 variant: "destructive"
             });
-            // Could revert here by reloading history
             const hist = await getScanHistory(user.uid);
             setHistory(hist);
         }
     }, [user, toast]);
+
+    const handlePriceSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!searchQuery.trim()) return;
+
+        setIsSearching(true);
+        setHasSearched(true);
+        setSearchResults([]);
+
+        try {
+            const results = await searchEbaySoldListings(searchQuery);
+            setSearchResults(results);
+        } catch (error) {
+            console.error("Search failed:", error);
+            toast({
+                title: "Search Failed",
+                description: "Could not fetch sold listings from eBay.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsSearching(false);
+        }
+    };
 
     if (isUserLoading || isLoading || !user) {
         return (
@@ -203,70 +237,154 @@ export default function ResearchPage() {
         <div className="container mx-auto py-8">
             <PageHeader
                 title="Card Research Lab"
-                description="Scan trading cards with AI to identify players, check values, and add to your marketplace listings"
+                description="Scan trading cards with AI or search sold listings to determine market value."
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                {/* Scanner Section */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 text-primary p-3 rounded-full">
-                                <ScanLine className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <CardTitle>AI Card Scanner</CardTitle>
-                                <CardDescription>Position card in frame and tap to scan</CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center gap-4">
-                        <ErrorBoundary FallbackComponent={CameraScannerFallback}>
-                            <CameraScanner
-                                playersToKeep={namesToKeep}
-                                onScanComplete={handleScanComplete}
-                                onAddNameToKeep={handleAddNameToKeep}
-                            />
-                        </ErrorBoundary>
-                        <div className="flex gap-2 mt-4">
-                            <Button variant="outline" asChild size="sm">
-                                <Link href="/research/keep-list">
-                                    <List className="w-4 h-4 mr-2" />
-                                    Keep List ({namesToKeep.length})
-                                </Link>
-                            </Button>
-                            <Button variant="outline" asChild size="sm">
-                                <Link href="/research/collection">
-                                    <Star className="w-4 h-4 mr-2" />
-                                    My Collection
-                                </Link>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+            <Tabs defaultValue="price-check" className="mt-8 space-y-8">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                    <TabsTrigger value="price-check">Price Check (eBay)</TabsTrigger>
+                    <TabsTrigger value="scanner">AI Scanner</TabsTrigger>
+                </TabsList>
 
-                {/* History Section */}
-                <Card className="flex flex-col">
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 text-primary p-3 rounded-full">
-                                <FileClock className="w-6 h-6" />
+                <TabsContent value="scanner" className="space-y-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Scanner Section */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-primary/10 text-primary p-3 rounded-full">
+                                        <ScanLine className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <CardTitle>AI Card Scanner</CardTitle>
+                                        <CardDescription>Position card in frame and tap to scan</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex flex-col items-center gap-4">
+                                <ErrorBoundary FallbackComponent={CameraScannerFallback}>
+                                    <CameraScanner
+                                        playersToKeep={namesToKeep}
+                                        onScanComplete={handleScanComplete}
+                                        onAddNameToKeep={handleAddNameToKeep}
+                                    />
+                                </ErrorBoundary>
+                                <div className="flex gap-2 mt-4">
+                                    <Button variant="outline" asChild size="sm">
+                                        <Link href="/research/keep-list">
+                                            <List className="w-4 h-4 mr-2" />
+                                            Keep List ({namesToKeep.length})
+                                        </Link>
+                                    </Button>
+                                    <Button variant="outline" asChild size="sm">
+                                        <Link href="/research/collection">
+                                            <Star className="w-4 h-4 mr-2" />
+                                            My Collection
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* History Section */}
+                        <Card className="flex flex-col">
+                            <CardHeader>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-primary/10 text-primary p-3 rounded-full">
+                                        <FileClock className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <CardTitle>Scan History</CardTitle>
+                                        <CardDescription>Review your recent scans</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex-1 overflow-hidden">
+                                <HistoryLog
+                                    history={history}
+                                    onDeleteItem={handleDeleteItem}
+                                    onAddNameToKeep={handleAddNameToKeep}
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="price-check">
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center gap-3">
+                                <div className="bg-green-100 text-green-700 p-3 rounded-full">
+                                    <ShoppingCart className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <CardTitle>eBay Sold Listings</CardTitle>
+                                    <CardDescription>Search recent sales to determine market price</CardDescription>
+                                </div>
                             </div>
-                            <div>
-                                <CardTitle>Scan History</CardTitle>
-                                <CardDescription>Review your recent scans</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handlePriceSearch} className="flex gap-2 mb-6">
+                                <Input
+                                    placeholder="e.g. 1986 Fleer Michael Jordan PSA 8"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="flex-1"
+                                />
+                                <Button type="submit" disabled={isSearching}>
+                                    {isSearching ? <Loader className="w-4 h-4 animate-spin mr-2" /> : <Search className="w-4 h-4 mr-2" />}
+                                    Search
+                                </Button>
+                            </form>
+
+                            {hasSearched && searchResults.length === 0 && !isSearching && (
+                                <div className="text-center text-muted-foreground py-12">
+                                    No sold listings found for "{searchQuery}"
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                {searchResults.map((item, index) => (
+                                    <div key={index} className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                                        <div className="w-24 h-24 bg-muted rounded-md flex-shrink-0 overflow-hidden">
+                                            {item.image ? (
+                                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                    <ScanLine className="w-8 h-8 opacity-20" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline line-clamp-2 block mb-1">
+                                                {item.title}
+                                            </a>
+                                            <div className="text-sm text-muted-foreground mb-2">
+                                                Sold: {new Date(item.soldDate).toLocaleDateString()}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    ${item.price.toFixed(2)} AUD
+                                                </span>
+                                                {item.condition && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {item.condition}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <Button variant="ghost" size="icon" asChild>
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        </Button>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden">
-                        <HistoryLog
-                            history={history}
-                            onDeleteItem={handleDeleteItem}
-                            onAddNameToKeep={handleAddNameToKeep}
-                        />
-                    </CardContent>
-                </Card>
-            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

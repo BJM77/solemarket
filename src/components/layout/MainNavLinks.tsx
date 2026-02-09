@@ -112,7 +112,7 @@ export function MainNavLinks() {
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/collectibles">
-              Memorabilia & General
+              General
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>

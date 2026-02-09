@@ -29,7 +29,7 @@ export default function CollectiblesPage() {
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <PageHeader
-                    title="Memorabilia & General"
+                    title="General"
 
                     description="A wide array of treasures from various categories."
                 />
