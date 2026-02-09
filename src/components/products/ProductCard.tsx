@@ -9,7 +9,8 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search } from 'lucide-react';
+import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -378,6 +379,24 @@ export default function ProductCard({
 
   const imageAspectRatio = getAspectRatio(product.category);
 
+  const getEbayQuery = () => {
+    const parts = [];
+    const title = product.title || '';
+    const year = product.year?.toString() || '';
+    const manufacturer = product.manufacturer || '';
+
+    if (year && !title.startsWith(year)) {
+      parts.push(year);
+    }
+
+    if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) {
+      parts.push(manufacturer);
+    }
+
+    parts.push(title);
+    return parts.join(' ');
+  };
+
 
   if (isDeleted) {
     return null; // Don't render the card if it has been deleted
@@ -447,6 +466,18 @@ export default function ProductCard({
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+              </div>
+            )}
+            {isSuperAdmin && (
+              <div className="flex items-center gap-1.5 pointer-events-auto mr-2" onClick={(e) => e.stopPropagation()}>
+                <EbaySearchModal
+                  defaultQuery={getEbayQuery()}
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:bg-blue-50" title="Check eBay Prices">
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  }
+                />
               </div>
             )}
             <span className="text-sm font-bold w-full text-right flex justify-end pointer-events-auto">
@@ -545,7 +576,17 @@ export default function ProductCard({
           </div>
           <div className="absolute top-2 right-2 z-20">
             {(isSuperAdmin || isAdmin) && (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+                {isSuperAdmin && (
+                  <EbaySearchModal
+                    defaultQuery={getEbayQuery()}
+                    trigger={
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" title="Check eBay Prices">
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
@@ -710,6 +751,16 @@ export default function ProductCard({
           {(isSuperAdmin || isAdmin) && (
             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
+                {isSuperAdmin && (
+                  <EbaySearchModal
+                    defaultQuery={getEbayQuery()}
+                    trigger={
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices">
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
+                )}
                 <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-slate-700 hover:bg-white shadow-sm border border-slate-200" asChild title="Edit">
                   <Link href={`/sell/create?edit=${product.id}`}>
                     <Edit className="h-4 w-4" />
