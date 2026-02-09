@@ -26,7 +26,8 @@ import {
     Loader2,
     Copyright,
     ChevronRight,
-    Hash
+    Hash,
+    Search
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn, formatPrice } from '@/lib/utils';
@@ -63,6 +64,7 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { incrementProductContactCount } from '@/app/actions/product-updates';
 import { OfferModal } from '@/components/products/OfferModal';
 import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
+import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 
 export default function ProductDetailsClient({
     productId,
@@ -452,25 +454,54 @@ export default function ProductDetailsClient({
                                         <Share2 className="h-5 w-5" />
                                     </Button>
                                     {isSuperAdmin && (
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
-                                                    {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the product "{product.title}".
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <>
+                                            <EbaySearchModal
+                                                defaultQuery={(() => {
+                                                    // Construct a smarter query
+                                                    const parts = [];
+                                                    const title = product.title || '';
+                                                    const year = product.year?.toString() || '';
+                                                    const manufacturer = product.manufacturer || '';
+
+                                                    // If title starts with Year, don't add it again
+                                                    if (year && !title.startsWith(year)) {
+                                                        parts.push(year);
+                                                    }
+
+                                                    // If title contains Manufacturer, don't add it again
+                                                    if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) {
+                                                        parts.push(manufacturer);
+                                                    }
+
+                                                    parts.push(title);
+                                                    return parts.join(' ');
+                                                })()}
+                                                trigger={
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:text-blue-800 hover:bg-blue-50" title="Check eBay Prices">
+                                                        <Search className="h-5 w-5" />
+                                                    </Button>
+                                                }
+                                            />
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
+                                                        {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the product "{product.title}".
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </>
                                     )}
                                 </div>
                             </div>

@@ -23,11 +23,13 @@ interface EbaySearchResponse {
 class EbayService {
     private config: {
         environment: 'production' | 'sandbox';
+        campaignId: string;
     };
 
     constructor() {
         this.config = {
             environment: (process.env.EBAY_ENV as 'production' | 'sandbox') || 'sandbox',
+            campaignId: process.env.EBAY_CAMPAIGN_ID || '', // eBay Partner Network Campaign ID
         };
     }
 
@@ -54,16 +56,22 @@ class EbayService {
             q: query,
             limit: limit.toString(),
             sort: 'price',
+            filter: 'buyingOptions:{FIXED_PRICE|AUCTION},conditions:{USED|NEW|EXCELLENT|VERY_GOOD|GOOD|FAIR|POOR}',
         });
 
         const url = `${baseUrl}/buy/browse/v1/item_summary/search?${params}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-EBAY-C-MARKETPLACE-ID': 'EBAY_AU', // Changed to AU
-            },
-        });
+        const headers: Record<string, string> = {
+            'Authorization': `Bearer ${token}`,
+            'X-EBAY-C-MARKETPLACE-ID': 'EBAY_AU',
+        };
+
+        // Add Affiliate Tracking Headers if Campaign ID is present
+        if (this.config.campaignId) {
+            headers['X-EBAY-C-ENDUSERCTX'] = `affiliateCampaignId=${this.config.campaignId},affiliateReferenceId=picksy_research`;
+        }
+
+        const response = await fetch(url, { headers });
 
         if (!response.ok) {
             const errorText = await response.text();

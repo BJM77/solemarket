@@ -28,6 +28,7 @@ import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { EbayPriceLookup } from '@/components/sell/EbayPriceLookup';
 import { doc } from 'firebase/firestore';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
+import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -60,6 +61,12 @@ const formSchema = z.object({
   authentication: z.string().optional(),
   authenticationNumber: z.string().optional(),
   signer: z.string().optional(),
+  // Multibuy
+  multibuyEnabled: z.boolean().default(false),
+  multibuyTiers: z.array(z.object({
+    minQuantity: z.coerce.number().min(2),
+    discountPercent: z.coerce.number().min(1).max(100),
+  })).optional(),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -115,7 +122,10 @@ export default function CreateListingPage() {
       material: '',
       authentication: '',
       authenticationNumber: '',
+      authenticationNumber: '',
       signer: '',
+      multibuyEnabled: false,
+      multibuyTiers: [],
     },
   });
 
@@ -557,6 +567,7 @@ export default function CreateListingPage() {
                       </FormItem>
                     )}
                   />
+                  <MultibuyConfig form={form} />
                 </CardContent>
               </Card>
             </div>

@@ -492,6 +492,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             </FormItem>
                                         )}
                                     />
+
                                     <MultibuyConfig form={form} />
                                 </CardContent>
                             </Card>

@@ -7,6 +7,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { logAIUsage } from '@/services/ai-usage';
+import { keywordSearchSales } from '@/ai/tools/ebay-search';
 
 const ExtractCardNameInputSchema = z.object({
     cardImageDataUri: z
@@ -71,10 +72,36 @@ const extractCardNameFlow = ai.defineFlow(
         if (!input.cardImageDataUri.startsWith('data:image/')) {
             throw new Error('Invalid image format. Use JPEG or PNG.');
         }
-        const { output } = await prompt(input);
-        if (!output?.playerName) {
+        const { output: cardDetails } = await prompt(input);
+
+        if (!cardDetails?.playerName) {
             throw new Error("Gemini could not detect a player name on the card.");
         }
-        return output;
+
+        // Enhancement: Search eBay for pricing
+        try {
+            const query = [
+                cardDetails.cardYear,
+                cardDetails.cardBrand,
+                cardDetails.playerName,
+                cardDetails.cardColor,
+                cardDetails.sport
+            ].filter(Boolean).join(' ');
+
+            const salesData = await keywordSearchSales({ query });
+
+            if (salesData) {
+                cardDetails.salesData = {
+                    averagePrice: salesData.averagePrice,
+                    salesCount: salesData.salesCount,
+                    source: 'eBay Sold Listings'
+                };
+            }
+        } catch (error) {
+            console.warn('Failed to fetch pricing data:', error);
+            // Non-blocking error, return card details without price
+        }
+
+        return cardDetails;
     }
 );

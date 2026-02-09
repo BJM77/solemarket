@@ -337,6 +337,24 @@ export default function ResearchPage() {
                                 </Button>
                             </form>
 
+                            {hasSearched && !isSearching && (
+                                <div className="flex justify-between items-center mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                                    <div className="text-sm text-blue-800">
+                                        <strong>Pro Tip:</strong> API results show recent matches. For 100% of historical sold data, check eBay directly.
+                                    </div>
+                                    <Button variant="outline" size="sm" className="bg-white" asChild>
+                                        <a 
+                                            href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1&mkcid=1&mkrid=705-53470-19255-0&siteid=15&campid=${process.env.NEXT_PUBLIC_EBAY_CAMPAIGN_ID || ''}&customid=picksy_research&toolid=10001&mkevt=1`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                        >
+                                            <ExternalLink className="w-4 h-4 mr-2" />
+                                            View All Sold on eBay
+                                        </a>
+                                    </Button>
+                                </div>
+                            )}
+
                             {hasSearched && searchResults.length === 0 && !isSearching && (
                                 <div className="text-center text-muted-foreground py-12">
                                     No sold listings found for "{searchQuery}"

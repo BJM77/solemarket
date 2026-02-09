@@ -42,6 +42,11 @@ type ScanResult = {
     sport?: string;
     cardYear?: number | null;
     imageDataUri?: string;
+    salesData?: {
+        averagePrice?: number | null;
+        salesCount?: number | null;
+        source?: string | null;
+    };
 };
 
 type ProcessingState = 'idle' | 'scanning' | 'verifying';
@@ -359,6 +364,16 @@ export default function CameraScanner({
                 <p className="text-xl font-body font-normal mt-2">
                     {scanResult?.name}
                 </p>
+                {scanResult?.salesData?.averagePrice && (
+                    <div className="mt-2 bg-black/40 px-3 py-1 rounded-full backdrop-blur-md border border-white/20">
+                        <p className="text-sm font-medium text-white/90">
+                            Est. Value: <span className="text-green-400 font-bold">${scanResult.salesData.averagePrice.toFixed(2)}</span>
+                        </p>
+                        <p className="text-[10px] text-white/60">
+                            based on {scanResult.salesData.salesCount} sold listings
+                        </p>
+                    </div>
+                )}
                 {showResult && scanResult && (
                     <div className="flex flex-col gap-2 mt-4">
                         {!scanResult.isKeeper && (
