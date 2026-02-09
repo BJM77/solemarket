@@ -122,7 +122,7 @@ export default function CreateListingPage() {
       material: '',
       authentication: '',
       authenticationNumber: '',
-      authenticationNumber: '',
+
       signer: '',
       multibuyEnabled: false,
       multibuyTiers: [],

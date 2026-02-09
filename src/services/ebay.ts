@@ -95,8 +95,44 @@ class EbayService {
             image: item.image?.imageUrl
         }));
     }
+    /**
+     * Calculate average price from results
+     */
+    calculateAveragePrice(results: EbaySearchResult[]): number {
+        if (!results || results.length === 0) return 0;
+        const total = results.reduce((acc, item) => acc + item.price, 0);
+        return Math.round((total / results.length) * 100) / 100;
+    }
+
+    /**
+     * Get the most recent sold date
+     */
+    getLastSoldDate(results: EbaySearchResult[]): string {
+        if (!results || results.length === 0) return new Date().toISOString();
+        // Sort by date descending
+        const sorted = [...results].sort((a, b) =>
+            new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime()
+        );
+        return sorted[0].soldDate;
+    }
 }
 
 // Singleton instance
 export const ebayService = new EbayService();
+
+/**
+ * Basic search query optimization
+ * Removes common spam words and formats query for better eBay results
+ */
+export async function optimizeSearchQuery(title: string): Promise<string> {
+    if (!title) return '';
+
+    // Remove common filler words
+    let query = title
+        .replace(/\b(L@@K|WOW|HOT|RARE|INVESTMENT|PSA\?|GEM|MINT|SSSP|1\/1)\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    return query;
+}
 

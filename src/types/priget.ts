@@ -19,6 +19,7 @@ export interface EbaySearchResult {
     soldDate: string;
     link: string;
     condition?: string;
+    image?: string;
 }
 
 export interface PriceFlag {
