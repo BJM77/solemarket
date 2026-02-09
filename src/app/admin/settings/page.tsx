@@ -14,7 +14,7 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Truck, DollarSign, Percent, Layout } from "lucide-react";
-import { getSystemSettings, saveSystemSettings, type SystemSettings } from './actions';
+import { getSystemSettings, saveSystemSettings, type AdminSystemSettings } from './actions';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { useEffect } from 'react';
@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
     const [isTesting, startTestTransition] = useTransition();
     const [isSavingShipping, startShippingTransition] = useTransition();
     const [testResult, setTestResult] = useState<{ status: string; message: string } | null>(null);
-    const [settings, setSettings] = useState<SystemSettings>({
+    const [settings, setSettings] = useState<AdminSystemSettings>({
         freightCharge: 12.00,
         freeShippingThreshold: 150.00,
         standardTaxRate: 0.10

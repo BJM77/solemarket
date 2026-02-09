@@ -60,6 +60,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     constraints.push(where('isUntimed', '==', isUntimed));
   }
 
+  // Multibuy Filter
+  if (searchParams.multibuyEnabled) {
+    constraints.push(where('multibuyEnabled', '==', true));
+  }
+
   // Firestore allows only ONE field to have inequality filters.
   // We prioritize 'range' filters in this order:
   // 1. Text Search (q) - Prefix search on title_lowercase (REQUIRES sort by title_lowercase)
@@ -193,6 +198,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
         }
       }
     }
+
+    // 4. Multibuy Filter (Removed in favor of Firestore filter)
+    // if (searchParams.multibuyEnabled && !p.multibuyEnabled) {
+    //   return false;
+    // }
 
     return true;
   });

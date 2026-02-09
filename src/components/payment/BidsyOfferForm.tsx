@@ -9,7 +9,15 @@ import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import brandConfig from '@/config/brand';
+
+const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || brandConfig.integrations.stripe.publishableKey;
+
+if (!stripeKey) {
+    console.error("Stripe Publishable Key is missing. Payments will not work.");
+}
+
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 function PaymentForm({ amount, onSubmit, isSubmitting }: { amount: number, onSubmit: (paymentMethodId: string) => void, isSubmitting: boolean }) {
     const stripe = useStripe();

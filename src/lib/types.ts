@@ -120,6 +120,9 @@ export type Product = {
   isUntimed?: boolean;
   multibuyEnabled?: boolean;
   multibuyTiers?: { minQuantity: number; discountPercent: number; }[];
+  multiCardTier?: 'bronze' | 'silver' | 'gold' | 'platinum';
+  dealId?: string;
+  bundlePrice?: number;
 };
 
 export type ProductSearchParams = {
@@ -141,6 +144,7 @@ export type ProductSearchParams = {
   lastId?: string;
   status?: string;
   isUntimed?: boolean;
+  multibuyEnabled?: boolean;
 };
 
 

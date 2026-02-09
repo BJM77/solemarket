@@ -1,5 +1,5 @@
 /**
- * Multi-Card Deal Cart Display Component
+ * Multi-Listing Deal Cart Display Component
  * Shows how deal bundles appear in the shopping cart
  */
 
@@ -46,64 +46,84 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
 
             {/* Progress Indicators */}
             <div className="flex gap-3 mb-4">
-                {deal.requirements.limited > 0 && (
-                    <div className={`px-3 py-1 rounded text-sm ${progress.limited === deal.requirements.limited
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-purple-100 text-purple-700'
+                {deal.requirements.platinum > 0 && (
+                    <div className={`px-3 py-1 rounded text-sm ${progress.platinum === deal.requirements.platinum
+                        ? 'bg-neutral-900 text-white border border-neutral-700'
+                        : 'bg-white text-neutral-900 border border-neutral-300'
                         }`}>
-                        Limited: {progress.limited}/{deal.requirements.limited}
+                        Platinum: {progress.platinum}/{deal.requirements.platinum}
                     </div>
                 )}
-                {deal.requirements.premium > 0 && (
-                    <div className={`px-3 py-1 rounded text-sm ${progress.premium === deal.requirements.premium
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-100 text-blue-700'
+                {deal.requirements.gold > 0 && (
+                    <div className={`px-3 py-1 rounded text-sm ${progress.gold === deal.requirements.gold
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                        Premium: {progress.premium}/{deal.requirements.premium}
+                        Gold: {progress.gold}/{deal.requirements.gold}
                     </div>
                 )}
-                {deal.requirements.base > 0 && (
-                    <div className={`px-3 py-1 rounded text-sm ${progress.base === deal.requirements.base
-                            ? 'bg-gray-600 text-white'
-                            : 'bg-gray-100 text-gray-700'
+                {deal.requirements.silver > 0 && (
+                    <div className={`px-3 py-1 rounded text-sm ${progress.silver === deal.requirements.silver
+                        ? 'bg-slate-500 text-white'
+                        : 'bg-slate-100 text-slate-700'
                         }`}>
-                        Base: {progress.base}/{deal.requirements.base}
+                        Silver: {progress.silver}/{deal.requirements.silver}
+                    </div>
+                )}
+                {deal.requirements.bronze > 0 && (
+                    <div className={`px-3 py-1 rounded text-sm ${progress.bronze === deal.requirements.bronze
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-orange-100 text-orange-800'
+                        }`}>
+                        Bronze: {progress.bronze}/{deal.requirements.bronze}
                     </div>
                 )}
             </div>
 
             {/* Grouped Items by Tier */}
             <div className="space-y-3 mb-4">
-                {/* Limited Cards */}
-                {items.filter(i => i.slot === 'limited').length > 0 && (
+                {/* Platinum Cards */}
+                {items.filter(i => i.slot === 'platinum').length > 0 && (
                     <div>
-                        <div className="text-xs font-semibold text-purple-700 mb-2">LIMITED CARDS</div>
+                        <div className="text-xs font-semibold text-neutral-800 mb-2">PLATINUM CARDS</div>
                         <div className="space-y-2">
-                            {items.filter(i => i.slot === 'limited').map(item => (
+                            {items.filter(i => i.slot === 'platinum').map(item => (
                                 <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />
                             ))}
                         </div>
                     </div>
                 )}
 
-                {/* Premium Cards */}
-                {items.filter(i => i.slot === 'premium').length > 0 && (
+                {/* Gold Cards */}
+                {items.filter(i => i.slot === 'gold').length > 0 && (
                     <div>
-                        <div className="text-xs font-semibold text-blue-700 mb-2">PREMIUM CARDS</div>
+                        <div className="text-xs font-semibold text-yellow-700 mb-2">GOLD CARDS</div>
                         <div className="space-y-2">
-                            {items.filter(i => i.slot === 'premium').map(item => (
+                            {items.filter(i => i.slot === 'gold').map(item => (
                                 <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />
                             ))}
                         </div>
                     </div>
                 )}
 
-                {/* Base Cards */}
-                {items.filter(i => i.slot === 'base').length > 0 && (
+                {/* Silver Cards */}
+                {items.filter(i => i.slot === 'silver').length > 0 && (
                     <div>
-                        <div className="text-xs font-semibold text-gray-700 mb-2">BASE CARDS</div>
+                        <div className="text-xs font-semibold text-slate-700 mb-2">SILVER CARDS</div>
                         <div className="space-y-2">
-                            {items.filter(i => i.slot === 'base').map(item => (
+                            {items.filter(i => i.slot === 'silver').map(item => (
+                                <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Bronze Cards */}
+                {items.filter(i => i.slot === 'bronze').length > 0 && (
+                    <div>
+                        <div className="text-xs font-semibold text-orange-800 mb-2">BRONZE CARDS</div>
+                        <div className="space-y-2">
+                            {items.filter(i => i.slot === 'bronze').map(item => (
                                 <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />
                             ))}
                         </div>
@@ -116,9 +136,10 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 {!isComplete && (
                     <div className="text-sm text-amber-700 bg-amber-50 p-2 rounded mb-2">
                         ⚠️ Bundle incomplete - Add {
-                            (deal.requirements.base - progress.base) +
-                            (deal.requirements.premium - progress.premium) +
-                            (deal.requirements.limited - progress.limited)
+                            (deal.requirements.bronze - progress.bronze) +
+                            (deal.requirements.silver - progress.silver) +
+                            (deal.requirements.gold - progress.gold) +
+                            (deal.requirements.platinum - progress.platinum)
                         } more card(s) to unlock bundle price
                     </div>
                 )}

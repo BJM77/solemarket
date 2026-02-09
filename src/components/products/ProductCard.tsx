@@ -685,8 +685,23 @@ export default function ProductCard({
             </Badge>
           )}
           {product.multibuyEnabled && (
-            <Badge variant="default" className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md">
-              <Package className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            <Badge
+              variant="default"
+              className={cn(
+                "inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md",
+                /* Default / Fallback */
+                "bg-blue-600 hover:bg-blue-700 text-white",
+                /* Tier Specific Styles */
+                product.multiCardTier === 'bronze' && "bg-orange-600 hover:bg-orange-700 text-white",
+                product.multiCardTier === 'silver' && "bg-slate-500 hover:bg-slate-600 text-white",
+                product.multiCardTier === 'gold' && "bg-yellow-500 hover:bg-yellow-600 text-white",
+                product.multiCardTier === 'platinum' && "bg-white hover:bg-gray-50 text-black border border-black"
+              )}
+            >
+              <Package className={cn(
+                "h-2.5 w-2.5 sm:h-3 sm:w-3",
+                product.multiCardTier === 'platinum' ? "text-black" : "text-white"
+              )} />
               MB
             </Badge>
           )}

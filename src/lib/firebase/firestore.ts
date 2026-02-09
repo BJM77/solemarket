@@ -114,17 +114,38 @@ export async function getPublicProductCount(): Promise<number> {
     }
 }
 
-export async function getActiveProductIds(limitCount = 1000): Promise<string[]> {
+export async function getActiveProductIds(limitCount = 1000, offset = 0): Promise<string[]> {
     try {
-        const snapshot = await firestoreDb.collection('products')
+        let query = firestoreDb.collection('products')
             .where('status', '==', 'available')
-            .where('isDraft', '==', false)
-            .limit(limitCount)
-            .get();
+            .where('isDraft', '==', false);
 
+        if (offset > 0) {
+            // Firestore doesn't support numeric offset well for large datasets, 
+            // but for sitemap generation this is the simplest starting point.
+            // Ideally we'd use startAfter(doc) for true performance.
+            query = query.offset(offset);
+        }
+
+        const snapshot = await query.limit(limitCount).get();
         return snapshot.docs.map(doc => doc.id);
     } catch (e: any) {
         console.error("Failed to fetch active product IDs:", e.message);
         return [];
+    }
+}
+
+export async function getActiveProductCount(): Promise<number> {
+    try {
+        const snapshot = await firestoreDb.collection('products')
+            .where('status', '==', 'available')
+            .where('isDraft', '==', false)
+            .count()
+            .get();
+
+        return snapshot.data().count;
+    } catch (e: any) {
+        console.error("Failed to count active products:", e.message);
+        return 0;
     }
 }

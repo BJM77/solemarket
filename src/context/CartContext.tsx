@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { calculateItemTotal } from '@/lib/pricing';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -10,9 +11,11 @@ export interface CartItem extends Product {
 interface CartContextType {
   items: CartItem[];
   addItem: (product: Product, quantity?: number) => void;
+  addBundle: (deal: any, products: Product[]) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  cartSubtotal: number;
   cartTotal: number;
   itemCount: number;
   isCartOpen: boolean;
@@ -116,6 +119,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, [toast]);
 
+  const addBundle = useCallback((deal: any, products: Product[]) => {
+    setItems((prevItems) => {
+      // Create unique ID for this bundle instance to allow multiple of same deal
+      const bundleInstanceId = `${deal.id}-${Date.now()}`;
+      
+      // Calculate pro-rated price for each item in the bundle
+      const originalTotal = products.reduce((sum, p) => sum + p.price, 0);
+      
+      const bundleItems = products.map((p) => ({
+        ...p,
+        quantity: 1,
+        dealId: bundleInstanceId,
+        bundlePrice: originalTotal > 0 ? (p.price / originalTotal) * deal.price : deal.price / products.length,
+      }));
+      return [...prevItems, ...bundleItems];
+    });
+    toast({
+      title: "Bundle Added",
+      description: `${deal.name} has been added to your cart.`,
+    });
+  }, [toast]);
+
   const removeItem = useCallback((productId: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== productId));
     toast({
@@ -143,7 +168,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('picksy-shipping-address');
   }, []);
 
-  const cartSubtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartSubtotal = items.reduce((total, item) => {
+    // Handle Bundle Deals (Pro-rated price)
+    if (item.dealId && item.bundlePrice !== undefined) {
+      return total + item.bundlePrice;
+    }
+
+    // Handle Multibuy Discounts
+    return total + calculateItemTotal(item.price, item.quantity, item.multibuyEnabled, item.multibuyTiers);
+  }, 0);
+  
   const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;
   const cartTotal = cartSubtotal + shippingCost;
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -153,9 +187,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         items,
         addItem,
+        addBundle,
         removeItem,
         updateQuantity,
         clearCart,
+        cartSubtotal,
         cartTotal,
         itemCount,
         isCartOpen,

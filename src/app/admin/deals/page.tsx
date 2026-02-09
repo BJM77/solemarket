@@ -69,7 +69,7 @@ export default function DealsPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">Multi-Card Deals</h1>
+                    <h1 className="text-3xl font-bold mb-2">Multi-Listing Deals</h1>
                     <p className="text-gray-600">Manage promotional bundle deals</p>
                 </div>
                 <button
@@ -144,7 +144,7 @@ function DealCard({
     onEdit: (deal: Deal) => void;
     onDelete: (id: string) => void;
 }) {
-    const totalCards = deal.requirements.base + deal.requirements.premium + deal.requirements.limited;
+    const totalCards = deal.requirements.bronze + deal.requirements.silver + deal.requirements.gold + deal.requirements.platinum;
 
     return (
         <div className={`bg-white rounded-lg shadow p-6 ${!deal.isActive ? 'opacity-60' : ''}`}>
@@ -164,30 +164,33 @@ function DealCard({
                 </div>
             </div>
 
-            <div className="flex gap-4 mb-4">
-                {deal.requirements.limited > 0 && (
-                    <div className="px-3 py-2 bg-purple-100 text-purple-700 rounded">
-                        <span className="font-semibold">{deal.requirements.limited}</span> Limited
-                    </div>
-                )}
-                {deal.requirements.premium > 0 && (
-                    <div className="px-3 py-2 bg-blue-100 text-blue-700 rounded">
-                        <span className="font-semibold">{deal.requirements.premium}</span> Premium
-                    </div>
-                )}
-                {deal.requirements.base > 0 && (
-                    <div className="px-3 py-2 bg-gray-100 text-gray-700 rounded">
-                        <span className="font-semibold">{deal.requirements.base}</span> Base
-                    </div>
-                )}
-            </div>
+            {deal.requirements.platinum > 0 && (
+                <div className="px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded">
+                    <span className="font-semibold">{deal.requirements.platinum}</span> Platinum
+                </div>
+            )}
+            {deal.requirements.gold > 0 && (
+                <div className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded">
+                    <span className="font-semibold">{deal.requirements.gold}</span> Gold
+                </div>
+            )}
+            {deal.requirements.silver > 0 && (
+                <div className="px-3 py-2 bg-slate-100 text-slate-700 rounded">
+                    <span className="font-semibold">{deal.requirements.silver}</span> Silver
+                </div>
+            )}
+            {deal.requirements.bronze > 0 && (
+                <div className="px-3 py-2 bg-orange-100 text-orange-800 rounded">
+                    <span className="font-semibold">{deal.requirements.bronze}</span> Bronze
+                </div>
+            )}
 
             <div className="flex gap-2">
                 <button
                     onClick={() => onToggle(deal.id)}
                     className={`px-4 py-2 rounded ${deal.isActive
-                            ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                            : 'bg-green-600 text-white hover:bg-green-700'
+                        ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                 >
                     {deal.isActive ? 'Deactivate' : 'Activate'}
@@ -223,9 +226,11 @@ function DealForm({
         name: deal?.name || '',
         description: deal?.description || '',
         price: deal?.price || 0,
-        base: deal?.requirements.base || 0,
-        premium: deal?.requirements.premium || 0,
-        limited: deal?.requirements.limited || 0,
+        base: 0, // unused
+        bronze: deal?.requirements.bronze || 0,
+        silver: deal?.requirements.silver || 0,
+        gold: deal?.requirements.gold || 0,
+        platinum: deal?.requirements.platinum || 0,
         isActive: deal?.isActive ?? true,
     });
 
@@ -239,9 +244,10 @@ function DealForm({
                 description: formData.description,
                 price: formData.price,
                 requirements: {
-                    base: formData.base,
-                    premium: formData.premium,
-                    limited: formData.limited,
+                    bronze: formData.bronze,
+                    silver: formData.silver,
+                    gold: formData.gold,
+                    platinum: formData.platinum,
                 },
                 isActive: formData.isActive,
                 createdBy: 'admin', // TODO: Get from auth
@@ -316,33 +322,43 @@ function DealForm({
                         />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Base Cards</label>
+                            <label className="block text-sm font-medium mb-1">Bronze Cards</label>
                             <input
                                 type="number"
-                                value={formData.base}
-                                onChange={e => setFormData({ ...formData, base: parseInt(e.target.value) })}
+                                value={formData.bronze}
+                                onChange={e => setFormData({ ...formData, bronze: parseInt(e.target.value) })}
                                 className="w-full px-3 py-2 border rounded"
                                 min="0"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Premium Cards</label>
+                            <label className="block text-sm font-medium mb-1">Silver Cards</label>
                             <input
                                 type="number"
-                                value={formData.premium}
-                                onChange={e => setFormData({ ...formData, premium: parseInt(e.target.value) })}
+                                value={formData.silver}
+                                onChange={e => setFormData({ ...formData, silver: parseInt(e.target.value) })}
                                 className="w-full px-3 py-2 border rounded"
                                 min="0"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Limited Cards</label>
+                            <label className="block text-sm font-medium mb-1">Gold Cards</label>
                             <input
                                 type="number"
-                                value={formData.limited}
-                                onChange={e => setFormData({ ...formData, limited: parseInt(e.target.value) })}
+                                value={formData.gold}
+                                onChange={e => setFormData({ ...formData, gold: parseInt(e.target.value) })}
+                                className="w-full px-3 py-2 border rounded"
+                                min="0"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Platinum Cards</label>
+                            <input
+                                type="number"
+                                value={formData.platinum}
+                                onChange={e => setFormData({ ...formData, platinum: parseInt(e.target.value) })}
                                 className="w-full px-3 py-2 border rounded"
                                 min="0"
                             />

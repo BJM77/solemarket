@@ -4,12 +4,13 @@
 
 import { Timestamp } from 'firebase/firestore';
 
-export type MultiCardTier = 'base' | 'premium' | 'limited' | null;
+export type MultiCardTier = 'bronze' | 'silver' | 'gold' | 'platinum' | null;
 
 export interface DealRequirements {
-    base: number;
-    premium: number;
-    limited: number;
+    bronze: number;
+    silver: number;
+    gold: number;
+    platinum: number;
 }
 
 export interface Deal {
@@ -55,8 +56,9 @@ export interface DealValidationResult {
     isValid: boolean;
     errors: string[];
     missingSlots?: {
-        base: number;
-        premium: number;
-        limited: number;
+        bronze: number;
+        silver: number;
+        gold: number;
+        platinum: number;
     };
 }

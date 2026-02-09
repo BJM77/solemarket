@@ -7,6 +7,7 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { Deal, DealValidationResult, MultiCardTier } from '@/types/deals';
 import { Timestamp } from 'firebase-admin/firestore';
+import { serializeFirestoreData } from '@/lib/utils';
 
 /**
  * Create a new deal
@@ -68,18 +69,22 @@ export async function deleteDeal(dealId: string): Promise<void> {
  * Get all deals (optionally filter by active status)
  */
 export async function getDeals(activeOnly: boolean = false) {
-    let query = firestoreDb.collection('deals').orderBy('createdAt', 'desc');
-
-    if (activeOnly) {
-        query = query.where('isActive', '==', true) as any;
-    }
+    // Fetch all deals sorted by createdAt (Single Field Index - usually exists or auto-created)
+    // Avoids composite index requirement (isActive + createdAt)
+    const query = firestoreDb.collection('deals').orderBy('createdAt', 'desc');
 
     const snapshot = await query.get();
 
-    return snapshot.docs.map(doc => ({
+    let deals = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
     })) as Deal[];
+
+    if (activeOnly) {
+        deals = deals.filter(d => d.isActive);
+    }
+
+    return serializeFirestoreData(deals);
 }
 
 /**
@@ -145,44 +150,53 @@ export async function validateDealCart(
 
     // Count items by tier
     const counts = {
-        base: 0,
-        premium: 0,
-        limited: 0,
+        bronze: 0,
+        silver: 0,
+        gold: 0,
+        platinum: 0,
     };
 
     for (const item of cartItems) {
-        if (item.tier === 'base') counts.base++;
-        else if (item.tier === 'premium') counts.premium++;
-        else if (item.tier === 'limited') counts.limited++;
+        if (item.tier === 'bronze') counts.bronze++;
+        else if (item.tier === 'silver') counts.silver++;
+        else if (item.tier === 'gold') counts.gold++;
+        else if (item.tier === 'platinum') counts.platinum++;
     }
 
     // Check if requirements are met
     const errors: string[] = [];
     const missingSlots = {
-        base: Math.max(0, deal.requirements.base - counts.base),
-        premium: Math.max(0, deal.requirements.premium - counts.premium),
-        limited: Math.max(0, deal.requirements.limited - counts.limited),
+        bronze: Math.max(0, deal.requirements.bronze - counts.bronze),
+        silver: Math.max(0, deal.requirements.silver - counts.silver),
+        gold: Math.max(0, deal.requirements.gold - counts.gold),
+        platinum: Math.max(0, deal.requirements.platinum - counts.platinum),
     };
 
-    if (missingSlots.base > 0) {
-        errors.push(`Need ${missingSlots.base} more Base card(s)`);
+    if (missingSlots.bronze > 0) {
+        errors.push(`Need ${missingSlots.bronze} more Bronze card(s)`);
     }
-    if (missingSlots.premium > 0) {
-        errors.push(`Need ${missingSlots.premium} more Premium card(s)`);
+    if (missingSlots.silver > 0) {
+        errors.push(`Need ${missingSlots.silver} more Silver card(s)`);
     }
-    if (missingSlots.limited > 0) {
-        errors.push(`Need ${missingSlots.limited} more Limited card(s)`);
+    if (missingSlots.gold > 0) {
+        errors.push(`Need ${missingSlots.gold} more Gold card(s)`);
+    }
+    if (missingSlots.platinum > 0) {
+        errors.push(`Need ${missingSlots.platinum} more Platinum card(s)`);
     }
 
     // Check for excess items
-    if (counts.base > deal.requirements.base) {
-        errors.push(`Too many Base cards (max ${deal.requirements.base})`);
+    if (counts.bronze > deal.requirements.bronze) {
+        errors.push(`Too many Bronze cards (max ${deal.requirements.bronze})`);
     }
-    if (counts.premium > deal.requirements.premium) {
-        errors.push(`Too many Premium cards (max ${deal.requirements.premium})`);
+    if (counts.silver > deal.requirements.silver) {
+        errors.push(`Too many Silver cards (max ${deal.requirements.silver})`);
     }
-    if (counts.limited > deal.requirements.limited) {
-        errors.push(`Too many Limited cards (max ${deal.requirements.limited})`);
+    if (counts.gold > deal.requirements.gold) {
+        errors.push(`Too many Gold cards (max ${deal.requirements.gold})`);
+    }
+    if (counts.platinum > deal.requirements.platinum) {
+        errors.push(`Too many Platinum cards (max ${deal.requirements.platinum})`);
     }
 
     return {
@@ -243,11 +257,13 @@ export async function autoClassifyByPrice(productIds: string[]): Promise<number>
 
             let tier: MultiCardTier;
             if (price < 5) {
-                tier = 'base';
+                tier = 'bronze';
+            } else if (price < 20) {
+                tier = 'silver';
             } else if (price < 50) {
-                tier = 'premium';
+                tier = 'gold';
             } else {
-                tier = 'limited';
+                tier = 'platinum';
             }
 
             await firestoreDb.collection('products').doc(productId).update({
@@ -268,14 +284,22 @@ export async function autoClassifyByPrice(productIds: string[]): Promise<number>
  * Get products by tier
  */
 export async function getProductsByTier(tier: MultiCardTier, limit: number = 50) {
+    // We fetch more items than needed to account for in-memory filtering of non-available items
     const snapshot = await firestoreDb
         .collection('products')
         .where('multiCardTier', '==', tier)
-        .limit(limit)
+        .limit(limit * 2)
         .get();
 
-    return snapshot.docs.map(doc => ({
+    const products = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-    }));
+    })) as any[];
+
+    // Filter for available items only (in-memory to avoid composite index)
+    const filtered = products
+        .filter(p => p.status === 'available')
+        .slice(0, limit);
+
+    return serializeFirestoreData(filtered);
 }

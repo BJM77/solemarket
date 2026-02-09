@@ -6,7 +6,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 
 const SETTINGS_DOC_ID = 'system_settings';
 
-export interface SystemSettings {
+export interface AdminSystemSettings {
     freightCharge: number;
     freeShippingThreshold: number;
     standardTaxRate?: number;
@@ -14,7 +14,7 @@ export interface SystemSettings {
 }
 
 
-export async function saveSystemSettings(settings: SystemSettings, idToken?: string) {
+export async function saveSystemSettings(settings: AdminSystemSettings, idToken?: string) {
     try {
         if (idToken) {
             const decodedToken = await verifyIdToken(idToken);
@@ -40,7 +40,7 @@ export async function saveSystemSettings(settings: SystemSettings, idToken?: str
     }
 }
 
-export async function getSystemSettings(): Promise<SystemSettings> {
+export async function getSystemSettings(): Promise<AdminSystemSettings> {
     try {
         const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
         const docSnap = await settingsRef.get();

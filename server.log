@@ -4,446 +4,35 @@
 
    ▲ Next.js 15.5.9
    - Local:        http://localhost:9004
-   - Network:      http://192.168.1.154:9004
+   - Network:      http://10.221.25.17:9004
    - Environments: .env.local
    - Experiments (use with caution):
      · serverActions
 
  ✓ Starting...
- ✓ Ready in 3.2s
- ○ Compiling /middleware ...
- ✓ Compiled /middleware in 1224ms (160 modules)
- ○ Compiling /scan ...
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/services/notifications.ts
- GET /scan 200 in 16726ms
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/services/notifications.ts
- GET /scan 200 in 910ms
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/services/notifications.ts
+ ✓ Ready in 1697ms
+ ✓ Compiled /middleware in 126ms (160 modules)
+ ○ Compiling / ...
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
 Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/user-preferences.ts
- POST /api/auth/session 200 in 19861ms
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
 🔍 Firebase Admin Check: saJson length: 0
-✅ Firebase Admin: Using Individual Secrets
- POST /scan 200 in 18352ms
-=== SCAN STARTED ===
-User ID: O5nCLgbIaRRRF369K0kjgT59io73
-Image file: real_cards_test.jpg Size: 5764584 bytes
-Image buffer created, size: 5764584
-Target cards: 20
-✓ Grid detected: 20 cards in 4x5 grid
-
-Processing card 1/20...
-  Cropping card at (0, 0)...
-  ✓ Card cropped, buffer size: 148035
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Jusuf Nurkic",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Near Mint"
-  Matching card "Jusuf Nurkic" against keep list...
-  ✓ Match result: Jusuf Nurkic (confidence: 0%, value: $5)
-Card 1: Jusuf Nurkic - $5 (bulk)
-
-Processing card 2/20...
-  Cropping card at (800, 0)...
-  ✓ Card cropped, buffer size: 145753
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Vernon Carey Jr.",
-  "set": "Rookies",
-  "cardNumber": "",
-  "condition": "Unkn
-  Matching card "Vernon Carey Jr." against keep list...
-  ✓ Match result: Vernon Carey Jr. (confidence: 0%, value: $5)
-Card 2: Vernon Carey Jr. - $5 (bulk)
-
-Processing card 3/20...
-  Cropping card at (1600, 0)...
-  ✓ Card cropped, buffer size: 137955
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Zeke Nnaji",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Zeke Nnaji" against keep list...
-  ✓ Match result: Zeke Nnaji (confidence: 0%, value: $5)
-Card 3: Zeke Nnaji - $5 (bulk)
-
-Processing card 4/20...
-  Cropping card at (2400, 0)...
-  ✓ Card cropped, buffer size: 151024
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Jahmi'us Ramsey",
-  "set": "Rookie Kings",
-  "cardNumber": "",
-  "condition": "
-  Matching card "Jahmi'us Ramsey" against keep list...
-  ✓ Match result: Jahmi'us Ramsey (confidence: 0%, value: $5)
-Card 4: Jahmi'us Ramsey - $5 (bulk)
-
-Processing card 5/20...
-  Cropping card at (3200, 0)...
-  ✓ Card cropped, buffer size: 170489
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Gary Harris & Jakob Poeltl",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition
-  Matching card "Gary Harris & Jakob Poeltl" against keep list...
-  ✓ Match result: Jakob Poeltl (confidence: 90%, value: $100)
-Card 5: Jakob Poeltl - $100 (keep)
-
-Processing card 6/20...
-  Cropping card at (0, 750)...
-  ✓ Card cropped, buffer size: 124441
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Killian Hayes",
-  "set": "2020-21 Panini Contenders Basketball",
-  "cardNumber"
-  Matching card "Killian Hayes" against keep list...
-  ✓ Match result: Killian Hayes (confidence: 0%, value: $5)
-Card 6: Killian Hayes - $5 (bulk)
-
-Processing card 7/20...
-  Cropping card at (800, 750)...
-  ✓ Card cropped, buffer size: 156268
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Malaki Branham",
-  "set": "Prestige 2022-23",
-  "cardNumber": "",
-  "condition"
-  Matching card "Malaki Branham" against keep list...
-  ✓ Match result: Malaki Branham (confidence: 0%, value: $5)
-Card 7: Malaki Branham - $5 (bulk)
-
-Processing card 8/20...
-  Cropping card at (1600, 750)...
-  ✓ Card cropped, buffer size: 169544
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Bruce Brown",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Near Mint"
-
-  Matching card "Bruce Brown" against keep list...
-  ✓ Match result: Bruce Brown (confidence: 0%, value: $5)
-Card 8: Bruce Brown - $5 (bulk)
-
-Processing card 9/20...
-  Cropping card at (2400, 750)...
-  ✓ Card cropped, buffer size: 137622
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Dariq Whitehead",
-  "set": "Select Rookie Revolution",
-  "cardNumber": "",
-  "c
-  Matching card "Dariq Whitehead" against keep list...
-  ✓ Match result: Dariq Whitehead (confidence: 0%, value: $5)
-Card 9: Dariq Whitehead - $5 (bulk)
-
-Processing card 10/20...
-  Cropping card at (3200, 750)...
-  ✓ Card cropped, buffer size: 144562
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Amari Bailey",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-  Matching card "Amari Bailey" against keep list...
-  ✓ Match result: Amari Bailey (confidence: 0%, value: $5)
-Card 10: Amari Bailey - $5 (bulk)
-
-Processing card 11/20...
-  Cropping card at (0, 1500)...
-  ✓ Card cropped, buffer size: 153389
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Ousmane Dieng",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Ousmane Dieng" against keep list...
-  ✓ Match result: Ousmane Dieng (confidence: 0%, value: $5)
-Card 11: Ousmane Dieng - $5 (bulk)
-
-Processing card 12/20...
-  Cropping card at (800, 1500)...
-  ✓ Card cropped, buffer size: 149883
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Kira Lewis Jr.",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-``
-  Matching card "Kira Lewis Jr." against keep list...
-  ✓ Match result: Kira Lewis Jr. (confidence: 0%, value: $5)
-Card 12: Kira Lewis Jr. - $5 (bulk)
-
-Processing card 13/20...
-  Cropping card at (1600, 1500)...
-  ✓ Card cropped, buffer size: 155454
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-[
-  {
-    "name": "Keyontae Johnson",
-    "set": "Prizm",
-    "cardNumber": "",
-    "conditi
-Failed to parse Gemini response: ```json
-[
-  {
-    "name": "Keyontae Johnson",
-    "set": "Prizm",
-    "cardNumber": "",
-    "condition": "Unknown"
-  },
-  {
-    "name": "Noah Clowney",
-    "set": "",
-    "cardNumber": "",
-    "condition": "Unknown"
-  }
-]
-```
-  Matching card "Unknown" against keep list...
-  ✓ Match result: Unknown (confidence: 0%, value: $5)
-Card 13: Unknown - $5 (bulk)
-
-Processing card 14/20...
-  Cropping card at (2400, 1500)...
-  ✓ Card cropped, buffer size: 141162
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Noah Clowney",
-  "set": "Prizm",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-  Matching card "Noah Clowney" against keep list...
-  ✓ Match result: Noah Clowney (confidence: 0%, value: $5)
-Card 14: Noah Clowney - $5 (bulk)
-
-Processing card 15/20...
-  Cropping card at (3200, 1500)...
-  ✓ Card cropped, buffer size: 143328
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Tari Eason",
-  "set": "Flux Rookie Influx",
-  "cardNumber": "",
-  "condition": 
-  Matching card "Tari Eason" against keep list...
-  ✓ Match result: Tari Eason (confidence: 100%, value: $50)
-Card 15: Tari Eason - $50 (keep)
-
-Processing card 16/20...
-  Cropping card at (0, 2250)...
-  ✓ Card cropped, buffer size: 122408
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Cassius Stanley",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-`
-  Matching card "Cassius Stanley" against keep list...
-  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
-Card 16: Cassius Stanley - $5 (bulk)
-
-Processing card 17/20...
-  Cropping card at (800, 2250)...
-  ✓ Card cropped, buffer size: 122054
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Julian Phillips",
-  "set": "Rated Rookie",
-  "cardNumber": "",
-  "condition": "
-  Matching card "Julian Phillips" against keep list...
-  ✓ Match result: Julian Phillips (confidence: 0%, value: $5)
-Card 17: Julian Phillips - $5 (bulk)
-
-Processing card 18/20...
-  Cropping card at (1600, 2250)...
-  ✓ Card cropped, buffer size: 110514
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Shaedon Sharpe, Jaden Ivey",
-  "set": "Select",
-  "cardNumber": "",
-  "conditio
-  Matching card "Shaedon Sharpe, Jaden Ivey" against keep list...
-  ✓ Match result: Shaedon Sharpe, Jaden Ivey (confidence: 0%, value: $5)
-Card 18: Shaedon Sharpe, Jaden Ivey - $5 (bulk)
-
-Processing card 19/20...
-  Cropping card at (2400, 2250)...
-  ✓ Card cropped, buffer size: 125373
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Aaron Nesmith",
-  "set": "Prizm",
-  "cardNumber": "",
-  "condition": "Unknown"
-
-  Matching card "Aaron Nesmith" against keep list...
-  ✓ Match result: Aaron Nesmith (confidence: 0%, value: $5)
-Card 19: Aaron Nesmith - $5 (bulk)
-
-Processing card 20/20...
-  Cropping card at (3200, 2250)...
-  ✓ Card cropped, buffer size: 117182
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Greg Brown III",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
-  Matching card "Greg Brown III" against keep list...
-  ✓ Match result: Greg Brown III (confidence: 0%, value: $5)
-Card 20: Greg Brown III - $5 (bulk)
- POST /scan 200 in 74530ms
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
-
-./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/stats.ts
-./src/app/page.tsx
- GET / 200 in 7730ms
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ HEAD / 200 in 2944ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -472,6 +61,7 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
+ GET / 200 in 610ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -500,56 +90,8 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
- GET /scan 200 in 1097ms
- GET /scan 200 in 462ms
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
+ GET /favicon.ico 200 in 1022ms
+ DELETE /api/auth/session 200 in 606ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -578,26 +120,7 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- ⚠ ./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/user-preferences.ts
-
-./src/lib/firebase/admin.ts
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./src/lib/firebase/admin.ts
-./src/app/actions/stats.ts
-./src/app/page.tsx
- POST /api/auth/session 200 in 17213ms
- GET /browse 200 in 20239ms
- GET / 200 in 20276ms
- GET /about 200 in 20271ms
- GET /collector-cards/sports 200 in 20410ms
- GET /sign-in 200 in 20439ms
+ GET /browse 200 in 5015ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -626,11 +149,7 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- GET /general 200 in 5024ms
- GET /bidsy 200 in 4997ms
- GET /wtb 200 in 4944ms
- GET /collectibles 200 in 5108ms
- GET /sign-up 200 in 5114ms
+ GET /collector-cards 200 in 3125ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -645,7 +164,6 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- POST /scan 200 in 7678ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -660,129 +178,18 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- GET /dealsafe 200 in 7181ms
- GET /research 200 in 4454ms
- GET /consign 200 in 7292ms
- GET /sell/create 200 in 4456ms
-=== SCAN STARTED ===
-User ID: O5nCLgbIaRRRF369K0kjgT59io73
-Image file: 20250809_151851.jpg Size: 5764584 bytes
-Image buffer created, size: 5764584
-Target cards: 38
-✓ Grid detected: 36 cards in 6x6 grid
-
-Processing card 1/36...
-  Cropping card at (0, 0)...
-  ✓ Card cropped, buffer size: 82924
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 1: Unreadable - $5 (bulk)
-
-Processing card 2/36...
-  Cropping card at (666, 0)...
-  ✓ Card cropped, buffer size: 80145
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "Origins",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 2: Unreadable - $5 (bulk)
-
-Processing card 3/36...
-  Cropping card at (1332, 0)...
-  ✓ Card cropped, buffer size: 82282
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 3: Unreadable - $5 (bulk)
-
-Processing card 4/36...
-  Cropping card at (1998, 0)...
-  ✓ Card cropped, buffer size: 76575
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 4: Unreadable - $5 (bulk)
-
-Processing card 5/36...
-  Cropping card at (2664, 0)...
-  ✓ Card cropped, buffer size: 82237
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "RUI HACHIMURA",
-  "set": "PRIZM",
-  "cardNumber": "",
-  "condition": "Unknown"
-
-  Matching card "RUI HACHIMURA" against keep list...
-  ✓ Match result: RUI HACHIMURA (confidence: 0%, value: $5)
-Card 5: RUI HACHIMURA - $5 (bulk)
-
-Processing card 6/36...
-  Cropping card at (3330, 0)...
-  ✓ Card cropped, buffer size: 91917
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-`
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 6: Unreadable - $5 (bulk)
-
-Processing card 7/36...
-  Cropping card at (0, 500)...
-  ✓ Card cropped, buffer size: 80586
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/hCTyEhq7xdoLEsrfL4GS 200 in 6463ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/hCTyEhq7xdoLEsrfL4GS 200 in 1383ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -797,33 +204,1271 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
-  ✓ Gemini response received: ```json
-{
-  "name": "Jusuf Nurkic",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
-}
-```
-  Matching card "Jusuf Nurkic" against keep list...
-  ✓ Match result: Jusuf Nurkic (confidence: 0%, value: $5)
-Card 7: Jusuf Nurkic - $5 (bulk)
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 8/36...
-  Cropping card at (666, 500)...
-  ✓ Card cropped, buffer size: 78161
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "CALEB HOUSTAN",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /sign-up 200 in 1583ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 1086ms
+ POST /api/auth/session 200 in 80ms
+ POST /sign-up 200 in 1704ms
+ GET / 200 in 694ms
+ POST /api/auth/session 200 in 19ms
+ POST / 200 in 790ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /sell/create 200 in 3969ms
+ POST /api/auth/session 200 in 122ms
+ POST /sell/create 200 in 740ms
+ GET /sell/create?type=cards 200 in 98ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /dashboard 404 in 1803ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ POST /api/auth/session 200 in 568ms
+ POST /dashboard 404 in 612ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /profile 200 in 2644ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /admin 200 in 3386ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ POST /api/auth/session 200 in 852ms
+ POST /admin 200 in 757ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 2518ms
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 3919ms
+ HEAD / 200 in 1111ms
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 651ms
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /favicon.ico 200 in 2011ms
+ DELETE /api/auth/session 200 in 1258ms
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+Client-side error logged: {
+  error: "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n" +
+    '\n' +
+    'Check the render method of `MainNavLinks`.',
+  stack: "Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n" +
+    '\n' +
+    'Check the render method of `MainNavLinks`.\n' +
+    '    at createFiberFromTypeAndProps (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:4289:28)\n' +
+    '    at createFiberFromElement (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:4303:14)\n' +
+    '    at reconcileChildFibersImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6051:31)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6229:33)\n' +
+    '    at reconcileChildren (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:8783:13)\n' +
+    '    at beginWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:11129:13)\n' +
+    '    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:872:30)\n' +
+    '    at performUnitOfWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15727:22)\n' +
+    '    at workLoopSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15547:41)\n' +
+    '    at renderRootSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15527:11)\n' +
+    '    at performWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15034:44)\n' +
+    '    at performSyncWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16831:7)\n' +
+    '    at flushSyncWorkAcrossRoots_impl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16677:21)\n' +
+    '    at processRootScheduleInMicrotask (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16715:9)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16850:13)',
+  componentStack: '\n' +
+    '    at div (<anonymous>)\n' +
+    '    at a (<anonymous>)\n' +
+    '    at LinkComponent (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/app-dir/link.js:93:76)\n' +
+    '    at Primitive.a.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.a.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.a (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Primitive.button.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.button.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.button (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionItemSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionItemSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionItemSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:71:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:943:13)\n' +
+    '    at _c11 (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:498:13)\n' +
+    '    at li (<anonymous>)\n' +
+    '    at IconMenuItem (webpack-internal:///(app-pages-browser)/./src/components/layout/MainNavLinks.tsx:479:11)\n' +
+    '    at ul (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at DismissableLayer (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:37:13)\n' +
+    '    at Primitive.div.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.div.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:915:13)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:703:13)\n' +
+    '    at Presence (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-presence/dist/index.mjs:29:13)\n' +
+    '    at NavigationMenuContent (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:619:13)\n' +
+    '    at _c6 (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:91:11)\n' +
+    '    at li (<anonymous>)\n' +
+    '    at Primitive.li (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at NavigationMenuItem (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:341:13)\n' +
+    '    at ul (<anonymous>)\n' +
+    '    at Primitive.ul (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Primitive.div.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.div.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:915:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuList (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:306:13)\n' +
+    '    at _c2 (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:49:11)\n' +
+    '    at nav (<anonymous>)\n' +
+    '    at Primitive.nav (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at NavigationMenuProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:236:13)\n' +
+    '    at NavigationMenu (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:70:13)\n' +
+    '    at _c (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:27:11)\n' +
+    '    at MainNavLinks (webpack-internal:///(app-pages-browser)/./src/components/layout/MainNavLinks.tsx:38:72)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at header (<anonymous>)\n' +
+    '    at Header (webpack-internal:///(app-pages-browser)/./src/components/layout/Header.tsx:30:84)\n' +
+    '    at ViewedProductsProvider (webpack-internal:///(app-pages-browser)/./src/context/ViewedProductsContext.tsx:14:11)\n' +
+    '    at CartProvider (webpack-internal:///(app-pages-browser)/./src/context/CartContext.tsx:26:11)\n' +
+    '    at SidebarProvider (webpack-internal:///(app-pages-browser)/./src/components/layout/sidebar-provider.tsx:23:11)\n' +
+    '    at QueryClientProvider (webpack-internal:///(app-pages-browser)/./node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:27:11)\n' +
+    '    at QueryProvider (webpack-internal:///(app-pages-browser)/./src/providers/QueryProvider.tsx:17:11)\n' +
+    '    at FirebaseProvider (webpack-internal:///(app-pages-browser)/./src/firebase/provider.tsx:48:11)\n' +
+    '    at ErrorBoundary (webpack-internal:///(app-pages-browser)/./src/components/ErrorBoundary.tsx:156:9)\n' +
+    '    at body (<anonymous>)\n' +
+    '    at html (<anonymous>)\n' +
+    '    at RootLayout (about://React/Server/webpack-internal:///(rsc)/./src/app/layout.tsx?0:245:124)\n' +
+    '    at SegmentViewNode (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/segment-explorer-node.js:125:11)\n' +
+    '    at __next_root_layout_boundary__ (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/lib/framework/boundary-components.js:43:15)\n' +
+    '    at RedirectErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/redirect-boundary.js:75:9)\n' +
+    '    at RedirectBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/redirect-boundary.js:83:11)\n' +
+    '    at HTTPAccessFallbackErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/http-access-fallback/error-boundary.js:88:9)\n' +
+    '    at HTTPAccessFallbackBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/http-access-fallback/error-boundary.js:96:11)\n' +
+    '    at DevRootHTTPAccessFallbackBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/dev-root-http-access-fallback-boundary.js:37:11)\n' +
+    '    at AppDevOverlayErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/app-dev-overlay-error-boundary.js:62:9)\n' +
+    '    at HotReload (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:355:11)\n' +
+    '    at Router (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/app-router.js:166:11)\n' +
+    '    at Err'... 742 more characters,
+  url: 'http://localhost:9004/',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+  timestamp: '2026-02-09T02:55:13.113Z'
 }
-```
-  Matching card "CALEB HOUSTAN" against keep list...
+ POST /api/log-error 200 in 1641ms
+ DELETE /api/auth/session 200 in 36ms
+ GET / 200 in 1940ms
+ GET /favicon.ico 200 in 40ms
+ GET / 200 in 502ms
+ DELETE /api/auth/session 200 in 36ms
+Client-side error logged: {
+  error: "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n" +
+    '\n' +
+    'Check the render method of `MainNavLinks`.',
+  stack: "Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n" +
+    '\n' +
+    'Check the render method of `MainNavLinks`.\n' +
+    '    at createFiberFromTypeAndProps (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:4289:28)\n' +
+    '    at createFiberFromElement (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:4303:14)\n' +
+    '    at reconcileChildFibersImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6051:31)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6229:33)\n' +
+    '    at reconcileChildren (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:8783:13)\n' +
+    '    at beginWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:11129:13)\n' +
+    '    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:872:30)\n' +
+    '    at performUnitOfWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15727:22)\n' +
+    '    at workLoopSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15547:41)\n' +
+    '    at renderRootSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15527:11)\n' +
+    '    at performWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15034:44)\n' +
+    '    at performSyncWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16831:7)\n' +
+    '    at flushSyncWorkAcrossRoots_impl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16677:21)\n' +
+    '    at processRootScheduleInMicrotask (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16715:9)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:16850:13)',
+  componentStack: '\n' +
+    '    at div (<anonymous>)\n' +
+    '    at a (<anonymous>)\n' +
+    '    at LinkComponent (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/app-dir/link.js:93:76)\n' +
+    '    at Primitive.a.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.a.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.a (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Primitive.button.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.button.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.button (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionItemSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionItemSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionItemSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:71:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:943:13)\n' +
+    '    at _c11 (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:498:13)\n' +
+    '    at li (<anonymous>)\n' +
+    '    at IconMenuItem (webpack-internal:///(app-pages-browser)/./src/components/layout/MainNavLinks.tsx:479:11)\n' +
+    '    at ul (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at DismissableLayer (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:37:13)\n' +
+    '    at Primitive.div.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.div.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:915:13)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:703:13)\n' +
+    '    at Presence (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-presence/dist/index.mjs:29:13)\n' +
+    '    at NavigationMenuContent (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:619:13)\n' +
+    '    at _c6 (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:91:11)\n' +
+    '    at li (<anonymous>)\n' +
+    '    at Primitive.li (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at NavigationMenuItem (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:341:13)\n' +
+    '    at ul (<anonymous>)\n' +
+    '    at Primitive.ul (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Primitive.div.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at Primitive.div.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:915:13)\n' +
+    '    at NavigationMenuCollectionSlot.SlotClone (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:44:13)\n' +
+    '    at NavigationMenuCollectionSlot.Slot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-slot/dist/index.mjs:20:13)\n' +
+    '    at NavigationMenuCollectionSlot (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:52:17)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at Primitive.div (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at NavigationMenuList (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:306:13)\n' +
+    '    at _c2 (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:49:11)\n' +
+    '    at nav (<anonymous>)\n' +
+    '    at Primitive.nav (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-primitive/dist/index.mjs:38:13)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at CollectionProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-collection/dist/index.mjs:36:17)\n' +
+    '    at Provider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-context/dist/index.mjs:34:15)\n' +
+    '    at NavigationMenuProvider (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:236:13)\n' +
+    '    at NavigationMenu (webpack-internal:///(app-pages-browser)/./node_modules/@radix-ui/react-navigation-menu/dist/index.mjs:70:13)\n' +
+    '    at _c (webpack-internal:///(app-pages-browser)/./src/components/ui/navigation-menu.tsx:27:11)\n' +
+    '    at MainNavLinks (webpack-internal:///(app-pages-browser)/./src/components/layout/MainNavLinks.tsx:38:72)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at header (<anonymous>)\n' +
+    '    at Header (webpack-internal:///(app-pages-browser)/./src/components/layout/Header.tsx:30:84)\n' +
+    '    at ViewedProductsProvider (webpack-internal:///(app-pages-browser)/./src/context/ViewedProductsContext.tsx:14:11)\n' +
+    '    at CartProvider (webpack-internal:///(app-pages-browser)/./src/context/CartContext.tsx:26:11)\n' +
+    '    at SidebarProvider (webpack-internal:///(app-pages-browser)/./src/components/layout/sidebar-provider.tsx:23:11)\n' +
+    '    at QueryClientProvider (webpack-internal:///(app-pages-browser)/./node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:27:11)\n' +
+    '    at QueryProvider (webpack-internal:///(app-pages-browser)/./src/providers/QueryProvider.tsx:17:11)\n' +
+    '    at FirebaseProvider (webpack-internal:///(app-pages-browser)/./src/firebase/provider.tsx:48:11)\n' +
+    '    at ErrorBoundary (webpack-internal:///(app-pages-browser)/./src/components/ErrorBoundary.tsx:156:9)\n' +
+    '    at body (<anonymous>)\n' +
+    '    at html (<anonymous>)\n' +
+    '    at RootLayout (about://React/Server/webpack-internal:///(rsc)/./src/app/layout.tsx?0:245:124)\n' +
+    '    at SegmentViewNode (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/segment-explorer-node.js:125:11)\n' +
+    '    at __next_root_layout_boundary__ (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/lib/framework/boundary-components.js:43:15)\n' +
+    '    at RedirectErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/redirect-boundary.js:75:9)\n' +
+    '    at RedirectBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/redirect-boundary.js:83:11)\n' +
+    '    at HTTPAccessFallbackErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/http-access-fallback/error-boundary.js:88:9)\n' +
+    '    at HTTPAccessFallbackBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/http-access-fallback/error-boundary.js:96:11)\n' +
+    '    at DevRootHTTPAccessFallbackBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/dev-root-http-access-fallback-boundary.js:37:11)\n' +
+    '    at AppDevOverlayErrorBoundary (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/app-dev-overlay-error-boundary.js:62:9)\n' +
+    '    at HotReload (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:355:11)\n' +
+    '    at Router (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/app-router.js:166:11)\n' +
+    '    at Err'... 742 more characters,
+  url: 'http://localhost:9004/',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+  timestamp: '2026-02-09T02:56:47.601Z'
+}
+ POST /api/log-error 200 in 733ms
+ ⚠ ./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/components/layout/MainNavLinks.tsx
+Attempted import error: 'Football' is not exported from '__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Football,ScanLine,Search,Trophy,Wand2,Wind,Zap!=!lucide-react' (imported as 'Football').
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 1658ms
+ GET / 200 in 2929ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 543ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /browse 200 in 5421ms
+ GET / 200 in 1681ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 1314ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /favicon.ico 200 in 1310ms
+ GET / 200 in 857ms
+ GET /favicon.ico 200 in 15ms
+ DELETE /api/auth/session 200 in 21ms
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[Error [TimeoutError]: The operation was aborted due to timeout] {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+ GET / 200 in 414ms
+ DELETE /api/auth/session 200 in 14ms
+ GET /favicon.ico 200 in 8ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 1751ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 200 in 779ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET / 200 in 3252ms
+ GET / 200 in 3239ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 4571ms
+   Reload env: .env.local
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -838,494 +1483,1482 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- GET /contact 200 in 4159ms
-  ✓ Match result: CALEB HOUSTAN (confidence: 0%, value: $5)
-Card 8: CALEB HOUSTAN - $5 (bulk)
+ GET / 200 in 2244ms
+ GET / 200 in 2287ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 384ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET / 200 in 7646ms
+ GET / 200 in 7647ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 9/36...
-  Cropping card at (1332, 500)...
-  ✓ Card cropped, buffer size: 85403
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Zeke Nnaji",
-  "set": "Nuggets",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /favicon.ico 200 in 3274ms
+ GET /favicon.ico 200 in 3282ms
+ DELETE /api/auth/session 200 in 3014ms
+ DELETE /api/auth/session 200 in 3014ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 12183ms
+ POST /api/auth/session 200 in 47ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2078ms
+ POST / 200 in 1974ms
+ GET /favicon.ico 200 in 16ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 508ms
+ GET / 200 in 517ms
+ GET /favicon.ico 200 in 65ms
+ GET /favicon.ico 200 in 38ms
+ GET /favicon.ico 200 in 142ms
+ GET /favicon.ico 200 in 66ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 1741ms
+ GET /favicon.ico 200 in 25ms
+ GET /favicon.ico 200 in 13ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 606ms
+ GET / 200 in 618ms
+ GET /favicon.ico 200 in 43ms
+ GET /favicon.ico 200 in 44ms
+ GET /favicon.ico 200 in 25ms
+ GET /favicon.ico 200 in 18ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2033ms
+ GET /favicon.ico 200 in 29ms
+ GET /favicon.ico 200 in 37ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 2043ms
+ GET / 200 in 2046ms
+ GET / 200 in 405ms
+ GET / 200 in 439ms
+ GET /favicon.ico 200 in 77ms
+ GET /favicon.ico 200 in 156ms
+ GET /favicon.ico 200 in 19ms
+ GET /favicon.ico 200 in 20ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 3176ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 1881ms
+ GET /favicon.ico 200 in 16ms
+ GET /favicon.ico 200 in 13ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET / 200 in 1100ms
+ GET / 200 in 1103ms
+ GET /favicon.ico 200 in 57ms
+ GET /favicon.ico 200 in 19ms
+ GET /favicon.ico 200 in 63ms
+ GET /favicon.ico 200 in 13ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2297ms
+ GET /favicon.ico 200 in 14ms
+ GET /favicon.ico 200 in 11ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET / 200 in 1743ms
+ GET / 200 in 1745ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET / 200 in 1032ms
+ GET / 200 in 1033ms
+ GET /favicon.ico 200 in 31ms
+ GET /favicon.ico 200 in 42ms
+ GET /favicon.ico 200 in 17ms
+ GET /favicon.ico 200 in 16ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2741ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2228ms
+ GET /favicon.ico 200 in 17ms
+ GET /favicon.ico 200 in 22ms
+ ⨯ ./src/components/layout/MainNavLinks.tsx
+Module parse failed: Identifier 'Handshake' has already been declared (10:129)
+| import { useUser } from '@/firebase';
+| import { cn } from '@/lib/utils';
+> import { Zap, Dribbble, Trophy, Wind, Car, Wand2, CircleDollarSign, DollarSign, Coins as CoinsIcon, ScanLine, Search, Handshake, Handshake, Shield, Tag, Layers } from "__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Handshake,Layers,ScanLine,Search,Shield,Tag,Trophy,Wand2,Wind,Zap!=!lucide-react";
+| export function MainNavLinks() {
+|     _s();
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+ ⨯ ./src/components/layout/MainNavLinks.tsx
+Module parse failed: Identifier 'Handshake' has already been declared (10:129)
+| import { useUser } from '@/firebase';
+| import { cn } from '@/lib/utils';
+> import { Zap, Dribbble, Trophy, Wind, Car, Wand2, CircleDollarSign, DollarSign, Coins as CoinsIcon, ScanLine, Search, Handshake, Handshake, Shield, Tag, Layers } from "__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Handshake,Layers,ScanLine,Search,Shield,Tag,Trophy,Wand2,Wind,Zap!=!lucide-react";
+| export function MainNavLinks() {
+|     _s();
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+ ⨯ ./src/components/layout/MainNavLinks.tsx
+Module parse failed: Identifier 'Handshake' has already been declared (10:129)
+| import { useUser } from '@/firebase';
+| import { cn } from '@/lib/utils';
+> import { Zap, Dribbble, Trophy, Wind, Car, Wand2, CircleDollarSign, DollarSign, Coins as CoinsIcon, ScanLine, Search, Handshake, Handshake, Shield, Tag, Layers } from "__barrel_optimize__?names=Car,CircleDollarSign,Coins,DollarSign,Dribbble,Handshake,Layers,ScanLine,Search,Shield,Tag,Trophy,Wand2,Wind,Zap!=!lucide-react";
+| export function MainNavLinks() {
+|     _s();
+
+Import trace for requested module:
+./src/components/layout/MainNavLinks.tsx
+./src/components/layout/Header.tsx
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 500 in 12684ms
+ GET / 500 in 12697ms
+ GET / 500 in 12699ms
+ POST /api/log-error 500 in 13819ms
+ POST /api/log-error 500 in 13775ms
+ POST /api/log-error 500 in 13840ms
+ GET / 500 in 26ms
+ GET / 500 in 25ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 500 in 21ms
+ GET / 500 in 28ms
+ GET / 500 in 28ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 500 in 29ms
+ GET / 500 in 31ms
+ GET / 500 in 20ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 500 in 43ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/bjm/Desktop/Pick1901/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/Users/bjm/Desktop/Pick1901/.next/cache/webpack/client-development-fallback/0.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/bjm/Desktop/Pick1901/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/Users/bjm/Desktop/Pick1901/.next/cache/webpack/client-development-fallback/0.pack.gz'
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/api/log-error/route.ts
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 3154ms
+ GET / 200 in 1015ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 2967ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /favicon.ico 200 in 317ms
+ GET /favicon.ico 200 in 373ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/api/log-error/route.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/api/log-error/route.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/api/log-error/route.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/api/log-error/route.ts
+ DELETE /api/auth/session 200 in 8025ms
+ DELETE /api/auth/session 200 in 8026ms
+ GET /favicon.ico 200 in 3161ms
+ POST /api/auth/session 200 in 7247ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST / 200 in 1876ms
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 200 in 10225ms
+ ⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/product/jXnhYh3Sgyyuyq8P3i6s'
 }
-  Matching card "Zeke Nnaji" against keep list...
-  ✓ Match result: Zeke Nnaji (confidence: 0%, value: $5)
-Card 9: Zeke Nnaji - $5 (bulk)
+ GET / 200 in 2303ms
+ GET / 200 in 2313ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 10/36...
-  Cropping card at (1998, 500)...
-  ✓ Card cropped, buffer size: 83450
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Jeremy Lamb",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 500 in 4859ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 1368ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 1056ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 4188ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 200 in 850ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /favicon.ico 200 in 776ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /test-seed 200 in 2201ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 872ms
+ POST /test-seed 200 in 1307ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 46ms
+Initial fetch failed: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaEwoPbXVsdGlidXlFbmFibGVkEAEaCgoGc3RhdHVzEAEaDgoKaXNGZWF0dXJlZBACGg0KCWNyZWF0ZWRBdBACGgwKCF9fbmFtZV9fEAI] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Jeremy Lamb" against keep list...
-  ✓ Match result: Jeremy Lamb (confidence: 0%, value: $5)
-Card 10: Jeremy Lamb - $5 (bulk)
-
-Processing card 11/36...
-  Cropping card at (2664, 500)...
-  ✓ Card cropped, buffer size: 91221
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /multibuy 200 in 3877ms
+ DELETE /api/auth/session 200 in 24ms
+ GET /browse 200 in 922ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 11: Unreadable - $5 (bulk)
+ GET /browse?q=Test+Bronze+Item 200 in 706ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 12/36...
-  Cropping card at (3330, 500)...
-  ✓ Card cropped, buffer size: 92141
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /multicard-deals 200 in 4884ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
 }
-`
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 12: Unreadable - $5 (bulk)
-
-Processing card 13/36...
-  Cropping card at (0, 1000)...
-  ✓ Card cropped, buffer size: 64770
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Killian Hayes",
-  "set": "Panini Contenders 2021",
-  "cardNumber": "",
-  "condi
-  Matching card "Killian Hayes" against keep list...
-  ✓ Match result: Killian Hayes (confidence: 0%, value: $5)
-Card 13: Killian Hayes - $5 (bulk)
-
-Processing card 14/36...
-  Cropping card at (666, 1000)...
-  ✓ Card cropped, buffer size: 86173
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "CJ McCollum",
-  "set": "20-21",
-  "cardNumber": "",
-  "condition": "Unknown"
+ DELETE /api/auth/session 200 in 1698ms
+ POST /multicard-deals 500 in 1774ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ DELETE /api/auth/session 200 in 16ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 3186ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 200 in 998ms
+[2026-02-09T03:26:44.656Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x63e92eb2 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-
-  Matching card "CJ McCollum" against keep list...
-  ✓ Match result: CJ McCollum (confidence: 100%, value: $100)
-Card 14: CJ McCollum - $100 (keep)
-
-Processing card 15/36...
-  Cropping card at (1332, 1000)...
-  ✓ Card cropped, buffer size: 103971
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Bruce Brown",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Platinum 200 in 2110ms
+ GET /multicard-deals 200 in 407ms
+ DELETE /api/auth/session 200 in 865ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
 }
-```
-  Matching card "Bruce Brown" against keep list...
-  ✓ Match result: Bruce Brown (confidence: 0%, value: $5)
-Card 15: Bruce Brown - $5 (bulk)
+ POST /multicard-deals 500 in 1792ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 16/36...
-  Cropping card at (1998, 1000)...
-  ✓ Card cropped, buffer size: 81018
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Eric Paschall",
-  "set": "Mosaic",
-  "cardNumber": "",
-  "condition": "Near Min
-  Matching card "Eric Paschall" against keep list...
-  ✓ Match result: Eric Paschall (confidence: 0%, value: $5)
-Card 16: Eric Paschall - $5 (bulk)
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
 
-Processing card 17/36...
-  Cropping card at (2664, 1000)...
-  ✓ Card cropped, buffer size: 74137
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "IQ Whitehead",
-  "set": "Select",
-  "cardNumber": "",
-  "condition": "Unknown"
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-  Matching card "IQ Whitehead" against keep list...
-  ✓ Match result: IQ Whitehead (confidence: 0%, value: $5)
-Card 17: IQ Whitehead - $5 (bulk)
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 18/36...
-  Cropping card at (3330, 1000)...
-  ✓ Card cropped, buffer size: 83110
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Amari Bailey",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /sign-in 200 in 9195ms
+ DELETE /api/auth/session 200 in 85ms
+ DELETE /api/auth/session 200 in 21ms
+ GET / 200 in 1527ms
+[2026-02-09T03:28:55.379Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x4ed000fc error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /test-seed 200 in 1466ms
+ DELETE /api/auth/session 200 in 59ms
+ POST /test-seed 200 in 1146ms
+ GET /multicard-deals 200 in 269ms
+ DELETE /api/auth/session 200 in 22ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
 }
-```
-  Matching card "Amari Bailey" against keep list...
-  ✓ Match result: Amari Bailey (confidence: 0%, value: $5)
-Card 18: Amari Bailey - $5 (bulk)
+ POST /multicard-deals 500 in 756ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 19/36...
-  Cropping card at (0, 1500)...
-  ✓ Card cropped, buffer size: 88011
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
- POST /scan 200 in 43910ms
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /multicard-deals 200 in 3721ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 9917ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /multibuy 200 in 18473ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 5292ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ DELETE /api/auth/session 200 in 5270ms
+ GET /multibuy?verifiedOnly=true 200 in 2896ms
+ GET /multibuy 200 in 589ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 19: Unreadable - $5 (bulk)
-
-Processing card 20/36...
-  Cropping card at (666, 1500)...
-  ✓ Card cropped, buffer size: 87909
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Keyontae Johnson",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-
-  Matching card "Keyontae Johnson" against keep list...
-  ✓ Match result: Keyontae Johnson (confidence: 0%, value: $5)
-Card 20: Keyontae Johnson - $5 (bulk)
-
-Processing card 21/36...
-  Cropping card at (1332, 1500)...
-  ✓ Card cropped, buffer size: 86212
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Keyontae Johnson",
-  "set": "Prizm",
-  "cardNumber": "",
-  "condition": "Unknow
-  Matching card "Keyontae Johnson" against keep list...
-  ✓ Match result: Keyontae Johnson (confidence: 0%, value: $5)
-Card 21: Keyontae Johnson - $5 (bulk)
-
-Processing card 22/36...
-  Cropping card at (1998, 1500)...
-  ✓ Card cropped, buffer size: 95028
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Noah Clowney",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Bronze 200 in 8749ms
+ GET /browse?q=Bronze 200 in 1810ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /multicard-deals 200 in 2010ms
+ DELETE /api/auth/session 200 in 57ms
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 6207ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
 }
-```
-  Matching card "Noah Clowney" against keep list...
-  ✓ Match result: Noah Clowney (confidence: 0%, value: $5)
-Card 22: Noah Clowney - $5 (bulk)
-
-Processing card 23/36...
-  Cropping card at (2664, 1500)...
-  ✓ Card cropped, buffer size: 83912
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Cassius Stanley",
-  "set": "Prizm",
-  "cardNumber": "",
-  "condition": "Near Mi
-  Matching card "Cassius Stanley" against keep list...
-  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
-Card 23: Cassius Stanley - $5 (bulk)
-
-Processing card 24/36...
-  Cropping card at (3330, 1500)...
-  ✓ Card cropped, buffer size: 84739
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Tari Eason",
-  "set": "Flux Influx Rookie",
-  "cardNumber": "",
-  "condition": 
-  Matching card "Tari Eason" against keep list...
-  ✓ Match result: Tari Eason (confidence: 100%, value: $50)
-Card 24: Tari Eason - $50 (keep)
-
-Processing card 25/36...
-  Cropping card at (0, 2000)...
-  ✓ Card cropped, buffer size: 78110
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "NBA Hoops",
-  "cardNumber": "",
-  "condition": "Unknown"
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 25: Unreadable - $5 (bulk)
-
-Processing card 26/36...
-  Cropping card at (666, 2000)...
-  ✓ Card cropped, buffer size: 79029
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Trendon Watford",
-  "set": "Crown Royale",
-  "cardNumber": "",
-  "condition": "
-  Matching card "Trendon Watford" against keep list...
-  ✓ Match result: Trendon Watford (confidence: 0%, value: $5)
-Card 26: Trendon Watford - $5 (bulk)
-
-Processing card 27/36...
-  Cropping card at (1332, 2000)...
-  ✓ Card cropped, buffer size: 73394
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "Elite",
-  "cardNumber": "",
-  "condition": "Unknown"
+ POST /multicard-deals 500 in 1450ms
+ DELETE /api/auth/session 200 in 36ms
+ GET /browse 200 in 1134ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/hCTyEhq7xdoLEsrfL4GS 200 in 2519ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/hCTyEhq7xdoLEsrfL4GS 200 in 823ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-`
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 27: Unreadable - $5 (bulk)
-
-Processing card 28/36...
-  Cropping card at (1998, 2000)...
-  ✓ Card cropped, buffer size: 75301
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Bronze 200 in 662ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 28: Unreadable - $5 (bulk)
-
-Processing card 29/36...
-  Cropping card at (2664, 2000)...
-  ✓ Card cropped, buffer size: 76023
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Bronze 200 in 801ms
+ DELETE /api/auth/session 200 in 173ms
+ GET /browse 200 in 4774ms
+ DELETE /api/auth/session 200 in 138ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-`
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 29: Unreadable - $5 (bulk)
-
-Processing card 30/36...
-  Cropping card at (3330, 2000)...
-  ✓ Card cropped, buffer size: 68248
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Unreadable",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Test 200 in 772ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Unreadable" against keep list...
-  ✓ Match result: Unreadable (confidence: 0%, value: $5)
-Card 30: Unreadable - $5 (bulk)
-
-Processing card 31/36...
-  Cropping card at (0, 2500)...
-  ✓ Card cropped, buffer size: 66668
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Cassius Stanley",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ GET /browse?q=Test 200 in 984ms
+ DELETE /api/auth/session 200 in 55ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-`
-  Matching card "Cassius Stanley" against keep list...
-  ✓ Match result: Cassius Stanley (confidence: 0%, value: $5)
-Card 31: Cassius Stanley - $5 (bulk)
+ GET /browse?q=Test&verifiedOnly=true 200 in 1555ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 32/36...
-  Cropping card at (666, 2500)...
-  ✓ Card cropped, buffer size: 62902
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Scoot Henderson",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /sign-in 200 in 4765ms
+ DELETE /api/auth/session 200 in 202ms
+ DELETE /api/auth/session 200 in 99ms
+ GET /multibuy 200 in 2138ms
+[2026-02-09T03:39:58.266Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x77b26601 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+ GET /multicard-deals 200 in 1044ms
+ DELETE /api/auth/session 200 in 51ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
 }
-`
-  Matching card "Scoot Henderson" against keep list...
-  ✓ Match result: Scoot Henderson (confidence: 0%, value: $5)
-Card 32: Scoot Henderson - $5 (bulk)
-
-Processing card 33/36...
-  Cropping card at (1332, 2500)...
-  ✓ Card cropped, buffer size: 59657
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Caleb Houstan",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+ POST /multicard-deals 500 in 7365ms
+ DELETE /api/auth/session 200 in 38ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/test-bronze-item 200 in 2314ms
+ GET /sign-in 200 in 194ms
+ DELETE /api/auth/session 200 in 19ms
+ POST /api/auth/session 200 in 110ms
+ POST /api/auth/session 200 in 127ms
+ POST /sign-in 200 in 840ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '722480069' }
+ GET / 200 in 1153ms
+ POST /api/auth/session 200 in 24ms
+ ⨯ Error: Neither apiKey nor config.authenticator provided
+    at eval (src/app/actions/payments.ts:7:16)
+    at (action-browser)/./src/app/actions/payments.ts (.next/server/app/product/[id]/page.js:121:1)
+    at (action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fai%2Fflows%2Fprocess-donation.ts%22%2C%5B%7B%22id%22%3A%22406c2a5d5477358992d293f20da757aa767926b308%22%2C%22exportedName%22%3A%22processDonation%22%2C%22filename%22%3A%22ai%2Fflows%2Fprocess-donation.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fuser-preferences.ts%22%2C%5B%7B%22id%22%3A%2278d5437cc087d275563df3eaf760c87a4ceb5831aa%22%2C%22exportedName%22%3A%22toggleFavoriteCategory%22%2C%22filename%22%3A%22app%2Factions%2Fuser-preferences.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%22406f50bbfcbd3f68514a92ced6ce511b4f0bc235ed%22%2C%22exportedName%22%3A%22syncUserOnLogin%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fservices%2Fnotifications.ts%22%2C%5B%7B%22id%22%3A%2200696e6c1b60f3d03848099957dfcf7f3ba2fb6306%22%2C%22exportedName%22%3A%22getSuperAdminId%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%22400c4d466ba750f224ae6e898e8efe630f4991216a%22%2C%22exportedName%22%3A%22markAsRead%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%224044b0d335da926c7414771d645d31e88482565acd%22%2C%22exportedName%22%3A%22markAllAsRead%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%2260ff1d7830946ba64900b38f5ab8c499ba8955e8ca%22%2C%22exportedName%22%3A%22getUserNotifications%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%227cd4e8325728955112face484b6a28c924126863e2%22%2C%22exportedName%22%3A%22sendNotification%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fnewsletter.ts%22%2C%5B%7B%22id%22%3A%2260a9ded4bee61da642afac431a44c94f86eacb0092%22%2C%22exportedName%22%3A%22subscribeToNewsletter%22%2C%22filename%22%3A%22app%2Factions%2Fnewsletter.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fbidding.ts%22%2C%5B%7B%22id%22%3A%2240257d614f5754e484d1010c26c8354a45fb6b8b27%22%2C%22exportedName%22%3A%22getSellerProductsWithOffers%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2260030ab64843be601d0bcbc7b741d40f536171aef4%22%2C%22exportedName%22%3A%22resetOffersAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%22709b6dc8ad5f15db8e5f88c1fdb5418f0a55f04611%22%2C%22exportedName%22%3A%22rejectBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2270da7d7b2a224f5105df6e87c9cf15a4a345d047bb%22%2C%22exportedName%22%3A%22acceptBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2278a5938d3da5be064d7aaffe284d465fb09d53687c%22%2C%22exportedName%22%3A%22placeBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fadmin.ts%22%2C%5B%7B%22id%22%3A%22601c293287bf564ed12f3080adc74d4869f9529d58%22%2C%22exportedName%22%3A%22approveProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%2260a4a5dbea88ebb095cacf62d0eeac1b32fce408bd%22%2C%22exportedName%22%3A%22renewProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%2260b75733ef6398e058eba92f2d2df382ea8704cd36%22%2C%22exportedName%22%3A%22deleteProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%227872a7056ae6e9ce23c97a5766b6b07da6b552989c%22%2C%22exportedName%22%3A%22toggleProductHold%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fproduct-updates.ts%22%2C%5B%7B%22id%22%3A%22408c25e8d54dcad1cdde897c2add3fbfd82f63d8dc%22%2C%22exportedName%22%3A%22incrementProductContactCount%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%2C%7B%22id%22%3A%227033908b741ea86ee229ee4936a1e59d583e17d3f5%22%2C%22exportedName%22%3A%22bulkUpdateProductPrice%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%2C%7B%22id%22%3A%2270630499e75001b9f142c58011f10553315b00848d%22%2C%22exportedName%22%3A%22updateProductPrice%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fpayments.ts%22%2C%5B%7B%22id%22%3A%22402a0cd89f0831b39718ee32ecc9c8cf5ed2851acf%22%2C%22exportedName%22%3A%22createSetupIntentAction%22%2C%22filename%22%3A%22app%2Factions%2Fpayments.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fenquiry-actions.ts%22%2C%5B%7B%22id%22%3A%2240b9dc168176ecc95894a356408d1f123e8f5cf8cc%22%2C%22exportedName%22%3A%22sendGuestEnquiry%22%2C%22filename%22%3A%22app%2Factions%2Fenquiry-actions.ts%22%7D%5D%5D%5D&__client_imported__=true! (.next/server/app/product/[id]/page.js:22:1)
+   5 | import Stripe from 'stripe';
+   6 |
+>  7 | const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+     |                ^
+   8 |
+   9 | // 1. Create a SetupIntent for saving a card (binding offer)
+  10 | export async function createSetupIntentAction(idToken: string) { {
+  digest: '2043658134'
 }
-```
-  Matching card "Caleb Houstan" against keep list...
-  ✓ Match result: Caleb Houstan (confidence: 0%, value: $5)
-Card 33: Caleb Houstan - $5 (bulk)
+ POST /product/jXnhYh3Sgyyuyq8P3i6s 500 in 427ms
+ POST /api/auth/session 200 in 24ms
+ POST /api/auth/session 200 in 48ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+ POST / 200 in 494ms
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /multibuy?verifiedOnly=false 200 in 1038ms
+ POST /api/auth/session 200 in 2331ms
+ POST /multibuy?verifiedOnly=false 200 in 455ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 34/36...
-  Cropping card at (1998, 2500)...
-  ✓ Card cropped, buffer size: 62119
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Shaedon Sharpe",
-  "set": "Select Future",
-  "cardNumber": "",
-  "condition": "
-  Matching card "Shaedon Sharpe" against keep list...
-  ✓ Match result: Triple H (confidence: 100%, value: $50)
-Card 34: Triple H - $50 (keep)
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
 
-Processing card 35/36...
-  Cropping card at (2664, 2500)...
-  ✓ Card cropped, buffer size: 63476
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Aaron Nesmith",
-  "set": "",
-  "cardNumber": "",
-  "condition": "Unknown"
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /admin/deals 200 in 14921ms
+ POST /api/auth/session 200 in 135ms
+ POST /admin/deals 200 in 2069ms
+ GET / 200 in 686ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
 }
-```
-  Matching card "Aaron Nesmith" against keep list...
-  ✓ Match result: Aaron Nesmith (confidence: 0%, value: $5)
-Card 35: Aaron Nesmith - $5 (bulk)
+ GET /browse?q=Test+Bronze+Item 200 in 11640ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEwoPdGl0bGVfbG93ZXJjYXNlEAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+ GET /browse?q=Test+Bronze+Item 200 in 468ms
+ GET /multicard-deals 200 in 1762ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
+}
+ POST /multicard-deals 500 in 1479ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
 
-Processing card 36/36...
-  Cropping card at (3330, 2500)...
-  ✓ Card cropped, buffer size: 65405
-  Generating thumbnail...
-  ✓ Thumbnail generated
-  Calling Gemini Vision API...
-  ✓ Gemini response received: ```json
-{
-  "name": "Greg Brown III",
-  "set": "Optic",
-  "cardNumber": "",
-  "condition": "Unknown"
-  Matching card "Greg Brown III" against keep list...
-  ✓ Match result: Greg Brown III (confidence: 0%, value: $5)
-Card 36: Greg Brown III - $5 (bulk)
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ POST /api/auth/session 200 in 3863ms
+ POST /multicard-deals 200 in 624ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaCgoGbmV3ZXN0EAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+ GET /browse?sort=newest 200 in 2858ms
+ POST /api/auth/session 200 in 67ms
+ POST /browse?sort=newest 200 in 385ms
+[2026-02-09T03:47:05.487Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x2c99c0bd error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+ GET /browse?sort=price-asc 200 in 1515ms
+ POST /api/auth/session 200 in 57ms
+ POST /browse?sort=price-asc 200 in 407ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/VKAZifAJM6dBJBblyia7 200 in 4907ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /product/VKAZifAJM6dBJBblyia7 200 in 1242ms
+ GET /browse?sort=price-asc 200 in 3246ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /api/auth/session 200 in 178ms
+ POST /browse?sort=price-asc 200 in 449ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ GET /multicard-deals 200 in 2510ms
+ POST /api/auth/session 200 in 79ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
+}
+ POST /multicard-deals 500 in 2383ms
+ POST /multicard-deals 200 in 642ms
+ GET /multicard-deals 200 in 366ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /favicon.ico 200 in 11085ms
+ POST /api/auth/session 200 in 8596ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
+}
+ POST /multicard-deals 500 in 9542ms
+ POST /multicard-deals 200 in 407ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 3350ms
+ POST /api/auth/session 200 in 56ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /multibuy?sort=price-asc&verifiedOnly=false 200 in 633ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ GET /multicard-deals?bypass=true 200 in 766ms
+ POST /api/auth/session 200 in 98ms
+ ⨯ Error: 9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+    at getDeals (src/app/admin/deals/actions.ts:77:34)
+  75 |     }
+  76 |
+> 77 |     const snapshot = await query.get();
+     |                                  ^
+  78 |
+  79 |     return snapshot.docs.map(doc => ({
+  80 |         id: doc.id, {
+  code: 9,
+  details: 'The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=ClVwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZGVhbHMvaW5kZXhlcy9fEAEaDAoIaXNBY3RpdmUQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC',
+  metadata: [Metadata],
+  digest: '2978653826'
+}
+ POST /multicard-deals?bypass=true 500 in 2273ms
+ POST /multicard-deals?bypass=true 200 in 470ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /api/deals 200 in 26808ms
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 2063ms
+ POST /api/auth/session 200 in 275ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /multibuy?sort=price-asc&verifiedOnly=false 200 in 1592ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ GET /test-seed 200 in 23187ms
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 2312ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/jXnhYh3Sgyyuyq8P3i6s 200 in 3978ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ POST /api/auth/session 200 in 15664ms
+ ⚠ Server is approaching the used memory threshold, restarting...
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:9004
+   - Network:      http://10.221.25.17:9004
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 1989ms
+ ✓ Compiled /middleware in 401ms (160 modules)
+ ○ Compiling /test-seed ...
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ GET /test-seed 200 in 11539ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/services/notifications.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ POST /api/auth/session 200 in 1422ms
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -1338,8 +2971,9 @@ Critical dependency: the request of a dependency is an expression
 Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/user-preferences.ts
- GET /scan 200 in 2719ms
- GET /scan 200 in 197ms
+ GET /favicon.ico 200 in 438ms
+ POST /test-seed 200 in 5104ms
+ POST /test-seed 200 in 2312ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -1352,9 +2986,88 @@ Critical dependency: the request of a dependency is an expression
 Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/user-preferences.ts
- GET /favicon.ico 200 in 1495ms
- GET /scan 200 in 744ms
- GET /favicon.ico 200 in 28ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 7615ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /api/auth/session 200 in 145ms
+ POST /multibuy?sort=price-asc&verifiedOnly=false 200 in 722ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ GET /multicard-deals 200 in 2754ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 1195ms
+ POST /api/auth/session 200 in 116ms
+ POST /multicard-deals 200 in 554ms
+ GET /multicard-deals 200 in 176ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 1011ms
+ POST /api/auth/session 200 in 29ms
+ POST /multicard-deals 200 in 511ms
+ GET /multicard-deals 200 in 63ms
+ GET /test-seed 200 in 289ms
+ POST /api/auth/session 200 in 51ms
+ POST /test-seed 200 in 408ms
+ POST /test-seed 200 in 1098ms
+ GET /multicard-deals 200 in 157ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 646ms
+ POST /api/auth/session 200 in 53ms
+ POST /multicard-deals 200 in 351ms
+ GET /test-seed 200 in 219ms
+ POST /api/auth/session 200 in 68ms
+ POST /test-seed 200 in 369ms
+ POST /test-seed 200 in 1283ms
+ GET /multicard-deals 200 in 245ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 1005ms
+ POST /api/auth/session 200 in 62ms
+ POST /multicard-deals 200 in 389ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+ GET /admin/deals 200 in 11811ms
+ POST /api/auth/session 200 in 108ms
+ POST /admin/deals 200 in 1296ms
  ⚠ ./src/lib/firebase/admin.ts
 Critical dependency: the request of a dependency is an expression
 
@@ -1375,4 +3088,412 @@ Import trace for requested module:
 ./src/lib/firebase/admin.ts
 ./src/app/actions/stats.ts
 ./src/app/page.tsx
- GET / 200 in 2702ms
+ GET / 200 in 2652ms
+ GET /test-seed 200 in 879ms
+ POST /api/auth/session 200 in 85ms
+ POST /test-seed 200 in 601ms
+ POST /test-seed 200 in 1258ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ GET /test-seed 200 in 1507ms
+ POST /api/auth/session 200 in 137ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /favicon.ico 200 in 4422ms
+ POST /test-seed 200 in 318755ms
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 2688ms
+ POST /api/auth/session 200 in 71ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ POST /multibuy?sort=price-asc&verifiedOnly=false 200 in 2161ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ GET /multicard-deals 200 in 247ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 664ms
+ POST /api/auth/session 200 in 36ms
+ POST /multicard-deals 200 in 605ms
+ GET /multicard-deals 200 in 260ms
+ GET /favicon.ico 200 in 21ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 538ms
+ POST /api/auth/session 200 in 16ms
+ POST /multicard-deals 200 in 1463ms
+ GET /test-seed 200 in 390ms
+ POST /api/auth/session 200 in 23ms
+ POST /test-seed 200 in 543ms
+ POST /test-seed 200 in 1346ms
+ GET /multicard-deals 200 in 163ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 785ms
+ POST /api/auth/session 200 in 30ms
+ POST /multicard-deals 200 in 376ms
+ GET /multicard-deals 200 in 198ms
+ GET /favicon.ico 200 in 18ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 926ms
+ POST /api/auth/session 200 in 30ms
+ POST /multicard-deals 200 in 401ms
+ GET / 200 in 1948ms
+ GET /favicon.ico 200 in 27ms
+ GET /multibuy 200 in 1494ms
+ POST /api/auth/session 200 in 22ms
+ POST /multibuy 200 in 430ms
+ GET /test-seed 200 in 382ms
+ POST /api/auth/session 200 in 35ms
+ POST /test-seed 200 in 386ms
+ POST /test-seed 200 in 1647ms
+ GET /multibuy 200 in 611ms
+ POST /api/auth/session 200 in 66ms
+ POST /multibuy 200 in 441ms
+ GET /multicard-deals 200 in 522ms
+ POST /api/auth/session 200 in 36ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 771ms
+ POST /multicard-deals 200 in 749ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ GET /product/test-bronze-item 200 in 28696ms
+ POST /api/auth/session 200 in 120ms
+ ⨯ Error: Neither apiKey nor config.authenticator provided
+    at eval (src/app/actions/payments.ts:7:16)
+    at (action-browser)/./src/app/actions/payments.ts (.next/server/app/product/[id]/page.js:121:1)
+    at (action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fai%2Fflows%2Fprocess-donation.ts%22%2C%5B%7B%22id%22%3A%22406c2a5d5477358992d293f20da757aa767926b308%22%2C%22exportedName%22%3A%22processDonation%22%2C%22filename%22%3A%22ai%2Fflows%2Fprocess-donation.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fuser-preferences.ts%22%2C%5B%7B%22id%22%3A%2278d5437cc087d275563df3eaf760c87a4ceb5831aa%22%2C%22exportedName%22%3A%22toggleFavoriteCategory%22%2C%22filename%22%3A%22app%2Factions%2Fuser-preferences.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%22406f50bbfcbd3f68514a92ced6ce511b4f0bc235ed%22%2C%22exportedName%22%3A%22syncUserOnLogin%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fservices%2Fnotifications.ts%22%2C%5B%7B%22id%22%3A%2200696e6c1b60f3d03848099957dfcf7f3ba2fb6306%22%2C%22exportedName%22%3A%22getSuperAdminId%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%22400c4d466ba750f224ae6e898e8efe630f4991216a%22%2C%22exportedName%22%3A%22markAsRead%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%224044b0d335da926c7414771d645d31e88482565acd%22%2C%22exportedName%22%3A%22markAllAsRead%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%2260ff1d7830946ba64900b38f5ab8c499ba8955e8ca%22%2C%22exportedName%22%3A%22getUserNotifications%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%2C%7B%22id%22%3A%227cd4e8325728955112face484b6a28c924126863e2%22%2C%22exportedName%22%3A%22sendNotification%22%2C%22filename%22%3A%22services%2Fnotifications.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fnewsletter.ts%22%2C%5B%7B%22id%22%3A%2260a9ded4bee61da642afac431a44c94f86eacb0092%22%2C%22exportedName%22%3A%22subscribeToNewsletter%22%2C%22filename%22%3A%22app%2Factions%2Fnewsletter.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fbidding.ts%22%2C%5B%7B%22id%22%3A%2240257d614f5754e484d1010c26c8354a45fb6b8b27%22%2C%22exportedName%22%3A%22getSellerProductsWithOffers%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2260030ab64843be601d0bcbc7b741d40f536171aef4%22%2C%22exportedName%22%3A%22resetOffersAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%22709b6dc8ad5f15db8e5f88c1fdb5418f0a55f04611%22%2C%22exportedName%22%3A%22rejectBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2270da7d7b2a224f5105df6e87c9cf15a4a345d047bb%22%2C%22exportedName%22%3A%22acceptBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%2C%7B%22id%22%3A%2278a5938d3da5be064d7aaffe284d465fb09d53687c%22%2C%22exportedName%22%3A%22placeBidAction%22%2C%22filename%22%3A%22app%2Factions%2Fbidding.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fadmin.ts%22%2C%5B%7B%22id%22%3A%22601c293287bf564ed12f3080adc74d4869f9529d58%22%2C%22exportedName%22%3A%22approveProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%2260a4a5dbea88ebb095cacf62d0eeac1b32fce408bd%22%2C%22exportedName%22%3A%22renewProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%2260b75733ef6398e058eba92f2d2df382ea8704cd36%22%2C%22exportedName%22%3A%22deleteProductByAdmin%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%2C%7B%22id%22%3A%227872a7056ae6e9ce23c97a5766b6b07da6b552989c%22%2C%22exportedName%22%3A%22toggleProductHold%22%2C%22filename%22%3A%22app%2Factions%2Fadmin.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fproduct-updates.ts%22%2C%5B%7B%22id%22%3A%22408c25e8d54dcad1cdde897c2add3fbfd82f63d8dc%22%2C%22exportedName%22%3A%22incrementProductContactCount%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%2C%7B%22id%22%3A%227033908b741ea86ee229ee4936a1e59d583e17d3f5%22%2C%22exportedName%22%3A%22bulkUpdateProductPrice%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%2C%7B%22id%22%3A%2270630499e75001b9f142c58011f10553315b00848d%22%2C%22exportedName%22%3A%22updateProductPrice%22%2C%22filename%22%3A%22app%2Factions%2Fproduct-updates.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fpayments.ts%22%2C%5B%7B%22id%22%3A%22402a0cd89f0831b39718ee32ecc9c8cf5ed2851acf%22%2C%22exportedName%22%3A%22createSetupIntentAction%22%2C%22filename%22%3A%22app%2Factions%2Fpayments.ts%22%7D%5D%5D%2C%5B%22%2FUsers%2Fbjm%2FDesktop%2FPick1901%2Fsrc%2Fapp%2Factions%2Fenquiry-actions.ts%22%2C%5B%7B%22id%22%3A%2240b9dc168176ecc95894a356408d1f123e8f5cf8cc%22%2C%22exportedName%22%3A%22sendGuestEnquiry%22%2C%22filename%22%3A%22app%2Factions%2Fenquiry-actions.ts%22%7D%5D%5D%5D&__client_imported__=true! (.next/server/app/product/[id]/page.js:22:1)
+   5 | import Stripe from 'stripe';
+   6 |
+>  7 | const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+     |                ^
+   8 |
+   9 | // 1. Create a SetupIntent for saving a card (binding offer)
+  10 | export async function createSetupIntentAction(idToken: string) { {
+  digest: '2043658134'
+}
+🔍 Firebase Admin Check: saJson length: 0
+✅ Firebase Admin: Attempting to use Individual Secrets
+   FIREBASE_ADMIN_CLIENT_EMAIL is set: true
+   FIREBASE_ADMIN_PRIVATE_KEY length: 1704
+✅ Firebase Admin: Successfully initialized with Individual Secrets
+ POST /product/test-bronze-item 500 in 957ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/product/[id]/page.tsx
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /browse 200 in 4260ms
+ POST /api/auth/session 200 in 33ms
+ POST /browse 200 in 720ms
+ GET /multibuy 200 in 3124ms
+ POST /api/auth/session 200 in 514ms
+ POST /multibuy 200 in 1760ms
+ GET /multibuy 200 in 931ms
+ GET /multicard-deals 200 in 1017ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 2219ms
+ POST /api/auth/session 200 in 400ms
+ POST /multicard-deals 200 in 537ms
+Initial fetch failed (likely missing index): [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaCgoGbmV3ZXN0EAEaDAoIX19uYW1lX18QAQ] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+ GET /browse?sort=newest 200 in 1551ms
+ POST /api/auth/session 200 in 250ms
+ POST /browse?sort=newest 200 in 666ms
+ GET /test-seed 200 in 766ms
+ POST /api/auth/session 200 in 502ms
+ POST /test-seed 200 in 505ms
+ POST /test-seed 200 in 1153ms
+[2026-02-09T06:50:56.933Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x485e44bc error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+ GET /multibuy 200 in 1370ms
+ POST /api/auth/session 200 in 30ms
+ POST /multibuy 200 in 424ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /multibuy?sort=price-asc&verifiedOnly=false 200 in 5553ms
+ GET /test-seed 200 in 1242ms
+ GET /multibuy 200 in 1273ms
+ GET / 200 in 5625ms
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ ⨯ upstream image response failed for https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media 404
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /multicard-deals 200 in 4552ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 1522ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ POST /api/auth/session 200 in 1469ms
+ POST /multicard-deals 200 in 575ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /favicon.ico 200 in 1005ms
+ GET /multicard-deals 200 in 250ms
+Initial fetch failed: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaEwoPbXVsdGlidXlFbmFibGVkEAEaCgoGc3RhdHVzEAEaDgoKaXNGZWF0dXJlZBACGg0KCWNyZWF0ZWRBdBACGgwKCF9fbmFtZV9fEAI] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+ GET /multibuy 200 in 3438ms
+ POST /api/auth/session 200 in 96ms
+ POST /api/auth/session 200 in 22ms
+ POST /multibuy 200 in 572ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 1528ms
+ POST /multicard-deals 200 in 360ms
+ GET /multicard-deals 200 in 174ms
+ GET /favicon.ico 200 in 20ms
+ ⨯ Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
+  {id: ..., name: ..., description: ..., price: ..., requirements: ..., isActive: ..., code: ..., imageUrl: ..., createdAt: {_seconds: ..., _nanoseconds: 136000000}, timesUsed: ...}
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3551495687'
+}
+ POST /multicard-deals 200 in 614ms
+ POST /api/auth/session 200 in 16ms
+ POST /multicard-deals 200 in 1084ms
+[2026-02-09T06:56:54.118Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x751b1691 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /multicard-deals 200 in 1261ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+Initial fetch failed: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/studio-8322868971-8ca89/firestore/indexes?create_composite=Clhwcm9qZWN0cy9zdHVkaW8tODMyMjg2ODk3MS04Y2E4OS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvcHJvZHVjdHMvaW5kZXhlcy9fEAEaEwoPbXVsdGlidXlFbmFibGVkEAEaCgoGc3RhdHVzEAEaDgoKaXNGZWF0dXJlZBACGg0KCWNyZWF0ZWRBdBACGgwKCF9fbmFtZV9fEAI] {
+  code: 'failed-precondition',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+ GET /multibuy 200 in 2294ms
+ ⚠ ./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/user-preferences.ts
+
+./src/lib/firebase/admin.ts
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./src/lib/firebase/admin.ts
+./src/app/actions/stats.ts
+./src/app/page.tsx
+ GET /favicon.ico 200 in 1759ms
+ GET /favicon.ico 200 in 17ms
+[2026-02-09T06:59:26.626Z]  @firebase/firestore: Firestore (12.8.0): GrpcConnection RPC 'Listen' stream 0x42d1cd04 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.

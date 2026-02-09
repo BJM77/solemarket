@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/utils';
@@ -70,6 +70,24 @@ export function CartDrawer() {
                                                 <p className="text-sm font-bold text-primary mt-1">
                                                     ${formatPrice(item.price)}
                                                 </p>
+                                                {/* Upsell Message */}
+                                                {(() => {
+                                                    if (!item.multibuyEnabled || !item.multibuyTiers?.length) return null;
+
+                                                    const nextTier = item.multibuyTiers
+                                                        .sort((a, b) => a.minQuantity - b.minQuantity)
+                                                        .find(t => t.minQuantity > item.quantity);
+
+                                                    if (!nextTier) return null;
+
+                                                    const diff = nextTier.minQuantity - item.quantity;
+                                                    return (
+                                                        <p className="text-xs font-medium text-blue-600 flex items-center gap-1 mt-1">
+                                                            <Tag className="w-3 h-3" />
+                                                            Add {diff} more for {nextTier.discountPercent}% off!
+                                                        </p>
+                                                    );
+                                                })()}
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <div className="flex items-center gap-2">

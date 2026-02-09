@@ -7,10 +7,13 @@ import { FieldValue } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
+import { calculateItemTotal, calculateShipping, calculateTax } from '@/lib/pricing';
 
 interface CartItem {
     id: string;
     quantity: number;
+    dealId?: string;
+    bundlePrice?: number;
 }
 
 interface OrderOptions {
@@ -55,14 +58,19 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };
                 }
 
-                const itemTotal = product.price * item.quantity;
+                const itemTotal = (item.dealId && item.bundlePrice !== undefined)
+                    ? item.bundlePrice
+                    : calculateItemTotal(product.price, item.quantity, product.multibuyEnabled, product.multibuyTiers);
+                
                 sellerGroups[sellerId].items.push({
                     id: item.id,
                     title: product.title,
                     price: product.price,
+                    discountedPrice: itemTotal / item.quantity,
                     quantity: item.quantity,
                     image: product.imageUrls?.[0] || '',
                     sellerId: product.sellerId,
+                    dealId: item.dealId,
                 });
                 sellerGroups[sellerId].subtotal += itemTotal;
 
@@ -81,15 +89,16 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             for (const [sellerId, group] of Object.entries(sellerGroups)) {
                 const orderRef = firestoreDb.collection('orders').doc();
 
-                // For now, split shipping cost proportionally or apply to first? 
-                // Let's keep it simple: each unique seller order might have its own shipping if we were advanced, 
-                // but for now we'll just split the total order's logic.
-                // Re-calculating per-seller order:
-                const shippingCost = options?.shippingMethod === 'shipping'
-                    ? (group.subtotal >= settings.freeShippingThreshold ? 0 : settings.freightCharge)
-                    : 0;
+                const shippingCost = calculateShipping(
+                    group.subtotal, 
+                    options?.shippingMethod || 'pickup', 
+                    { 
+                        freightCharge: settings.freightCharge, 
+                        freeShippingThreshold: settings.freeShippingThreshold 
+                    }
+                );
 
-                const taxAmount = group.subtotal * settings.standardTaxRate;
+                const taxAmount = calculateTax(group.subtotal, settings.standardTaxRate);
                 const totalAmount = group.subtotal + shippingCost + taxAmount;
 
                 const newOrder = {

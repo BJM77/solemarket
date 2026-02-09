@@ -17,17 +17,20 @@ import { useState, useTransition } from 'react';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { getSystemSettings, type SystemSettings } from '@/app/admin/settings/actions';
+import { getSystemSettings, type AdminSystemSettings } from '@/app/admin/settings/actions';
 import { useEffect } from 'react';
+import { calculateShipping, calculateTax } from '@/lib/pricing';
+
+export const dynamic = 'force-dynamic';
 
 export default function CheckoutPage() {
-  const { items, cartTotal, clearCart, itemCount, setIsCartOpen, shippingMethod, setShippingMethod } = useCart();
+  const { items, cartSubtotal, clearCart, itemCount, setIsCartOpen, shippingMethod, setShippingMethod } = useCart();
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useUser();
   const [isPending, startTransition] = useTransition();
 
-  const [settings, setSettings] = useState<SystemSettings>({
+  const [settings, setSettings] = useState<AdminSystemSettings>({
     freightCharge: 12.00,
     freeShippingThreshold: 150.00,
     standardTaxRate: 0.10,
@@ -50,13 +53,13 @@ export default function CheckoutPage() {
   });
 
   // Dynamic shipping and tax logic
-  const shippingCost = shippingMethod === 'shipping'
-    ? (cartTotal >= settings.freeShippingThreshold ? 0 : settings.freightCharge)
-    : 0;
+  const shippingCost = calculateShipping(cartSubtotal, shippingMethod, {
+    freightCharge: settings.freightCharge,
+    freeShippingThreshold: settings.freeShippingThreshold
+  });
 
-  const taxRate = settings.standardTaxRate ?? 0.10;
-  const taxAmount = cartTotal * taxRate;
-  const totalAmount = cartTotal + shippingCost + taxAmount;
+  const taxAmount = calculateTax(cartSubtotal, settings.standardTaxRate ?? 0.10);
+  const totalAmount = cartSubtotal + shippingCost + taxAmount;
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,7 +89,12 @@ export default function CheckoutPage() {
         return;
       }
 
-      const cartItemsForAction = items.map(item => ({ id: item.id, quantity: item.quantity }));
+      const cartItemsForAction = items.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        dealId: item.dealId,
+        bundlePrice: item.bundlePrice
+      }));
 
       try {
         const result = await createOrderAction(
@@ -180,7 +188,7 @@ export default function CheckoutPage() {
                         <span className="font-semibold">Flat Rate Shipping</span>
                         <span className="text-sm text-muted-foreground mt-1">Delivered to you</span>
                         <span className="text-sm font-bold text-primary mt-2">
-                          {cartTotal >= settings.freeShippingThreshold ? 'FREE' : `$${formatPrice(settings.freightCharge)}`}
+                          {cartSubtotal >= settings.freeShippingThreshold ? 'FREE' : `$${formatPrice(settings.freightCharge)}`}
                         </span>
                       </Label>
                     </div>
@@ -307,14 +315,14 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${formatPrice(cartTotal)}</span>
+                    <span>${formatPrice(cartSubtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping ({shippingMethod})</span>
                     <span>{shippingCost === 0 ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Taxes (Est. {(taxRate * 100).toFixed(0)}%)</span>
+                    <span className="text-muted-foreground">Taxes (Est. {((settings.standardTaxRate ?? 0.10) * 100).toFixed(0)}%)</span>
                     <span>${formatPrice(taxAmount)}</span>
                   </div>
                 </div>
