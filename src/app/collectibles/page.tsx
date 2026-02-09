@@ -8,7 +8,7 @@ import { Product } from '@/lib/types';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 
-const COLLECTIBLES_CATEGORIES = ['Collectibles', 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'];
+const COLLECTIBLES_CATEGORIES = ['Collectibles', 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia', 'General'];
 
 export default function CollectiblesPage() {
     const { firestore } = useFirebase();
@@ -29,7 +29,7 @@ export default function CollectiblesPage() {
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <PageHeader
-                    title="Memorabilia"
+                    title="Memorabilia & General"
 
                     description="A wide array of treasures from various categories."
                 />

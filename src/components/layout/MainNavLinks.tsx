@@ -112,18 +112,12 @@ export function MainNavLinks() {
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/collectibles">
-              Memorabilia
+              Memorabilia & General
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/general">
-              General
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+
 
         {features.bidsy && (
           <NavigationMenuItem>
@@ -165,25 +159,27 @@ export function MainNavLinks() {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[280px] gap-1 p-2">
-              <IconMenuItem
-                title="Scan Cards"
-                href="/scan"
-                icon={<ScanLine className="h-5 w-5 text-blue-600" />}
-                description="AI-powered card identification"
-              />
-              <IconMenuItem
-                title="Research"
-                href="/research"
-                icon={<Search className="h-5 w-5 text-purple-600" />}
-                description="Price history and analysis"
-              />
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+        {user && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[280px] gap-1 p-2">
+                <IconMenuItem
+                  title="Scan Cards"
+                  href="/scan"
+                  icon={<ScanLine className="h-5 w-5 text-blue-600" />}
+                  description="AI-powered card identification"
+                />
+                <IconMenuItem
+                  title="Research"
+                  href="/research"
+                  icon={<Search className="h-5 w-5 text-purple-600" />}
+                  description="Price history and analysis"
+                />
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>Services</NavigationMenuTrigger>
