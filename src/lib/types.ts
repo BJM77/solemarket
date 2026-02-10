@@ -123,6 +123,7 @@ export type Product = {
   multiCardTier?: 'bronze' | 'silver' | 'gold' | 'platinum';
   dealId?: string;
   bundlePrice?: number;
+  keywords?: string[];
 };
 
 export type ProductSearchParams = {
@@ -267,6 +268,7 @@ export interface Category {
   section: string;
   href?: string;
   showOnHomepage?: boolean;
+  showInNav?: boolean;
   isPopular?: boolean;
   order?: number;
 }

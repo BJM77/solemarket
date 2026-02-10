@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink } from 'lucide-react';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import {
   DropdownMenu,
@@ -77,6 +77,12 @@ export default function ProductCard({
   const [isRenewing, setIsRenewing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { viewedProductIds } = useViewedProducts();
+
+  const [imgError, setImgError] = useState(false);
+  // Reset error state when product changes (e.g. infinite scroll reuse)
+  React.useEffect(() => {
+    setImgError(false);
+  }, [product.id]);
 
   const hasViewed = viewedProductIds.includes(product.id);
 
@@ -527,13 +533,14 @@ export default function ProductCard({
             >
               <Link href={`/product/${product.id}`} className="absolute inset-0 z-0" title={product.title}>
                 <Image
-                  src={product.imageUrls[0]}
+                  src={!imgError && product.imageUrls?.[0] ? product.imageUrls[0] : '/wtb-wanted-placeholder.png'}
                   alt={product.title}
                   fill
                   className="object-cover transition-transform duration-300 group-hover/image:scale-105"
-                  sizes="(max-width: 640px) 100vw, 192px"
-                  placeholder="blur"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  placeholder={!imgError ? "blur" : "empty"}
                   blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
+                  onError={() => setImgError(true)}
                 />
               </Link>
               <Button
@@ -599,6 +606,17 @@ export default function ProductCard({
                         <Edit className="mr-2 h-4 w-4" /> Edit Listing
                       </Link>
                     </DropdownMenuItem>
+                    {isSuperAdmin && (
+                      <DropdownMenuItem asChild>
+                        <a
+                          href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Search className="mr-2 h-4 w-4" /> eBay Sold Items
+                        </a>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} className="text-red-600">
                       <Trash2 className="mr-2 h-4 w-4" /> Delete Listing
                     </DropdownMenuItem>
@@ -752,14 +770,31 @@ export default function ProductCard({
             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
                 {isSuperAdmin && (
-                  <EbaySearchModal
-                    defaultQuery={getEbayQuery()}
-                    trigger={
-                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices">
-                        <Search className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200"
+                      asChild
+                      title="eBay Sold Items"
+                    >
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                    <EbaySearchModal
+                      defaultQuery={getEbayQuery()}
+                      trigger={
+                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices (In-App)">
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
+                  </>
                 )}
                 <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-slate-700 hover:bg-white shadow-sm border border-slate-200" asChild title="Edit">
                   <Link href={`/sell/create?edit=${product.id}`}>
@@ -783,6 +818,17 @@ export default function ProductCard({
                       <Edit className="mr-2 h-4 w-4" /> Edit Listing
                     </Link>
                   </DropdownMenuItem>
+                  {isSuperAdmin && (
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Search className="mr-2 h-4 w-4" /> eBay Sold Items
+                      </a>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleHold(); }}>
                     <Shield className="mr-2 h-4 w-4" />
                     {product.status === 'on_hold' ? "Release Hold" : "Place on Hold"}
@@ -817,13 +863,14 @@ export default function ProductCard({
             title={product.title}
           >
             <Image
-              src={product.imageUrls[0]}
+              src={!imgError && product.imageUrls?.[0] ? product.imageUrls[0] : '/wtb-wanted-placeholder.png'}
               alt={`Product image for ${product.title}`}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-              placeholder="blur"
+              placeholder={!imgError ? "blur" : "empty"}
               blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
+              onError={() => setImgError(true)}
             />
           </Link>
         )}

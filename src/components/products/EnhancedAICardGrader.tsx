@@ -196,7 +196,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
                     <div>
                         <CardTitle className="text-xl font-black">AI Card Analysis Lab</CardTitle>
                         <CardDescription className="text-indigo-100">
-                            Professional-grade analysis with detailed grading
+                            Professional-grade analysis with detailed
                         </CardDescription>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
                         {isGrading ? (
                             <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Grading Card...</>
                         ) : (
-                            <><ShieldCheck className="mr-2 h-5 w-5" />Detailed Grading</>
+                            <><ShieldCheck className="mr-2 h-5 w-5" />Detailed</>
                         )}
                     </Button>
 
@@ -228,7 +228,7 @@ export default function EnhancedAICardGrader({ onGradeComplete, onApplySuggestio
                         {isAnalyzing ? (
                             <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Analyzing...</>
                         ) : (
-                            <><Sparkles className="mr-2 h-5 w-5 text-purple-600" />Quick Analysis</>
+                            <><Sparkles className="mr-2 h-5 w-5 text-purple-600" />Quick</>
                         )}
                     </Button>
                 </div>

@@ -10,12 +10,13 @@ import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import ProductImageGallery from './ProductImageGallery';
-import { Heart, Share2, ShoppingCart, Edit, Eye } from 'lucide-react';
+import { Heart, Share2, ShoppingCart, Edit, Eye, Search, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { useState } from 'react';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
+import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 
 interface QuickViewProps {
   product: Product;
@@ -64,6 +65,18 @@ export function QuickView({ product }: QuickViewProps) {
     });
     setIsOpen(false);
   }
+
+  const getEbayQuery = () => {
+    const parts = [];
+    const title = product.title || '';
+    const year = product.year?.toString() || '';
+    const manufacturer = product.manufacturer || '';
+
+    if (year && !title.startsWith(year)) parts.push(year);
+    if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) parts.push(manufacturer);
+    parts.push(title);
+    return parts.join(' ');
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpen}>
@@ -123,14 +136,44 @@ export function QuickView({ product }: QuickViewProps) {
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
-            {canEdit && (
-              <Button asChild variant="secondary" className="w-full">
-                <Link href={`/sell/edit/${product.id}`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Listing
-                </Link>
-              </Button>
-            )}
+            <div className="flex flex-col gap-2 w-full">
+              {isSuperAdmin && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-9 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2"
+                    asChild
+                  >
+                    <a
+                      href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      eBay Sold
+                    </a>
+                  </Button>
+                  <EbaySearchModal
+                    defaultQuery={getEbayQuery()}
+                    trigger={
+                      <Button variant="outline" size="sm" className="flex-1 h-9 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2" title="Check eBay Prices (In-App)">
+                        <Search className="h-4 w-4" />
+                        eBay Check
+                      </Button>
+                    }
+                  />
+                </div>
+              )}
+              {canEdit && (
+                <Button asChild variant="secondary" className="w-full">
+                  <Link href={`/sell/edit/${product.id}`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Listing
+                  </Link>
+                </Button>
+              )}
+            </div>
             <Button asChild variant="ghost" className="w-full">
               <Link href={`/product/${product.id}`}>
                 View Full Product Details →

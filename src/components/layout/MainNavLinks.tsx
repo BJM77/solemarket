@@ -14,107 +14,49 @@ import {
 import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
-import {
-  Zap,
-  Dribbble,
-  Trophy,
-  Wind,
-  Car,
-  Wand2,
-  CircleDollarSign,
-  DollarSign,
-  Coins as CoinsIcon,
-  ScanLine,
-  Search,
-  Handshake,
-  Shield,
-  Tag,
-  Layers
-} from 'lucide-react';
+
+
+import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase/config';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useCollection, useMemoFirebase } from '@/firebase';
 
 export function MainNavLinks() {
   const { user } = useUser();
+  const router = useRouter();
+
+  // Fetch categories for dynamic navigation
+  // Use 'name' for sorting to ensure all categories show (some might lack 'order' field)
+  const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), orderBy('name', 'asc')), []);
+  const { data: categories } = useCollection(categoriesQuery);
 
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Cards</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[340px] gap-1 p-2">
-              {[
-                { title: "Pokemon", href: "/collector-cards?subCategory=Pokemon", icon: Zap, color: "text-yellow-600" },
-                { title: "NBA", href: "/collector-cards?subCategory=NBA", icon: Dribbble, color: "text-orange-600" },
-                { title: "WWE", href: "/collector-cards?subCategory=WWE", icon: Trophy, color: "text-purple-600" },
-                { title: "NFL", href: "/collector-cards?subCategory=NFL", icon: Trophy, color: "text-amber-600" },
-                { title: "AFL", href: "/collector-cards?subCategory=AFL", icon: Wind, color: "text-red-600" },
-                { title: "Soccer", href: "/collector-cards?subCategory=Soccer", icon: Trophy, color: "text-green-600" },
-                { title: "F1", href: "/collector-cards?subCategory=F1", icon: Car, color: "text-gray-700" },
-                { title: "Fantasy", href: "/collector-cards?subCategory=Fantasy", icon: Wand2, color: "text-indigo-600" },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <IconMenuItem
-                    key={item.title}
-                    title={item.title}
-                    href={item.href}
-                    icon={<Icon className={cn("h-5 w-5", item.color)} />}
-                  />
-                );
-              })}
-              <li className="border-t pt-1 mt-1">
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/collector-cards"
-                    className="flex items-center gap-2 rounded-md p-2 text-sm font-medium hover:bg-accent transition-colors"
-                  >
-                    <span className="text-muted-foreground">View All Cards →</span>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Coins</NavigationMenuTrigger>
+          <NavigationMenuTrigger onClick={() => router.push('/browse')}>Explore</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[280px] gap-1 p-2">
-              {[
-                { title: "$2 Coins", href: "/coins?subCategory=$2", icon: CircleDollarSign, color: "text-amber-600" },
-                { title: "$1 Coins", href: "/coins?subCategory=$1", icon: DollarSign, color: "text-yellow-600" },
-                { title: "50c Coins", href: "/coins?subCategory=50c", icon: CoinsIcon, color: "text-slate-600" },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <IconMenuItem
-                    key={item.title}
-                    title={item.title}
-                    href={item.href}
-                    icon={<Icon className={cn("h-5 w-5", item.color)} />}
-                  />
-                );
-              })}
-              <li className="border-t pt-1 mt-1">
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/coins"
-                    className="flex items-center gap-2 rounded-md p-2 text-sm font-medium hover:bg-accent transition-colors"
-                  >
-                    <span className="text-muted-foreground">View All Coins →</span>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
+            <ul className="w-60 p-2">
+              <ListItem title="All Listings" href="/browse" className="font-bold bg-muted/50" />
+              <div className="my-2 border-t" />
+
+              {categories && categories.length > 0 ? (
+                categories
+                  .filter((c: any) => c.showInNav !== false)
+                  .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                  .map((cat: any) => (
+                    <ListItem key={cat.id} title={cat.name} href={cat.href || '#'} />
+                  ))
+              ) : (
+                <div className="p-2 text-sm text-muted-foreground">No categories found</div>
+              )}
+
+              <div className="my-2 border-t" />
+              <ListItem title="Multilisting Deals" href="/multilisting-deals" />
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
-
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/collectibles">
-              General
-            </Link>
-          </NavigationMenuLink>
         </NavigationMenuItem>
 
 
@@ -139,43 +81,14 @@ export function MainNavLinks() {
           </NavigationMenuItem>
         )}
 
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Deals</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[280px] gap-1 p-2">
-              <IconMenuItem
-                title="Multibuy Deals"
-                href="/multibuy"
-                icon={<Tag className="h-5 w-5 text-orange-600" />}
-                description="Bulk savings on single items"
-              />
-              <IconMenuItem
-                title="Multilisting Deals"
-                href="/multilisting-deals"
-                icon={<Layers className="h-5 w-5 text-blue-600" />}
-                description="Build your own custom bundle"
-              />
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-
         {user && (
           <NavigationMenuItem>
             <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[280px] gap-1 p-2">
-                <IconMenuItem
-                  title="Scan Cards"
-                  href="/scan"
-                  icon={<ScanLine className="h-5 w-5 text-blue-600" />}
-                  description="AI-powered card identification"
-                />
-                <IconMenuItem
-                  title="Research"
-                  href="/research"
-                  icon={<Search className="h-5 w-5 text-purple-600" />}
-                  description="Price history and analysis"
-                />
+              <ul className="w-48 p-2">
+                <ListItem title="Scan Cards" href="/scan" />
+                <ListItem title="AI Card Grader" href="/tools/grader" />
+                <ListItem title="Research" href="/research" />
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -184,61 +97,40 @@ export function MainNavLinks() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Services</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[280px] gap-1 p-2">
+            <ul className="w-48 p-2">
               {features.consignment && (
-                <IconMenuItem
-                  title="Consign"
-                  href="/consign"
-                  icon={<Handshake className="h-5 w-5 text-emerald-600" />}
-                  description="Sell your top-tier collectibles"
-                />
+                <ListItem title="Consign" href="/consign" />
               )}
-              <IconMenuItem
-                title="DealSafe"
-                href="/dealsafe"
-                icon={<Shield className="h-5 w-5 text-blue-600" />}
-                description="Secure transactions for buyers and sellers"
-              />
+              <ListItem title="DealSafe" href="/dealsafe" />
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
       </NavigationMenuList>
-    </NavigationMenu>
+    </NavigationMenu >
   );
 }
 
-const IconMenuItem = React.forwardRef<
-  HTMLAnchorElement,
-  {
-    title: string;
-    href: string;
-    icon: React.ReactNode;
-    description?: string;
-  }
->(({ title, href, icon, description }, ref) => {
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a"> & { title: string; href: string }
+>(({ className, title, href, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
         <Link
           ref={ref}
           href={href}
-          className="flex items-center gap-3 rounded-md p-2.5 hover:bg-accent transition-colors group"
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
         >
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/50 flex items-center justify-center group-hover:bg-accent">
-            {icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium">{title}</div>
-            {description && (
-              <p className="text-xs text-muted-foreground line-clamp-1">
-                {description}
-              </p>
-            )}
-          </div>
+          <div className="text-sm font-medium leading-none">{title}</div>
         </Link>
       </NavigationMenuLink>
     </li>
   );
 });
-IconMenuItem.displayName = "IconMenuItem";
+ListItem.displayName = "ListItem";

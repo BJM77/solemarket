@@ -39,7 +39,7 @@ export async function seedTestProducts() {
         const sellerId = 'TEST_SELLER_ID'; // We might need a real ID if auth checks are strict, but for admin write it's fine.
 
         // We'll use a hardcoded image for now or a placeholder
-        const placeholderImage = 'https://firebasestorage.googleapis.com/v0/b/picksy-App.appspot.com/o/placeholders%2Fcard-back.jpg?alt=media';
+        const placeholderImage = 'https://placehold.co/400x600/png?text=Card+Back';
 
         const items = [
             {

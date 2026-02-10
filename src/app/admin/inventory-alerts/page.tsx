@@ -120,11 +120,13 @@ export default function InventoryAlertsPage() {
                             <TableRow key={product.id}>
                                 <TableCell>
                                     <div className="relative h-16 w-16 overflow-hidden rounded-md">
-                                        <Image
-                                            src={product.imageUrls[0] || '/placeholder.png'}
+                                        <img
+                                            src={product.imageUrls?.[0] || '/wtb-wanted-placeholder.png'}
                                             alt={product.title}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
+                                            className="h-10 w-10 rounded object-cover"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = '/wtb-wanted-placeholder.png';
+                                            }}
                                         />
                                     </div>
                                 </TableCell>

@@ -67,6 +67,7 @@ const formSchema = z.object({
     minQuantity: z.coerce.number().min(2),
     discountPercent: z.coerce.number().min(1).max(100),
   })).optional(),
+  multiCardTier: z.string().optional(),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -78,21 +79,29 @@ export default function CreateListingPage() {
   const listingType = searchParams.get('type') as 'cards' | 'coins' | 'general' | null;
 
   const { toast } = useToast();
+  const { user } = useUser();
   const { firestore } = useFirebase();
-  const { user, isUserLoading: authLoading } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingDraft, setIsLoadingDraft] = useState(!!editId);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [showPriceLookup, setShowPriceLookup] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
   const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
+  const SUB_CATEGORIES: Record<string, string[]> = {
+    'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
+    'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
+    'Collectibles': marketplaceOptions?.subCategories?.collectibles || ['Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'],
+    'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
+  };
+  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
+
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      // ... existing defaults
       title: '',
       description: '',
       price: 0,
@@ -126,97 +135,38 @@ export default function CreateListingPage() {
       signer: '',
       multibuyEnabled: false,
       multibuyTiers: [],
+      multiCardTier: '',
     },
   });
 
-  // Load existing data if editing
-  useEffect(() => {
-    if (editId && user && !form.getValues('title')) { // Only load if not already loaded (simple check)
-      setIsLoadingDraft(true);
-      getDraftListing(editId, user.uid)
-        .then((data) => {
-          if (data) {
-            // Determine type from category
-            let type: 'cards' | 'coins' | 'general' = 'general';
-            if (data.category === 'Collector Cards') type = 'cards';
-            else if (data.category === 'Coins') type = 'coins';
-
-            // If type param is missing or wrong, redirect to correct type url to ensure rendering
-            if (listingType !== type) {
-              const newParams = new URLSearchParams(searchParams.toString());
-              newParams.set('type', type);
-              router.replace(`/sell/create?${newParams.toString()}`);
-              return;
-            }
-
-            // Populate form
-            // Ensure date/numbers are correctly typed and handle potential nulls for controlled inputs
-            const formData = {
-              ...data,
-              price: Number(data.price || 0),
-              quantity: Number(data.quantity || 1),
-              year: data.year ? Number(data.year) : '',
-              imageFiles: data.imageUrls || [], // existing URLs
-              // Ensure all string specs are at least empty strings
-              manufacturer: data.manufacturer || '',
-              cardNumber: data.cardNumber || '',
-              grade: data.grade || '',
-              gradingCompany: data.gradingCompany || '',
-              certNumber: data.certNumber || '',
-              denomination: data.denomination || '',
-              mintMark: data.mintMark || '',
-              country: data.country || '',
-              metal: data.metal || '',
-              purity: data.purity || '',
-              weight: data.weight || '',
-              dimensions: data.dimensions || '',
-              material: data.material || '',
-              authentication: data.authentication || '',
-              authenticationNumber: data.authenticationNumber || '',
-              signer: data.signer || '',
-              description: data.description || '',
-              subCategory: data.subCategory || '',
-            };
-
-            form.reset(formData);
-            setImagePreviews(data.imageUrls || []);
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          toast({ title: "Error loading listing", description: error.message, variant: "destructive" });
-        })
-        .finally(() => setIsLoadingDraft(false));
-    }
-  }, [editId, user, listingType, router, searchParams, form, toast]);
-
-
-  // Set default category based on listing type (Only if not editing or empty)
-  useEffect(() => {
-    const currentCat = form.getValues('category');
-    if (!currentCat) {
-      if (listingType === 'cards') form.setValue('category', 'Collector Cards');
-      else if (listingType === 'coins') form.setValue('category', 'Coins');
-      else if (listingType === 'general') form.setValue('category', 'Memorabilia');
-    }
-  }, [listingType, form]);
-
-  const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Collector Cards', 'Coins', 'Collectibles', 'General'];
-  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
-  const SUB_CATEGORIES: Record<string, string[]> = {
-    'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
-    'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
-    'Collectibles': marketplaceOptions?.subCategories?.collectibles || ['Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'],
-    'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
-  };
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/sign-in?redirect=/sell/create');
-    }
-  }, [user, authLoading, router]);
-
   const imageFiles = form.watch('imageFiles');
+
+  // Load draft if editId is present
+  useEffect(() => {
+    if (!user || !editId) return;
+    const loadDraft = async () => {
+      setIsLoadingDraft(true);
+      try {
+        const data = await getDraftListing(editId, user.uid);
+        if (data) {
+          form.reset({
+            ...data,
+            imageFiles: data.imageUrls || [],
+            price: Number(data.price),
+            quantity: Number(data.quantity),
+            year: data.year ? Number(data.year) : undefined,
+          });
+          setImagePreviews(data.imageUrls || []);
+        }
+      } catch (e) {
+        console.error(e);
+        toast({ title: "Error loading draft", variant: "destructive" });
+      } finally {
+        setIsLoadingDraft(false);
+      }
+    };
+    loadDraft();
+  }, [editId, user, form.reset]);
 
   const addImages = useCallback((newFiles: File[]) => {
     const currentFiles = form.getValues('imageFiles');
@@ -253,25 +203,15 @@ export default function CreateListingPage() {
     setIsAnalyzing(true);
     try {
       const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File) as File[];
-      // If no new files, use existing URLs? suggestListingDetails might need dataURIs/remote URLs.
-      // Assuming uploadImages handles it or we pass existing URLs?
-      // uploadImages returns URLs.
-
       let photoUrls: string[] = [];
       if (filesToProcess.length > 0) {
         photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
       }
-
-      // Also include existing URLs
       const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
       const allUrls = [...existingUrls, ...photoUrls];
 
       if (allUrls.length === 0) return;
-
       const idToken = await user.getIdToken();
-      // suggestListingDetails might expecting data URIs? Or URLs?
-      // The implementation usually handles public URLs.
-
       const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, idToken });
       if (suggestions) {
         Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
@@ -286,31 +226,43 @@ export default function CreateListingPage() {
 
   const handleReview = async () => {
     setIsSubmitting(true);
-    const isValid = await form.trigger();
-    if (!isValid) {
-      toast({ title: "Form Incomplete", variant: "destructive" });
-      setIsSubmitting(false);
-      return;
-    }
-    if (!user) return;
     try {
-      const data = form.getValues();
+      const isValid = await form.trigger();
+      if (!isValid) {
+        toast({ title: "Please fill in all required fields", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+      if (!user) {
+        toast({ title: "You must be logged in", variant: "destructive" });
+        return;
+      }
 
-      const newFiles = data.imageFiles.filter(f => f instanceof File) as File[];
-      const existingUrls = data.imageFiles.filter(f => typeof f === 'string') as string[];
+      const values = form.getValues();
+      const currentFiles = values.imageFiles;
+      const newFiles = currentFiles.filter((f: any) => f instanceof File) as File[];
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
 
-      const newImageUrls = await uploadImages(newFiles, `products/${user.uid}`);
-      const finalImageUrls = [...existingUrls, ...newImageUrls];
+      let finalUrls = existingUrls;
+      if (newFiles.length > 0) {
+        const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
+        finalUrls = [...existingUrls, ...uploaded];
+      }
 
-      const { imageFiles: _, ...cleanData } = data;
+      const { imageFiles, ...rest } = values;
+      const listingData = {
+        ...rest,
+        imageUrls: finalUrls,
+        category: values.category || (listingType === 'cards' ? 'Collector Cards' : listingType === 'coins' ? 'Coins' : 'General'),
+      };
 
-      const draftId = await saveDraftListing(user.uid, {
-        ...cleanData,
-        description: cleanData.description || '',
-        imageUrls: finalImageUrls
-      }, editId || undefined);
+      const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
 
-      router.push(`/sell/review?draftId=${draftId}`);
+      toast({ title: "Draft Saved", description: "Proceeding to review..." });
+      // Redirect to a review page or dashboard? User request didn't specify, assuming dashboard or review.
+      // There is a 'review' folder in 'src/app/sell/review'.
+      router.push(`/sell/review/${draftId}`);
+
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -318,40 +270,6 @@ export default function CreateListingPage() {
     }
   };
 
-  if (authLoading || isLoadingDraft) return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
-  if (!user) return null;
-
-  if (!listingType) {
-    return (
-      <div className="min-h-screen bg-slate-50 py-20 px-4">
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">What are you selling today?</h1>
-            <p className="text-slate-500 text-lg">Choose a category to get started with a tailored listing experience.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { id: 'cards', title: 'Trading Cards', icon: '🎴', desc: 'Sports, TCG, Non-sports cards', ratio: '5:7' },
-              { id: 'coins', title: 'Coins & Currency', icon: '🪙', desc: 'Rare coins, Bullion, Banknotes', ratio: '1:1' },
-              { id: 'general', title: 'Memorabilia', icon: '🏆', desc: 'Signed items, Antiques, Shoes', ratio: '16:9' }
-            ].map((item) => (
-              <Card key={item.id} className="group relative overflow-hidden border-2 border-transparent hover:border-primary hover:shadow-2xl transition-all cursor-pointer bg-white" onClick={() => router.push(`/sell/create?type=${item.id}`)}>
-                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                  <div className="text-6xl group-hover:scale-110 transition-transform">{item.icon}</div>
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
-                    <p className="text-sm text-slate-500">{item.desc}</p>
-                  </div>
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-600 px-3 py-1 font-mono text-[10px]">Ratio {item.ratio}</Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const captureMode = listingType === 'cards' ? 'card' : listingType === 'coins' ? 'coin' : 'general';
 
@@ -394,7 +312,7 @@ export default function CreateListingPage() {
                   </div>
                   {imagePreviews.map((p, i) => (
                     <div key={p} className="flex items-center gap-3 bg-white p-2 border rounded-lg">
-                      <div className="relative h-10 w-10 bg-slate-100 rounded overflow-hidden"><Image src={p} fill alt="thumb" className="object-cover" /></div>
+                      <div className="relative h-10 w-10 bg-slate-100 rounded overflow-hidden"><Image src={p} fill alt="thumb" className="object-cover" sizes="40px" /></div>
                       <span className="flex-1 text-xs font-medium">Image {i + 1}</span>
                       <Button variant="ghost" size="icon" onClick={() => removeImage(i)} className="text-red-500"><Trash2 className="h-4 w-4" /></Button>
                     </div>

@@ -316,12 +316,15 @@ export default function MultiListingDealsPage() {
                             {products.map(product => (
                                 <div key={product.id} className="bg-white rounded-lg shadow p-4">
                                     <img
-                                        src={product.imageUrl || '/placeholder.png'}
+                                        src={product.imageUrl || '/wtb-wanted-placeholder.png'}
                                         alt={product.title}
                                         className="w-full h-48 object-cover rounded mb-3"
                                         // On error, show placeholder
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = '/placeholder.png';
+                                            const target = e.target as HTMLImageElement;
+                                            // Prevent infinite loop if placeholder also fails
+                                            if (target.src.includes('wtb-wanted-placeholder.png')) return;
+                                            target.src = '/wtb-wanted-placeholder.png';
                                         }}
                                     />
                                     <h3 className="font-semibold mb-2 truncate">{product.title}</h3>

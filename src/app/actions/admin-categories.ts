@@ -11,6 +11,10 @@ interface CategoryInput {
     name: string;
     section: string;
     href: string;
+    showOnHomepage?: boolean;
+    showInNav?: boolean;
+    isPopular?: boolean;
+    order?: number;
 }
 
 export async function createCategory(
@@ -31,7 +35,13 @@ export async function createCategory(
         }
 
         const docRef = await firestoreDb.collection('categories').add({
-            ...categoryData,
+            name: categoryData.name,
+            section: categoryData.section,
+            href: categoryData.href,
+            showOnHomepage: categoryData.showOnHomepage ?? false,
+            showInNav: categoryData.showInNav ?? true,
+            isPopular: categoryData.isPopular ?? false,
+            order: categoryData.order ?? 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -63,7 +73,11 @@ export async function updateCategory(
         await firestoreDb.collection('categories').doc(categoryId).update({
             name: categoryData.name,
             section: categoryData.section,
-            href: categoryData.href
+            href: categoryData.href,
+            showOnHomepage: categoryData.showOnHomepage ?? false,
+            showInNav: categoryData.showInNav ?? true, // Default to true if not specified
+            isPopular: categoryData.isPopular ?? false,
+            order: categoryData.order ?? 0
         });
 
         return { success: true };

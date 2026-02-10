@@ -179,7 +179,7 @@ function DealCartItemRow({
     return (
         <div className="flex items-center gap-3 bg-white p-2 rounded">
             <img
-                src={item.imageUrl || '/placeholder.png'}
+                src={item.imageUrl || '/wtb-wanted-placeholder.png'}
                 alt={item.title}
                 className="w-12 h-12 object-cover rounded"
             />

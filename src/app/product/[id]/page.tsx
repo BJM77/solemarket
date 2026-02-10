@@ -5,7 +5,7 @@ import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
 import type { Metadata } from 'next';
 import type { Product, UserProfile, Review } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import ProductDetailsClient from './ProductDetailsClient';
+import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 
 
 interface Props {
@@ -209,7 +209,7 @@ export default async function ProductPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
-        <ProductDetailsClient
+        <ProductDetailsModern
           productId={id}
           initialProduct={product}
           initialSeller={seller}

@@ -17,7 +17,7 @@ import type { ScannedCard } from '@/lib/types/scan';
 
 export default function ScanPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [targetCards, setTargetCards] = useState(20);
+    const [targetCards, setTargetCards] = useState<number | string>(20);
     const [isScanning, setIsScanning] = useState(false);
     const [results, setResults] = useState<{
         cards: ScannedCard[];
@@ -47,7 +47,9 @@ export default function ScanPage() {
         try {
             const formData = new FormData();
             formData.append('image', selectedFile);
-            formData.append('targetCards', targetCards.toString());
+            // Default to 20 if input is empty or invalid
+            const count = typeof targetCards === 'number' ? targetCards : (parseInt(targetCards) || 20);
+            formData.append('targetCards', count.toString());
 
             const result = await scanCards(formData, user.uid);
 
@@ -116,7 +118,14 @@ export default function ScanPage() {
                                     min={1}
                                     max={50}
                                     value={targetCards}
-                                    onChange={(e) => setTargetCards(parseInt(e.target.value) || 20)}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === '') setTargetCards('');
+                                        else {
+                                            const parsed = parseInt(val);
+                                            if (!isNaN(parsed)) setTargetCards(parsed);
+                                        }
+                                    }}
                                     className="max-w-xs"
                                     disabled={isScanning}
                                 />

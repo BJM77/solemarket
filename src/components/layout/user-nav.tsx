@@ -79,13 +79,13 @@ export function UserNav() {
         <DropdownMenuSeparator />
         {isSuperAdmin && (
           <>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
               <Link href="/admin">
                 <Shield className="mr-2 h-4 w-4" />
                 <span>Admin Dashboard</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
               <Link href="/admin/power-tools">
                 <Zap className="mr-2 h-4 w-4" />
                 <span>Power Tools</span>
@@ -94,34 +94,34 @@ export function UserNav() {
           </>
         )}
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
           {canSell && (
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
               <Link href="/sell/dashboard">Seller Dashboard</Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
             <Link href="/profile/favorites">My Favorites</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
             <Link href="/profile/orders">My Purchases</Link>
           </DropdownMenuItem>
           {canSell && (
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
               <Link href="/profile/listings">My Listings</Link>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {canSell && (
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
             <Link href="/sell/create">Sell Item</Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+        <DropdownMenuItem onClick={handleSignOut} className="focus:text-primary cursor-pointer w-full">
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

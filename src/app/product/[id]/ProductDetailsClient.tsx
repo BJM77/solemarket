@@ -27,7 +27,8 @@ import {
     Copyright,
     ChevronRight,
     Hash,
-    Search
+    Search,
+    ExternalLink
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn, formatPrice } from '@/lib/utils';
@@ -454,7 +455,33 @@ export default function ProductDetailsClient({
                                         <Share2 className="h-5 w-5" />
                                     </Button>
                                     {isSuperAdmin && (
-                                        <>
+                                        <div className="flex items-center gap-2 ml-2 pl-2 border-l">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-9 px-3 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2 whitespace-nowrap"
+                                                asChild
+                                            >
+                                                <a
+                                                    href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(
+                                                        (() => {
+                                                            const parts = [];
+                                                            const title = product.title || '';
+                                                            const year = product.year?.toString() || '';
+                                                            const manufacturer = product.manufacturer || '';
+                                                            if (year && !title.startsWith(year)) parts.push(year);
+                                                            if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) parts.push(manufacturer);
+                                                            parts.push(title);
+                                                            return parts.join(' ');
+                                                        })()
+                                                    )}&LH_Sold=1&LH_Complete=1`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <ExternalLink className="h-4 w-4" />
+                                                    eBay Sold Items
+                                                </a>
+                                            </Button>
                                             <EbaySearchModal
                                                 defaultQuery={(() => {
                                                     // Construct a smarter query
@@ -477,7 +504,7 @@ export default function ProductDetailsClient({
                                                     return parts.join(' ');
                                                 })()}
                                                 trigger={
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:text-blue-800 hover:bg-blue-50" title="Check eBay Prices">
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:text-blue-800 hover:bg-blue-50" title="Check eBay Prices (In-App)">
                                                         <Search className="h-5 w-5" />
                                                     </Button>
                                                 }

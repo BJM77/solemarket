@@ -83,18 +83,29 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   if (q) {
     // SCENARIO 1: TEXT SEARCH
-    // Firestore Limitation: Range filter (>=, <=) on 'title_lowercase' requires sort by 'title_lowercase' first.
-    // We cannot sort by Price or Date first.
+    const qLower = q.toLowerCase().trim();
 
-    // Convert query to lowercase for case-insensitive prefix search
-    const qLower = q.toLowerCase();
+    // STRATEGY: Use 'array-contains' on 'keywords' to find words ANYWHERE in the title.
+    // e.g. "Jordan" finds "Michael Jordan"
+    // LIMITATION: 'array-contains' requires exact match of the token. "Jord" won't find "Jordan".
+    // LIMITATION: One 'array-contains' clause per query.
+    // LIMITATION: Can't combine with other inequality filters easily in some cases.
 
-    // Prefix Search: title >= "batman" AND title <= "batman" + "\uf8ff"
-    constraints.push(where('title_lowercase', '>=', qLower));
-    constraints.push(where('title_lowercase', '<=', qLower + '\uf8ff'));
+    // If query is a single word, use array-contains on keywords
+    if (qLower.split(/\s+/).length === 1 && qLower.length > 2) {
+      constraints.push(where('keywords', 'array-contains', qLower));
 
-    // FORCED SORT: Must sort by title_lowercase ASC for prefix search to work
-    orderByConstraints.push(orderBy('title_lowercase', 'asc'));
+      // We don't strictly need to sort by title_lowercase, but it helps stability
+      // orderByConstraints.push(orderBy('title_lowercase', 'asc')); 
+    } else {
+      // Fallback to Prefix Search for multi-word or short queries
+      // Prefix Search: title >= "batman" AND title <= "batman" + "\uf8ff"
+      constraints.push(where('title_lowercase', '>=', qLower));
+      constraints.push(where('title_lowercase', '<=', qLower + '\uf8ff'));
+
+      // FORCED SORT: Must sort by title_lowercase ASC for prefix search to work
+      orderByConstraints.push(orderBy('title_lowercase', 'asc'));
+    }
 
     // Any other range filters (Price, Year) must be done IN-MEMORY
     if (priceRange) filterPriceInMemory = true;

@@ -32,7 +32,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                 checked={field.value}
                                 onCheckedChange={(checked) => {
                                     field.onChange(checked);
-                                    if (checked && form.getValues('multibuyTiers').length === 0) {
+                                    if (checked && (form.getValues('multibuyTiers') || []).length === 0) {
                                         form.setValue('multibuyTiers', [
                                             { minQuantity: 2, discountPercent: 5 },
                                             { minQuantity: 5, discountPercent: 10 }
@@ -45,15 +45,46 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                 )}
             />
             {form.watch('multibuyEnabled') && (
-                <div className="border rounded-lg p-4 space-y-3 bg-slate-50">
-                    <div className="flex items-center justify-between mb-2">
+                <div className="border rounded-lg p-4 space-y-4 bg-slate-50">
+                    <FormField
+                        control={form.control}
+                        name="multiCardTier"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-sm font-medium">Multibuy Tier Color</FormLabel>
+                                <FormDescription className="text-xs">Select the badge color for this volume discount.</FormDescription>
+                                <div className="grid grid-cols-4 gap-2 mt-2">
+                                    {[
+                                        { id: 'bronze', label: 'Bronze', color: 'bg-orange-600', text: 'text-white' },
+                                        { id: 'silver', label: 'Silver', color: 'bg-slate-500', text: 'text-white' },
+                                        { id: 'gold', label: 'Gold', color: 'bg-yellow-500', text: 'text-white' },
+                                        { id: 'platinum', label: 'Platinum', color: 'bg-white border border-slate-900', text: 'text-slate-900' }
+                                    ].map((tier) => (
+                                        <div
+                                            key={tier.id}
+                                            onClick={() => field.onChange(tier.id)}
+                                            className={`
+                                                cursor-pointer rounded-lg p-3 text-center transition-all
+                                                ${field.value === tier.id ? 'ring-2 ring-indigo-600 shadow-md scale-105' : 'opacity-70 hover:opacity-100'}
+                                                ${tier.color}
+                                            `}
+                                        >
+                                            <span className={`text-xs font-bold uppercase ${tier.text}`}>{tier.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="flex items-center justify-between pt-2">
                         <Label className="text-sm font-medium">Discount Tiers</Label>
                         <Button
                             type="button"
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                                const currentTiers = form.getValues('multibuyTiers');
+                                const currentTiers = form.getValues('multibuyTiers') || [];
                                 const lastTier = currentTiers[currentTiers.length - 1];
                                 const newMinQty = lastTier ? lastTier.minQuantity + 3 : 2;
                                 const newDiscount = lastTier ? Math.min(lastTier.discountPercent + 5, 50) : 5;
@@ -67,7 +98,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                             Add Tier
                         </Button>
                     </div>
-                    {form.watch('multibuyTiers').map((tier: MultibuyTier, index: number) => (
+                    {(form.watch('multibuyTiers') || []).map((tier: MultibuyTier, index: number) => (
                         <div key={index} className="flex items-center gap-2 bg-white p-2 rounded border">
                             <div className="flex-1">
                                 <Label className="text-xs">Min Qty</Label>
@@ -76,7 +107,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                     min="2"
                                     value={tier.minQuantity}
                                     onChange={(e) => {
-                                        const tiers = [...form.getValues('multibuyTiers')];
+                                        const tiers = [...(form.getValues('multibuyTiers') || [])];
                                         tiers[index].minQuantity = parseInt(e.target.value) || 2;
                                         form.setValue('multibuyTiers', tiers);
                                     }}
@@ -91,7 +122,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                     max="50"
                                     value={tier.discountPercent}
                                     onChange={(e) => {
-                                        const tiers = [...form.getValues('multibuyTiers')];
+                                        const tiers = [...(form.getValues('multibuyTiers') || [])];
                                         tiers[index].discountPercent = parseInt(e.target.value) || 1;
                                         form.setValue('multibuyTiers', tiers);
                                     }}
@@ -103,10 +134,10 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                 size="icon"
                                 variant="ghost"
                                 onClick={() => {
-                                    const tiers = form.getValues('multibuyTiers').filter((_: any, i: number) => i !== index);
+                                    const tiers = (form.getValues('multibuyTiers') || []).filter((_: any, i: number) => i !== index);
                                     form.setValue('multibuyTiers', tiers);
                                 }}
-                                disabled={form.getValues('multibuyTiers').length === 1}
+                                disabled={(form.getValues('multibuyTiers') || []).length === 1}
                                 className="mt-5"
                             >
                                 <Trash2 className="h-3 w-3 text-red-500" />

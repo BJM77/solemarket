@@ -208,7 +208,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                   src={image}
                   alt={`Thumbnail ${index + 1}`}
                   fill
-                  className="object-cover"
+                  sizes="80px"
                   placeholder="blur"
                   blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                 />
@@ -233,6 +233,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
               src={images[selectedIndex]}
               alt={`${title} - Fullscreen`}
               fill
+              sizes="100vw"
               className="object-contain"
             />
 
@@ -286,7 +287,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                       src={image}
                       alt={`Thumb ${index}`}
                       fill
-                      className="object-cover"
+                      sizes="80px"
                     />
                   </button>
                 ))}

@@ -4,7 +4,18 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+// Lazy initialization of Stripe to prevent crashes during build/startup if env is missing
+let stripeInstance: Stripe | null = null;
+
+function getStripe() {
+    if (!stripeInstance) {
+        stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build', {
+            // Use default API version to avoid type mismatch
+            typescript: true,
+        });
+    }
+    return stripeInstance;
+}
 
 // 1. Create a SetupIntent for saving a card (binding offer)
 export async function createSetupIntentAction(idToken: string) {
@@ -24,7 +35,7 @@ export async function createSetupIntentAction(idToken: string) {
         let customerId = userData?.stripeCustomerId;
 
         if (!customerId) {
-            const customer = await stripe.customers.create({
+            const customer = await getStripe().customers.create({
                 email: email,
                 metadata: {
                     userId: userId,
@@ -34,7 +45,7 @@ export async function createSetupIntentAction(idToken: string) {
             await userRef.update({ stripeCustomerId: customerId });
         }
 
-        const setupIntent = await stripe.setupIntents.create({
+        const setupIntent = await getStripe().setupIntents.create({
             customer: customerId,
             payment_method_types: ['card'],
         });

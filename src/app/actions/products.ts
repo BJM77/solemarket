@@ -4,7 +4,7 @@ import * as admin from 'firebase-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { Product, UserProfile } from '@/lib/types';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
 
 export type CreateProductResult =
@@ -75,7 +75,17 @@ export async function createProductAction(
             status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+
+            // Search helpers
+            title_lowercase: validData.title.toLowerCase(),
+            keywords: generateKeywords(validData.title),
         };
+
+        // Auto-apply Bronze Multibuy for cards < $5
+        if (finalData.category === 'Collector Cards' && finalData.price < 5 && finalData.price > 0) {
+            finalData.multibuyEnabled = true;
+            finalData.multiCardTier = 'bronze';
+        }
 
         await docRef.set(finalData);
         console.log('Product saved:', docRef.id);
@@ -170,3 +180,76 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
         return { prevId: null, nextId: null };
     }
 }
+
+export const getFeaturedProducts = unstable_cache(
+    async (limitCount: number = 8): Promise<Product[]> => {
+        try {
+            const snapshot = await firestoreDb.collection('products')
+                .where('status', '==', 'available')
+                .orderBy('createdAt', 'desc')
+                .limit(limitCount)
+                .get();
+
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                // Ensure timestamps are serializable
+                createdAt: (doc.data().createdAt as any)?.toDate?.() || doc.data().createdAt,
+                updatedAt: (doc.data().updatedAt as any)?.toDate?.() || doc.data().updatedAt,
+            })) as Product[];
+        } catch (error) {
+            console.error("Error fetching featured products:", error);
+            return [];
+        }
+    },
+    ['products-featured'],
+    { revalidate: 300, tags: ['products-featured'] }
+);
+
+function generateKeywords(title: string): string[] {
+    const words = title.toLowerCase().split(/\s+/);
+    const keywords: string[] = [];
+
+    // Generate all substrings for prefix search within words (expensive but effective for "Jord" matching "Jordan")
+    // For now, let's just save full words for 'array-contains' search
+    // Filter out short words? No, "MJ" is relevant.
+
+    words.forEach(word => {
+        const cleanWord = word.replace(/[^a-z0-9]/g, '');
+        if (cleanWord.length > 0) {
+            keywords.push(cleanWord);
+        }
+    });
+
+    // Also include the full title lowercase for prefix sorting
+    keywords.push(title.toLowerCase());
+
+    return [...new Set(keywords)]; // Unique
+}
+
+const COLLECTIBLES_CATEGORIES = ['Collectibles', 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia', 'General'];
+
+export const getCollectiblesProducts = unstable_cache(
+    async (limitCount: number = 20): Promise<Product[]> => {
+        try {
+            const snapshot = await firestoreDb.collection('products')
+                .where('category', 'in', COLLECTIBLES_CATEGORIES)
+                .where('status', '==', 'available')
+                .orderBy('createdAt', 'desc')
+                .limit(limitCount)
+                .get();
+
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: (doc.data().createdAt as any)?.toDate?.() || doc.data().createdAt,
+                updatedAt: (doc.data().updatedAt as any)?.toDate?.() || doc.data().updatedAt,
+            })) as Product[];
+        } catch (error) {
+            console.error("Error fetching collectibles:", error);
+            return [];
+        }
+    },
+    ['products-collectibles'],
+    { revalidate: 300, tags: ['products-collectibles'] }
+);

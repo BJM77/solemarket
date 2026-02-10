@@ -45,6 +45,7 @@ const navItems = [
     { href: "/admin/products/new", icon: Sparkles, label: "New Listings" },
     { href: "/admin/sellers", icon: Briefcase, label: "Sellers" },
     { href: "/admin/products", icon: Box, label: "Products" },
+    { href: "/admin/deals", icon: Sparkles, label: "Deals" },
     { href: "/admin/management", icon: ListChecks, label: "Management" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/disputes", icon: MessageSquareWarning, label: "Disputes" },
@@ -58,6 +59,7 @@ const integrityItems = [
 
 const sysItems = [
     { href: "/admin/seo", icon: Globe, label: "SEO" },
+    { href: "/admin/categories", icon: ListChecks, label: "Categories" },
     { href: "/admin/system", icon: Activity, label: "System Health" },
     { href: "/admin/settings", icon: Settings, label: "System Settings" },
 ];

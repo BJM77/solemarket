@@ -42,6 +42,7 @@ const categorySchema = z.object({
   section: z.string().min(2, 'Section slug is required (e.g., collector-cards).'),
   href: z.string().min(1, 'Href is required (e.g., /collector-cards/sports).'),
   showOnHomepage: z.boolean().default(false),
+  showInNav: z.boolean().default(true),
   isPopular: z.boolean().default(false),
   order: z.number().int().default(0)
 });
@@ -64,6 +65,7 @@ export default function CategoriesPage() {
       section: '',
       href: '',
       showOnHomepage: false,
+      showInNav: true,
       isPopular: false,
       order: 0
     },
@@ -75,6 +77,8 @@ export default function CategoriesPage() {
     const q = query(collection(firestore, 'categories'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const cats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+      // Client-side sort by order
+      cats.sort((a, b) => (a.order || 0) - (b.order || 0));
       setCategories(cats);
       setIsLoading(false);
     }, (error) => {
@@ -134,7 +138,7 @@ export default function CategoriesPage() {
     try {
       const idToken = await getCurrentUserIdToken();
       if (!idToken) throw new Error("Authentication failed");
-      
+
       await deleteCategoryAction(id, idToken);
       toast({ title: 'Category deleted successfully.' });
     } catch (error: any) {
@@ -178,6 +182,16 @@ export default function CategoriesPage() {
                         </div>
                       </FormItem>
                     )} />
+                    <FormField control={form.control} name="showInNav" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Show in Nav Menu</FormLabel>
+                        </div>
+                      </FormItem>
+                    )} />
                     <FormField control={form.control} name="isPopular" render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
@@ -216,6 +230,7 @@ export default function CategoriesPage() {
                       <TableHead>Section</TableHead>
                       <TableHead>Href</TableHead>
                       <TableHead>Homepage</TableHead>
+                      <TableHead>Nav</TableHead>
                       <TableHead>Popular</TableHead>
                       <TableHead>Order</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -229,6 +244,7 @@ export default function CategoriesPage() {
                         <TableCell>{cat.section}</TableCell>
                         <TableCell>{cat.href}</TableCell>
                         <TableCell>{cat.showOnHomepage ? 'Yes' : 'No'}</TableCell>
+                        <TableCell>{cat.showInNav !== false ? 'Yes' : 'No'}</TableCell>
                         <TableCell>{cat.isPopular ? 'Yes' : 'No'}</TableCell>
                         <TableCell>{cat.order || 0}</TableCell>
                         <TableCell className="text-right space-x-1">

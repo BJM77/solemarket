@@ -49,7 +49,13 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
         if (!categories) return mainSections;
 
-        categories.forEach(cat => {
+        // Sort categories by order (client-side to handle missing fields)
+        const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        sortedCategories.forEach(cat => {
+            // Respect showInNav flag (default to true if undefined)
+            if (cat.showInNav === false) return;
+
             if (mainSections[cat.section]) {
                 mainSections[cat.section].items.push(cat);
             } else {
@@ -207,6 +213,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 {/* Full Categories Accordion (Explore) */}
                 <div className="py-2 border-t border-dashed pt-4">
                     <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Explore All</h3>
+                    <Button variant="ghost" className="justify-start text-base px-4 w-full mb-1" onClick={() => handleLinkClick('/browse')}>
+                        <Search className="mr-3 h-5 w-5" /> All Listings
+                    </Button>
                     <Accordion type="multiple" className="w-full">
                         {Object.entries(groupedCategories).map(([section, data]) => {
                             if (data.items.length === 0) return null;
