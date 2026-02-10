@@ -526,7 +526,7 @@ export default function ProductDetailsModern({
                                     {/* Main Buy Actions */}
                                     {(!product.isReverseBidding || user?.uid === product.sellerId) && (
                                         <div className="space-y-3">
-                                            {!product.isUntimed && product.quantity > 0 && (
+                                            {!product.isUntimed && (product.quantity || 0) > 0 && (
                                                 <Button
                                                     className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                                                     onClick={handleAddToCart}
