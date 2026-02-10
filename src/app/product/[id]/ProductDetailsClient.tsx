@@ -528,7 +528,7 @@ export default function ProductDetailsClient({
                                                     </AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
                             </div>
