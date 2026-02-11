@@ -2,7 +2,7 @@
 
 import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
+import { serializeFirestoreData } from '@/lib/utils';
 
 export interface DraftListingData {
     sellerId: string;
@@ -139,7 +139,7 @@ export async function getDraftListing(draftId: string, userId: string): Promise<
             throw new Error("Unauthorized access to this listing.");
         }
 
-        return { id: docSnap.id, ...serializeFirestoreDoc(data || {}) };
+        return { id: docSnap.id, ...serializeFirestoreData(data || {}) };
     } catch (error) {
         console.error("Error fetching draft:", error);
         throw error;

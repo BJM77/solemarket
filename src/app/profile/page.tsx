@@ -75,10 +75,12 @@ export default function ProfileDetailsPage() {
   }, [user, form]);
 
   const watchSlug = form.watch('shopSlug');
+  const userShopSlug = (user as any)?.shopSlug;
+  const userId = user?.uid;
 
   useEffect(() => {
     const checkSlug = async () => {
-      if (!watchSlug || watchSlug === (user as any)?.shopSlug) {
+      if (!watchSlug || watchSlug === userShopSlug) {
         setSlugStatus('idle');
         return;
       }
@@ -89,13 +91,13 @@ export default function ProfileDetailsPage() {
       }
 
       setSlugStatus('checking');
-      const available = await isSlugAvailable(watchSlug, user?.uid);
+      const available = await isSlugAvailable(watchSlug, userId);
       setSlugStatus(available ? 'available' : 'taken');
     };
 
     const timer = setTimeout(checkSlug, 500);
     return () => clearTimeout(timer);
-  }, [watchSlug, user?.uid, (user as any)?.shopSlug]);
+  }, [watchSlug, userId, userShopSlug]);
 
   const onSubmit = (data: ProfileFormValues) => {
     if (!user) {

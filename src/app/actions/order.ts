@@ -5,7 +5,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
-import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
+import { serializeFirestoreData } from '@/lib/utils';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateItemTotal, calculateShipping, calculateTax } from '@/lib/pricing';
 
@@ -61,7 +61,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 const itemTotal = (item.dealId && item.bundlePrice !== undefined)
                     ? item.bundlePrice
                     : calculateItemTotal(product.price, item.quantity, product.multibuyEnabled, product.multibuyTiers);
-                
+
                 sellerGroups[sellerId].items.push({
                     id: item.id,
                     title: product.title,
@@ -90,11 +90,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 const orderRef = firestoreDb.collection('orders').doc();
 
                 const shippingCost = calculateShipping(
-                    group.subtotal, 
-                    options?.shippingMethod || 'pickup', 
-                    { 
-                        freightCharge: settings.freightCharge, 
-                        freeShippingThreshold: settings.freeShippingThreshold 
+                    group.subtotal,
+                    options?.shippingMethod || 'pickup',
+                    {
+                        freightCharge: settings.freightCharge,
+                        freeShippingThreshold: settings.freeShippingThreshold
                     }
                 );
 
@@ -130,7 +130,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
         });
 
         // Serialize for client
-        const serializedOrders = results.map(order => serializeFirestoreDoc({
+        const serializedOrders = results.map((order: any) => serializeFirestoreData({
             ...order,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),

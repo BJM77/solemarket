@@ -26,7 +26,7 @@ export async function getSellerProducts(idToken: string, sellerId: string): Prom
             .orderBy('createdAt', 'desc')
             .get();
 
-        const products = snapshot.docs.map(doc => serializeFirestoreData({
+        const products = snapshot.docs.map((doc: any) => serializeFirestoreData({
             id: doc.id,
             ...doc.data()
         })) as Product[];

@@ -6,7 +6,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
-import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
+import { serializeFirestoreData } from '@/lib/utils';
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -261,7 +261,7 @@ export const getFeaturedProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return snapshot.docs.map(doc => serializeFirestoreDoc({
+            return snapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[];
@@ -307,7 +307,7 @@ export const getCollectiblesProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return snapshot.docs.map(doc => serializeFirestoreDoc({
+            return snapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[];

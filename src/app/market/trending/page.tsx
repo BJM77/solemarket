@@ -16,7 +16,7 @@ export default async function MarketTrendingPage() {
         .limit(20)
         .get();
 
-    const trendingProducts = productsSnap.docs.map(doc => serializeFirestoreData({
+    const trendingProducts = productsSnap.docs.map((doc: any) => serializeFirestoreData({
         id: doc.id,
         ...doc.data()
     })) as Product[];
