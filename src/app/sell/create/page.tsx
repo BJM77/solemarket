@@ -261,7 +261,7 @@ export default function CreateListingPage() {
       toast({ title: "Draft Saved", description: "Proceeding to review..." });
       // Redirect to a review page or dashboard? User request didn't specify, assuming dashboard or review.
       // There is a 'review' folder in 'src/app/sell/review'.
-      router.push(`/sell/review/${draftId}`);
+      router.push(`/sell/review?draftId=${draftId}`);
 
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
