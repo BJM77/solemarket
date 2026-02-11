@@ -4,6 +4,7 @@ import ProductCard from '@/components/products/ProductCard';
 import { Badge } from '@/components/ui/badge';
 import { Flame, TrendingUp, BarChart3, Clock } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function MarketTrendingPage() {
