@@ -3,12 +3,13 @@
 "use client";
 
 import Link from 'next/link';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
 import { signOutUser } from '@/lib/firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,19 +20,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Shield, Zap } from 'lucide-react';
-import { doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { UserProfile } from '@/lib/types';
+import { 
+  Shield, 
+  Zap, 
+  User, 
+  LayoutDashboard, 
+  Heart, 
+  ShoppingBag, 
+  Tag, 
+  PlusCircle, 
+  LogOut,
+  CreditCard
+} from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
 
 export function UserNav() {
   const { user, isUserLoading } = useUser();
-  const { canSell, isSuperAdmin: isClaimSuperAdmin, isLoading: permissionsLoading } = useUserPermissions();
+  const { canSell, isSuperAdmin: isClaimSuperAdmin } = useUserPermissions();
   const isSuperAdmin = isClaimSuperAdmin || (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -57,72 +67,103 @@ export function UserNav() {
     return name[0];
   };
 
-
+  const isActive = (path: string) => pathname === path;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-            <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full focus-visible:ring-offset-0 focus-visible:ring-0">
+          <Avatar className="h-10 w-10 border border-border/50">
+            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} className="object-cover" />
+            <AvatarFallback className="bg-primary/5 text-primary font-bold">{getInitials(user.displayName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+      <DropdownMenuContent className="w-64 p-2" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal p-2">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
-            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+            <p className="text-sm font-bold leading-none truncate">{user.displayName || 'User'}</p>
+            <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-2" />
+        
         {isSuperAdmin && (
-          <>
-            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-              <Link href="/admin">
-                <Shield className="mr-2 h-4 w-4" />
-                <span>Admin Dashboard</span>
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin') && "bg-accent text-accent-foreground")}>
+              <Link href="/admin" className="flex items-center">
+                <Shield className="mr-3 h-4 w-4 text-primary" />
+                <span className="font-medium">Admin Dashboard</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-              <Link href="/admin/power-tools">
-                <Zap className="mr-2 h-4 w-4" />
-                <span>Power Tools</span>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg", isActive('/admin/power-tools') && "bg-accent text-accent-foreground")}>
+              <Link href="/admin/power-tools" className="flex items-center">
+                <Zap className="mr-3 h-4 w-4 text-amber-500" />
+                <span className="font-medium">Power Tools</span>
               </Link>
             </DropdownMenuItem>
-          </>
+            <DropdownMenuSeparator className="my-2" />
+          </DropdownMenuGroup>
         )}
+
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-            <Link href="/profile">Profile</Link>
+          <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/profile') && "bg-accent text-accent-foreground")}>
+            <Link href="/profile" className="flex items-center">
+              <User className="mr-3 h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">My Profile</span>
+            </Link>
           </DropdownMenuItem>
+          
           {canSell && (
-            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-              <Link href="/sell/dashboard">Seller Dashboard</Link>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/sell/dashboard') && "bg-accent text-accent-foreground")}>
+              <Link href="/sell/dashboard" className="flex items-center">
+                <LayoutDashboard className="mr-3 h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Seller Dashboard</span>
+              </Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-            <Link href="/profile/favorites">My Favorites</Link>
+          
+          <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/profile/favorites') && "bg-accent text-accent-foreground")}>
+            <Link href="/profile/favorites" className="flex items-center">
+              <Heart className="mr-3 h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">My Favorites</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-            <Link href="/profile/orders">My Purchases</Link>
+          
+          <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/profile/orders') && "bg-accent text-accent-foreground")}>
+            <Link href="/profile/orders" className="flex items-center">
+              <CreditCard className="mr-3 h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">My Purchases</span>
+            </Link>
           </DropdownMenuItem>
+          
           {canSell && (
-            <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-              <Link href="/profile/listings">My Listings</Link>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg", isActive('/profile/listings') && "bg-accent text-accent-foreground")}>
+              <Link href="/profile/listings" className="flex items-center">
+                <Tag className="mr-3 h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">My Listings</span>
+              </Link>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        
+        <DropdownMenuSeparator className="my-2" />
+        
         {canSell && (
-          <DropdownMenuItem asChild className="focus:text-primary cursor-pointer w-full">
-            <Link href="/sell/create">Sell Item</Link>
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-primary/5 text-primary focus:bg-primary/10 focus:text-primary", isActive('/sell/create') && "bg-primary/10")}>
+              <Link href="/sell/create" className="flex items-center">
+                <PlusCircle className="mr-3 h-4 w-4" />
+                <span className="font-bold">Sell an Item</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-2" />
+          </DropdownMenuGroup>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="focus:text-primary cursor-pointer w-full">
-          Sign out
+        
+        <DropdownMenuItem onClick={handleSignOut} className="focus:text-destructive cursor-pointer w-full py-2.5 rounded-lg text-muted-foreground focus:bg-destructive/5">
+          <LogOut className="mr-3 h-4 w-4" />
+          <span className="font-medium">Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

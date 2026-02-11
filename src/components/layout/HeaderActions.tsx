@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { UserNav } from './user-nav';
@@ -43,9 +43,16 @@ export default function HeaderActions() {
             )}
 
             {user && (
-                <div className="hidden md:flex items-center gap-2">
-                    <Button asChild variant="default" size="sm" className="hidden sm:flex">
-                        <Link href="/sell/create">New</Link>
+                <div className="flex items-center gap-1 md:gap-2">
+                    {/* Mobile Plus Button */}
+                    <Button asChild variant="default" size="icon" className="h-9 w-9 flex md:hidden rounded-full shadow-sm">
+                        <Link href="/sell/create" aria-label="Sell Item">
+                            <PlusCircle className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                    {/* Desktop Button */}
+                    <Button asChild variant="default" size="sm" className="hidden md:flex rounded-full px-4">
+                        <Link href="/sell/create">Sell Item</Link>
                     </Button>
                 </div>
             )}
