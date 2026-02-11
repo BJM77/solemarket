@@ -79,14 +79,14 @@ export default function CardUploader({ onImageSelect, isLoading }: CardUploaderP
         }
     };
 
-    const stopCamera = () => {
+    const stopCamera = useCallback(() => {
         if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject as MediaStream;
             stream.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
         }
         setIsCameraOpen(false);
-    };
+    }, []);
 
     const capturePhoto = () => {
         if (videoRef.current && canvasRef.current) {
@@ -115,12 +115,9 @@ export default function CardUploader({ onImageSelect, isLoading }: CardUploaderP
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            if (videoRef.current && videoRef.current.srcObject) {
-                const stream = videoRef.current.srcObject as MediaStream;
-                stream.getTracks().forEach(track => track.stop());
-            }
+            stopCamera();
         };
-    }, []);
+    }, [stopCamera]);
 
     return (
         <div className="space-y-4">
