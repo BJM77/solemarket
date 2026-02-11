@@ -11,6 +11,7 @@ export function formatPrice(price: any): string {
 }
 
 export function serializeFirestoreData(data: any): any {
+  // Build Trigger: ISO string standardization for Firestore Timestamps
   if (data === null || data === undefined) {
     return data;
   }

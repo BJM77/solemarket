@@ -4,6 +4,7 @@ import ProductCard from '@/components/products/ProductCard';
 import { Flame, TrendingUp, BarChart3, Clock } from 'lucide-react';
 import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 
+// Build Trigger: Standardized serialization with restored imports
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
