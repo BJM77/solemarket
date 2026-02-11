@@ -18,13 +18,6 @@ export default function HeaderActions() {
 
     return (
         <div className="flex items-center justify-end space-x-1 md:space-x-2">
-            <div className="lg:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Open search">
-                    <Search className="h-5 w-5" />
-                </Button>
-            </div>
-
-
             {!user ? (
                 <div className="flex items-center gap-1">
                     <Button asChild variant="ghost" size="icon" aria-label="Sign In">

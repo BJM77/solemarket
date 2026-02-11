@@ -135,12 +135,15 @@ export default function ScanResults({ cards, totalValue, processingTime }: ScanR
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-                <Button size="lg" className="flex-1">
-                    Create Listings
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+                <Button size="lg" className="flex-1 h-14 text-lg font-bold shadow-xl shadow-primary/20" asChild>
+                    <a href="/sell/create">
+                        <DollarSign className="w-5 h-5 mr-2" />
+                        Sell These Items Now
+                    </a>
                 </Button>
-                <Button size="lg" variant="outline">
-                    Export CSV
+                <Button size="lg" variant="outline" className="flex-1 h-14">
+                    Export to CSV
                 </Button>
             </div>
         </div>

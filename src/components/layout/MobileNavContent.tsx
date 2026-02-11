@@ -262,6 +262,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     <Button variant="ghost" className="justify-start text-sm font-bold px-4 w-full mb-1 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/browse')}>
                         <Search className="mr-3 h-4 w-4 text-primary" /> All Listings
                     </Button>
+                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 w-full mb-1 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/multilisting-deals')}>
+                        <LayoutGrid className="mr-3 h-4 w-4 text-primary" /> Multilisting Deals
+                    </Button>
                     <Accordion type="multiple" className="w-full">
                         {Object.entries(groupedCategories).map(([section, data]) => {
                             if (data.items.length === 0) return null;
