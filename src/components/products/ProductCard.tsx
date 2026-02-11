@@ -355,17 +355,29 @@ export default function ProductCard({
   const getFormattedDate = (dateValue: any) => {
     if (!dateValue) return '';
 
-    // Handle both Firestore Timestamps and JS Date objects
-    if (dateValue instanceof Timestamp) {
-      return formatDistanceToNow(dateValue.toDate(), { addSuffix: true });
-    }
-    // Check for serialized Timestamp from server-side rendering
-    if (typeof dateValue === 'object' && dateValue.seconds) {
-      return formatDistanceToNow(new Date(dateValue.seconds * 1000), { addSuffix: true });
-    }
-    // Handle standard JS Date object
-    if (dateValue instanceof Date) {
-      return formatDistanceToNow(dateValue, { addSuffix: true });
+    try {
+      // Handle both Firestore Timestamps and JS Date objects
+      if (dateValue instanceof Timestamp) {
+        return formatDistanceToNow(dateValue.toDate(), { addSuffix: true });
+      }
+      // Check for serialized Timestamp from server-side rendering {seconds, nanoseconds}
+      if (typeof dateValue === 'object' && (dateValue.seconds || dateValue._seconds)) {
+        const s = dateValue.seconds ?? dateValue._seconds;
+        return formatDistanceToNow(new Date(s * 1000), { addSuffix: true });
+      }
+      // Handle ISO strings or other date strings
+      if (typeof dateValue === 'string') {
+        const d = new Date(dateValue);
+        if (!isNaN(d.getTime())) {
+          return formatDistanceToNow(d, { addSuffix: true });
+        }
+      }
+      // Handle standard JS Date object
+      if (dateValue instanceof Date) {
+        return formatDistanceToNow(dateValue, { addSuffix: true });
+      }
+    } catch (error) {
+      console.error("Error formatting date:", error);
     }
     return '';
   }
