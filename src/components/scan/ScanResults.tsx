@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { ScannedCard } from '@/lib/types/scan';
 import CardThumbnail from './CardThumbnail';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -134,13 +135,19 @@ export default function ScanResults({ cards, totalValue, processingTime }: ScanR
                 </div>
             )}
 
+import Link from 'next/link';
+
+// ... (imports remain the same, ensure Link is not duplicated if already present)
+
+// ... inside the component return ...
+
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
                 <Button size="lg" className="flex-1 h-14 text-lg font-bold shadow-xl shadow-primary/20" asChild>
-                    <a href="/sell/create">
+                    <Link href="/sell/create">
                         <DollarSign className="w-5 h-5 mr-2" />
                         Sell These Items Now
-                    </a>
+                    </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="flex-1 h-14">
                     Export to CSV
