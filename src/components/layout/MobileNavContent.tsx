@@ -111,7 +111,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="flex flex-col pl-12 space-y-1">
                                     <Button variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick('/collector-cards')}>All Cards</Button>
-                                    {['Pokemon', 'NBA', 'WWE', 'NFL', 'AFL', 'Soccer', 'F1', 'Fantasy'].map(sub => (
+                                    <Button variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick('/category/pokemon-cards')}>Pokemon</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick('/category/nba-trading-cards')}>NBA</Button>
+                                    {['WWE', 'NFL', 'AFL', 'Soccer', 'F1', 'Fantasy'].map(sub => (
                                         <Button key={sub} variant="ghost" size="sm" className="justify-start h-8 text-muted-foreground" onClick={() => handleLinkClick(`/collector-cards?subCategory=${sub}`)}>
                                             {sub}
                                         </Button>

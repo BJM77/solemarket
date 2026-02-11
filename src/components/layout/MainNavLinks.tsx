@@ -46,9 +46,11 @@ export function MainNavLinks() {
                 categories
                   .filter((c: any) => c.showInNav !== false)
                   .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                  .map((cat: any) => (
-                    <ListItem key={cat.id} title={cat.name} href={cat.href || '#'} />
-                  ))
+                  .map((cat: any) => {
+                    const seoSlug = cat.name === 'Pokemon' ? 'pokemon-cards' : (cat.name === 'NBA Cards' ? 'nba-trading-cards' : null);
+                    const href = seoSlug ? `/category/${seoSlug}` : (cat.href || '#');
+                    return <ListItem key={cat.id} title={cat.name} href={href} />;
+                  })
               ) : (
                 <div className="p-2 text-sm text-muted-foreground">No categories found</div>
               )}

@@ -24,12 +24,16 @@ export default function HeroModern() {
             <div className="absolute -right-24 top-1/2 -translate-y-1/2 w-[120vw] h-[120vw] md:w-[800px] md:h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none opacity-50 md:opacity-100" />
 
             <div className="max-w-7xl mx-auto px-4 pt-20 pb-24 md:pt-32 md:pb-32 relative z-10 text-center">
-                <h1 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
-                    Find what you love.<br />
+                <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                    Australia's Premier Marketplace for <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
-                        Sell what you don't.
+                        Trading Cards & Collectibles
                     </span>
                 </h1>
+
+                <p className="text-xl md:text-2xl font-medium text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+                    Find what you love. Sell what you don't.
+                </p>
 
                 <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
                     The safest marketplace for collectors. Verified sellers, escrow protection, and community-driven.

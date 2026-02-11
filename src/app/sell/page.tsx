@@ -58,10 +58,10 @@ export default function SellPage() {
     if (!isSuperAdmin && !canSell) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
-                 <main className="container mx-auto px-4 py-12 md:py-20 text-center">
+                <main className="container mx-auto px-4 py-12 md:py-20 text-center">
                     <div className="max-w-2xl mx-auto">
                         <FadeIn>
-                             <div className="mx-auto bg-primary/10 p-6 rounded-full w-fit mb-6">
+                            <div className="mx-auto bg-primary/10 p-6 rounded-full w-fit mb-6">
                                 <Shield className="h-12 w-12 text-primary" />
                             </div>
                             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 font-headline">
@@ -86,12 +86,12 @@ export default function SellPage() {
                 <div className="text-center max-w-3xl mx-auto">
                     <FadeIn>
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 font-headline">
-                            Turn Your Collection into Cash
+                            Sell Your Collectibles Fast - Zero Fees on First Sale
                         </h1>
                         <p className="mt-6 text-lg md:text-xl text-muted-foreground">
                             Picksy provides powerful, AI-driven tools to make selling your collectibles faster and more profitable than ever before.
                         </p>
-                         <Button asChild size="lg" className="mt-8">
+                        <Button asChild size="lg" className="mt-8">
                             <Link href="/sell/dashboard">View My Listings</Link>
                         </Button>
                     </FadeIn>

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { Sparkles, Coins, Stamp, PenTool, Layers } from 'lucide-react';
 
 const CATEGORIES = [
-    { name: 'Collector Cards', icon: Layers, href: '/browse?category=Collector Cards', color: 'bg-blue-100 text-blue-600' },
-    { name: 'Coins & Money', icon: Coins, href: '/browse?category=Coins & Money', color: 'bg-yellow-100 text-yellow-600' },
-    { name: 'Comics', icon: Sparkles, href: '/browse?category=Comics', color: 'bg-red-100 text-red-600' },
-    { name: 'Stamps', icon: Stamp, href: '/browse?category=Stamps', color: 'bg-green-100 text-green-600' },
-    { name: 'Autographs', icon: PenTool, href: '/browse?category=Autographs', color: 'bg-purple-100 text-purple-600' },
+    { name: 'Pokemon Cards', icon: Layers, href: '/category/pokemon-cards', color: 'bg-blue-100 text-blue-600' },
+    { name: 'NBA Cards', icon: Layers, href: '/category/nba-trading-cards', color: 'bg-orange-100 text-orange-600' },
+    { name: 'Coins & Money', icon: Coins, href: '/coins', color: 'bg-yellow-100 text-yellow-600' },
+    { name: 'Comics', icon: Sparkles, href: '/collectibles/comics', color: 'bg-red-100 text-red-600' },
+    { name: 'Stamps', icon: Stamp, href: '/collectibles/stamps', color: 'bg-green-100 text-green-600' },
 ];
 
 export default function CategoryRail() {

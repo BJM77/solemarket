@@ -12,8 +12,8 @@ const footerLinks = {
     { name: 'Private Sales', href: '/sell' },
   ],
   Categories: [
-    { name: 'Sports Cards', href: '/collector-cards/sports' },
-    { name: 'Trading Cards', href: '/collector-cards/trading' },
+    { name: 'Pokemon Cards', href: '/category/pokemon-cards' },
+    { name: 'NBA Trading Cards', href: '/category/nba-trading-cards' },
     { name: 'Coins & Bullion', href: '/coins' },
     { name: 'Comics & Books', href: '/collectibles/comics' },
   ],

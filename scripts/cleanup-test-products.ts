@@ -1,38 +1,24 @@
+import { db } from './src/lib/firebase/config';
+import { collection, query, getDocs, deleteDoc, doc, where } from 'firebase/firestore';
 
-import * as fs from 'fs';
-import * as path from 'path';
+async function cleanupTestProducts() {
+    console.log('Searching for test products...');
+    const productsRef = collection(db, 'products');
+    // Match any title starting with 'Test' (case sensitive) or containing 'Test'
+    const q = query(productsRef);
+    const querySnapshot = await getDocs(q);
 
-// Manually read .env.local to ensure variables are set before any imports
-const envPath = path.resolve(process.cwd(), '.env.local');
-const envContent = fs.readFileSync(envPath, 'utf-8');
-const jsonLine = envContent.split('\n').find(line => line.startsWith('FIREBASE_SERVICE_ACCOUNT_JSON='));
-
-if (jsonLine) {
-    const jsonVal = jsonLine.split('=', 2)[1]; // Split by first =
-    // Handle simplified parsing (might still be raw string or quoted)
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON = jsonVal;
-    console.log('✅ Manually loaded FIREBASE_SERVICE_ACCOUNT_JSON');
-} else {
-    console.warn('⚠️ FIREBASE_SERVICE_ACCOUNT_JSON not found in .env.local');
-}
-
-async function deleteProducts() {
-    // Dynamic import to ensure env vars are set first
-    const { firestoreDb } = await import('../src/lib/firebase/admin');
-
-    const productIds = ['prod_456', 'EAwQGIZgXqxVCuvrPckP'];
-    console.log(`🗑️ Deleting ${productIds.length} test products...`);
-
-    for (const id of productIds) {
-        try {
-            await firestoreDb.collection('products').doc(id).delete();
-            console.log(`✅ Deleted product: ${id}`);
-        } catch (error: any) {
-            console.error(`❌ Failed to delete ${id}:`, error.message);
+    let deletedCount = 0;
+    for (const productDoc of querySnapshot.docs) {
+        const title = productDoc.data().title || '';
+        if (title.includes('Test') || title.includes('test')) {
+            console.log(`Deleting: ${title} (${productDoc.id})`);
+            await deleteDoc(doc(db, 'products', productDoc.id));
+            deletedCount++;
         }
     }
-    console.log('✨ Cleanup complete.');
-    process.exit(0);
+
+    console.log(`Cleanup complete. Deleted ${deletedCount} test products.`);
 }
 
-deleteProducts();
+cleanupTestProducts().catch(console.error);
