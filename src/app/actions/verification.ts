@@ -163,7 +163,7 @@ export async function getPendingVerificationRequests(idToken: string) {
             .orderBy('createdAt', 'desc')
             .get();
 
-        const requests = snapshot.docs.map(doc => ({
+        const requests = snapshot.docs.map((doc: any) => ({
             id: doc.id,
             ...doc.data(),
             createdAt: (doc.data().createdAt as any).toDate().toISOString() // Serialize

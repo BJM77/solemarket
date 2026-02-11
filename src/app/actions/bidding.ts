@@ -12,7 +12,7 @@ export async function placeBidAction(productId: string, idToken: string, amount:
         const decodedToken = await verifyIdToken(idToken);
         const { uid: bidderId, name: bidderName } = decodedToken;
 
-        const result = await firestoreDb.runTransaction(async (transaction) => {
+        const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);
             const productSnap = await transaction.get(productRef);
 
@@ -99,7 +99,7 @@ export async function acceptBidAction(productId: string, idToken: string, bidId:
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;
 
-        const result = await firestoreDb.runTransaction(async (transaction) => {
+        const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);
             const productSnap = await transaction.get(productRef);
 
@@ -173,7 +173,7 @@ export async function rejectBidAction(productId: string, idToken: string, bidId:
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;
 
-        const result = await firestoreDb.runTransaction(async (transaction) => {
+        const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);
             const productSnap = await transaction.get(productRef);
 
@@ -253,7 +253,7 @@ export async function getSellerProductsWithOffers(idToken: string) {
 
         const productsWithOffers: Product[] = [];
 
-        snapshot.docs.forEach(doc => {
+        snapshot.docs.forEach((doc: firebaseAdmin.firestore.QueryDocumentSnapshot) => {
             const product = { id: doc.id, ...doc.data() } as Product;
             const hasPendingBids = product.bids?.some(bid => bid.status === 'pending');
 
@@ -275,7 +275,7 @@ export async function resetOffersAction(productId: string, idToken: string) {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;
 
-        const result = await firestoreDb.runTransaction(async (transaction) => {
+        const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);
             const productSnap = await transaction.get(productRef);
 
@@ -313,7 +313,7 @@ export async function resetOffersAction(productId: string, idToken: string) {
 
         if (result.success && result.bidsToNotify) {
             // Notify pending bidders
-            await Promise.all(result.bidsToNotify.map(bid =>
+            await Promise.all(result.bidsToNotify.map((bid: Bid) =>
                 sendNotification(
                     bid.bidderId,
                     'system',

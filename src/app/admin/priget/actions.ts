@@ -155,7 +155,7 @@ export async function getPrigetProducts(limit: number = 50) {
         .limit(limit)
         .get();
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
     }));

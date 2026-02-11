@@ -42,7 +42,7 @@ export default async function GuidePage({ params }: Props) {
         .limit(12)
         .get();
 
-    const products = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
+    const products = productsSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })) as Product[];
 
     // Filter client-side for subject because Firestore doesn't support substring match well without indexing
     const filteredProducts = products.filter(p =>

@@ -23,7 +23,7 @@ export async function migrateProductStatus(idToken: string) {
         const snapshot = await productsRef.get();
         let updatedCount = 0;
 
-        snapshot.docs.forEach(doc => {
+        snapshot.docs.forEach((doc: any) => {
             const data = doc.data();
             const updates: any = {};
             let needsUpdate = false;

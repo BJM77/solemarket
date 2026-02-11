@@ -153,7 +153,7 @@ export async function getWTBListings(filters?: {
         const snapshot = await query.limit(filters?.limit || 50).get();
         const listings: WantedListing[] = [];
 
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc: any) => {
             listings.push({ id: doc.id, ...doc.data() } as WantedListing);
         });
 
@@ -199,7 +199,7 @@ export async function getMyWTBListings(idToken: string) {
             .get();
 
         const listings: WantedListing[] = [];
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc: any) => {
             listings.push({ id: doc.id, ...doc.data() } as WantedListing);
         });
 

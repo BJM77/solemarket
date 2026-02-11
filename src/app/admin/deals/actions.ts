@@ -75,7 +75,7 @@ export async function getDeals(activeOnly: boolean = false) {
 
     const snapshot = await query.get();
 
-    let deals = snapshot.docs.map(doc => ({
+    let deals = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
     })) as Deal[];
@@ -291,7 +291,7 @@ export async function getProductsByTier(tier: MultiCardTier, limit: number = 50)
         .limit(limit * 2)
         .get();
 
-    const products = snapshot.docs.map(doc => ({
+    const products = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
     })) as any[];

@@ -3,6 +3,8 @@
  * Run with: npx tsx scripts/add-allstar-roster.ts
  */
 
+export {};
+
 const allStarPlayers = [
     // Eastern Conference Starters
     { name: 'Giannis Antetokounmpo', sport: 'Basketball' as const },

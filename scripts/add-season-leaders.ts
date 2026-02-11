@@ -3,6 +3,8 @@
  * Run with: npx tsx scripts/add-season-leaders.ts
  */
 
+export {};
+
 const seasonLeaders = [
     // Points Leaders
     { name: 'Luka Dončić', sport: 'Basketball' as const },

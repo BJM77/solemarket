@@ -116,7 +116,7 @@ export async function getAllUsers(idToken: string): Promise<{ users?: AdminUser[
 
         for (const chunkUids of uidChunks) {
             const snap = await firestoreDb.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', chunkUids).get();
-            snap.forEach(doc => {
+            snap.forEach((doc: admin.firestore.QueryDocumentSnapshot) => {
                 profilesMap.set(doc.id, { id: doc.id, ...doc.data() } as UserProfile);
             });
         }
@@ -259,7 +259,7 @@ export async function setUserOnStop(idToken: string, userId: string, onStop: boo
 
         const userRef = firestoreDb.collection('users').doc(userId);
 
-        await firestoreDb.runTransaction(async (transaction) => {
+        await firestoreDb.runTransaction(async (transaction: any) => {
             // 1. Update user profile
             const updates: any = {
                 onStop,
@@ -278,7 +278,7 @@ export async function setUserOnStop(idToken: string, userId: string, onStop: boo
             const productsRef = firestoreDb.collection('products');
             const sellerProducts = await productsRef.where('sellerId', '==', userId).get();
 
-            sellerProducts.forEach(doc => {
+            sellerProducts.forEach((doc: admin.firestore.QueryDocumentSnapshot) => {
                 if (onStop) {
                     // SUSPENDING: Only hide products that are currently NOT drafts
                     if (doc.data().isDraft === false) {
@@ -330,7 +330,7 @@ export async function issueWarning(idToken: string, userId: string, reason: stri
         const userRef = firestoreDb.collection('users').doc(userId);
 
         // Transaction to increment warning and check for ban
-        await firestoreDb.runTransaction(async (transaction) => {
+        await firestoreDb.runTransaction(async (transaction: any) => {
             const userDoc = await transaction.get(userRef);
             if (!userDoc.exists) throw new Error("User not found");
 

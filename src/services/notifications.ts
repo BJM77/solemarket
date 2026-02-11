@@ -41,7 +41,7 @@ export async function getUserNotifications(userId: string, limitCount = 20) {
         .limit(limitCount)
         .get();
 
-    return snapshot.docs.map(doc => {
+    return snapshot.docs.map((doc: any) => {
         const data = doc.data();
         return {
             id: doc.id,
@@ -75,7 +75,7 @@ export async function markAllAsRead(userId: string) {
     for (let i = 0; i < docs.length; i += batchSize) {
         const batch = firestoreDb.batch();
         const chunk = docs.slice(i, i + batchSize);
-        chunk.forEach(doc => {
+        chunk.forEach((doc: any) => {
             batch.update(doc.ref, { read: true });
         });
         await batch.commit();

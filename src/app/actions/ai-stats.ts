@@ -30,7 +30,7 @@ export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
         .orderBy('timestamp', 'desc')
         .get();
 
-    const logs = snapshot.docs.map(doc => ({
+    const logs = snapshot.docs.map((doc: any) => ({
         ...(doc.data() as any),
         id: doc.id,
         timestamp: doc.data().timestamp.toDate()
@@ -46,7 +46,7 @@ export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
     // Last 24 hours for hourly
     const oneDayAgo = subDays(new Date(), 1);
 
-    logs.forEach(log => {
+    logs.forEach((log: any) => {
         totalUnits += log.units;
         totalCost += log.estimatedCost || 0;
 

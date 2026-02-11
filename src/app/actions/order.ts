@@ -35,7 +35,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
         const decodedToken = await verifyIdToken(idToken);
         const { uid: buyerId, email: buyerEmail, name: buyerName } = decodedToken;
 
-        const results = await firestoreDb.runTransaction(async (t) => {
+        const results = await firestoreDb.runTransaction(async (t: any) => {
             const productRefs = items.map(item => firestoreDb.collection('products').doc(item.id));
             const productDocs = await t.getAll(...productRefs);
 

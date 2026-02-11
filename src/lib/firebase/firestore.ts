@@ -52,7 +52,7 @@ export async function getReviewsForProduct(productId: string): Promise<Review[]>
             .orderBy('createdAt', 'desc')
             .get();
 
-        return querySnapshot.docs.map((doc) => serializeData(doc.data(), doc.id) as Review);
+        return querySnapshot.docs.map((doc: any) => serializeData(doc.data(), doc.id) as Review);
     } catch (e: any) {
         console.error('Failed to fetch reviews:', e.message);
         return [];
@@ -66,7 +66,7 @@ export async function getCategories(): Promise<Category[]> {
             .get();
 
         if (snapshot.empty) return [];
-        return snapshot.docs.map(doc => serializeData(doc.data(), doc.id) as Category);
+        return snapshot.docs.map((doc: any) => serializeData(doc.data(), doc.id) as Category);
     } catch (e: any) {
         console.error('Failed to fetch categories: ', e.message);
         return [];
@@ -82,7 +82,7 @@ export async function getTopSellers(limitCount: number): Promise<Seller[]> {
 
         if (snapshot.empty) return [];
 
-        const sellers = snapshot.docs.map(docSnap => {
+        const sellers = snapshot.docs.map((docSnap: any) => {
             const data = serializeData(docSnap.data(), docSnap.id) as any;
             return {
                 ...data,
@@ -128,7 +128,7 @@ export async function getActiveProductIds(limitCount = 1000, offset = 0): Promis
         }
 
         const snapshot = await query.limit(limitCount).select().get();
-        return snapshot.docs.map(doc => doc.id);
+        return snapshot.docs.map((doc: any) => doc.id);
     } catch (e: any) {
         console.error("Failed to fetch active product IDs:", e.message);
         return [];

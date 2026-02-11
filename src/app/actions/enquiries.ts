@@ -47,7 +47,7 @@ export async function getEnquiries(idToken: string) {
             .orderBy('createdAt', 'desc')
             .get();
 
-        const enquiries = snapshot.docs.map(doc => {
+        const enquiries = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
                 id: doc.id,

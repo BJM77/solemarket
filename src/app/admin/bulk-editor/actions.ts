@@ -10,7 +10,7 @@ export async function getProductsForBulkEdit(sellerId?: string) {
         if (sellerId) {
             const productsRef = firestoreDb.collection('products');
             const snapshot = await productsRef.where('sellerId', '==', sellerId).get();
-            products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            products = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
         } else {
             products = await getAllProducts();
         }

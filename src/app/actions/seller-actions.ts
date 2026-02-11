@@ -31,7 +31,7 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
 
         // 2. For each seller, fetch their categories
         // Use Promise.all for concurrency
-        await Promise.all(sellersSnapshot.docs.map(async (doc) => {
+        await Promise.all(sellersSnapshot.docs.map(async (doc: any) => {
             const userData = doc.data() as UserProfile;
 
             if (!doc.id) return;
@@ -53,9 +53,9 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
                 return;
             }
 
-            const products = productsSnapshot.docs.map(p => p.data() as Product);
+            const products = productsSnapshot.docs.map((p: any) => p.data() as Product);
             const categorySet = new Set<string>();
-            products.forEach(p => {
+            products.forEach((p: Product) => {
                 if (p.category) categorySet.add(p.category);
             });
 
