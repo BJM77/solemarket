@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
     const [success, setSuccess] = useState(false);
     const { user } = useUser();
 
-    const handleSearch = async () => {
+    const handleSearch = useCallback(async () => {
         setLoading(true);
         setError(null);
         setResults([]);
@@ -63,7 +63,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
         } finally {
             setLoading(false);
         }
-    };
+    }, [product.id, product.title, user]);
 
     useEffect(() => {
         if (isOpen) {
@@ -71,7 +71,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
             setManualPrice(product.price.toString());
             setSuccess(false);
         }
-    }, [isOpen]);
+    }, [isOpen, handleSearch, product.price]);
 
     const handleUpdatePrice = async (priceToApply: number) => {
         setLoading(true);

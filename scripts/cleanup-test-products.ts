@@ -1,4 +1,4 @@
-import { db } from './src/lib/firebase/config';
+import { db } from '@/lib/firebase/config';
 import { collection, query, getDocs, deleteDoc, doc, where } from 'firebase/firestore';
 
 async function cleanupTestProducts() {

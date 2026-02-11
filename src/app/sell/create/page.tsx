@@ -166,7 +166,7 @@ export default function CreateListingPage() {
       }
     };
     loadDraft();
-  }, [editId, user, form.reset]);
+  }, [editId, user, form, toast]);
 
   const addImages = useCallback((newFiles: File[]) => {
     const currentFiles = form.getValues('imageFiles');

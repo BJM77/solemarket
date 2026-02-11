@@ -54,7 +54,7 @@ function ReviewPageContent() {
       }
     };
     loadDraft();
-  }, [user, draftId, router]);
+  }, [user, draftId, router, toast]);
 
   const handleSubmit = async (asDraft: boolean) => {
     if (!listingData || !draftId || !user) return;

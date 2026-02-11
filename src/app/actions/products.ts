@@ -143,7 +143,7 @@ export async function createProductAction(
 export async function recordProductView(productId: string, userId?: string) {
     const productRef = firestoreDb.collection('products').doc(productId);
 
-    return firestoreDb.runTransaction(async (transaction) => {
+    return firestoreDb.runTransaction(async (transaction: any) => {
         const productDoc = await transaction.get(productRef);
 
         if (!productDoc.exists) {
