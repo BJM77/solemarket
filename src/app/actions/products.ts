@@ -6,6 +6,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
+import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -260,12 +261,9 @@ export const getFeaturedProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            return snapshot.docs.map(doc => serializeFirestoreDoc({
                 id: doc.id,
                 ...doc.data(),
-                // Ensure timestamps are serializable
-                createdAt: (doc.data().createdAt as any)?.toDate?.() || doc.data().createdAt,
-                updatedAt: (doc.data().updatedAt as any)?.toDate?.() || doc.data().updatedAt,
             })) as Product[];
         } catch (error) {
             console.error("Error fetching featured products:", error);
@@ -309,11 +307,9 @@ export const getCollectiblesProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            return snapshot.docs.map(doc => serializeFirestoreDoc({
                 id: doc.id,
                 ...doc.data(),
-                createdAt: (doc.data().createdAt as any)?.toDate?.() || doc.data().createdAt,
-                updatedAt: (doc.data().updatedAt as any)?.toDate?.() || doc.data().updatedAt,
             })) as Product[];
         } catch (error) {
             console.error("Error fetching collectibles:", error);

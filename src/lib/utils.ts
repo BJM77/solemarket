@@ -20,24 +20,27 @@ export function serializeFirestoreData(data: any): any {
     return data.map(item => serializeFirestoreData(item));
   }
 
-  // Handle Firestore Timestamps (check for toMillis method or seconds/nanoseconds properties)
-  if (data && typeof data.toMillis === 'function') {
-    return {
-      seconds: data.seconds,
-      nanoseconds: data.nanoseconds,
-    };
+  // Handle Firestore Timestamps (Admin SDK or Client SDK)
+  if (data && typeof data.toDate === 'function') {
+    return data.toDate().toISOString();
+  }
+
+  // Handle objects that look like serialized Timestamps { seconds, nanoseconds } or { _seconds, _nanoseconds }
+  if (data && typeof data === 'object') {
+    const s = data.seconds ?? data._seconds;
+    const ns = data.nanoseconds ?? data._nanoseconds;
+    if (typeof s === 'number' && typeof ns === 'number') {
+      return new Date(s * 1000 + ns / 1000000).toISOString();
+    }
   }
 
   // Handle Date objects
   if (data instanceof Date) {
-    return {
-      seconds: Math.floor(data.getTime() / 1000),
-      nanoseconds: (data.getTime() % 1000) * 1000000,
-    };
+    return data.toISOString();
   }
 
-  // Handle Objects
-  if (typeof data === 'object') {
+  // Handle standard Objects (recursively)
+  if (typeof data === 'object' && data.constructor === Object) {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -61,9 +64,9 @@ export function safeDate(value: any): Date | undefined {
   // Handle Firestore Timestamps (with toDate method)
   if (typeof value === 'object' && typeof value.toDate === 'function') {
     try {
-        return value.toDate();
+      return value.toDate();
     } catch {
-        return undefined;
+      return undefined;
     }
   }
 
