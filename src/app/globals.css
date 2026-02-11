@@ -53,9 +53,16 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+  html, body {
+    @apply bg-background text-foreground overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
+    max-width: 100%;
+    width: 100%;
+    position: relative;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    max-width: 100%;
   }
   ::selection {
     @apply bg-primary/20 text-primary;

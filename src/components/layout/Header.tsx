@@ -21,9 +21,9 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 glass-nav z-50 px-4 md:px-10 py-3">
-        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-8">
-          <div className="flex items-center gap-4 md:gap-8 flex-1">
+      <header className="sticky top-0 glass-nav z-50 px-3 md:px-10 py-3">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-2 md:gap-8">
+          <div className="flex items-center gap-2 md:gap-8 flex-1">
             {isClient && <MobileNav />}
             <Link href="/" className="flex items-center" aria-label="Back to homepage">
               <Logo />
@@ -35,7 +35,7 @@ export default function Header() {
             {isClient && <MainNavLinks />}
           </div>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-1 md:gap-2">
             {isClient && (
               <Button
                 variant="ghost"

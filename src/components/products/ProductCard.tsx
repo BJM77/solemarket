@@ -46,6 +46,7 @@ import { toggleProductHold } from '@/app/actions/admin';
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
+import { SmartImage } from './SmartImage';
 
 
 
@@ -532,15 +533,10 @@ export default function ProductCard({
               className="relative w-full h-full cursor-pointer group/image"
             >
               <Link href={`/product/${product.id}`} className="absolute inset-0 z-0" title={product.title}>
-                <Image
-                  src={!imgError && product.imageUrls?.[0] ? product.imageUrls[0] : '/wtb-wanted-placeholder.png'}
-                  alt={product.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover/image:scale-105"
+                <SmartImage
+                  product={product}
+                  imageIndex={0}
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  placeholder={!imgError ? "blur" : "empty"}
-                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
-                  onError={() => setImgError(true)}
                 />
               </Link>
               <Button
@@ -862,15 +858,10 @@ export default function ProductCard({
             className="relative w-full h-full cursor-pointer overflow-hidden block"
             title={product.title}
           >
-            <Image
-              src={!imgError && product.imageUrls?.[0] ? product.imageUrls[0] : '/wtb-wanted-placeholder.png'}
-              alt={`Product image for ${product.title}`}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+            <SmartImage
+              product={product}
+              imageIndex={0}
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-              placeholder={!imgError ? "blur" : "empty"}
-              blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
-              onError={() => setImgError(true)}
             />
           </Link>
         )}

@@ -1,6 +1,8 @@
 
 import { MetadataRoute } from 'next';
 import { getCategories, getActiveProductIds, getActiveProductCount } from '@/lib/firebase/firestore';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * World-Class Sitemap Generation
@@ -9,10 +11,33 @@ import { getCategories, getActiveProductIds, getActiveProductCount } from '@/lib
 
 const PRODUCT_SITEMAP_SIZE = 5000; // Limit per sitemap chunk
 
+async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
+  try {
+    const guidesDirectory = path.join(process.cwd(), 'src/content/guides');
+    if (!fs.existsSync(guidesDirectory)) return [];
+
+    const filenames = fs.readdirSync(guidesDirectory);
+    return filenames
+      .filter(file => file.endsWith('.json'))
+      .map(file => {
+        const slug = file.replace('.json', '');
+        return {
+          url: `${baseUrl}/guide/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.9, // High priority for high-value content
+        };
+      });
+  } catch (error) {
+    console.error('Error generating guide sitemap:', error);
+    return [];
+  }
+}
+
 export async function generateSitemaps() {
   const totalProducts = await getActiveProductCount();
   const numberOfSitemaps = Math.ceil(totalProducts / PRODUCT_SITEMAP_SIZE);
-  
+
   // Return an array of sitemap IDs
   return Array.from({ length: numberOfSitemaps }, (_, i) => ({ id: i }));
 }
@@ -24,7 +49,7 @@ export default async function sitemap({
 }): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
 
-  // ID 0 contains static routes and categories
+  // ID 0 contains static routes, categories, AND GUIDES
   if (id === 0) {
     const staticRoutes: MetadataRoute.Sitemap = [
       '',
@@ -67,6 +92,8 @@ export default async function sitemap({
         priority: 0.7,
       }));
 
+    const guideRoutes = await getGuideRoutes(baseUrl);
+
     // Add first chunk of products to sitemap 0
     const productIds = await getActiveProductIds(PRODUCT_SITEMAP_SIZE, 0);
     const productRoutes: MetadataRoute.Sitemap = productIds.map(id => ({
@@ -76,13 +103,13 @@ export default async function sitemap({
       priority: 0.6,
     }));
 
-    return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+    return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...productRoutes];
   }
 
   // Subsequent IDs only contain products
   const offset = id * PRODUCT_SITEMAP_SIZE;
   const productIds = await getActiveProductIds(PRODUCT_SITEMAP_SIZE, offset);
-  
+
   return productIds.map(id => ({
     url: `${baseUrl}/product/${id}`,
     lastModified: new Date(),

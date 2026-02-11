@@ -75,11 +75,49 @@ export async function createProductAction(
             status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
-
-            // Search helpers
-            title_lowercase: validData.title.toLowerCase(),
-            keywords: generateKeywords(validData.title),
         };
+
+        // Pillar 1: AI Visual SEO & Moderation Pipeline
+        if (validData.imageUrls && validData.imageUrls.length > 0) {
+            try {
+                console.log('Running AI Intelligence Pipeline for product:', validData.title);
+                const { analyzeProductImage } = await import('./ai-images');
+                const analysisPromises = validData.imageUrls.map(url =>
+                    analyzeProductImage(url, validData.title)
+                );
+                const analysisResults = await Promise.all(analysisPromises);
+
+                finalData.aiIntelligence = analysisResults;
+                finalData.imageAltTexts = analysisResults.map(r => r.altText);
+                finalData.qualityScore = Math.min(...analysisResults.map(r => r.qualityScore));
+                finalData.isSafe = analysisResults.every(r => r.isSafe);
+
+                if (!finalData.isSafe) {
+                    finalData.safetyReason = analysisResults.find(r => !r.isSafe)?.safetyReason;
+                    finalData.status = 'on_hold'; // Flag for manual review if unsafe
+                }
+
+                // Merge detected attributes if not already provided
+                const firstResult = analysisResults[0];
+                if (firstResult.detectedAttributes) {
+                    finalData.detectedAttributes = firstResult.detectedAttributes;
+                    if (!finalData.year) finalData.year = firstResult.detectedAttributes.year || undefined;
+                    if (!finalData.manufacturer) finalData.manufacturer = firstResult.detectedAttributes.brand || undefined;
+                }
+            } catch (error) {
+                console.warn('AI Pipeline failed:', error);
+                finalData.imageAltTexts = validData.imageUrls.map(() => validData.title);
+            }
+        }
+
+        // Search helpers & Normalization (Pillar 2/3)
+        let normalizedTitle = validData.title;
+        if (normalizedTitle.toLowerCase().includes('zard')) {
+            normalizedTitle += ' Charizard'; // Basic normalization logic
+        }
+
+        (finalData as any).title_lowercase = normalizedTitle.toLowerCase();
+        (finalData as any).keywords = generateKeywords(normalizedTitle);
 
         // Auto-apply Bronze Multibuy for cards < $5
         if (finalData.category === 'Collector Cards' && finalData.price < 5 && finalData.price > 0) {
@@ -108,7 +146,6 @@ export async function recordProductView(productId: string, userId?: string) {
         const productDoc = await transaction.get(productRef);
 
         if (!productDoc.exists) {
-            // Silently fail if product doesn't exist to avoid client errors
             return;
         }
 
@@ -118,16 +155,49 @@ export async function recordProductView(productId: string, userId?: string) {
         };
 
         if (userId) {
-            const data = productDoc.data();
-            const viewedByUsers = data?.viewedByUsers || [];
-            if (!viewedByUsers.includes(userId)) {
+            const viewRef = productRef.collection('views').doc(userId);
+            const viewDoc = await transaction.get(viewRef);
+
+            if (!viewDoc.exists) {
+                // New unique viewer
                 updates.uniqueViews = admin.firestore.FieldValue.increment(1);
-                updates.viewedByUsers = admin.firestore.FieldValue.arrayUnion(userId);
+                transaction.set(viewRef, {
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                    userId: userId
+                });
+            } else {
+                // Update timestamp for returning user (optional, but good for "last seen")
+                transaction.update(viewRef, {
+                    timestamp: admin.firestore.FieldValue.serverTimestamp()
+                });
             }
         }
 
         transaction.update(productRef, updates);
     });
+}
+
+/**
+ * Gets the number of unique views for a product in the last X hours
+ * Uses the efficient Firestore count() query on the 'views' subcollection.
+ */
+export async function getRecentViewCount(productId: string, hours: number = 24) {
+    try {
+        const threshold = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+        const viewsSnap = await firestoreDb
+            .collection('products')
+            .doc(productId)
+            .collection('views')
+            .where('timestamp', '>=', threshold)
+            .count()
+            .get();
+
+        return viewsSnap.data().count;
+    } catch (error) {
+        console.error('Error fetching recent view count:', error);
+        return 0;
+    }
 }
 
 export async function getAdjacentProducts(currentId: string, createdAt: any) {

@@ -13,9 +13,9 @@ const CATEGORIES = [
 
 export default function CategoryRail() {
     return (
-        <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 py-6">
-                <div className="flex items-center justify-between gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex items-center justify-start gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4">
                     {CATEGORIES.map((cat) => (
                         <Link
                             key={cat.name}

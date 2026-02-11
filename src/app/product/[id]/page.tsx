@@ -124,11 +124,15 @@ export default async function ProductPage({ params }: Props) {
 
   const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
 
-  const jsonLd = {
+  const jsonLd: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    image: product.imageUrls,
+    image: product.imageUrls.map((url, index) => ({
+      '@type': 'ImageObject',
+      url: url,
+      caption: (product as any).imageAltTexts?.[index] || product.title
+    })),
     description: product.description,
     brand: {
       '@type': 'Brand',
@@ -138,6 +142,7 @@ export default async function ProductPage({ params }: Props) {
       '@type': 'Offer',
       priceCurrency: 'AUD',
       price: product.price,
+      priceValidUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString().split('T')[0], // 30 days from now
       availability: product.status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
       itemCondition: `https://schema.org/${getConditionSchema(product.condition)}`,
       url: `${SITE_URL}/product/${product.id}`,
@@ -145,9 +150,13 @@ export default async function ProductPage({ params }: Props) {
         '@type': 'Organization',
         name: product.sellerName || 'Picksy Seller'
       },
-      eligibleRegion: {
-        '@type': 'Country',
-        name: 'Australia',
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'AU',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnPeriod',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/RestockingFee'
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
@@ -155,10 +164,26 @@ export default async function ProductPage({ params }: Props) {
           '@type': 'DefinedRegion',
           addressCountry: 'AU',
         },
-      },
-      areaServed: {
-        '@type': 'Country',
-        name: 'Australia',
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 3,
+            unitCode: 'd'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 5,
+            unitCode: 'd'
+          }
+        },
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: product.price > 100 ? 0 : 15, // Free shipping over $100
+          currency: 'AUD'
+        }
       },
     },
   };

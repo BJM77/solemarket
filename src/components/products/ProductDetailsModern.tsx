@@ -62,6 +62,8 @@ import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import { BiddingInterface } from '@/components/products/BiddingInterface';
 import { acceptBidAction } from '@/app/actions/bidding';
+import { getRecentViewCount } from '@/app/actions/products';
+import { TrendingUp } from 'lucide-react';
 
 export default function ProductDetailsModern({
     productId,
@@ -87,10 +89,22 @@ export default function ProductDetailsModern({
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
+    const [recentViews, setRecentViews] = useState<number>(0);
     const viewRecordedRef = useRef<string | null>(null);
 
     // Super admin check
     const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+    useEffect(() => {
+        const fetchRecentViews = async () => {
+            try {
+                const count = await getRecentViewCount(productId, 24);
+                setRecentViews(count);
+            } catch (error) {
+                console.error("Failed to fetch recent views:", error);
+            }
+        };
+        fetchRecentViews();
+    }, [productId]);
 
     const productRef = useMemoFirebase(() => doc(db, 'products', productId), [productId]);
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
@@ -488,13 +502,23 @@ export default function ProductDetailsModern({
                                     </div>
                                 )}
 
-                                {/* Seller Badge */}
-                                {seller?.isVerified && (
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <ShieldCheck className="text-primary h-5 w-5 fill-primary/10" />
-                                        <span className="text-xs font-bold text-primary uppercase tracking-widest">Verified Seller</span>
-                                    </div>
-                                )}
+                                {/* Seller Badge & Social Proof */}
+                                <div className="flex flex-wrap items-center gap-3 mb-4">
+                                    {seller?.isVerified && (
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck className="text-primary h-5 w-5 fill-primary/10" />
+                                            <span className="text-xs font-bold text-primary uppercase tracking-widest">Verified Seller</span>
+                                        </div>
+                                    )}
+                                    {recentViews > 5 && (
+                                        <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50 animation-pulse-subtle">
+                                            <TrendingUp className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                                            <span className="text-xs font-bold text-orange-700 dark:text-orange-300">
+                                                {recentViews} people viewed this in 24h
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <h1 className="text-3xl font-extrabold mb-2 leading-tight text-gray-900 dark:text-white">
                                     {product.title}
