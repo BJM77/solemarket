@@ -2,9 +2,9 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import type { Product } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import { Flame, TrendingUp, BarChart3, Clock } from 'lucide-react';
-import { serializeFirestoreDoc } from '@/lib/firebase/serializers';
+import { serializeFirestoreData } from '@/lib/utils';
 
-// Build Trigger: Standardized serialization with restored imports
+// Build Trigger: Standardized on serializeFirestoreData
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
@@ -16,7 +16,7 @@ export default async function MarketTrendingPage() {
         .limit(20)
         .get();
 
-    const trendingProducts = productsSnap.docs.map(doc => serializeFirestoreDoc({
+    const trendingProducts = productsSnap.docs.map(doc => serializeFirestoreData({
         id: doc.id,
         ...doc.data()
     })) as Product[];

@@ -125,9 +125,30 @@ function initializeFirebaseAdmin() {
     }
 }
 
-const firebaseAdminApp = initializeFirebaseAdmin();
-export const firestoreDb = firebaseAdminApp.firestore();
-export const authAdmin = firebaseAdminApp.auth();
-export const auth = authAdmin; // Alias for compatibility
-export const storageAdmin = firebaseAdminApp.storage();
-export const messagingAdmin = firebaseAdminApp.messaging();
+let firebaseAdminApp: admin.app.App | undefined;
+let firestoreDb: admin.firestore.Firestore | any;
+let authAdmin: admin.auth.Auth | any;
+let storageAdmin: admin.storage.Storage | any;
+let messagingAdmin: admin.messaging.Messaging | any;
+
+try {
+    firebaseAdminApp = initializeFirebaseAdmin();
+    firestoreDb = firebaseAdminApp.firestore();
+    authAdmin = firebaseAdminApp.auth();
+    storageAdmin = firebaseAdminApp.storage();
+    messagingAdmin = firebaseAdminApp.messaging();
+    console.log('✅ Firebase Admin: All services initialized successfully');
+} catch (error) {
+    console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
+    // Continue without crashing the whole module load - dependent calls will fail later with better context
+}
+
+export {
+    firestoreDb,
+    authAdmin,
+    storageAdmin,
+    messagingAdmin,
+    firebaseAdminApp,
+    initializeFirebaseAdmin
+};
+export const auth = authAdmin; // Alias

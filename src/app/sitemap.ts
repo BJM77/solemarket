@@ -22,7 +22,7 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
       .map(file => {
         const slug = file.replace('.json', '');
         return {
-          url: `${baseUrl}/guide/${slug}`,
+          url: `${baseUrl}/guide/topic/${slug}`,
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.9, // High priority for high-value content

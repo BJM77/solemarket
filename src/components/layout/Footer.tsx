@@ -18,10 +18,10 @@ const footerLinks = {
     { name: 'Comics & Books', href: '/collectibles/comics' },
   ],
   Resources: [
-    { name: 'Pokemon 1999 Guide', href: '/guide/pokemon-base-set-1999' },
-    { name: 'Michael Jordan Rookie', href: '/guide/1986-fleer-basketball' },
-    { name: '1930 Penny Value', href: '/guide/1930-australian-penny' },
-    { name: 'LeBron James Rookie', href: '/guide/2003-topps-chrome-basketball' },
+    { name: 'Pokemon 1999 Guide', href: '/guide/topic/pokemon-base-set-1999' },
+    { name: 'Michael Jordan Rookie', href: '/guide/topic/1986-fleer-basketball' },
+    { name: '1930 Penny Value', href: '/guide/topic/1930-australian-penny' },
+    { name: 'LeBron James Rookie', href: '/guide/topic/2003-topps-chrome-basketball' },
   ],
   Company: [
     { name: 'Our AI Tech', href: '/about' },

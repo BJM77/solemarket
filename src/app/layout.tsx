@@ -21,10 +21,18 @@ const outfit = Outfit({
 });
 
 // SITE_URL loaded from brand configuration
-const siteUrl = SITE_URL;
+const siteUrl = SITE_URL || 'https://picksy.au';
+
+let metadataBase: URL | undefined;
+try {
+  metadataBase = new URL(siteUrl);
+} catch (e) {
+  console.error("Invalid SITE_URL for metadataBase:", siteUrl);
+  metadataBase = new URL('https://picksy.au');
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase,
   alternates: {
     canonical: './',
     languages: {
