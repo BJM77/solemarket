@@ -7,8 +7,8 @@ service firebase.storage {
       return request.resource.contentType.matches('image/.*');
     }
     function isSizeValid() {
-      // Limit to 5MB
-      return request.resource.size < 5 * 1024 * 1024;
+      // Limit to 20MB
+      return request.resource.size < 20 * 1024 * 1024;
     }
 
     // Allow public read access to product images.

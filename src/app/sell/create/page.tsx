@@ -29,6 +29,7 @@ import { EbayPriceLookup } from '@/components/sell/EbayPriceLookup';
 import { doc } from 'firebase/firestore';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
+import imageCompression from 'browser-image-compression';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -168,19 +169,38 @@ export default function CreateListingPage() {
     loadDraft();
   }, [editId, user, form, toast]);
 
-  const addImages = useCallback((newFiles: File[]) => {
+  const addImages = useCallback(async (newFiles: File[]) => {
     const currentFiles = form.getValues('imageFiles');
     if (currentFiles.length + newFiles.length > 5) {
       toast({ title: "Maximum 5 images allowed.", variant: "destructive" });
       return;
     }
-    const validFiles: File[] = [];
+
+    const compressedFiles: File[] = [];
     const newPreviews: string[] = [];
-    newFiles.forEach(file => {
-      validFiles.push(file);
-      newPreviews.push(URL.createObjectURL(file));
-    });
-    form.setValue('imageFiles', [...currentFiles, ...validFiles], { shouldValidate: true });
+
+    // Compression options
+    const options = {
+      maxSizeMB: 1.5, // Aggressive compression for fast mobile uploads
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    for (const file of newFiles) {
+      try {
+        const compressedFile = await imageCompression(file, options);
+        compressedFiles.push(compressedFile);
+        newPreviews.push(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error('Image compression failed:', error);
+        // Fallback to original if compression fails (though risky for size limits)
+        compressedFiles.push(file);
+        newPreviews.push(URL.createObjectURL(file));
+        toast({ title: "Image compression warning", description: "Some images could not be compressed and might fail if too large.", variant: "destructive" });
+      }
+    }
+
+    form.setValue('imageFiles', [...currentFiles, ...compressedFiles], { shouldValidate: true });
     setImagePreviews(prev => [...prev, ...newPreviews]);
   }, [form, toast]);
 
