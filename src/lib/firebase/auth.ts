@@ -18,10 +18,11 @@ interface SignUpOptions {
   accountType: 'buyer' | 'seller';
   storeName?: string;
   storeDescription?: string;
+  referralCode?: string;
 }
 
 export async function signUpWithEmail(options: SignUpOptions) {
-  const { email, password, displayName, accountType, storeName, storeDescription } = options;
+  const { email, password, displayName, accountType, storeName, storeDescription, referralCode } = options;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -33,6 +34,7 @@ export async function signUpWithEmail(options: SignUpOptions) {
       email: user.email,
       displayName: user.displayName,
       accountType: accountType,
+      referralCode: referralCode, // Pass to profile
     };
 
     if (accountType === 'seller') {

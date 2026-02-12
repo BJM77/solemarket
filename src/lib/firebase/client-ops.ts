@@ -13,15 +13,33 @@ import { db, auth } from './config'; // Client SDK
 import type { Product, UserProfile, Donation, SafeUser } from '@/lib/types';
 import { processDonation } from '@/ai/flows/process-donation';
 
-export async function createUserProfile(uid: string, data: Partial<UserProfile>) {
-  await setDoc(doc(db, 'users', uid), {
+export async function createUserProfile(uid: string, data: Partial<UserProfile> & { referralCode?: string }) {
+  const isFounder = data.referralCode === 'FOUNDER';
+  
+  const profileData: any = {
     id: uid,
-    ...data,
     ...data,
     isVerified: false,
     verificationStatus: 'none',
     createdAt: serverTimestamp(),
-  }, { merge: true });
+  };
+
+  if (isFounder) {
+    profileData.isFounder = true;
+    profileData.feeDiscount = 100; // 100% discount
+    profileData.feeDiscountExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days from now
+    
+    // Auto-approve selling for founders if they selected seller account
+    if (data.accountType === 'seller') {
+        profileData.canSell = true;
+        profileData.sellerStatus = 'approved';
+    }
+  }
+
+  // Clean up referral code from stored profile if desired, or keep it for tracking
+  // We'll keep it as 'referredBy' potentially, but here just using it for logic
+
+  await setDoc(doc(db, 'users', uid), profileData, { merge: true });
 }
 
 export async function updateUserProfile(user: SafeUser, data: {

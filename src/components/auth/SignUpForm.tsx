@@ -60,6 +60,7 @@ function SignUpFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/';
+  const refCode = searchParams.get('ref');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -88,6 +89,7 @@ function SignUpFormInner() {
         accountType: values.accountType,
         storeName: values.storeName,
         storeDescription: values.storeDescription,
+        referralCode: refCode || undefined,
     });
 
     if (error) {
