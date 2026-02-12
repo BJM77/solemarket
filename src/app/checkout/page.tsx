@@ -261,26 +261,43 @@ export default function CheckoutPage() {
                 </Card>
               )}
 
-              {/* Payment Section (Mock for COD/Stripe) */}
-              <Card>
+              {/* Payment Section - ENFORCED DIGITAL ONLY */}
+              <Card className="border-primary/20 bg-primary/5">
                 <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    Payment Method
+                    <span className="text-xs font-normal px-2 py-1 bg-primary text-white rounded-full">Secure Only</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <p className="font-semibold">Cash on Delivery (COD) / Direct Arrangement</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {shippingMethod === 'pickup'
-                        ? "You will pay the seller directly upon meeting."
-                        : "Seller will contact you for payment (e.g., Bank Transfer, PayPal) before shipping."
-                      }
-                    </p>
+                <CardContent className="space-y-4">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border-4 border-primary" />
+                      <div>
+                        <p className="font-semibold text-gray-900">Credit / Debit Card</p>
+                        <p className="text-xs text-muted-foreground">Processed securely by Stripe</p>
+                      </div>
+                    </div>
                   </div>
+                  
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 opacity-60">
+                    <div className="flex items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border border-slate-300" />
+                      <div>
+                        <p className="font-semibold text-gray-500 line-through">Cash / Bank Transfer</p>
+                        <p className="text-xs text-red-500 font-medium">Disabled during Beta for your safety</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    By placing this order, you agree to our Terms of Service. Funds are held in secure escrow until the seller confirms shipment.
+                  </p>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" size="lg" className="w-full h-12 text-lg" disabled={isPending}>
+                  <Button type="submit" size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-                    Place Order (${formatPrice(totalAmount)})
+                    Pay Securely (${formatPrice(totalAmount)})
                   </Button>
                 </CardFooter>
               </Card>
