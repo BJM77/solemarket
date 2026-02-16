@@ -37,6 +37,8 @@ import { cn } from '@/lib/utils';
 import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
+import { exportAllProductsCSV } from '@/app/actions/export';
+import { Download } from 'lucide-react';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -115,7 +117,36 @@ function InfiniteProductGridInner({
   const [bulkPrice, setBulkPrice] = useState<string>('');
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
+
   const { toast } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Auth required");
+
+      const result = await exportAllProductsCSV(idToken);
+      if (result.error) throw new Error(result.error);
+
+      if (result.csv) {
+        const blob = new Blob([result.csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `products_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast({ title: "Export Successful", description: "Product data has been downloaded." });
+      }
+    } catch (error: any) {
+      toast({ title: "Export Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Price Assistant State
   const [assistantProduct, setAssistantProduct] = useState<{ id: string, title: string, price: number } | null>(null);

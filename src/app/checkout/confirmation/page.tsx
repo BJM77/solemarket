@@ -163,9 +163,20 @@ export default function ConfirmationPage() {
                                         setIsDisputeOpen(true);
                                     }}
                                 >
-                                    <AlertTriangle className="h-3 w-3" />
                                     Lodge Conflict Protocol (Report Issue)
                                 </Button>
+                                {order.sellerPaypalMeLink && order.status !== 'completed' && order.status !== 'cancelled' && (
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        className="gap-2 h-auto py-1 px-3 bg-[#0070BA] hover:bg-[#003087] text-white font-bold ml-auto"
+                                        asChild
+                                    >
+                                        <Link href={`${order.sellerPaypalMeLink}/${order.totalAmount}`} target="_blank" rel="noopener noreferrer">
+                                            Pay Now with PayPal
+                                        </Link>
+                                    </Button>
+                                )}
                             </CardFooter>
                         </Card>
                     ))}

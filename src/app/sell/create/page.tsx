@@ -77,7 +77,39 @@ export default function CreateListingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
-  const listingType = searchParams.get('type') as 'cards' | 'coins' | 'general' | null;
+  // State for persistent listing type
+  const [selectedType, setSelectedType] = useState<'cards' | 'coins' | 'general' | null>(null);
+
+  // Initialize from URL or localStorage
+  useEffect(() => {
+    const typeFromUrl = searchParams.get('type') as 'cards' | 'coins' | 'general' | null;
+    if (typeFromUrl) {
+      setSelectedType(typeFromUrl);
+      localStorage.setItem('preferredListingType', typeFromUrl);
+    } else {
+      const storedType = localStorage.getItem('preferredListingType') as 'cards' | 'coins' | 'general' | null;
+      if (storedType) {
+        setSelectedType(storedType);
+      }
+    }
+  }, [searchParams]);
+
+  const handleTypeSelect = (type: 'cards' | 'coins' | 'general') => {
+    setSelectedType(type);
+    localStorage.setItem('preferredListingType', type);
+    // Optional: update URL to reflect choice without reloading
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('type', type);
+    window.history.pushState({}, '', newUrl);
+  };
+
+  const changeType = () => {
+    setSelectedType(null);
+    localStorage.removeItem('preferredListingType');
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete('type');
+    window.history.pushState({}, '', newUrl);
+  };
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -158,6 +190,13 @@ export default function CreateListingPage() {
             year: data.year ? Number(data.year) : undefined,
           });
           setImagePreviews(data.imageUrls || []);
+
+          // Infer type from category if persistent type not set
+          if (!selectedType && data.category) {
+            if (data.category === 'Collector Cards') setSelectedType('cards');
+            else if (data.category === 'Coins') setSelectedType('coins');
+            else setSelectedType('general');
+          }
         }
       } catch (e) {
         console.error(e);
@@ -167,7 +206,7 @@ export default function CreateListingPage() {
       }
     };
     loadDraft();
-  }, [editId, user, form, toast]);
+  }, [editId, user, form, toast, selectedType]); // Added selectedType to deps but careful about loops
 
   const addImages = useCallback(async (newFiles: File[]) => {
     const currentFiles = form.getValues('imageFiles');
@@ -273,7 +312,7 @@ export default function CreateListingPage() {
       const listingData = {
         ...rest,
         imageUrls: finalUrls,
-        category: values.category || (listingType === 'cards' ? 'Collector Cards' : listingType === 'coins' ? 'Coins' : 'General'),
+        category: values.category || (selectedType === 'cards' ? 'Collector Cards' : selectedType === 'coins' ? 'Coins' : 'General'),
       };
 
       const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
@@ -291,7 +330,68 @@ export default function CreateListingPage() {
   };
 
 
-  const captureMode = listingType === 'cards' ? 'card' : listingType === 'coins' ? 'coin' : 'general';
+  const captureMode = selectedType === 'cards' ? 'card' : selectedType === 'coins' ? 'coin' : 'general';
+
+  // Show Selection Screen if no type selected
+  if (!selectedType && !isLoadingDraft) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-4xl w-full space-y-8">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-slate-900">What are you listing today?</h1>
+            <p className="text-slate-500">Select a category to customize your listing experience.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card
+              className="cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all group"
+              onClick={() => handleTypeSelect('cards')}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                  <div className="w-10 h-10 border-2 border-blue-600 group-hover:border-white rounded bg-white/50" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Trading Card</h3>
+                  <p className="text-sm text-slate-500">Pokemon, Sports, TCG</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:border-yellow-500 hover:shadow-lg transition-all group"
+              onClick={() => handleTypeSelect('coins')}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center group-hover:bg-yellow-500 transition-colors">
+                  <div className="w-10 h-10 border-2 border-yellow-600 group-hover:border-white rounded-full bg-yellow-200/50" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Coin / Bullion</h3>
+                  <p className="text-sm text-slate-500">Coins, Notes, Precious Metals</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:border-green-500 hover:shadow-lg transition-all group"
+              onClick={() => handleTypeSelect('general')}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-600 transition-colors">
+                  <GripVertical className="h-8 w-8 text-green-600 group-hover:text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">General Item</h3>
+                  <p className="text-sm text-slate-500">Everything else</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -301,7 +401,10 @@ export default function CreateListingPage() {
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => router.push('/sell/create')}><ChevronLeft className="h-5 w-5" /></Button>
-              <h1 className="text-xl font-bold text-slate-900">List {listingType === 'cards' ? 'a Card' : listingType === 'coins' ? 'a Coin' : 'Memorabilia'}</h1>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-slate-900 leading-none">List {selectedType === 'cards' ? 'a Card' : selectedType === 'coins' ? 'a Coin' : 'Item'}</h1>
+                <button onClick={changeType} className="text-xs text-blue-600 hover:underline text-left">Change Type</button>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={handleReview} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-white font-semibold">
@@ -318,7 +421,7 @@ export default function CreateListingPage() {
               <Card className="border-0 shadow-md">
                 <CardHeader className="bg-slate-900 text-white p-5">
                   <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Photos</CardTitle>
-                  <CardDescription className="text-slate-400">Target ratio: {listingType === 'cards' ? '5:7' : listingType === 'coins' ? '1:1' : '16:9'}</CardDescription>
+                  <CardDescription className="text-slate-400">Target ratio: {selectedType === 'cards' ? '5:7' : selectedType === 'coins' ? '1:1' : '16:9'}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                   <div className="grid grid-cols-2 gap-3">
@@ -346,7 +449,7 @@ export default function CreateListingPage() {
                 </CardContent>
               </Card>
 
-              {listingType === 'cards' && (
+              {selectedType === 'cards' && (
                 <EnhancedAICardGrader
                   onGradeComplete={(grade) => form.setValue('condition', grade)}
                   imageFiles={imageFiles}
@@ -379,9 +482,9 @@ export default function CreateListingPage() {
               </Card>
 
               <Card className="border-0 shadow-md">
-                <CardHeader><CardTitle>{listingType === 'cards' ? 'Card Specs' : listingType === 'coins' ? 'Coin Specs' : 'Item Specs'}</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{selectedType === 'cards' ? 'Card Specs' : selectedType === 'coins' ? 'Coin Specs' : 'Item Specs'}</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {listingType === 'cards' && (
+                  {selectedType === 'cards' && (
                     <>
                       <FormField control={form.control} name="year" render={({ field }) => (
                         <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
@@ -397,7 +500,7 @@ export default function CreateListingPage() {
                       )} />
                     </>
                   )}
-                  {listingType === 'coins' && (
+                  {selectedType === 'coins' && (
                     <>
                       <FormField control={form.control} name="year" render={({ field }) => (
                         <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
@@ -413,7 +516,7 @@ export default function CreateListingPage() {
                       )} />
                     </>
                   )}
-                  {listingType === 'general' && (
+                  {selectedType === 'general' && (
                     <>
                       <FormField control={form.control} name="dimensions" render={({ field }) => (
                         <FormItem><FormLabel>Dimensions (WxHxD)</FormLabel><FormControl><Input placeholder="30x40x10 cm" {...field} /></FormControl></FormItem>

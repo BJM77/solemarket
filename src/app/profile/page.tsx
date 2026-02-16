@@ -42,6 +42,7 @@ const profileSchema = z.object({
     .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.')
     .or(z.literal(''))
     .optional(),
+  paypalMeLink: z.string().url('Please enter a valid PayPal.me link (e.g. https://paypal.me/username)').or(z.literal('')).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -70,6 +71,7 @@ export default function ProfileDetailsPage() {
         storeDescription: (user as any).storeDescription || '',
         bannerUrl: (user as any).bannerUrl || '',
         shopSlug: (user as any).shopSlug || '',
+        paypalMeLink: (user as any).paypalMeLink || '',
       });
     }
   }, [user, form]);
@@ -264,6 +266,35 @@ export default function ProfileDetailsPage() {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="pt-6 border-t space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <ExternalLink className="h-5 w-5 text-blue-600" />
+                  Payment Settings
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Connect your payment methods to receive direct payments from buyers.
+                </p>
+
+                <FormField
+                  control={form.control}
+                  name="paypalMeLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        PayPal.me Link
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://paypal.me/yourusername" {...field} />
+                      </FormControl>
+                      <p className="text-[0.8rem] text-muted-foreground">
+                        Buyers will be directed here to pay you. Ensure your PayPal.me link is correct.
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

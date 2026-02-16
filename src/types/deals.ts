@@ -13,6 +13,13 @@ export interface DealRequirements {
     platinum: number;
 }
 
+export interface DealProgress {
+    bronze: number;
+    silver: number;
+    gold: number;
+    platinum: number;
+}
+
 export interface Deal {
     id: string;
     code: string; // e.g., "STARTER-PACK"

@@ -62,6 +62,13 @@ export function MainNavLinks() {
         </NavigationMenuItem>
 
 
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link href="/multilisting-deals" className={navigationMenuTriggerStyle()}>
+              Multi
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
 
         {features.bidsy && (
           <NavigationMenuItem>

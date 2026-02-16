@@ -3,7 +3,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from '@/lib/utils';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
@@ -41,6 +41,23 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
             // 1. Group items by seller
             const sellerGroups: Record<string, { items: any[], subtotal: number, sellerName: string }> = {};
+            const sellerIds = new Set<string>();
+
+            // Pre-scan to get seller IDs
+            productDocs.forEach((doc: any) => {
+                if (doc.exists) {
+                    const product = doc.data() as Product;
+                    if (product.sellerId) sellerIds.add(product.sellerId);
+                }
+            });
+
+            // Fetch seller profiles to get PayPal links
+            const sellerProfilesRefs = Array.from(sellerIds).map(id => firestoreDb.collection('users').doc(id));
+            const sellerProfilesDocs = await t.getAll(...sellerProfilesRefs);
+            const fetchedUsers: Record<string, any> = {};
+            sellerProfilesDocs.forEach((doc: any) => {
+                if (doc.exists) fetchedUsers[doc.id] = doc.data();
+            });
 
             for (let i = 0; i < items.length; i++) {
                 const doc = productDocs[i];
@@ -101,6 +118,10 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 const taxAmount = calculateTax(group.subtotal, settings.standardTaxRate);
                 const totalAmount = group.subtotal + shippingCost + taxAmount;
 
+                // Get the first product to determine seller - safe because group has items
+                // Use fetchedUsers to get PayPal link
+                const sellerPaypalLink = fetchedUsers[sellerId]?.paypalMeLink || null;
+
                 const newOrder = {
                     groupOrderId,
                     items: group.items,
@@ -120,6 +141,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     shippingAddress: options?.shippingAddress || null,
                     createdAt: FieldValue.serverTimestamp(),
                     updatedAt: FieldValue.serverTimestamp(),
+                    sellerPaypalMeLink: sellerPaypalLink,
                 };
 
                 t.set(orderRef, newOrder);

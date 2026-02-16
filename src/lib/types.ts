@@ -63,6 +63,7 @@ export type UserProfile = {
   warningCount?: number;
   isBanned?: boolean;
   shopSlug?: string;
+  paypalMeLink?: string;
 };
 
 export type Product = {

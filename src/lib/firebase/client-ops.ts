@@ -15,7 +15,7 @@ import { processDonation } from '@/ai/flows/process-donation';
 
 export async function createUserProfile(uid: string, data: Partial<UserProfile> & { referralCode?: string }) {
   const isFounder = data.referralCode === 'FOUNDER';
-  
+
   const profileData: any = {
     id: uid,
     ...data,
@@ -28,11 +28,11 @@ export async function createUserProfile(uid: string, data: Partial<UserProfile> 
     profileData.isFounder = true;
     profileData.feeDiscount = 100; // 100% discount
     profileData.feeDiscountExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days from now
-    
+
     // Auto-approve selling for founders if they selected seller account
     if (data.accountType === 'seller') {
-        profileData.canSell = true;
-        profileData.sellerStatus = 'approved';
+      profileData.canSell = true;
+      profileData.sellerStatus = 'approved';
     }
   }
 
@@ -49,6 +49,7 @@ export async function updateUserProfile(user: SafeUser, data: {
   storeDescription?: string;
   bannerUrl?: string;
   shopSlug?: string;
+  paypalMeLink?: string;
 }) {
   if (!user || !auth.currentUser) {
     throw new Error("User not authenticated.");
@@ -68,6 +69,7 @@ export async function updateUserProfile(user: SafeUser, data: {
     storeDescription: data.storeDescription || '',
     bannerUrl: data.bannerUrl || '',
     shopSlug: data.shopSlug || '',
+    paypalMeLink: data.paypalMeLink || '',
   });
 }
 
