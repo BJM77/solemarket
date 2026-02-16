@@ -115,21 +115,24 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 {/* Main Navigation Sections */}
                 <nav className="flex flex-col space-y-1">
                     <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Explore</h3>
-                    
+
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="cards" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
-                                <div className="flex items-center text-sm font-bold">
-                                    <CreditCard className="mr-3 h-4 w-4 text-primary" /> Cards
+                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
+                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                                        <CreditCard className="h-5 w-5" />
+                                    </div>
+                                    Cards
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
-                                <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/collector-cards')}>All Cards</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/category/pokemon-cards')}>Pokemon</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/category/nba-trading-cards')}>NBA</Button>
+                                <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
+                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/collector-cards')}>All Cards</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/category/pokemon-cards')}>Pokemon</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/category/nba-trading-cards')}>NBA</Button>
                                     {['WWE', 'NFL', 'AFL', 'Soccer', 'F1', 'Fantasy'].map(sub => (
-                                        <Button key={sub} variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick(`/collector-cards?subCategory=${sub}`)}>
+                                        <Button key={sub} variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick(`/collector-cards?subCategory=${sub}`)}>
                                             {sub}
                                         </Button>
                                     ))}
@@ -137,17 +140,20 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="coins" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
-                                <div className="flex items-center text-sm font-bold">
-                                    <Coins className="mr-3 h-4 w-4 text-primary" /> Coins
+                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
+                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="bg-yellow-100 text-yellow-600 p-2 rounded-lg mr-3">
+                                        <Coins className="h-5 w-5" />
+                                    </div>
+                                    Coins
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
-                                <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/coins')}>All Coins</Button>
+                                <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
+                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/coins')}>All Coins</Button>
                                     {['$2', '$1', '50c'].map(sub => (
-                                        <Button key={sub} variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick(`/coins?subCategory=${sub}`)}>
-                                            {sub} Coins
+                                        <Button key={sub} variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick(`/coins?subCategory=${sub}`)}>
+                                            {sub}
                                         </Button>
                                     ))}
                                 </div>
@@ -155,16 +161,19 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </AccordionItem>
                     </Accordion>
 
-                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/collectibles')}>
-                        <Gem className="mr-3 h-4 w-4 text-primary" /> Memorabilia
+                    <Button variant="ghost" className="justify-start text-base font-bold px-4 hover:bg-muted/50 rounded-xl h-14" onClick={() => handleLinkClick('/collectibles')}>
+                        <div className="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                            <Gem className="h-5 w-5" />
+                        </div>
+                        Memorabilia
                     </Button>
-                    
+
                     {features.bidsy && (
                         <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/bidsy')}>
                             <Zap className="mr-3 h-4 w-4 text-primary" /> Bidsy
                         </Button>
                     )}
-                    
+
                     {features.wtb && (
                         <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/wtb')}>
                             <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Wanted
@@ -175,7 +184,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 {/* Tools & Services Sections (Matching Desktop) */}
                 <nav className="flex flex-col space-y-1">
                     <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Tools & Services</h3>
-                    
+
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="tools" className="border-b-0">
                             <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
@@ -193,7 +202,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
-                        
+
                         <AccordionItem value="services" className="border-b-0">
                             <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
                                 <div className="flex items-center text-sm font-bold">
@@ -259,12 +268,14 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 {/* Full Categories Accordion (Explore All) */}
                 <div className="py-2 border-t border-dashed pt-4">
                     <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Explore All</h3>
-                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 w-full mb-1 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/browse')}>
-                        <Search className="mr-3 h-4 w-4 text-primary" /> All Listings
-                    </Button>
-                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 w-full mb-1 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/multilisting-deals')}>
-                        <LayoutGrid className="mr-3 h-4 w-4 text-primary" /> Multilisting Deals
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2 mb-2 px-4">
+                        <Button variant="default" className="w-full font-bold shadow-md shadow-primary/20" onClick={() => handleLinkClick('/browse')}>
+                            <Search className="mr-2 h-4 w-4" /> Browse All
+                        </Button>
+                        <Button variant="secondary" className="w-full font-bold text-primary" onClick={() => handleLinkClick('/multilisting-deals')}>
+                            <LayoutGrid className="mr-2 h-4 w-4" /> Deals
+                        </Button>
+                    </div>
                     <Accordion type="multiple" className="w-full">
                         {Object.entries(groupedCategories).map(([section, data]) => {
                             if (data.items.length === 0) return null;
@@ -344,7 +355,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile')}>
                                     <User className="mr-3 h-4 w-4 text-primary" /> My Profile
                                 </Button>
-                                
+
                                 {canSell && (
                                     <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/sell/dashboard')}>
                                         <LayoutDashboard className="mr-3 h-4 w-4 text-primary" /> Seller Dashboard
@@ -354,7 +365,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/favorites')}>
                                     <Heart className="mr-3 h-4 w-4 text-primary" /> My Favorites
                                 </Button>
-                                
+
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/orders')}>
                                     <CreditCard className="mr-3 h-4 w-4 text-primary" /> My Purchases
                                 </Button>
@@ -362,7 +373,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/listings')}>
                                     <Tag className="mr-3 h-4 w-4 text-primary" /> My Listings
                                 </Button>
-                                
+
                                 {canSell && (
                                     <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/sell/create')}>
                                         <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Sell Item

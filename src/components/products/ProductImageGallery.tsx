@@ -3,13 +3,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon } from 'lucide-react';
+import useEmblaCarousel from 'embla-carousel-react';
+import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ShieldCheck } from 'lucide-react';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -31,8 +30,24 @@ const conditionColors: Record<string, string> = {
 
 export default function ProductImageGallery({ images = [], title, isCard, condition, isAuthenticated, category }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
+
+  // Update selected index when embla carousel changes
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    // Sync external selectedIndex changes
+    if (emblaApi.selectedScrollSnap() !== selectedIndex) {
+      emblaApi.scrollTo(selectedIndex);
+    }
+  }, [emblaApi, onSelect, selectedIndex]); // Added selectedIndex dependency to sync thumbnail clicks
 
   const getAspectRatio = (cat?: string) => {
     switch (cat) {
@@ -50,15 +65,32 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
 
   const aspectRatio = getAspectRatio(category);
 
-  const goToPrevious = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+  const scrollPrev = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const goToSlide = (index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+    setSelectedIndex(index);
+  };
+
+  // Fullscreen Navigation (Separate logic as it doesn't use Embla)
+  const goToPreviousFullscreen = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   }, [images.length]);
 
-  const goToNext = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+  const goToNextFullscreen = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
     setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   }, [images.length]);
+
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -66,10 +98,10 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowLeft':
-          goToPrevious(e);
+          goToPreviousFullscreen(e);
           break;
         case 'ArrowRight':
-          goToNext(e);
+          goToNextFullscreen(e);
           break;
         case 'Escape':
           setIsFullscreen(false);
@@ -79,8 +111,11 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, goToPrevious, goToNext]);
+  }, [isFullscreen, goToPreviousFullscreen, goToNextFullscreen]);
 
+  // Mouse zoom handlers (only apply to the CURRENT slide if not using a carousel-wide overlay)
+  // Note: with Embla, attaching mouse moves to the container might be complex. 
+  // For simplicity mobile UX, we focus on swipe. Zoom on hover is kept simple.
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -98,62 +133,66 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
     });
   };
 
+  if (!images || images.length === 0) {
+    return (
+      <div className={cn("relative bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center text-gray-400", aspectRatio)}>
+        <div className="flex flex-col items-center">
+          <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
+          <span className="text-xs font-medium">No Image Available</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-4">
-        {/* Main Image */}
-        <div
-          className={cn("relative bg-gray-100 rounded-lg overflow-hidden group cursor-zoom-in", aspectRatio)}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onClick={() => setIsFullscreen(true)}
-        >
-          <AnimatePresence mode="wait">
-            {images.length > 0 ? (
-              <motion.div
-                key={selectedIndex}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="relative w-full h-full pointer-events-none"
-              >
-                <Image
-                  src={images[selectedIndex]}
-                  alt={`${title} - Image ${selectedIndex + 1}`}
-                  fill
-                  className="object-cover transition-transform duration-200 ease-out group-hover:scale-105"
-                  style={zoomStyle}
-                  priority={selectedIndex === 0}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  placeholder="blur"
-                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
-                />
-              </motion.div>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
-                <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
-                <span className="text-xs font-medium">No Image Available</span>
-              </div>
-            )}
-          </AnimatePresence>
+        {/* Main Carousel */}
+        <div className={cn("relative bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden group border border-gray-100 dark:border-gray-700", aspectRatio)}>
 
-          {/* Navigation Arrows */}
+          {/* Embla Viewport */}
+          <div className="overflow-hidden h-full" ref={emblaRef}>
+            <div className="flex h-full touch-pan-y"> {/* touch-pan-y allows vertical scroll on page while swiping horizontally */}
+              {images.map((src, index) => (
+                <div className="flex-[0_0_100%] min-w-0 relative h-full" key={index}>
+                  <div
+                    className="relative w-full h-full cursor-zoom-in"
+                    // Only enable hover zoom on desktop to avoid interfering with touch
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={() => setIsFullscreen(true)}
+                  >
+                    <Image
+                      src={src}
+                      alt={`${title} - Image ${index + 1}`}
+                      fill
+                      className="object-contain sm:object-cover" // Contain on mobile to see full card, cover on desktop
+                      style={index === selectedIndex ? zoomStyle : undefined}
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Arrows (Hidden on mobile usually - kept for desktop/tablet) */}
           {images.length > 1 && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10"
-                onClick={goToPrevious}
+                className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10 hidden sm:flex"
+                onClick={scrollPrev}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10"
-                onClick={goToNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10 hidden sm:flex"
+                onClick={scrollNext}
               >
                 <ChevronRight className="w-5 h-5" />
               </Button>
@@ -164,30 +203,39 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 hover:bg-black/40 text-white rounded-full h-8 w-8 z-10"
             onClick={(e) => { e.stopPropagation(); setIsFullscreen(true); }}
           >
-            <Maximize2 className="w-5 h-5" />
+            <Maximize2 className="w-4 h-4" />
           </Button>
 
+          {/* Badges Overlay */}
           <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none z-10">
             {condition && (
-              <Badge className={cn("border-none", conditionColors[condition] || 'bg-gray-100')}>
+              <Badge className={cn("border-none shadow-sm", conditionColors[condition] || 'bg-gray-100 text-gray-800')}>
                 {condition}
               </Badge>
             )}
             {isAuthenticated && (
-              <Badge className="bg-blue-100 text-blue-800 border-blue-200 border-none">
+              <Badge className="bg-blue-600 text-white border-none shadow-sm">
                 <ShieldCheck className="h-3 w-3 mr-1" />
-                Authenticated
+                Auth
               </Badge>
             )}
           </div>
 
-          {/* Image Counter */}
+          {/* Dots Indicator (Mobile Friendly) */}
           {images.length > 1 && (
-            <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs pointer-events-none z-10">
-              {selectedIndex + 1} / {images.length}
+            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-10">
+              {images.map((_, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all duration-300 shadow-sm",
+                    index === selectedIndex ? "bg-white w-4" : "bg-white/50"
+                  )}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -198,19 +246,18 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
             {images.map((image, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedIndex(index)}
-                className={`
-                  relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all
-                  ${index === selectedIndex ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-gray-300'}
-                `}
+                onClick={() => goToSlide(index)}
+                className={cn(
+                  "relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all",
+                  index === selectedIndex ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-gray-200'
+                )}
               >
                 <Image
                   src={image}
                   alt={`Thumbnail ${index + 1}`}
                   fill
+                  className="object-cover"
                   sizes="80px"
-                  placeholder="blur"
-                  blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                 />
               </button>
             ))}
@@ -218,30 +265,35 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
         )}
       </div>
 
-      {/* Fullscreen Modal */}
+      {/* Fullscreen Viewer (unchanged mostly, just hooked up to separate state) */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 bg-black/95 border-none shadow-none flex flex-col">
+        <DialogContent className="max-w-[100vw] w-full h-[100vh] p-0 bg-black border-none shadow-none flex flex-col focus:outline-none">
           <DialogTitle className="sr-only">
             Full-screen view of {title}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Viewing image {selectedIndex + 1} of {images.length}. Use arrow buttons or arrow keys to navigate.
+            Viewing image {selectedIndex + 1} of {images.length}.
           </DialogDescription>
 
-          <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden">
-            <Image
-              src={images[selectedIndex]}
-              alt={`${title} - Fullscreen`}
-              fill
-              sizes="100vw"
-              className="object-contain"
-            />
+          <div className="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden touch-none">
+            {/* Note: Could wrap this in another Embla carousel for swipe support in fullscreen too, 
+                 but keeping it simple with buttons/keys for now as per plan focus on inline gallery */}
+            <div className="relative w-full h-full">
+              <Image
+                src={images[selectedIndex]}
+                alt={`${title} - Fullscreen`}
+                fill
+                sizes="100vw"
+                className="object-contain"
+                priority
+              />
+            </div>
 
             {/* Close Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full h-10 w-10 z-50"
+              className="absolute top-4 right-4 text-white/80 hover:bg-white/20 hover:text-white rounded-full h-10 w-10 z-50"
               onClick={() => setIsFullscreen(false)}
             >
               <X className="w-6 h-6" />
@@ -253,47 +305,27 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full z-40"
-                  onClick={goToPrevious}
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-12 w-12 rounded-full z-40"
+                  onClick={goToPreviousFullscreen}
                 >
                   <ChevronLeft className="w-8 h-8" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full z-40"
-                  onClick={goToNext}
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-12 w-12 rounded-full z-40"
+                  onClick={goToNextFullscreen}
                 >
                   <ChevronRight className="w-8 h-8" />
                 </Button>
               </>
             )}
-          </div>
 
-          {/* Fullscreen Thumbnails */}
-          {images.length > 1 && (
-            <div className="h-24 bg-black/50 flex items-center justify-center p-4 border-t border-white/10">
-              <div className="flex gap-4 overflow-x-auto max-w-full px-4 scrollbar-hide">
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedIndex(index)}
-                    className={`
-                        relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all
-                        ${index === selectedIndex ? 'border-white ring-2 ring-white/50' : 'border-transparent opacity-50 hover:opacity-100'}
-                        `}
-                  >
-                    <Image
-                      src={image}
-                      alt={`Thumb ${index}`}
-                      fill
-                      sizes="80px"
-                    />
-                  </button>
-                ))}
-              </div>
+            {/* Fullscreen Count */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md rounded-full text-white text-sm font-medium border border-white/10">
+              {selectedIndex + 1} / {images.length}
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

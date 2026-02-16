@@ -66,6 +66,7 @@ import { incrementProductContactCount } from '@/app/actions/product-updates';
 import { OfferModal } from '@/components/products/OfferModal';
 import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
+import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 
 export default function ProductDetailsClient({
     productId,
@@ -806,6 +807,16 @@ export default function ProductDetailsClient({
                     productTitle={product.title}
                 />
             )}
-        </div >
+
+            {/* Mobile Sticky Footer */}
+            {product && (
+                <StickyProductFooter
+                    product={product}
+                    user={user as any}
+                    onAddToCart={handleAddToCart}
+                    isOwner={user?.uid === product.sellerId}
+                />
+            )}
+        </div>
     );
 }

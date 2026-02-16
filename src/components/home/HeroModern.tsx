@@ -23,23 +23,34 @@ export default function HeroModern() {
             <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
             <div className="absolute -right-24 top-1/2 -translate-y-1/2 w-[120vw] h-[120vw] md:w-[800px] md:h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none opacity-50 md:opacity-100" />
 
-            <div className="max-w-7xl mx-auto px-4 pt-20 pb-24 md:pt-32 md:pb-32 relative z-10 text-center">
-                <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+            <div className="max-w-7xl mx-auto px-4 pt-12 pb-16 md:pt-32 md:pb-32 relative z-10 text-center">
+                <h1 className="text-3xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
                     Australia's Premier Marketplace for <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
                         Trading Cards & Collectibles
                     </span>
                 </h1>
 
-                <p className="text-xl md:text-2xl font-medium text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+                <p className="text-lg md:text-2xl font-medium text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed">
                     Find what you love. Sell what you don't.
                 </p>
 
-                <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                {/* Mobile-only CTA */}
+                <div className="md:hidden w-full max-w-xs mx-auto mb-8">
+                    <Button
+                        size="lg"
+                        onClick={() => router.push('/browse')}
+                        className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20 rounded-xl"
+                    >
+                        Browse Market
+                    </Button>
+                </div>
+
+                <p className="hidden md:block text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed bg-white/50 backdrop-blur-sm rounded-lg p-2">
                     The safest marketplace for collectors. Verified sellers, escrow protection, and community-driven.
                 </p>
 
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
+                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative hidden md:block">
                     <div className="relative group">
                         <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all opacity-0 group-hover:opacity-100" />
                         <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-primary/5 border border-gray-100 dark:border-gray-700 p-2">
@@ -58,11 +69,25 @@ export default function HeroModern() {
                     </div>
                 </form>
 
-                <div className="mt-8 flex items-center justify-center gap-6 text-sm font-medium text-gray-400">
+                {/* Mobile Search Input (Simpler) */}
+                <form onSubmit={handleSearch} className="md:hidden max-w-xs mx-auto relative">
+                    <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 p-1">
+                        <Search className="h-4 w-4 text-gray-400 ml-3" />
+                        <Input
+                            type="text"
+                            placeholder="Search..."
+                            className="flex-1 border-none shadow-none focus-visible:ring-0 text-base h-10 bg-transparent placeholder:text-gray-400"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                    </div>
+                </form>
+
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:gap-6 text-sm font-medium text-gray-400">
                     <span>Popular:</span>
-                    <button onClick={() => router.push('/browse?q=Pokemon')} className="hover:text-primary transition-colors">Pokemon</button>
-                    <button onClick={() => router.push('/browse?q=NBA')} className="hover:text-primary transition-colors">NBA</button>
-                    <button onClick={() => router.push('/browse?q=Marvel')} className="hover:text-primary transition-colors">Marvel</button>
+                    <button onClick={() => router.push('/browse?q=Pokemon')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">Pokemon</button>
+                    <button onClick={() => router.push('/browse?q=NBA')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">NBA</button>
+                    <button onClick={() => router.push('/browse?q=Marvel')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">Marvel</button>
                 </div>
             </div>
         </section>

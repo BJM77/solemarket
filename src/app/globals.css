@@ -59,6 +59,8 @@
     max-width: 100%;
     width: 100%;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 80px;
   }
   img, svg, video, canvas, audio, iframe, embed, object {
     display: block;

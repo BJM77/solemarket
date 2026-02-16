@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getFeaturedProducts } from "@/app/actions/products";
 import HeroModern from "@/components/home/HeroModern";
-import CategoryRail from "@/components/home/CategoryRail";
+import CategoryGrid from "@/components/home/CategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,7 +43,7 @@ export default function HomePage() {
   return (
     <main>
       <HeroModern />
-      <CategoryRail />
+      <CategoryGrid />
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />
       </Suspense>
