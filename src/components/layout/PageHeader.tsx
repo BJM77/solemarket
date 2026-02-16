@@ -11,7 +11,7 @@ export function PageHeader({ title, description }: PageHeaderProps) {
                 {title}
             </h1>
             {description && (
-                <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground max-w-3xl">
+                <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground max-w-3xl hidden sm:block">
                     {description}
                 </p>
             )}

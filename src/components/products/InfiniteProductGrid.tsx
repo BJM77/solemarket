@@ -437,7 +437,7 @@ function InfiniteProductGridInner({
             </SelectContent>
           </Select>
 
-          <div className="flex items-center gap-0.5 sm:gap-1 bg-card border rounded-md p-0.5 sm:p-1 h-9 sm:h-10">
+          <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 bg-card border rounded-md p-0.5 sm:p-1 h-9 sm:h-10">
             <Button
               variant={currentSearchParams.category === 'Collector Cards' ? 'secondary' : 'ghost'}
               size="icon"
