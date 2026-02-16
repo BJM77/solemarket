@@ -12,7 +12,7 @@ const CATEGORIES = [
     { name: 'Comics', icon: Sparkles, href: '/collectibles/comics' },
     { name: 'Stamps', icon: Stamp, href: '/collectibles/stamps' },
     { name: 'Memorabilia', icon: Trophy, href: '/category/memorabilia' },
-    { name: 'All Cards', icon: CreditCard, href: '/category/collector-cards' },
+    { name: 'All Cards', icon: CreditCard, href: '/collector-cards' },
     { name: 'View All', icon: LayoutGrid, href: '/browse' },
 ];
 
