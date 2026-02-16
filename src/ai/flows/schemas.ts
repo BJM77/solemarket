@@ -33,6 +33,7 @@ export const suggestListingDetailsInputSchema = z.object({
     .max(5, 'A maximum of 5 images are allowed.')
     .default([]),
   title: z.string().optional().describe("User-provided title to help generate details if images are missing."),
+  category: z.string().optional().describe("User-selected category context."),
   idToken: z.string().describe('The Firebase ID token of the user.'),
 });
 export type SuggestListingDetailsInput = z.infer<typeof suggestListingDetailsInputSchema>;

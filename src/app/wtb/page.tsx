@@ -40,29 +40,7 @@ export default async function WTBBrowsePage() {
                 </div>
             </section>
 
-            {/* Stats Bar */}
-            <section className="border-b bg-muted/30">
-                <div className="container mx-auto max-w-screen-2xl px-4 py-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                        <div>
-                            <p className="text-2xl font-bold font-headline">{listings.length}</p>
-                            <p className="text-sm text-muted-foreground">Active Requests</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold font-headline">100%</p>
-                            <p className="text-sm text-muted-foreground">Verified Buyers</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold font-headline">Secure</p>
-                            <p className="text-sm text-muted-foreground">Private Messaging</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold font-headline">Free</p>
-                            <p className="text-sm text-muted-foreground">To List</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+
 
             {/* Listings Grid */}
             <section className="container mx-auto max-w-screen-2xl px-4 py-8">

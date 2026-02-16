@@ -63,6 +63,10 @@ const suggestListingDetailsPrompt = ai.definePrompt({
 Provided Title: {{title}}
 {{/if}}
 
+{{#if category}}
+Selected Category: {{category}}
+{{/if}}
+
 {{#if photoDataUris.length}}
 Images:
 {{#each photoDataUris}}

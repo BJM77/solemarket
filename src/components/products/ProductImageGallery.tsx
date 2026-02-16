@@ -47,7 +47,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
     if (emblaApi.selectedScrollSnap() !== selectedIndex) {
       emblaApi.scrollTo(selectedIndex);
     }
-  }, [emblaApi, onSelect, selectedIndex]); // Added selectedIndex dependency to sync thumbnail clicks
+  }, [emblaApi, onSelect, selectedIndex]);
 
   const getAspectRatio = (cat?: string) => {
     switch (cat) {
@@ -80,7 +80,6 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
     setSelectedIndex(index);
   };
 
-  // Fullscreen Navigation (Separate logic as it doesn't use Embla)
   const goToPreviousFullscreen = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
     e?.stopPropagation();
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -113,16 +112,13 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, goToPreviousFullscreen, goToNextFullscreen]);
 
-  // Mouse zoom handlers (only apply to the CURRENT slide if not using a carousel-wide overlay)
-  // Note: with Embla, attaching mouse moves to the container might be complex. 
-  // For simplicity mobile UX, we focus on swipe. Zoom on hover is kept simple.
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
     setZoomStyle({
       transformOrigin: `${x}% ${y}%`,
-      transform: 'scale(2.0)', // 2x Zoom
+      transform: 'scale(2.0)',
     });
   };
 
@@ -152,12 +148,11 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
 
           {/* Embla Viewport */}
           <div className="overflow-hidden h-full" ref={emblaRef}>
-            <div className="flex h-full touch-pan-y"> {/* touch-pan-y allows vertical scroll on page while swiping horizontally */}
+            <div className="flex h-full touch-pan-y">
               {images.map((src, index) => (
                 <div className="flex-[0_0_100%] min-w-0 relative h-full" key={index}>
                   <div
                     className="relative w-full h-full cursor-zoom-in"
-                    // Only enable hover zoom on desktop to avoid interfering with touch
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                     onClick={() => setIsFullscreen(true)}
@@ -166,7 +161,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                       src={src}
                       alt={`${title} - Image ${index + 1}`}
                       fill
-                      className="object-contain sm:object-cover" // Contain on mobile to see full card, cover on desktop
+                      className="object-contain sm:object-cover"
                       style={index === selectedIndex ? zoomStyle : undefined}
                       priority={index === 0}
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -177,7 +172,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
             </div>
           </div>
 
-          {/* Navigation Arrows (Hidden on mobile usually - kept for desktop/tablet) */}
+          {/* Navigation Arrows */}
           {images.length > 1 && (
             <>
               <Button
@@ -224,7 +219,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
             )}
           </div>
 
-          {/* Dots Indicator (Mobile Friendly) */}
+          {/* Dots Indicator */}
           {images.length > 1 && (
             <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-10">
               {images.map((_, index) => (
@@ -265,7 +260,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
         )}
       </div>
 
-      {/* Fullscreen Viewer (unchanged mostly, just hooked up to separate state) */}
+      {/* Fullscreen Viewer */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
         <DialogContent className="max-w-[100vw] w-full h-[100vh] p-0 bg-black border-none shadow-none flex flex-col focus:outline-none">
           <DialogTitle className="sr-only">
@@ -276,8 +271,6 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
           </DialogDescription>
 
           <div className="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden touch-none">
-            {/* Note: Could wrap this in another Embla carousel for swipe support in fullscreen too, 
-                 but keeping it simple with buttons/keys for now as per plan focus on inline gallery */}
             <div className="relative w-full h-full">
               <Image
                 src={images[selectedIndex]}
@@ -289,7 +282,6 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
               />
             </div>
 
-            {/* Close Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -299,7 +291,6 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
               <X className="w-6 h-6" />
             </Button>
 
-            {/* Navigation in Fullscreen */}
             {images.length > 1 && (
               <>
                 <Button
@@ -321,7 +312,6 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
               </>
             )}
 
-            {/* Fullscreen Count */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md rounded-full text-white text-sm font-medium border border-white/10">
               {selectedIndex + 1} / {images.length}
             </div>

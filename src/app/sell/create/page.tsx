@@ -1,35 +1,27 @@
 'use client';
 
-import { useState, useRef, ChangeEvent, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
-import { Upload, Trash2, DollarSign, Sparkles, Loader2, GripVertical, ShieldCheck, Eye, ImagePlus, ChevronLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
-import { CameraCapture } from '@/components/ui/camera-capture';
-import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
-import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
-import { EbayPriceLookup } from '@/components/sell/EbayPriceLookup';
-import { doc } from 'firebase/firestore';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
-import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
+import { doc } from 'firebase/firestore';
 import imageCompression from 'browser-image-compression';
+
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { ChevronLeft, ChevronRight, Eye, Loader2, Save } from 'lucide-react';
+import { WizardProgress } from '@/components/sell/wizard/WizardProgress';
+import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
+import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
+import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
+import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -73,48 +65,19 @@ const formSchema = z.object({
 
 type ListingFormValues = z.infer<typeof formSchema>;
 
+const STEPS = ['Type', 'Photos', 'Details', 'Pricing'];
+
 export default function CreateListingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
-  // State for persistent listing type
+
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedType, setSelectedType] = useState<'cards' | 'coins' | 'general' | null>(null);
-
-  // Initialize from URL or localStorage
-  useEffect(() => {
-    const typeFromUrl = searchParams.get('type') as 'cards' | 'coins' | 'general' | null;
-    if (typeFromUrl) {
-      setSelectedType(typeFromUrl);
-      localStorage.setItem('preferredListingType', typeFromUrl);
-    } else {
-      const storedType = localStorage.getItem('preferredListingType') as 'cards' | 'coins' | 'general' | null;
-      if (storedType) {
-        setSelectedType(storedType);
-      }
-    }
-  }, [searchParams]);
-
-  const handleTypeSelect = (type: 'cards' | 'coins' | 'general') => {
-    setSelectedType(type);
-    localStorage.setItem('preferredListingType', type);
-    // Optional: update URL to reflect choice without reloading
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('type', type);
-    window.history.pushState({}, '', newUrl);
-  };
-
-  const changeType = () => {
-    setSelectedType(null);
-    localStorage.removeItem('preferredListingType');
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete('type');
-    window.history.pushState({}, '', newUrl);
-  };
 
   const { toast } = useToast();
   const { user } = useUser();
   const { firestore } = useFirebase();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
@@ -134,7 +97,6 @@ export default function CreateListingPage() {
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      // ... existing defaults
       title: '',
       description: '',
       price: 0,
@@ -147,7 +109,6 @@ export default function CreateListingPage() {
       autoRepricingEnabled: false,
       isVault: false,
       imageFiles: [],
-      // Reset all specs - Use empty strings to prevent 'uncontrolled to controlled' warnings
       year: '' as any,
       manufacturer: '',
       cardNumber: '',
@@ -164,7 +125,6 @@ export default function CreateListingPage() {
       material: '',
       authentication: '',
       authenticationNumber: '',
-
       signer: '',
       multibuyEnabled: false,
       multibuyTiers: [],
@@ -174,9 +134,20 @@ export default function CreateListingPage() {
 
   const imageFiles = form.watch('imageFiles');
 
-  // Load draft if editId is present
+  // Initialize from persistence/URL
   useEffect(() => {
-    if (!user || !editId) return;
+    // 1. Check URL for step/type overrides if needed (optional)
+    // 2. Load draft if editId exists
+    if (!user || !editId) {
+      // Recover persistent type if no editId
+      const storedType = localStorage.getItem('preferredListingType') as 'cards' | 'coins' | 'general' | null;
+      if (storedType) {
+        setSelectedType(storedType);
+        setCurrentStep(1); // Skip to photos if type is known
+      }
+      return;
+    }
+
     const loadDraft = async () => {
       setIsLoadingDraft(true);
       try {
@@ -191,12 +162,12 @@ export default function CreateListingPage() {
           });
           setImagePreviews(data.imageUrls || []);
 
-          // Infer type from category if persistent type not set
-          if (!selectedType && data.category) {
-            if (data.category === 'Collector Cards') setSelectedType('cards');
-            else if (data.category === 'Coins') setSelectedType('coins');
-            else setSelectedType('general');
-          }
+          // Infer type
+          if (data.category === 'Collector Cards') setSelectedType('cards');
+          else if (data.category === 'Coins') setSelectedType('coins');
+          else setSelectedType('general');
+
+          setCurrentStep(1); // Jump to photos on draft load
         }
       } catch (e) {
         console.error(e);
@@ -206,47 +177,24 @@ export default function CreateListingPage() {
       }
     };
     loadDraft();
-  }, [editId, user, form, toast, selectedType]); // Added selectedType to deps but careful about loops
+  }, [editId, user, form, toast]);
 
-  const addImages = useCallback(async (newFiles: File[]) => {
+  // Handle Type Selection
+  const handleTypeSelect = (type: 'cards' | 'coins' | 'general') => {
+    setSelectedType(type);
+    localStorage.setItem('preferredListingType', type);
+    // Set default category
+    const cat = type === 'cards' ? 'Collector Cards' : type === 'coins' ? 'Coins' : 'General';
+    form.setValue('category', cat);
+    setCurrentStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleImagesChange = (newFiles: File[], newPreviews: string[]) => {
     const currentFiles = form.getValues('imageFiles');
-    if (currentFiles.length + newFiles.length > 5) {
-      toast({ title: "Maximum 5 images allowed.", variant: "destructive" });
-      return;
-    }
-
-    const compressedFiles: File[] = [];
-    const newPreviews: string[] = [];
-
-    // Compression options
-    const options = {
-      maxSizeMB: 1.5, // Aggressive compression for fast mobile uploads
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-
-    for (const file of newFiles) {
-      try {
-        const compressedFile = await imageCompression(file, options);
-        compressedFiles.push(compressedFile);
-        newPreviews.push(URL.createObjectURL(compressedFile));
-      } catch (error) {
-        console.error('Image compression failed:', error);
-        // Fallback to original if compression fails (though risky for size limits)
-        compressedFiles.push(file);
-        newPreviews.push(URL.createObjectURL(file));
-        toast({ title: "Image compression warning", description: "Some images could not be compressed and might fail if too large.", variant: "destructive" });
-      }
-    }
-
-    form.setValue('imageFiles', [...currentFiles, ...compressedFiles], { shouldValidate: true });
+    form.setValue('imageFiles', [...currentFiles, ...newFiles], { shouldValidate: true });
     setImagePreviews(prev => [...prev, ...newPreviews]);
-  }, [form, toast]);
-
-  const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    addImages(Array.from(e.target.files || []));
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [addImages]);
+  };
 
   const removeImage = (index: number) => {
     const currentFiles = form.getValues('imageFiles');
@@ -271,10 +219,11 @@ export default function CreateListingPage() {
 
       if (allUrls.length === 0) return;
       const idToken = await user.getIdToken();
-      const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, idToken });
+      const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
       if (suggestions) {
         Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
-        toast({ title: '✨ AI Magic Applied!' });
+        toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
+        // Optional: Auto-advance if confidence is high? For now, stay to let user verify.
       }
     } catch (error: any) {
       toast({ title: "Auto-Fill Failed", description: error.message, variant: "destructive" });
@@ -283,12 +232,41 @@ export default function CreateListingPage() {
     }
   };
 
-  const handleReview = async () => {
+  const nextStep = async () => {
+    const fieldsToValidate: any[] = [];
+    if (currentStep === 1) { // Photos
+      // Could enforce min 1 photo
+    } else if (currentStep === 2) { // Details
+      fieldsToValidate.push('title', 'category', 'condition');
+    }
+
+    if (fieldsToValidate.length > 0) {
+      const isValid = await form.trigger(fieldsToValidate);
+      if (!isValid) return;
+    }
+
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Final Step: Review/Submit
+      await handleSubmit();
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       const isValid = await form.trigger();
       if (!isValid) {
-        toast({ title: "Please fill in all required fields", variant: "destructive" });
+        toast({ title: "Please check all fields", variant: "destructive" });
         setIsSubmitting(false);
         return;
       }
@@ -318,8 +296,6 @@ export default function CreateListingPage() {
       const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
 
       toast({ title: "Draft Saved", description: "Proceeding to review..." });
-      // Redirect to a review page or dashboard? User request didn't specify, assuming dashboard or review.
-      // There is a 'review' folder in 'src/app/sell/review'.
       router.push(`/sell/review?draftId=${draftId}`);
 
     } catch (error: any) {
@@ -329,65 +305,16 @@ export default function CreateListingPage() {
     }
   };
 
+  if (isLoadingDraft) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
 
-  const captureMode = selectedType === 'cards' ? 'card' : selectedType === 'coins' ? 'coin' : 'general';
-
-  // Show Selection Screen if no type selected
-  if (!selectedType && !isLoadingDraft) {
+  // Step 0: Type Selection (Full Screen)
+  if (currentStep === 0) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-        <div className="max-w-4xl w-full space-y-8">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-slate-900">What are you listing today?</h1>
-            <p className="text-slate-500">Select a category to customize your listing experience.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card
-              className="cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all group"
-              onClick={() => handleTypeSelect('cards')}
-            >
-              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                  <div className="w-10 h-10 border-2 border-blue-600 group-hover:border-white rounded bg-white/50" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Trading Card</h3>
-                  <p className="text-sm text-slate-500">Pokemon, Sports, TCG</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="cursor-pointer hover:border-yellow-500 hover:shadow-lg transition-all group"
-              onClick={() => handleTypeSelect('coins')}
-            >
-              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center group-hover:bg-yellow-500 transition-colors">
-                  <div className="w-10 h-10 border-2 border-yellow-600 group-hover:border-white rounded-full bg-yellow-200/50" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Coin / Bullion</h3>
-                  <p className="text-sm text-slate-500">Coins, Notes, Precious Metals</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="cursor-pointer hover:border-green-500 hover:shadow-lg transition-all group"
-              onClick={() => handleTypeSelect('general')}
-            >
-              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-600 transition-colors">
-                  <GripVertical className="h-8 w-8 text-green-600 group-hover:text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">General Item</h3>
-                  <p className="text-sm text-slate-500">Everything else</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="max-w-4xl w-full">
+          <ListingTypeStep onSelect={handleTypeSelect} selectedType={selectedType} />
         </div>
       </div>
     );
@@ -396,225 +323,83 @@ export default function CreateListingPage() {
   return (
     <Form {...form}>
       <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
-      <div className="bg-slate-50 min-h-screen pb-20">
+      <div className="bg-slate-50 min-h-screen pb-32">
+        {/* Header */}
         <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.push('/sell/create')}><ChevronLeft className="h-5 w-5" /></Button>
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold text-slate-900 leading-none">List {selectedType === 'cards' ? 'a Card' : selectedType === 'coins' ? 'a Coin' : 'Item'}</h1>
-                <button onClick={changeType} className="text-xs text-blue-600 hover:underline text-left">Change Type</button>
-              </div>
+              <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
+              <h1 className="text-lg font-bold text-slate-900">
+                {currentStep === 1 ? 'Upload Photos' : currentStep === 2 ? 'Details' : 'Pricing & Review'}
+              </h1>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={handleReview} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-white font-semibold">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                Review
-              </Button>
+              <span className="text-sm font-medium text-slate-500">Step {currentStep} of 3</span>
+            </div>
+          </div>
+          {/* Progress Bar */}
+          <div className="container mx-auto px-4 pb-0">
+            <div className="h-1 w-full bg-slate-100">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(currentStep / 3) * 100}%` }}
+              />
             </div>
           </div>
         </div>
 
-        <main className="container mx-auto px-4 py-8 max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 space-y-6">
-              <Card className="border-0 shadow-md">
-                <CardHeader className="bg-slate-900 text-white p-5">
-                  <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Photos</CardTitle>
-                  <CardDescription className="text-slate-400">Target ratio: {selectedType === 'cards' ? '5:7' : selectedType === 'coins' ? '1:1' : '16:9'}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-5 space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center">
-                      <Upload className="h-8 w-8 text-primary" />
-                      <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
-                    </div>
-                    <div className="aspect-square">
-                      <CameraCapture onCapture={addImages} captureMode={captureMode} variant="hero" maxFiles={5 - imageFiles.length} />
-                    </div>
-                  </div>
-                  {imagePreviews.map((p, i) => (
-                    <div key={p} className="flex items-center gap-3 bg-white p-2 border rounded-lg">
-                      <div className="relative h-10 w-10 bg-slate-100 rounded overflow-hidden"><Image src={p} fill alt="thumb" className="object-cover" sizes="40px" /></div>
-                      <span className="flex-1 text-xs font-medium">Image {i + 1}</span>
-                      <Button variant="ghost" size="icon" onClick={() => removeImage(i)} className="text-red-500"><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  ))}
-                  {imageFiles.length > 0 && (
-                    <Button onClick={handleAutoFill} disabled={isAnalyzing} variant="outline" className="w-full">
-                      {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                      Auto-Fill with AI
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+        <main className="container mx-auto px-4 py-8 max-w-3xl">
+          {currentStep === 1 && (
+            <ImageUploadStep
+              imageFiles={imageFiles}
+              imagePreviews={imagePreviews}
+              onImagesChange={handleImagesChange}
+              onRemoveImage={removeImage}
+              onAutoFill={handleAutoFill}
+              isAnalyzing={isAnalyzing}
+              selectedType={selectedType || 'general'}
+              onGradeComplete={(grade) => form.setValue('condition', grade)}
+              onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
+              form={form}
+            />
+          )}
 
-              {selectedType === 'cards' && (
-                <EnhancedAICardGrader
-                  onGradeComplete={(grade) => form.setValue('condition', grade)}
-                  imageFiles={imageFiles}
-                  onApplySuggestions={(res) => {
-                    Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) });
-                  }}
-                />
-              )}
-            </div>
+          {currentStep === 2 && (
+            <DetailsStep
+              form={form}
+              selectedType={selectedType || 'general'}
+              subCategories={SUB_CATEGORIES}
+              conditionOptions={CONDITION_OPTIONS}
+            />
+          )}
 
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="border-0 shadow-md">
-                <CardHeader><CardTitle>Essential Information</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                  <FormField control={form.control} name="title" render={({ field }) => (
-                    <FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="Descriptive title..." {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="subCategory" render={({ field }) => (
-                      <FormItem><FormLabel>Specifc Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selection" /></SelectTrigger></FormControl><SelectContent>{(SUB_CATEGORIES[form.getValues('category')] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></FormItem>
-                    )} />
-                    <FormField control={form.control} name="condition" render={({ field }) => (
-                      <FormItem><FormLabel>Condition</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger></FormControl><SelectContent>{CONDITION_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></FormItem>
-                    )} />
-                  </div>
-                  <FormField control={form.control} name="description" render={({ field }) => (
-                    <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={4} {...field} /></FormControl></FormItem>
-                  )} />
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-md">
-                <CardHeader><CardTitle>{selectedType === 'cards' ? 'Card Specs' : selectedType === 'coins' ? 'Coin Specs' : 'Item Specs'}</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedType === 'cards' && (
-                    <>
-                      <FormField control={form.control} name="year" render={({ field }) => (
-                        <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="manufacturer" render={({ field }) => (
-                        <FormItem><FormLabel>Manufacturer</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="cardNumber" render={({ field }) => (
-                        <FormItem><FormLabel>Card #</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="gradingCompany" render={({ field }) => (
-                        <FormItem><FormLabel>Grading Co.</FormLabel><FormControl><Input placeholder="PSA, BGS, SGC..." {...field} /></FormControl></FormItem>
-                      )} />
-                    </>
-                  )}
-                  {selectedType === 'coins' && (
-                    <>
-                      <FormField control={form.control} name="year" render={({ field }) => (
-                        <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="denomination" render={({ field }) => (
-                        <FormItem><FormLabel>Denomination</FormLabel><FormControl><Input placeholder="e.g. $1, 50c..." {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="mintMark" render={({ field }) => (
-                        <FormItem><FormLabel>Mint Mark</FormLabel><FormControl><Input placeholder="e.g. P, D, S..." {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="metal" render={({ field }) => (
-                        <FormItem><FormLabel>Metal</FormLabel><FormControl><Input placeholder="Silver, Gold..." {...field} /></FormControl></FormItem>
-                      )} />
-                    </>
-                  )}
-                  {selectedType === 'general' && (
-                    <>
-                      <FormField control={form.control} name="dimensions" render={({ field }) => (
-                        <FormItem><FormLabel>Dimensions (WxHxD)</FormLabel><FormControl><Input placeholder="30x40x10 cm" {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="material" render={({ field }) => (
-                        <FormItem><FormLabel>Material</FormLabel><FormControl><Input placeholder="Leather, Canvas..." {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="authentication" render={({ field }) => (
-                        <FormItem><FormLabel>Authentication (COA)</FormLabel><FormControl><Input placeholder="Beckett, JSA..." {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={form.control} name="weight" render={({ field }) => (
-                        <FormItem><FormLabel>Weight</FormLabel><FormControl><Input placeholder="1.5 kg" {...field} /></FormControl></FormItem>
-                      )} />
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-md">
-                <CardHeader><CardTitle>Price & Quantity</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Price (AUD)</FormLabel><div className="relative"><DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /><FormControl><Input type="number" step="0.01" className="pl-9" {...field} /></FormControl></div><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="quantity" render={({ field }) => (
-                    <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl></FormItem>
-                  )} />
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" /> Selling Options
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="isNegotiable"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Allow Offers</FormLabel>
-                          <FormDescription className="text-[10px]">Buyers can make binding offers on this item.</FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isReverseBidding"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Reverse Bidding</FormLabel>
-                          <FormDescription className="text-[10px]">Lowest bid wins (Dutch auction style).</FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isVault"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Vault Item</FormLabel>
-                          <FormDescription className="text-[10px]">Specifically marked as a vaulted investment item.</FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <MultibuyConfig form={form} />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {currentStep === 3 && (
+            <PricingAndDeliveryStep form={form} />
+          )}
         </main>
+
+        {/* Floating Footer Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 z-40 safe-area-pb">
+          <div className="max-w-3xl mx-auto flex gap-4">
+            <Button variant="outline" size="lg" className="flex-1" onClick={prevStep}>
+              Back
+            </Button>
+            <Button size="lg" className="flex-[2] font-bold text-lg" onClick={nextStep} disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              {currentStep === 3 ? (
+                <>
+                  <Eye className="mr-2 h-5 w-5" /> Review Listing
+                </>
+              ) : (
+                <>
+                  Next <ChevronRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </Form>
   );
 }
+

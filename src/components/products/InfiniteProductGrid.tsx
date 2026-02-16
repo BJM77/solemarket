@@ -235,10 +235,20 @@ function InfiniteProductGridInner({
 
   const usersQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return query(collection(db, 'users'), where('accountType', '==', 'seller'));
-  }, [user?.uid]);
+    // RESTRICTION: Only admins can list users. Regular users cannot fetch the seller list.
+    // If we need this for public filtering, we must create a public 'sellers' collection or aggregation.
+    if (!isAdmin && userRole !== 'superadmin' && userRole !== 'admin') return null;
 
-  const { data: fetchedUsers } = useCollection<UserProfile>(usersQuery);
+    return query(collection(db, 'users'), where('accountType', '==', 'seller'));
+  }, [user?.uid, isAdmin, userRole]);
+
+  const { data: fetchedUsers, error: usersError } = useCollection<UserProfile>(usersQuery);
+
+  // Log permission errors for debugging but don't crash
+  useEffect(() => {
+    if (usersError) console.warn("Failed to fetch sellers:", usersError.message);
+  }, [usersError]);
+
   const availableSellers = useMemo(() => fetchedUsers || [], [fetchedUsers]);
 
   const createQueryString = useCallback(

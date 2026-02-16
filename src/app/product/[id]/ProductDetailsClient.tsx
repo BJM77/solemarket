@@ -797,6 +797,11 @@ export default function ProductDetailsClient({
 
             </div >
 
+            {/* Sticky Mobile Footer */}
+            {product && (
+                <StickyProductFooter product={product} user={isUserLoading ? null : user as any} />
+            )}
+
             {/* Guest Message Dialog */}
             {product && seller && (
                 <GuestMessageDialog
@@ -808,15 +813,7 @@ export default function ProductDetailsClient({
                 />
             )}
 
-            {/* Mobile Sticky Footer */}
-            {product && (
-                <StickyProductFooter
-                    product={product}
-                    user={user as any}
-                    onAddToCart={handleAddToCart}
-                    isOwner={user?.uid === product.sellerId}
-                />
-            )}
+
         </div>
     );
 }
