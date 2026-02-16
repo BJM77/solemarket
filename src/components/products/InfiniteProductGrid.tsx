@@ -36,6 +36,7 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { cn } from '@/lib/utils';
 import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CategoryPills } from './CategoryPills';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -518,6 +519,10 @@ function InfiniteProductGridInner({
           </div>
         </div>
       </header>
+
+      <div className="mb-6">
+        <CategoryPills />
+      </div>
 
       {isAdmin && (
         <div className="mb-4 flex items-center justify-between bg-secondary/20 p-2 rounded-lg">

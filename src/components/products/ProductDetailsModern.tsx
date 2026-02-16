@@ -64,6 +64,8 @@ import { BiddingInterface } from '@/components/products/BiddingInterface';
 import { acceptBidAction } from '@/app/actions/bidding';
 import { getRecentViewCount } from '@/app/actions/products';
 import { TrendingUp } from 'lucide-react';
+import { CategoryPills } from './CategoryPills';
+import { ProductHeaderInfo } from './ProductHeaderInfo';
 
 export default function ProductDetailsModern({
     productId,
@@ -382,6 +384,10 @@ export default function ProductDetailsModern({
                     )}
                 </nav>
 
+                <div className="mb-6">
+                    <CategoryPills />
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     {/* Left Column: Gallery & Description */}
                     <div className="lg:col-span-7 space-y-8">
@@ -393,6 +399,15 @@ export default function ProductDetailsModern({
                                 isCard={product.category === 'Collector Cards'}
                                 category={product.category}
                                 condition={product.condition}
+                            />
+                        </div>
+
+                        {/* Mobile Product Header (Title/Price) */}
+                        <div className="lg:hidden">
+                            <ProductHeaderInfo
+                                product={product}
+                                seller={seller}
+                                recentViews={recentViews}
                             />
                         </div>
 
@@ -502,40 +517,13 @@ export default function ProductDetailsModern({
                                     </div>
                                 )}
 
-                                {/* Seller Badge & Social Proof */}
-                                <div className="flex flex-wrap items-center gap-3 mb-4">
-                                    {seller?.isVerified && (
-                                        <div className="flex items-center gap-2">
-                                            <ShieldCheck className="text-primary h-5 w-5 fill-primary/10" />
-                                            <span className="text-xs font-bold text-primary uppercase tracking-widest">Verified Seller</span>
-                                        </div>
-                                    )}
-                                    {recentViews > 5 && (
-                                        <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50 animation-pulse-subtle">
-                                            <TrendingUp className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-                                            <span className="text-xs font-bold text-orange-700 dark:text-orange-300">
-                                                {recentViews} people viewed this in 24h
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <h1 className="text-3xl font-extrabold mb-2 leading-tight text-gray-900 dark:text-white">
-                                    {product.title}
-                                </h1>
-
-                                <div className="flex items-baseline gap-4 mb-6">
-                                    <span className="text-4xl font-black text-primary">
-                                        ${formatPrice(product.price)}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-gray-500 text-sm mb-8 pb-8 border-b border-gray-100 dark:border-gray-700">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>Australia</span>
-                                    <span className="mx-2">•</span>
-                                    <Clock className="h-4 w-4" />
-                                    <span>Posted {getRelativeTime(product.createdAt)}</span>
+                                {/* Desktop Product Header (Title/Price) */}
+                                <div className="hidden lg:block">
+                                    <ProductHeaderInfo
+                                        product={product}
+                                        seller={seller}
+                                        recentViews={recentViews}
+                                    />
                                 </div>
 
                                 <div className="space-y-4">
