@@ -4,13 +4,15 @@ import HeroModern from "@/components/home/HeroModern";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
+import { MarketTicker } from "@/components/home/MarketTicker";
+import { PlayerCollections } from "@/components/home/PlayerCollections";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} />;
+  return <TrendingGrid products={products} title="Starting Lineup" />;
 }
 
 function TrendingSkeleton() {
@@ -42,8 +44,10 @@ function TrendingSkeleton() {
 export default function HomePage() {
   return (
     <main>
+      <MarketTicker />
       <HeroModern />
       <CategoryGrid />
+      <PlayerCollections />
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />
       </Suspense>

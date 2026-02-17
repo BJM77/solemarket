@@ -18,7 +18,7 @@ const footerLinks = {
     { name: 'Puma', href: '/browse?category=Puma' },
   ],
   Support: [
-    { name: 'Authenticity Guarantee', href: '/authenticity' },
+    { name: 'Authenticity Guaranteed', href: '/authenticity' },
     { name: 'Selling Guide', href: '/sell/guide' },
     { name: 'Size Guide', href: '/size-guide' },
     { name: 'Help Center', href: '/help' },
