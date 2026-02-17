@@ -25,17 +25,17 @@ env:
 
   # Public Config
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: "AIzaSyBilO8ugwKfbJcboDEscBW0KxcVKSgsz98"
+    value: "AIzaSyAe9_0i_LMHWLDS4v33HQ28eOBNwOZ_X5g"
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: "studio-8322868971-8ca89.firebaseapp.com"
+    value: "studio-3973035687-658c0.firebaseapp.com"
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: "studio-8322868971-8ca89"
+    value: "studio-3973035687-658c0"
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: "studio-8322868971-8ca89.firebasestorage.app"
+    value: "studio-3973035687-658c0.firebasestorage.app"
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "295202021748"
+    value: "500786148926"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: "1:295202021748:web:24b96032447b758a034c21"
+    value: "1:500786148926:web:c723a2d60bce617b2d836f"
 
     
   # Application Config
