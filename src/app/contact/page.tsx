@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import ContactForm from '@/components/contact/ContactForm';
 
 export const metadata: Metadata = {
-    title: 'Contact Us | Picksy',
-    description: 'Get in touch with the Picksy team. We\'re here to help with any questions or feedback you may have.',
+    title: 'Contact Us | Benched',
+    description: 'Get in touch with the Benched team. We\'re here to help with any questions or feedback you may have.',
 };
 
 export default function ContactPage() {
@@ -22,7 +22,7 @@ export default function ContactPage() {
                 <div className="text-center p-6 border rounded-lg">
                     <div className="text-2xl mb-2">📧</div>
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-sm text-muted-foreground">support@picksy.au</p>
+                    <p className="text-sm text-muted-foreground">support@benched.au</p>
                 </div>
                 <div className="text-center p-6 border rounded-lg">
                     <div className="text-2xl mb-2">⏰</div>

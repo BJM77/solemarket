@@ -13,6 +13,7 @@ import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
 import { doc } from 'firebase/firestore';
 import imageCompression from 'browser-image-compression';
+import { SNEAKER_CATEGORIES } from '@/config/categories';
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -34,33 +35,22 @@ const formSchema = z.object({
   isReverseBidding: z.boolean().default(false),
   isNegotiable: z.boolean().default(false),
   autoRepricingEnabled: z.boolean().default(false),
-  isVault: z.boolean().default(false),
   imageFiles: z.array(z.any()).default([]),
-  // Specs
+  // Benched Specs
+  brand: z.string().optional(),
+  model: z.string().optional(), // For internal use or future
+  size: z.string().optional(),
+  styleCode: z.string().optional(),
+  colorway: z.string().optional(),
+  color: z.string().optional(),
   year: z.coerce.number().optional(),
-  manufacturer: z.string().optional(),
-  cardNumber: z.string().optional(),
-  grade: z.string().optional(),
-  gradingCompany: z.string().optional(),
-  certNumber: z.string().optional(),
-  denomination: z.string().optional(),
-  mintMark: z.string().optional(),
-  country: z.string().optional(),
-  metal: z.string().optional(),
-  purity: z.string().optional(),
-  weight: z.string().optional(),
-  dimensions: z.string().optional(),
   material: z.string().optional(),
-  authentication: z.string().optional(),
-  authenticationNumber: z.string().optional(),
-  signer: z.string().optional(),
   // Multibuy
   multibuyEnabled: z.boolean().default(false),
   multibuyTiers: z.array(z.object({
     minQuantity: z.coerce.number().min(2),
     discountPercent: z.coerce.number().min(1).max(100),
   })).optional(),
-  multiCardTier: z.string().optional(),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -73,7 +63,7 @@ export default function CreateListingPage() {
   const editId = searchParams.get('edit');
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<'cards' | 'coins' | 'general' | null>(null);
+  const [selectedType, setSelectedType] = useState<'sneakers' | 'accessories' | null>(null);
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -86,13 +76,16 @@ export default function CreateListingPage() {
   const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
   const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
-  const SUB_CATEGORIES: Record<string, string[]> = {
-    'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
-    'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
-    'Collectibles': marketplaceOptions?.subCategories?.collectibles || ['Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'],
-    'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
-  };
-  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
+  // Derive subcategories from config
+  const SUB_CATEGORIES: Record<string, string[]> = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    SNEAKER_CATEGORIES.forEach(cat => {
+      map[cat.name] = cat.subcategories?.map(sub => sub.name) || [];
+    });
+    return map;
+  }, []);
+
+  const CONDITION_OPTIONS: string[] = ['New with Box', 'New without Box', 'New with Defects', 'Used', 'Refurbished'];
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(formSchema),
@@ -107,28 +100,17 @@ export default function CreateListingPage() {
       isReverseBidding: false,
       isNegotiable: false,
       autoRepricingEnabled: false,
-      isVault: false,
       imageFiles: [],
+      brand: '',
+      model: '',
+      size: '',
+      styleCode: '',
+      colorway: '',
+      color: '',
       year: '' as any,
-      manufacturer: '',
-      cardNumber: '',
-      grade: '',
-      gradingCompany: '',
-      certNumber: '',
-      denomination: '',
-      mintMark: '',
-      country: '',
-      metal: '',
-      purity: '',
-      weight: '',
-      dimensions: '',
       material: '',
-      authentication: '',
-      authenticationNumber: '',
-      signer: '',
       multibuyEnabled: false,
       multibuyTiers: [],
-      multiCardTier: '',
     },
   });
 
@@ -136,11 +118,34 @@ export default function CreateListingPage() {
 
   // Initialize from persistence/URL
   useEffect(() => {
-    // 1. Check URL for step/type overrides if needed (optional)
+    // 1. Check URL for pre-fill data (from Scanner)
+    const title = searchParams.get('title');
+    if (title && !editId) {
+      // Pre-fill from URL
+      form.reset({
+        title: title || '',
+        category: searchParams.get('category') || 'Sneakers',
+        brand: searchParams.get('brand') || '',
+        model: searchParams.get('model') || '',
+        styleCode: searchParams.get('styleCode') || '',
+        colorway: searchParams.get('colorway') || '',
+        size: searchParams.get('size') || '',
+        condition: searchParams.get('condition') || '',
+        description: searchParams.get('description') || '',
+        // Defaults
+        price: 0,
+        quantity: 1,
+        imageFiles: [],
+      });
+      setSelectedType('sneakers');
+      setCurrentStep(1); // Jump to Photos
+      return;
+    }
+
     // 2. Load draft if editId exists
     if (!user || !editId) {
       // Recover persistent type if no editId
-      const storedType = localStorage.getItem('preferredListingType') as 'cards' | 'coins' | 'general' | null;
+      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'accessories' | null;
       if (storedType) {
         setSelectedType(storedType);
         setCurrentStep(1); // Skip to photos if type is known
@@ -163,9 +168,8 @@ export default function CreateListingPage() {
           setImagePreviews(data.imageUrls || []);
 
           // Infer type
-          if (data.category === 'Collector Cards') setSelectedType('cards');
-          else if (data.category === 'Coins') setSelectedType('coins');
-          else setSelectedType('general');
+          if (data.category === 'Sneakers') setSelectedType('sneakers');
+          else setSelectedType('accessories');
 
           setCurrentStep(1); // Jump to photos on draft load
         }
@@ -180,12 +184,13 @@ export default function CreateListingPage() {
   }, [editId, user, form, toast]);
 
   // Handle Type Selection
-  const handleTypeSelect = (type: 'cards' | 'coins' | 'general') => {
+  const handleTypeSelect = (type: 'sneakers' | 'accessories') => {
     setSelectedType(type);
     localStorage.setItem('preferredListingType', type);
     // Set default category
-    const cat = type === 'cards' ? 'Collector Cards' : type === 'coins' ? 'Coins' : 'General';
+    const cat = type === 'sneakers' ? 'Sneakers' : 'Accessories';
     form.setValue('category', cat);
+    // Auto-select first subcategory? No, let user choose.
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -219,11 +224,11 @@ export default function CreateListingPage() {
 
       if (allUrls.length === 0) return;
       const idToken = await user.getIdToken();
+      // TODO: Update suggestListingDetails to handle new fields
       const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
       if (suggestions) {
         Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
         toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
-        // Optional: Auto-advance if confidence is high? For now, stay to let user verify.
       }
     } catch (error: any) {
       toast({ title: "Auto-Fill Failed", description: error.message, variant: "destructive" });
@@ -290,7 +295,8 @@ export default function CreateListingPage() {
       const listingData = {
         ...rest,
         imageUrls: finalUrls,
-        category: values.category || (selectedType === 'cards' ? 'Collector Cards' : selectedType === 'coins' ? 'Coins' : 'General'),
+        category: values.category || (selectedType === 'sneakers' ? 'Sneakers' : 'Accessories'),
+        isVault: false,
       };
 
       const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
@@ -357,7 +363,7 @@ export default function CreateListingPage() {
               onRemoveImage={removeImage}
               onAutoFill={handleAutoFill}
               isAnalyzing={isAnalyzing}
-              selectedType={selectedType || 'general'}
+              selectedType={selectedType || 'general'} // 'general' fallback? Use accessories maybe
               onGradeComplete={(grade) => form.setValue('condition', grade)}
               onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
               form={form}
@@ -367,7 +373,7 @@ export default function CreateListingPage() {
           {currentStep === 2 && (
             <DetailsStep
               form={form}
-              selectedType={selectedType || 'general'}
+              selectedType={selectedType || 'accessories'}
               subCategories={SUB_CATEGORIES}
               conditionOptions={CONDITION_OPTIONS}
             />

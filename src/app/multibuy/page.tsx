@@ -3,10 +3,10 @@ import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Multibuy Deals | Picksy',
-    description: 'Shop items with bulk discounts. Buy more, save more on cards, coins, and collectibles.',
+    title: 'Multibuy Deals | Benched',
+    description: 'Shop items with bulk discounts. Buy more, save more on sneakers and streetwear.',
     openGraph: {
-        title: 'Multibuy Deals | Picksy',
+        title: 'Multibuy Deals | Benched',
         description: 'Shop items with bulk discounts. Buy more, save more.',
         type: 'website',
     },

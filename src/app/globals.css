@@ -1,51 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 6% 97%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base Colors */
+    --background: 0 0% 96%; /* Off White #F5F5F5 */
+    --foreground: 0 0% 7%; /* Matte Black #111111 */
+    
+    /* Surface Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.8 85.5% 53.1%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 346.8 77.2% 49.8%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.8 85.5% 53.1%;
-    --radius: 0.75rem;
+    --popover-foreground: 0 0% 7%;
+    
+    /* Brand Colors - Hoop Inspired */
+    --primary: 0 0% 7%;  /* Matte Black #111111 */
+    --primary-foreground: 0 0% 96%;
+    --secondary: 21 89% 54%;  /* Court Orange #F26A21 */
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Premium Neutrals */
+    --sneaker-cream: 40 33% 98%;
+    --sneaker-grey: 210 20% 96%;
+    --deep-black: 0 0% 4%;
+    
+    /* Utility Colors */
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 21 89% 54%; /* Court Orange */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Eco/Sustainability */
+    --eco-green: 147 50% 47%;
+    --eco-green-foreground: 0 0% 100%;
+    
+    /* Borders & Inputs */
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 21 89% 54%; /* Court Orange focus ring */
+    --radius: 1rem;
+    
+    /* Shadows - Elevation System */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px rgb(242 106 33 / 0.5);
+    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
-    --background: 224 24% 11%;
-    --foreground: 210 40% 98%;
-    --card: 224 23% 15%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 222.8 85.5% 53.1%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 346.8 77.2% 49.8%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 221.2 83.2% 58%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 21 89% 54%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 21 89% 54%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+    --eco-green: 147 50% 47%;
+    --eco-green-foreground: 0 0% 100%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 21 89% 54%;
+    --shadow-glow: 0 0 30px rgb(242 106 33 / 0.3);
   }
 }
 
@@ -53,6 +84,13 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
   html, body {
     @apply bg-background text-foreground overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -61,38 +99,200 @@
     position: relative;
     -webkit-tap-highlight-color: transparent;
     scroll-padding-top: 80px;
+    scroll-behavior: smooth;
   }
+  
   img, svg, video, canvas, audio, iframe, embed, object {
     display: block;
     max-width: 100%;
   }
+  
   ::selection {
     @apply bg-primary/20 text-primary;
   }
+
+  /* Typography Scale */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+  }
+  
+  h1 { font-size: clamp(2.5rem, 6vw, 5rem); }
+  h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
+  h3 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
 }
 
 @layer utilities {
+  /* Glassmorphism */
   .glass-card {
-    @apply bg-card/60 backdrop-blur-lg border border-border/20;
+    @apply bg-white/40 dark:bg-black/40 backdrop-blur-2xl border border-white/20 dark:border-white/10;
+    box-shadow: var(--shadow-premium);
   }
+  
   .glass-nav {
-    @apply bg-background/80 backdrop-blur-lg border-b border-border/20;
+    @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border-b border-border/10 sticky top-0 z-50;
   }
+  
+  /* Gradients */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent;
   }
-   .shimmer {
-    @apply bg-gradient-to-r from-transparent via-primary/10 to-transparent;
-    animation: shimmer 2s infinite;
+  
+  .gradient-bg-primary {
+    @apply bg-gradient-to-br from-primary via-primary to-blue-700;
+  }
+  
+  .gradient-bg-eco {
+    background: linear-gradient(135deg, hsl(var(--eco-green)) 0%, hsl(147, 60%, 55%) 100%);
+  }
+  
+  /* Animations */
+  .shimmer {
+    @apply bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    animation: shimmer 2.5s infinite linear;
     background-size: 200% 100%;
   }
+  
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .hover-lift {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .hover-lift:hover {
+    @apply -translate-y-3 shadow-2xl scale-[1.02];
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .slide-up {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Elevation Shadows */
+  .elevation-1 { box-shadow: var(--shadow-sm); }
+  .elevation-2 { box-shadow: var(--shadow-md); }
+  .elevation-3 { box-shadow: var(--shadow-lg); }
+  .elevation-4 { box-shadow: var(--shadow-xl); }
+  .elevation-premium { box-shadow: var(--shadow-premium); }
+  
+  /* Button Styles */
+  .btn-premium {
+    @apply gradient-bg-primary text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .btn-premium:hover {
+    @apply -translate-y-1;
+    box-shadow: var(--shadow-glow);
+  }
 
+  /* Container Sizes */
+  .container-tight {
+    @apply container max-w-4xl mx-auto px-4;
+  }
+  
+  .container-wide {
+    @apply container max-w-7xl mx-auto px-4;
+  }
+}
+
+@layer components {
+  /* Keyframe Animations */
   @keyframes shimmer {
-    0% {
-      background-position: 200% 0;
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
     }
-    100% {
-      background-position: -200% 0;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes particle {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    20% { opacity: 0.5; }
+    80% { opacity: 0.5; }
+    100% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(0); opacity: 0; }
+  }
+
+  /* Custom Utilities for Benched */
+  .sneaker-card-glow {
+    @apply relative overflow-hidden;
+  }
+
+  .sneaker-card-glow::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 80%);
+  }
+
+  .sneaker-card-glow:hover::after {
+    @apply opacity-100;
+  }
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/50 rounded-full;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
+
+/* Focus Styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
 }

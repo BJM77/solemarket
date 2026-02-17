@@ -6,28 +6,28 @@ import { SITE_NAME, brandConfig } from '@/config/brand';
 
 const footerLinks = {
   Marketplace: [
-    { name: 'Featured Assets', href: '/browse' },
-    { name: 'Recently Verified', href: '/browse?sort=verified-desc' },
-    { name: 'Auctions', href: '/browse?type=auction' },
-    { name: 'Private Sales', href: '/sell' },
+    { name: 'New Arrivals', href: '/browse?sort=newest' },
+    { name: 'Best Sellers', href: '/browse?sort=popular' },
+    { name: 'Sneakers', href: '/browse?category=Sneakers' },
   ],
-  Categories: [
-    { name: 'Pokemon Cards', href: '/category/pokemon-cards' },
-    { name: 'NBA Trading Cards', href: '/category/nba-trading-cards' },
-    { name: 'Coins & Bullion', href: '/coins' },
-    { name: 'Comics & Books', href: '/collectibles/comics' },
+  Brands: [
+    { name: 'Nike', href: '/browse?category=Nike' },
+    { name: 'Jordan', href: '/browse?category=Jordan' },
+    { name: 'Adidas', href: '/browse?category=Adidas' },
+    { name: 'Under Armour', href: '/browse?category=Under-Armour' },
+    { name: 'Puma', href: '/browse?category=Puma' },
   ],
-  Resources: [
-    { name: 'Pokemon 1999 Guide', href: '/guide/topic/pokemon-base-set-1999' },
-    { name: 'Michael Jordan Rookie', href: '/guide/topic/1986-fleer-basketball' },
-    { name: '1930 Penny Value', href: '/guide/topic/1930-australian-penny' },
-    { name: 'LeBron James Rookie', href: '/guide/topic/2003-topps-chrome-basketball' },
+  Support: [
+    { name: 'Authenticity Guarantee', href: '/authenticity' },
+    { name: 'Selling Guide', href: '/sell/guide' },
+    { name: 'Size Guide', href: '/size-guide' },
+    { name: 'Help Center', href: '/help' },
   ],
   Company: [
-    { name: 'Our AI Tech', href: '/about' },
-    { name: 'Grading Standards', href: '/how-it-works' },
-    { name: 'Authenticity Guarantee', href: '/vault' },
+    { name: `About ${SITE_NAME}`, href: '/about' },
     { name: 'Careers', href: '/about' },
+    { name: 'Terms', href: '/terms' },
+    { name: 'Privacy', href: '/privacy' },
   ],
 };
 

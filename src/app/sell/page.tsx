@@ -12,38 +12,31 @@ export default function SellPage() {
 
     const sellingOptions = [
         {
+            icon: Sparkles,
+            title: "Scan to List",
+            description: "Snap a photo of your sneaker. AI auto-fills the details for you.",
+            href: "/scan",
+            cta: "AI Scan"
+        },
+        {
             icon: Upload,
             title: "Create a Listing",
-            description: "Manually list any collectible. Perfect for single, unique items.",
+            description: "Manually list any sneaker or streetwear item. Perfect for single, unique items.",
             href: "/sell/create",
             cta: "List an Item"
         },
         {
             icon: FileText,
             title: "Bulk CSV Lister",
-            description: "Upload a CSV file with image names to create multiple listings at once.",
+            description: "Upload a CSV file to create multiple sneaker listings at once.",
             href: "/sell/bulk-csv-lister",
             cta: "Bulk Upload"
-        },
-        {
-            icon: Layers,
-            title: "Bulk AI Lister",
-            description: "Upload photos of multiple items and let AI generate listings for you.",
-            href: "/sell/bulk-lister",
-            cta: "List in Bulk"
-        },
-        {
-            icon: Gem,
-            title: "Sell Coins & Bullion",
-            description: "Specialized tools and categories for numismatics and precious metals.",
-            href: "/sell/create?type=Coins",
-            cta: "Sell Coins"
         }
     ];
 
     const features = [
         { icon: Sparkles, text: "AI-powered pricing and descriptions" },
-        { icon: CheckCircle, text: "Access to a trusted community of collectors" },
+        { icon: CheckCircle, text: "Access to a trusted community of sneakerheads" },
         { icon: Layers, text: "Tools for bulk listing and management" },
     ];
 
@@ -71,7 +64,7 @@ export default function SellPage() {
                                 Product listing is currently restricted to administrators. You can browse and purchase items from our curated collections.
                             </p>
                             <Button asChild size="lg" className="mt-8">
-                                <Link href="/browse">Browse Collectibles</Link>
+                                <Link href="/browse">Browse Sneakers</Link>
                             </Button>
                         </FadeIn>
                     </div>
@@ -86,10 +79,10 @@ export default function SellPage() {
                 <div className="text-center max-w-3xl mx-auto">
                     <FadeIn>
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 font-headline">
-                            Sell Your Collectibles Fast - Zero Fees on First Sale
+                            Sell Your Sneakers Fast - Zero Fees on First Sale
                         </h1>
                         <p className="mt-6 text-lg md:text-xl text-muted-foreground">
-                            Picksy provides powerful, AI-driven tools to make selling your collectibles faster and more profitable than ever before.
+                            Benched provides powerful, AI-driven tools to make selling your kicks faster and more profitable than ever before.
                         </p>
                         <Button asChild size="lg" className="mt-8">
                             <Link href="/sell/dashboard">View My Listings</Link>
@@ -97,7 +90,7 @@ export default function SellPage() {
                     </FadeIn>
                 </div>
 
-                <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+                <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
                     {sellingOptions.map((option, i) => (
                         <FadeIn key={option.title} delay={i * 0.1}>
                             <Card className="h-full flex flex-col text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -120,7 +113,7 @@ export default function SellPage() {
 
                 <FadeIn delay={0.5} className="mt-20">
                     <div className="text-center max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-gray-900">Why Sell on Picksy?</h2>
+                        <h2 className="text-3xl font-bold text-gray-900">Why Sell on Benched?</h2>
                         <ul className="mt-8 space-y-4 text-left">
                             {features.map((feature, i) => (
                                 <li key={i} className="flex items-center gap-3 bg-white p-4 rounded-lg border">

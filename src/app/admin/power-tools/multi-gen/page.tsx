@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
-import { quickSaveAndPublish } from '@/app/actions/multi-card';
+import { quickSaveAndPublish } from '@/app/actions/admin-bulk';
 import { ARCameraOverlay } from '@/components/ar-camera-overlay';
 import { motion, AnimatePresence } from 'framer-motion';
 

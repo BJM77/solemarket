@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 glass-nav z-50 px-3 md:px-10 py-3">
+      <header className="glass-nav z-50 px-3 md:px-10 py-3 transition-all duration-300 top-0 sticky">
         <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-2 md:gap-8">
           <div className="flex items-center gap-2 md:gap-8 flex-1">
             {isClient && <MobileNav />}

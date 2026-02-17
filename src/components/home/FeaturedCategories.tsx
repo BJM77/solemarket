@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, CreditCard, ToyBrick, Gamepad2, Star, Footprints, LayoutGrid, Loader2 } from "lucide-react";
+import { Shirt, Watch, ShoppingBag, Footprints, LayoutGrid, Loader2 } from "lucide-react";
 import { collection, query, getDocs, doc, getDoc } from "firebase/firestore";
 import { useFirebase } from "@/firebase";
 import type { Category } from "@/lib/types";
@@ -12,12 +12,10 @@ import type { Category } from "@/lib/types";
 // Helper to map category names to icons
 const getCategoryIcon = (name: string) => {
   const lowercaseName = name.toLowerCase();
-  if (lowercaseName.includes('pokemon')) return <Gamepad2 className="h-6 w-6" />;
-  if (lowercaseName.includes('coin')) return <Coins className="h-6 w-6" />;
-  if (lowercaseName.includes('barbie')) return <ToyBrick className="h-6 w-6" />;
-  if (lowercaseName.includes('nba') || lowercaseName.includes('card')) return <CreditCard className="h-6 w-6" />;
-  if (lowercaseName.includes('rookie')) return <Star className="h-6 w-6" />;
-  if (lowercaseName.includes('shoe')) return <Footprints className="h-6 w-6" />;
+  if (lowercaseName.includes('sneaker') || lowercaseName.includes('shoe') || lowercaseName.includes('jordan') || lowercaseName.includes('yeezy') || lowercaseName.includes('nike')) return <Footprints className="h-6 w-6" />;
+  if (lowercaseName.includes('streetwear') || lowercaseName.includes('clothing') || lowercaseName.includes('hoodie') || lowercaseName.includes('shirt') || lowercaseName.includes('tee')) return <Shirt className="h-6 w-6" />;
+  if (lowercaseName.includes('accessory') || lowercaseName.includes('watch') || lowercaseName.includes('bag') || lowercaseName.includes('hat') || lowercaseName.includes('cap')) return <Watch className="h-6 w-6" />;
+  if (lowercaseName.includes('bag') || lowercaseName.includes('tot')) return <ShoppingBag className="h-6 w-6" />;
   return <LayoutGrid className="h-6 w-6" />;
 };
 

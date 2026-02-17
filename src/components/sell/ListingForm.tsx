@@ -23,7 +23,6 @@ import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
-import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { doc } from 'firebase/firestore';
 import { updateListing } from '@/app/actions/seller-actions';
@@ -43,19 +42,20 @@ const formSchema = z.object({
     isNegotiable: z.boolean().default(false),
     autoRepricingEnabled: z.boolean().default(false),
     isVault: z.boolean().default(false),
-    imageFiles: z.array(z.any()).default([]),
-    // Specs
+    // Sneaker specific
+    brand: z.string().optional(),
+    model: z.string().optional(),
+    styleCode: z.string().optional(),
+    size: z.string().optional(),
+    colorway: z.string().optional(),
+
+    // Legacy/Generic
     year: z.coerce.number().optional(),
     manufacturer: z.string().optional(),
     cardNumber: z.string().optional(),
     grade: z.string().optional(),
     gradingCompany: z.string().optional(),
     certNumber: z.string().optional(),
-    denomination: z.string().optional(),
-    mintMark: z.string().optional(),
-    country: z.string().optional(),
-    metal: z.string().optional(),
-    purity: z.string().optional(),
     weight: z.string().optional(),
     dimensions: z.string().optional(),
     material: z.string().optional(),
@@ -68,6 +68,7 @@ const formSchema = z.object({
         minQuantity: z.number().min(2),
         discountPercent: z.number().min(1).max(50),
     })).default([]),
+    imageFiles: z.array(z.any()).default([]),
 }).refine(data => {
     if (data.isUntimed) return true;
     return data.price >= 0.01;
@@ -98,9 +99,12 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
     // Determine type from category
-    let listingType: 'cards' | 'coins' | 'general' = 'general';
-    if (initialData?.category === 'Collector Cards') listingType = 'cards';
-    else if (initialData?.category === 'Coins') listingType = 'coins';
+    // Default to general if not matched
+    let listingType: 'sneakers' | 'accessories' | 'cards' | 'general' = 'general';
+    const cat = initialData?.category || '';
+    if (cat === 'Sneakers') listingType = 'sneakers';
+    else if (cat === 'Accessories') listingType = 'accessories';
+    else if (cat === 'Collector Cards' || cat === 'Cards') listingType = 'cards';
 
     const form = useForm<ListingFormValues>({
         resolver: zodResolver(formSchema),
@@ -118,17 +122,20 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             isVault: initialData.isVault || false,
             isUntimed: initialData.isUntimed || false,
             imageFiles: initialData.imageUrls || [],
+
+            // New fields
+            brand: initialData.brand || '',
+            model: initialData.model || '',
+            styleCode: initialData.styleCode || '',
+            size: initialData.size || '',
+            colorway: initialData.colorway || '',
+
             year: initialData.year ? Number(initialData.year) : '' as any,
             manufacturer: initialData.manufacturer || '',
             cardNumber: initialData.cardNumber || '',
             grade: initialData.grade || '',
             gradingCompany: initialData.gradingCompany || '',
             certNumber: initialData.certNumber || '',
-            denomination: initialData.denomination || '',
-            mintMark: initialData.mintMark || '',
-            country: initialData.country || '',
-            metal: initialData.metal || '',
-            purity: initialData.purity || '',
             weight: initialData.weight || '',
             dimensions: initialData.dimensions || '',
             material: initialData.material || '',
@@ -140,12 +147,12 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         },
     });
 
-    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Collector Cards', 'Coins', 'Collectibles', 'General'];
-    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
+    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Sneakers', 'Accessories', 'Cards', 'General'];
+    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];
     const SUB_CATEGORIES: Record<string, string[]> = {
-        'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
-        'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
-        'Collectibles': marketplaceOptions?.subCategories?.collectibles || ['Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'],
+        'Sneakers': marketplaceOptions?.subCategories?.sneakers || ['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Other'],
+        'Accessories': marketplaceOptions?.subCategories?.accessories || ['Watches', 'Bags', 'Hats', 'Jewelry', 'Other'],
+        'Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
         'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
     };
 
@@ -153,8 +160,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
 
     const addImages = useCallback((newFiles: File[]) => {
         const currentFiles = form.getValues('imageFiles');
-        if (currentFiles.length + newFiles.length > 5) {
-            toast({ title: "Maximum 5 images allowed.", variant: "destructive" });
+        if (currentFiles.length + newFiles.length > 8) {
+            toast({ title: "Maximum 8 images allowed.", variant: "destructive" });
             return;
         }
         const validFiles: File[] = [];
@@ -245,7 +252,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         }
     };
 
-    const captureMode = listingType === 'cards' ? 'card' : listingType === 'coins' ? 'coin' : 'general';
+    const captureMode = listingType === 'cards' ? 'card' : 'general';
 
     return (
         <Form {...form}>
@@ -281,7 +288,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                                         </div>
                                         <div className="aspect-square">
-                                            <CameraCapture onCapture={addImages} captureMode={captureMode} variant="hero" maxFiles={5 - imageFiles.length} />
+                                            <CameraCapture onCapture={addImages} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
                                         </div>
                                     </div>
                                     {imagePreviews.map((p, i) => (
@@ -299,16 +306,6 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                     )}
                                 </CardContent>
                             </Card>
-
-                            {listingType === 'cards' && (
-                                <EnhancedAICardGrader
-                                    onGradeComplete={(grade) => form.setValue('condition', grade)}
-                                    imageFiles={imageFiles}
-                                    onApplySuggestions={(res) => {
-                                        Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) });
-                                    }}
-                                />
-                            )}
                         </div>
 
                         <div className="lg:col-span-2 space-y-6">
@@ -354,8 +351,30 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                             </Card>
 
                             <Card className="border-0 shadow-md">
-                                <CardHeader><CardTitle>{listingType === 'cards' ? 'Card Specs' : listingType === 'coins' ? 'Coin Specs' : 'Item Specs'}</CardTitle></CardHeader>
+                                <CardHeader><CardTitle>{listingType === 'cards' ? 'Card Specs' : listingType === 'sneakers' ? 'Product Specs' : 'Item Specs'}</CardTitle></CardHeader>
                                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {listingType === 'sneakers' && (
+                                        <>
+                                            <FormField control={form.control} name="brand" render={({ field }) => (
+                                                <FormItem><FormLabel>Brand</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="model" render={({ field }) => (
+                                                <FormItem><FormLabel>Model</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="styleCode" render={({ field }) => (
+                                                <FormItem><FormLabel>Style Code</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="size" render={({ field }) => (
+                                                <FormItem><FormLabel>Size</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="colorway" render={({ field }) => (
+                                                <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="year" render={({ field }) => (
+                                                <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+                                            )} />
+                                        </>
+                                    )}
                                     {listingType === 'cards' && (
                                         <>
                                             <FormField control={form.control} name="year" render={({ field }) => (
@@ -372,23 +391,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             )} />
                                         </>
                                     )}
-                                    {listingType === 'coins' && (
-                                        <>
-                                            <FormField control={form.control} name="year" render={({ field }) => (
-                                                <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
-                                            )} />
-                                            <FormField control={form.control} name="denomination" render={({ field }) => (
-                                                <FormItem><FormLabel>Denomination</FormLabel><FormControl><Input placeholder="e.g. $1, 50c..." {...field} /></FormControl></FormItem>
-                                            )} />
-                                            <FormField control={form.control} name="mintMark" render={({ field }) => (
-                                                <FormItem><FormLabel>Mint Mark</FormLabel><FormControl><Input placeholder="e.g. P, D, S..." {...field} /></FormControl></FormItem>
-                                            )} />
-                                            <FormField control={form.control} name="metal" render={({ field }) => (
-                                                <FormItem><FormLabel>Metal</FormLabel><FormControl><Input placeholder="Silver, Gold..." {...field} /></FormControl></FormItem>
-                                            )} />
-                                        </>
-                                    )}
-                                    {listingType === 'general' && (
+                                    {listingType === 'general' || listingType === 'accessories' && (
                                         <>
                                             <FormField control={form.control} name="dimensions" render={({ field }) => (
                                                 <FormItem><FormLabel>Dimensions (WxHxD)</FormLabel><FormControl><Input placeholder="30x40x10 cm" {...field} /></FormControl></FormItem>

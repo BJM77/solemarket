@@ -87,20 +87,34 @@ export type Product = {
   detectedAttributes?: {
     year?: number | null;
     brand?: string | null;
-    player?: string | null;
-    grade?: string | null;
+    model?: string | null;
+    styleCode?: string | null;
+    size?: string | null;
+    colorway?: string | null;
   };
   status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold'; // Added on_hold
   holdReason?: string;
   isPrivate?: boolean;
   approvedAt?: Timestamp;
   publicReleaseAt?: Timestamp;
+
+  // Sneaker Specifics
+  brand?: string;
+  model?: string;
+  styleCode?: string;
+  size?: string;
+  colorway?: string;
+  color?: string;
+  material?: string;
+
+  // Legacy / Other
   gradingCompany?: 'PSA' | 'BGS' | 'CGC' | 'SGC' | 'Raw';
   grade?: string;
   certNumber?: string;
   year?: number;
   manufacturer?: string;
   cardNumber?: string;
+
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
   soldAt?: any;
@@ -113,7 +127,6 @@ export type Product = {
   quantity?: number;
   views?: number; // Total views (non-unique)
   uniqueViews?: number; // Unique views for auto-repricing
-
   lastViewedTimestamp?: Timestamp; // Timestamp of the most recent view for auto-repricing
   isVault?: boolean;
   // New Auction Fields
@@ -151,6 +164,7 @@ export type ProductSearchParams = {
   priceRange?: [number, number];
   conditions?: string[];
   categories?: string[];
+  sizes?: string[];
   sellers?: string[];
   yearRange?: [number, number];
   verifiedOnly?: boolean;
@@ -283,6 +297,7 @@ export interface Category {
   showInNav?: boolean;
   isPopular?: boolean;
   order?: number;
+  subcategories?: { id: string; name: string; slug: string; parentId: string; }[];
 }
 
 
@@ -335,5 +350,21 @@ export interface WTBMessage {
   sellerName: string;
   message: string;
   status: 'pending' | 'read' | 'replied';
+  createdAt: Timestamp;
+}
+
+// Advertising System
+export interface Advertisement {
+  id: string;
+  title: string;
+  advertiserName: string;
+  linkUrl: string;
+  imageUrl: string;
+  placement: 'home_hero_footer' | 'grid_interstitial' | 'drops_header';
+  status: 'active' | 'paused' | 'scheduled' | 'ended';
+  startDate: Timestamp;
+  endDate: Timestamp;
+  impressions: number;
+  clicks: number;
   createdAt: Timestamp;
 }

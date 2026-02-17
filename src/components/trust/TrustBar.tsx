@@ -9,8 +9,8 @@ export default function TrustBar() {
                         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
                             <ShieldCheck className="h-7 w-7" />
                         </div>
-                        <h3 className="font-bold text-lg mb-2">Buyer Protection</h3>
-                        <p className="text-gray-500 text-sm">Every payment is held in escrow until you verify the item.</p>
+                        <h3 className="font-bold text-lg mb-2">Authenticity Guarantee</h3>
+                        <p className="text-gray-500 text-sm">Every pair is verified by our experts before shipping.</p>
                     </div>
 
                     <div className="flex flex-col items-center text-center p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
@@ -26,7 +26,7 @@ export default function TrustBar() {
                             <UserCheck className="h-7 w-7" />
                         </div>
                         <h3 className="font-bold text-lg mb-2">Community Driven</h3>
-                        <p className="text-gray-500 text-sm">Join thousands of collectors buying and selling daily.</p>
+                        <p className="text-gray-500 text-sm">Join thousands of sneakerheads buying and selling daily.</p>
                     </div>
                 </div>
             </div>

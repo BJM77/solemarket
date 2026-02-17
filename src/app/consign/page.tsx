@@ -16,7 +16,7 @@ export default function ConsignPage() {
                 <div className="container mx-auto px-4 py-20 md:py-28">
                     <div className="max-w-4xl mx-auto text-center">
                         <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-                            Turn Your Collectibles into Cash, Effortlessly
+                            Turn Your Kicks into Cash, Effortlessly
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-blue-100 font-light">
                             Maximize Your Returns, Minimize Your Effort.
@@ -50,19 +50,15 @@ export default function ConsignPage() {
                 {/* What We Accept Section */}
                 <div className="max-w-5xl mx-auto mb-20 text-center">
                     <h2 className="text-4xl font-bold mb-4">What We Accept</h2>
-                    <p className="text-lg text-gray-600 mb-12">We specialize in a wide range of high-value collectibles. If you have quality items, we can sell them.</p>
+                    <p className="text-lg text-gray-600 mb-12">We specialize in a wide range of high-value items. If you have heat, we can sell it.</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
                             <Gem className="h-10 w-10 text-blue-600 mb-3" />
-                            <span className="font-semibold text-center">Sports & Trading Cards</span>
-                        </div>
-                        <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
-                            <Bitcoin className="h-10 w-10 text-orange-500 mb-3" />
-                            <span className="font-semibold text-center">Coins & Banknotes</span>
+                            <span className="font-semibold text-center">Sneakers</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
                             <BookOpen className="h-10 w-10 text-green-600 mb-3" />
-                            <span className="font-semibold text-center">Comic Books</span>
+                            <span className="font-semibold text-center">Accessories</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
                             <Boxes className="h-10 w-10 text-purple-600 mb-3" />
@@ -70,7 +66,7 @@ export default function ConsignPage() {
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
                             <Star className="h-10 w-10 text-yellow-500 mb-3" />
-                            <span className="font-semibold text-center">Other Graded Items</span>
+                            <span className="font-semibold text-center">Grails</span>
                         </div>
                     </div>
                 </div>
@@ -78,7 +74,7 @@ export default function ConsignPage() {
                 {/* Why Consign Section */}
                 <div className="max-w-5xl mx-auto mb-20">
                     <h2 className="text-4xl font-bold text-center mb-12">
-                        The Picksy Advantage
+                        The Benched Advantage
                     </h2>
 
                     <div className="grid md:grid-cols-2 gap-8">
@@ -203,7 +199,7 @@ export default function ConsignPage() {
                                         <Star className="text-yellow-400" />
                                         <Star className="text-yellow-400" />
                                     </div>
-                                    <p className="text-gray-700 italic mb-4">"The entire process was seamless. I sent my cards in, and Picksy handled the rest. The final sale price exceeded my expectations. Highly recommend for anyone who values their time and privacy."</p>
+                                    <p className="text-gray-700 italic mb-4">"The entire process was seamless. I sent my kicks in, and Benched handled the rest. The final sale price exceeded my expectations. Highly recommend for anyone who values their time and privacy."</p>
                                     <p className="font-semibold">- David R., Private Collector</p>
                                 </CardContent>
                             </Card>

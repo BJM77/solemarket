@@ -40,7 +40,7 @@ env:
     
   # Application Config
   - variable: NEXT_PUBLIC_SITE_URL
-    value: "https://picksy.au"
+    value: "https://benched.au"
   - variable: NEXT_PUBLIC_USE_EMULATORS
     value: "false"
   - variable: NODE_ENV

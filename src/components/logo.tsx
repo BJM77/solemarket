@@ -1,13 +1,16 @@
-import { Sparkles } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export function Logo({ className }: { className?: string }) {
     return (
-        <div className={cn("flex items-center gap-2 text-primary", className)}>
-            <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                <Sparkles className="h-5 w-5" />
-            </div>
-            <h2 className="text-[#0d121b] dark:text-white text-xl font-black leading-tight tracking-tight">Picksy</h2>
+        <div className={cn("flex items-center gap-2", className)}>
+            <Image 
+                src="/logo.svg" 
+                alt="Benched Logo" 
+                width={120} 
+                height={36} 
+                className="h-9 w-auto dark:invert"
+            />
         </div>
     );
 }

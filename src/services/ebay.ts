@@ -56,7 +56,6 @@ class EbayService {
             q: query,
             limit: limit.toString(),
             sort: 'price',
-            filter: 'buyingOptions:{FIXED_PRICE|AUCTION},conditions:{USED|NEW|EXCELLENT|VERY_GOOD|GOOD|FAIR|POOR}',
         });
 
         const url = `${baseUrl}/buy/browse/v1/item_summary/search?${params}`;
@@ -68,7 +67,7 @@ class EbayService {
 
         // Add Affiliate Tracking Headers if Campaign ID is present
         if (this.config.campaignId) {
-            headers['X-EBAY-C-ENDUSERCTX'] = `affiliateCampaignId=${this.config.campaignId},affiliateReferenceId=picksy_research`;
+            headers['X-EBAY-C-ENDUSERCTX'] = `affiliateCampaignId=${this.config.campaignId},affiliateReferenceId=solemarket_research`;
         }
 
         const response = await fetch(url, { headers });

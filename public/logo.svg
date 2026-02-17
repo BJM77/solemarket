@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+    </style>
+  </defs>
+  <rect width="200" height="60" fill="transparent"/>
+  <text x="10" y="45" font-family="'Inter', sans-serif" font-weight="900" font-size="40" fill="#111111">BENCHED</text>
+  <path d="M10 52 L190 52" stroke="#F26A21" stroke-width="6" stroke-linecap="square"/>
+</svg>

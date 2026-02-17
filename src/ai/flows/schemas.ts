@@ -41,7 +41,7 @@ export type SuggestListingDetailsInput = z.infer<typeof suggestListingDetailsInp
 export const suggestListingDetailsOutputSchema = z.object({
   title: z
     .string()
-    .describe('A concise, descriptive, and SEO-friendly title for the listing.'),
+    .describe('A concise, descriptive, and SEO-friendly title for the listing (e.g., "Air Jordan 1 High OG Chicago Lost and Found").'),
   description: z
     .string()
     .describe(
@@ -52,12 +52,15 @@ export const suggestListingDetailsOutputSchema = z.object({
     .describe(
       'An estimated market price for the item in AUD, based on the provided images and analysis of similar items.'
     ),
-  category: z.string().describe("The single best category from this list: 'Collector Cards', 'Coins', 'Collectibles'."),
-  subCategory: z.string().describe("The single best sub-category based on the main category. For 'Collector Cards', choose from: 'Sports Cards', 'Trading Cards', 'Pokemon'. For 'Coins', use: 'Coins', 'World Coins', 'Ancient Coins', 'Bullion'. For 'Collectibles', use: 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'."),
-  condition: z.string().describe("The single best condition from this list: 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'."),
-  manufacturer: z.string().describe("The manufacturer or brand of the item (e.g., 'Topps', 'Nintendo', 'US Mint')."),
-  year: z.number().describe("The year the item was manufactured or released."),
-  cardNumber: z.string().optional().describe("The card number, typically found at the bottom of a collector card (e.g., '4/102', 'RC12')."),
+  category: z.string().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories'."),
+  subCategory: z.string().describe("The single best sub-category. For 'Sneakers': 'Men\'s Sneakers', 'Women\'s Sneakers', 'Youth (GS)', 'Infant & Toddler'. For 'Streetwear': 'T-Shirts', 'Hoodies & Sweatshirts', 'Outerwear', 'Bottoms'. For 'Accessories': 'Bags', 'Hats & Beanies', 'Socks', 'Sneaker Care'."),
+  condition: z.string().describe("The single best condition from this list: 'New with Box', 'New without Box', 'New with Defects', 'Used', 'Refurbished'."),
+  brand: z.string().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'New Balance')."),
+  model: z.string().optional().describe("The model name (e.g., 'Air Jordan 1', 'Yeezy Boost 350')."),
+  styleCode: z.string().optional().describe("The unique style code (e.g., 'DZ5485-612'). Found on size tag."),
+  colorway: z.string().optional().describe("The colorway name (e.g., 'Chicago', 'Zebra', 'Bred')."),
+  size: z.string().optional().describe("The size of the item (e.g., '10.5', 'L', 'OS')."),
+  year: z.number().optional().describe("The year the item was manufactured or released."),
 });
 export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
 

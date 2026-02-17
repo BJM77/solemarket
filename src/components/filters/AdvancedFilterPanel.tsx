@@ -26,20 +26,24 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X, SlidersHorizontal } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const CATEGORIES = [
-    'Collector Cards',
-    'Coins',
-    'Collectibles',
+    'Sneakers',
+    'Accessories',
+];
+
+
+const SIZES = [
+    'US 4', 'US 4.5', 'US 5', 'US 5.5', 'US 6', 'US 6.5', 'US 7', 'US 7.5', 'US 8', 'US 8.5',
+    'US 9', 'US 9.5', 'US 10', 'US 10.5', 'US 11', 'US 11.5', 'US 12', 'US 12.5', 'US 13', 'US 14', 'US 15'
 ];
 
 const CONDITIONS = [
-    'Mint',
-    'Near Mint',
-    'Excellent',
-    'Good',
-    'Fair',
-    'Poor',
+    'New with Box',
+    'New without Box',
+    'Used',
+    'Worn',
 ];
 
 const SORT_OPTIONS = [
@@ -100,6 +104,14 @@ export default function AdvancedFilterPanel({
         handleLocalChange('conditions', newConditions.length > 0 ? newConditions : undefined);
     };
 
+    const toggleSize = (size: string) => {
+        const currentSizes = (localFilters.sizes as string[]) || [];
+        const newSizes = currentSizes.includes(size)
+            ? currentSizes.filter(s => s !== size)
+            : [...currentSizes, size];
+        handleLocalChange('sizes', newSizes.length > 0 ? newSizes : undefined);
+    };
+
     const activeFilterCount = Object.keys(currentFilters).filter(
         key => !['view', 'sort', 'page'].includes(key) && currentFilters[key as keyof ProductSearchParams]
     ).length;
@@ -120,23 +132,23 @@ export default function AdvancedFilterPanel({
                     )}
                 </Button>
             </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>Advanced Filters</SheetTitle>
-                    <SheetDescription>
-                        Refine your search with detailed filters
+            <SheetContent className="w-full sm:max-w-lg overflow-y-auto border-l-0" side="right">
+                <SheetHeader className="text-left pb-6 border-b border-border/10">
+                    <SheetTitle className="text-3xl font-black uppercase tracking-tight">Filters</SheetTitle>
+                    <SheetDescription className="font-medium text-muted-foreground">
+                        Refine your search for the perfect pair.
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="py-6 space-y-6">
+                <div className="py-8 space-y-10">
                     {/* Sort */}
                     <div className="space-y-3">
-                        <Label className="text-base font-semibold">Sort By</Label>
+                        <Label className="text-base font-bold">Sort By</Label>
                         <Select
                             value={localFilters.sort as string || 'createdAt-desc'}
                             onValueChange={(value) => handleLocalChange('sort', value)}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="h-12">
                                 <SelectValue placeholder="Select sort order" />
                             </SelectTrigger>
                             <SelectContent>
@@ -147,6 +159,33 @@ export default function AdvancedFilterPanel({
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <Separator />
+
+                    {/* Size Grid (Visual) */}
+                    <div className="space-y-3">
+                        <Label className="text-base font-bold">Size (US Men)</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                            {SIZES.map(size => {
+                                const isSelected = (localFilters.sizes as string[] || []).includes(size);
+                                const simpleSize = size.replace('US ', '');
+                                return (
+                                    <button
+                                        key={size}
+                                        onClick={() => toggleSize(size)}
+                                        className={cn(
+                                            "h-12 rounded-md border text-sm font-medium transition-all",
+                                            isSelected
+                                                ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
+                                                : "border-gray-200 bg-white text-gray-900 hover:border-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:border-gray-100"
+                                        )}
+                                    >
+                                        {simpleSize}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     <Separator />

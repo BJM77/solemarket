@@ -1,14 +1,30 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, ShieldCheck, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { AdUnit } from '@/components/ads/AdUnit';
+import { cn } from '@/lib/utils';
 
 export default function HeroModern() {
     const router = useRouter();
     const [query, setQuery] = useState('');
+    const [particles, setParticles] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Generate particles only on the client
+        const newParticles = [...Array(12)].map((_, i) => ({
+            id: i,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            duration: 5 + Math.random() * 5,
+            x: (Math.random() - 0.5) * 200,
+            y: (Math.random() - 0.5) * 200,
+        }));
+        setParticles(newParticles);
+    }, []);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,76 +34,125 @@ export default function HeroModern() {
     };
 
     return (
-        <section className="relative overflow-hidden bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-            {/* Background Decor */}
-            <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-            <div className="absolute -right-24 top-1/2 -translate-y-1/2 w-[120vw] h-[120vw] md:w-[800px] md:h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none opacity-50 md:opacity-100" />
+        <section className="relative overflow-hidden bg-white dark:bg-deep-black min-h-[80vh] flex items-center border-b border-border/10">
+            {/* Background Decor & Particles */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 inset-x-0 h-full bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-50" />
+                <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[100px]" />
+                
+                {/* Simulated Particles */}
+                {particles.map((p) => (
+                    <div 
+                        key={p.id}
+                        className="absolute w-1 h-1 bg-primary/20 rounded-full"
+                        style={{
+                            top: p.top,
+                            left: p.left,
+                            animation: `particle ${p.duration}s infinite linear`,
+                            '--tw-translate-x': `${p.x}px`,
+                            '--tw-translate-y': `${p.y}px`,
+                        } as any}
+                    />
+                ))}
+            </div>
 
-            <div className="max-w-7xl mx-auto px-4 pt-12 pb-16 md:pt-32 md:pb-32 relative z-10 text-center">
-                <h1 className="text-3xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
-                    Australia's Premier Marketplace for <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
-                        Trading Cards & Collectibles
-                    </span>
-                </h1>
+            <div className="max-w-[1440px] mx-auto px-4 md:px-10 w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12 md:py-24">
+                <div className="text-left slide-up">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">Live Market Data Active</span>
+                    </div>
 
-                <p className="text-lg md:text-2xl font-medium text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed">
-                    Find what you love. Sell what you don't.
-                </p>
+                    <h1 className="text-4xl md:text-7xl font-black text-gray-900 dark:text-white tracking-tight mb-6 leading-[0.95]">
+                        These kicks aren't done. <br />
+                        <span className="gradient-text">
+                            They're just Benched.
+                        </span>
+                    </h1>
 
-                {/* Mobile-only CTA */}
-                <div className="md:hidden w-full max-w-xs mx-auto mb-8">
-                    <Button
-                        size="lg"
-                        onClick={() => router.push('/browse')}
-                        className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20 rounded-xl"
-                    >
-                        Browse Market
-                    </Button>
-                </div>
+                    <p className="text-lg md:text-xl font-medium text-gray-600 dark:text-gray-400 max-w-xl mb-10 leading-relaxed">
+                        Performance basketball sneakers waiting for their second half. <br className="hidden md:block" />
+                        The safest way to rotate your lineup.
+                    </p>
 
-                <p className="hidden md:block text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed bg-white/50 backdrop-blur-sm rounded-lg p-2">
-                    The safest marketplace for collectors. Verified sellers, escrow protection, and community-driven.
-                </p>
+                    <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                        <form onSubmit={handleSearch} className="flex-1 max-w-md relative group">
+                            <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all opacity-0 group-hover:opacity-100" />
+                            <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-border/50 p-1.5">
+                                <Search className="h-5 w-5 text-gray-400 ml-4" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search the lineup..."
+                                    className="flex-1 border-none shadow-none focus-visible:ring-0 text-base h-12 bg-transparent placeholder:text-gray-400"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+                                <Button size="lg" type="submit" className="h-11 px-6 rounded-xl font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 text-white">
+                                    GO
+                                </Button>
+                            </div>
+                        </form>
+                        <Button 
+                            variant="outline" 
+                            size="lg" 
+                            onClick={() => router.push('/sell/create')}
+                            className="h-14 px-8 rounded-2xl font-bold border-2 hover:bg-gray-50 transition-all"
+                        >
+                            Put Yours on the Bench
+                        </Button>
+                    </div>
 
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative hidden md:block">
-                    <div className="relative group">
-                        <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all opacity-0 group-hover:opacity-100" />
-                        <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-primary/5 border border-gray-100 dark:border-gray-700 p-2">
-                            <Search className="h-6 w-6 text-gray-400 ml-4" />
-                            <Input
-                                type="text"
-                                placeholder="Search cards, coins, comics..."
-                                className="flex-1 border-none shadow-none focus-visible:ring-0 text-lg h-14 bg-transparent placeholder:text-gray-400"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                            />
-                            <Button size="lg" type="submit" className="h-12 px-8 rounded-xl font-bold text-base shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-                                Search
-                            </Button>
+                    {/* Stats Counter */}
+                    <div className="flex items-center gap-8 md:gap-12 pt-8 border-t border-border/10">
+                        <div>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">100%</p>
+                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Authentic</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">5k+</p>
+                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Listings</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl md:text-3xl font-black text-primary">0%</p>
+                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Selling Fees</p>
                         </div>
                     </div>
-                </form>
+                </div>
 
-                {/* Mobile Search Input (Simpler) */}
-                <form onSubmit={handleSearch} className="md:hidden max-w-xs mx-auto relative">
-                    <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 p-1">
-                        <Search className="h-4 w-4 text-gray-400 ml-3" />
-                        <Input
-                            type="text"
-                            placeholder="Search..."
-                            className="flex-1 border-none shadow-none focus-visible:ring-0 text-base h-10 bg-transparent placeholder:text-gray-400"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                <div className="hidden lg:block relative float">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-[150px] scale-75 animate-pulse" />
+                    <div className="relative z-10 scale-110 -rotate-12 hover:rotate-0 transition-transform duration-700">
+                        <img 
+                            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=1000" 
+                            alt="Hero Sneaker" 
+                            className="w-full h-auto drop-shadow-[0_35px_35px_rgba(0,0,0,0.4)] rounded-3xl"
                         />
                     </div>
-                </form>
+                    
+                    {/* Floating Badges */}
+                    <div className="absolute top-10 -left-10 glass-card p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-2xl">
+                        <div className="bg-emerald-500 p-2 rounded-lg text-white">
+                            <ShieldCheck className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-black uppercase text-foreground">Verified</p>
+                            <p className="text-[10px] text-muted-foreground">Expert Authenticated</p>
+                        </div>
+                    </div>
 
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:gap-6 text-sm font-medium text-gray-400">
-                    <span>Popular:</span>
-                    <button onClick={() => router.push('/browse?q=Pokemon')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">Pokemon</button>
-                    <button onClick={() => router.push('/browse?q=NBA')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">NBA</button>
-                    <button onClick={() => router.push('/browse?q=Marvel')} className="hover:text-primary transition-colors bg-gray-100 md:bg-transparent px-3 py-1 rounded-full md:p-0 text-gray-600 md:text-gray-400">Marvel</button>
+                    <div className="absolute bottom-10 -right-10 glass-card p-4 rounded-2xl flex items-center gap-3 animate-pulse shadow-2xl delay-700">
+                        <div className="bg-orange-500 p-2 rounded-lg text-white">
+                            <Zap className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-black uppercase text-foreground">Fast Shipping</p>
+                            <p className="text-[10px] text-muted-foreground">2-3 Business Days</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

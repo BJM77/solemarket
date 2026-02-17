@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -9,7 +8,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck } from 'lucide-react';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import {
   DropdownMenu,
@@ -384,15 +383,12 @@ export default function ProductCard({
 
   const getAspectRatio = (category: string) => {
     switch (category) {
-      case 'Coins':
+      case 'Sneakers':
+        return 'aspect-[4/3]';
+      case 'Accessories':
         return 'aspect-square';
-      case 'Memorabilia':
-      case 'Collectibles':
-      case 'General':
-        return 'aspect-video';
-      case 'Collector Cards':
       default:
-        return 'aspect-[5/7]';
+        return 'aspect-square';
     }
   };
 
@@ -402,7 +398,7 @@ export default function ProductCard({
     const parts = [];
     const title = product.title || '';
     const year = product.year?.toString() || '';
-    const manufacturer = product.manufacturer || '';
+    const manufacturer = product.brand || product.manufacturer || '';
 
     if (year && !title.startsWith(year)) {
       parts.push(year);
@@ -414,6 +410,21 @@ export default function ProductCard({
 
     parts.push(title);
     return parts.join(' ');
+  };
+
+  const isNewArrival = () => {
+    if (!product.createdAt) return false;
+    const now = new Date();
+    const threshold = 48 * 60 * 60 * 1000; // 48 hours for "Just In"
+
+    let d: Date;
+    // @ts-ignore
+    if (product.createdAt.toDate) d = product.createdAt.toDate();
+    // @ts-ignore
+    else if (product.createdAt.seconds) d = new Date(product.createdAt.seconds * 1000);
+    else d = new Date(product.createdAt as any);
+
+    return (now.getTime() - d.getTime()) < threshold;
   };
 
 
@@ -706,47 +717,45 @@ export default function ProductCard({
   // Grid View (default) - new style
   return (
     <div className={cn(
-      "group relative flex flex-col bg-white dark:bg-white/5 rounded-xl overflow-hidden border transition-all duration-300 h-full",
-      selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "border-transparent hover:border-primary/20 hover:shadow-2xl"
+      "group relative flex flex-col bg-white dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift",
+      selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
     )} onClick={() => selectable && onToggleSelect?.()}>
-      <div className={cn("bg-gray-100 dark:bg-white/10 relative overflow-hidden shrink-0", imageAspectRatio)}>
+      <div className={cn("bg-muted/30 relative overflow-hidden shrink-0", imageAspectRatio)}>
 
         {selectable && (
-          <div className="absolute top-2 left-2 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute top-3 left-3 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="bg-white border-2 border-primary" />
           </div>
         )}
 
-        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-20 flex gap-1 sm:gap-2 pointer-events-none scale-90 sm:scale-100 origin-top-left">
+        <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
+          {isNewArrival() && (
+            <Badge variant="default" className="inline-flex items-center gap-1 bg-secondary text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
+              <Sparkles className="h-3 w-3" />
+              FRESH OFF THE BENCH
+            </Badge>
+          )}
           {product.status === 'pending_approval' && (
-            <Badge variant="outline" className="inline-flex items-center gap-1 bg-yellow-500/80 text-white border-none font-bold backdrop-blur-sm shadow-md pointer-events-auto">
-              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              Pending
+            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto">
+              <Clock className="h-3 w-3" />
+              WAITING FOR MINUTES
             </Badge>
           )}
-          {product.status === 'on_hold' && (
-            <Badge variant="destructive" className="inline-flex items-center gap-1 font-bold backdrop-blur-sm shadow-md pointer-events-auto">
-              <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              On Hold
+          {product.status === 'sold' && (
+            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase">
+              CHECKED IN
             </Badge>
           )}
-
-          {product.isVault && (
-            <Badge
-              variant="default"
-              className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-lg cursor-pointer z-20 pointer-events-auto"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open('/vault', '_blank');
-              }}
-            >
-              <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              Vault
+          {product.condition && (
+            <Badge variant="secondary" className={cn(
+              "inline-flex items-center gap-1 font-black px-2 py-1 rounded-lg uppercase text-[10px] tracking-tighter backdrop-blur-md pointer-events-auto shadow-sm",
+              product.condition.includes('New') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
+            )}>
+              {product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES'}
             </Badge>
           )}
           {hasViewed && (
-            <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm">
+            <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto">
               <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
               Viewed
             </Badge>
@@ -755,7 +764,7 @@ export default function ProductCard({
             <Badge
               variant="default"
               className={cn(
-                "inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md",
+                "inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md pointer-events-auto",
                 /* Default / Fallback */
                 "bg-blue-600 hover:bg-blue-700 text-white",
                 /* Tier Specific Styles */
@@ -773,6 +782,7 @@ export default function ProductCard({
             </Badge>
           )}
         </div>
+
         <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-20 scale-90 sm:scale-100 origin-top-right">
           {(isSuperAdmin || isAdmin) && (
             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -846,7 +856,7 @@ export default function ProductCard({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* ... dialog remains ... */}
+              
               <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
                 <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                   <AlertDialogHeader>
@@ -880,6 +890,7 @@ export default function ProductCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
+      
       {!selectable && (
         <Link
           href={`/product/${product.id}`}
@@ -889,6 +900,7 @@ export default function ProductCard({
           <span className="sr-only">View {product.title}</span>
         </Link>
       )}
+      
       <div className="p-3 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none">
         <div className="flex justify-between items-start mb-1 sm:mb-2">
           <h3 className="text-sm sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2.5rem] sm:min-h-0">
@@ -896,6 +908,16 @@ export default function ProductCard({
           </h3>
           {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto">{product.grade}</span>}
         </div>
+
+        <div className="flex items-center gap-1.5 mt-1 mb-2 pointer-events-auto px-0.5">
+          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-gray-200 dark:border-gray-700">
+            <AvatarImage src={product.sellerAvatar || ''} />
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-gray-100 dark:bg-gray-800">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
+          </Avatar>
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate max-w-[100px]">{product.sellerName || 'Benched'}</span>
+          {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500" />}
+        </div>
+
         <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">
           <div className="pointer-events-auto">
             <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
@@ -980,4 +1002,3 @@ export default function ProductCard({
     </div >
   );
 }
-

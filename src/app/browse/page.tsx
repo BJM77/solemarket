@@ -11,18 +11,18 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Browse Collectibles | Picksy';
-  let description = 'Discover thousands of unique collectibles, trading cards, and coins on Picksy Marketplace.';
+  let title = 'Browse Sneakers | Benched';
+  let description = 'Discover exclusive and authenticated sneakers on Benched Australia.';
 
   if (q && category) {
-    title = `${q} in ${category} | Picksy`;
-    description = `Searching for ${q} in ${category}. Find the best deals on Picksy.`;
+    title = `${q} in ${category} | Benched`;
+    description = `Searching for ${q} in ${category}. Find the best sneaker deals on Benched.`;
   } else if (q) {
-    title = `Search: ${q} | Picksy`;
-    description = `Results for "${q}". Browse high-value collectibles on Picksy.`;
+    title = `Search: ${q} | Benched`;
+    description = `Results for "${q}". Browse verified authentic sneakers on Benched.`;
   } else if (category) {
-    title = `${category} | Browse | Picksy`;
-    description = `Shop the best ${category} on Picksy. Verified sellers and secure shipping.`;
+    title = `${category} | Browse | Benched`;
+    description = `Shop the best ${category} on Benched. Verified authentic and secure shipping.`;
   }
 
   return {
@@ -62,7 +62,7 @@ export default async function BrowsePage({
 
   return (
     <InfiniteProductGrid
-      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Collectibles'}
+      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
       pageDescription="Browse items from thousands of sellers."
       initialFilterState={{
         q: searchTerm,

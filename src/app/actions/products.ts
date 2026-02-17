@@ -112,19 +112,8 @@ export async function createProductAction(
         }
 
         // Search helpers & Normalization (Pillar 2/3)
-        let normalizedTitle = validData.title;
-        if (normalizedTitle.toLowerCase().includes('zard')) {
-            normalizedTitle += ' Charizard'; // Basic normalization logic
-        }
-
-        (finalData as any).title_lowercase = normalizedTitle.toLowerCase();
-        (finalData as any).keywords = generateKeywords(normalizedTitle);
-
-        // Auto-apply Bronze Multibuy for cards < $5
-        if (finalData.category === 'Collector Cards' && finalData.price < 5 && finalData.price > 0) {
-            finalData.multibuyEnabled = true;
-            finalData.multiCardTier = 'bronze';
-        }
+        (finalData as any).title_lowercase = validData.title.toLowerCase();
+        (finalData as any).keywords = generateKeywords(validData.title);
 
         await docRef.set(finalData);
         console.log('Product saved:', docRef.id);
@@ -295,13 +284,13 @@ function generateKeywords(title: string): string[] {
     return [...new Set(keywords)]; // Unique
 }
 
-const COLLECTIBLES_CATEGORIES = ['Collectibles', 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia', 'General'];
+const SNEAKER_CATEGORIES = ['Sneakers', 'Accessories'];
 
-export const getCollectiblesProducts = unstable_cache(
+export const getSneakersProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
         try {
             const snapshot = await firestoreDb.collection('products')
-                .where('category', 'in', COLLECTIBLES_CATEGORIES)
+                .where('category', 'in', SNEAKER_CATEGORIES)
                 .where('status', '==', 'available')
                 .orderBy('createdAt', 'desc')
                 .limit(limitCount)
@@ -312,10 +301,10 @@ export const getCollectiblesProducts = unstable_cache(
                 ...doc.data(),
             })) as Product[];
         } catch (error) {
-            console.error("Error fetching collectibles:", error);
+            console.error("Error fetching sneakers:", error);
             return [];
         }
     },
-    ['products-collectibles'],
-    { revalidate: 300, tags: ['products-collectibles'] }
+    ['products-sneakers'],
+    { revalidate: 300, tags: ['products-sneakers'] }
 );

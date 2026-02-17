@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ShieldCheck, Store, ShoppingBag } from 'lucide-react';
 
 export const metadata = {
-    title: 'Our Sellers | Picksy',
+    title: 'Our Sellers | Benched',
     description: 'Browse our community of verified sellers and their collections.',
 };
 
@@ -20,7 +20,7 @@ export default async function SellersPage() {
                 <div>
                     <h1 className="text-3xl font-bold font-headline mb-2">Our Sellers</h1>
                     <p className="text-muted-foreground">
-                        Discover trusted shops and individual collectors on Picksy.
+                        Discover trusted shops and individual collectors on Benched.
                     </p>
                 </div>
                 <Button asChild variant="outline">

@@ -6,6 +6,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { ViewedProductsProvider } from "@/context/ViewedProductsContext";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { BottomNav } from '@/components/layout/BottomNav';
 import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
@@ -21,14 +22,14 @@ const outfit = Outfit({
 });
 
 // SITE_URL loaded from brand configuration
-const siteUrl = SITE_URL || 'https://picksy.au';
+const siteUrl = SITE_URL || 'https://benched.au';
 
 let metadataBase: URL | undefined;
 try {
   metadataBase = new URL(siteUrl);
 } catch (e) {
   console.error("Invalid SITE_URL for metadataBase:", siteUrl);
-  metadataBase = new URL('https://picksy.au');
+  metadataBase = new URL('https://benched.au');
 }
 
 export const metadata: Metadata = {
@@ -54,13 +55,22 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     url: './',
     siteName: SITE_NAME,
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+    images: [{ url: brandConfig.branding.ogImageUrl || '/og-image.jpg', width: 1200, height: 630 }],
+  },
+  icons: {
+    icon: [
+      { url: brandConfig.branding.faviconUrl || '/favicon.ico' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Picksy - The Premier Marketplace for Collectors",
-    description: "Discover unique collectibles, vintage items, trading cards, and coins. Picksy is the premier marketplace for collectors.",
-    images: [`${SITE_URL}/og-image.jpg`],
+    title: brandConfig.seo.defaultTitle,
+    description: brandConfig.seo.defaultDescription,
+    images: [`${SITE_URL}${brandConfig.branding.ogImageUrl || '/og-image.jpg'}`],
   },
   robots: {
     index: true,
@@ -203,6 +213,7 @@ export default function RootLayout({
                       {children}
                     </main>
                     <Footer />
+                    <BottomNav />
                     <CartDrawer />
                   </ViewedProductsProvider>
                 </CartProvider>

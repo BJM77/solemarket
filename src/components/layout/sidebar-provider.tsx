@@ -24,20 +24,19 @@ export function useSidebar() {
 }
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('picksy-sidebar-open');
-            return saved !== null ? saved === 'true' : false;
-        }
-        return false;
-    });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isSellingSection, setIsSellingSection] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('picksy-sidebar-open', String(isSidebarOpen));
+        const saved = localStorage.getItem('picksy-sidebar-open');
+        if (saved !== null) {
+            setIsSidebarOpen(saved === 'true');
         }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('picksy-sidebar-open', String(isSidebarOpen));
     }, [isSidebarOpen]);
     
     // This provider will wrap layouts that need a sidebar.

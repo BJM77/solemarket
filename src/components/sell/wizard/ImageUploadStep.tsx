@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRef, ChangeEvent, useState } from 'react';
@@ -9,7 +10,7 @@ import { Upload, Trash2, Sparkles, Loader2, ImagePlus } from 'lucide-react';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import imageCompression from 'browser-image-compression';
 import { useToast } from "@/hooks/use-toast";
-import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader';
+// import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader'; // Removed for Benched
 
 interface ImageUploadStepProps {
     imageFiles: any[];
@@ -18,7 +19,7 @@ interface ImageUploadStepProps {
     onRemoveImage: (index: number) => void;
     onAutoFill: () => Promise<void>;
     isAnalyzing: boolean;
-    selectedType: 'cards' | 'coins' | 'general';
+    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'general';
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
     form: any; // Passed for direct setValue if needed by sub-components
@@ -46,8 +47,8 @@ export function ImageUploadStep({
     };
 
     const processFiles = async (newFiles: File[]) => {
-        if (imageFiles.length + newFiles.length > 5) {
-            toast({ title: "Maximum 5 images allowed.", variant: "destructive" });
+        if (imageFiles.length + newFiles.length > 8) { // Increased limit for sneakers (angles)
+            toast({ title: "Maximum 8 images allowed.", variant: "destructive" });
             return;
         }
 
@@ -75,15 +76,15 @@ export function ImageUploadStep({
         onImagesChange(compressedFiles, newPreviews);
     };
 
-    const captureMode = selectedType === 'cards' ? 'card' : selectedType === 'coins' ? 'coin' : 'general';
+    const captureMode = 'general'; // Defaulting to general for now
 
     // Target aspect ratio display string
     const getTargetRatio = () => {
         switch (selectedType) {
-            case 'cards': return '5:7';
-            case 'coins': return '1:1';
-            case 'general': return '16:9';
-            default: return '4:3';
+            case 'sneakers': return '4:3';
+            case 'streetwear': return '3:4';
+            case 'accessories': return '1:1';
+            default: return '1:1';
         }
     };
 
@@ -97,7 +98,7 @@ export function ImageUploadStep({
             <Card className="border-0 shadow-md">
                 <CardHeader className="bg-slate-900 text-white p-5 rounded-t-xl">
                     <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Gallery</CardTitle>
-                    <CardDescription className="text-slate-400">Add up to 5 photos.</CardDescription>
+                    <CardDescription className="text-slate-400">Add up to 8 photos.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -110,7 +111,7 @@ export function ImageUploadStep({
                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div className="aspect-square">
-                            <CameraCapture onCapture={processFiles} captureMode={captureMode} variant="hero" maxFiles={5 - imageFiles.length} />
+                            <CameraCapture onCapture={processFiles} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
                         </div>
                     </div>
 
@@ -149,14 +150,7 @@ export function ImageUploadStep({
                 </CardContent>
             </Card>
 
-            {/* Enhanced Card Grader only shows for cards */}
-            {selectedType === 'cards' && (
-                <EnhancedAICardGrader
-                    onGradeComplete={onGradeComplete || (() => { })}
-                    imageFiles={imageFiles}
-                    onApplySuggestions={onApplySuggestions || (() => { })}
-                />
-            )}
+            {/* Grading component removed for Benched rebrand */}
         </div>
     );
 }

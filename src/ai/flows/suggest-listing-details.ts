@@ -57,7 +57,7 @@ const suggestListingDetailsPrompt = ai.definePrompt({
     model: 'googleai/gemini-flash-latest',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
-    prompt: `You are an expert in valuing and listing collectibles. Analyze the provided information (images and/or title) to generate listing details.
+    prompt: `You are an expert in valuing and listing authentic sneakers and streetwear. Analyze the provided information (images and/or title) to generate listing details.
 
 {{#if title}}
 Provided Title: {{title}}
@@ -77,15 +77,18 @@ Images:
 {{/if}}
 
 Based on the images and/or title, provide the following details:
-1.  **Title:** A concise, descriptive, and SEO-friendly title. Include key identifiers like name, year, and brand. (Refine the provided title if necessary).
+1.  **Title:** A concise, descriptive, and SEO-friendly title. Include Brand, Model, Colorway.
 2.  **Description:** A one-to-two-line description highlighting key features and condition.
-3.  **Price:** An estimated market price in AUD (Australian Dollars). Be realistic based on the visual information or title.
-4.  **Category:** Choose the single best category from this list: 'Collector Cards', 'Coins', 'Collectibles'.
-5.  **Sub-Category:** Choose the most specific sub-category based on the main category. For 'Collector Cards', choose from: 'Sports Cards', 'Trading Cards'. For 'Coins', use: 'Coins', 'World Coins', 'Ancient Coins', 'Bullion'. For 'Collectibles', use: 'Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'.
-6.  **Condition:** Assess the item's condition from this list: 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'. If no images are provided, default to 'Good' or make a safe assumption based on context.
-7.  **Manufacturer:** Identify the manufacturer or brand.
-8.  **Year:** Estimate the year of manufacture or release.
-9.  **Card Number:** If it's a collector card, identify the card number (e.g., '4/102', 'RC25'). If not applicable, leave blank.
+3.  **Price:** An estimated market price in AUD (Australian Dollars).
+4.  **Category:** Choose from 'Sneakers', 'Streetwear', 'Accessories'.
+5.  **Sub-Category:** (e.g. 'Men's Sneakers', 'Hoodies', 'Bags').
+6.  **Condition:** 'New with Box', 'New without Box', 'Used', etc.
+7.  **Brand:** e.g. Nike, Adidas, Supreme.
+8.  **Model:** e.g. Air Jordan 1, Yeezy 350.
+9.  **Style Code:** Try to identify the style code if visible (e.g. DZ5485-612).
+10. **Colorway:** e.g. Chicago, Zebra.
+11. **Size:** If visible on box or tag.
+12. **Year:** Release year.
 `,
 });
 

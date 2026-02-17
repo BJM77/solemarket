@@ -12,18 +12,21 @@ function GoogleAnalyticsInner() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID) {
+    if (!GA_MEASUREMENT_ID || !GA_MEASUREMENT_ID.startsWith('G-')) {
       return;
     }
     const url = `${pathname}?${searchParams.toString()}`;
     
     // @ts-ignore
-    window.gtag('config', GA_MEASUREMENT_ID, {
-      page_path: url,
-    });
+    if (typeof window.gtag === 'function') {
+      // @ts-ignore
+      window.gtag('config', GA_MEASUREMENT_ID, {
+        page_path: url,
+      });
+    }
   }, [pathname, searchParams]);
 
-  if (!GA_MEASUREMENT_ID) {
+  if (!GA_MEASUREMENT_ID || !GA_MEASUREMENT_ID.startsWith('G-')) {
     return null;
   }
 

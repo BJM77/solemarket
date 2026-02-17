@@ -240,10 +240,9 @@ export function WTBForm({ listing, mode = 'create' }: WTBFormProps) {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
+                                    <SelectItem value="sneakers">Sneakers</SelectItem>
+                                    <SelectItem value="accessories">Accessories</SelectItem>
                                     <SelectItem value="cards">Trading Cards</SelectItem>
-                                    <SelectItem value="coins">Coins</SelectItem>
-                                    <SelectItem value="comics">Comics</SelectItem>
-                                    <SelectItem value="memorabilia">Memorabilia</SelectItem>
                                     <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>

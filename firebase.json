@@ -1,10 +1,9 @@
 {
   "firestore": {
+    "database": "(default)",
+    "location": "australia-southeast1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
   },
   "hosting": {
     "source": ".",
@@ -26,6 +25,15 @@
     },
     "ui": {
       "enabled": true
+    }
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Sole Market",
+        "supportEmail": "bjm4ck13@gmail.com"
+      }
     }
   }
 }

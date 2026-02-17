@@ -78,13 +78,9 @@ export function SearchCommand({ open, setOpen }: SearchCommandProps) {
                         <ShoppingBag className="mr-2 h-4 w-4" />
                         <span>Browse All</span>
                     </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => router.push('/collector-cards'))}>
+                    <CommandItem onSelect={() => runCommand(() => router.push('/category/sneakers'))}>
                         <Layers className="mr-2 h-4 w-4" />
-                        <span>Collector Cards</span>
-                    </CommandItem>
-                    <CommandItem onSelect={() => runCommand(() => router.push('/coins'))}>
-                        <Coins className="mr-2 h-4 w-4" />
-                        <span>Coins</span>
+                        <span>Sneakers</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />

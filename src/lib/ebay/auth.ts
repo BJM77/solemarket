@@ -1,16 +1,18 @@
 import { env } from 'process';
 
-const EBAY_ENV = process.env.EBAY_ENV || 'SANDBOX';
-const EBAY_API_URL = EBAY_ENV === 'PRODUCTION'
+const EBAY_ENV = process.env.EBAY_ENV || 'sandbox'; // Default to lowercase to match typical usage
+const EBAY_API_URL = EBAY_ENV.toLowerCase() === 'production'
     ? 'https://api.ebay.com/identity/v1/oauth2/token'
     : 'https://api.sandbox.ebay.com/identity/v1/oauth2/token';
 
 export async function getEbayAppToken() {
-    const clientId = process.env.EBAY_APP_ID;
-    const clientSecret = process.env.EBAY_CERT_ID;
+    // Support both naming conventions to be safe, preferring CLIENT_ID
+    const clientId = process.env.EBAY_CLIENT_ID || process.env.EBAY_APP_ID;
+    const clientSecret = process.env.EBAY_CLIENT_SECRET || process.env.EBAY_CERT_ID;
 
     if (!clientId || !clientSecret) {
-        throw new Error('eBay App ID or Cert ID not configured');
+        console.error('eBay Configuration Error: Missing Client ID or Secret');
+        throw new Error('eBay API not configured. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET.');
     }
 
     // Base64 encode the client ID and secret
@@ -30,14 +32,15 @@ export async function getEbayAppToken() {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`Failed to fetch eBay token: ${error.error_description || response.statusText}`);
+            const errorText = await response.text();
+            console.error('eBay Token Error Response:', errorText);
+            throw new Error(`Failed to fetch eBay token: ${response.statusText}`);
         }
 
         const data = await response.json();
         return data.access_token;
     } catch (error: any) {
-        console.error('eBay Auth Error:', error.message);
+        console.error('eBay Auth Exception:', error.message);
         throw error;
     }
 }

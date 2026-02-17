@@ -14,9 +14,9 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
       allowedOrigins: [
-        'studio-8322868971-8ca89.web.app',
-        'picksy.au',
-        'www.picksy.au',
+        'studio-3973035687-658c0.web.app',
+        'benched.au',
+        'www.benched.au',
         'localhost:9004',
         'localhost:9005',
         '127.0.0.1:9004',

@@ -11,10 +11,10 @@ export default function DMCAPage() {
       <div className="prose lg:prose-lg max-w-4xl mx-auto mt-8">
         <h2>1. Introduction</h2>
         <p>
-          Picksy Marketplace respects the intellectual property rights of others
+          Benched respects the intellectual property rights of others
           and expects its users to do the same. In accordance with the Digital
           Millennium Copyright Act (DMCA), we will respond expeditiously to
-          claims of copyright infringement committed using the Picksy service
+          claims of copyright infringement committed using the Benched service
           that are reported to our Designated Copyright Agent.
         </p>
 
@@ -37,7 +37,7 @@ export default function DMCAPage() {
           <li>A statement that the information in the notification is accurate, and under penalty of perjury, that you are authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.</li>
         </ul>
         <p>
-          Deliver this notice, with all items completed, to Picksy's Designated Copyright Agent at legal@picksy.au.
+          Deliver this notice, with all items completed, to Benched's Designated Copyright Agent at legal@benched.au.
         </p>
 
         <h2>3. Counter-Notification Procedures</h2>

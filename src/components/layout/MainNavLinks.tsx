@@ -12,46 +12,36 @@ export function MainNavLinks() {
 
   return (
     <nav className="flex items-center gap-6">
-      <Link href="/browse" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+      <Link href="/browse" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
         Explore
       </Link>
 
-      <Link href="/multilisting-deals" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
-        Multi
-      </Link>
-
       {features.bidsy && (
-        <Link href="/bidsy" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+        <Link href="/bidsy" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
           Bidsy
         </Link>
       )}
 
       {features.wtb && (
-        <Link href="/wtb" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+        <Link href="/wtb" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
           Wanted
         </Link>
       )}
 
       {user && (
         <>
-          <Link href="/scan" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
-            Scan
-          </Link>
-          <Link href="/tools/grader" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
-            AI Grader
-          </Link>
-          <Link href="/research" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+          <Link href="/research" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
             Research
           </Link>
         </>
       )}
 
-      <Link href="/dealsafe" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+      <Link href="/dealsafe" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
         DealSafe
       </Link>
 
       {features.consignment && (
-        <Link href="/consign" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium hover:bg-transparent px-0")}>
+        <Link href="/consign" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
           Consign
         </Link>
       )}

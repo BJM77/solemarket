@@ -8,7 +8,7 @@ import { UserNav } from './user-nav';
 import { SearchCommand } from '@/components/search/SearchCommand';
 import { NotificationBell } from '../notifications/NotificationBell';
 import Link from 'next/link';
-import { useUser } from '@/firebase/auth/use-user';
+import { useUser } from '@/firebase';
 import { LogIn, UserPlus } from 'lucide-react';
 
 export default function HeaderActions() {

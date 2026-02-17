@@ -139,27 +139,27 @@ function getEnvNumber(key: string, fallback: number): number {
 export const brandConfig: BrandConfig = {
     // Company Information
     company: {
-        name: getEnv('NEXT_PUBLIC_COMPANY_NAME', 'Picksy'),
-        legalName: getEnv('COMPANY_LEGAL_NAME', 'Picksy Pty Ltd'),
+        name: getEnv('NEXT_PUBLIC_COMPANY_NAME', 'Benched'),
+        legalName: getEnv('COMPANY_LEGAL_NAME', 'Benched Pty Ltd'),
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'Australia\'s local marketplace for cards, coins & bullion — Perth-based, with nationwide shipping.'
+            'Australia\'s premier marketplace for performance basketball sneakers and culture.'
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
-            'The Premier Marketplace for Collectors in Australia'
+            'Second Half Starts Here.'
         ),
         foundedYear: getEnvNumber('COMPANY_FOUNDED_YEAR', 2024),
     },
 
     // Branding & Design
     branding: {
-        primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#FF6B35'),
-        secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#4ECDC4'),
-        accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#FFE66D'),
-        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/logo.png'),
-        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/logo.png'),
+        primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#111111'), // Matte Black
+        secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#F5F5F5'), // Off White
+        accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
+        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/logo.svg'),
+        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/logo.svg'),
         faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/favicon.ico'),
         ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', '/og-image.jpg'),
     },
@@ -167,10 +167,10 @@ export const brandConfig: BrandConfig = {
     // Feature Toggles
     features: {
         enableWTB: getEnvBool('ENABLE_WTB', true),
-        enableBidsy: getEnvBool('ENABLE_BIDSY', true),
+        enableBidsy: getEnvBool('ENABLE_BIDSY', false),
         enableConsignment: getEnvBool('ENABLE_CONSIGNMENT', true),
-        enableVault: getEnvBool('ENABLE_VAULT', true),
-        enableAIGrading: getEnvBool('ENABLE_AI_GRADING', true),
+        enableVault: getEnvBool('ENABLE_VAULT', false),
+        enableAIGrading: getEnvBool('ENABLE_AI_GRADING', false),
         enablePriceAssistant: getEnvBool('ENABLE_PRICE_ASSISTANT', true),
         enableResearch: getEnvBool('ENABLE_RESEARCH', true),
         enablePartnerProgram: getEnvBool('ENABLE_PARTNER_PROGRAM', true),
@@ -178,29 +178,29 @@ export const brandConfig: BrandConfig = {
 
     // SEO & Social
     seo: {
-        siteUrl: getEnv('NEXT_PUBLIC_SITE_URL', 'https://picksy.au'),
-        siteName: getEnv('NEXT_PUBLIC_SITE_NAME', 'Picksy'),
+        siteUrl: getEnv('NEXT_PUBLIC_SITE_URL', 'https://benched.au'),
+        siteName: getEnv('NEXT_PUBLIC_SITE_NAME', 'Benched'),
         defaultTitle: getEnv(
             'NEXT_PUBLIC_DEFAULT_TITLE',
-            'Picksy | The Premier Marketplace for Collectors in Australia'
+            'Benched | Performance Basketball Sneakers & Culture'
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'Buy and sell trading cards, coins, and collectibles. Trusted Australian marketplace with secure payments, verified sellers, and nationwide shipping.'
+            'The second half starts here. Buy and sell authenticated basketball sneakers in Australia. Every pair has more game left.'
         ),
         keywords: [
-            'trading cards',
-            'collectibles',
-            'coins',
-            'bullion',
+            'basketball shoes',
+            'sneakers',
+            'hoop shoes',
+            'Air Jordan',
+            'Nike Basketball',
+            'Adidas Basketball',
+            'Puma Hoops',
             'marketplace',
             'Australia',
-            'buy sell',
-            'Pokemon cards',
-            'NBA cards',
-            'NFL cards',
+            'buy sell sneakers',
         ],
-        twitterHandle: getEnv('NEXT_PUBLIC_TWITTER_HANDLE', '@picksyau'),
+        twitterHandle: getEnv('NEXT_PUBLIC_TWITTER_HANDLE', '@benchedau'),
         facebookUrl: process.env.NEXT_PUBLIC_FACEBOOK_URL,
         instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
         tiktokUrl: process.env.NEXT_PUBLIC_TIKTOK_URL,
@@ -208,14 +208,14 @@ export const brandConfig: BrandConfig = {
 
     // Contact Information
     contact: {
-        email: getEnv('COMPANY_EMAIL', 'support@picksy.au'),
-        supportEmail: getEnv('COMPANY_SUPPORT_EMAIL', 'support@picksy.au'),
+        email: getEnv('COMPANY_EMAIL', 'support@benched.au'),
+        supportEmail: getEnv('COMPANY_SUPPORT_EMAIL', 'support@benched.au'),
         phone: getEnv('COMPANY_PHONE', '+61400000000'),
         address: {
             street: process.env.COMPANY_ADDRESS_STREET,
-            city: getEnv('COMPANY_ADDRESS_CITY', 'Perth'),
-            state: getEnv('COMPANY_ADDRESS_STATE', 'WA'),
-            postcode: getEnv('COMPANY_ADDRESS_POSTCODE', '6000'),
+            city: getEnv('COMPANY_ADDRESS_CITY', 'Melbourne'),
+            state: getEnv('COMPANY_ADDRESS_STATE', 'VIC'),
+            postcode: getEnv('COMPANY_ADDRESS_POSTCODE', '3000'),
             country: getEnv('COMPANY_ADDRESS_COUNTRY', 'AU'),
         },
         coordinates: process.env.COMPANY_LATITUDE && process.env.COMPANY_LONGITUDE
@@ -224,8 +224,8 @@ export const brandConfig: BrandConfig = {
                 longitude: parseFloat(process.env.COMPANY_LONGITUDE),
             }
             : {
-                latitude: -31.9505,
-                longitude: 115.8605,
+                latitude: -37.8136,
+                longitude: 144.9631,
             },
     },
 

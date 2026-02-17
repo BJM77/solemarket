@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send } from "lucide-react";
+import { submitPartnerInquiryAction } from "@/app/actions/partners";
 
 const formSchema = z.object({
     storeName: z.string().min(2, "Store name is required"),
@@ -56,18 +57,26 @@ export function PartnerContactForm() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        console.log("Partner Inquiry:", values);
-
-        toast({
-            title: "Inquiry Received",
-            description: "Thanks for your interest! Our partnership team will contact you shortly.",
-        });
-
-        form.reset();
-        setIsLoading(false);
+        try {
+            const result = await submitPartnerInquiryAction(values);
+            if (result.success) {
+                toast({
+                    title: "Inquiry Received",
+                    description: "Thanks for your interest! Our partnership team will contact you shortly.",
+                });
+                form.reset();
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error: any) {
+            toast({
+                title: "Submission Failed",
+                description: error.message || "An unexpected error occurred.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (

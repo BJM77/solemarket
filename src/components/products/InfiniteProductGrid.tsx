@@ -9,7 +9,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
@@ -39,6 +39,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
 import { exportAllProductsCSV } from '@/app/actions/export';
 import { Download } from 'lucide-react';
+import { AdUnit } from '@/components/ads/AdUnit';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -99,7 +100,8 @@ function InfiniteProductGridInner({
     queryFn: ({ pageParam }) => getProducts({
       ...currentSearchParams,
       lastId: pageParam as string | undefined,
-      limit: PAGE_SIZE
+      limit: PAGE_SIZE,
+      page: pageParam ? 2 : 1 // Simple hack to indicate not first page if pageParam exists
     }, userRole as string),
     initialPageParam: undefined,
     initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
@@ -110,6 +112,7 @@ function InfiniteProductGridInner({
   });
 
   const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
+  const totalCount = data?.pages[0]?.totalCount;
 
   // Bulk Edit State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -335,9 +338,8 @@ function InfiniteProductGridInner({
 
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
-    if (category === 'Coins') return 'aspect-square';
-    if (category === 'Memorabilia' || category === 'Collectibles' || category === 'General') return 'aspect-video';
-    return 'aspect-[5/7]';
+    if (category === 'Sneakers') return 'aspect-[4/3]';
+    return 'aspect-square';
   }, [currentSearchParams.category, initialFilterState.category]);
 
   const renderProducts = () => {
@@ -439,21 +441,31 @@ function InfiniteProductGridInner({
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
         {products.map((product, index) => {
           const isLastElement = index === products.length - 1;
+
+          // Inject Ad every 12 items (index 11, 23, etc)
+          const showAd = (index + 1) % 12 === 0;
+
           return (
-            <div
-              ref={isLastElement ? lastProductElementRef : null}
-              key={`${product.id}-${index}`}
-            >
-              <ProductCard
-                product={product}
-                viewMode={viewMode}
-                isAdmin={isAdmin}
-                selectable={isSelectionMode}
-                selected={selectedIds.has(product.id)}
-                onToggleSelect={() => toggleSelection(product.id)}
-                onOpenPriceAssistant={openPriceAssistant}
-              />
-            </div>
+            <React.Fragment key={`${product.id}-${index}`}>
+              <div
+                ref={isLastElement ? lastProductElementRef : null}
+              >
+                <ProductCard
+                  product={product}
+                  viewMode={viewMode}
+                  isAdmin={isAdmin}
+                  selectable={isSelectionMode}
+                  selected={selectedIds.has(product.id)}
+                  onToggleSelect={() => toggleSelection(product.id)}
+                  onOpenPriceAssistant={openPriceAssistant}
+                />
+              </div>
+              {showAd && (
+                <div className="col-span-full py-4">
+                  <AdUnit placement="grid_interstitial" className="w-full aspect-[6/1] md:aspect-[8/1] rounded-2xl" />
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
       </div>
@@ -462,9 +474,15 @@ function InfiniteProductGridInner({
 
   return (
     <div className="container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen">
-      <header className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-6">
+      <header className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-8">
         <div className="w-full sm:w-auto">
-          <PageHeader title={pageTitle} description={pageDescription} />
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h1>
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-12 bg-primary rounded-full" />
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.2em]">
+              {totalCount !== undefined ? `${totalCount} Available Kicks` : pageDescription}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
@@ -480,47 +498,26 @@ function InfiniteProductGridInner({
 
           <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 bg-card border rounded-md p-0.5 sm:p-1 h-9 sm:h-10">
             <Button
-              variant={currentSearchParams.category === 'Collector Cards' ? 'secondary' : 'ghost'}
+              variant={currentSearchParams.category === 'Sneakers' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Collector Cards' && "bg-indigo-100 text-indigo-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Sneakers' && "bg-blue-100 text-blue-600")}
               asChild
-              title="Cards"
+              title="Sneakers"
             >
-              <Link href="/collector-cards">
-                <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Link href="/browse?category=Sneakers">
+                <Footprints className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </Button>
+
             <Button
-              variant={currentSearchParams.category === 'Coins' ? 'secondary' : 'ghost'}
+              variant={currentSearchParams.category === 'Accessories' ? 'secondary' : 'ghost'}
               size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Coins' && "bg-amber-100 text-amber-600")}
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Accessories' && "bg-emerald-100 text-emerald-600")}
               asChild
-              title="Coins"
+              title="Accessories"
             >
-              <Link href="/coins">
-                <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant={currentSearchParams.category === 'Memorabilia' ? 'secondary' : 'ghost'}
-              size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Memorabilia' && "bg-emerald-100 text-emerald-600")}
-              asChild
-              title="Memorabilia"
-            >
-              <Link href="/collectibles">
-                <span className="text-[10px] sm:text-xs font-bold">M</span>
-              </Link>
-            </Button>
-            <Button
-              variant={currentSearchParams.category === 'General' ? 'secondary' : 'ghost'}
-              size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'General' && "bg-slate-100 text-slate-600")}
-              asChild
-              title="General"
-            >
-              <Link href="/general">
-                <span className="text-[10px] sm:text-xs font-bold">G</span>
+              <Link href="/browse?category=Accessories">
+                <Watch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </Button>
           </div>

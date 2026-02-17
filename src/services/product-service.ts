@@ -6,7 +6,7 @@ import { serializeFirestoreData } from '@/lib/utils';
 
 const PAGE_SIZE = 24;
 
-export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string }> {
+export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
   const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange, isUntimed } = searchParams;
 
   const productsRef = collection(db, 'products');
@@ -45,6 +45,12 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
   if (conditions && conditions.length > 0) {
     constraints.push(where('condition', 'in', conditions));
+  }
+  if (searchParams.sizes && searchParams.sizes.length > 0) {
+    // Firestore 'in' limitation: max 10 (or 30 in newer versions). 
+    // If > 10 selected, this might fail or we need multiple queries. 
+    // For now, slice to 10 to be safe.
+    constraints.push(where('size', 'in', searchParams.sizes.slice(0, 10)));
   }
   if (sellers && sellers.length > 0) {
     constraints.push(where('sellerId', 'in', sellers.slice(0, 30)));
@@ -221,7 +227,22 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const hasMore = querySnapshot.docs.length === PAGE_SIZE;
   const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
 
-  const result = { products, hasMore, lastVisibleId };
+  let totalCount: number | undefined = undefined;
+  // Only fetch count on first page to save reads
+  if (!searchParams.lastId && page === 1) {
+      try {
+          const countQuery = query(productsRef, ...constraints); // Use constraints without limit/sort for count
+          // Note: constraints contains 'orderBy' which is not needed for count but allowed.
+          // However, we added orderByConstraints to finalQuery, not 'constraints'.
+          // So 'constraints' has only the filters. Perfect.
+          const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
+          totalCount = snapshot.data().count;
+      } catch (e) {
+          console.error("Failed to count products", e);
+      }
+  }
+
+  const result = { products, hasMore, lastVisibleId, totalCount };
 
   return result;
 }

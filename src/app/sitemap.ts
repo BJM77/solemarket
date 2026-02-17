@@ -47,7 +47,7 @@ export default async function sitemap({
 }: {
   id: number;
 }): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
 
   // ID 0 contains static routes, categories, AND GUIDES
   if (id === 0) {
@@ -55,21 +55,14 @@ export default async function sitemap({
       '',
       '/browse',
       '/sell',
+      '/scan',
+      '/drops',
       '/about',
       '/how-it-works',
       '/safety-tips',
       '/donate',
       '/vault',
       '/bidsy',
-      '/collector-cards',
-      '/collector-cards/sports',
-      '/collector-cards/trading',
-      '/coins',
-      '/coins/bullion',
-      '/coins/notes',
-      '/collectibles',
-      '/collectibles/comics',
-      '/general',
       '/consign',
       '/terms',
       '/privacy',

@@ -41,7 +41,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { ListingForm } from '@/components/sell/ListingForm';
 import ProductQuickView from '@/components/products/ProductQuickView';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, HelpCircle } from 'lucide-react';
+import { BrandRequestModal } from '@/components/sell/BrandRequestModal';
 
 function DashboardSkeleton() {
   return (
@@ -403,6 +404,22 @@ export default function SellerDashboard() {
                     <p>No reviews yet.</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6 border-dashed">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5 text-primary" />
+                  Support Tools
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-muted/30 rounded-xl">
+                  <p className="text-xs font-bold uppercase tracking-wider mb-2">Inventory Requests</p>
+                  <p className="text-sm text-muted-foreground mb-4">Can't find a brand or category for your listing?</p>
+                  <BrandRequestModal />
+                </div>
               </CardContent>
             </Card>
           </div>

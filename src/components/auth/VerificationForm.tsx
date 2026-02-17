@@ -177,7 +177,7 @@ export default function VerificationForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="reason">Why do you want to join Picksy?</Label>
+                        <Label htmlFor="reason">Why do you want to join Benched?</Label>
                         <Textarea
                             id="reason"
                             placeholder="I am a collector looking to buy rare cards..."

@@ -3,18 +3,15 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Sparkles, Coins, Stamp, Layers, Trophy, Dna, LayoutGrid, CreditCard } from 'lucide-react';
+import { Layers, LayoutGrid, Shirt, Footprints, Watch, ShoppingBag, Sparkles } from 'lucide-react';
 
 const CATEGORIES = [
-    { name: 'Pokemon', icon: Dna, href: '/category/pokemon-cards' },
-    { name: 'NBA Cards', icon: Layers, href: '/category/nba-trading-cards' },
-    { name: 'Coins', icon: Coins, href: '/coins' },
-    { name: 'Comics', icon: Sparkles, href: '/collectibles/comics' },
-    { name: 'Stamps', icon: Stamp, href: '/collectibles/stamps' },
-    { name: 'Memorabilia', icon: Trophy, href: '/category/memorabilia' },
-    { name: 'All Cards', icon: CreditCard, href: '/collector-cards' },
+    { name: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers' },
+    { name: 'Accessories', icon: Watch, href: '/browse?category=Accessories' },
+    { name: 'New Arrivals', icon: Sparkles, href: '/browse?sort=newest' },
     { name: 'View All', icon: LayoutGrid, href: '/browse' },
 ];
+
 
 interface CategoryPillsProps {
     className?: string;

@@ -1,13 +1,13 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import type { Metadata } from 'next';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, MapPin, Sparkles, Handshake } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShieldCheck, MapPin, Sparkles, Handshake, Leaf } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: 'About Picksy | Australia\'s Local Collectibles Marketplace',
-  description: 'Picksy is Australia’s local marketplace for cards, coins & bullion. We are Perth-based with nationwide shipping, focused on trust and authenticity for Australian collectors.',
+  title: 'About Benched | Australia\'s Premier Sneaker Marketplace',
+  description: 'Benched is Australia\'s local marketplace for authentic sneakers and streetwear. Perth-based with nationwide shipping, focused on trust and authenticity for sneakerheads.',
 };
 
 const principles = [
@@ -24,12 +24,17 @@ const principles = [
   {
     icon: <Sparkles className="h-8 w-8 text-primary" />,
     title: "AI-Powered Innovation",
-    description: "We leverage cutting-edge AI to make listing easier, provide accurate pricing insights, and help you discover your next great find faster than ever before."
+    description: "We leverage cutting-edge AI to make listing easier, provide accurate pricing insights, and help you discover your next grail faster than ever before."
   },
-    {
+  {
     icon: <Handshake className="h-8 w-8 text-primary" />,
-    title: "By Collectors, For Collectors",
-    description: "Picksy was founded by passionate collectors who understand the nuances of the hobby. Our platform is built with the features that matter most to you."
+    title: "By Sneakerheads, For Sneakerheads",
+    description: "Benched was founded by passionate sneaker collectors who understand the culture. Our platform is built with the features that matter most to you."
+  },
+  {
+    icon: <Leaf className="h-8 w-8 text-primary" />,
+    title: "Sustainable Sneaker Culture",
+    description: "Every pair of second-hand sneakers bought prevents ~14kg of CO₂ emissions and saves thousands of liters of water. Join us in building a more sustainable sneaker community."
   }
 ]
 
@@ -39,48 +44,48 @@ export default function AboutPage() {
       <div className="container py-12 md:py-16">
         <PageHeader
           title="Our Story"
-          description="Australia’s local marketplace for cards, coins & bullion — Perth-based, with nationwide shipping."
+          description="Australia's premier marketplace for authentic sneakers and streetwear — Perth-based, with nationwide shipping."
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8">
-            <div className="prose lg:prose-lg max-w-none">
-                <p>
-                Picksy was born from a simple frustration shared by collectors across Australia: the existing options just weren&apos;t good enough. We were tired of navigating global platforms with exorbitant fees, unreliable international shipping, and a constant worry about authenticity. We believed Australian collectors deserved a dedicated, trustworthy, and modern marketplace.
-                </p>
-                <p>
-                Our mission is to create that platform. From our home base in Perth, Western Australia, we&apos;re building a community-focused marketplace that leverages technology to solve the biggest problems in the hobby. We&apos;re connecting passionate sellers with discerning buyers, all within a framework of trust and security.
-                </p>
-                <p>
-                Whether you&apos;re hunting for a rare pre-decimal coin, a graded Pokémon card, or the latest gold bullion, Picksy is your home for collecting in Australia.
-                </p>
-            </div>
-            <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg">
-                <Image 
-                    src="https://images.unsplash.com/photo-1583912268183-a34d4a132dc0?q=80&w=1740&auto=format&fit=crop"
-                    alt="A collection of vintage items on a table"
-                    fill
-                    className="object-cover"
-                    data-ai-hint="collecting vintage"
-                />
-            </div>
+          <div className="prose lg:prose-lg max-w-none">
+            <p>
+              Benched was born from a simple frustration shared by hoopers across Australia: performance sneakers always have more game left in them. We were tired of seeing pristine Kobes, LeBrons, and KDs gathering dust or being sold on platforms that didn't understand the court.
+            </p>
+            <p>
+              Our mission is to create the ultimate locker room for your rotation. From our home base in Perth, Western Australia, we're building a community-focused marketplace that connects players. Whether it's a pair that didn't fit right or a rotation piece you're ready to sub out, Benched is where they find their second half.
+            </p>
+            <p>
+              Whether you're hunting for that specific colorway for game day or offloading a pair from your lineup, Benched is the safest way to keep the game going.
+            </p>
+          </div>
+          <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src="https://images.unsplash.com/photo-1556906781-9cba4df61aa3?q=80&w=1740&auto=format&fit=crop"
+              alt="Authentic sneakers collection"
+              fill
+              className="object-cover"
+              data-ai-hint="sneaker collection"
+            />
+          </div>
         </div>
 
         <div className="mt-16 md:mt-24">
-            <h2 className="text-3xl font-bold text-center mb-12 font-headline">Our Core Principles</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {principles.map((p) => (
-                    <Card key={p.title} className="text-center">
-                        <CardHeader>
-                            <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-2">
-                                {p.icon}
-                            </div>
-                            <CardTitle>{p.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">{p.description}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+          <h2 className="text-3xl font-bold text-center mb-12 font-headline">Our Core Principles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+            {principles.map((p) => (
+              <Card key={p.title} className="text-center">
+                <CardHeader>
+                  <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-2">
+                    {p.icon}
+                  </div>
+                  <CardTitle>{p.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{p.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
       </div>

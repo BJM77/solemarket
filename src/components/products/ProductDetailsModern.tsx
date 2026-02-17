@@ -66,6 +66,7 @@ import { getRecentViewCount } from '@/app/actions/products';
 import { TrendingUp } from 'lucide-react';
 import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
+import { SizeChart } from '@/components/sneakers/SizeChart';
 
 export default function ProductDetailsModern({
     productId,
@@ -426,22 +427,60 @@ export default function ProductDetailsModern({
 
                             <h3 className="font-bold mb-4 text-lg">Technical Specifications</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {product.manufacturer && (
+                                {(product.brand || product.manufacturer) && (
                                     <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Manufacturer</span>
-                                        <span className="font-bold">{product.manufacturer}</span>
+                                        <span className="text-gray-500 font-medium">Brand</span>
+                                        <span className="font-bold">{product.brand || product.manufacturer}</span>
+                                    </div>
+                                )}
+                                {product.model && (
+                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                                        <span className="text-gray-500 font-medium">Model</span>
+                                        <span className="font-bold">{product.model}</span>
+                                    </div>
+                                )}
+                                {product.styleCode && (
+                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                                        <span className="text-gray-500 font-medium">Style Code</span>
+                                        <span className="font-bold">{product.styleCode}</span>
+                                    </div>
+                                )}
+                                {product.colorway && (
+                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                                        <span className="text-gray-500 font-medium">Colorway</span>
+                                        <span className="font-bold">{product.colorway}</span>
+                                    </div>
+                                )}
+                                {product.size && (
+                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-500 font-medium">Select Size (US Men)</span>
+                                                <SizeChart brand={product.brand?.toLowerCase()} />
+                                            </div>
+                                            <span className="font-bold text-primary">{product.size}</span>
+                                        </div>
+                                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                            {['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13', '14'].map((s) => (
+                                                <button
+                                                    key={s}
+                                                    className={cn(
+                                                        "h-12 rounded-xl border text-sm font-bold transition-all duration-200",
+                                                        product.size === s || product.size === `US ${s}`
+                                                            ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
+                                                            : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                                                    )}
+                                                >
+                                                    {s}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                                 {product.year && (
                                     <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Year</span>
+                                        <span className="text-gray-500 font-medium">Release Year</span>
                                         <span className="font-bold">{product.year}</span>
-                                    </div>
-                                )}
-                                {product.gradingCompany && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Grader</span>
-                                        <span className="font-bold">{product.gradingCompany} {product.grade}</span>
                                     </div>
                                 )}
                                 <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
@@ -571,9 +610,12 @@ export default function ProductDetailsModern({
                                                 </Button>
                                             </div>
 
-                                            <p className="text-center text-[11px] text-gray-400 font-medium uppercase tracking-tighter mt-2">
-                                                Secured with Picksy Escrow
-                                            </p>
+                                            <div className="flex items-center justify-center gap-1.5 mt-3 text-emerald-600 bg-emerald-50 py-2 rounded-lg">
+                                                <ShieldCheck className="h-3.5 w-3.5" />
+                                                <p className="text-[11px] font-bold uppercase tracking-wide">
+                                                    Authenticity Guaranteed
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
 
@@ -658,8 +700,8 @@ export default function ProductDetailsModern({
                             <ShieldCheck className="h-6 w-6" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">Buyer Protection</h4>
-                            <p className="text-sm text-gray-500">Secure escrow and 100% money-back guarantee.</p>
+                            <h4 className="font-bold text-lg">Authenticity Guarantee</h4>
+                            <p className="text-sm text-gray-500">Every pair is verified by our experts before shipping.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -667,8 +709,8 @@ export default function ProductDetailsModern({
                             <CheckCircle className="h-6 w-6" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">Secure Payments</h4>
-                            <p className="text-sm text-gray-500">Every transaction is encrypted and verified.</p>
+                            <h4 className="font-bold text-lg">Verified Sellers</h4>
+                            <p className="text-sm text-gray-500">We verify the identity of every seller on our platform.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -676,8 +718,8 @@ export default function ProductDetailsModern({
                             <UserGroupIcon />
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">Verified Community</h4>
-                            <p className="text-sm text-gray-500">Trusted neighbors, identity-verified sellers only.</p>
+                            <h4 className="font-bold text-lg">Community Driven</h4>
+                            <p className="text-sm text-gray-500">Join thousands of sneakerheads buying and selling daily.</p>
                         </div>
                     </div>
                 </div>
