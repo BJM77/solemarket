@@ -2,7 +2,7 @@
  * Brand Configuration
  * 
  * Centralized configuration for white-label marketplace deployments.
- * All values default to Picksy settings and can be overridden via environment variables.
+ * All values default to Benched settings and can be overridden via environment variables.
  */
 
 // ============================================================================

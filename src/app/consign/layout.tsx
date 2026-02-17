@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: 'Expert consignment services for trading cards, coins, and collectibles in Australia. Stay anonymous, maximize returns, and let us handle everything via our simple enquiry process.',
     keywords: 'consignment, collectibles consignment Australia, sell trading cards, sell coins, collectibles broker, anonymous selling',
     openGraph: {
-        title: 'Professional Consignment Services | Picksy Australia',
+        title: 'Professional Consignment Services | Benched Australia',
         description: 'Sell your collectibles without the hassle. Expert consignment services with flexible rates and complete anonymity.',
         type: 'website',
     },

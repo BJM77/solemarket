@@ -29,14 +29,14 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const [isSellingSection, setIsSellingSection] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem('picksy-sidebar-open');
+        const saved = localStorage.getItem('benched-sidebar-open');
         if (saved !== null) {
             setIsSidebarOpen(saved === 'true');
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('picksy-sidebar-open', String(isSidebarOpen));
+        localStorage.setItem('benched-sidebar-open', String(isSidebarOpen));
     }, [isSidebarOpen]);
     
     // This provider will wrap layouts that need a sidebar.

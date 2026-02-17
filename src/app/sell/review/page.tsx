@@ -209,7 +209,7 @@ function ReviewPageContent() {
           Save as Draft
         </Button>
       </div>
-      <p className="text-center text-xs text-gray-400 mt-6">By publishing, you agree to Picksy's Seller Terms of Service and Privacy Policy.</p>
+      <p className="text-center text-xs text-gray-400 mt-6">By publishing, you agree to Benched's Seller Terms of Service and Privacy Policy.</p>
     </main>
   );
 }

@@ -161,7 +161,7 @@ export default function SellerDashboard() {
             <Package className="h-10 w-10 text-primary" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 mb-4">Become a Seller</h2>
-          <p className="text-slate-600 mb-8">Start your business on Picksy today. Lists your cards, coins, and collectibles to millions of buyers.</p>
+          <p className="text-slate-600 mb-8">Start your business on Benched today. Lists your cards, coins, and collectibles to millions of buyers.</p>
           <Button asChild size="lg" className="w-full">
             <Link href="/seller/agreement">Review Agreement</Link>
           </Button>

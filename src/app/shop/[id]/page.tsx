@@ -18,14 +18,14 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
     if (!profile) {
         return {
-            title: 'Shop Not Found | Picksy',
+            title: 'Shop Not Found | Benched',
         };
     }
 
     const name = profile.storeName || profile.displayName;
     return {
-        title: `${name}'s Storefront | Picksy`,
-        description: profile.storeDescription || `Browse the latest collection from ${name} on Picksy Australia.`,
+        title: `${name}'s Storefront | Benched`,
+        description: profile.storeDescription || `Browse the latest collection from ${name} on Benched Australia.`,
         openGraph: {
             images: profile.bannerUrl ? [profile.bannerUrl] : [],
         }

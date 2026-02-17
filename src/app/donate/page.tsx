@@ -93,11 +93,11 @@ export default function DonatePage() {
     <div className="container py-12 md:py-16">
       <section className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-primary font-headline sm:text-5xl md:text-6xl">
-          Picksy Presents
+          Benched Presents
         </h1>
         <p className="mt-6 text-lg max-w-3xl mx-auto text-muted-foreground">
           Give the gift of collecting. Donate your spare cards and coins to the
-          'Picksy Presents' program. We partner with children's hospitals across
+          'Benched Presents' program. We partner with children's hospitals across
           Australia to bring joy to kids who need it most.
         </p>
       </section>

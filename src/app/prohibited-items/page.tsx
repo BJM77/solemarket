@@ -26,7 +26,7 @@ export default function ProhibitedItemsPage() {
     <div className="container py-12 md:py-16">
         <PageHeader
             title="Prohibited Items Policy"
-            description="To maintain a safe and trusted marketplace, certain items are not allowed on Picksy."
+            description="To maintain a safe and trusted marketplace, certain items are not allowed on Benched."
         />
 
         <div className="prose lg:prose-lg max-w-4xl mx-auto mt-8">
@@ -45,7 +45,7 @@ export default function ProhibitedItemsPage() {
             </div>
 
             <p>
-                The following list provides a non-exhaustive overview of items that are not permitted to be sold on the Picksy platform. All users are responsible for ensuring their listings comply with all local, state, and federal laws.
+                The following list provides a non-exhaustive overview of items that are not permitted to be sold on the Benched platform. All users are responsible for ensuring their listings comply with all local, state, and federal laws.
             </p>
             
             {prohibitedCategories.map(cat => (

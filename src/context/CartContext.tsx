@@ -43,7 +43,7 @@ const getInitialCart = (): CartItem[] => {
     return [];
   }
   try {
-    const savedCart = localStorage.getItem('picksy-cart');
+    const savedCart = localStorage.getItem('benched-cart');
     return savedCart ? JSON.parse(savedCart) : [];
   } catch (error) {
     console.error("Failed to load cart from localStorage on init", error);
@@ -61,15 +61,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem('picksy-cart');
+      const savedCart = localStorage.getItem('benched-cart');
       if (savedCart) {
         setItems(JSON.parse(savedCart));
       }
-      const savedShipping = localStorage.getItem('picksy-shipping-method');
+      const savedShipping = localStorage.getItem('benched-shipping-method');
       if (savedShipping) {
         setShippingMethod(savedShipping as 'pickup' | 'shipping');
       }
-      const savedAddress = localStorage.getItem('picksy-shipping-address');
+      const savedAddress = localStorage.getItem('benched-shipping-address');
       if (savedAddress) {
         setShippingAddress(JSON.parse(savedAddress));
       }
@@ -83,12 +83,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hasLoaded.current) {
       try {
-        localStorage.setItem('picksy-cart', JSON.stringify(items));
-        localStorage.setItem('picksy-shipping-method', shippingMethod);
+        localStorage.setItem('benched-cart', JSON.stringify(items));
+        localStorage.setItem('benched-shipping-method', shippingMethod);
         if (shippingAddress) {
-          localStorage.setItem('picksy-shipping-address', JSON.stringify(shippingAddress));
+          localStorage.setItem('benched-shipping-address', JSON.stringify(shippingAddress));
         } else {
-          localStorage.removeItem('picksy-shipping-address');
+          localStorage.removeItem('benched-shipping-address');
         }
       } catch (error) {
         console.error("Failed to save cart to localStorage", error);
@@ -164,8 +164,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => {
     setItems([]);
     setShippingAddress(null);
-    localStorage.removeItem('picksy-cart');
-    localStorage.removeItem('picksy-shipping-address');
+    localStorage.removeItem('benched-cart');
+    localStorage.removeItem('benched-shipping-address');
   }, []);
 
   const cartSubtotal = items.reduce((total, item) => {

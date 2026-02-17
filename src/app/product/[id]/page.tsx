@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: 'Product Not Found | Picksy',
+      title: 'Product Not Found | Benched',
     };
   }
 
@@ -41,20 +41,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = product.description
     ? product.description.substring(0, 160)
-    : `Buy ${product.title} on Picksy. ${product.condition ? `Condition: ${product.condition}.` : ''} Trusted Australian marketplace for collectors.`;
+    : `Buy ${product.title} on Benched. ${product.condition ? `Condition: ${product.condition}.` : ''} Trusted Australian marketplace for collectors.`;
 
   const keywords = [
     product.category,
     product.title,
     product.manufacturer,
     product.condition,
-    'Picksy',
+    'Benched',
     'Australia',
-    'buy collectibles'
+    'buy basketball sneakers'
   ].filter(Boolean) as string[];
 
   return {
-    title: `${product.title} | ${product.category} | Picksy`,
+    title: `${product.title} | ${product.category} | Benched`,
     description: description,
     keywords: keywords,
     openGraph: {
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: description,
       images: images.map(url => ({ url })),
       type: 'website',
-      siteName: 'Picksy Marketplace',
+      siteName: 'Benched Marketplace',
       url: `/product/${product.id}`,
     },
     twitter: {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: product.title,
       description: description,
       images: images,
-      creator: '@picksyau',
+      creator: '@benchedau',
     },
     alternates: {
       canonical: `/product/${product.id}`,
@@ -122,7 +122,7 @@ export default async function ProductPage({ params }: Props) {
   const initialReviews = await getReviewsForProduct(id);
 
 
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://studio-8322868971-8ca89.web.app';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
 
   const jsonLd: any = {
     '@context': 'https://schema.org',
@@ -136,7 +136,7 @@ export default async function ProductPage({ params }: Props) {
     description: product.description,
     brand: {
       '@type': 'Brand',
-      name: product.manufacturer || 'Picksy Marketplace',
+      name: product.manufacturer || 'Benched Marketplace',
     },
     offers: {
       '@type': 'Offer',
@@ -148,7 +148,7 @@ export default async function ProductPage({ params }: Props) {
       url: `${SITE_URL}/product/${product.id}`,
       seller: {
         '@type': 'Organization',
-        name: product.sellerName || 'Picksy Seller'
+        name: product.sellerName || 'Benched Seller'
       },
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy',

@@ -46,7 +46,7 @@ export default function FraudDetectionPage() {
               <Textarea
                 name="details"
                 id="details"
-                placeholder="e.g., 'Can I pay you outside of Picksy with a gift card? My email is...'"
+                placeholder="e.g., 'Can I pay you outside of Benched with a gift card? My email is...'"
                 rows={10}
                 className="resize-none rounded-xl"
                 required

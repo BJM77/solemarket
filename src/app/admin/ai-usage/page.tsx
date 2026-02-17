@@ -67,7 +67,7 @@ export default function AIUsagePage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <PageHeader
                     title="AI Intelligence Console"
-                    description="Real-time usage tracking and cost estimation for Picksy AI services."
+                    description="Real-time usage tracking and cost estimation for Benched AI services."
                 />
                 <div className="flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-xl border border-primary/10">
                     <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -3,7 +3,7 @@ import { ImageResponse } from 'next/og';
 import { getProductById } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
-export const alt = 'Picksy Product Listing';
+export const alt = 'Benched Product Listing';
 export const size = {
   width: 1200,
   height: 630,
@@ -30,7 +30,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             fontWeight: 'bold',
           }}
         >
-          Picksy Marketplace
+          Benched Marketplace
         </div>
       ),
       { ...size }
@@ -74,7 +74,7 @@ export default async function Image({ params }: { params: { id: string } }) {
         }}>
           {/* Logo / Brand */}
           <div style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 20, color: 'hsl(210, 40%, 98%)' }}>
-            Picksy
+            Benched
           </div>
 
           {/* Title */}

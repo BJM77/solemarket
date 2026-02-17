@@ -72,7 +72,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                             </div>
                         </div>
                         <p className="text-muted-foreground line-clamp-2 max-w-2xl text-sm sm:text-base">
-                            {profile.storeDescription || profile.bio || "Welcome to my official storefront on Picksy."}
+                            {profile.storeDescription || profile.bio || "Welcome to my official storefront on Benched."}
                         </p>
                     </div>
                 </div>

@@ -33,7 +33,7 @@ export default async function MarketTrendingPage() {
                             Market Trending
                         </h1>
                         <p className="max-w-xl text-lg text-gray-600 dark:text-gray-400">
-                            Real-time insights into the most viewed and in-demand collectibles on Picksy right now.
+                            Real-time insights into the most viewed and in-demand collectibles on Benched right now.
                         </p>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ export default function LogPage() {
             <Card className="w-full max-w-md p-6 shadow-xl border-t-4 border-primary h-fit">
                 <CardHeader className="text-center">
                     <CardTitle className="text-3xl font-bold font-headline">Welcome Back</CardTitle>
-                    <CardDescription>Sign in to access your Picksy account</CardDescription>
+                    <CardDescription>Sign in to access your Benched account</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Suspense fallback={<div>Loading...</div>}>

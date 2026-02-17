@@ -79,7 +79,7 @@ export default function SellerAgreementPage() {
                         <ShieldCheck className="h-10 w-10 text-primary" />
                     </div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight">Seller Agreement</h1>
-                    <p className="mt-4 text-lg text-slate-500">Join the Picksy marketplace and start selling your collectibles.</p>
+                    <p className="mt-4 text-lg text-slate-500">Join the Benched marketplace and start selling your collectibles.</p>
                 </div>
 
                 <Card className="border-none shadow-xl">
@@ -94,7 +94,7 @@ export default function SellerAgreementPage() {
                                     <CheckCircle2 className="h-5 w-5 text-primary" />
                                     1. Admin Approval
                                 </h3>
-                                <p>All new sellers must be reviewed and approved by the Picksy Super Admin team before being allowed to list items for sale. This process usually takes 24-48 hours.</p>
+                                <p>All new sellers must be reviewed and approved by the Benched Super Admin team before being allowed to list items for sale. This process usually takes 24-48 hours.</p>
                             </section>
 
                             <section className="space-y-2">
@@ -118,7 +118,7 @@ export default function SellerAgreementPage() {
                                     <CheckCircle2 className="h-5 w-5 text-primary" />
                                     4. Fees & Payments
                                 </h3>
-                                <p>Picksy collects a platform fee on every successful sale. Detailed fee structures are available in the Seller Help Center. Payments are processed securely via our payment partners.</p>
+                                <p>Benched collects a platform fee on every successful sale. Detailed fee structures are available in the Seller Help Center. Payments are processed securely via our payment partners.</p>
                             </section>
                         </div>
 
@@ -135,10 +135,10 @@ export default function SellerAgreementPage() {
                                         htmlFor="terms"
                                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-700"
                                     >
-                                        I have read and agree to the Picksy Seller Agreement and Marketplace Terms of Service.
+                                        I have read and agree to the Benched Seller Agreement and Marketplace Terms of Service.
                                     </label>
                                     <p className="text-xs text-slate-500">
-                                        By checking this box, you are applying to become a seller on Picksy.
+                                        By checking this box, you are applying to become a seller on Benched.
                                     </p>
                                 </div>
                             </div>

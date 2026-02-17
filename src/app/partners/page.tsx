@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Partner with Picksy | Digitise Your Store",
+    title: "Partner with Benched | Digitise Your Store",
     description: "Exclusive partnership program for Op Shops, Antique Stores, and Collectors. Unlock AI-powered listing, security, and world-class SEO.",
     robots: {
         index: false, // Hidden page
@@ -106,7 +106,7 @@ export default function PartnersPage() {
             {/* Main Features */}
             <section id="features" className="py-20 container mx-auto max-w-6xl px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <Badge variant="outline" className="mb-4">Why Picksy?</Badge>
+                    <Badge variant="outline" className="mb-4">Why Benched?</Badge>
                     <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Built for Serious Sellers</h2>
                     <p className="text-lg text-muted-foreground">
                         We understand the unique challenges of physical stores. Our platform is designed to seamlessly integrate with your workflow.
@@ -161,13 +161,13 @@ export default function PartnersPage() {
                     <div className="flex flex-col md:flex-row gap-12 items-start">
                         <div className="md:w-1/3 sticky top-24">
                             <Badge variant="outline" className="mb-4 text-primary border-primary">Comparison</Badge>
-                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Picksy vs. Others</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Benched vs. Others</h2>
                             <p className="text-lg text-muted-foreground mb-6">
-                                Picksy shares the robust e-commerce power of traditional builders but is architected as a specialized multi-vendor marketplace tailored specifically for the collectibles hobby.
+                                Benched shares the robust e-commerce power of traditional builders but is architected as a specialized multi-vendor marketplace tailored specifically for the collectibles hobby.
                             </p>
                             <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
                                 <p className="text-sm font-medium">
-                                    "Picksy gives you the industrial-strength tools of a global platform with the community and niche focus of a specialized marketplace."
+                                    "Benched gives you the industrial-strength tools of a global platform with the community and niche focus of a specialized marketplace."
                                 </p>
                             </div>
                         </div>
@@ -191,7 +191,7 @@ export default function PartnersPage() {
                                 },
                                 {
                                     title: "Built-in Traffic",
-                                    desc: "While independent store builders require you to find your own customers, Picksy is the destination. We bring the collectors to you.",
+                                    desc: "While independent store builders require you to find your own customers, Benched is the destination. We bring the collectors to you.",
                                     icon: <Search className="w-5 h-5 text-primary" />
                                 },
                                 {
@@ -263,7 +263,7 @@ export default function PartnersPage() {
                     <div className="flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2">
                             <Badge className="bg-yellow-500 text-black hover:bg-yellow-400 mb-6">New Premium Service</Badge>
-                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-headline mb-6">Picksy Research & Valuation</h2>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-headline mb-6">Benched Research & Valuation</h2>
                             <p className="text-slate-300 text-lg mb-8 leading-relaxed">
                                 Have high-value items but unsure of their market price? Don&apos;t leave money on the table.
                                 <br /><br />
@@ -300,7 +300,7 @@ export default function PartnersPage() {
                                         <p className="text-2xl font-bold text-white">$450</p>
                                     </div>
                                     <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                        <p className="text-xs text-green-400 uppercase font-bold">Picksy Valued</p>
+                                        <p className="text-xs text-green-400 uppercase font-bold">Benched Valued</p>
                                         <p className="text-2xl font-bold text-white">$1,200</p>
                                     </div>
                                 </div>
@@ -359,7 +359,7 @@ export default function PartnersPage() {
 
             {/* Footer Simple */}
             <footer className="py-8 text-center text-muted-foreground text-sm border-t">
-                <p>&copy; {new Date().getFullYear()} Picksy. All rights reserved. | <Link href="/" className="hover:underline">Back to Marketplace</Link></p>
+                <p>&copy; {new Date().getFullYear()} Benched. All rights reserved. | <Link href="/" className="hover:underline">Back to Marketplace</Link></p>
             </footer>
         </div>
     );

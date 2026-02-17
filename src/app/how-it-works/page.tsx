@@ -5,8 +5,8 @@ import { Search, ShoppingCart, Shield, Upload, DollarSign, Package } from "lucid
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'How It Works | Picksy Marketplace',
-  description: 'Learn how to buy and sell collectibles securely on Picksy. From AI-powered listings to secure payments and the Picksy Vault.',
+  title: 'How It Works | Benched Marketplace',
+  description: 'Learn how to buy and sell collectibles securely on Benched. From AI-powered listings to secure payments and the Benched Vault.',
 };
 
 const forBuyers = [
@@ -23,7 +23,7 @@ const forBuyers = [
   {
     icon: <Shield className="h-8 w-8 text-primary" />,
     title: "Receive & Verify",
-    description: "For high-value items, use our optional Picksy Vault service for third-party verification and secure storage."
+    description: "For high-value items, use our optional Benched Vault service for third-party verification and secure storage."
   }
 ];
 
@@ -36,7 +36,7 @@ const forSellers = [
   {
     icon: <Package className="h-8 w-8 text-primary" />,
     title: "Ship to Buyer",
-    description: "Once an item is sold, ship it directly to the buyer or to the Picksy Vault for verification, depending on the transaction type."
+    description: "Once an item is sold, ship it directly to the buyer or to the Benched Vault for verification, depending on the transaction type."
   },
   {
     icon: <DollarSign className="h-8 w-8 text-primary" />,
@@ -52,15 +52,15 @@ export default function HowItWorksPage() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'Is Picksy safe for buyers?',
+        name: 'Is Benched safe for buyers?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes, Picksy uses secure payment processing and offers the Picksy Vault for high-value item verification to ensure you get exactly what you paid for.'
+          text: 'Yes, Benched uses secure payment processing and offers the Benched Vault for high-value item verification to ensure you get exactly what you paid for.'
         }
       },
       {
         '@type': 'Question',
-        name: 'How do I sell on Picksy?',
+        name: 'How do I sell on Benched?',
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'You can easily list items using our AI-powered tools. Simply upload a photo, and our AI will help with the description, pricing, and grading.'
@@ -68,10 +68,10 @@ export default function HowItWorksPage() {
       },
       {
         '@type': 'Question',
-        name: 'What is the Picksy Vault?',
+        name: 'What is the Benched Vault?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'The Picksy Vault is a third-party verification and secure storage service for high-value collectibles. It ensures authenticity and eliminates shipping risks.'
+          text: 'The Benched Vault is a third-party verification and secure storage service for high-value collectibles. It ensures authenticity and eliminates shipping risks.'
         }
       }
     ]
@@ -85,7 +85,7 @@ export default function HowItWorksPage() {
       />
       <div className="container py-12 md:py-16">
         <PageHeader
-          title="How Picksy Works"
+          title="How Benched Works"
           description="A simple, secure, and modern marketplace for Australian collectors."
         />
 

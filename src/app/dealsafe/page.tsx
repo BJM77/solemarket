@@ -26,7 +26,7 @@ const sellerBenefits = [
     },
     {
         title: "Zero Chargeback Risk",
-        description: "By using Picksy as the intermediary, you are protected from fraudulent 'not received' or 'unauthorized' claims."
+        description: "By using Benched as the intermediary, you are protected from fraudulent 'not received' or 'unauthorized' claims."
     },
     {
         title: "Trust & Reputation",
@@ -44,7 +44,7 @@ export default function DealSafePage() {
                         Trade with Absolute <span className="text-primary">Confidence.</span>
                     </h1>
                     <p className="text-xl text-muted-foreground leading-relaxed">
-                        DealSafe is Picksy's premier escrow and verification service. We eliminate the risk of online trading by acting as a non-biased, third-party intermediary for both your stock and your money.
+                        DealSafe is Benched's premier escrow and verification service. We eliminate the risk of online trading by acting as a non-biased, third-party intermediary for both your stock and your money.
                     </p>
                 </div>
 
@@ -61,7 +61,7 @@ export default function DealSafePage() {
                                 The biggest hurdle in online collecting is trust. Does the seller actually have the item? Will the buyer actually pay?
                             </p>
                             <p className="text-slate-300 text-lg leading-relaxed">
-                                Picksy solves this by remaining **neutral**. We don't take sides; we take responsibility. By holding the seller's stock and the buyer's money simultaneously, we create a "trust vacuum" where neither party can lose. If the deal isn't perfect, the item goes back, the money goes back, and no one is out of pocket.
+                                Benched solves this by remaining **neutral**. We don't take sides; we take responsibility. By holding the seller's stock and the buyer's money simultaneously, we create a "trust vacuum" where neither party can lose. If the deal isn't perfect, the item goes back, the money goes back, and no one is out of pocket.
                             </p>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
@@ -128,7 +128,7 @@ export default function DealSafePage() {
                 <div className="text-center bg-primary/5 rounded-3xl py-16 px-8 border border-primary/10">
                     <h2 className="text-3xl font-bold mb-4 font-headline">Ready for a DealSafe trade?</h2>
                     <p className="text-muted-foreground max-w-xl mx-auto mb-8 text-lg">
-                        Whether you're buying a 1st Edition Charizard or selling a rare historical coin, protect your investment with Picksy's most trusted service.
+                        Whether you're buying a 1st Edition Charizard or selling a rare historical coin, protect your investment with Benched's most trusted service.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <DealSafeEnquiryDialog>

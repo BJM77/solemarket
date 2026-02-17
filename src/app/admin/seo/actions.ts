@@ -46,13 +46,13 @@ export async function getSEOSettings(): Promise<SEOSettings> {
         }
 
         return {
-            siteTitleTemplate: '%s | Picksy - Australia\'s Local Marketplace',
+            siteTitleTemplate: '%s | Benched - Australia\'s Local Marketplace',
             defaultDescription: 'The premier Australian marketplace for grading, buying, and selling collector cards, coins, and memorabilia.',
             keywords: 'trading cards australia, sports cards perth, coin collecting australia, psa grading australia',
             allowIndexing: true,
             australiaOnly: true,
             localBusinessSchema: {
-                name: 'Picksy',
+                name: 'Benched',
                 addressCountry: 'Australia',
                 addressRegion: 'Western Australia',
                 addressLocality: 'Perth',
@@ -68,13 +68,13 @@ export async function getSEOSettings(): Promise<SEOSettings> {
     } catch (error) {
         console.error('Error fetching SEO settings:', error);
         return {
-            siteTitleTemplate: '%s | Picksy',
+            siteTitleTemplate: '%s | Benched',
             defaultDescription: '',
             keywords: '',
             allowIndexing: true,
             australiaOnly: true,
             localBusinessSchema: {
-                name: 'Picksy',
+                name: 'Benched',
                 addressCountry: 'Australia',
                 addressRegion: '',
                 addressLocality: '',

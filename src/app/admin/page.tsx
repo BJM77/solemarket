@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
                     Admin Dashboard
                 </h1>
                 <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs">
-                    Manage all aspects of the Picksy marketplace.
+                    Manage all aspects of the Benched marketplace.
                 </p>
             </motion.div>
 

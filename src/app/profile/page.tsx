@@ -231,7 +231,7 @@ export default function ProfileDetailsPage() {
                         <FormControl>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                              picksy.au/shop/
+                              benched.au/shop/
                             </span>
                             <Input
                               placeholder="your-shop-name"

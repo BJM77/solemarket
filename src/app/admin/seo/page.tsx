@@ -59,7 +59,7 @@ export default function SEOPage() {
         <div className="container mx-auto py-8 space-y-8">
             <PageHeader
                 title="Marketplace Search Strategy"
-                description="Picksy is the premier marketplace for collectors. Optimize for Australian collectors and local search visibility."
+                description="Benched is the premier marketplace for collectors. Optimize for Australian collectors and local search visibility."
             />
 
             <div className="grid gap-8 lg:grid-cols-12">
@@ -131,7 +131,7 @@ export default function SEOPage() {
                                 <Input
                                     value={settings.siteTitleTemplate}
                                     onChange={(e) => setSettings({ ...settings, siteTitleTemplate: e.target.value })}
-                                    placeholder="%s | Picksy - Australia's Local Marketplace"
+                                    placeholder="%s | Benched - Australia's Local Marketplace"
                                 />
                                 <p className="text-xs text-muted-foreground font-mono bg-muted p-1 rounded inline-block">Use %s as a placeholder for the page title.</p>
                             </div>
@@ -141,7 +141,7 @@ export default function SEOPage() {
                                     className="min-h-[100px]"
                                     value={settings.defaultDescription}
                                     onChange={(e) => setSettings({ ...settings, defaultDescription: e.target.value })}
-                                    placeholder="Picksy is the premier marketplace for collectors. Buy, sell, and trade cards, coins, and comics."
+                                    placeholder="Benched is the premier marketplace for collectors. Buy, sell, and trade cards, coins, and comics."
                                 />
                             </div>
                             <div className="space-y-2">
@@ -182,7 +182,7 @@ export default function SEOPage() {
                                 Search Engine Registration Console
                             </CardTitle>
                             <CardDescription className="text-emerald-700/80">
-                                Manually register Picksy with major search engines to accelerate indexing and visibility in Australia.
+                                Manually register Benched with major search engines to accelerate indexing and visibility in Australia.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="pt-6 space-y-8">
@@ -205,7 +205,7 @@ export default function SEOPage() {
                                         </div>
                                         <div className="flex items-start gap-2">
                                             <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
-                                            <p><strong>Action:</strong> Submit <code>https://picksy.au/sitemap.xml</code> after verification.</p>
+                                            <p><strong>Action:</strong> Submit <code>https://benched.au/sitemap.xml</code> after verification.</p>
                                         </div>
                                     </div>
                                     <Button variant="default" className="bg-blue-600 hover:bg-blue-700 font-bold" asChild>
@@ -265,7 +265,7 @@ export default function SEOPage() {
                                         </div>
                                         <div className="flex items-start gap-2">
                                             <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
-                                            <p><strong>Benefit:</strong> Puts Picksy on Apple Maps and enhances Siri search results.</p>
+                                            <p><strong>Benefit:</strong> Puts Benched on Apple Maps and enhances Siri search results.</p>
                                         </div>
                                     </div>
                                     <Button variant="secondary" className="font-bold flex items-center justify-center" asChild>
@@ -349,7 +349,7 @@ export default function SEOPage() {
                                     Disallow: /profile/<br />
                                     <br />
                                     # Australia Targeting<br />
-                                    Sitemap: https://picksy.com.au/sitemap.xml
+                                    Sitemap: https://benched.com.au/sitemap.xml
                                 </pre>
                             </div>
                             <Button variant="ghost" size="sm" className="w-full text-xs">Edit Robots Directive</Button>

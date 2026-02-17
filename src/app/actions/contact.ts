@@ -21,10 +21,10 @@ export async function sendContactEmail(formData: FormData) {
         }
 
         await resend.emails.send({
-            from: 'Picksy Contact <onboarding@resend.dev>', // Update this if you have a verified domain
-            to: ['ben@picksy.au'], // Send to the admin
+            from: 'Benched Contact <onboarding@resend.dev>', // Update this if you have a verified domain
+            to: ['ben@benched.au'], // Send to the admin
             replyTo: email, // Direct reply to user
-            subject: `[Picksy Contact] ${subject || 'New Message'}`,
+            subject: `[Benched Contact] ${subject || 'New Message'}`,
             text: `
               Name: ${name}
               Email: ${email}

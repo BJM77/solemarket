@@ -81,7 +81,7 @@ export function DealSafeEnquiryDialog({ children }: { children: React.ReactNode 
                         Contact a DealSafe Expert
                     </DialogTitle>
                     <DialogDescription>
-                        Explain your deal or ask any questions. A verified Picksy concierge will review your message and reach out.
+                        Explain your deal or ask any questions. A verified Benched concierge will review your message and reach out.
                     </DialogDescription>
                 </DialogHeader>
 

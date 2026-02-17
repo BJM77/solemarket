@@ -16,8 +16,8 @@ const safetyTips = [
   },
   {
     icon: <MessageSquare className="h-8 w-8 text-primary" />,
-    title: "Communicate on Picksy",
-    description: "Keep all communication with the other party on the Picksy messaging platform. Do not share personal contact information like emails or phone numbers."
+    title: "Communicate on Benched",
+    description: "Keep all communication with the other party on the Benched messaging platform. Do not share personal contact information like emails or phone numbers."
   },
   {
     icon: <Users className="h-8 w-8 text-primary" />,
@@ -32,7 +32,7 @@ export default function SafetyTipsPage() {
       <div className="container py-12 md:py-16">
         <PageHeader
           title="Safety Tips for Buyers & Sellers"
-          description="Follow these guidelines to ensure a safe and secure experience on Picksy."
+          description="Follow these guidelines to ensure a safe and secure experience on Benched."
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">

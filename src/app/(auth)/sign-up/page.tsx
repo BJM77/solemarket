@@ -18,7 +18,7 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Create your account</CardTitle>
           <CardDescription>
-            Join the Picksy marketplace today.
+            Join the Benched marketplace today.
           </CardDescription>
         </CardHeader>
         <CardContent>

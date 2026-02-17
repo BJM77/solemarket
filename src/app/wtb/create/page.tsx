@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-    title: 'Create WTB Listing | Picksy',
+    title: 'Create WTB Listing | Benched',
     description: 'Post a Wanted To Buy listing for collectibles you\'re actively seeking.',
 };
 

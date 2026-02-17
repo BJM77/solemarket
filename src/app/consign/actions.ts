@@ -135,7 +135,7 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
 
     try {
         await resend.emails.send({
-            from: 'Picksy Consignments <consign@picksy.au>',
+            from: 'Benched Consignments <consign@benched.au>',
             to: email,
             subject: 'We received your consignment inquiry',
             html: `
@@ -144,7 +144,7 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
                     <p>We have received your consignment inquiry and our team will review it shortly.</p>
                     <p>We typically respond within 1-2 business days.</p>
                     <hr />
-                    <p style="color: #666; font-size: 12px;">Picksy Marketplace - The Premier Marketplace for Collectors</p>
+                    <p style="color: #666; font-size: 12px;">Benched Marketplace - The Premier Marketplace for Collectors</p>
                 </div>
             `,
         });
@@ -162,11 +162,11 @@ async function sendAdminNotificationEmail(data: any): Promise<void> {
     if (!resend) return;
 
     // In a real app, fetch this from config or env
-    const ADMIN_EMAIL = 'ben@picksy.au'; // Default fallback or use env var
+    const ADMIN_EMAIL = 'ben@benched.au'; // Default fallback or use env var
 
     try {
         await resend.emails.send({
-            from: 'Picksy Bot <system@picksy.au>',
+            from: 'Benched Bot <system@benched.au>',
             to: ADMIN_EMAIL,
             subject: `New Consignment: ${data.itemType} ($${data.estimatedValue})`,
             html: `
@@ -178,7 +178,7 @@ async function sendAdminNotificationEmail(data: any): Promise<void> {
                 <p><strong>Est. Value:</strong> ${data.estimatedValue}</p>
                 <p><strong>Description:</strong><br/>${data.description}</p>
                 <hr />
-                <a href="https://picksy.au/admin/consignments">View in Admin Dashboard</a>
+                <a href="https://benched.au/admin/consignments">View in Admin Dashboard</a>
             `,
         });
     } catch (error) {
