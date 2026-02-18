@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, LayoutGrid, Footprints } from 'lucide-react';
+import { ArrowRight, LayoutGrid, Footprints, Library } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,12 @@ const CATEGORIES = [
         logo: '/brand-logos/nike.png',
         href: '/browse?category=Nike',
         color: 'bg-orange-50 dark:bg-orange-950/20'
+    },
+    {
+        name: 'Basketball Cards',
+        icon: Library,
+        href: '/trading-cards/basketball-cards',
+        color: 'bg-primary/10 dark:bg-primary/20'
     },
     {
         name: 'Adidas',

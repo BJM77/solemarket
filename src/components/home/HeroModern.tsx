@@ -68,15 +68,15 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     </div>
 
                     <h1 className="text-4xl md:text-7xl font-black text-gray-900 dark:text-white tracking-tight mb-6 leading-[0.95]">
-                        These kicks aren't done. <br />
+                        Kicks or Cards. <br />
                         <span className="gradient-text">
-                            They're just Benched.
+                            We've got the roster.
                         </span>
                     </h1>
 
                     <p className="text-lg md:text-xl font-medium text-gray-600 dark:text-gray-400 max-w-xl mb-10 leading-relaxed">
-                        Performance basketball sneakers waiting for their second half. <br className="hidden md:block" />
-                        The safest way to rotate your lineup.
+                        Australia's premier destination for performance sneakers and NBA cards. <br className="hidden md:block" />
+                        The safest way to upgrade your rotation.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 mb-12">

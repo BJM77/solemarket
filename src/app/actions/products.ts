@@ -246,6 +246,7 @@ export const getFeaturedProducts = unstable_cache(
         try {
             const snapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
+                .orderBy('isPromoted', 'desc')
                 .orderBy('createdAt', 'desc')
                 .limit(limitCount)
                 .get();
@@ -292,6 +293,7 @@ export const getSneakersProducts = unstable_cache(
             const snapshot = await firestoreDb.collection('products')
                 .where('category', 'in', SNEAKER_CATEGORIES)
                 .where('status', '==', 'available')
+                .orderBy('isPromoted', 'desc')
                 .orderBy('createdAt', 'desc')
                 .limit(limitCount)
                 .get();

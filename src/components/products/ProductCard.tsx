@@ -387,6 +387,8 @@ export default function ProductCard({
         return 'aspect-[4/3]';
       case 'Accessories':
         return 'aspect-square';
+      case 'Trading Cards':
+        return 'aspect-[2.5/3.5]';
       default:
         return 'aspect-square';
     }
@@ -729,6 +731,12 @@ export default function ProductCard({
         )}
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
+          {product.isPromoted && (
+            <Badge variant="default" className="inline-flex items-center gap-1 bg-orange-500 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
+              <Sparkles className="h-3 w-3" />
+              FEATURED
+            </Badge>
+          )}
           {isNewArrival() && (
             <Badge variant="default" className="inline-flex items-center gap-1 bg-secondary text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
               <Sparkles className="h-3 w-3" />
@@ -749,9 +757,10 @@ export default function ProductCard({
           {product.condition && (
             <Badge variant="secondary" className={cn(
               "inline-flex items-center gap-1 font-black px-2 py-1 rounded-lg uppercase text-[10px] tracking-tighter backdrop-blur-md pointer-events-auto shadow-sm",
-              product.condition.includes('New') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
+              product.condition.includes('New') || product.grade?.includes('10') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
             )}>
-              {product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES'}
+              {product.category === 'Trading Cards' ? (product.grade || 'RAW') :
+                (product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES')}
             </Badge>
           )}
           {hasViewed && (
@@ -856,7 +865,7 @@ export default function ProductCard({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
+
               <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
                 <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                   <AlertDialogHeader>
@@ -890,7 +899,7 @@ export default function ProductCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
-      
+
       {!selectable && (
         <Link
           href={`/product/${product.id}`}
@@ -900,7 +909,7 @@ export default function ProductCard({
           <span className="sr-only">View {product.title}</span>
         </Link>
       )}
-      
+
       <div className="p-3 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none">
         <div className="flex justify-between items-start mb-1 sm:mb-2">
           <h3 className="text-sm sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2.5rem] sm:min-h-0">

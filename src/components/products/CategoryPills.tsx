@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Layers, LayoutGrid, Shirt, Footprints, Watch, ShoppingBag, Sparkles } from 'lucide-react';
+import { Layers, LayoutGrid, Shirt, Footprints, Watch, ShoppingBag, Sparkles, Library } from 'lucide-react';
 
 const CATEGORIES = [
     { name: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers' },
+    { name: 'Trading Cards', icon: Library, href: '/browse?category=Trading%20Cards' },
     { name: 'Accessories', icon: Watch, href: '/browse?category=Accessories' },
     { name: 'New Arrivals', icon: Sparkles, href: '/browse?sort=newest' },
     { name: 'View All', icon: LayoutGrid, href: '/browse' },

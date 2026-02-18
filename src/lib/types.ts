@@ -141,6 +141,9 @@ export type Product = {
   contactCallCount?: number; // Analytics for phone reveals
   isNegotiable?: boolean;
   isFeatured?: boolean;
+  isPromoted?: boolean;
+  promotionExpiresAt?: Timestamp;
+  promotionSessionId?: string;
   title_lowercase?: string;
   isUntimed?: boolean;
   multibuyEnabled?: boolean;

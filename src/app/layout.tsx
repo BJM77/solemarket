@@ -60,7 +60,6 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: brandConfig.branding.faviconUrl || '/favicon.ico' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     apple: [
       { url: '/apple-touch-icon.png' },

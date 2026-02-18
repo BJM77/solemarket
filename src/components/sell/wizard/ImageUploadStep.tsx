@@ -10,7 +10,7 @@ import { Upload, Trash2, Sparkles, Loader2, ImagePlus } from 'lucide-react';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import imageCompression from 'browser-image-compression';
 import { useToast } from "@/hooks/use-toast";
-// import EnhancedAICardGrader from '@/components/products/EnhancedAICardGrader'; // Removed for Benched
+import AICardGrader from '@/components/products/AICardGrader';
 
 interface ImageUploadStepProps {
     imageFiles: any[];
@@ -19,7 +19,7 @@ interface ImageUploadStepProps {
     onRemoveImage: (index: number) => void;
     onAutoFill: () => Promise<void>;
     isAnalyzing: boolean;
-    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'general';
+    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'trading-cards' | 'general';
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
     form: any; // Passed for direct setValue if needed by sub-components
@@ -150,7 +150,14 @@ export function ImageUploadStep({
                 </CardContent>
             </Card>
 
-            {/* Grading component removed for Benched rebrand */}
+            {/* AI Grading & Scanning for Trading Cards */}
+            {selectedType === 'trading-cards' && (
+                <AICardGrader
+                    imageFiles={imageFiles.filter(f => f instanceof File)}
+                    onGradeComplete={onGradeComplete}
+                    onApplySuggestions={onApplySuggestions!}
+                />
+            )}
         </div>
     );
 }

@@ -46,7 +46,7 @@ export default function ResearchPage() {
         <div className="container mx-auto py-8">
             <PageHeader
                 title="Market Research"
-                description="Search sold listings to determine market value for your sneakers."
+                description="Search sold listings to determine market value for your sneakers and trading cards."
             />
 
             <div className="mt-8">

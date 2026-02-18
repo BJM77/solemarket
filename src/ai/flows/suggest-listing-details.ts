@@ -77,18 +77,19 @@ Images:
 {{/if}}
 
 Based on the images and/or title, provide the following details:
-1.  **Title:** A concise, descriptive, and SEO-friendly title. Include Brand, Model, Colorway.
+1.  **Title:** A concise, descriptive, and SEO-friendly title. For sneakers: Brand, Model, Colorway. For cards: Year, Set, Player, Card #.
 2.  **Description:** A one-to-two-line description highlighting key features and condition.
 3.  **Price:** An estimated market price in AUD (Australian Dollars).
-4.  **Category:** Choose from 'Sneakers', 'Streetwear', 'Accessories'.
-5.  **Sub-Category:** (e.g. 'Men's Sneakers', 'Hoodies', 'Bags').
-6.  **Condition:** 'New with Box', 'New without Box', 'Used', etc.
-7.  **Brand:** e.g. Nike, Adidas, Supreme.
-8.  **Model:** e.g. Air Jordan 1, Yeezy 350.
-9.  **Style Code:** Try to identify the style code if visible (e.g. DZ5485-612).
-10. **Colorway:** e.g. Chicago, Zebra.
-11. **Size:** If visible on box or tag.
+4.  **Category:** Choose from 'Sneakers', 'Trading Cards'.
+5.  **Sub-Category:** (e.g. 'Men's Sneakers', 'Basketball Cards', 'Pokémon Cards').
+6.  **Condition:** For sneakers: 'New with Box', 'Used'. For cards: 'Mint 9', 'Near Mint 7', 'Raw'.
+7.  **Brand:** e.g. Nike, Adidas (Sneakers) or Panini, Upper Deck (Cards).
+8.  **Model:** e.g. Air Jordan 1 (Sneakers) or Prizm, Optic (Cards).
+9.  **Style Code:** For sneakers only (e.g. DZ5485-612).
+10. **Colorway:** For sneakers only (e.g. Chicago, Zebra).
+11. **Size:** For sneakers only.
 12. **Year:** Release year.
+13. **Grading Info:** If it's a card, identify Grading Company, Grade, and Card Number.
 `,
 });
 

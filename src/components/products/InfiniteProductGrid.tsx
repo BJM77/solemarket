@@ -9,7 +9,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
@@ -506,6 +506,18 @@ function InfiniteProductGridInner({
             >
               <Link href="/browse?category=Sneakers">
                 <Footprints className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Link>
+            </Button>
+
+            <Button
+              variant={currentSearchParams.category === 'Trading Cards' ? 'secondary' : 'ghost'}
+              size="icon"
+              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Trading Cards' && "bg-primary/10 text-primary")}
+              asChild
+              title="Trading Cards"
+            >
+              <Link href="/browse?category=Trading%20Cards">
+                <Library className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </Button>
 

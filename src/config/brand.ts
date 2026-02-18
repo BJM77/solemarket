@@ -144,11 +144,11 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'Australia\'s premier marketplace for performance basketball sneakers and culture.'
+            'Australia\'s premier marketplace for performance basketball sneakers, trading cards, and culture.'
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
-            'Second Half Starts Here.'
+            'Your Rotation, Upgraded.'
         ),
         foundedYear: getEnvNumber('COMPANY_FOUNDED_YEAR', 2024),
     },
@@ -158,9 +158,9 @@ export const brandConfig: BrandConfig = {
         primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#111111'), // Matte Black
         secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#F5F5F5'), // Off White
         accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
-        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/logo.svg'),
-        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/logo.svg'),
-        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/favicon.ico'),
+        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/new-logo.png'),
+        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/new-logo.png'),
+        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/new-logo.png'),
         ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', '/og-image.jpg'),
     },
 
@@ -182,20 +182,23 @@ export const brandConfig: BrandConfig = {
         siteName: getEnv('NEXT_PUBLIC_SITE_NAME', 'Benched'),
         defaultTitle: getEnv(
             'NEXT_PUBLIC_DEFAULT_TITLE',
-            'Benched | Performance Basketball Sneakers & Culture'
+            'Benched | Performance Basketball Sneakers & Trading Cards'
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The second half starts here. Buy and sell basketball sneakers in Australia. Every pair has more game left.'
+            'The premier marketplace for basketball culture in Australia. Buy and sell performance sneakers and NBA trading cards. Your rotation, upgraded.'
         ),
         keywords: [
             'basketball shoes',
+            'trading cards',
+            'nba cards',
+            'basketball cards',
             'sneakers',
             'hoop shoes',
             'Air Jordan',
             'Nike Basketball',
-            'Adidas Basketball',
-            'Puma Hoops',
+            'Panini Prizm',
+            'PSA Graded',
             'marketplace',
             'Australia',
             'buy sell sneakers',

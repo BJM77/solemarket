@@ -5,9 +5,9 @@ export const productFormSchema = z.object({
     description: z.string().min(20, "Description must be at least 20 characters").max(2000, "Description must be less than 2000 characters"),
     price: z.number().min(0, "Price must be positive"),
 
-    // Categories restricted to Sneaker Market
-    category: z.enum(['Sneakers', 'Apparel'], {
-        errorMap: () => ({ message: "Please select a valid category (Sneakers)" })
+    // Categories
+    category: z.enum(['Sneakers', 'Apparel', 'Trading Cards'], {
+        errorMap: () => ({ message: "Please select a valid category" })
     }),
     subCategory: z.string().optional(),
 
@@ -44,6 +44,10 @@ export const productFormSchema = z.object({
     autoRepricingEnabled: z.boolean().optional(),
     isNegotiable: z.boolean().optional(),
     isUntimed: z.boolean().optional(),
+
+    isPromoted: z.boolean().optional().default(false),
+    promotionExpiresAt: z.any().optional(),
+    promotionSessionId: z.string().optional(),
 
     // Auction fields
     isAuction: z.boolean().optional(),

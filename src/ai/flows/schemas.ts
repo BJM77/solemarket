@@ -61,6 +61,10 @@ export const suggestListingDetailsOutputSchema = z.object({
   colorway: z.string().optional().describe("The colorway name (e.g., 'Chicago', 'Zebra', 'Bred')."),
   size: z.string().optional().describe("The size of the item (e.g., '10.5', 'L', 'OS')."),
   year: z.number().optional().describe("The year the item was manufactured or released."),
+  gradingCompany: z.string().optional().describe("For cards: PSA, BGS, SGC, Raw."),
+  grade: z.string().optional().describe("For cards: 10, 9.5, Near Mint, etc."),
+  cardNumber: z.string().optional().describe("For cards: The card number (e.g., #123)."),
+  manufacturer: z.string().optional().describe("For cards: Panini, Upper Deck, Topps, etc."),
 });
 export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
 

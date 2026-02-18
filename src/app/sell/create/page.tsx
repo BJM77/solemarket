@@ -13,7 +13,7 @@ import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
 import { doc } from 'firebase/firestore';
 import imageCompression from 'browser-image-compression';
-import { SNEAKER_CATEGORIES } from '@/config/categories';
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -67,7 +67,7 @@ function CreateListingForm() {
   const editId = searchParams.get('edit');
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<'sneakers' | null>(null);
+  const [selectedType, setSelectedType] = useState<'sneakers' | 'trading-cards' | null>(null);
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -83,7 +83,7 @@ function CreateListingForm() {
   // Derive subcategories from config
   const SUB_CATEGORIES: Record<string, string[]> = useMemo(() => {
     const map: Record<string, string[]> = {};
-    SNEAKER_CATEGORIES.forEach(cat => {
+    MARKETPLACE_CATEGORIES.forEach(cat => {
       map[cat.name] = cat.subcategories?.map(sub => sub.name) || [];
     });
     return map;
@@ -174,6 +174,7 @@ function CreateListingForm() {
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
+          else if (data.category === 'Trading Cards') setSelectedType('trading-cards');
 
           setCurrentStep(1); // Jump to photos on draft load
         }
@@ -188,10 +189,10 @@ function CreateListingForm() {
   }, [editId, user, form, toast, searchParams]);
 
   // Handle Type Selection
-  const handleTypeSelect = (type: 'sneakers') => {
+  const handleTypeSelect = (type: 'sneakers' | 'trading-cards') => {
     setSelectedType(type);
     localStorage.setItem('preferredListingType', type);
-    form.setValue('category', 'Sneakers');
+    form.setValue('category', type === 'sneakers' ? 'Sneakers' : 'Trading Cards');
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -364,7 +365,7 @@ function CreateListingForm() {
               onRemoveImage={removeImage}
               onAutoFill={handleAutoFill}
               isAnalyzing={isAnalyzing}
-              selectedType={selectedType || 'general'} // 'general' fallback? Use accessories maybe
+              selectedType={selectedType || 'sneakers'}
               onGradeComplete={(grade) => form.setValue('condition', grade)}
               onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
               form={form}

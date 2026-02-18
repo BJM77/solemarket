@@ -59,18 +59,10 @@ export async function getReviewsForProduct(productId: string): Promise<Review[]>
     }
 }
 
-export async function getCategories(): Promise<Category[]> {
-    try {
-        const snapshot = await firestoreDb.collection('categories')
-            .orderBy('name')
-            .get();
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
-        if (snapshot.empty) return [];
-        return snapshot.docs.map((doc: any) => serializeData(doc.data(), doc.id) as Category);
-    } catch (e: any) {
-        console.error('Failed to fetch categories: ', e.message);
-        return [];
-    }
+export async function getCategories(): Promise<Category[]> {
+    return MARKETPLACE_CATEGORIES;
 }
 
 export async function getTopSellers(limitCount: number): Promise<Seller[]> {
