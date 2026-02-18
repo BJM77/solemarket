@@ -4,7 +4,7 @@ import { firestoreDb, auth } from '@/lib/firebase/admin';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Product } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
-import { SNEAKER_CATEGORIES } from '@/config/categories';
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
         // Seed Categories
         const categoryBatch = firestoreDb.batch();
-        for (const cat of SNEAKER_CATEGORIES) {
+        for (const cat of MARKETPLACE_CATEGORIES) {
             categoryBatch.set(firestoreDb.collection('categories').doc(cat.id), cat, { merge: true });
         }
         await categoryBatch.commit();
@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            message: `Seeded ${SNEAKER_CATEGORIES.length} categories and ${products.length} products.`,
-            details: { categories: SNEAKER_CATEGORIES.length, products: products.length }
+            message: `Seeded ${MARKETPLACE_CATEGORIES.length} categories and ${products.length} products.`,
+            details: { categories: MARKETPLACE_CATEGORIES.length, products: products.length }
         });
 
     } catch (error: any) {

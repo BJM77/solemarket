@@ -3,7 +3,7 @@
 import { firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
-import { SNEAKER_CATEGORIES } from '@/config/categories';
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
 /**
  * Server Action to seed the database with sample sneaker listings.
