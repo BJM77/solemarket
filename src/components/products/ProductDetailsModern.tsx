@@ -694,23 +694,14 @@ export default function ProductDetailsModern({
 
             {/* Trust Bar */}
             <section className="bg-primary/5 py-12 border-y border-primary/10">
-                <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-primary shadow-sm">
-                            <ShieldCheck className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-lg">Authenticity Guarantee</h4>
-                            <p className="text-sm text-gray-500">Every pair is verified by our experts before shipping.</p>
-                        </div>
-                    </div>
+                <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-primary shadow-sm">
                             <CheckCircle className="h-6 w-6" />
                         </div>
                         <div>
                             <h4 className="font-bold text-lg">Verified Sellers</h4>
-                            <p className="text-sm text-gray-500">We verify the identity of every seller on our platform.</p>
+                            <p className="text-sm text-gray-500">Identity-verified local sneakerheads you can trust.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -719,7 +710,7 @@ export default function ProductDetailsModern({
                         </div>
                         <div>
                             <h4 className="font-bold text-lg">Community Driven</h4>
-                            <p className="text-sm text-gray-500">Join thousands of sneakerheads buying and selling daily.</p>
+                            <p className="text-sm text-gray-500">The safest way to rotate your rotation in Australia.</p>
                         </div>
                     </div>
                 </div>
