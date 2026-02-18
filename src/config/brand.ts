@@ -186,7 +186,7 @@ export const brandConfig: BrandConfig = {
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The second half starts here. Buy and sell authenticated basketball sneakers in Australia. Every pair has more game left.'
+            'The second half starts here. Buy and sell basketball sneakers in Australia. Every pair has more game left.'
         ),
         keywords: [
             'basketball shoes',

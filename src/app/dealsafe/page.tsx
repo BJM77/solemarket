@@ -6,8 +6,8 @@ import { DealSafeEnquiryDialog } from "./EnquiryDialog";
 
 const buyerBenefits = [
     {
-        title: "Guaranteed Authenticity",
-        description: "Never worry about receiving a fake or misrepresented item. We verify the product matches the listing before you pay."
+        title: "Peer-to-Peer Trust",
+        description: "Review detailed photos and seller history to trade with confidence in our community."
     },
     {
         title: "Protected Funds",
@@ -44,7 +44,7 @@ export default function DealSafePage() {
                         Trade with Absolute <span className="text-primary">Confidence.</span>
                     </h1>
                     <p className="text-xl text-muted-foreground leading-relaxed">
-                        DealSafe is Benched's premier escrow and verification service. We eliminate the risk of online trading by acting as a non-biased, third-party intermediary for both your stock and your money.
+                        DealSafe is Benched's premier escrow and secure payment service. We eliminate the risk of online trading by acting as a trusted third-party intermediary for your funds and high-value trades.
                     </p>
                 </div>
 

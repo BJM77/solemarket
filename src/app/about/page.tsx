@@ -6,15 +6,15 @@ import { ShieldCheck, MapPin, Sparkles, Handshake, Leaf } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: 'About Benched | Australia\'s Premier Sneaker Marketplace',
-  description: 'Benched is Australia\'s local marketplace for authentic sneakers and streetwear. Perth-based with nationwide shipping, focused on trust and authenticity for sneakerheads.',
+  title: 'About Benched | Australia\'s Local Sneaker Community',
+  description: 'Benched is Australia\'s local marketplace for sneakers. Perth-based with nationwide shipping, focused on trust and transparency for sneakerheads.',
 };
 
 const principles = [
   {
     icon: <ShieldCheck className="h-8 w-8 text-primary" />,
-    title: "Trust & Authenticity",
-    description: "Every transaction is backed by our commitment to authenticity. With features like AI-powered grading and optional vault verification, we build a marketplace you can rely on."
+    title: "Transparency & Trust",
+    description: "Every transaction is built on community trust. We provide the tools for transparent peer-to-peer trading between local sneakerheads."
   },
   {
     icon: <MapPin className="h-8 w-8 text-primary" />,
@@ -44,7 +44,7 @@ export default function AboutPage() {
       <div className="container py-12 md:py-16">
         <PageHeader
           title="Our Story"
-          description="Australia's premier marketplace for authentic sneakers and streetwear — Perth-based, with nationwide shipping."
+          description="Australia's premier marketplace for local sneakers — Perth-based, with nationwide shipping."
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8">
           <div className="prose lg:prose-lg max-w-none">
