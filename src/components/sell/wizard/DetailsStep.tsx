@@ -8,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrandRequestModal } from '../BrandRequestModal';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface DetailsStepProps {
     form: any;
-    selectedType: 'sneakers' | 'accessories';
+    selectedType: 'sneakers';
     subCategories: Record<string, string[]>;
     conditionOptions: string[];
 }
@@ -69,12 +71,55 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                     </div>
 
                     <FormField control={form.control} name="brand" render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <FormLabel>Brand</FormLabel>
+                                <FormLabel className="text-base font-bold">Brand <span className="text-red-500">*</span></FormLabel>
                                 <BrandRequestModal />
                             </div>
-                            <FormControl><Input placeholder="Nike, Adidas, Supreme..." {...field} /></FormControl>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Puma', 'Reebok', 'Under Armour', 'Converse', 'ANTA'].map((brand) => (
+                                    <Button
+                                        key={brand}
+                                        type="button"
+                                        variant={field.value === brand ? 'default' : 'outline'}
+                                        className={cn(
+                                            "h-12 font-bold uppercase tracking-tight rounded-xl transition-all",
+                                            field.value === brand ? "bg-primary shadow-md scale-[1.02]" : "hover:border-primary/50"
+                                        )}
+                                        onClick={() => {
+                                            field.onChange(brand);
+                                            form.setValue('hasOtherBrand', false);
+                                        }}
+                                    >
+                                        {brand}
+                                    </Button>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant={form.watch('hasOtherBrand') ? 'default' : 'outline'}
+                                    className={cn(
+                                        "h-12 font-bold uppercase tracking-tight rounded-xl transition-all",
+                                        form.watch('hasOtherBrand') ? "bg-primary shadow-md scale-[1.02]" : "hover:border-primary/50"
+                                    )}
+                                    onClick={() => {
+                                        form.setValue('hasOtherBrand', true);
+                                        field.onChange('');
+                                    }}
+                                >
+                                    Other
+                                </Button>
+                            </div>
+                            {form.watch('hasOtherBrand') && (
+                                <FormControl>
+                                    <Input
+                                        placeholder="Enter brand name..."
+                                        className="h-12 rounded-xl mt-2 animate-in fade-in slide-in-from-top-2"
+                                        {...field}
+                                        autoFocus
+                                    />
+                                </FormControl>
+                            )}
+                            <FormMessage />
                         </FormItem>
                     )} />
 
@@ -88,34 +133,20 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
             </Card>
 
             <Card className="border-0 shadow-md">
-                <CardHeader><CardTitle title="Specifics">{selectedType === 'sneakers' ? 'Sneaker Specs' : 'Item Specs'}</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Sneaker Specs</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedType === 'sneakers' && (
-                        <>
-                            <FormField control={form.control} name="size" render={({ field }) => (
-                                <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>
-                            )} />
-                            <FormField control={form.control} name="styleCode" render={({ field }) => (
-                                <FormItem><FormLabel>Style Code</FormLabel><FormControl><Input placeholder="e.g. DZ5485-612" {...field} /></FormControl></FormItem>
-                            )} />
-                            <FormField control={form.control} name="colorway" render={({ field }) => (
-                                <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input placeholder="e.g. Varsity Red/Black/Sail" {...field} /></FormControl></FormItem>
-                            )} />
-                            <FormField control={form.control} name="year" render={({ field }) => (
-                                <FormItem><FormLabel>Release Year</FormLabel><FormControl><Input type="number" placeholder="2015" {...field} /></FormControl></FormItem>
-                            )} />
-                        </>
-                    )}
-                    {selectedType === 'accessories' && (
-                        <>
-                            <FormField control={form.control} name="color" render={({ field }) => (
-                                <FormItem><FormLabel>Color</FormLabel><FormControl><Input placeholder="Black, White..." {...field} /></FormControl></FormItem>
-                            )} />
-                            <FormField control={form.control} name="material" render={({ field }) => (
-                                <FormItem><FormLabel>Material</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                            )} />
-                        </>
-                    )}
+                    <FormField control={form.control} name="size" render={({ field }) => (
+                        <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="styleCode" render={({ field }) => (
+                        <FormItem><FormLabel>Style Code</FormLabel><FormControl><Input placeholder="e.g. DZ5485-612" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="colorway" render={({ field }) => (
+                        <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input placeholder="e.g. Varsity Red/Black/Sail" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="year" render={({ field }) => (
+                        <FormItem><FormLabel>Release Year</FormLabel><FormControl><Input type="number" placeholder="2015" {...field} /></FormControl></FormItem>
+                    )} />
                 </CardContent>
             </Card>
         </div>

@@ -68,12 +68,6 @@ const CATEGORIES = [
         color: 'bg-red-50 dark:bg-red-900/20'
     },
     {
-        name: 'Accessories',
-        icon: Footprints,
-        href: '/browse?category=Accessories',
-        color: 'bg-purple-50 dark:bg-purple-950/20'
-    },
-    {
         name: 'View All',
         icon: ArrowRight,
         href: '/browse',

@@ -6,8 +6,8 @@ export const productFormSchema = z.object({
     price: z.number().min(0, "Price must be positive"),
 
     // Categories restricted to Sneaker Market
-    category: z.enum(['Sneakers', 'Accessories', 'Apparel'], {
-        errorMap: () => ({ message: "Please select a valid category (Sneakers, Accessories)" })
+    category: z.enum(['Sneakers', 'Apparel'], {
+        errorMap: () => ({ message: "Please select a valid category (Sneakers)" })
     }),
     subCategory: z.string().optional(),
 

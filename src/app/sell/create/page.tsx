@@ -45,6 +45,7 @@ const formSchema = z.object({
   color: z.string().optional(),
   year: z.coerce.number().optional(),
   material: z.string().optional(),
+  hasOtherBrand: z.boolean().default(false),
   // Multibuy
   multibuyEnabled: z.boolean().default(false),
   multibuyTiers: z.array(z.object({
@@ -66,7 +67,7 @@ function CreateListingForm() {
   const editId = searchParams.get('edit');
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<'sneakers' | 'accessories' | null>(null);
+  const [selectedType, setSelectedType] = useState<'sneakers' | null>(null);
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -88,7 +89,7 @@ function CreateListingForm() {
     return map;
   }, []);
 
-  const CONDITION_OPTIONS: string[] = ['New with Box', 'New without Box', 'New with Defects', 'Used', 'Refurbished'];
+  const CONDITION_OPTIONS: string[] = ['New with Box', 'New without Box', 'New with Defects', 'Used with Box', 'Used', 'Refurbished'];
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(formSchema),
@@ -112,6 +113,7 @@ function CreateListingForm() {
       color: '',
       year: '' as any,
       material: '',
+      hasOtherBrand: false,
       multibuyEnabled: false,
       multibuyTiers: [],
     },
@@ -148,10 +150,10 @@ function CreateListingForm() {
     // 2. Load draft if editId exists
     if (!user || !editId) {
       // Recover persistent type if no editId
-      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'accessories' | null;
+      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | null;
       if (storedType) {
         setSelectedType(storedType);
-        setCurrentStep(1); // Skip to photos if type is known
+        setCurrentStep(1);
       }
       return;
     }
@@ -172,7 +174,6 @@ function CreateListingForm() {
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
-          else setSelectedType('accessories');
 
           setCurrentStep(1); // Jump to photos on draft load
         }
@@ -187,13 +188,10 @@ function CreateListingForm() {
   }, [editId, user, form, toast, searchParams]);
 
   // Handle Type Selection
-  const handleTypeSelect = (type: 'sneakers' | 'accessories') => {
+  const handleTypeSelect = (type: 'sneakers') => {
     setSelectedType(type);
     localStorage.setItem('preferredListingType', type);
-    // Set default category
-    const cat = type === 'sneakers' ? 'Sneakers' : 'Accessories';
-    form.setValue('category', cat);
-    // Auto-select first subcategory? No, let user choose.
+    form.setValue('category', 'Sneakers');
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -298,7 +296,7 @@ function CreateListingForm() {
       const listingData = {
         ...rest,
         imageUrls: finalUrls,
-        category: values.category || (selectedType === 'sneakers' ? 'Sneakers' : 'Accessories'),
+        category: values.category || 'Sneakers',
         isVault: false,
       };
 
@@ -357,7 +355,7 @@ function CreateListingForm() {
           </div>
         </div>
 
-        <main className="container mx-auto px-4 py-8 max-w-3xl">
+        <main className="container mx-auto px-4 py-8 pb-48 max-w-3xl">
           {currentStep === 1 && (
             <ImageUploadStep
               imageFiles={imageFiles}
@@ -376,7 +374,7 @@ function CreateListingForm() {
           {currentStep === 2 && (
             <DetailsStep
               form={form}
-              selectedType={selectedType || 'accessories'}
+              selectedType={selectedType || 'sneakers'}
               subCategories={SUB_CATEGORIES}
               conditionOptions={CONDITION_OPTIONS}
             />
@@ -388,12 +386,12 @@ function CreateListingForm() {
         </main>
 
         {/* Floating Footer Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 z-40 safe-area-pb">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
           <div className="max-w-3xl mx-auto flex gap-4">
-            <Button variant="outline" size="lg" className="flex-1" onClick={prevStep}>
+            <Button variant="outline" size="lg" className="flex-1 rounded-xl h-14" onClick={prevStep}>
               Back
             </Button>
-            <Button size="lg" className="flex-[2] font-bold text-lg" onClick={nextStep} disabled={isSubmitting}>
+            <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
               {currentStep === 3 ? (
                 <>

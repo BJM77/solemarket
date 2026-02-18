@@ -5,8 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { GripVertical } from 'lucide-react';
 
 interface ListingTypeStepProps {
-    onSelect: (type: 'sneakers' | 'accessories') => void;
-    selectedType: 'sneakers' | 'accessories' | null;
+    onSelect: (type: 'sneakers') => void;
+    selectedType: 'sneakers' | null;
 }
 
 
@@ -18,33 +18,18 @@ export function ListingTypeStep({ onSelect, selectedType }: ListingTypeStepProps
                 <p className="text-slate-500 dark:text-slate-400">Select a category to customize your listing experience.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex justify-center">
                 <Card
-                    className={`cursor-pointer transition-all group hover:shadow-lg ${selectedType === 'sneakers' ? 'border-orange-600 ring-2 ring-orange-600 ring-offset-2' : 'hover:border-orange-500'}`}
+                    className={`max-w-md w-full cursor-pointer transition-all group hover:shadow-lg ${selectedType === 'sneakers' ? 'border-orange-600 ring-2 ring-orange-600 ring-offset-2' : 'hover:border-orange-500'}`}
                     onClick={() => onSelect('sneakers')}
                 >
-                    <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${selectedType === 'sneakers' ? 'bg-orange-600' : 'bg-orange-100 group-hover:bg-orange-600'}`}>
-                            <div className={`w-10 h-10 border-2 rounded bg-white/50 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
+                    <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors ${selectedType === 'sneakers' ? 'bg-orange-600' : 'bg-orange-100 group-hover:bg-orange-600'}`}>
+                            <div className={`w-12 h-12 border-2 rounded bg-white/50 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-lg">Sneakers</h3>
+                            <h3 className="font-bold text-xl uppercase tracking-tight">Sneakers</h3>
                             <p className="text-sm text-slate-500">Jordan, Yeezy, Nike, etc.</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    className={`cursor-pointer transition-all group hover:shadow-lg ${selectedType === 'accessories' ? 'border-blue-600 ring-2 ring-blue-600 ring-offset-2' : 'hover:border-blue-500'}`}
-                    onClick={() => onSelect('accessories')}
-                >
-                    <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${selectedType === 'accessories' ? 'bg-blue-600' : 'bg-blue-100 group-hover:bg-blue-600'}`}>
-                            <GripVertical className={`h-8 w-8 ${selectedType === 'accessories' ? 'text-white' : 'text-blue-600 group-hover:text-white'}`} />
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-lg">Accessories</h3>
-                            <p className="text-sm text-slate-500">Bags, Socks, Care Products</p>
                         </div>
                     </CardContent>
                 </Card>

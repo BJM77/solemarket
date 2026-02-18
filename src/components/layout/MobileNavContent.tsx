@@ -30,7 +30,6 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const groupedCategories = useMemo(() => {
         const mainSections = {
             'sneakers': { label: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers', items: [] as Category[] },
-            'accessories': { label: 'Accessories', icon: Watch, href: '/browse?category=Accessories', items: [] as Category[] },
         } as Record<string, { label: string, icon: any, href: string, items: Category[] }>;
 
         if (!categories) return mainSections;
@@ -44,22 +43,13 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
             // Map old sections to new ones if necessary, or just push to 'accessories' as fallback
             const sectionMap: Record<string, string> = {
-                'collectibles': 'accessories',
                 'sneakers': 'sneakers',
-                'accessories': 'accessories'
             };
 
-            const targetSection = sectionMap[cat.section] || 'accessories';
+            const targetSection = sectionMap[cat.section] || 'sneakers';
 
             if (mainSections[targetSection]) {
                 mainSections[targetSection].items.push(cat);
-            } else {
-                // If somehow strict mapping fails, default to accessories
-                if (!mainSections['accessories']) {
-                    // Should exist, but safety check
-                    mainSections['accessories'] = { label: 'Accessories', icon: Watch, href: '/browse?category=Accessories', items: [] };
-                }
-                mainSections['accessories'].items.push(cat);
             }
         });
         return mainSections;
@@ -147,12 +137,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </AccordionItem>
                     </Accordion>
 
-                    <Button variant="ghost" className="justify-start text-base font-bold px-4 hover:bg-muted/50 rounded-xl h-14" onClick={() => handleLinkClick('/browse?category=Accessories')}>
-                        <div className="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
-                            <Watch className="h-5 w-5" />
-                        </div>
-                        Accessories
-                    </Button>
+
 
                     {features.bidsy && (
                         <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/bidsy')}>
@@ -261,9 +246,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <LayoutGrid className="mr-2 h-4 w-4" /> Deals
                         </Button>
                     </div>
-                    
+
                     <div className="px-4 mb-2">
-                         <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/drops')}>
+                        <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/drops')}>
                             <div className="bg-red-100 text-red-600 p-1.5 rounded-lg mr-3">
                                 <Zap className="h-4 w-4" />
                             </div>
