@@ -3,19 +3,11 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { TrendingUp } from 'lucide-react';
-
 import Link from 'next/link';
-
-const MOCK_SALES = [
-    { model: 'Kobe 6 Protro "Reverse Grinch"', price: '$850', time: '2m ago', type: 'kicks' },
-    { model: 'Panini Prizm Victor Wembanyama', price: '$4,200', time: '8m ago', type: 'cards' },
-    { model: 'Jordan 1 Retro High OG "Chicago"', price: '$1,200', time: '15m ago', type: 'kicks' },
-    { model: 'Topps Chrome Stephen Curry RC', price: '$12,500', time: '22m ago', type: 'cards' },
-    { model: 'LeBron 20 "Time Machine"', price: '$320', time: '34m ago', type: 'kicks' },
-    { model: 'AE1 "With Love"', price: '$280', time: '1h ago', type: 'kicks' },
-    { model: 'Upper Deck Michael Jordan MJ', price: '$890', time: '1h ago', type: 'cards' },
-    { model: 'Jordan 4 Retro "Military Blue"', price: '$450', time: '6h ago', type: 'kicks' },
-];
+import { useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import type { Product } from '@/lib/types';
 
 export function MarketTicker() {
     const [isClient, setIsClient] = useState(false);
@@ -24,24 +16,51 @@ export function MarketTicker() {
         setIsClient(true);
     }, []);
 
+    const tickerQuery = useMemoFirebase(() => {
+        if (!db) return null;
+        return query(
+            collection(db, 'products'),
+            where('status', '==', 'available'),
+            orderBy('isFeatured', 'desc'),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
+    }, []);
+
+    const { data: products, isLoading } = useCollection<Product>(tickerQuery);
+
     if (!isClient) return null;
+
+    // If no products and not loading, show a blank bar
+    if (!isLoading && (!products || products.length === 0)) {
+        return (
+            <div className="w-full bg-slate-950 h-10 border-y border-white/5 relative z-50">
+                {/* Blank bar state as requested when no listings exist */}
+            </div>
+        );
+    }
+
+    // Prepare data for the marquee
+    const items = products || [];
 
     return (
         <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-white/5 relative z-50">
             <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused]">
-                {[...MOCK_SALES, ...MOCK_SALES].map((sale, i) => (
+                {[...items, ...items].map((item, i) => (
                     <Link 
-                        key={i} 
-                        href={`/browse?q=${encodeURIComponent(sale.model)}`}
+                        key={`${item.id}-${i}`} 
+                        href={`/product/${item.id}`}
                         className="flex items-center gap-4 px-8 border-r border-white/10 hover:bg-white/5 transition-colors group"
                     >
                         <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary group-hover:text-white transition-colors">
                             <TrendingUp className="h-3 w-3" />
-                            {sale.type === 'cards' ? 'Sold Box' : 'Checked In'}
+                            {item.category === 'Trading Cards' ? 'New Box' : 'New Kick'}
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-tight group-hover:underline underline-offset-4 decoration-primary">{sale.model}</span>
-                        <span className="text-xs font-black text-primary">{sale.price}</span>
-                        <span className="text-[10px] text-white/40 font-medium">{sale.time}</span>
+                        <span className="text-xs font-bold uppercase tracking-tight group-hover:underline underline-offset-4 decoration-primary">
+                            {item.title}
+                        </span>
+                        <span className="text-xs font-black text-primary">${item.price}</span>
+                        <span className="text-[10px] text-white/40 font-medium">Live</span>
                     </Link>
                 ))}
             </div>
