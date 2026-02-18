@@ -20,12 +20,6 @@ const CATEGORIES = [
         color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
-        name: 'Basketball Cards',
-        icon: Library,
-        href: '/trading-cards/basketball-cards',
-        color: 'bg-primary/10 dark:bg-primary/20'
-    },
-    {
         name: 'Adidas',
         logo: '/brand-logos/adidas.png',
         href: '/browse?category=Adidas',

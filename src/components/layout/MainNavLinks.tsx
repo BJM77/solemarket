@@ -13,7 +13,11 @@ export function MainNavLinks() {
   return (
     <nav className="flex items-center gap-6">
       <Link href="/browse" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-        Explore
+        Shoes
+      </Link>
+
+      <Link href="/cards" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
+        Cards
       </Link>
 
       {features.bidsy && (
@@ -40,11 +44,9 @@ export function MainNavLinks() {
         DealSafe
       </Link>
 
-      {features.consignment && (
-        <Link href="/consign" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-          Consign
-        </Link>
-      )}
+      <Link href="/donate" className={cn(buttonVariants({ variant: "default" }), "text-sm font-bold uppercase tracking-widest px-4 rounded-xl shadow-lg shadow-primary/20 ml-2")}>
+        Donate
+      </Link>
     </nav>
   );
 }

@@ -1,258 +1,136 @@
-
-
-"use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { createDonation } from "@/lib/firebase/client-ops";
-import { getCurrentUserIdToken } from "@/lib/firebase/auth";
-import { Gift, Package, Send } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Heart, Camera, Trophy, Footprints, Library, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
-const donationFormSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name is required." }),
-  email: z.string().email({ message: "A valid email is required." }),
-  donationType: z.enum(["Cards", "Coins", "Mixed Collectibles"]),
-  description: z
-    .string()
-    .min(10, { message: "Please provide a brief description." }),
-  quantity: z
-    .string()
-    .min(1, { message: "Please estimate the quantity." }),
-});
-
-type DonationFormValues = z.infer<typeof donationFormSchema>;
+export const metadata = {
+    title: 'Donate | The Second Half Mission | Benched',
+    description: 'Donate your basketball shoes or cards to less privileged athletes. See your gear back in action.',
+};
 
 export default function DonatePage() {
-  const { toast } = useToast();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<DonationFormValues>({
-    resolver: zodResolver(donationFormSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      donationType: "Cards",
-      description: "",
-      quantity: "",
-    },
-  });
-
-  async function onSubmit(values: DonationFormValues) {
-    setIsLoading(true);
-    try {
-      const idToken = await getCurrentUserIdToken();
-      if (!idToken) {
-        toast({ title: "Please sign in", description: "You must be signed in to make a donation.", variant: "destructive" });
-        setIsLoading(false);
-        return;
-      }
-      await createDonation(values, idToken);
-      toast({
-        title: "Donation Submitted!",
-        description:
-          "Thank you for your generosity! Please check your email for the shipping label.",
-      });
-      form.reset();
-      router.push("/");
-    } catch (error: any) {
-      toast({
-        title: "Submission Failed",
-        description: error.message || "Could not submit your donation.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  return (
-    <div className="container py-12 md:py-16">
-      <section className="text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tight text-primary font-headline sm:text-5xl md:text-6xl">
-          Benched Presents
-        </h1>
-        <p className="mt-6 text-lg max-w-3xl mx-auto text-muted-foreground">
-          Give the gift of collecting. Donate your spare cards and coins to the
-          'Benched Presents' program. We partner with children's hospitals across
-          Australia to bring joy to kids who need it most.
-        </p>
-      </section>
-
-      <section className="mb-12">
-        <h2 className="text-3xl font-bold text-center mb-8 font-headline">
-          How It Works
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8 text-center">
-          <div className="flex flex-col items-center">
-            <div className="bg-primary/10 p-6 rounded-full mb-4">
-              <Gift className="h-10 w-10 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              1. Tell Us What You're Sending
-            </h3>
-            <p className="text-muted-foreground">
-              Fill out the simple donation form below.
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-primary/10 p-6 rounded-full mb-4">
-              <Package className="h-10 w-10 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              2. We Handle the Shipping
-            </h3>
-            <p className="text-muted-foreground">
-              We'll instantly email you a prepaid Australia Post shipping
-              label.
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-primary/10 p-6 rounded-full mb-4">
-              <Send className="h-10 w-10 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              3. You Make a Difference
-            </h3>
-            <p className="text-muted-foreground">
-              Your donation is received, sorted, and delivered to our hospital partners.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-2xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-8 font-headline">
-          Donation Form
-        </h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid sm:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Smith" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="donationType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Donation Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select what you're donating" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Cards">Cards</SelectItem>
-                        <SelectItem value="Coins">Coins</SelectItem>
-                        <SelectItem value="Mixed Collectibles">
-                          Mixed Collectibles
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estimated Quantity</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Approx. 100 cards" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Brief Description of Items</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., A mix of basketball cards from the 90s."
-                      rows={4}
-                      {...field}
+    return (
+        <div className="bg-white min-h-screen">
+            {/* Hero Mission Section */}
+            <div className="relative bg-slate-900 py-20 lg:py-32 overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                    <img 
+                        src="https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?auto=format&fit=crop&q=80&w=2000" 
+                        alt="Basketball Court" 
+                        className="w-full h-full object-cover"
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Donation
-            </Button>
-          </form>
-        </Form>
-      </section>
-    </div>
-  );
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900"></div>
+                
+                <div className="container relative z-10 mx-auto px-4 text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 border border-primary/30 text-primary mb-8 animate-bounce">
+                        <Heart className="h-4 w-4 fill-primary" />
+                        <span className="text-xs font-black uppercase tracking-widest">The Second Half Mission</span>
+                    </div>
+                    <h1 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tight uppercase leading-[0.9]">
+                        Greatness has <br />
+                        <span className="text-primary italic">No Zip Code.</span>
+                    </h1>
+                    <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
+                        We love basketball. But not everyone has the gear to play it. 
+                        Donate your kicks or cards to help less privileged hoopers chase their goals.
+                    </p>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-4 -mt-16 relative z-20 mb-24">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* How it Works Cards */}
+                    <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
+                        <CardHeader className="bg-primary text-white p-8">
+                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                                <Footprints className="h-6 w-6" />
+                            </div>
+                            <CardTitle className="text-2xl font-black uppercase">1. Donate Gear</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8">
+                            <p className="text-muted-foreground leading-relaxed">
+                                Send us your performance basketball shoes or collectible cards. We accept new and gently used items that still have "minutes" left in them.
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
+                        <CardHeader className="bg-slate-800 text-white p-8">
+                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                                <Trophy className="h-6 w-6 text-primary" />
+                            </div>
+                            <CardTitle className="text-2xl font-black uppercase">2. We Distribute</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8">
+                            <p className="text-muted-foreground leading-relaxed">
+                                We partner with local community clubs and youth programs to get your donations into the hands of athletes who need them most.
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
+                        <CardHeader className="bg-primary text-white p-8">
+                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                                <Camera className="h-6 w-6" />
+                            </div>
+                            <CardTitle className="text-2xl font-black uppercase">3. See the Impact</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8">
+                            <p className="text-muted-foreground leading-relaxed">
+                                <strong>The Benched Promise:</strong> You will receive a photo of the athlete wearing your shoes or holding your cards. Connection matters.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Donation Selection */}
+                <div className="mt-24 max-w-5xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4">Ready to help?</h2>
+                        <p className="text-muted-foreground font-medium text-lg">Select what you would like to donate today.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="group relative bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center transition-all hover:border-primary hover:bg-white hover:shadow-xl">
+                            <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                                <Footprints className="h-10 w-10 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-black uppercase mb-4">Basketball Shoes</h3>
+                            <p className="text-muted-foreground mb-8">Performance kicks, retros, or trainers. Sizes US 5 to US 16 needed most.</p>
+                            <Button className="w-full h-14 rounded-2xl font-bold text-lg">Donate Kicks</Button>
+                        </div>
+
+                        <div className="group relative bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center transition-all hover:border-indigo-500 hover:bg-white hover:shadow-xl">
+                            <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                                <Library className="h-10 w-10 text-indigo-600" />
+                            </div>
+                            <h3 className="text-2xl font-black uppercase mb-4">Trading Cards</h3>
+                            <p className="text-muted-foreground mb-8">NBA cards, Pokémon, or NFL. Helping kids start their collection and love for the hobby.</p>
+                            <Button className="w-full h-14 rounded-2xl font-bold text-lg bg-indigo-600 hover:bg-indigo-700 border-none">Donate Cards</Button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Impact Story Quote */}
+                <div className="mt-32 bg-slate-900 rounded-[3rem] p-12 text-center text-white relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                        <div className="grid grid-cols-6 h-full">
+                            {[...Array(6)].map((_, i) => (
+                                <div key={i} className="border-r border-white/20 h-full"></div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="relative z-10 max-w-3xl mx-auto">
+                        <span className="text-primary text-6xl font-serif">"</span>
+                        <blockquote className="text-2xl md:text-3xl font-medium leading-relaxed italic mb-8">
+                            Basketball changed my life. Giving someone else the tool to play the game I love is the best part of being a collector.
+                        </blockquote>
+                        <p className="font-black uppercase tracking-widest text-primary">— Benched Community Member</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }

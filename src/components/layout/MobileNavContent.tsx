@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -30,6 +30,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const groupedCategories = useMemo(() => {
         const mainSections = {
             'sneakers': { label: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers', items: [] as Category[] },
+            'trading-cards': { label: 'Cards', icon: Gem, href: '/cards', items: [] as Category[] },
         } as Record<string, { label: string, icon: any, href: string, items: Category[] }>;
 
         if (!categories) return mainSections;
@@ -44,6 +45,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
             // Map old sections to new ones if necessary, or just push to 'accessories' as fallback
             const sectionMap: Record<string, string> = {
                 'sneakers': 'sneakers',
+                'cat_sneakers': 'sneakers',
+                'cat_cards': 'trading-cards',
+                'trading-cards': 'trading-cards',
             };
 
             const targetSection = sectionMap[cat.section] || 'sneakers';
@@ -135,6 +139,25 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
+
+                        <AccordionItem value="cards" className="border-b-0">
+                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
+                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-3">
+                                        <Gem className="h-5 w-5" />
+                                    </div>
+                                    Trading Cards
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
+                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards')}>All Cards</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Basketball%20Cards')}>NBA Cards</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Pokémon%20Cards')}>Pokémon</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Football%20Cards')}>NFL Cards</Button>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
                     </Accordion>
 
 
@@ -150,6 +173,10 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Wanted
                         </Button>
                     )}
+
+                    <Button variant="default" className="justify-start text-sm font-bold px-4 rounded-xl h-11 shadow-lg shadow-primary/20 mt-2" onClick={() => handleLinkClick('/donate')}>
+                        <Heart className="mr-3 h-4 w-4 fill-white" /> Donate Kicks
+                    </Button>
                 </nav>
 
                 {/* Tools & Services Sections (Matching Desktop) */}
@@ -165,7 +192,8 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/scan')}>AI Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
@@ -247,12 +275,18 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </Button>
                     </div>
 
-                    <div className="px-4 mb-2">
+                    <div className="px-4 mb-2 space-y-2">
                         <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/drops')}>
                             <div className="bg-red-100 text-red-600 p-1.5 rounded-lg mr-3">
                                 <Zap className="h-4 w-4" />
                             </div>
-                            Release Calendar
+                            Kicks Calendar
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/card-drops')}>
+                            <div className="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg mr-3">
+                                <Calendar className="h-4 w-4" />
+                            </div>
+                            Card Calendar
                         </Button>
                     </div>
 

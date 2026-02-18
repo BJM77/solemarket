@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/products";
 import HeroModern from "@/components/home/HeroModern";
 import CategoryGrid from "@/components/home/CategoryGrid";
+import CardCategoryGrid from "@/components/home/CardCategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
 import { MarketTicker } from "@/components/home/MarketTicker";
@@ -46,9 +47,9 @@ export default async function HomePage() {
 
   return (
     <main>
-      <MarketTicker />
       <HeroModern listingCount={listingCount} />
       <CategoryGrid />
+      <CardCategoryGrid />
       <PlayerCollections />
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />

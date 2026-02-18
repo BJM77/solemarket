@@ -7,6 +7,7 @@ import { ViewedProductsProvider } from "@/context/ViewedProductsContext";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { MarketTicker } from '@/components/home/MarketTicker';
 import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
@@ -207,6 +208,7 @@ export default function RootLayout({
                 <CartProvider>
                   <ViewedProductsProvider>
                     <GoogleAnalytics />
+                    <MarketTicker />
                     <Header />
                     <main className="min-h-screen">
                       {children}
