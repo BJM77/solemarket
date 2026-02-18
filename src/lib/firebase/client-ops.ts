@@ -14,7 +14,7 @@ import type { Product, UserProfile, Donation, SafeUser } from '@/lib/types';
 import { processDonation } from '@/ai/flows/process-donation';
 
 export async function createUserProfile(uid: string, data: Partial<UserProfile> & { referralCode?: string }) {
-  const isFounder = data.referralCode === 'FOUNDER';
+  const isFounder = data.referralCode === 'FOUNDER' || data.referralCode === 'Karate22';
 
   const profileData: any = {
     id: uid,
