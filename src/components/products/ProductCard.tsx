@@ -763,6 +763,10 @@ export default function ProductCard({
                 (product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES')}
             </Badge>
           )}
+          <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
+            <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            {(product.id.charCodeAt(0) % 15) + 3} Watching
+          </Badge>
           {hasViewed && (
             <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto">
               <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />

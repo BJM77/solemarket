@@ -120,7 +120,9 @@ export default async function ProductPage({ params }: Props) {
   }
 
   const initialReviews = await getReviewsForProduct(id);
-
+  const ratingValue = initialReviews.length > 0 
+    ? initialReviews.reduce((acc, r) => acc + r.rating, 0) / initialReviews.length 
+    : 5;
 
   const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
 
@@ -134,10 +136,32 @@ export default async function ProductPage({ params }: Props) {
       caption: (product as any).imageAltTexts?.[index] || product.title
     })),
     description: product.description,
+    sku: product.id,
+    mpn: product.styleCode || product.cardNumber || product.id,
     brand: {
       '@type': 'Brand',
-      name: product.manufacturer || 'Benched Marketplace',
+      name: product.brand || product.manufacturer || 'Benched Marketplace',
     },
+    ...(initialReviews.length > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: ratingValue.toFixed(1),
+        reviewCount: initialReviews.length,
+      },
+      review: initialReviews.slice(0, 5).map(r => ({
+        '@type': 'Review',
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: r.rating,
+        },
+        author: {
+          '@type': 'Person',
+          name: r.buyerName,
+        },
+        reviewBody: r.comment,
+        datePublished: r.createdAt?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+      })),
+    }),
     offers: {
       '@type': 'Offer',
       priceCurrency: 'AUD',
@@ -214,12 +238,27 @@ export default async function ProductPage({ params }: Props) {
   };
 
   // Fetch adjacent products (gracefully handle missing index)
-  const { getAdjacentProducts } = await import('@/app/actions/products');
+  const { getAdjacentProducts, getProductsByCategory } = await import('@/app/actions/products');
   let adjacentProducts: { prevId: string | null; nextId: string | null } = { prevId: null, nextId: null };
   try {
     adjacentProducts = await getAdjacentProducts(id, product.createdAt);
   } catch (error) {
     console.warn('Adjacent products unavailable (index may not exist yet):', error);
+  }
+
+  // Fetch similar products for automated internal linking
+  let similarProducts: Product[] = [];
+  try {
+    const { getProducts } = await import('@/services/product-service');
+    const result = await getProducts({
+      category: product.category,
+      limit: 4,
+      page: 1,
+      sort: 'createdAt-desc'
+    });
+    similarProducts = result.products.filter(p => p.id !== id);
+  } catch (e) {
+    console.error("Failed to fetch similar products:", e);
   }
 
   // The client component handles all interactive logic
@@ -242,6 +281,26 @@ export default async function ProductPage({ params }: Props) {
           adjacentProducts={adjacentProducts}
         />
       </Suspense>
+
+      {/* Automated Internal Linking Section */}
+      {similarProducts.length > 0 && (
+        <section className="container mx-auto px-4 py-16 border-t border-slate-100">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">You might also like</h2>
+              <p className="text-muted-foreground mt-2 font-medium">More authentic {product.category.toLowerCase()} curated for you.</p>
+            </div>
+            <a href={product.category === 'Trading Cards' ? '/cards' : '/browse'} className="text-sm font-bold text-primary hover:underline uppercase tracking-widest">
+              View All
+            </a>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {similarProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }

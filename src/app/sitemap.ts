@@ -87,6 +87,15 @@ export default async function sitemap({
 
     const guideRoutes = await getGuideRoutes(baseUrl);
 
+    // High-value Programmatic SEO Topic Routes
+    const { SEO_TOPICS } = await import('@/config/seo-topics');
+    const topicRoutes: MetadataRoute.Sitemap = SEO_TOPICS.map(topic => ({
+      url: `${baseUrl}/${topic.category === 'Trading Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    }));
+
     // Add first chunk of products to sitemap 0
     const productIds = await getActiveProductIds(PRODUCT_SITEMAP_SIZE, 0);
     const productRoutes: MetadataRoute.Sitemap = productIds.map(id => ({
@@ -96,7 +105,7 @@ export default async function sitemap({
       priority: 0.6,
     }));
 
-    return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...productRoutes];
+    return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...topicRoutes, ...productRoutes];
   }
 
   // Subsequent IDs only contain products

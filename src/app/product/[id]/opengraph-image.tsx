@@ -1,15 +1,15 @@
-
 import { ImageResponse } from 'next/og';
 import { getProductById } from '@/lib/firebase/firestore';
 
-export const runtime = 'nodejs';
-export const alt = 'Benched Product Listing';
+export const runtime = 'edge';
+
+export const alt = 'Benched Product Image';
 export const size = {
   width: 1200,
   height: 630,
 };
-export const contentType = 'image/png';
 
+export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id);
@@ -17,19 +17,15 @@ export default async function Image({ params }: { params: { id: string } }) {
   if (!product) {
     return new ImageResponse(
       (
-        <div
-          style={{
-            fontSize: 48,
-            background: 'linear-gradient(to bottom right, #111827, #4b5563)',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-          }}
-        >
+        <div style={{
+          fontSize: 48,
+          background: 'white',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
           Benched Marketplace
         </div>
       ),
@@ -37,82 +33,111 @@ export default async function Image({ params }: { params: { id: string } }) {
     );
   }
 
-  const price = new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-  }).format(product.price);
-
   return new ImageResponse(
     (
       <div
         style={{
-          background: 'white',
+          background: '#111111',
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          padding: '40px',
         }}
       >
-        {/* Left Side: Product Image */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
-            <img
-                src={product.imageUrls?.[0] || ''}
-                alt={product.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+        {/* Background Accent */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-100px',
+            right: '-100px',
+            width: '400px',
+            height: '400px',
+            background: '#F26A21',
+            borderRadius: '50%',
+            opacity: 0.15,
+            filter: 'blur(100px)',
+          }}
+        />
+
+        {/* Product Image */}
+        <div
+          style={{
+            display: 'flex',
+            width: '100%',
+            height: '400px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: '40px',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={product.imageUrls[0]}
+            alt={product.title}
+            style={{
+              height: '100%',
+              maxWidth: '80%',
+              objectFit: 'contain',
+              borderRadius: '24px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            }}
+          />
         </div>
 
-        {/* Right Side: Details */}
-        <div style={{
-            flex: 1,
+        {/* Product Info */}
+        <div
+          style={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            padding: '40px',
-            background: 'linear-gradient(135deg, hsl(222.2, 47.4%, 11.2%) 0%, hsl(210, 40%, 96.1%) 100%)',
-            color: 'white'
-        }}>
-          {/* Logo / Brand */}
-          <div style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 20, color: 'hsl(210, 40%, 98%)' }}>
-            Benched
-          </div>
-
-          {/* Title */}
-          <div style={{ fontSize: 48, fontWeight: 'bold', marginBottom: 20, lineHeight: 1.1, color: 'white' }}>
-            {product.title.substring(0, 60)}{product.title.length > 60 ? '...' : ''}
-          </div>
-
-          {/* Condition Badge */}
-           {product.condition && (
-            <div style={{
-                display: 'flex',
-                backgroundColor: 'hsla(0, 0%, 100%, 0.1)',
-                padding: '8px 16px',
-                borderRadius: 50,
-                width: 'fit-content',
-                marginBottom: 40,
-                fontSize: 24,
-                color: 'white',
-                border: '1px solid hsla(0, 0%, 100%, 0.2)'
-            }}>
-              {product.condition}
+            width: '100%',
+            color: 'white',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <span style={{ fontSize: '24px', fontWeight: 900, color: '#F26A21', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
+                {product.category === 'Trading Cards' ? 'Authenticated Card' : 'Authenticated Kicks'}
+              </span>
+              <span style={{ fontSize: '48px', fontWeight: 900, maxWidth: '800px', lineHeight: 1.1 }}>
+                {product.title}
+              </span>
             </div>
-           )}
-
-          {/* Price */}
-          <div style={{ fontSize: 64, fontWeight: 'bold', color: 'white' }}>
-            {price}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <span style={{ fontSize: '20px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>
+                Buy Now
+              </span>
+              <span style={{ fontSize: '64px', fontWeight: 900, color: 'white' }}>
+                ${product.price}
+              </span>
+            </div>
           </div>
+        </div>
 
-          {/* Footer */}
-          <div style={{ marginTop: 'auto', fontSize: 20, color: 'hsla(0, 0%, 100%, 0.7)' }}>
-            Verified • Secure • Local
-          </div>
+        {/* Logo / Badge */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '40px',
+            left: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            background: 'rgba(255, 255, 255, 0.1)',
+            padding: '12px 24px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <span style={{ color: 'white', fontSize: '24px', fontWeight: 900, letterSpacing: '1px' }}>
+            BENCHED
+          </span>
         </div>
       </div>
     ),
-    {
-      ...size,
-    }
+    { ...size }
   );
 }
