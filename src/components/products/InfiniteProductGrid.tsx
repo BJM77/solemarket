@@ -336,6 +336,13 @@ function InfiniteProductGridInner({
     setIsAssistantOpen(true);
   }, []);
 
+  const itemLabel = useMemo(() => {
+    const category = currentSearchParams.category || initialFilterState.category;
+    if (category === 'Trading Cards') return 'Cards';
+    if (category === 'Sneakers') return 'Kicks';
+    return 'Items';
+  }, [currentSearchParams.category, initialFilterState.category]);
+
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
     if (category === 'Sneakers') return 'aspect-[4/3]';
@@ -480,7 +487,7 @@ function InfiniteProductGridInner({
           <div className="flex items-center gap-2">
             <div className="h-1 w-12 bg-primary rounded-full" />
             <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.2em]">
-              {totalCount !== undefined ? `${totalCount} Available Kicks` : pageDescription}
+              {totalCount !== undefined ? `${totalCount} Available ${itemLabel}` : pageDescription}
             </p>
           </div>
         </div>
