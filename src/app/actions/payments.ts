@@ -2,21 +2,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { stripe } from '@/lib/stripe/server';
-import Stripe from 'stripe';
-
-// Lazy initialization of Stripe to prevent crashes during build/startup if env is missing
-let stripeInstance: Stripe | null = null;
-
-function getStripe() {
-    if (!stripeInstance) {
-        stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build', {
-            // Use default API version to avoid type mismatch
-            typescript: true,
-        });
-    }
-    return stripeInstance;
-}
+import { getStripe } from '@/lib/stripe/server';
 
 // 1. Create a SetupIntent for saving a card (binding offer)
 export async function createSetupIntentAction(idToken: string) {
@@ -24,9 +10,7 @@ export async function createSetupIntentAction(idToken: string) {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId, email } = decodedToken;
 
-        if (!process.env.STRIPE_SECRET_KEY) {
-            throw new Error("Stripe configuration missing.");
-        }
+        const stripe = getStripe();
 
         // Get or Create Stripe Customer
         const userRef = firestoreDb.collection('users').doc(userId);
@@ -36,8 +20,8 @@ export async function createSetupIntentAction(idToken: string) {
         let customerId = userData?.stripeCustomerId;
 
         if (!customerId) {
-            const customer = await getStripe().customers.create({
-                email: email,
+            const customer = await stripe.customers.create({
+                email: email || undefined,
                 metadata: {
                     userId: userId,
                 },
@@ -46,7 +30,7 @@ export async function createSetupIntentAction(idToken: string) {
             await userRef.update({ stripeCustomerId: customerId });
         }
 
-        const setupIntent = await getStripe().setupIntents.create({
+        const setupIntent = await stripe.setupIntents.create({
             customer: customerId,
             payment_method_types: ['card'],
         });
@@ -63,6 +47,8 @@ export async function createPromotionCheckoutSession(idToken: string, productId:
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;
+
+        const stripe = getStripe();
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();

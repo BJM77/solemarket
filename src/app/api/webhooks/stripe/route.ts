@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe/server';
+import { getStripe } from '@/lib/stripe/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import * as admin from 'firebase-admin';
 
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
         if (!sig || !webhookSecret) {
             throw new Error('Missing signature or webhook secret');
         }
+        const stripe = getStripe();
         event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     } catch (err: any) {
         console.error(`Webhook signature verification failed: ${err.message}`);
