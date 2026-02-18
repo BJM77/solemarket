@@ -10,6 +10,7 @@ export async function searchEbaySoldListings(query: string) {
         return results;
     } catch (error: any) {
         console.error('Failed to search eBay:', error.message);
-        throw new Error('Failed to fetch market data. Please try again.');
+        // Return empty array instead of throwing to prevent 500/Server Action errors on client
+        return [];
     }
 }

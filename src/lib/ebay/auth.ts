@@ -11,8 +11,8 @@ export async function getEbayAppToken() {
     const clientSecret = process.env.EBAY_CLIENT_SECRET || process.env.EBAY_CERT_ID;
 
     if (!clientId || !clientSecret) {
-        console.error('eBay Configuration Error: Missing Client ID or Secret');
-        throw new Error('eBay API not configured. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET.');
+        console.warn('eBay API not configured. Research tools will be limited.');
+        return null;
     }
 
     // Base64 encode the client ID and secret
@@ -34,13 +34,13 @@ export async function getEbayAppToken() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('eBay Token Error Response:', errorText);
-            throw new Error(`Failed to fetch eBay token: ${response.statusText}`);
+            return null;
         }
 
         const data = await response.json();
         return data.access_token;
     } catch (error: any) {
         console.error('eBay Auth Exception:', error.message);
-        throw error;
+        return null;
     }
 }

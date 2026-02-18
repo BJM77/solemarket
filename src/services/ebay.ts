@@ -38,6 +38,7 @@ class EbayService {
      */
     async searchSoldItems(query: string, limit: number = 20): Promise<EbaySearchResult[]> {
         const token = await getEbayAppToken();
+        if (!token) return [];
 
         const baseUrl = this.config.environment === 'production'
             ? 'https://api.ebay.com'

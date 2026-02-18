@@ -30,6 +30,14 @@ export default function ResearchPage() {
         try {
             const results = await searchEbaySoldListings(searchQuery);
             setSearchResults(results);
+            
+            if (results.length === 0) {
+                toast({
+                    title: "No Results",
+                    description: "No recent sold listings found. The market research tool may be in maintenance or configuration is missing.",
+                    variant: "default"
+                });
+            }
         } catch (error) {
             console.error("Search failed:", error);
             toast({
