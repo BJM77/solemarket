@@ -285,13 +285,13 @@ function generateKeywords(title: string): string[] {
     return [...new Set(keywords)]; // Unique
 }
 
-const SNEAKER_CATEGORIES = ['Sneakers', 'Accessories'];
+const ACTIVE_CATEGORIES = ['Sneakers', 'Trading Cards', 'Accessories'];
 
-export const getSneakersProducts = unstable_cache(
+export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
         try {
             const snapshot = await firestoreDb.collection('products')
-                .where('category', 'in', SNEAKER_CATEGORIES)
+                .where('category', 'in', ACTIVE_CATEGORIES)
                 .where('status', '==', 'available')
                 .orderBy('isPromoted', 'desc')
                 .orderBy('createdAt', 'desc')

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import GuidePageTemplate from '@/components/guides/GuidePageTemplate';
-import { getSneakersProducts } from '@/app/actions/products';
+import { getActiveProducts } from '@/app/actions/products';
 import path from 'path';
 import fs from 'fs/promises';
 import { Metadata } from 'next';
@@ -71,7 +71,7 @@ export default async function GuidePage({ params }: Props) {
     // For now, getting recent products and filtering client-side or just showing latest is a fallback
     // But let's try to be smart. We don't have a direct "search" action that returns products exposed to server components 
     // easily without duplicating logic. 
-    // Let's use getSneakersProducts and we'll trust the user to browse from there if no specific matches found
+    // Let's use getActiveProducts and we'll trust the user to browse from there if no specific matches found
     // Or better, we can import `firestoreDb` and run a specific query here.
     
     const { firestoreDb } = await import('@/lib/firebase/admin');
