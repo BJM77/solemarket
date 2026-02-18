@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { AdUnit } from '@/components/ads/AdUnit';
 import { cn } from '@/lib/utils';
 
-export default function HeroModern() {
+export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
     const router = useRouter();
     const [query, setQuery] = useState('');
     const [particles, setParticles] = useState<any[]>([]);
@@ -40,10 +40,10 @@ export default function HeroModern() {
                 <div className="absolute top-0 inset-x-0 h-full bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-50" />
                 <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[100px]" />
-                
+
                 {/* Simulated Particles */}
                 {particles.map((p) => (
-                    <div 
+                    <div
                         key={p.id}
                         className="absolute w-1 h-1 bg-primary/20 rounded-full"
                         style={{
@@ -96,9 +96,9 @@ export default function HeroModern() {
                                 </Button>
                             </div>
                         </form>
-                        <Button 
-                            variant="outline" 
-                            size="lg" 
+                        <Button
+                            variant="outline"
+                            size="lg"
                             onClick={() => router.push('/sell/create')}
                             className="h-14 px-8 rounded-2xl font-bold border-2 hover:bg-gray-50 transition-all"
                         >
@@ -109,11 +109,13 @@ export default function HeroModern() {
                     {/* Stats Counter */}
                     <div className="flex items-center gap-8 md:gap-12 pt-8 border-t border-border/10">
                         <div>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">100%</p>
-                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Authentic</p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Local</p>
+                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Community</p>
                         </div>
                         <div>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">5k+</p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
+                                {listingCount > 0 ? (listingCount < 1000 ? listingCount : `${(listingCount / 1000).toFixed(1)}k+`) : '—'}
+                            </p>
                             <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Listings</p>
                         </div>
                         <div>
@@ -126,23 +128,14 @@ export default function HeroModern() {
                 <div className="hidden lg:block relative float">
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-[150px] scale-75 animate-pulse" />
                     <div className="relative z-10 scale-110 -rotate-12 hover:rotate-0 transition-transform duration-700">
-                        <img 
-                            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=1000" 
-                            alt="Hero Sneaker" 
+                        <img
+                            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=1000"
+                            alt="Hero Sneaker"
                             className="w-full h-auto drop-shadow-[0_35px_35px_rgba(0,0,0,0.4)] rounded-3xl"
                         />
                     </div>
-                    
-                    {/* Floating Badges */}
-                    <div className="absolute top-10 -left-10 glass-card p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-2xl">
-                        <div className="bg-emerald-500 p-2 rounded-lg text-white">
-                            <ShieldCheck className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-black uppercase text-foreground">Verified</p>
-                            <p className="text-[10px] text-muted-foreground">Expert Authenticated</p>
-                        </div>
-                    </div>
+
+
 
                     <div className="absolute bottom-10 -right-10 glass-card p-4 rounded-2xl flex items-center gap-3 animate-pulse shadow-2xl delay-700">
                         <div className="bg-orange-500 p-2 rounded-lg text-white">

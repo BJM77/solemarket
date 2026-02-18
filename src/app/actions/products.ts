@@ -307,4 +307,20 @@ export const getSneakersProducts = unstable_cache(
     },
     ['products-sneakers'],
     { revalidate: 300, tags: ['products-sneakers'] }
-);
+export const getActiveListingCount = unstable_cache(
+        async (): Promise<number> => {
+            try {
+                const snapshot = await firestoreDb.collection('products')
+                    .where('status', '==', 'available')
+                    .count()
+                    .get();
+
+                return snapshot.data().count;
+            } catch (error) {
+                console.error("Error fetching active listing count:", error);
+                return 0;
+            }
+        },
+        ['active-listings-count'],
+        { revalidate: 600, tags: ['active-listings-count'] }
+    );

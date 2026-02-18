@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getFeaturedProducts } from "@/app/actions/products";
+import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/products";
 import HeroModern from "@/components/home/HeroModern";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
@@ -41,11 +41,13 @@ function TrendingSkeleton() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const listingCount = await getActiveListingCount();
+
   return (
     <main>
       <MarketTicker />
-      <HeroModern />
+      <HeroModern listingCount={listingCount} />
       <CategoryGrid />
       <PlayerCollections />
       <Suspense fallback={<TrendingSkeleton />}>
