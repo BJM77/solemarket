@@ -107,7 +107,7 @@ export default function DonatePage() {
                                 <Library className="h-10 w-10 text-indigo-600" />
                             </div>
                             <h3 className="text-2xl font-black uppercase mb-4">Trading Cards</h3>
-                            <p className="text-muted-foreground mb-8">NBA cards, Pokémon, or NFL. Helping kids start their collection and love for the hobby.</p>
+                            <p className="text-muted-foreground mb-8">NBA and basketball cards. Helping kids start their collection and love for the hobby.</p>
                             <Button className="w-full h-14 rounded-2xl font-bold text-lg bg-indigo-600 hover:bg-indigo-700 border-none">Donate Cards</Button>
                         </div>
                     </div>

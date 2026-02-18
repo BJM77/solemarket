@@ -95,7 +95,7 @@ export default function KeepListPage() {
         );
     }
 
-    const sports = ['Baseball', 'Basketball', 'Football', 'Soccer', 'Hockey', 'Uncategorized'] as const;
+    const sports = ['Basketball', 'Uncategorized'] as const;
 
     return (
         <div className="container mx-auto py-8 max-w-4xl">

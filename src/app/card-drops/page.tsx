@@ -17,33 +17,33 @@ const UPCOMING_DROPS = [
     },
     {
         id: 'card-drop-2',
-        title: 'Topps Chrome UFC 2026 Showcase',
+        title: '2025-26 Donruss Optic Basketball Choice',
         date: '2026-05-22',
-        price: 320,
+        price: 450,
         image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800',
-        brand: 'Topps'
+        brand: 'Panini'
     },
     {
         id: 'card-drop-3',
-        title: 'Upper Deck Series 2 Hockey 2026',
+        title: '2025-26 Select Basketball H2 Box',
         date: '2026-06-05',
-        price: 150,
+        price: 380,
         image: 'https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?q=80&w=800',
-        brand: 'Upper Deck'
+        brand: 'Panini'
     },
     {
         id: 'card-drop-4',
-        title: 'Pokémon TCG: Scarlet & Violet - Obsidian Flames 2',
+        title: '2025-26 Crown Royale Basketball Hobby',
         date: '2026-06-18',
-        price: 160,
+        price: 550,
         image: 'https://images.unsplash.com/photo-1613771404721-1f92d799e49f?q=80&w=800',
-        brand: 'Pokémon'
+        brand: 'Panini'
     }
 ];
 
 export const metadata = {
-    title: 'Card Release Calendar | Benched',
-    description: 'Upcoming sports and TCG card releases in Australia. Secure the box.',
+    title: 'Basketball Card Release Calendar | Benched',
+    description: 'Upcoming NBA and basketball card releases in Australia. Secure the box.',
 };
 
 export default function CardDropsPage() {

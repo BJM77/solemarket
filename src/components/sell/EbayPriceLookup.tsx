@@ -61,7 +61,7 @@ export function EbayPriceLookup({
           <Input 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="e.g. 1999 Pokemon Charizard"
+            placeholder="e.g. 2023 Panini Prizm Victor Wembanyama"
             onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
           />
         </div>

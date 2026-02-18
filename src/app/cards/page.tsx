@@ -12,7 +12,7 @@ export async function generateMetadata({
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
   let title = 'Browse Trading Cards | Benched';
-  let description = 'Discover rare NBA, NFL, and Pokémon cards on Benched Australia.';
+  let description = 'Discover rare NBA and Basketball cards on Benched Australia.';
 
   if (q && category) {
     title = `${q} in ${category} | Benched`;

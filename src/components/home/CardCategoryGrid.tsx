@@ -12,24 +12,6 @@ const CARD_CATEGORIES = [
         color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
-        name: 'Pokémon',
-        icon: Sparkles,
-        href: '/cards?subCategory=Pokémon%20Cards',
-        color: 'bg-yellow-50 dark:bg-yellow-950/20'
-    },
-    {
-        name: 'NFL Cards',
-        icon: Trophy,
-        href: '/cards?subCategory=Football%20Cards',
-        color: 'bg-blue-50 dark:bg-blue-950/20'
-    },
-    {
-        name: 'TCG',
-        icon: Zap,
-        href: '/cards?subCategory=Other%20Cards',
-        color: 'bg-purple-50 dark:bg-purple-950/20'
-    },
-    {
         name: 'View All Cards',
         icon: ArrowRight,
         href: '/cards',

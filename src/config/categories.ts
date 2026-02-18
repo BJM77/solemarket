@@ -21,15 +21,13 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
     {
         id: 'cat_cards',
         name: 'Trading Cards',
-        description: 'Basketball, Football, and Pokémon cards',
+        description: 'Elite NBA and Basketball cards',
         slug: 'trading-cards',
         imageUrl: '/images/categories/cards.jpg',
         section: 'Marketplace',
         order: 2,
         subcategories: [
             { id: 'sub_basketball_cards', name: 'Basketball Cards', slug: 'basketball-cards', parentId: 'cat_cards' },
-            { id: 'sub_football_cards', name: 'Football Cards', slug: 'football-cards', parentId: 'cat_cards' },
-            { id: 'sub_other_cards', name: 'Other Cards', slug: 'other-cards', parentId: 'cat_cards' },
         ]
     }
 ];

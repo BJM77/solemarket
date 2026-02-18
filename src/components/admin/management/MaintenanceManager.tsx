@@ -86,7 +86,7 @@ export default function MaintenanceManager() {
                     Force Delete Products
                 </CardTitle>
                 <CardDescription>
-                    Search for specific listings (e.g., "Fix Test", "Charizard") and permanently remove them from the database.
+                    Search for specific listings (e.g., "Fix Test", "Jordan") and permanently remove them from the database.
                     This tool bypasses standard checks and is intended for cleanup.
                 </CardDescription>
             </CardHeader>

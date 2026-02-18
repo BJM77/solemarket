@@ -128,7 +128,7 @@ export default function DealSafePage() {
                 <div className="text-center bg-primary/5 rounded-3xl py-16 px-8 border border-primary/10">
                     <h2 className="text-3xl font-bold mb-4 font-headline">Ready for a DealSafe trade?</h2>
                     <p className="text-muted-foreground max-w-xl mx-auto mb-8 text-lg">
-                        Whether you're buying a 1st Edition Charizard or selling a rare historical coin, protect your investment with Benched's most trusted service.
+                        Whether you're buying a 1986 Fleer Michael Jordan or selling a rare pair of Kobes, protect your investment with Benched's most trusted service.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <DealSafeEnquiryDialog>

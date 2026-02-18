@@ -21,9 +21,9 @@ type ExtractCardNameInput = z.infer<typeof ExtractCardNameInputSchema>;
 
 const ExtractCardNameOutputSchema = z.object({
     playerName: z.string().describe('The name of the player on the card.'),
-    cardBrand: z.string().optional().describe('The brand/manufacturer of the card (e.g., Panini, Topps, Upper Deck).'),
+    cardBrand: z.string().optional().describe('The brand/manufacturer of the card (e.g., Panini, Upper Deck).'),
     cardColor: z.string().optional().describe('The type/color of the card (e.g., Base, Prizm, Refractor, Silver).'),
-    sport: z.string().optional().describe('The sport (e.g., Basketball, Baseball, Football, Soccer).'),
+    sport: z.string().optional().describe('The sport (e.g., Basketball).'),
     cardYear: z.number().optional().describe('The year the card was produced.'),
     salesData: z.object({
         averagePrice: z.number().optional().nullable(),
@@ -49,12 +49,12 @@ const prompt = ai.definePrompt({
     model: 'googleai/gemini-flash-latest',
     input: { schema: ExtractCardNameInputSchema },
     output: { schema: ExtractCardNameOutputSchema },
-    prompt: `You are an expert at analyzing trading cards. Extract all available information from this card image:
+    prompt: `You are an expert at analyzing basketball trading cards. Extract all available information from this card image:
 
 - Player's full name (required)
-- Card brand/manufacturer (Panini, Topps, Upper Deck, etc.)
+- Card brand/manufacturer (Panini, Upper Deck, etc.)
 - Card type/color (Base, Prizm, Refractor, Silver, Gold, etc.)
-- Sport (Basketball, Baseball, Football, Soccer, etc.)
+- Sport (Basketball only)
 - Year of production
 
 Be precise and only return what you can clearly see on the card.

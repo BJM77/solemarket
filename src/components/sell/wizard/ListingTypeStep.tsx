@@ -47,7 +47,7 @@ export function ListingTypeStep({ onSelect, selectedType }: ListingTypeStepProps
                         </div>
                         <div>
                             <h3 className="font-bold text-xl uppercase tracking-tight">Trading Cards</h3>
-                            <p className="text-sm text-slate-500">NBA, NFL, TCG & more.</p>
+                            <p className="text-sm text-slate-500">NBA & Basketball sets.</p>
                         </div>
                     </CardContent>
                 </Card>

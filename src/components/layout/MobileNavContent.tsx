@@ -153,8 +153,6 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
                                     <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards')}>All Cards</Button>
                                     <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Basketball%20Cards')}>NBA Cards</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Pokémon%20Cards')}>Pokémon</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Football%20Cards')}>NFL Cards</Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>

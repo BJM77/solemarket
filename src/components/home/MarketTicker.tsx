@@ -10,7 +10,7 @@ const MOCK_SALES = [
     { model: 'Kobe 6 Protro "Reverse Grinch"', price: '$850', time: '2m ago', type: 'kicks' },
     { model: 'Panini Prizm Victor Wembanyama', price: '$4,200', time: '8m ago', type: 'cards' },
     { model: 'Jordan 1 Retro High OG "Chicago"', price: '$1,200', time: '15m ago', type: 'kicks' },
-    { model: 'Charizard 1st Edition PSA 10', price: '$12,500', time: '22m ago', type: 'cards' },
+    { model: 'Topps Chrome Stephen Curry RC', price: '$12,500', time: '22m ago', type: 'cards' },
     { model: 'LeBron 20 "Time Machine"', price: '$320', time: '34m ago', type: 'kicks' },
     { model: 'AE1 "With Love"', price: '$280', time: '1h ago', type: 'kicks' },
     { model: 'Upper Deck Michael Jordan MJ', price: '$890', time: '1h ago', type: 'cards' },

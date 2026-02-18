@@ -111,13 +111,10 @@ function estimateValue(player: Player): number {
         'kobe bryant',
         'luka dončić',
         'victor wembanyama',
-        'charizard',
-        'pikachu',
-        'umbreon',
-        'patrick mahomes',
-        'tom brady',
-        'shohei ohtani',
-        'lionel messi',
+        'anthony edwards',
+        'shai gilgeous-alexander',
+        'stephen curry',
+        'kevin durant',
     ];
 
     const playerName = player.name.toLowerCase();
@@ -129,14 +126,6 @@ function estimateValue(player: Player): number {
     // Sport-based estimates
     if (sport === 'basketball') {
         return 100; // Keep tier
-    }
-
-    if (sport === 'pokemon') {
-        return 80; // Keep tier
-    }
-
-    if (sport === 'football' || sport === 'baseball') {
-        return 75; // Keep tier
     }
 
     // Default
