@@ -611,9 +611,9 @@ export default function ProductDetailsModern({
                                             </div>
 
                                             <div className="flex items-center justify-center gap-1.5 mt-3 text-emerald-600 bg-emerald-50 py-2 rounded-lg">
-                                                <ShieldCheck className="h-3.5 w-3.5" />
+                                                <CheckCircle className="h-3.5 w-3.5" />
                                                 <p className="text-[11px] font-bold uppercase tracking-wide">
-                                                    Authenticity Guaranteed
+                                                    Secure Peer-to-Peer Trade
                                                 </p>
                                             </div>
                                         </div>
