@@ -26,7 +26,7 @@ export function MarketTicker() {
 
     return (
         <div className="w-full bg-primary text-white py-2 overflow-hidden border-y border-white/5 relative z-50">
-            <div className="flex animate-marquee whitespace-nowrap">
+            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] cursor-pointer">
                 {[...MOCK_SALES, ...MOCK_SALES].map((sale, i) => (
                     <div key={i} className="flex items-center gap-4 px-8 border-r border-white/10">
                         <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-secondary">
