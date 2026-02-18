@@ -64,6 +64,20 @@ service cloud.firestore {
        allow create: if isAuthenticated();
        allow update: if isAdmin();
     }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+      allow create: if isAuthenticated(); // Or system-only, but let's allow for now
+      allow update: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+    }
+
+    // Settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
     
     // Default deny
     match /{document=**} {

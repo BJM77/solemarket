@@ -57,7 +57,10 @@ type ListingFormValues = z.infer<typeof formSchema>;
 
 const STEPS = ['Type', 'Photos', 'Details', 'Pricing'];
 
-export default function CreateListingPage() {
+import { Suspense } from 'react';
+
+// Main component that uses searchParams
+function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
@@ -181,7 +184,7 @@ export default function CreateListingPage() {
       }
     };
     loadDraft();
-  }, [editId, user, form, toast]);
+  }, [editId, user, form, toast, searchParams]);
 
   // Handle Type Selection
   const handleTypeSelect = (type: 'sneakers' | 'accessories') => {
@@ -406,6 +409,14 @@ export default function CreateListingPage() {
         </div>
       </div>
     </Form>
+  );
+}
+
+export default function CreateListingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <CreateListingForm />
+    </Suspense>
   );
 }
 
