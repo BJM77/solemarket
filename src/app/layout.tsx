@@ -208,8 +208,8 @@ export default function RootLayout({
                 <CartProvider>
                   <ViewedProductsProvider>
                     <GoogleAnalytics />
-                    <MarketTicker />
                     <Header />
+                    <MarketTicker />
                     <main className="min-h-screen">
                       {children}
                     </main>
