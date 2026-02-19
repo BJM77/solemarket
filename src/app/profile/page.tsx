@@ -29,6 +29,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/lib/firebase/client-ops';
 import { useState, useEffect, useTransition } from 'react';
+import { SellerMiniDashboard } from '@/components/profile/SellerMiniDashboard';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Display name must be at least 2 characters.'),
@@ -123,6 +124,7 @@ export default function ProfileDetailsPage() {
 
   return (
     <div className="space-y-6">
+      <SellerMiniDashboard />
       <Card>
         <CardHeader>
           <CardTitle>Public Profile</CardTitle>

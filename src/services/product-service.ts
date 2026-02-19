@@ -229,12 +229,10 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   let totalCount: number | undefined = undefined;
   // Only fetch count on first page to save reads
-  if (!searchParams.lastId && page === 1) {
+  // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
+  if (!searchParams.lastId && page === 1 && !q) {
       try {
-          const countQuery = query(productsRef, ...constraints); // Use constraints without limit/sort for count
-          // Note: constraints contains 'orderBy' which is not needed for count but allowed.
-          // However, we added orderByConstraints to finalQuery, not 'constraints'.
-          // So 'constraints' has only the filters. Perfect.
+          const countQuery = query(productsRef, ...constraints); 
           const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
           totalCount = snapshot.data().count;
       } catch (e) {

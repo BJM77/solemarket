@@ -57,6 +57,7 @@ interface ProductCardProps {
   selected?: boolean;
   onToggleSelect?: () => void;
   onOpenPriceAssistant?: (product: Product) => void;
+  priority?: boolean;
 }
 
 export default function ProductCard({
@@ -66,7 +67,8 @@ export default function ProductCard({
   selectable = false,
   selected = false,
   onToggleSelect,
-  onOpenPriceAssistant
+  onOpenPriceAssistant,
+  priority = false
 }: ProductCardProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -562,6 +564,7 @@ export default function ProductCard({
                   product={product}
                   imageIndex={0}
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  priority={priority}
                 />
               </Link>
               <Button
@@ -897,6 +900,7 @@ export default function ProductCard({
               product={product}
               imageIndex={0}
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              priority={priority}
             />
           </Link>
         )}

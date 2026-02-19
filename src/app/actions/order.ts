@@ -8,6 +8,7 @@ import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from '@/lib/utils';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateItemTotal, calculateShipping, calculateTax } from '@/lib/pricing';
+import { sendTelegramNotification } from '@/lib/telegram';
 
 interface CartItem {
     id: string;
@@ -157,6 +158,25 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         }));
+
+        // Send Telegram notification for the new order(s)
+        try {
+            const totalAmount = results.reduce((acc: number, order: any) => acc + order.totalAmount, 0);
+            const itemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
+            const sellerNames = results.map((order: any) => order.sellerName).join(', ');
+
+            await sendTelegramNotification(
+                `<b>💰 New Order Received!</b>\n\n` +
+                `<b>Order ID:</b> ${results[0].groupOrderId}\n` +
+                `<b>Buyer:</b> ${buyerName || buyerEmail}\n` +
+                `<b>Sellers:</b> ${sellerNames}\n` +
+                `<b>Items:</b> ${itemsCount}\n` +
+                `<b>Total:</b> $${totalAmount.toFixed(2)}\n\n` +
+                `<a href="https://benched.au/admin/orders">View in Admin Dashboard</a>`
+            );
+        } catch (tgError) {
+            console.error('Failed to send Telegram notification:', tgError);
+        }
 
         return { orders: serializedOrders };
 

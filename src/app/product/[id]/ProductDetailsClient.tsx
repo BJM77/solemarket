@@ -8,32 +8,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import {
-    Share2,
     Heart,
-    Star,
-    ShieldCheck,
-    CheckCircle,
-    AlertCircle,
     ChevronLeft,
-    MessageSquare,
-    Eye,
-    Calendar,
-    ShoppingCart,
-    CreditCard,
     Loader2,
-    Copyright,
     ChevronRight,
-    Hash,
     Search,
-    ExternalLink
+    ExternalLink,
+    Trash2
 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
-import { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy, updateDoc, increment, arrayUnion, Timestamp } from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
 import type { Product, Review } from '@/lib/types';
 import type { UserProfile } from '@/lib/types';
@@ -43,9 +30,7 @@ import ReviewForm from '@/components/reviews/ReviewForm';
 import ReviewList from '@/components/reviews/ReviewList';
 import { acceptBidAction } from '@/app/actions/bidding';
 import { deleteProductByAdmin } from '@/app/actions/admin';
-import { createProductAction, recordProductView } from '@/app/actions/products';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { Trash2, DollarSign, Phone } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -59,14 +44,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
-import { BiddingInterface } from '@/components/products/BiddingInterface';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { incrementProductContactCount } from '@/app/actions/product-updates';
-import { OfferModal } from '@/components/products/OfferModal';
 import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
+
+// Refactored sub-components
+import { ProductHeader } from '@/components/product/ProductHeader';
+import { ProductActions } from '@/components/product/ProductActions';
+import { SellerCard } from '@/components/product/SellerCard';
+import { ProductStoryShare } from '@/components/product/ProductStoryShare';
 
 export default function ProductDetailsClient({
     productId,
@@ -90,15 +79,14 @@ export default function ProductDetailsClient({
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [loadingRelated, setLoadingRelated] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false); // State for phone reveal
+    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
-    const viewRecordedRef = useRef<string | null>(null);
 
     // Super admin check
     const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
 
     const productRef = useMemoFirebase(() => doc(db, 'products', productId), [productId]);
-    const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
+    const { data: product, isLoading: isProductLoading } = useDoc<Product>(productRef, {
         initialData: initialProduct,
     });
 
@@ -140,7 +128,6 @@ export default function ProductDetailsClient({
     const handleStartConversation = async () => {
         if (!user || !product || !seller) {
             if (!user && product && seller) {
-                // Open guest message dialog instead of redirecting
                 setIsGuestMessageOpen(true);
             }
             return;
@@ -198,58 +185,26 @@ export default function ProductDetailsClient({
     };
 
     useEffect(() => {
-        if (!productId || viewRecordedRef.current === productId) return;
-
-        // We mark it as recorded immediately to prevent double-firing due to StrictMode or fast renders
-        viewRecordedRef.current = productId;
-
-        const recordView = async () => {
-            try {
-                await recordProductView(productId, user?.uid);
-            } catch (error) {
-                console.error("Failed to record product view:", error);
-            }
-        };
-
-        recordView();
-    }, [productId, user?.uid]);
-
-    useEffect(() => {
-        if (product) {
+        if (product && productId) {
             markAsViewed(productId);
-            // Fetch related products
             const fetchRelatedProducts = async () => {
-                setLoadingRelated(true);
-
-                const relatedQuery = query(
+                const q = query(
                     collection(db, 'products'),
                     where('category', '==', product.category),
-                    where('__name__', '!=', productId),
-                    where('isDraft', '==', false),
-                    limit(4)
+                    where('status', '==', 'available'),
+                    limit(5)
                 );
-                const relatedSnap = await getDocs(relatedQuery);
-                const relatedData = relatedSnap.docs.map(doc => ({
+                const querySnapshot = await getDocs(q);
+                const relatedData = querySnapshot.docs.filter(doc => doc.id !== productId).map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 })) as Product[];
                 setRelatedProducts(relatedData);
                 setLoadingRelated(false);
             };
-
             fetchRelatedProducts();
         }
     }, [product, productId, markAsViewed]);
-
-    useEffect(() => {
-        if (productError) {
-            toast({
-                title: "Error loading product",
-                description: productError.message,
-                variant: 'destructive',
-            })
-        }
-    }, [productError, toast]);
 
     const isLoading = isProductLoading || isSellerLoading;
 
@@ -267,21 +222,8 @@ export default function ProductDetailsClient({
                         </div>
                     </div>
                     <div className="space-y-6">
-                        <div className="space-y-3">
-                            <Skeleton className="h-4 w-1/4" />
-                            <Skeleton className="h-9 w-3/4" />
-                            <Skeleton className="h-10 w-1/3" />
-                            <div className="flex gap-4">
-                                <Skeleton className="h-5 w-1/4" />
-                                <Skeleton className="h-5 w-1/4" />
-                            </div>
-                            <Skeleton className="h-20 w-full" />
-                        </div>
+                        <Skeleton className="h-40 w-full" />
                         <Skeleton className="h-12 w-full" />
-                        <div className="flex gap-3">
-                            <Skeleton className="h-12 flex-1" />
-                            <Skeleton className="h-12 flex-1" />
-                        </div>
                         <Skeleton className="h-20 w-full" />
                     </div>
                 </div>
@@ -289,9 +231,7 @@ export default function ProductDetailsClient({
         );
     }
 
-    if (!product) {
-        notFound();
-    }
+    if (!product) notFound();
 
     const handleAddToCart = () => {
         if (!user) {
@@ -307,37 +247,19 @@ export default function ProductDetailsClient({
             router.push('/verify');
             return;
         }
-
         addItem(product, 1);
-        toast({
-            title: "Added to Cart!",
-            description: `${product.title} is now in your cart.`,
-        });
+        toast({ title: "Added to Cart!", description: `${product.title} is now in your cart.` });
     };
-
-
 
     const handleAcceptBid = async (bidId: string) => {
         try {
             const idToken = await getCurrentUserIdToken();
             if (!idToken) throw new Error("Authentication session expired.");
-
             const result = await acceptBidAction(product.id, idToken, bidId);
-
-            if (!result.success) {
-                throw new Error(result.error);
-            }
-
-            toast({
-                title: "Bid Accepted",
-                description: "You have accepted the offer!",
-            });
+            if (!result.success) throw new Error(result.error);
+            toast({ title: "Bid Accepted", description: "You have accepted the offer!" });
         } catch (err: any) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: err.message,
-            });
+            toast({ variant: "destructive", title: "Error", description: err.message });
         }
     };
 
@@ -346,9 +268,7 @@ export default function ProductDetailsClient({
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
         }
-
         setIsPhoneRevealed(true);
-        // Fire and forget - count the reveal
         try {
             await incrementProductContactCount(productId);
         } catch (e) {
@@ -358,32 +278,17 @@ export default function ProductDetailsClient({
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.preventDefault();
-
         if (!isSuperAdmin) return;
         setIsDeleting(true);
-
         try {
             const idToken = await getCurrentUserIdToken();
             if (!idToken) throw new Error("Authentication session expired.");
-
             const result = await deleteProductByAdmin(productId, idToken);
-
-            if (!result.success) {
-                throw new Error(result.error);
-            }
-
-            toast({
-                title: "Product Deleted",
-                description: result.message,
-            });
+            if (!result.success) throw new Error(result.error);
+            toast({ title: "Product Deleted", description: result.message });
             router.push('/browse');
-
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Deletion Failed",
-                description: error.message || "An error occurred.",
-            });
+            toast({ variant: "destructive", title: "Deletion Failed", description: error.message || "An error occurred." });
         } finally {
             setIsDeleting(false);
         }
@@ -393,35 +298,16 @@ export default function ProductDetailsClient({
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8">
                 <div className="flex items-center justify-between mb-6">
-                    <Button
-                        variant="ghost"
-                        onClick={() => router.back()}
-                        className="hover:bg-transparent hover:text-primary p-0 h-auto font-medium"
-                    >
+                    <Button variant="ghost" onClick={() => router.back()} className="hover:bg-transparent hover:text-primary p-0 h-auto font-medium">
                         <ChevronLeft className="h-4 w-4 mr-1" />
                         Back to Results
                     </Button>
-
                     <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!adjacentProducts.prevId}
-                            onClick={() => adjacentProducts.prevId && router.push(`/product/${adjacentProducts.prevId}`)}
-                            title="Previous Item (Newer)"
-                        >
-                            <ChevronLeft className="h-4 w-4 mr-1" />
-                            Prev
+                        <Button variant="outline" size="sm" disabled={!adjacentProducts.prevId} onClick={() => adjacentProducts.prevId && router.push(`/product/${adjacentProducts.prevId}`)}>
+                            <ChevronLeft className="h-4 w-4 mr-1" /> Prev
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!adjacentProducts.nextId}
-                            onClick={() => adjacentProducts.nextId && router.push(`/product/${adjacentProducts.nextId}`)}
-                            title="Next Item (Older)"
-                        >
-                            Next
-                            <ChevronRight className="h-4 w-4 ml-1" />
+                        <Button variant="outline" size="sm" disabled={!adjacentProducts.nextId} onClick={() => adjacentProducts.nextId && router.push(`/product/${adjacentProducts.nextId}`)}>
+                            Next <ChevronRight className="h-4 w-4 ml-1" />
                         </Button>
                     </div>
                 </div>
@@ -438,246 +324,62 @@ export default function ProductDetailsClient({
                     </div>
 
                     <div className="space-y-6">
-                        <div>
-                            <div className="flex items-center justify-between mb-2">
-                                <Badge variant="outline" className="text-xs">
-                                    {product.category} {product.subCategory && `> ${product.subCategory}`}
-                                </Badge>
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={toggleFavorite}
-                                        className="h-9 w-9"
-                                    >
-                                        <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-9 w-9">
-                                        <Share2 className="h-5 w-5" />
-                                    </Button>
-                                    {isSuperAdmin && (
-                                        <div className="flex items-center gap-2 ml-2 pl-2 border-l">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="h-9 px-3 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2 whitespace-nowrap"
-                                                asChild
-                                            >
-                                                <a
-                                                    href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(
-                                                        (() => {
-                                                            const parts = [];
-                                                            const title = product.title || '';
-                                                            const year = product.year?.toString() || '';
-                                                            const manufacturer = product.manufacturer || '';
-                                                            if (year && !title.startsWith(year)) parts.push(year);
-                                                            if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) parts.push(manufacturer);
-                                                            parts.push(title);
-                                                            return parts.join(' ');
-                                                        })()
-                                                    )}&LH_Sold=1&LH_Complete=1`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    <ExternalLink className="h-4 w-4" />
-                                                    eBay Sold Items
-                                                </a>
-                                            </Button>
-                                            <EbaySearchModal
-                                                defaultQuery={(() => {
-                                                    // Construct a smarter query
-                                                    const parts = [];
-                                                    const title = product.title || '';
-                                                    const year = product.year?.toString() || '';
-                                                    const manufacturer = product.manufacturer || '';
-
-                                                    // If title starts with Year, don't add it again
-                                                    if (year && !title.startsWith(year)) {
-                                                        parts.push(year);
-                                                    }
-
-                                                    // If title contains Manufacturer, don't add it again
-                                                    if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) {
-                                                        parts.push(manufacturer);
-                                                    }
-
-                                                    parts.push(title);
-                                                    return parts.join(' ');
-                                                })()}
-                                                trigger={
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:text-blue-800 hover:bg-blue-50" title="Check eBay Prices (In-App)">
-                                                        <Search className="h-5 w-5" />
-                                                    </Button>
-                                                }
-                                            />
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
-                                                        {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete the product "{product.title}".
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.title}</h1>
-
-                            <div className="flex items-center gap-3 mb-4">
-                                {!product.isUntimed && (
-                                    <div className="text-4xl font-bold text-gray-900">
-                                        ${formatPrice(product.price)}
-                                    </div>
-                                )}
-                                {product.isUntimed && (
-                                    <Badge className="text-lg py-1 px-3 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-indigo-200">
-                                        Make Offer
-                                    </Badge>
-                                )}
-                            </div>
-
-                            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
-                                {product.year && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>Year: {product.year}</span>
-                                    </div>
-                                )}
-                                {product.manufacturer && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Copyright className="w-4 h-4" />
-                                        <span>{product.manufacturer}</span>
-                                    </div>
-                                )}
-                                {product.cardNumber && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Hash className="w-4 h-4" />
-                                        <span>#{product.cardNumber}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <p className="text-gray-600 mt-4">{product.description}</p>
-                        </div>
-
-                        {(product.quantity && product.quantity > 0) ? (
-                            <Alert className="bg-green-50 border-green-200">
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                                <AlertDescription className="text-green-800">
-                                    <span className="font-semibold">In Stock</span>
-                                </AlertDescription>
-                            </Alert>
-                        ) : (
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>
-                                    <span className="font-semibold">Out of Stock</span>
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        <div className="space-y-4 pt-4 border-t">
-                            {(!product.isReverseBidding || user?.uid === product.sellerId) && (
-                                <div className="flex flex-row gap-3">
-                                    {!product.isUntimed && (
-                                        <Button
-                                            size="lg"
-                                            className="flex-1 h-20 text-lg font-bold"
-                                            onClick={handleAddToCart}
-                                            disabled={!product.quantity || product.quantity === 0}
-                                        >
-                                            <ShoppingCart className="h-6 w-6 mr-2" />
-                                            Buy It
-                                        </Button>
-                                    )}
-                                    {(product.isNegotiable || product.isUntimed) && (
-                                        <OfferModal
-                                            product={product}
-                                            user={user}
+                        <div className="flex items-center justify-between mb-2">
+                             <div />
+                             <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" onClick={toggleFavorite} className="h-9 w-9">
+                                    <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
+                                </Button>
+                                <ProductStoryShare product={product} />
+                                {isSuperAdmin && (
+                                    <div className="flex items-center gap-2 ml-2 pl-2 border-l">
+                                        <EbaySearchModal
+                                            defaultQuery={product.title}
                                             trigger={
-                                                <Button
-                                                    size="lg"
-                                                    variant={product.isUntimed ? "default" : "outline"}
-                                                    className={cn("flex-1 h-20 text-lg font-bold", product.isUntimed && "bg-indigo-600 hover:bg-indigo-700 text-white")}
-                                                >
-                                                    <DollarSign className="h-6 w-6 mr-2" />
-                                                    {product.isUntimed ? "Make Offer" : "Make Offer"}
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600" title="Check eBay Prices">
+                                                    <Search className="h-5 w-5" />
                                                 </Button>
                                             }
                                         />
-                                    )}
-                                </div>
-                            )}
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500">
+                                                    {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>This action cannot be undone. Permanently delete "{product.title}".</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                )}
+                             </div>
                         </div>
 
-                        {product.isReverseBidding && user && (
-                            <BiddingInterface
-                                product={product}
-                                user={user}
-                                onAcceptBid={handleAcceptBid}
-                            />
-                        )}
+                        <ProductHeader product={product} />
+                        
+                        <ProductActions 
+                            product={product} 
+                            user={user} 
+                            onAddToCart={handleAddToCart} 
+                            onAcceptBid={handleAcceptBid} 
+                        />
 
                         {seller && (
-                            <Card>
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <Avatar className="h-12 w-12 border">
-                                            <AvatarImage src={seller.photoURL || ''} />
-                                            <AvatarFallback>{seller.displayName?.[0]}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-900 flex items-center gap-1">
-                                                {seller.displayName}
-                                                {seller.isVerified && <ShieldCheck className="h-4 w-4 text-blue-500" />}
-                                            </h3>
-                                            <div className="flex items-center gap-3 mt-1">
-                                                <div className="flex items-center gap-1">
-                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                    <span className="text-sm font-medium">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
-                                                    <span className="text-xs text-gray-500">({seller.totalSales || 0} sales)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <Button variant="outline" size="sm" asChild>
-                                            <Link href={`/seller/${product.sellerId}`}>
-                                                View Shop <ChevronRight className="w-4 h-4 ml-1" />
-                                            </Link>
-                                        </Button>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button variant="outline" size="sm" onClick={handleStartConversation}>
-                                            <MessageSquare className="h-4 w-4 mr-2" />
-                                            Message
-                                        </Button>
-                                        {seller.phoneNumber && (
-                                            <Button
-                                                variant={isPhoneRevealed ? "secondary" : "default"}
-                                                size="sm"
-                                                onClick={handleRevealPhone}
-                                                className={cn(isPhoneRevealed ? "bg-green-100 text-green-800 hover:bg-green-200" : "")}
-                                            >
-                                                <Phone className="h-4 w-4 mr-2" />
-                                                {isPhoneRevealed ? seller.phoneNumber : "Show Phone"}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <SellerCard 
+                                seller={seller} 
+                                isPhoneRevealed={isPhoneRevealed} 
+                                onStartConversation={handleStartConversation} 
+                                onRevealPhone={handleRevealPhone} 
+                                sellerShopId={product.sellerId}
+                            />
                         )}
                     </div>
                 </div>
@@ -693,116 +395,43 @@ export default function ProductDetailsClient({
                                 <CardContent className="px-0 pt-0">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                                         <div className="space-y-4">
-                                            <h3 className="font-semibold text-lg border-b pb-2">Product Description</h3>
-                                            <div className="prose max-w-none text-gray-600">
-                                                <p className="whitespace-pre-line">{product.description}</p>
-                                            </div>
+                                            <h3 className="font-semibold text-lg border-b pb-2">Description</h3>
+                                            <p className="whitespace-pre-line text-gray-600">{product.description}</p>
                                         </div>
-
                                         <div className="space-y-4">
                                             <h3 className="font-semibold text-lg border-b pb-2">Specifications</h3>
                                             <dl className="grid grid-cols-2 gap-y-4 text-sm">
-                                                <dt className="text-muted-foreground font-medium">Category</dt>
-                                                <dd className="font-semibold text-gray-900">{product.category}</dd>
-
-                                                {product.subCategory && (
-                                                    <>
-                                                        <dt className="text-muted-foreground font-medium">Sub-category</dt>
-                                                        <dd className="font-semibold text-gray-900">{product.subCategory}</dd>
-                                                    </>
-                                                )}
-
-                                                <dt className="text-muted-foreground font-medium">Condition</dt>
-                                                <dd className="font-semibold text-gray-900">
-                                                    <Badge variant="secondary" className="font-semibold">
-                                                        {product.condition}
-                                                    </Badge>
-                                                </dd>
-
-                                                {product.year && (
-                                                    <>
-                                                        <dt className="text-muted-foreground font-medium">Year</dt>
-                                                        <dd className="font-semibold text-gray-900">{product.year}</dd>
-                                                    </>
-                                                )}
-
-                                                {product.manufacturer && (
-                                                    <>
-                                                        <dt className="text-muted-foreground font-medium">Manufacturer</dt>
-                                                        <dd className="font-semibold text-gray-900">{product.manufacturer}</dd>
-                                                    </>
-                                                )}
-
-                                                {product.cardNumber && (
-                                                    <>
-                                                        <dt className="text-muted-foreground font-medium">Card Number</dt>
-                                                        <dd className="font-semibold text-gray-900">#{product.cardNumber}</dd>
-                                                    </>
-                                                )}
-
-                                                {product.gradingCompany && product.gradingCompany !== 'Raw' && (
-                                                    <>
-                                                        <dt className="text-muted-foreground font-medium">Grading Co.</dt>
-                                                        <dd className="font-semibold text-gray-900">{product.gradingCompany}</dd>
-
-                                                        <dt className="text-muted-foreground font-medium">Grade</dt>
-                                                        <dd className="font-semibold text-gray-900">{product.grade}</dd>
-
-                                                        {product.certNumber && (
-                                                            <>
-                                                                <dt className="text-muted-foreground font-medium">Certification</dt>
-                                                                <dd className="font-semibold text-gray-900">{product.certNumber}</dd>
-                                                            </>
-                                                        )}
-                                                    </>
-                                                )}
-
-                                                <dt className="text-muted-foreground font-medium">Product ID</dt>
-                                                <dd className="font-mono text-xs text-gray-500 uppercase">{product.id}</dd>
+                                                <dt className="text-muted-foreground">Category</dt>
+                                                <dd className="font-semibold">{product.category}</dd>
+                                                <dt className="text-muted-foreground">Condition</dt>
+                                                <dd><Badge variant="secondary">{product.condition}</Badge></dd>
+                                                {product.brand && <><dt className="text-muted-foreground">Brand</dt><dd className="font-semibold">{product.brand}</dd></>}
+                                                <dt className="text-muted-foreground">Product ID</dt>
+                                                <dd className="font-mono text-xs text-gray-400 uppercase">{product.id}</dd>
                                             </dl>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
-
                         <TabsContent value="reviews">
-                            <Suspense fallback={<Loader2 className="animate-spin" />}>
-                                {isUserLoading ? (
-                                    <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
-                                ) : (
-                                    <div className="space-y-8">
-                                        <ReviewForm
-                                            user={user}
-                                            productId={product.id}
-                                            productTitle={product.title}
-                                            sellerId={product.sellerId}
-                                        />
-                                        <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
-                                    </div>
-                                )}
-                            </Suspense>
+                            <div className="space-y-8">
+                                <ReviewForm user={user} productId={product.id} productTitle={product.title} sellerId={product.sellerId} />
+                                <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
+                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>
 
-                {
-                    relatedProducts.length > 0 && (
-                        <div className="lg:col-span-2 mt-16">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
-                            {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
-                        </div>
-                    )
-                }
+                {relatedProducts.length > 0 && (
+                    <div className="lg:col-span-2 mt-16">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
+                        {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
+                    </div>
+                )}
+            </div>
 
-            </div >
-
-            {/* Sticky Mobile Footer */}
-            {product && (
-                <StickyProductFooter product={product} user={isUserLoading ? null : user as any} />
-            )}
-
-            {/* Guest Message Dialog */}
+            {product && <StickyProductFooter product={product} user={isUserLoading ? null : user as any} />}
             {product && seller && (
                 <GuestMessageDialog
                     isOpen={isGuestMessageOpen}
@@ -812,8 +441,6 @@ export default function ProductDetailsClient({
                     productTitle={product.title}
                 />
             )}
-
-
         </div>
     );
 }

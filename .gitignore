@@ -48,3 +48,4 @@ secrets_staging/
 *.tsbuildinfo
 # Temporary files
 codes*.txt
+data/

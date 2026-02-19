@@ -164,7 +164,7 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                       className="object-contain sm:object-cover"
                       style={index === selectedIndex ? zoomStyle : undefined}
                       priority={index === 0}
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                     />
                   </div>
                 </div>
