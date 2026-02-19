@@ -1,9 +1,8 @@
 import 'server-only';
 import * as admin from 'firebase-admin';
-export { admin };
-import path from 'path';
-import fs from 'fs';
 
+// Re-export admin for convenience
+export { admin };
 
 function initializeFirebaseAdmin() {
     // Check for Emulator usage
@@ -37,18 +36,8 @@ function initializeFirebaseAdmin() {
     };
 
     try {
-        // Priority 1: Application Default Credentials (production/GCP)
-        if (process.env.GOOGLE_APPLICATION_CREDENTIALS && fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
-            console.log('✅ Firebase Admin: Using GOOGLE_APPLICATION_CREDENTIALS');
-            return admin.initializeApp({
-                ...config,
-                credential: admin.credential.applicationDefault(),
-            });
-        }
-
-        // Priority 2: Service Account JSON from Environment Variable
+        // Priority 1: Service Account JSON from Environment Variable (Generic)
         const saJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-        console.log('🔍 Firebase Admin Check: saJson length:', saJson?.length || 0);
         if (saJson) {
             console.log('✅ Firebase Admin: Using Service Account JSON from env');
             try {
@@ -61,26 +50,19 @@ function initializeFirebaseAdmin() {
                     credential: admin.credential.cert(serviceAccount),
                 });
             } catch (error: any) {
-                // Don't throw here - log and continue to next priority
-                // This allows production to fall through to ADC if JSON is malformed
-                console.warn('⚠️ Firebase Admin: SERVICE_ACCOUNT_JSON parsing failed, trying other methods...');
-                console.warn('   Error:', error.message);
+                console.warn('⚠️ Firebase Admin: SERVICE_ACCOUNT_JSON parsing failed:', error.message);
             }
         }
 
-        // Priority 2.5: Individual Secret Environment Variables (App Hosting/Secrets)
+        // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
         if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-            console.log('✅ Firebase Admin: Attempting to use Individual Secrets');
-            console.log('   FIREBASE_ADMIN_CLIENT_EMAIL is set:', !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL);
-            console.log('   FIREBASE_ADMIN_PRIVATE_KEY length:', process.env.FIREBASE_ADMIN_PRIVATE_KEY?.length);
+            console.log('✅ Firebase Admin: Using Individual Secrets');
             try {
-                // Handle private key newlines - support both escaped (\\n) and literal newlines
                 let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-                // Replace escaped literal \n with actual newlines if needed
                 if (privateKey.includes('\\n')) {
                     privateKey = privateKey.replace(/\\n/g, '\n');
                 }
-                const app = admin.initializeApp({
+                return admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert({
                         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
@@ -88,30 +70,14 @@ function initializeFirebaseAdmin() {
                         privateKey: privateKey,
                     }),
                 });
-                console.log('✅ Firebase Admin: Successfully initialized with Individual Secrets');
-                return app;
             } catch (error: any) {
                 console.error('❌ Firebase Admin: Failed to initialize with individual secrets:', error.message);
             }
-        } else {
-            console.log('⚠️ Firebase Admin: Individual secrets not set, skipping Priority 2.5');
-            console.log('   FIREBASE_ADMIN_PRIVATE_KEY:', !!process.env.FIREBASE_ADMIN_PRIVATE_KEY);
-            console.log('   FIREBASE_ADMIN_CLIENT_EMAIL:', !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL);
         }
 
-        // Priority 3: File-based Service Account (Development/Local)
-        // Only attempt this if we are likely in a local environment
-        const saPath = path.resolve(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
-        if (fs.existsSync(saPath)) {
-            console.log('✅ Firebase Admin: Using local service account file');
-            return admin.initializeApp({
-                ...config,
-                credential: admin.credential.cert(require(saPath)),
-            });
-        }
-
-        // Priority 4: Default ADC Fallback (useful if running in Cloud Run/Functions without explicitly set env var)
-        console.log('ℹ️ Firebase Admin: Falling back to default Application Default Credentials');
+        // Priority 3: Default ADC Fallback (Production/GCP)
+        // This works automatically on Google Cloud without manual file checks
+        console.log('ℹ️ Firebase Admin: Falling back to Application Default Credentials');
         return admin.initializeApp({
             ...config,
             credential: admin.credential.applicationDefault(),
@@ -119,7 +85,6 @@ function initializeFirebaseAdmin() {
 
     } catch (error) {
         console.error('Firebase Admin Initialization Error:', error);
-        // Return existing app if something raced and created it, mostly for safety
         if (admin.apps.length > 0) return admin.apps[0]!;
         throw error;
     }
@@ -133,6 +98,7 @@ let messagingAdmin: admin.messaging.Messaging | any;
 
 try {
     firebaseAdminApp = initializeFirebaseAdmin();
+    // Lazy getters or just direct assignment? Direct assignment matches original file structure.
     firestoreDb = firebaseAdminApp.firestore();
     authAdmin = firebaseAdminApp.auth();
     storageAdmin = firebaseAdminApp.storage();
@@ -140,7 +106,6 @@ try {
     console.log('✅ Firebase Admin: All services initialized successfully');
 } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
-    // Continue without crashing the whole module load - dependent calls will fail later with better context
 }
 
 export {
