@@ -465,6 +465,7 @@ function InfiniteProductGridInner({
                   selected={selectedIds.has(product.id)}
                   onToggleSelect={() => toggleSelection(product.id)}
                   onOpenPriceAssistant={openPriceAssistant}
+                  priority={index < 4}
                 />
               </div>
               {showAd && (
