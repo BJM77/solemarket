@@ -25,7 +25,7 @@ export function SmartImage({
     imageIndex = 0,
     className,
     alt,
-    sizes = "(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw",
+    sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
     priority = false
 }: SmartImageProps) {
     const imageUrl = product.imageUrls?.[imageIndex] || '/wtb-wanted-placeholder.png';
