@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
-import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp } from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp, addDoc } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
 import type { Product, Review } from '@/lib/types';
 import type { UserProfile } from '@/lib/types';
