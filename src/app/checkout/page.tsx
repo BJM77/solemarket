@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, ArrowLeft, Loader2, Truck, Store, ShieldCheck } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, cn } from '@/lib/utils';
 import { useState, useTransition } from 'react';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/order';
