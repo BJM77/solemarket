@@ -1,4 +1,4 @@
-export async function sendTelegramNotification(message: string) {
+export async function sendTelegramNotification(message: string, options?: { reply_markup?: any }) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -14,7 +14,8 @@ export async function sendTelegramNotification(message: string) {
             body: JSON.stringify({
                 chat_id: chatId,
                 text: message,
-                parse_mode: 'HTML'
+                parse_mode: 'HTML',
+                ...options
             }),
         });
 
