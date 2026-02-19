@@ -3,6 +3,7 @@
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, ArrowLeft, Loader2, Truck, Store } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Loader2, Truck, Store, ShieldCheck } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { useState, useTransition } from 'react';
 import { useUser } from '@/firebase';
@@ -151,109 +152,114 @@ export default function CheckoutPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Cart
         </Button>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Shipping and Payment Info */}
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Shipping and Payment Info - Order change for mobile: Summary FIRST on mobile? No, sticky summary bottom is better. */}
+          <div className="order-2 lg:order-1 space-y-8">
             <form onSubmit={handlePlaceOrder} className="space-y-8">
               {/* Delivery Method Selection */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Delivery Method</CardTitle>
+              <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
+                <CardHeader className="bg-slate-50/50 border-b">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight">Delivery Method</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <RadioGroup
                     value={shippingMethod}
                     onValueChange={(val) => setShippingMethod(val as 'pickup' | 'shipping')}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                   >
-                    <div>
+                    <div className="relative">
                       <RadioGroupItem value="pickup" id="pickup" className="peer sr-only" />
                       <Label
                         htmlFor="pickup"
-                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        className="flex flex-col items-center justify-center min-h-[140px] rounded-2xl border-2 border-muted bg-white p-6 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary/20 cursor-pointer hover:border-primary/30"
                       >
-                        <Store className="mb-3 h-6 w-6" />
-                        <span className="font-semibold">Local Pickup</span>
-                        <span className="text-sm text-muted-foreground mt-1">Meet Seller Directly</span>
-                        <span className="text-sm font-bold text-green-600 mt-2">Free</span>
+                        <Store className="mb-3 h-8 w-8 text-primary" />
+                        <span className="font-bold text-lg">Local Pickup</span>
+                        <span className="text-xs text-muted-foreground mt-1 text-center font-medium">Meet Seller Locally</span>
+                        <Badge variant="secondary" className="mt-3 bg-green-500 text-white border-none font-bold uppercase tracking-wider text-[10px]">Free</Badge>
                       </Label>
                     </div>
-                    <div>
+                    <div className="relative">
                       <RadioGroupItem value="shipping" id="shipping" className="peer sr-only" />
                       <Label
                         htmlFor="shipping"
-                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        className="flex flex-col items-center justify-center min-h-[140px] rounded-2xl border-2 border-muted bg-white p-6 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary/20 cursor-pointer hover:border-primary/30"
                       >
-                        <Truck className="mb-3 h-6 w-6" />
-                        <span className="font-semibold">Flat Rate Shipping</span>
-                        <span className="text-sm text-muted-foreground mt-1">Delivered to you</span>
-                        <span className="text-sm font-bold text-primary mt-2">
+                        <Truck className="mb-3 h-8 w-8 text-primary" />
+                        <span className="font-bold text-lg">Shipping</span>
+                        <span className="text-xs text-muted-foreground mt-1 text-center font-medium">Door-to-Door Delivery</span>
+                        <Badge variant="secondary" className="mt-3 bg-primary text-white border-none font-bold uppercase tracking-wider text-[10px]">
                           {cartSubtotal >= settings.freeShippingThreshold ? 'FREE' : `$${formatPrice(settings.freightCharge)}`}
-                        </span>
+                        </Badge>
                       </Label>
                     </div>
                   </RadioGroup>
                 </CardContent>
               </Card>
 
-              {/* Shipping Address Form - Only if Shipping Selected */}
+              {/* Shipping Address Form */}
               {shippingMethod === 'shipping' && (
-                <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
-                  <CardHeader>
-                    <CardTitle>Shipping Address</CardTitle>
+                <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+                  <CardHeader className="bg-slate-50/50 border-b">
+                    <CardTitle className="text-xl font-black uppercase tracking-tight">Shipping Address</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="p-6 space-y-5">
                     <div className="grid gap-2">
-                      <Label htmlFor="fullName">Full Name</Label>
+                      <Label htmlFor="fullName" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Full Name</Label>
                       <Input
                         id="fullName"
                         name="fullName"
                         value={shippingAddress.fullName}
                         onChange={handleAddressChange}
+                        className="h-12 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                         required
                         placeholder="John Doe"
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="street">Street Address</Label>
+                      <Label htmlFor="street" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Street Address</Label>
                       <Input
                         id="street"
                         name="street"
                         value={shippingAddress.street}
                         onChange={handleAddressChange}
+                        className="h-12 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                         required
                         placeholder="123 Main St"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="city">City</Label>
+                        <Label htmlFor="city" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">City</Label>
                         <Input
                           id="city"
                           name="city"
                           value={shippingAddress.city}
                           onChange={handleAddressChange}
+                          className="h-12 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                           required
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="state">State</Label>
+                        <Label htmlFor="state" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">State</Label>
                         <Input
                           id="state"
                           name="state"
                           value={shippingAddress.state}
                           onChange={handleAddressChange}
+                          className="h-12 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                           required
                         />
                       </div>
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="zip">ZIP / Postal Code</Label>
+                      <Label htmlFor="zip" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">ZIP / Postal Code</Label>
                       <Input
                         id="zip"
                         name="zip"
                         value={shippingAddress.zip}
                         onChange={handleAddressChange}
+                        className="h-12 rounded-xl bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                         required
                       />
                     </div>
@@ -261,95 +267,96 @@ export default function CheckoutPage() {
                 </Card>
               )}
 
-              {/* Payment Section - ENFORCED DIGITAL ONLY */}
-              <Card className="border-primary/20 bg-primary/5">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              {/* Payment Section */}
+              <Card className="border-none shadow-premium-lg overflow-hidden rounded-2xl ring-2 ring-primary/10">
+                <CardHeader className="bg-primary/5 border-b border-primary/10">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
                     Payment Method
-                    <span className="text-xs font-normal px-2 py-1 bg-primary text-white rounded-full">Secure Only</span>
+                    <Badge className="bg-primary text-white border-none font-bold uppercase tracking-wider text-[9px]">Secure ESCROW</Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="h-4 w-4 rounded-full border-4 border-primary" />
+                <CardContent className="p-6 space-y-6">
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border-2 border-primary/20 shadow-sm transition-all hover:bg-white">
+                    <div className="flex items-center gap-4">
+                      <div className="h-5 w-5 rounded-full border-4 border-primary bg-white ring-4 ring-primary/10" />
                       <div>
-                        <p className="font-semibold text-gray-900">Credit / Debit Card</p>
-                        <p className="text-xs text-muted-foreground">Processed securely by Stripe</p>
+                        <p className="font-bold text-gray-900">Credit / Debit Card</p>
+                        <p className="text-xs text-muted-foreground font-medium">Stripe Secure Infrastructure</p>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 opacity-60">
-                    <div className="flex items-center gap-3">
-                      <div className="h-4 w-4 rounded-full border border-slate-300" />
-                      <div>
-                        <p className="font-semibold text-gray-500 line-through">Cash / Bank Transfer</p>
-                        <p className="text-xs text-red-500 font-medium">Disabled during Beta for your safety</p>
+                      <div className="ml-auto flex gap-1 opacity-60 grayscale hover:grayscale-0 transition-all">
+                        <img src="/payment-logos/visa.svg" className="h-4 w-auto" alt="Visa" />
+                        <img src="/payment-logos/mastercard.svg" className="h-4 w-auto" alt="Mastercard" />
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-muted-foreground text-center pt-2">
-                    By placing this order, you agree to our Terms of Service. Funds are held in secure escrow until the seller confirms shipment.
+                  <p className="text-[10px] text-muted-foreground text-center px-4 font-medium leading-relaxed">
+                    By placing this order, you agree to our <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>. Funds are held in secure escrow until delivery is verified.
                   </p>
                 </CardContent>
-                <CardFooter>
-                  <Button type="submit" size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20" disabled={isPending}>
-                    {isPending && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-                    Pay Securely (${formatPrice(totalAmount)})
+                <CardFooter className="p-6 pt-0">
+                  <Button type="submit" size="lg" className="w-full h-16 text-xl font-black uppercase tracking-wider shadow-2xl shadow-primary/25 rounded-2xl transition-all active:scale-95 group" disabled={isPending}>
+                    {isPending ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <ShieldCheck className="mr-2 h-6 w-6 group-hover:scale-110 transition-transform" />}
+                    Pay ${formatPrice(totalAmount)}
                   </Button>
                 </CardFooter>
               </Card>
             </form>
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+          {/* Order Summary - Now sticky on mobile at bottom or normal on desktop? Actually, normal summary is fine if it's visible. */}
+          <div className="order-1 lg:order-2 lg:sticky lg:top-24 h-fit">
+            <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
+              <CardHeader className="bg-slate-50/50 border-b">
+                <CardTitle className="text-xl font-black uppercase tracking-tight">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                   {items.map(item => (
-                    <div key={item.id} className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted">
+                    <div key={item.id} className="flex items-center gap-4 group">
+                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-slate-100 transition-transform group-hover:scale-105">
                         <Image src={item.imageUrls[0]} alt={item.title} fill className="object-cover" />
-                        <span className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                        <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg shadow-lg">
                           {item.quantity}
                         </span>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium line-clamp-1">{item.title}</p>
-                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">{item.title}</p>
+                        <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium">${formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-black text-gray-900">${formatPrice(item.price * item.quantity)}</p>
                     </div>
                   ))}
                 </div>
-                <Separator />
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>${formatPrice(cartSubtotal)}</span>
+                <Separator className="bg-slate-100" />
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Subtotal</span>
+                    <span className="font-bold">${formatPrice(cartSubtotal)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping ({shippingMethod})</span>
-                    <span>{shippingCost === 0 ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Shipping</span>
+                    <span className={cn("font-bold", shippingCost === 0 ? "text-green-600" : "text-gray-900")}>
+                      {shippingCost === 0 ? 'FREE' : `$${formatPrice(shippingCost)}`}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Taxes (Est. {((settings.standardTaxRate ?? 0.10) * 100).toFixed(0)}%)</span>
-                    <span>${formatPrice(taxAmount)}</span>
+                  <div className="flex justify-between items-center text-slate-400">
+                    <span className="text-sm font-bold uppercase tracking-widest italic">Taxes (Inc.)</span>
+                    <span className="font-bold italic">${formatPrice(taxAmount)}</span>
                   </div>
                 </div>
-                <Separator />
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>${formatPrice(totalAmount)}</span>
+                <Separator className="bg-slate-100" />
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-lg font-black uppercase tracking-tight text-gray-900">Total</span>
+                  <span className="text-2xl font-black text-primary tracking-tighter">${formatPrice(totalAmount)}</span>
                 </div>
               </CardContent>
             </Card>
+
+            <div className="mt-6 flex items-center justify-center gap-6 opacity-40 grayscale pointer-events-none">
+              <img src="/payment-logos/stripe.svg" className="h-6 w-auto" alt="Stripe" />
+              <img src="/payment-logos/pci.svg" className="h-8 w-auto" alt="PCI Compliant" />
+            </div>
           </div>
         </div>
       </div>
