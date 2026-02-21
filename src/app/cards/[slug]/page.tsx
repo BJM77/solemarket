@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getTopicBySlug, SEO_TOPICS } from '@/config/seo-topics';
 import { getProducts } from '@/services/product-service';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
+import TopicSchema from '@/components/seo/TopicSchema';
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -53,6 +54,7 @@ export default async function CardTopicPage({ params }: Props) {
 
     return (
         <div className="min-h-screen pb-20">
+            <TopicSchema topic={topic} urlPath={`/cards/${topic.slug}`} />
             <div className="bg-indigo-950 text-white py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
                     <div className="bg-indigo-500/20 w-fit px-4 py-1 rounded-full text-indigo-300 text-xs font-black uppercase tracking-widest mb-6">

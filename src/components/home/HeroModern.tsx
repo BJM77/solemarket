@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
-    const router = useRouter();
 
     return (
         <section className="relative min-h-[85vh] flex items-center overflow-hidden">
@@ -28,12 +28,12 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                         <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 slide-up mb-16" style={{ animationDelay: '0.3s' }}>
-                        <button onClick={() => router.push('/search')} className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2">
+                        <Link href="/browse" className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2">
                             Search the lineup... <span className="text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
-                        </button>
-                        <button onClick={() => router.push('/sell')} className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                        </Link>
+                        <Link href="/sell" className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center">
                             Put Yours on the Bench
-                        </button>
+                        </Link>
                     </div>
 
                     {/* Metrics Section */}
@@ -59,11 +59,11 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
             </div>
 
             {/* Floating Elements (Sneakers) */}
-            <div className="absolute top-20 left-10 w-64 h-64 opacity-50 blur-sm mix-blend-multiply dark:mix-blend-screen float" style={{ animationDuration: '6s' }}>
-                <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800" alt="Float 1" className="object-cover rounded-full -rotate-12" />
+            <div className="absolute top-20 left-10 w-64 h-64 opacity-50 blur-sm mix-blend-multiply dark:mix-blend-screen float overflow-hidden rounded-full -rotate-12" style={{ animationDuration: '6s' }}>
+                <Image src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800" alt="Nike Sneakers" fill priority sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
             </div>
-            <div className="absolute bottom-20 right-10 w-80 h-80 opacity-60 blur-sm mix-blend-multiply dark:mix-blend-screen float" style={{ animationDuration: '8s', animationDelay: '2s' }}>
-                <img src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800" alt="Float 2" className="object-cover rounded-full rotate-12" />
+            <div className="absolute bottom-20 right-10 w-80 h-80 opacity-60 blur-sm mix-blend-multiply dark:mix-blend-screen float overflow-hidden rounded-full rotate-12" style={{ animationDuration: '8s', animationDelay: '2s' }}>
+                <Image src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800" alt="Jordan Sneakers" fill priority sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
             </div>
         </section>
     );

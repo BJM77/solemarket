@@ -40,6 +40,10 @@ export function MainNavLinks() {
         </>
       )}
 
+      <Link href="/guides" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
+        Guides
+      </Link>
+
       <Link href="/dealsafe" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
         DealSafe
       </Link>

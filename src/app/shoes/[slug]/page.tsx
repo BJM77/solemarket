@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getTopicBySlug, SEO_TOPICS } from '@/config/seo-topics';
 import { getProducts } from '@/services/product-service';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
+import TopicSchema from '@/components/seo/TopicSchema';
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -53,6 +54,7 @@ export default async function ShoeTopicPage({ params }: Props) {
 
     return (
         <div className="min-h-screen pb-20">
+            <TopicSchema topic={topic} urlPath={`/shoes/${topic.slug}`} />
             <div className="bg-slate-900 text-white py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6">

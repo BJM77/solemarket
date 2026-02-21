@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -165,6 +165,10 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <Zap className="mr-3 h-4 w-4 text-primary" /> Bidsy
                         </Button>
                     )}
+
+                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/guides')}>
+                        <BookOpen className="mr-3 h-4 w-4 text-primary" /> Collector Guides
+                    </Button>
 
                     {features.wtb && (
                         <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/wtb')}>

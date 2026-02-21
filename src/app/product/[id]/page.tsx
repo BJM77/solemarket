@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: 'Product Not Found | Benched' };
 
   const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
-  
+
   return {
     title: `${product.title} | ${product.category} | Benched`,
     description,
@@ -38,9 +38,13 @@ export default async function ProductPage({ params }: Props) {
   let seller: UserProfile | null = null;
   const initialReviews = await getReviewsForProduct(id);
 
+  // Fetch SSR related products for SEO Link Juice
+  const { getSimilarProductsByCategory } = await import('@/app/actions/products');
+  const similarProducts = await getSimilarProductsByCategory(id, product.category, 6);
+
   return (
     <>
-      <SEO 
+      <SEO
         title={product.title}
         description={product.description}
         image={product.imageUrls[0]}
@@ -53,6 +57,7 @@ export default async function ProductPage({ params }: Props) {
           initialProduct={product}
           initialSeller={seller}
           initialReviews={initialReviews}
+          initialRelatedProducts={similarProducts}
         />
       </Suspense>
     </>

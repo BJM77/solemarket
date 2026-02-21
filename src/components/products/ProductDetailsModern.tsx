@@ -67,19 +67,22 @@ import { TrendingUp } from 'lucide-react';
 import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { SizeChart } from '@/components/sneakers/SizeChart';
+import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
 
 export default function ProductDetailsModern({
     productId,
     initialProduct,
     initialSeller,
     initialReviews,
-    adjacentProducts = { prevId: null, nextId: null }
+    adjacentProducts = { prevId: null, nextId: null },
+    initialRelatedProducts
 }: {
     productId: string;
     initialProduct: Product;
     initialSeller: UserProfile | null;
     initialReviews: Review[];
     adjacentProducts?: { prevId: string | null; nextId: string | null };
+    initialRelatedProducts?: Product[];
 }) {
     const router = useRouter();
     const { toast } = useToast();
@@ -87,8 +90,6 @@ export default function ProductDetailsModern({
     const { addItem } = useCart();
     const { markAsViewed } = useViewedProducts();
 
-    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-    const [loadingRelated, setLoadingRelated] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
@@ -300,24 +301,6 @@ export default function ProductDetailsModern({
     useEffect(() => {
         if (product) {
             markAsViewed(productId);
-            const fetchRelatedProducts = async () => {
-                setLoadingRelated(true);
-                const relatedQuery = query(
-                    collection(db, 'products'),
-                    where('category', '==', product.category),
-                    where('__name__', '!=', productId),
-                    where('isDraft', '==', false),
-                    limit(4)
-                );
-                const relatedSnap = await getDocs(relatedQuery);
-                const relatedData = relatedSnap.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })) as Product[];
-                setRelatedProducts(relatedData);
-                setLoadingRelated(false);
-            };
-            fetchRelatedProducts();
         }
     }, [product, productId, markAsViewed]);
 
@@ -672,24 +655,9 @@ export default function ProductDetailsModern({
                 </div>
             </div>
 
-            {/* Related Items */}
-            {relatedProducts.length > 0 && (
-                <section className="py-16 bg-white dark:bg-gray-900/50 mt-12 border-t border-gray-100">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-2xl font-bold">Related Items</h2>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="icon" className="rounded-full">
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="icon" className="rounded-full">
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                        {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
-                    </div>
-                </section>
+            {/* Related Items (Server Side Rendered for SEO) */}
+            {initialRelatedProducts && initialRelatedProducts.length > 0 && (
+                <RelatedProductsCarousel products={initialRelatedProducts} />
             )}
 
             {/* Trust Bar */}

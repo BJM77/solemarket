@@ -19,6 +19,7 @@ const footerLinks = {
     { name: 'Puma', href: '/browse?category=Puma' },
   ],
   Support: [
+    { name: 'Buyer Guides', href: '/guides' },
     { name: 'Selling Guide', href: '/sell/guide' },
     { name: 'Size Guide', href: '/size-guide' },
     { name: 'Help Center', href: '/help' },

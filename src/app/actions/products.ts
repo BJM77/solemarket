@@ -328,3 +328,29 @@ export const getActiveListingCount = unstable_cache(
     ['active-listings-count'],
     { revalidate: 600, tags: ['active-listings-count'] }
 );
+
+export const getSimilarProductsByCategory = unstable_cache(
+    async (currentId: string, category: string, limitCount: number = 8): Promise<Product[]> => {
+        try {
+            const snapshot = await firestoreDb.collection('products')
+                .where('category', '==', category)
+                .where('status', '==', 'available')
+                .orderBy('createdAt', 'desc')
+                .limit(limitCount + 1) // Fetch +1 to filter out currentId locally
+                .get();
+
+            let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
+                id: doc.id,
+                ...doc.data(),
+            })) as Product[];
+
+            // Filter out the current product and slice to the requested limit
+            return products.filter(p => p.id !== currentId).slice(0, limitCount);
+        } catch (error) {
+            console.error("Error fetching similar products:", error);
+            return [];
+        }
+    },
+    ['similar-products-category'],
+    { revalidate: 3600 }
+);

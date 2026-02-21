@@ -83,7 +83,44 @@ export const SEO_TOPICS: SEOTopic[] = [
         category: 'Trading Cards',
         searchQuery: 'Michael Jordan',
         keywords: ['michael jordan', 'bulls cards', 'mj cards', 'basketball goat']
-    }
+    },
+    // --- New pSEO Long-Tail Topics ---
+    {
+        slug: 'nike-dunk-low-pandas',
+        title: 'Buy Nike Dunk Low Panda in Australia | Authenticated',
+        h1: 'Nike Dunk Low Black & White (Panda)',
+        description: 'Shop the highly sought-after Nike Dunk Low Panda. 100% authenticated. Find deals on deadstock pairs across Australia.',
+        category: 'Sneakers',
+        searchQuery: 'Dunk Low Panda',
+        keywords: ['dunk low panda', 'nike dunk', 'black and white dunks', 'buy dunks australia']
+    },
+    {
+        slug: 'jordan-4-military-blue',
+        title: 'Air Jordan 4 Military Blue Australia | Verified',
+        h1: 'Air Jordan 4 Military Blue',
+        description: 'The return of an icon. Secure your authenticated pair of Air Jordan 4 Military Blue sneakers today safely through Benched.',
+        category: 'Sneakers',
+        searchQuery: 'Jordan 4 Military Blue',
+        keywords: ['jordan 4 military blue', 'jordan 4', 'retro 4', 'nike air']
+    },
+    {
+        slug: 'upper-deck-lebron-james-rookie',
+        title: 'LeBron James Rookie Cards | Upper Deck & Topps Chrome',
+        h1: 'LeBron James Rookie Card Grails',
+        description: 'Invest in the King. Browse our curated selection of authenticated LeBron James rookie cards from Upper Deck, Topps Chrome and more.',
+        category: 'Trading Cards',
+        searchQuery: 'LeBron James Rookie',
+        keywords: ['lebron james rookie', 'topps chrome lebron', 'upper deck lebron', 'nba grail cards']
+    },
+    {
+        slug: 'pokemon-151-english-booster-boxes',
+        title: 'Pokemon 151 English Booster Boxes Australia',
+        h1: 'Pokemon Scarlet & Violet 151 Collection',
+        description: 'Catch the original 151. Shop sealed English booster boxes and rare Illustrator Rare singles from the Pokemon 151 set.',
+        category: 'Trading Cards',
+        searchQuery: 'Pokemon 151',
+        keywords: ['pokemon 151', 'scarlet violet 151', 'pokemon booster box', 'tcg australia']
+    },
 ];
 
 export function getTopicBySlug(slug: string): SEOTopic | undefined {
