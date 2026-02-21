@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { getProductById } from '@/lib/firebase/firestore';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export const alt = 'Benched Product Image';
 export const size = {
@@ -106,7 +106,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 {product.title}
               </span>
             </div>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
               <span style={{ fontSize: '20px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>
                 Buy Now
