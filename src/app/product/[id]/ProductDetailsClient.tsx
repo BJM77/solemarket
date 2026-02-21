@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
-import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp, addDoc } from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp, addDoc, limit } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
 import type { Product, Review } from '@/lib/types';
 import type { UserProfile } from '@/lib/types';
@@ -325,8 +325,8 @@ export default function ProductDetailsClient({
 
                     <div className="space-y-6">
                         <div className="flex items-center justify-between mb-2">
-                             <div />
-                             <div className="flex items-center gap-2">
+                            <div />
+                            <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="icon" onClick={toggleFavorite} className="h-9 w-9">
                                     <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
                                 </Button>
@@ -360,24 +360,24 @@ export default function ProductDetailsClient({
                                         </AlertDialog>
                                     </div>
                                 )}
-                             </div>
+                            </div>
                         </div>
 
                         <ProductHeader product={product} />
-                        
-                        <ProductActions 
-                            product={product} 
-                            user={user} 
-                            onAddToCart={handleAddToCart} 
-                            onAcceptBid={handleAcceptBid} 
+
+                        <ProductActions
+                            product={product}
+                            user={user}
+                            onAddToCart={handleAddToCart}
+                            onAcceptBid={handleAcceptBid}
                         />
 
                         {seller && (
-                            <SellerCard 
-                                seller={seller} 
-                                isPhoneRevealed={isPhoneRevealed} 
-                                onStartConversation={handleStartConversation} 
-                                onRevealPhone={handleRevealPhone} 
+                            <SellerCard
+                                seller={seller}
+                                isPhoneRevealed={isPhoneRevealed}
+                                onStartConversation={handleStartConversation}
+                                onRevealPhone={handleRevealPhone}
                                 sellerShopId={product.sellerId}
                             />
                         )}

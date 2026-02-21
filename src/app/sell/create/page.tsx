@@ -244,7 +244,11 @@ function CreateListingForm() {
     if (currentStep === 1) { // Photos
       // Could enforce min 1 photo
     } else if (currentStep === 2) { // Details
-      fieldsToValidate.push('title', 'category', 'condition');
+      // Validate everything that is shown on Step 2
+      fieldsToValidate.push(
+        'title', 'category', 'condition', 'brand', 'size', 'description',
+        'styleCode', 'colorway', 'year', 'gradingCompany', 'grade', 'certNumber', 'cardNumber'
+      );
     }
 
     if (fieldsToValidate.length > 0) {
@@ -320,7 +324,7 @@ function CreateListingForm() {
   // Step 0: Type Selection (Full Screen)
   if (currentStep === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-background flex flex-col items-center justify-center p-4">
         <div className="max-w-4xl w-full">
           <ListingTypeStep onSelect={handleTypeSelect} selectedType={selectedType} />
         </div>
@@ -331,23 +335,23 @@ function CreateListingForm() {
   return (
     <Form {...form}>
       <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
-      <div className="bg-slate-50 min-h-screen pb-32">
+      <div className="bg-slate-50 dark:bg-background min-h-screen pb-32">
         {/* Header */}
-        <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="bg-white dark:bg-card border-b border-slate-200 dark:border-border sticky top-0 z-30 shadow-sm">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
                 {currentStep === 1 ? 'Upload Photos' : currentStep === 2 ? 'Details' : 'Pricing & Review'}
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-500">Step {currentStep} of 3</span>
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 3</span>
             </div>
           </div>
           {/* Progress Bar */}
           <div className="container mx-auto px-4 pb-0">
-            <div className="h-1 w-full bg-slate-100">
+            <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
               <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${(currentStep / 3) * 100}%` }}
@@ -378,6 +382,9 @@ function CreateListingForm() {
               selectedType={selectedType || 'sneakers'}
               subCategories={SUB_CATEGORIES}
               conditionOptions={CONDITION_OPTIONS}
+              onAutoFill={handleAutoFill}
+              isAnalyzing={isAnalyzing}
+              imageFiles={imageFiles}
             />
           )}
 
@@ -387,7 +394,7 @@ function CreateListingForm() {
         </main>
 
         {/* Floating Footer Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-4 bg-white dark:bg-card border-t border-slate-200 dark:border-border z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
           <div className="max-w-3xl mx-auto flex gap-4">
             <Button variant="outline" size="lg" className="flex-1 rounded-xl h-14" onClick={prevStep}>
               Back

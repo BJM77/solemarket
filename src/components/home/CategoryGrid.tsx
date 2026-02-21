@@ -77,48 +77,56 @@ const CATEGORIES = [
 
 export default function CategoryGrid() {
     return (
-        <section className="bg-white dark:bg-deep-black py-12 lg:py-20 border-b border-border/10">
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10">
-                <div className="flex items-end justify-between mb-10">
+        <section className="bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
+                <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-4">
                     <div>
-                        <h2 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Shop the Lineup</h2>
-                        <p className="text-sm md:text-base text-muted-foreground mt-2 font-medium">The deepest collection of basketball heritage and performance.</p>
+                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">Shop the Lineup</h2>
+                        <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 mt-2 font-medium">The deepest collection of basketball heritage and performance.</p>
                     </div>
-                    <Link href="/browse" className="group text-sm font-bold text-primary hover:text-primary/80 flex items-center transition-all">
-                        VIEW ALL MARKET <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <Link href="/browse" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-primary hover:text-orange-400 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20">
+                        View All Market <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-                    {CATEGORIES.map((cat) => (
+                    {CATEGORIES.map((cat, idx) => (
                         <Link
                             key={cat.name}
                             href={cat.href}
-                            className="group"
+                            className="group block"
                         >
-                            <div className="h-full bg-muted/30 dark:bg-card border border-border/50 rounded-3xl p-6 flex flex-col items-center justify-center gap-4 transition-all duration-500 hover:bg-white dark:hover:bg-white/5 hover:shadow-premium hover:-translate-y-2">
+                            <div className="relative h-full bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 flex flex-col items-center justify-center gap-6 transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(242,108,13,0.15)] hover:-translate-y-2 overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
                                 <div className={cn(
-                                    "relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center p-4 rounded-2xl transition-transform duration-500 group-hover:scale-110",
-                                    cat.color
+                                    "relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-5 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
+                                    cat.color.includes('dark:bg-') ? cat.color : "bg-slate-100 dark:bg-slate-800"
                                 )}>
                                     {cat.logo ? (
                                         <Image
                                             src={cat.logo}
                                             alt={`${cat.name} logo`}
                                             fill
-                                            className="object-contain p-4 dark:invert"
+                                            className="object-contain p-4 dark:invert drop-shadow-md"
                                         />
                                     ) : cat.icon ? (
-                                        <cat.icon className="h-8 w-8 md:h-10 md:w-10 text-gray-700 dark:text-gray-300" />
+                                        <cat.icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />
                                     ) : null}
                                 </div>
-                                <span className="font-black text-gray-900 dark:text-gray-100 text-xs md:text-sm uppercase tracking-widest">
+                                <span className="font-black text-slate-900 dark:text-white text-xs md:text-sm uppercase tracking-widest text-center relative z-10">
                                     {cat.name}
                                 </span>
                             </div>
                         </Link>
                     ))}
                 </div>
+
+                <Link href="/browse" className="mt-8 md:hidden group text-sm font-black tracking-widest uppercase text-primary hover:text-orange-400 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
+                    View All Market <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
             </div>
         </section>
     );

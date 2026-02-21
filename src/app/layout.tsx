@@ -11,9 +11,16 @@ import { MarketTicker } from '@/components/home/MarketTicker';
 import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
-import { Outfit } from 'next/font/google';
+import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import QueryProvider from '@/providers/QueryProvider';
 import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-jakarta',
+  weight: ['400', '500', '600', '700', '800'],
+});
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -95,8 +102,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable}`}>
-      <body className="font-outfit antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${jakarta.variable} ${outfit.variable} dark`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background dark:bg-background" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -1,90 +1,88 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Star, Zap, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Lock, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const COLLECTIONS = [
+const VAULT_ITEMS = [
     {
-        id: 'starting-five',
-        title: 'The Starting Five',
-        description: 'The absolute best in performance basketball. High-tier minutes only.',
+        id: 'psa-10-gem-mint',
+        title: 'PSA 10 Gem Mint',
+        description: 'Immaculate condition. The pinnacle of collecting and investing.',
         items: [
-            { name: 'Kobe Series', count: '42 pairs', color: 'bg-amber-500' },
-            { name: 'LeBron Performance', count: '128 pairs', color: 'bg-red-600' },
-            { name: 'KD Signature', count: '94 pairs', color: 'bg-blue-500' },
-            { name: 'Jordan Retros', count: '312 pairs', color: 'bg-black' },
-            { name: 'Kyrie / Irving', count: '56 pairs', color: 'bg-emerald-500' },
+            { name: 'Michael Jordan', count: '12 available', color: 'bg-red-600' },
+            { name: 'LeBron James', count: '34 available', color: 'bg-purple-600' },
+            { name: 'Victor Wembanyama', count: '8 available', color: 'bg-teal-500' },
         ],
-        href: '/browse?collection=starting-five',
-        image: 'https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?auto=format&fit=crop&q=80&w=800'
+        href: '/cards?grade=PSA10',
+        image: 'https://images.unsplash.com/photo-1621811693633-91ee0a76a591?auto=format&fit=crop&q=80&w=800'
     },
     {
-        id: 'sixth-man',
-        title: 'Sixth Man Energy',
-        description: 'Incredible value. Fresh off the bench and ready to change the game.',
+        id: 'rare-autos',
+        title: 'Signed & Certified',
+        description: 'Autographed memorabilia and on-card signatures from the legends.',
         items: [
-            { name: 'GT Cut Series', count: '31 pairs', color: 'bg-pink-500' },
-            { name: 'Adidas Harden', count: '88 pairs', color: 'bg-slate-900' },
-            { name: 'Puma MB.03', count: '24 pairs', color: 'bg-cyan-400' },
-            { name: 'New Balance Two Wxy', count: '15 pairs', color: 'bg-indigo-600' },
-            { name: 'Under Armour Curry', count: '45 pairs', color: 'bg-yellow-400' },
+            { name: 'Kobe Bryant', count: '4 available', color: 'bg-amber-500' },
+            { name: 'Stephen Curry', count: '18 available', color: 'bg-blue-600' },
+            { name: 'Luka Doncic', count: '22 available', color: 'bg-indigo-500' },
         ],
-        href: '/browse?collection=sixth-man',
-        image: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&q=80&w=800'
+        href: '/cards?type=Autograph',
+        image: 'https://images.unsplash.com/photo-1542157140-1014cc679469?auto=format&fit=crop&q=80&w=800'
     }
 ];
 
 export function PlayerCollections() {
     return (
-        <section className="bg-background py-16 lg:py-24">
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10">
+        <section className="bg-background py-16 lg:py-24 relative overflow-hidden">
+            <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-slate-800/20 blur-[150px] rounded-full pointer-events-none"></div>
+
+            <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 mb-4">
-                            <Star className="h-3 w-3 text-secondary fill-secondary" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-secondary">Curated Rotations</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 mb-4 backdrop-blur-sm">
+                            <Lock className="h-3 w-3 text-slate-300" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">The Vault</span>
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-black tracking-tight text-foreground">Season Lineups</h2>
-                        <p className="text-muted-foreground mt-3 font-medium max-w-xl">
-                            We've scouted the market to bring you the most cohesive collections in the game.
+                        <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Premium Graded</h2>
+                        <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium max-w-xl">
+                            Investment-grade basketball cards, authenticated and secured. Verified authentic by industry leaders.
                         </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {COLLECTIONS.map((collection) => (
-                        <Link 
-                            key={collection.id} 
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                    {VAULT_ITEMS.map((collection) => (
+                        <Link
+                            key={collection.id}
                             href={collection.href}
-                            className="group relative overflow-hidden rounded-[2rem] aspect-[16/10] lg:aspect-auto lg:h-[500px]"
+                            className="group relative overflow-hidden rounded-[2rem] border border-slate-200 dark:border-white/5 aspect-[16/10] lg:aspect-auto lg:h-[450px] transition-all duration-500 hover:border-slate-500/30 hover:shadow-2xl"
                         >
-                            <img 
-                                src={collection.image} 
+                            <img
+                                src={collection.image}
                                 alt={collection.title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 dark:opacity-40 grayscale group-hover:grayscale-0"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                            
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent dark:from-black dark:via-black/60" />
+
                             <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end">
-                                <h3 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase">
+                                <h3 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase relative z-10">
                                     {collection.title}
                                 </h3>
-                                <p className="text-white/80 text-lg mb-8 max-w-md font-medium leading-relaxed">
+                                <p className="text-slate-300 text-sm md:text-lg mb-8 max-w-md font-medium leading-relaxed relative z-10">
                                     {collection.description}
                                 </p>
-                                
-                                <div className="flex flex-wrap gap-3 mb-8">
+
+                                <div className="flex flex-wrap gap-2 md:gap-3 mb-8 relative z-10">
                                     {collection.items.map((item) => (
-                                        <div key={item.name} className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl">
+                                        <div key={item.name} className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 px-3 md:px-4 py-2 rounded-xl">
                                             <div className={cn("w-2 h-2 rounded-full", item.color)} />
                                             <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-wider">{item.name}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="inline-flex items-center gap-2 text-secondary font-black text-sm uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-                                    View Full Roster <ArrowRight className="h-4 w-4" />
+                                <div className="inline-flex items-center gap-2 text-white font-black text-xs md:text-sm uppercase tracking-widest group-hover:translate-x-2 transition-transform relative z-10">
+                                    Open The Vault <ArrowRight className="h-4 w-4" />
                                 </div>
                             </div>
                         </Link>

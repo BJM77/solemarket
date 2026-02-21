@@ -13,7 +13,7 @@ export default function SignUpPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background text-foreground p-4">
       <Card className="w-full max-w-md p-6 shadow-xl h-fit">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Create your account</CardTitle>

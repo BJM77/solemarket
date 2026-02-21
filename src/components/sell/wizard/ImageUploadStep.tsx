@@ -130,23 +130,7 @@ export function ImageUploadStep({
                         ))}
                     </div>
 
-                    {imageFiles.length > 0 && (
-                        <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-100 rounded-lg">
-                                    <Sparkles className="h-5 w-5 text-indigo-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-semibold text-indigo-900">AI Analysis Available</h4>
-                                    <p className="text-xs text-indigo-700">We can auto-fill listing details from your photos.</p>
-                                </div>
-                                <Button onClick={onAutoFill} disabled={isAnalyzing} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                    {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                    Auto-Fill
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+
                 </CardContent>
             </Card>
 

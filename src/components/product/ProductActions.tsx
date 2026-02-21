@@ -12,7 +12,7 @@ interface ProductActionsProps {
   product: Product;
   user: any;
   onAddToCart: () => void;
-  onAcceptBid: (bidId: string) => void;
+  onAcceptBid: (bidId: string) => Promise<void>;
 }
 
 export function ProductActions({ product, user, onAddToCart, onAcceptBid }: ProductActionsProps) {

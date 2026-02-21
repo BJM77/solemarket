@@ -33,7 +33,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-white dark:bg-background-dark border-t border-[#e7ebf3] dark:border-white/10 py-12 px-4 md:px-10">
+    <footer className="bg-background border-t border-border py-12 px-4 md:px-10">
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 text-primary mb-6">

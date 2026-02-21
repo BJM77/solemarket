@@ -23,7 +23,8 @@ service cloud.firestore {
 
     // Users
     match /users/{userId} {
-      allow read: if true; // Public profiles are okay? Or restrict to authenticated? Let's say public for now.
+      // Changed from true to isAuthenticated() to prevent completely anonymous scraping of user profiles.
+      allow read: if isAuthenticated(); 
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
@@ -36,7 +37,9 @@ service cloud.firestore {
                      request.resource.data.sellerId == request.auth.uid;
       allow update: if isAuthenticated() && 
                      (resource.data.sellerId == request.auth.uid || isAdmin());
-      allow delete: if isAdmin(); // Only admins delete, users should archive/mark sold? Or maybe allow delete draft?
+      // Allow sellers to delete their own products, or admins
+      allow delete: if isAuthenticated() && 
+                     (resource.data.sellerId == request.auth.uid || isAdmin());
     }
 
     // Ads - Public Read, Admin Write
@@ -54,7 +57,8 @@ service cloud.firestore {
     // Reviews
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuthenticated(); // Should validate purchase logic ideally
+      // Users must be authenticated to create reviews
+      allow create: if isAuthenticated(); 
       allow update, delete: if isAdmin();
     }
     

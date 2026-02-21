@@ -1,7 +1,12 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnalyticsCharts } from '@/components/seller/analytics/AnalyticsCharts';
+import dynamic from 'next/dynamic';
+
+const AnalyticsCharts = dynamic(() => import('@/components/seller/analytics/AnalyticsCharts').then(mod => mod.AnalyticsCharts), { 
+  ssr: false, 
+  loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-gray-50 rounded-lg animate-pulse">Loading charts...</div>
+});
 import { DollarSign, ShoppingBag, TrendingUp, Users } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 

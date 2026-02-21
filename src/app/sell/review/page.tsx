@@ -89,7 +89,7 @@ function ReviewPageContent() {
   const { title, description, price, imageUrls, category, subCategory, condition, year, manufacturer, cardNumber, isVault, isNegotiable, isReverseBidding } = listingData;
 
   return (
-    <main className="flex-1 max-w-[960px] mx-auto w-full px-6 py-8">
+    <main className="flex-1 max-w-[960px] mx-auto w-full px-6 py-8 pb-24 md:pb-8">
       <div className="flex items-center gap-2 mb-6">
         <Button variant="ghost" size="sm" onClick={() => router.back()} className="text-muted-foreground">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Edit

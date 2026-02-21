@@ -44,23 +44,23 @@ export function MarketTicker() {
     const items = products || [];
 
     return (
-        <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-white/5 relative z-50">
-            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused]">
-                {[...items, ...items].map((item, i) => (
-                    <Link 
-                        key={`${item.id}-${i}`} 
+        <div className="bg-primary text-white py-4 overflow-hidden border-y-2 border-primary/20 relative z-30">
+            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center gap-8 text-sm font-bold tracking-widest uppercase">
+                {[...items, ...items, ...items].map((item, i) => (
+                    <Link
+                        key={`${item.id}-${i}`}
                         href={`/product/${item.id}`}
-                        className="flex items-center gap-4 px-8 border-r border-white/10 hover:bg-white/5 transition-colors group"
+                        className="flex items-center gap-3 hover:text-white/80 transition-colors group"
                     >
-                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary group-hover:text-white transition-colors">
-                            <TrendingUp className="h-3 w-3" />
-                            {item.category === 'Trading Cards' ? 'New Box' : 'New Kick'}
+                        <span className="flex items-center gap-1 opacity-80">
+                            <TrendingUp className="h-4 w-4" />
+                            {item.category === 'Trading Cards' ? 'NEW BOX' : 'NEW KICK'}
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-tight group-hover:underline underline-offset-4 decoration-primary">
+                        <span>•</span>
+                        <span className="group-hover:underline underline-offset-4">
                             {item.title}
                         </span>
-                        <span className="text-xs font-black text-primary">${item.price}</span>
-                        <span className="text-[10px] text-white/40 font-medium">Live</span>
+                        <span className="text-black bg-white/20 px-2 py-0.5 rounded-sm">${item.price}</span>
                     </Link>
                 ))}
             </div>

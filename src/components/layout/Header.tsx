@@ -21,8 +21,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="glass-nav z-50 px-3 md:px-10 py-3 transition-all duration-300 top-0 sticky">
-        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-2 md:gap-8">
+      <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-40 bg-background/90 dark:bg-background/90 backdrop-blur-md transition-all duration-300">
+        <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between gap-2 md:gap-8">
           <div className="flex items-center gap-2 md:gap-8 flex-1">
             {isClient && <MobileNav />}
             <Link href="/" className="flex items-center" aria-label="Back to homepage">

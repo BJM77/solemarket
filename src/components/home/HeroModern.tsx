@@ -1,152 +1,69 @@
 'use client';
 
-import { Search, ShieldCheck, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { AdUnit } from '@/components/ads/AdUnit';
-import { cn } from '@/lib/utils';
 
 export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
     const router = useRouter();
-    const [query, setQuery] = useState('');
-    const [particles, setParticles] = useState<any[]>([]);
-
-    useEffect(() => {
-        // Generate particles only on the client
-        const newParticles = [...Array(12)].map((_, i) => ({
-            id: i,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            duration: 5 + Math.random() * 5,
-            x: (Math.random() - 0.5) * 200,
-            y: (Math.random() - 0.5) * 200,
-        }));
-        setParticles(newParticles);
-    }, []);
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (query.trim()) {
-            router.push(`/browse?q=${encodeURIComponent(query)}`);
-        }
-    };
 
     return (
-        <section className="relative overflow-hidden bg-white dark:bg-deep-black min-h-[80vh] flex items-center border-b border-border/10">
-            {/* Background Decor & Particles */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-full bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-50" />
-                <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[100px]" />
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background dark:from-primary/5 dark:via-background dark:to-background"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="container mx-auto px-6 relative z-10 pt-20">
+                <div className="max-w-4xl mx-auto text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-8 backdrop-blur-sm slide-up">
+                        <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <span className="text-sm font-bold tracking-widest uppercase">Live Market Data Active</span>
+                    </div>
+                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9] slide-up">
+                        KICKS OR<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span><br />
+                        WE'VE GOT<br />THE ROSTER.
+                    </h1>
+                    <div className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium slide-up space-y-2" style={{ animationDelay: '0.2s' }}>
+                        <p>Australia's premier destination for performance sneakers and NBA cards.</p>
+                        <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 slide-up mb-16" style={{ animationDelay: '0.3s' }}>
+                        <button onClick={() => router.push('/search')} className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2">
+                            Search the lineup... <span className="text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
+                        </button>
+                        <button onClick={() => router.push('/sell')} className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                            Put Yours on the Bench
+                        </button>
+                    </div>
 
-                {/* Simulated Particles */}
-                {particles.map((p) => (
-                    <div
-                        key={p.id}
-                        className="absolute w-1 h-1 bg-primary/20 rounded-full"
-                        style={{
-                            top: p.top,
-                            left: p.left,
-                            animation: `particle ${p.duration}s infinite linear`,
-                            '--tw-translate-x': `${p.x}px`,
-                            '--tw-translate-y': `${p.y}px`,
-                        } as any}
-                    />
-                ))}
+                    {/* Metrics Section */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
+                        <div className="text-center">
+                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">Local</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Verified Auth</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">Community</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Peer-to-Peer</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-black text-primary mb-1">{listingCount.toLocaleString()}</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Listings</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">0%</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Selling Fees</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10 w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12 md:py-24">
-                <div className="text-left slide-up">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                        </span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">Live Market Data Active</span>
-                    </div>
-
-                    <h1 className="text-4xl md:text-7xl font-black text-gray-900 dark:text-white tracking-tight mb-6 leading-[0.95]">
-                        Kicks or Cards. <br />
-                        <span className="gradient-text">
-                            We've got the roster.
-                        </span>
-                    </h1>
-
-                    <p className="text-lg md:text-xl font-medium text-gray-600 dark:text-gray-400 max-w-xl mb-10 leading-relaxed">
-                        Australia's premier destination for performance sneakers and NBA cards. <br className="hidden md:block" />
-                        The safest way to upgrade your rotation.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                        <form onSubmit={handleSearch} className="flex-1 max-w-md relative group">
-                            <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl group-hover:bg-primary/30 transition-all opacity-0 group-hover:opacity-100" />
-                            <div className="relative flex items-center bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-border/50 p-1.5">
-                                <Search className="h-5 w-5 text-gray-400 ml-4" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search the lineup..."
-                                    className="flex-1 border-none shadow-none focus-visible:ring-0 text-base h-12 bg-transparent placeholder:text-gray-400"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                />
-                                <Button size="lg" type="submit" className="h-11 px-6 rounded-xl font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 text-white">
-                                    GO
-                                </Button>
-                            </div>
-                        </form>
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            onClick={() => router.push('/sell/create')}
-                            className="h-14 px-8 rounded-2xl font-bold border-2 hover:bg-gray-50 transition-all"
-                        >
-                            Put Yours on the Bench
-                        </Button>
-                    </div>
-
-                    {/* Stats Counter */}
-                    <div className="flex items-center gap-8 md:gap-12 pt-8 border-t border-border/10">
-                        <div>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Local</p>
-                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Community</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
-                                {listingCount > 0 ? (listingCount < 1000 ? listingCount : `${(listingCount / 1000).toFixed(1)}k+`) : '—'}
-                            </p>
-                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Listings</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl md:text-3xl font-black text-primary">0%</p>
-                            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">Selling Fees</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="hidden lg:block relative float">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-[150px] scale-75 animate-pulse" />
-                    <div className="relative z-10 scale-110 -rotate-12 hover:rotate-0 transition-transform duration-700">
-                        <img
-                            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=1000"
-                            alt="Hero Sneaker"
-                            className="w-full h-auto drop-shadow-[0_35px_35px_rgba(0,0,0,0.4)] rounded-3xl"
-                        />
-                    </div>
-
-
-
-                    <div className="absolute bottom-10 -right-10 glass-card p-4 rounded-2xl flex items-center gap-3 animate-pulse shadow-2xl delay-700">
-                        <div className="bg-orange-500 p-2 rounded-lg text-white">
-                            <Zap className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-black uppercase text-foreground">Fast Shipping</p>
-                            <p className="text-[10px] text-muted-foreground">2-3 Business Days</p>
-                        </div>
-                    </div>
-                </div>
+            {/* Floating Elements (Sneakers) */}
+            <div className="absolute top-20 left-10 w-64 h-64 opacity-50 blur-sm mix-blend-multiply dark:mix-blend-screen float" style={{ animationDuration: '6s' }}>
+                <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800" alt="Float 1" className="object-cover rounded-full -rotate-12" />
+            </div>
+            <div className="absolute bottom-20 right-10 w-80 h-80 opacity-60 blur-sm mix-blend-multiply dark:mix-blend-screen float" style={{ animationDuration: '8s', animationDelay: '2s' }}>
+                <img src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800" alt="Float 2" className="object-cover rounded-full rotate-12" />
             </div>
         </section>
     );

@@ -50,14 +50,14 @@ export default function SellPage() {
 
     if (!isSuperAdmin && !canSell) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+            <div className="min-h-screen bg-background text-foreground">
                 <main className="container mx-auto px-4 py-12 md:py-20 text-center">
                     <div className="max-w-2xl mx-auto">
                         <FadeIn>
                             <div className="mx-auto bg-primary/10 p-6 rounded-full w-fit mb-6">
                                 <Shield className="h-12 w-12 text-primary" />
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 font-headline">
+                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white font-headline">
                                 Viewing Mode
                             </h1>
                             <p className="mt-6 text-lg text-muted-foreground">
@@ -74,11 +74,11 @@ export default function SellPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+        <div className="min-h-screen bg-background text-foreground">
             <main className="container mx-auto px-4 py-12 md:py-20">
                 <div className="text-center max-w-3xl mx-auto">
                     <FadeIn>
-                        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 font-headline">
+                        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white font-headline">
                             Sell Your Sneakers Fast - Zero Fees on First Sale
                         </h1>
                         <p className="mt-6 text-lg md:text-xl text-muted-foreground">
@@ -113,12 +113,12 @@ export default function SellPage() {
 
                 <FadeIn delay={0.5} className="mt-20">
                     <div className="text-center max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-gray-900">Why Sell on Benched?</h2>
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Why Sell on Benched?</h2>
                         <ul className="mt-8 space-y-4 text-left">
                             {features.map((feature, i) => (
-                                <li key={i} className="flex items-center gap-3 bg-white p-4 rounded-lg border">
+                                <li key={i} className="flex items-center gap-3 bg-card p-4 rounded-lg border border-border">
                                     <feature.icon className="h-6 w-6 text-green-500" />
-                                    <span className="text-md text-gray-700">{feature.text}</span>
+                                    <span className="text-md text-slate-700 dark:text-slate-300">{feature.text}</span>
                                 </li>
                             ))}
                         </ul>

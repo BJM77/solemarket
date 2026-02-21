@@ -7,8 +7,8 @@
 @layer base {
   :root {
     /* Base Colors */
-    --background: 0 0% 96%; /* Off White #F5F5F5 */
-    --foreground: 0 0% 7%; /* Matte Black #111111 */
+    --background: 34 33% 97%; /* #f8f7f5 */
+    --foreground: 22 23% 10%; /* Matte Black #111111 */
     
     /* Surface Colors */
     --card: 0 0% 100%;
@@ -16,11 +16,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
     
-    /* Brand Colors - Hoop Inspired */
-    --primary: 0 0% 7%;  /* Matte Black #111111 */
+    /* Brand Colors - Hype Inspired */
+    --primary: 25 93% 50%;  /* Hype Orange #f26c0d */
     --primary-foreground: 0 0% 96%;
-    --secondary: 21 89% 54%;  /* Court Orange #F26A21 */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 26 37% 15%;  /* Surface Highlight #342418 */
+    --secondary-foreground: 0 0% 96%;
     
     /* Premium Neutrals */
     --sneaker-cream: 40 33% 98%;
@@ -30,7 +30,7 @@
     /* Utility Colors */
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
-    --accent: 21 89% 54%; /* Court Orange */
+    --accent: 25 93% 50%; /* Hype Orange */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -42,7 +42,7 @@
     /* Borders & Inputs */
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 21 89% 54%; /* Court Orange focus ring */
+    --ring: 25 93% 50%; /* Hype Orange */
     --radius: 1rem;
     
     /* Shadows - Elevation System */
@@ -55,28 +55,28 @@
   }
 
   .dark {
-    --background: 0 0% 4%;
+    --background: 24 10% 4%; /* Near black with a tiny hint of warmth #0b0a09 */
     --foreground: 0 0% 96%;
-    --card: 0 0% 7%;
+    --card: 24 12% 6%; /* Slightly lighter than background #110e0c */
     --card-foreground: 0 0% 96%;
-    --popover: 0 0% 6%;
+    --popover: 24 12% 8%; /* Step above card #141210 */
     --popover-foreground: 0 0% 96%;
-    --primary: 0 0% 96%;
-    --primary-foreground: 0 0% 7%;
-    --secondary: 21 89% 54%;
+    --primary: 25 93% 50%; /* #f26c0d */
+    --primary-foreground: 0 0% 96%;
+    --secondary: 26 37% 15%; /* #342418 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 12%;
+    --muted: 24 15% 12%; /* #221d19 */
     --muted-foreground: 0 0% 65%;
-    --accent: 21 89% 54%;
+    --accent: 25 93% 50%; /* #f26c0d */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
     --eco-green: 147 50% 47%;
     --eco-green-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 21 89% 54%;
-    --shadow-glow: 0 0 30px rgb(242 106 33 / 0.3);
+    --border: 24 15% 15%; /* #2b2420 */
+    --input: 24 15% 15%; /* #2b2420 */
+    --ring: 25 93% 50%; /* #f26c0d */
+    --shadow-glow: 0 0 40px rgb(242 108 13 / 0.15);
   }
 }
 
@@ -86,7 +86,7 @@
   }
   
   html {
-    font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -275,6 +275,17 @@
 
 /* Smooth Scrollbar */
 ::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
@@ -284,7 +295,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary/50 rounded-full;
+  @apply bg-primary/20 rounded-full;
   transition: background-color 0.2s;
 }
 
