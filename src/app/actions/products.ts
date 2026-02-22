@@ -76,6 +76,12 @@ export async function createProductAction(
             status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+            
+            // Default visibility fields for sorting/indexing
+            isFeatured: false,
+            isPromoted: false, 
+            views: 0,
+            uniqueViews: 0,
         };
 
         // Pillar 1: AI Visual SEO & Moderation Pipeline
@@ -256,7 +262,7 @@ export const getFeaturedProducts = unstable_cache(
                 ...doc.data(),
             })) as Product[];
         } catch (error) {
-            console.error("Error fetching featured products:", error);
+            console.debug("Error fetching featured products (Locally missing Admin service account expected):", error);
             return [];
         }
     },
@@ -285,7 +291,7 @@ function generateKeywords(title: string): string[] {
     return [...new Set(keywords)]; // Unique
 }
 
-const ACTIVE_CATEGORIES = ['Sneakers', 'Trading Cards', 'Accessories'];
+const ACTIVE_CATEGORIES = ['Sneakers', 'Trading Cards', 'Accessories', 'Apparel'];
 
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
@@ -303,7 +309,7 @@ export const getActiveProducts = unstable_cache(
                 ...doc.data(),
             })) as Product[];
         } catch (error) {
-            console.error("Error fetching sneakers:", error);
+            console.debug("Error fetching sneakers (Locally missing Admin service account expected):", error);
             return [];
         }
     },
@@ -321,7 +327,7 @@ export const getActiveListingCount = unstable_cache(
 
             return snapshot.data().count;
         } catch (error) {
-            console.error("Error fetching active listing count:", error);
+            console.debug("Error fetching active listing count (Locally missing Admin service account expected):", error);
             return 0;
         }
     },

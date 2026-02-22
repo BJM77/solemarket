@@ -70,7 +70,7 @@ export default function BulkCsvListerPage() {
           } else {
             errors.push("CSV file is empty or invalid.");
           }
-          
+
           if (errors.length > 0) {
             setValidationErrors(errors);
             setParsedData([]);
@@ -97,20 +97,20 @@ export default function BulkCsvListerPage() {
       toast({ title: "Session expired. Please sign in again.", variant: "destructive" });
       return;
     }
-    
+
     // Validate that every row in CSV has a matching image
     const imageNames = new Set(imageFiles.map(f => f.name));
     const missingImages: string[] = [];
     parsedData.forEach((row, index) => {
-        if (!imageNames.has(row.imageName)) {
-            missingImages.push(`Row ${index + 2}: Image "${row.imageName}" not found in uploaded images.`);
-        }
+      if (!imageNames.has(row.imageName)) {
+        missingImages.push(`Row ${index + 2}: Image "${row.imageName}" not found in uploaded images.`);
+      }
     });
 
     if (missingImages.length > 0) {
-        setValidationErrors(prev => [...prev, ...missingImages]);
-        toast({ title: "Image Mismatch", description: "Some images in your CSV were not found.", variant: "destructive" });
-        return;
+      setValidationErrors(prev => [...prev, ...missingImages]);
+      toast({ title: "Image Mismatch", description: "Some images in your CSV were not found.", variant: "destructive" });
+      return;
     }
 
     startTransition(async () => {
@@ -119,20 +119,20 @@ export default function BulkCsvListerPage() {
         setProgress(10);
         const imageUrlsMap = new Map<string, string>();
         const uploadPath = `products/${user.uid}/bulk-${Date.now()}`;
-        
+
         // Batch image uploads
         const uploadedUrls = await uploadImages(imageFiles, uploadPath);
         imageFiles.forEach((file, index) => {
-            imageUrlsMap.set(file.name, uploadedUrls[index]);
+          imageUrlsMap.set(file.name, uploadedUrls[index]);
         });
         setProgress(40);
-        
+
         // 2. Prepare product data
         const productsToCreate = parsedData.map(row => ({
           ...row,
           imageUrls: [imageUrlsMap.get(row.imageName) || ''], // Get the URL, provide fallback
         }));
-        
+
         // 3. Send to server action for batch Firestore write
         const result = await bulkCreateProductsFromCSV(idToken, productsToCreate);
 
@@ -190,7 +190,7 @@ export default function BulkCsvListerPage() {
                   {imageFiles.length} image(s) selected.
                 </p>
                 <ul className="text-xs text-muted-foreground list-disc pl-5 mt-2 max-h-24 overflow-y-auto">
-                    {imageFiles.map(f => <li key={f.name}>{f.name}</li>)}
+                  {imageFiles.map(f => <li key={f.name}>{f.name}</li>)}
                 </ul>
               </div>
             )}
@@ -200,7 +200,7 @@ export default function BulkCsvListerPage() {
         {/* Step 2: Upload CSV */}
         <Card>
           <CardHeader>
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="bg-primary/10 text-primary p-3 rounded-full">
                 <FileUp className="h-6 w-6" />
               </div>
@@ -211,9 +211,24 @@ export default function BulkCsvListerPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Input id="csv-upload" type="file" accept=".csv" onChange={handleCsvUpload} />
-             <div className="text-xs mt-2 text-muted-foreground p-2 bg-muted/30 rounded">
-                Required columns: {REQUIRED_COLUMNS.join(', ')}
+            <div className="flex items-center gap-4">
+              <Input id="csv-upload" type="file" accept=".csv" onChange={handleCsvUpload} className="flex-1" />
+              <Button variant="outline" size="sm" onClick={() => {
+                const csvContent = "title,description,price,category,condition,quantity,imageName\nSample Sneaker,A detailed description of the item.,150,Sneakers,New with Box,1,sample-image.jpg";
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", "benched_bulk_upload_template.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}>
+                <FileText className="h-4 w-4 mr-2" />
+                Download Template
+              </Button>
+            </div>
+            <div className="text-xs mt-4 text-muted-foreground p-2 bg-muted/30 rounded">
+              Required columns: {REQUIRED_COLUMNS.join(', ')}
             </div>
             {parsedData.length > 0 && (
               <p className="mt-4 font-semibold text-green-600 flex items-center gap-2 text-sm">
@@ -235,7 +250,7 @@ export default function BulkCsvListerPage() {
         {/* Step 3: Process */}
         <Card>
           <CardHeader>
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="bg-primary/10 text-primary p-3 rounded-full">
                 <ListChecks className="h-6 w-6" />
               </div>
@@ -259,7 +274,7 @@ export default function BulkCsvListerPage() {
               <div className="mt-4 space-y-2">
                 <Progress value={progress} />
                 <p className="text-sm text-center text-muted-foreground">
-                    {progress < 40 ? "Uploading images..." : "Creating listings..."}
+                  {progress < 40 ? "Uploading images..." : "Creating listings..."}
                 </p>
               </div>
             )}

@@ -103,6 +103,6 @@
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.14",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.3.1"
   }
 }

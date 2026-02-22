@@ -6,7 +6,7 @@ export const productFormSchema = z.object({
     price: z.number().min(0, "Price must be positive"),
 
     // Categories
-    category: z.enum(['Sneakers', 'Apparel', 'Trading Cards'], {
+    category: z.enum(['Sneakers', 'Apparel', 'Trading Cards', 'Accessories'], {
         errorMap: () => ({ message: "Please select a valid category" })
     }),
     subCategory: z.string().optional(),

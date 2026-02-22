@@ -55,10 +55,15 @@ function initializeFirebaseAdmin() {
         }
 
         // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
-        if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
+        // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
+        const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
+        const pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY;
+        console.log('DIAGNOSTICS:', { hasClientEmail: !!clientEmail, hasPk: !!pk });
+
+        if (pk && clientEmail) {
             console.log('✅ Firebase Admin: Using Individual Secrets');
             try {
-                let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+                let privateKey = pk;
                 if (privateKey.includes('\\n')) {
                     privateKey = privateKey.replace(/\\n/g, '\n');
                 }
@@ -66,7 +71,7 @@ function initializeFirebaseAdmin() {
                     ...config,
                     credential: admin.credential.cert({
                         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
-                        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+                        clientEmail: clientEmail,
                         privateKey: privateKey,
                     }),
                 });

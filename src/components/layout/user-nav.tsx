@@ -20,15 +20,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Shield, 
-  Zap, 
-  User, 
-  LayoutDashboard, 
-  Heart, 
-  ShoppingBag, 
-  Tag, 
-  PlusCircle, 
+import {
+  Shield,
+  Zap,
+  User,
+  LayoutDashboard,
+  Heart,
+  ShoppingBag,
+  Tag,
+  PlusCircle,
   LogOut,
   CreditCard
 } from 'lucide-react';
@@ -87,7 +87,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-2" />
-        
+
         {isSuperAdmin && (
           <DropdownMenuGroup>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin') && "bg-accent text-accent-foreground")}>
@@ -113,7 +113,7 @@ export function UserNav() {
               <span className="font-medium">My Profile</span>
             </Link>
           </DropdownMenuItem>
-          
+
           {canSell && (
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/sell/dashboard') && "bg-accent text-accent-foreground")}>
               <Link href="/sell/dashboard" className="flex items-center">
@@ -122,21 +122,21 @@ export function UserNav() {
               </Link>
             </DropdownMenuItem>
           )}
-          
+
           <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/profile/favorites') && "bg-accent text-accent-foreground")}>
             <Link href="/profile/favorites" className="flex items-center">
               <Heart className="mr-3 h-4 w-4 text-muted-foreground" />
               <span className="font-medium">My Favorites</span>
             </Link>
           </DropdownMenuItem>
-          
+
           <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/profile/orders') && "bg-accent text-accent-foreground")}>
             <Link href="/profile/orders" className="flex items-center">
               <CreditCard className="mr-3 h-4 w-4 text-muted-foreground" />
               <span className="font-medium">My Purchases</span>
             </Link>
           </DropdownMenuItem>
-          
+
           {canSell && (
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg", isActive('/profile/listings') && "bg-accent text-accent-foreground")}>
               <Link href="/profile/listings" className="flex items-center">
@@ -146,9 +146,9 @@ export function UserNav() {
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
-        
+
         <DropdownMenuSeparator className="my-2" />
-        
+
         {canSell && (
           <DropdownMenuGroup>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-primary/5 text-primary focus:bg-primary/10 focus:text-primary", isActive('/sell/create') && "bg-primary/10")}>
@@ -160,7 +160,7 @@ export function UserNav() {
             <DropdownMenuSeparator className="my-2" />
           </DropdownMenuGroup>
         )}
-        
+
         <DropdownMenuItem onClick={handleSignOut} className="focus:text-destructive cursor-pointer w-full py-2.5 rounded-lg text-muted-foreground focus:bg-destructive/5">
           <LogOut className="mr-3 h-4 w-4" />
           <span className="font-medium">Sign out</span>
