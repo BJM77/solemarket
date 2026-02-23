@@ -32,7 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
+  console.log('ProductPage: Fetching product with ID:', id);
   const product = await getProductById(id);
+  console.log('ProductPage: Result:', product ? 'Found' : 'Not Found');
   if (!product) notFound();
 
   let seller: UserProfile | null = null;

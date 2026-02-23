@@ -34,7 +34,9 @@ const serializeData = (docData: any, docId: string) => {
 
 export const getProductById = cache(async (id: string): Promise<Product | null> => {
     try {
+        console.log(`getProductById: Attempting to fetch ${id}`);
         const docSnap = await firestoreDb.collection('products').doc(id).get();
+        console.log(`getProductById: Fetch complete. Exists: ${docSnap.exists}`);
         if (docSnap.exists) {
             return serializeData(docSnap.data(), docSnap.id) as Product;
         }
