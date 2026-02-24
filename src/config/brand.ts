@@ -186,7 +186,7 @@ export const brandConfig: BrandConfig = {
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The premier marketplace for basketball culture in Australia. Buy and sell performance sneakers and NBA trading cards. Your rotation, upgraded.'
+            'The premier marketplace for basketball culture in Australia. Buy and sell performance sneakers and trading cards. Your rotation, upgraded.'
         ),
         keywords: [
             'basketball shoes',

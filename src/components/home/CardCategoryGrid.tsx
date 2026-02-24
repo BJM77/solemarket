@@ -49,7 +49,7 @@ const CARD_CATEGORIES = [
         color: 'bg-slate-50 dark:bg-slate-900/20'
     },
     {
-        name: 'NBA Cards',
+        name: 'Basketball Cards',
         icon: Library,
         href: '/cards?subCategory=Basketball%20Cards',
         color: 'bg-orange-50 dark:bg-orange-950/20'

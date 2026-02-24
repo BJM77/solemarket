@@ -16,7 +16,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span>
                     </h1>
                     <div className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium slide-up space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p>Australia's premier destination for performance sneakers and NBA cards.</p>
+                        <p>Australia's premier destination for performance sneakers and cards.</p>
                         <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 slide-up mb-16" style={{ animationDelay: '0.3s' }}>

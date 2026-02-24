@@ -10,7 +10,7 @@ type Props = {
 export default function SEO({ title, description, image, url }: Props) {
   const site = 'Benched.au'
   const titleText = title ? `${title} — ${site}` : site
-  const desc = description || 'Buy and sell used basketball shoes and NBA cards on Benched.au'
+  const desc = description || 'Buy and sell used basketball shoes and cards on Benched.au'
   const img = image || '/og-default.jpg'
 
   return (
