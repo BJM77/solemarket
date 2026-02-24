@@ -3,6 +3,7 @@
 import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
+import { checkForAdminWantedMatch } from './admin-wanted';
 
 export interface DraftListingData {
     sellerId: string;
@@ -221,6 +222,14 @@ export async function publishListing(draftId: string, userId: string): Promise<v
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,
         };
+
+        // Check for Super Admin Personal Wanted list matches
+        const isMatch = await checkForAdminWantedMatch(data.title, data.category || 'Sneakers');
+        if (isMatch) {
+            updateData.status = 'on_hold';
+            updateData.holdReason = 'Personal Wanted Match (Super Admin)';
+            updateData.adminWantedMatch = true;
+        }
 
         await docRef.update(updateData);
     } else {

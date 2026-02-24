@@ -8,7 +8,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag } from 'lucide-react';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import {
   DropdownMenu,
@@ -738,6 +738,12 @@ export default function ProductCard({
             <Badge variant="default" className="inline-flex items-center gap-1 bg-orange-500 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
               <Sparkles className="h-3 w-3" />
               FEATURED
+            </Badge>
+          )}
+          {isAdmin && (product as any).adminWantedMatch && (
+            <Badge variant="default" className="inline-flex items-center gap-1 bg-indigo-600 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto border-2 border-white/20">
+              <Tag className="h-3 w-3" />
+              WATCH MATCH
             </Badge>
           )}
           {isNewArrival() && (

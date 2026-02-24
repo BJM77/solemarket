@@ -56,6 +56,7 @@ const navItems = [
     { href: "/admin/disputes", icon: MessageSquareWarning, label: "Disputes" },
     { href: "/admin/analytics", icon: BarChart, label: "Analytics" },
     { href: "/admin/automation", icon: BellRing, label: "Automation" },
+    { href: "/admin/wanted", icon: Tag, label: "Watch List" },
 ];
 
 const integrityItems = [
