@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function SignInPage() {
   return (
-    <div className="min-h-[80vh] flex justify-center bg-background text-foreground pt-[10px] pb-16 px-4">
+    <div className="w-full max-w-md mx-auto px-4">
       <Card className="w-full max-w-md p-6 shadow-xl border-t-4 border-primary h-fit bg-card text-card-foreground">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold font-headline text-center">Sign In</CardTitle>

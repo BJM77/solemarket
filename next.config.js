@@ -78,7 +78,7 @@ const nextConfig = {
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      frame-src https://js.stripe.com https://hooks.stripe.com;
+      frame-src https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com;
       connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com https://api.stripe.com https://maps.googleapis.com blob: data:;
       upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim();
@@ -102,6 +102,10 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups', // Required for Google Sign-In popup to work
           },
           {
             key: 'Permissions-Policy',
