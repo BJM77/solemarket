@@ -44,7 +44,7 @@ export function MarketTicker() {
     const items = products || [];
 
     return (
-        <div className="bg-primary text-black py-4 overflow-hidden border-y-2 border-primary/20 relative z-30">
+        <div className="bg-primary text-black py-2 overflow-hidden border-y-2 border-primary/20 relative z-30">
             <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center gap-8 text-xl font-black tracking-widest uppercase">
                 {[...items, ...items, ...items].map((item, i) => (
                     <Link
