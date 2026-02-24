@@ -18,6 +18,7 @@ import { db } from '@/lib/firebase/config';
 import { motion } from 'framer-motion';
 import MontageGrid from './MontageGrid';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { bulkUpdateProductPrice } from '@/app/actions/product-updates';
 import {
@@ -621,8 +622,16 @@ function InfiniteProductGridInner({
 
       {/* End of list message */}
       {!hasNextPage && products.length > 0 && (
-        <div className="py-12 text-center text-muted-foreground">
-          <p>You&apos;ve reached the end of the list.</p>
+        <div className="py-16 flex flex-col items-center justify-center opacity-70">
+          <div className="relative w-48 h-32 mb-4">
+            <Image
+              src="/benched.png"
+              alt="You've reached the bench"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <p className="text-muted-foreground font-medium">You&apos;ve reached the end of the list. Time to head back to the court.</p>
         </div>
       )}
 

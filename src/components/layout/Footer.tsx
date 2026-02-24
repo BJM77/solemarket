@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Logo } from '../logo';
+import Image from 'next/image';
 import { NewsletterSignup } from './NewsletterSignup';
 import { SITE_NAME, brandConfig } from '@/config/brand';
 
@@ -37,8 +37,15 @@ export default function Footer() {
     <footer className="bg-background border-t border-border py-12 px-4 md:px-10">
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div className="col-span-2 md:col-span-1">
-          <div className="flex items-center gap-2 text-primary mb-6">
-            <Logo />
+          <div className="flex items-center gap-2 mb-6">
+            <div className="relative w-40 h-24">
+              <Image
+                src="/benched.png"
+                alt="Benched"
+                fill
+                className="object-contain object-left"
+              />
+            </div>
           </div>
           <p className="text-sm text-gray-500 max-w-xs mb-4">{brandConfig.company.tagline}</p>
           <Link
