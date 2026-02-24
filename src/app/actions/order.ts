@@ -147,6 +147,8 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     updatedAt: FieldValue.serverTimestamp(),
                     sellerPaypalMeLink: sellerPaypalLink,
                     payIdReference,
+                    nudgeCount: 0,
+                    lastNudgeAt: null,
                 };
 
                 t.set(orderRef, newOrder);

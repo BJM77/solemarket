@@ -53,6 +53,7 @@ export async function markEscrowAsPaid(idToken: string, orderId: string) {
         await orderRef.update({
             status: 'processing', // 'processing' signals the seller to ship
             paymentStatus: 'paid',
+            payoutStatus: 'pending',
             updatedAt: FieldValue.serverTimestamp()
         });
 

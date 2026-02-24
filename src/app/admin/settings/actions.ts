@@ -10,6 +10,7 @@ export interface AdminSystemSettings {
     freightCharge: number;
     freeShippingThreshold: number;
     standardTaxRate?: number;
+    platformFeeRate?: number;
     homepageCategoryMode?: 'manual' | 'popular' | 'default';
 }
 
@@ -52,6 +53,7 @@ export async function getSystemSettings(): Promise<AdminSystemSettings> {
                 freightCharge: data?.freightCharge ?? 12.00,
                 freeShippingThreshold: data?.freeShippingThreshold ?? 150.00,
                 standardTaxRate: data?.standardTaxRate ?? 0.10,
+                platformFeeRate: data?.platformFeeRate ?? 0.07,
                 homepageCategoryMode: data?.homepageCategoryMode ?? 'default'
             };
         }
@@ -61,6 +63,7 @@ export async function getSystemSettings(): Promise<AdminSystemSettings> {
             freightCharge: 12.00,
             freeShippingThreshold: 150.00,
             standardTaxRate: 0.10,
+            platformFeeRate: 0.07,
             homepageCategoryMode: 'default'
         };
 
@@ -70,6 +73,7 @@ export async function getSystemSettings(): Promise<AdminSystemSettings> {
             freightCharge: 12.00,
             freeShippingThreshold: 150.00,
             standardTaxRate: 0.10,
+            platformFeeRate: 0.07,
             homepageCategoryMode: 'default'
         };
     }

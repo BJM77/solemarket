@@ -27,7 +27,8 @@ export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<AdminSystemSettings>({
         freightCharge: 12.00,
         freeShippingThreshold: 150.00,
-        standardTaxRate: 0.10
+        standardTaxRate: 0.10,
+        platformFeeRate: 0.07
     });
 
     useEffect(() => {
@@ -165,6 +166,19 @@ export default function AdminSettingsPage() {
                                 step="0.01"
                                 value={settings.standardTaxRate}
                                 onChange={(e) => setSettings({ ...settings, standardTaxRate: parseFloat(e.target.value) })}
+                                className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <Percent className="w-3 h-3" /> Platform Fee Rate (Escrow)
+                            </Label>
+                            <Input
+                                type="number"
+                                step="0.01"
+                                value={settings.platformFeeRate}
+                                onChange={(e) => setSettings({ ...settings, platformFeeRate: parseFloat(e.target.value) })}
                                 className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
                             />
                         </div>

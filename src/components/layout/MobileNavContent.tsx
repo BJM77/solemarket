@@ -122,9 +122,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="sneakers" className="border-b-0">
-                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
-                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100">
-                                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group">
+                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary">
+                                    <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <Footprints className="h-5 w-5" />
                                     </div>
                                     Sneakers
@@ -141,9 +141,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </AccordionItem>
 
                         <AccordionItem value="cards" className="border-b-0">
-                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
-                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100">
-                                    <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-3">
+                            <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group">
+                                <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary">
+                                    <div className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <Gem className="h-5 w-5" />
                                     </div>
                                     Trading Cards
@@ -151,8 +151,8 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
-                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards')}>All Cards</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/cards?subCategory=Basketball%20Cards')}>NBA Cards</Button>
+                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-bold hover:bg-primary/10 hover:text-primary" onClick={() => handleLinkClick('/cards')}>All Cards</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-bold hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => handleLinkClick('/cards?subCategory=Basketball%20Cards')}>NBA Cards</Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
@@ -161,17 +161,17 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
 
                     {features.bidsy && (
-                        <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/bidsy')}>
+                        <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-primary/5 hover:text-primary rounded-xl h-11 transition-all" onClick={() => handleLinkClick('/bidsy')}>
                             <Zap className="mr-3 h-4 w-4 text-primary" /> Bidsy
                         </Button>
                     )}
 
-                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/guides')}>
+                    <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-primary/5 hover:text-primary rounded-xl h-11 transition-all" onClick={() => handleLinkClick('/guides')}>
                         <BookOpen className="mr-3 h-4 w-4 text-primary" /> Collector Guides
                     </Button>
 
                     {features.wtb && (
-                        <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-muted/50 rounded-xl h-11" onClick={() => handleLinkClick('/wtb')}>
+                        <Button variant="ghost" className="justify-start text-sm font-bold px-4 hover:bg-primary/5 hover:text-primary rounded-xl h-11 transition-all" onClick={() => handleLinkClick('/wtb')}>
                             <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Wanted
                         </Button>
                     )}
@@ -187,24 +187,24 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="tools" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
+                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group/trigger">
                                 <div className="flex items-center text-sm font-bold">
                                     <Scan className="mr-3 h-4 w-4 text-primary" /> Tools
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     {features.research && user && (
-                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
 
                         <AccordionItem value="services" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-muted/50 rounded-xl">
+                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl">
                                 <div className="flex items-center text-sm font-bold">
                                     <Shield className="mr-3 h-4 w-4 text-primary" /> Services
                                 </div>
@@ -212,9 +212,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
                                     {features.consignment && (
-                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/consign')}>Consignment</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/consign')}>Consignment</Button>
                                     )}
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground text-xs" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
@@ -299,7 +299,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
                             return (
                                 <AccordionItem key={section} value={section} className="border-b-0">
-                                    <AccordionTrigger className="text-sm font-bold px-4 py-2 hover:bg-muted/50 rounded-xl hover:no-underline">
+                                    <AccordionTrigger className="text-sm font-bold px-4 py-2 hover:bg-primary/5 hover:text-primary transition-all rounded-xl hover:no-underline group">
                                         <div className="flex items-center">
                                             <Icon className="mr-3 h-4 w-4 text-primary" />
                                             {data.label}

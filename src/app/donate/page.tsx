@@ -34,7 +34,7 @@ export default function DonatePage() {
                     </h1>
                     <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
                         We love basketball. But not everyone has the gear to play it. 
-                        Donate your kicks or cards to help less privileged hoopers chase their goals.
+                        Donate your kicks & cards to help less privileged hoopers chase their goals.
                     </p>
                 </div>
             </div>

@@ -1,10 +1,7 @@
-
-export {};
-
-import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as dotenv from 'dotenv';
+const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
 
 async function main() {
     console.log('Starting data integrity backfill...');
@@ -21,7 +18,7 @@ async function main() {
         });
     } else {
         const files = fs.readdirSync(process.cwd());
-        const saFile = files.find((f: string) => f.startsWith('studio-') && f.endsWith('.json'));
+        const saFile = files.find(f => f.startsWith('studio-') && f.endsWith('.json'));
 
         if (saFile) {
             console.log(`Found service account file: ${saFile}`);
@@ -47,7 +44,7 @@ async function main() {
     try {
         // 1. Get Verified Sellers Map
         const usersSnap = await db.collection('users').where('isVerified', '==', true).get();
-        const verifiedSellerIds = new Set(usersSnap.docs.map((doc: any) => doc.id));
+        const verifiedSellerIds = new Set(usersSnap.docs.map(doc => doc.id));
         console.log(`Found ${verifiedSellerIds.size} verified sellers.`);
 
         // 2. Iterate ALL products
@@ -62,7 +59,7 @@ async function main() {
         for (const doc of productsSnap.docs) {
             const data = doc.data();
             let needsUpdate = false;
-            let updateData: any = {};
+            let updateData = {};
 
             // Check isFeatured
             if (data.isFeatured === undefined) {
@@ -74,7 +71,6 @@ async function main() {
             if (!data.status) {
                 updateData.status = data.isDraft ? 'draft' : 'available';
                 needsUpdate = true;
-                console.log(`Setting status for ${doc.id}: ${updateData.status}`);
             }
 
             // Check sellerVerified

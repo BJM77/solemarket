@@ -18,12 +18,20 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function PayoutDashboard() {
     const [orders, setOrders] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+
+    // Settlement state
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [payoutReference, setPayoutReference] = useState('');
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true);
@@ -47,15 +55,24 @@ export default function PayoutDashboard() {
         fetchOrders();
     }, [fetchOrders]);
 
-    const handleApprove = (orderId: string) => {
+    const handleSettleClick = (orderId: string) => {
+        setSelectedOrderId(orderId);
+        setPayoutReference('');
+        setIsDialogOpen(true);
+    };
+
+    const handleConfirmSettlement = () => {
+        if (!selectedOrderId) return;
+
         startTransition(async () => {
             try {
                 const token = await getCurrentUserIdToken();
                 if (!token) throw new Error("Not authenticated");
-                const res = await markPayoutAsSettled(token, orderId);
+                const res = await markPayoutAsSettled(token, selectedOrderId, payoutReference);
 
                 if (res.success) {
                     toast({ title: "Payout Settled", description: "The order payout has been successfully settled." });
+                    setIsDialogOpen(false);
                     fetchOrders(); // Refresh list
                 } else {
                     throw new Error(res.error);
@@ -145,8 +162,13 @@ export default function PayoutDashboard() {
                                                         >
                                                             PayPal.Me <ExternalLink className="h-3 w-3" />
                                                         </a>
+                                                    ) : order.sellerBankDetails ? (
+                                                        <div className="text-[10px] text-muted-foreground bg-slate-100 dark:bg-slate-800 p-1.5 rounded border border-slate-200 dark:border-slate-700 mt-1 max-w-[120px]">
+                                                            <p className="font-bold text-[8px] uppercase text-slate-400 mb-0.5">Bank Details</p>
+                                                            <p className="line-clamp-2">{order.sellerBankDetails}</p>
+                                                        </div>
                                                     ) : (
-                                                        <span className="text-[10px] text-muted-foreground italic">No PayPal Link</span>
+                                                        <span className="text-[10px] text-muted-foreground italic">No Payment Method</span>
                                                     )}
                                                 </div>
                                             </TableCell>
@@ -164,12 +186,12 @@ export default function PayoutDashboard() {
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button
-                                                    onClick={() => handleApprove(order.id)}
+                                                    onClick={() => handleSettleClick(order.id)}
                                                     disabled={isPending}
                                                     size="sm"
                                                     className="bg-emerald-600 hover:bg-emerald-700 font-bold"
                                                 >
-                                                    {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                                                    {isPending && selectedOrderId === order.id ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
                                                     Mark as Settled
                                                 </Button>
                                             </TableCell>
@@ -181,6 +203,36 @@ export default function PayoutDashboard() {
                     )}
                 </CardContent>
             </Card>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Settlement</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to mark this payout as settled? Please record the transaction reference from your payment provider.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="reference">Transaction Reference (Optional)</Label>
+                            <Input
+                                id="reference"
+                                placeholder="e.g. PayPal ID or Bank Ref"
+                                value={payoutReference}
+                                onChange={(e) => setPayoutReference(e.target.value)}
+                                className="rounded-xl"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isPending}>Cancel</Button>
+                        <Button onClick={handleConfirmSettlement} disabled={isPending} className="bg-emerald-600 hover:bg-emerald-700 font-bold">
+                            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                            Confirm Payout
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

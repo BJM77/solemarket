@@ -30,7 +30,8 @@ import {
     Gavel,
     Briefcase,
     Sparkles,
-    DollarSign
+    DollarSign,
+    BellRing
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { motion } from "framer-motion";
@@ -54,6 +55,7 @@ const navItems = [
     { href: "/admin/members", icon: Users, label: "Members Directory" },
     { href: "/admin/disputes", icon: MessageSquareWarning, label: "Disputes" },
     { href: "/admin/analytics", icon: BarChart, label: "Analytics" },
+    { href: "/admin/automation", icon: BellRing, label: "Automation" },
 ];
 
 const integrityItems = [
@@ -154,13 +156,6 @@ export default function AdminSidebar() {
                                         )}>
                                             {item.label}
                                         </span>
-                                        {isActive && effectiveOpen && (
-                                            <motion.div
-                                                layoutId="active-pill"
-                                                className="absolute left-0 w-1 h-6 bg-primary rounded-full"
-                                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                            />
-                                        )}
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

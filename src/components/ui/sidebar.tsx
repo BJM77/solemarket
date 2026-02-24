@@ -8,6 +8,7 @@ import { useSidebar } from "@/components/layout/sidebar-provider"
 import { Button } from "./button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"
 import { PanelLeftClose, PanelRightClose } from "lucide-react"
+import { motion } from "framer-motion"
 
 const Sidebar = React.forwardRef<
   HTMLElement,
@@ -114,7 +115,9 @@ const SidebarMenuButton = React.forwardRef<
       ref={ref}
       variant={isActive ? "secondary" : "ghost"}
       className={cn(
-        "w-full justify-start gap-3 transition-all",
+        "w-full justify-start gap-3 transition-all relative group/btn",
+        isActive && "bg-primary/10 text-primary hover:bg-primary/15",
+        !isActive && "hover:bg-primary/5 hover:text-primary",
         !effectiveOpen && "justify-center px-2",
         className
       )}
@@ -131,7 +134,7 @@ const SidebarMenuButton = React.forwardRef<
             return (
               <span
                 className={cn(
-                  "whitespace-nowrap transition-all duration-300 overflow-hidden",
+                  "whitespace-nowrap transition-all duration-300 overflow-hidden font-bold",
                   effectiveOpen
                     ? "opacity-100 translate-x-0 max-w-full"
                     : "opacity-0 max-w-0 -translate-x-2 pointer-events-none absolute"
@@ -144,6 +147,13 @@ const SidebarMenuButton = React.forwardRef<
         }
         return null
       })}
+      {isActive && (
+        <motion.div
+          layoutId="sidebar-active-indicator"
+          className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        />
+      )}
     </Button>
   )
 

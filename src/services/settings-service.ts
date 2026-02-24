@@ -6,12 +6,14 @@ export interface SystemSettings {
     freightCharge: number;
     freeShippingThreshold: number;
     standardTaxRate: number;
+    platformFeeRate: number;
 }
 
 const DEFAULT_SETTINGS: SystemSettings = {
     freightCharge: 12.00,
     freeShippingThreshold: 150.00,
     standardTaxRate: 0.10,
+    platformFeeRate: 0.07,
 };
 
 /**
@@ -28,6 +30,7 @@ export async function getSystemSettingsAdmin(): Promise<SystemSettings> {
                 freightCharge: data.freightCharge ?? DEFAULT_SETTINGS.freightCharge,
                 freeShippingThreshold: data.freeShippingThreshold ?? DEFAULT_SETTINGS.freeShippingThreshold,
                 standardTaxRate: data.standardTaxRate ?? DEFAULT_SETTINGS.standardTaxRate,
+                platformFeeRate: data.platformFeeRate ?? DEFAULT_SETTINGS.platformFeeRate,
             };
         }
 
