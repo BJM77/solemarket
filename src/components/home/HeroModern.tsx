@@ -11,8 +11,8 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
             <div className="container mx-auto px-6 relative z-10 pt-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9] slide-up">
-                        KICKS &<br />
+                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-6 leading-[0.9] slide-up">
+                        KICKS <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">&</span><br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span>
                     </h1>
                     <div className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium slide-up space-y-2" style={{ animationDelay: '0.2s' }}>
