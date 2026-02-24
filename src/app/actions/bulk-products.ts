@@ -16,6 +16,11 @@ type BulkCreateProductData = {
     condition: string;
     quantity: number;
     imageUrls: string[];
+    size?: string;
+    brand?: string;
+    styleCode?: string;
+    colorway?: string;
+    year?: number;
 };
 
 export type BulkCreateProductResult =

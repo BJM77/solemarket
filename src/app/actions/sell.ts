@@ -22,6 +22,12 @@ export interface DraftListingData {
     createdAt: FieldValue;
     updatedAt: FieldValue;
     acceptsPayId?: boolean;
+    // Sneaker Specifics
+    size?: string;
+    brand?: string;
+    model?: string;
+    styleCode?: string;
+    colorway?: string;
 
     // Trading Card Specifics
     year?: number;

@@ -26,6 +26,11 @@ type CSVRow = {
   condition: string;
   quantity: number;
   imageName: string; // e.g., "charizard.jpg"
+  size?: string;
+  brand?: string;
+  styleCode?: string;
+  colorway?: string;
+  year?: number;
 };
 
 const REQUIRED_COLUMNS: (keyof CSVRow)[] = ['title', 'description', 'price', 'category', 'condition', 'quantity', 'imageName'];
@@ -214,7 +219,7 @@ export default function BulkCsvListerPage() {
             <div className="flex items-center gap-4">
               <Input id="csv-upload" type="file" accept=".csv" onChange={handleCsvUpload} className="flex-1" />
               <Button variant="outline" size="sm" onClick={() => {
-                const csvContent = "title,description,price,category,condition,quantity,imageName\nSample Sneaker,A detailed description of the item.,150,Sneakers,New with Box,1,sample-image.jpg";
+                const csvContent = "title,description,price,category,condition,quantity,imageName,size,brand,styleCode,colorway,year\nSample Sneaker,A detailed description of the item.,150,Sneakers,New with Box,1,sample-image.jpg,10.5,Nike,AJ123,Bred,2023";
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
