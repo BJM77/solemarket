@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Logo } from '../logo';
+import Image from 'next/image';
 import { MobileNav } from './mobile-nav';
 import HeaderActions from './HeaderActions';
 import { Suspense, useEffect, useState } from 'react';
@@ -26,7 +26,15 @@ export default function Header() {
           <div className="flex items-center gap-2 md:gap-8 flex-1">
             {isClient && <MobileNav />}
             <Link href="/" className="flex items-center" aria-label="Back to homepage">
-              <Logo />
+              <div className="relative w-72 h-24 -ml-2">
+                <Image
+                  src="/new-logo.png"
+                  alt="Benched"
+                  fill
+                  className="object-contain object-left dark:invert"
+                  priority
+                />
+              </div>
             </Link>
             {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
           </div>

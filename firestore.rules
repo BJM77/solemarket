@@ -59,6 +59,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
     
+    // Wanted Listings (WTB)
+    match /wanted_listings/{listingId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
     // Bids
     match /bids/{bidId} {
        allow read: if isAuthenticated() && (resource.data.bidderId == request.auth.uid || isAdmin());

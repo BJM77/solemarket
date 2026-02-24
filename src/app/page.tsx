@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/products";
 import HeroModern from "@/components/home/HeroModern";
+import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import CardCategoryGrid from "@/components/home/CardCategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
@@ -48,6 +49,7 @@ export default async function HomePage() {
   return (
     <main>
       <HeroModern listingCount={listingCount} />
+      <BrandLogos />
       <CategoryGrid />
       <CardCategoryGrid />
       <Suspense fallback={<TrendingSkeleton />}>
