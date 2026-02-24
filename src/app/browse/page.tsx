@@ -1,6 +1,7 @@
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export async function generateMetadata({
   searchParams,
@@ -33,6 +34,9 @@ export async function generateMetadata({
       description,
       type: 'website',
     },
+    alternates: {
+      canonical: '/browse',
+    }
   };
 }
 
@@ -61,14 +65,22 @@ export default async function BrowsePage({
   }
 
   return (
-    <InfiniteProductGrid
-      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
-      pageDescription="Browse items from thousands of sellers."
-      initialFilterState={{
-        q: searchTerm,
-        category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
-      }}
-      initialData={initialProductsData} // Pass initial data
-    />
+    <>
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', item: '/' },
+          { name: 'Browse Marketplace', item: '/browse' },
+        ]}
+      />
+      <InfiniteProductGrid
+        pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
+        pageDescription="Browse items from thousands of sellers."
+        initialFilterState={{
+          q: searchTerm,
+          category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
+        }}
+        initialData={initialProductsData} // Pass initial data
+      />
+    </>
   );
 }

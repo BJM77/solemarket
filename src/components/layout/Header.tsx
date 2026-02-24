@@ -28,10 +28,10 @@ export default function Header() {
             <Link href="/" className="flex items-center" aria-label="Back to homepage">
               <div className="relative w-72 h-24 -ml-2">
                 <Image
-                  src="/new-logo.png"
+                  src="/shoe.png"
                   alt="Benched"
                   fill
-                  className="object-contain object-left dark:invert"
+                  className="object-contain object-left"
                   priority
                 />
               </div>

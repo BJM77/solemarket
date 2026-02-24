@@ -6,7 +6,7 @@ export function Logo({ className }: { className?: string }) {
     return (
         <div className={cn("flex items-center gap-2", className)}>
             <Image
-                src={brandConfig.branding.logoUrl || '/new-logo.png'}
+                src={brandConfig.branding.logoUrl || '/shoe.png'}
                 alt={`${brandConfig.company.name} Logo`}
                 width={120}
                 height={36}
