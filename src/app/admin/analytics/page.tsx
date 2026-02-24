@@ -7,24 +7,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EmptyState from "@/components/ui/EmptyState";
 import { BarChart as BarChartIcon, PieChart as PieChartIcon, Loader2 } from "lucide-react";
 import { LineChart, PieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Line, Pie, Cell } from 'recharts';
-import { getSalesAnalytics, getCategoryDistribution } from "@/services/analytics";
+import { getSalesAnalytics, getCategoryDistribution, getRealtimeUsers } from "@/services/analytics";
+import { Users, Activity } from "lucide-react";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export default function AnalyticsPage() {
     const [salesData, setSalesData] = useState<any[]>([]);
     const [categoryData, setCategoryData] = useState<any[]>([]);
+    const [realtimeUsers, setRealtimeUsers] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [sales, categories] = await Promise.all([
+                const [sales, categories, active] = await Promise.all([
                     getSalesAnalytics(),
-                    getCategoryDistribution()
+                    getCategoryDistribution(),
+                    getRealtimeUsers()
                 ]);
                 setSalesData(sales);
                 setCategoryData(categories);
+                setRealtimeUsers(active);
             } catch (error) {
                 console.error("Failed to fetch analytics:", error);
             } finally {
@@ -32,6 +36,14 @@ export default function AnalyticsPage() {
             }
         }
         fetchData();
+
+        // Refresh realtime users every 30 seconds
+        const interval = setInterval(async () => {
+            const active = await getRealtimeUsers();
+            setRealtimeUsers(active);
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
     if (isLoading) {
@@ -49,6 +61,25 @@ export default function AnalyticsPage() {
                 title="Intelligence Matrix"
                 description="Predictive analytics and platform performance metrics."
             />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card className="bg-primary/5 border-primary/20">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">Real-time Intelligence</CardTitle>
+                        <Activity className="h-4 w-4 text-primary animate-pulse" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{realtimeUsers}</div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            Active operatives currently online
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card className="shadow-lg border-primary/10">
