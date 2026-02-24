@@ -25,6 +25,11 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
+      
+      // Allow users to manage their favorite categories
+      match /favorite_categories/{docId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Products
