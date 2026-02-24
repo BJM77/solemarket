@@ -44,15 +44,15 @@ export function MarketTicker() {
     const items = products || [];
 
     return (
-        <div className="bg-primary text-white py-4 overflow-hidden border-y-2 border-primary/20 relative z-30">
-            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center gap-8 text-sm font-bold tracking-widest uppercase">
+        <div className="bg-primary text-black py-4 overflow-hidden border-y-2 border-primary/20 relative z-30">
+            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center gap-8 text-xl font-black tracking-widest uppercase">
                 {[...items, ...items, ...items].map((item, i) => (
                     <Link
                         key={`${item.id}-${i}`}
                         href={`/product/${item.id}`}
-                        className="flex items-center gap-3 hover:text-white/80 transition-colors group"
+                        className="flex items-center gap-3 hover:text-black/70 transition-colors group"
                     >
-                        <span className="flex items-center gap-1 opacity-80">
+                        <span className="flex items-center gap-1 opacity-90">
                             <TrendingUp className="h-4 w-4" />
                             {item.category === 'Trading Cards' ? 'NEW BOX' : 'NEW KICK'}
                         </span>
@@ -60,7 +60,7 @@ export function MarketTicker() {
                         <span className="group-hover:underline underline-offset-4">
                             {item.title}
                         </span>
-                        <span className="text-black bg-white/20 px-2 py-0.5 rounded-sm">${item.price}</span>
+                        <span className="text-white bg-black/90 px-2 py-0.5 rounded-sm">${item.price}</span>
                     </Link>
                 ))}
             </div>

@@ -504,44 +504,6 @@ function InfiniteProductGridInner({
             </SelectContent>
           </Select>
 
-          <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 bg-card border rounded-md p-0.5 sm:p-1 h-9 sm:h-10">
-            <Button
-              variant={currentSearchParams.category === 'Sneakers' ? 'secondary' : 'ghost'}
-              size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Sneakers' && "bg-blue-100 text-blue-600")}
-              asChild
-              title="Sneakers"
-            >
-              <Link href="/browse?category=Sneakers">
-                <Footprints className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Link>
-            </Button>
-
-            <Button
-              variant={currentSearchParams.category === 'Trading Cards' ? 'secondary' : 'ghost'}
-              size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Trading Cards' && "bg-primary/10 text-primary")}
-              asChild
-              title="Trading Cards"
-            >
-              <Link href="/browse?category=Trading%20Cards">
-                <Library className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Link>
-            </Button>
-
-            <Button
-              variant={currentSearchParams.category === 'Accessories' ? 'secondary' : 'ghost'}
-              size="icon"
-              className={cn("h-7 w-7 sm:h-8 sm:w-8 transition-all", currentSearchParams.category === 'Accessories' && "bg-emerald-100 text-emerald-600")}
-              asChild
-              title="Accessories"
-            >
-              <Link href="/browse?category=Accessories">
-                <Watch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Link>
-            </Button>
-          </div>
-
 
           <div className="flex items-center rounded-md border bg-card p-0.5 sm:p-1 h-9 sm:h-10">
             <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>

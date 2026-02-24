@@ -78,8 +78,8 @@ export default async function GuideArticlePage({ params }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <div className="min-h-screen bg-gray-50/50 pb-20">
-                <div className="bg-white border-b border-gray-100">
+            <div className="min-h-screen bg-background pb-20">
+                <div className="bg-card border-b border-border">
                     <div className="max-w-4xl mx-auto px-4 py-8 md:py-16">
                         <Link href="/guides" className="inline-flex items-center text-sm font-bold text-primary hover:text-primary/80 transition-colors mb-8">
                             <ChevronLeft className="w-4 h-4 mr-1" />
@@ -90,7 +90,7 @@ export default async function GuideArticlePage({ params }: Props) {
                             {guide.category}
                         </span>
 
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-8 leading-tight">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-8 leading-tight text-slate-900 dark:text-white">
                             {guide.title}
                         </h1>
 
@@ -128,7 +128,7 @@ export default async function GuideArticlePage({ params }: Props) {
                         />
                     </div>
 
-                    <div className="prose prose-lg md:prose-xl max-w-3xl mx-auto text-gray-700 leading-relaxed dark:prose-invert prose-headings:font-black prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl prose-img:shadow-xl">
+                    <div className="prose prose-lg md:prose-xl max-w-3xl mx-auto text-foreground leading-relaxed dark:prose-invert prose-headings:font-black prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl prose-img:shadow-xl">
                         <div dangerouslySetInnerHTML={{ __html: guide.content }} />
                     </div>
 

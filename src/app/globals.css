@@ -19,7 +19,7 @@
     
     /* Brand Colors - Hype Inspired */
     --primary: 25 93% 50%;  /* Hype Orange #f26c0d */
-    --primary-foreground: 0 0% 96%;
+    --primary-foreground: 0 0% 0%; /* Black */
     --secondary: 26 37% 15%;  /* Surface Highlight #342418 */
     --secondary-foreground: 0 0% 96%;
     
@@ -63,7 +63,7 @@
     --popover: 24 12% 8%; /* Step above card #141210 */
     --popover-foreground: 0 0% 96%;
     --primary: 25 93% 50%; /* #f26c0d */
-    --primary-foreground: 0 0% 96%;
+    --primary-foreground: 0 0% 0%; /* Black */
     --secondary: 26 37% 15%; /* #342418 */
     --secondary-foreground: 0 0% 100%;
     --muted: 24 15% 12%; /* #221d19 */
@@ -192,7 +192,7 @@
   
   /* Button Styles */
   .btn-premium {
-    @apply gradient-bg-primary text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2;
+    @apply gradient-bg-primary font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 text-black;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-xl);
   }
