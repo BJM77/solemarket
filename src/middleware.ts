@@ -32,7 +32,9 @@ export function middleware(request: NextRequest) {
   // Protect Admin Routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!isAuth) {
-      return NextResponse.redirect(new URL('/sign-in', request.url));
+      const signInUrl = new URL('/sign-in', request.url);
+      signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(signInUrl);
     }
   }
 
@@ -41,8 +43,9 @@ export function middleware(request: NextRequest) {
     if (!isAuth) {
       // Allow unauthenticated access if it is just a product review page to reduce friction, 
       // but strictly protect creation/dashboard pages.
-      // Actually, all /sell routes (dashboard, create) usually require auth.
-      return NextResponse.redirect(new URL('/sign-in', request.url));
+      const signInUrl = new URL('/sign-in', request.url);
+      signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(signInUrl);
     }
   }
 

@@ -29,7 +29,8 @@ import {
     ListChecks,
     Gavel,
     Briefcase,
-    Sparkles
+    Sparkles,
+    DollarSign
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { motion } from "framer-motion";
@@ -41,6 +42,8 @@ import { useState, useEffect } from "react";
 // Navigation Items Configuration
 const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/admin/orders", icon: ShieldCheck, label: "Escrow Ledger" },
+    { href: "/admin/payouts", icon: DollarSign, label: "Payout Ledger" },
     { href: "/admin/products/approvals", icon: Gavel, label: "Approvals" },
     { href: "/admin/products/new", icon: Sparkles, label: "New Listings" },
     { href: "/admin/sellers", icon: Briefcase, label: "Sellers" },
@@ -48,6 +51,7 @@ const navItems = [
     { href: "/admin/deals", icon: Sparkles, label: "Deals" },
     { href: "/admin/management", icon: ListChecks, label: "Management" },
     { href: "/admin/users", icon: Users, label: "Users" },
+    { href: "/admin/members", icon: Users, label: "Members Directory" },
     { href: "/admin/disputes", icon: MessageSquareWarning, label: "Disputes" },
     { href: "/admin/analytics", icon: BarChart, label: "Analytics" },
 ];

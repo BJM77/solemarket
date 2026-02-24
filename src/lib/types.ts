@@ -152,6 +152,7 @@ export type Product = {
   dealId?: string;
   bundlePrice?: number;
   keywords?: string[];
+  acceptsPayId?: boolean;
 };
 
 export type ProductSearchParams = {

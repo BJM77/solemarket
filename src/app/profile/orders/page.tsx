@@ -29,6 +29,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { lodgeDispute } from '@/app/actions/disputes';
+import { confirmOrderReceipt } from '@/app/actions/order';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export default function UserOrdersPage() {
     const { user } = useUser();
@@ -43,6 +45,29 @@ export default function UserOrdersPage() {
     const [disputeReason, setDisputeReason] = useState('');
     const [disputeDescription, setDisputeDescription] = useState('');
     const [isSubmittingDispute, setIsSubmittingDispute] = useState(false);
+
+    // Confirm receipt state
+    const [isConfirming, setIsConfirming] = useState<string | null>(null);
+
+    const handleConfirmReceipt = async (orderId: string) => {
+        if (!user) return;
+        setIsConfirming(orderId);
+        try {
+            const token = await getCurrentUserIdToken();
+            if (!token) throw new Error("Authentication error.");
+            
+            const result = await confirmOrderReceipt(token, orderId);
+            if (result.success) {
+                toast({ title: "Order Confirmed", description: "You have successfully confirmed receipt. The seller will now be paid." });
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsConfirming(null);
+        }
+    };
 
     useEffect(() => {
         if (!user?.uid) return;
@@ -247,7 +272,7 @@ export default function UserOrdersPage() {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-4 flex gap-2">
+                            <CardFooter className="bg-slate-50/50 p-4 flex gap-2 flex-wrap">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -257,10 +282,21 @@ export default function UserOrdersPage() {
                                     <MessageSquare className="h-4 w-4" />
                                     Contact Seller
                                 </Button>
+                                {['processing', 'shipped'].includes(order.status) && (
+                                    <Button
+                                        size="sm"
+                                        className="flex-1 font-bold rounded-xl gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                        onClick={() => handleConfirmReceipt(order.id)}
+                                        disabled={isConfirming === order.id}
+                                    >
+                                        {isConfirming === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                                        Confirm Receipt
+                                    </Button>
+                                )}
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-slate-400 hover:text-rose-600 gap-2 font-bold px-3"
+                                    className="text-slate-400 hover:text-rose-600 gap-2 font-bold px-3 w-full sm:w-auto mt-2 sm:mt-0"
                                     onClick={() => {
                                         setSelectedOrderForDispute(order.id);
                                         setIsDisputeOpen(true);

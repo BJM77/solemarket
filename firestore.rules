@@ -13,12 +13,9 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // In production, use custom claims or a specific user document check
-      // For now, assuming 'admin' role in user document or simple check if needed
-      // But strictly, we should use Custom Claims for performance.
-      // Falling back to a simple check if the user doc has role: 'admin'
+      // Checking custom claims set by the Firebase Admin SDK to avoid extra document reads
       return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin');
     }
 
     // Users

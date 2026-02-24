@@ -50,7 +50,6 @@ export default async function HomePage() {
       <HeroModern listingCount={listingCount} />
       <CategoryGrid />
       <CardCategoryGrid />
-      <PlayerCollections />
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />
       </Suspense>

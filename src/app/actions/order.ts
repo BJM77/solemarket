@@ -25,6 +25,7 @@ interface OrderOptions {
         state: string;
         zip: string;
     };
+    paymentMethod?: 'Card' | 'PayID Escrow';
 }
 
 export async function createOrderAction(items: CartItem[], idToken: string, options?: OrderOptions) {
@@ -123,6 +124,8 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 // Use fetchedUsers to get PayPal link
                 const sellerPaypalLink = fetchedUsers[sellerId]?.paypalMeLink || null;
 
+                const payIdReference = `BNCH-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
                 const newOrder = {
                     groupOrderId,
                     items: group.items,
@@ -135,14 +138,15 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     buyerName: buyerName || buyerEmail,
                     sellerId,
                     sellerName: group.sellerName,
-                    status: 'processing',
+                    status: options?.paymentMethod === 'PayID Escrow' ? 'awaiting_payment' : 'processing',
                     paymentStatus: 'pending',
-                    paymentMethod: 'Cash on Delivery',
+                    paymentMethod: options?.paymentMethod || 'Card',
                     shippingMethod: options?.shippingMethod || 'pickup',
                     shippingAddress: options?.shippingAddress || null,
                     createdAt: FieldValue.serverTimestamp(),
                     updatedAt: FieldValue.serverTimestamp(),
                     sellerPaypalMeLink: sellerPaypalLink,
+                    payIdReference,
                 };
 
                 t.set(orderRef, newOrder);
@@ -223,5 +227,41 @@ export async function updateOrderStatus(idToken: string, orderId: string, status
     } catch (error: any) {
         console.error("Update order status failed:", error);
         return { success: false, message: error.message || "Failed to update order." };
+    }
+}
+
+/**
+ * Allows the buyer to confirm receipt of the order.
+ */
+export async function confirmOrderReceipt(idToken: string, orderId: string) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const { uid: userId } = decodedToken;
+
+        const orderRef = firestoreDb.collection('orders').doc(orderId);
+        const orderSnap = await orderRef.get();
+
+        if (!orderSnap.exists) throw new Error("Order not found.");
+        const orderData = orderSnap.data();
+
+        // Check if the user is the buyer of this order
+        if (orderData?.buyerId !== userId) {
+            throw new Error("Unauthorized access. Only the buyer can confirm receipt.");
+        }
+
+        // Must be in a state that can be confirmed (processing or shipped)
+        if (!['processing', 'shipped'].includes(orderData?.status)) {
+            throw new Error("Order cannot be confirmed at this stage.");
+        }
+
+        await orderRef.update({
+            status: 'delivered',
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        return { success: true, message: "Order confirmed successfully." };
+    } catch (error: any) {
+        console.error("Confirm order receipt failed:", error);
+        return { success: false, message: error.message || "Failed to confirm receipt." };
     }
 }

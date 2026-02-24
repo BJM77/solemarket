@@ -65,9 +65,6 @@ export async function bulkCreateProductsFromCSV(
 
         await batch.commit();
 
-        // TODO: The revalidatePath calls below can be a performance bottleneck in a multi-user environment.
-        // Consider switching to Incremental Static Regeneration (ISR) with a revalidation time on the affected pages 
-        // to avoid revalidating on every single product creation.
         revalidatePath('/browse');
         revalidatePath('/sell/dashboard');
         revalidatePath(`/profile/listings`);

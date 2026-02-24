@@ -12,6 +12,7 @@ import {
     Share2,
     Heart,
     Star,
+    Store,
     ShieldCheck,
     CheckCircle,
     AlertCircle,
@@ -639,12 +640,27 @@ export default function ProductDetailsModern({
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10" onClick={handleStartConversation}>
+                                        <Button size="default" variant="outline" className="rounded-xl h-10 font-bold" asChild>
+                                            <Link href={`/shop/${(seller as any).shopSlug || seller.id}`}>
+                                                <Store className="h-4 w-4 mr-2" />
+                                                View Shop
+                                            </Link>
+                                        </Button>
+                                        <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={handleStartConversation}>
                                             <MessageSquare className="h-5 w-5 text-gray-600" />
                                         </Button>
                                         {seller.phoneNumber && (
-                                            <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10" onClick={handleRevealPhone}>
-                                                <Phone className="h-5 w-5 text-gray-600" />
+                                            <Button
+                                                size="icon"
+                                                variant="secondary"
+                                                className={cn(
+                                                    "rounded-xl h-10 transition-all duration-300",
+                                                    isPhoneRevealed ? "w-auto px-4 gap-2" : "w-10"
+                                                )}
+                                                onClick={handleRevealPhone}
+                                            >
+                                                <Phone className="h-5 w-5 text-gray-600 shrink-0" />
+                                                {isPhoneRevealed && <span className="font-bold text-gray-800 dark:text-gray-200">{seller.phoneNumber}</span>}
                                             </Button>
                                         )}
                                     </div>

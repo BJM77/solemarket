@@ -52,6 +52,7 @@ const formSchema = z.object({
     minQuantity: z.coerce.number().min(2),
     discountPercent: z.coerce.number().min(1).max(100),
   })).optional(),
+  acceptsPayId: z.boolean().default(false),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -116,6 +117,7 @@ function CreateListingForm() {
       hasOtherBrand: false,
       multibuyEnabled: false,
       multibuyTiers: [],
+      acceptsPayId: false,
     },
   });
 
@@ -226,7 +228,6 @@ function CreateListingForm() {
 
       if (allUrls.length === 0) return;
       const idToken = await user.getIdToken();
-      // TODO: Update suggestListingDetails to handle new fields
       const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
       if (suggestions) {
         Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
@@ -242,7 +243,15 @@ function CreateListingForm() {
   const nextStep = async () => {
     const fieldsToValidate: any[] = [];
     if (currentStep === 1) { // Photos
-      // Could enforce min 1 photo
+      // Enforce at least 1 photo before proceeding
+      if (imageFiles.length === 0) {
+        toast({
+          title: "Photos Required",
+          description: "Please upload at least one photo of your item to proceed.",
+          variant: "destructive"
+        });
+        return;
+      }
     } else if (currentStep === 2) { // Details
       // Validate everything that is shown on Step 2
       fieldsToValidate.push(

@@ -105,6 +105,37 @@ export default function ConfirmationPage() {
                 </div>
 
                 <div className="max-w-2xl mx-auto space-y-6">
+                    {orders.some(o => o.status === 'awaiting_payment') && (
+                        <Card className="border-2 border-primary bg-primary/5 shadow-xl overflow-hidden rounded-2xl mb-8">
+                            <CardHeader className="bg-primary text-white py-6 px-6 text-center">
+                                <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-white animate-pulse" />
+                                <CardTitle className="text-2xl font-black uppercase tracking-tight">Action Required: Transfer Funds</CardTitle>
+                                <p className="text-primary-foreground/90 font-medium mt-2">Your order is locked, but we are waiting for your PayID transfer to secure the item.</p>
+                            </CardHeader>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="space-y-4">
+                                    <div className="bg-white p-4 rounded-xl border border-slate-200">
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">1. Send exactly</p>
+                                        <p className="text-3xl font-black text-slate-900">${formatPrice(orders.reduce((acc, curr) => acc + curr.totalAmount, 0))}</p>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-xl border border-slate-200">
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">2. To Benched PayID</p>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-2xl font-black text-primary">dawn</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
+                                        <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-1">3. MUST INCLUDE AS DESCRIPTION/REFERENCE</p>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-2xl font-black font-mono text-rose-700">{orders[0]?.payIdReference || orders[0]?.groupOrderId}</p>
+                                        </div>
+                                        <p className="text-xs text-rose-600 mt-2 font-medium">If you do not include this exact code, we cannot match your payment to your order and you may lose the item.</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {orders.map((order, idx) => (
                         <Card key={order.id || idx} className="border-none shadow-xl overflow-hidden rounded-2xl">
                             <CardHeader className="bg-slate-900 text-white py-4 px-6">

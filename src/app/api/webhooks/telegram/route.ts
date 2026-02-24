@@ -3,6 +3,8 @@ import { sendTelegramNotification } from '@/lib/telegram';
 import { getProducts } from '@/services/product-service'; // Mocked or Real
 import { formatPrice } from '@/lib/utils';
 
+import { firestoreDb } from '@/lib/firebase/admin';
+
 // Secret token verification (optional but recommended for production)
 // const TELEGRAM_SECRET_TOKEN = process.env.TELEGRAM_SECRET_TOKEN;
 
@@ -18,18 +20,22 @@ export async function POST(req: NextRequest) {
             let replyText = '';
 
             if (data.startsWith('approve_')) {
-                replyText = `✅ Listing ${data.replace('approve_', '')} has been approved!`;
-                // TODO: Actual DB update logic here
+                const productId = data.replace('approve_', '');
+                await firestoreDb.collection('products').doc(productId).update({ status: 'available' });
+                replyText = `✅ Listing ${productId} has been approved!`;
             } else if (data.startsWith('decline_')) {
-                replyText = `❌ Listing ${data.replace('decline_', '')} declined.`;
+                const productId = data.replace('decline_', '');
+                await firestoreDb.collection('products').doc(productId).update({ status: 'rejected' });
+                replyText = `❌ Listing ${productId} declined.`;
             } else if (data.startsWith('accept_bid_')) {
+                // Bid acceptance logic (more complex, mock for now)
                 replyText = `🤝 Offer accepted for ${data.replace('accept_bid_', '')}! Buyer notified.`;
             }
 
             // Acknowledge the callback (stops the loading spinner on the button)
             // And send a follow-up message
             await sendTelegramNotification(replyText); // This mocks the reply for now
-            
+
             // In a real app, you'd use answerCallbackQuery method
             return NextResponse.json({ status: 'ok' });
         }
@@ -49,14 +55,14 @@ export async function POST(req: NextRequest) {
                     `/find <name> - Search inventory\n` +
                     `/pending - Review new listings`
                 );
-            } 
-            
+            }
+
             else if (command === '/stats') {
                 // Mock Stats - In real app, fetch from Orders collection
                 const revenue = 1450;
                 const orders = 8;
                 const users = 15;
-                
+
                 await sendTelegramNotification(
                     `<b>📅 Daily Report (Today)</b>\n\n` +
                     `💰 <b>Revenue:</b> $${revenue.toLocaleString()} (+12%)\n` +
@@ -64,15 +70,15 @@ export async function POST(req: NextRequest) {
                     `👥 <b>New Users:</b> ${users}\n` +
                     `📉 <b>Price Drops:</b> 3`
                 );
-            } 
-            
+            }
+
             else if (command === '/find') {
                 if (!args) {
                     await sendTelegramNotification("❌ Please provide a search term. Example: <code>/find travis</code>");
                 } else {
                     // Search Logic
                     const { products } = await getProducts({ q: args, limit: 5 });
-                    
+
                     if (products.length === 0) {
                         await sendTelegramNotification(`🔍 No results found for "<b>${args}</b>".`);
                     } else {

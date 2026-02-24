@@ -86,6 +86,25 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="acceptsPayId"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-primary font-bold">Offer PayID Escrow</FormLabel>
+                                    <FormDescription className="text-[10px]">Allow buyers to pay via Benched PayID Escrow. Funds held safely.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        className="data-[state=checked]:bg-primary"
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                     <MultibuyConfig form={form} />
                 </CardContent>
             </Card>

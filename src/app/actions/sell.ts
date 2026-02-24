@@ -21,6 +21,7 @@ export interface DraftListingData {
     isDraft: boolean;
     createdAt: FieldValue;
     updatedAt: FieldValue;
+    acceptsPayId?: boolean;
 
     // Trading Card Specifics
     year?: number;

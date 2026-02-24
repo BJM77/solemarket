@@ -15,12 +15,14 @@ import {
     bulkUpdateTier
 } from './actions';
 import { Deal, DealRequirements, MultiCardTier } from '@/types/deals';
+import { useUser } from '@/firebase';
 
 export default function DealsPage() {
     const [deals, setDeals] = useState<Deal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+    const { user } = useUser();
 
     useEffect(() => {
         loadDeals();
@@ -84,6 +86,7 @@ export default function DealsPage() {
             {(showCreateForm || editingDeal) && (
                 <DealForm
                     deal={editingDeal}
+                    user={user}
                     onClose={() => {
                         setShowCreateForm(false);
                         setEditingDeal(null);
@@ -214,10 +217,12 @@ function DealCard({
 
 function DealForm({
     deal,
+    user,
     onClose,
     onSave
 }: {
     deal: Deal | null;
+    user: any;
     onClose: () => void;
     onSave: () => void;
 }) {
@@ -250,7 +255,7 @@ function DealForm({
                     platinum: formData.platinum,
                 },
                 isActive: formData.isActive,
-                createdBy: 'admin', // TODO: Get from auth
+                createdBy: user?.uid || 'admin',
             };
 
             if (deal) {

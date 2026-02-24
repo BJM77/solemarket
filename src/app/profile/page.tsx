@@ -43,7 +43,9 @@ const profileSchema = z.object({
     .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.')
     .or(z.literal(''))
     .optional(),
-  paypalMeLink: z.string().url('Please enter a valid PayPal.me link (e.g. https://paypal.me/username)').or(z.literal('')).optional(),
+  bsb: z.string().regex(/^\d{6}$/, "BSB must be exactly 6 digits").or(z.literal('')).optional(),
+  accountNumber: z.string().min(6, "Account Number must be at least 6 digits").max(10).or(z.literal('')).optional(),
+  accountName: z.string().min(2, "Account Name must be at least 2 characters").or(z.literal('')).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -72,7 +74,9 @@ export default function ProfileDetailsPage() {
         storeDescription: (user as any).storeDescription || '',
         bannerUrl: (user as any).bannerUrl || '',
         shopSlug: (user as any).shopSlug || '',
-        paypalMeLink: (user as any).paypalMeLink || '',
+        bsb: (user as any).bsb || '',
+        accountNumber: (user as any).accountNumber || '',
+        accountName: (user as any).accountName || '',
       });
     }
   }, [user, form]);
@@ -277,30 +281,58 @@ export default function ProfileDetailsPage() {
               <div className="pt-6 border-t space-y-4">
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <ExternalLink className="h-5 w-5 text-blue-600" />
-                  Payment Settings
+                  Escrow Payout Details
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Connect your payment methods to receive direct payments from buyers.
+                  Provide your local Australian bank details to receive payouts when your sales are delivered.
                 </p>
 
-                <FormField
-                  control={form.control}
-                  name="paypalMeLink"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        PayPal.me Link
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://paypal.me/yourusername" {...field} />
-                      </FormControl>
-                      <p className="text-[0.8rem] text-muted-foreground">
-                        Buyers will be directed here to pay you. Ensure your PayPal.me link is correct.
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="bsb"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>BSB</FormLabel>
+                        <FormControl>
+                          <Input placeholder="000000" maxLength={6} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="12345678" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="accountName"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Account Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <p className="text-[0.8rem] text-muted-foreground">
+                          This name must match the bank account holder to prevent payout delays.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
