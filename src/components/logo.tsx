@@ -8,9 +8,9 @@ export function Logo({ className }: { className?: string }) {
             <Image
                 src={brandConfig.branding.logoUrl || '/shoe.png'}
                 alt={`${brandConfig.company.name} Logo`}
-                width={120}
-                height={36}
-                className="h-9 w-auto"
+                width={180}
+                height={54}
+                className="w-auto h-auto"
                 priority
             />
         </div>

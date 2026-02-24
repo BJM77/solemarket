@@ -17,7 +17,7 @@ export default function HeaderActions() {
     const { user } = useUser();
 
     return (
-        <div className="flex items-center justify-end space-x-1 md:space-x-2">
+        <div className="flex items-center justify-end space-x-1 lg:space-x-2">
             {!user && (
                 <div className="flex items-center gap-1">
                     <Button asChild variant="ghost" size="icon" aria-label="Sign In">
@@ -34,15 +34,15 @@ export default function HeaderActions() {
             )}
 
             {user && (
-                <div className="flex items-center gap-1 md:gap-2">
+                <div className="flex items-center gap-1 lg:gap-2">
                     {/* Mobile Plus Button */}
-                    <Button asChild variant="default" size="icon" className="h-9 w-9 flex md:hidden rounded-xl shadow-lg shadow-primary/20">
+                    <Button asChild variant="default" size="icon" className="h-9 w-9 flex lg:hidden rounded-xl shadow-lg shadow-primary/20">
                         <Link href="/sell/create" aria-label="SELL">
                             <PlusCircle className="h-5 w-5" />
                         </Link>
                     </Button>
                     {/* Desktop Button - Styled to match Donate */}
-                    <Button asChild variant="default" size="sm" className="hidden md:flex rounded-xl px-4 font-black uppercase tracking-widest shadow-lg shadow-primary/20 h-10 transition-all hover:scale-105 active:scale-95">
+                    <Button asChild variant="default" size="sm" className="hidden lg:flex rounded-xl px-4 font-black uppercase tracking-widest shadow-lg shadow-primary/20 h-10 transition-all hover:scale-105 active:scale-95">
                         <Link href="/sell/create">SELL</Link>
                     </Button>
                 </div>

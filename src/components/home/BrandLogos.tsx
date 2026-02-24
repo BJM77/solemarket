@@ -23,7 +23,7 @@ export default function BrandLogos() {
           Featuring Top Brands
         </h2>
       </div>
-      
+
       {/* Infinite Marquee Container */}
       <div className="relative w-full flex overflow-hidden group">
         {/* Gradient fades for smooth edges */}
@@ -33,8 +33,8 @@ export default function BrandLogos() {
         {/* Scrolling Content - Duplicate the array for infinite effect */}
         <div className="flex animate-marquee group-hover:[animation-play-state:paused] items-center gap-16 md:gap-24 px-8 min-w-max" style={{ animationDuration: '30s' }}>
           {[...brands, ...brands, ...brands].map((brand, i) => (
-            <Link 
-              key={`${brand.name}-${i}`} 
+            <Link
+              key={`${brand.name}-${i}`}
               href={brand.href}
               className="relative h-12 md:h-16 w-28 md:w-36 flex items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300 transform hover:scale-110 drop-shadow-[0_0_15px_rgba(242,108,13,0.15)] hover:drop-shadow-[0_0_20px_rgba(242,108,13,0.5)]"
               title={`Shop ${brand.name}`}
@@ -43,6 +43,7 @@ export default function BrandLogos() {
                 src={brand.src}
                 alt={`${brand.name} logo`}
                 fill
+                sizes="(max-width: 768px) 112px, 144px"
                 className="object-contain dark:invert filter"
               />
             </Link>
