@@ -9,63 +9,69 @@ import { cn } from "@/lib/utils";
 const CATEGORIES = [
     {
         name: 'Jordan',
-        logo: '/brand-logos/jordan.png',
-        href: '/browse?category=Jordan',
-        color: 'bg-red-50 dark:bg-red-950/20'
+        logo: '/brand-logos/svg/jordan.svg',
+        href: '/browse?category=Sneakers&search=jordan',
+        color: 'bg-red-50/50 dark:bg-red-950/10'
     },
     {
         name: 'Nike',
-        logo: '/brand-logos/nike.png',
-        href: '/browse?category=Nike',
-        color: 'bg-orange-50 dark:bg-orange-950/20'
+        logo: '/brand-logos/svg/nike.svg',
+        href: '/browse?category=Sneakers&search=nike',
+        color: 'bg-orange-50/50 dark:bg-orange-950/10'
     },
     {
         name: 'Adidas',
-        logo: '/brand-logos/adidas.png',
-        href: '/browse?category=Adidas',
-        color: 'bg-blue-50 dark:bg-blue-950/20'
-    },
-    {
-        name: 'Yeezy',
-        logo: '/brand-logos/yeezy.png',
-        href: '/browse?category=Yeezy',
-        color: 'bg-gray-50 dark:bg-gray-800'
+        logo: '/brand-logos/svg/adidas.svg',
+        href: '/browse?category=Sneakers&search=adidas',
+        color: 'bg-blue-50/50 dark:bg-blue-950/10'
     },
     {
         name: 'New Balance',
-        logo: '/brand-logos/new-balance.png',
-        href: '/browse?category=New-Balance',
-        color: 'bg-green-50 dark:bg-green-950/20'
-    },
-    {
-        name: 'Puma',
-        icon: Footprints,
-        href: '/browse?category=Puma',
-        color: 'bg-yellow-50 dark:bg-yellow-950/20'
-    },
-    {
-        name: 'Reebok',
-        icon: Footprints,
-        href: '/browse?category=Reebok',
-        color: 'bg-blue-50 dark:bg-blue-950/20'
+        logo: '/brand-logos/svg/new-balance.svg',
+        href: '/browse?category=Sneakers&search=new+balance',
+        color: 'bg-green-50/50 dark:bg-green-950/10'
     },
     {
         name: 'Under Armour',
-        icon: Footprints,
-        href: '/browse?category=Under-Armour',
-        color: 'bg-slate-100 dark:bg-slate-800'
+        logo: '/brand-logos/svg/under-armour.svg',
+        href: '/browse?category=Sneakers&search=under+armour',
+        color: 'bg-slate-100/50 dark:bg-slate-800/10'
+    },
+    {
+        name: 'Reebok',
+        logo: '/brand-logos/svg/reebok.svg',
+        href: '/browse?category=Sneakers&search=reebok',
+        color: 'bg-blue-50/50 dark:bg-blue-950/10'
+    },
+    {
+        name: 'Puma',
+        logo: '/brand-logos/svg/puma.svg',
+        href: '/browse?category=Sneakers&search=puma',
+        color: 'bg-yellow-50/50 dark:bg-yellow-950/10'
     },
     {
         name: 'Converse',
-        icon: Footprints,
-        href: '/browse?category=Converse',
-        color: 'bg-zinc-100 dark:bg-zinc-800'
+        logo: '/brand-logos/svg/converse.svg',
+        href: '/browse?category=Sneakers&search=converse',
+        color: 'bg-zinc-100/50 dark:bg-zinc-800/10'
     },
     {
-        name: 'ANTA',
-        icon: Footprints,
-        href: '/browse?category=ANTA',
-        color: 'bg-red-50 dark:bg-red-900/20'
+        name: 'Kobe',
+        logo: '/brand-logos/svg/kobe.svg',
+        href: '/browse?category=Sneakers&search=kobe',
+        color: 'bg-purple-50/50 dark:bg-purple-950/10'
+    },
+    {
+        name: 'LeBron',
+        logo: '/brand-logos/svg/lebron.svg',
+        href: '/browse?category=Sneakers&search=lebron',
+        color: 'bg-gold-50/50 dark:bg-yellow-950/10'
+    },
+    {
+        name: 'Curry',
+        logo: '/brand-logos/svg/curry.svg',
+        href: '/browse?category=Sneakers&search=curry',
+        color: 'bg-blue-50/50 dark:bg-blue-950/10'
     },
     {
         name: 'View All',
@@ -102,15 +108,16 @@ export default function CategoryGrid() {
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                 <div className={cn(
-                                    "relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-5 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
-                                    cat.color.includes('dark:bg-') ? cat.color : "bg-slate-100 dark:bg-slate-800"
+                                    "relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+                                    // Removed shadow-inner and background color from here to let it sit on the card
                                 )}>
                                     {cat.logo ? (
                                         <Image
                                             src={cat.logo}
                                             alt={`${cat.name} logo`}
                                             fill
-                                            className="object-contain p-4 dark:invert drop-shadow-md"
+                                            className="object-contain p-2 dark:invert filter drop-shadow-sm"
+                                            sizes="(max-width: 768px) 80px, 96px"
                                         />
                                     ) : cat.icon ? (
                                         <cat.icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />

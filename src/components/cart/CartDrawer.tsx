@@ -62,6 +62,7 @@ export function CartDrawer() {
                                                 alt={item.title}
                                                 fill
                                                 className="object-cover"
+                                                sizes="96px"
                                             />
                                         </div>
                                         <div className="flex-1 flex flex-col justify-between py-1">

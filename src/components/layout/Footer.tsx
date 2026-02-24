@@ -44,6 +44,7 @@ export default function Footer() {
                 alt="Benched"
                 fill
                 className="object-contain object-left"
+                sizes="160px"
               />
             </div>
           </div>

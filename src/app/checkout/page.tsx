@@ -363,7 +363,7 @@ return (
                 {items.map(item => (
                   <div key={item.id} className="flex items-center gap-4 group">
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-slate-100 transition-transform group-hover:scale-105">
-                      <Image src={item.imageUrls[0]} alt={item.title} fill className="object-cover" />
+                      <Image src={item.imageUrls[0]} alt={item.title} fill className="object-cover" sizes="80px" />
                       <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg shadow-lg">
                         {item.quantity}
                       </span>

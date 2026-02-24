@@ -10,7 +10,8 @@ export function Logo({ className }: { className?: string }) {
                 alt={`${brandConfig.company.name} Logo`}
                 width={120}
                 height={36}
-                className="w-30 h-auto"
+                className="w-auto h-9"
+                style={{ width: 'auto', height: 'auto' }}
                 priority
             />
         </div>

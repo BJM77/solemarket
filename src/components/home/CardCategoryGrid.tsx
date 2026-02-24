@@ -1,10 +1,53 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, Library, Trophy, Zap, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, Library, Trophy, Zap, Sparkles, Flag, PenTool as Signature } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const CARD_CATEGORIES = [
+    {
+        name: 'Jordan',
+        logo: '/brand-logos/svg/jordan.svg',
+        href: '/cards?subCategory=Jordan',
+        color: 'bg-red-50/50 dark:bg-red-950/10'
+    },
+    {
+        name: 'Kobe',
+        logo: '/brand-logos/svg/kobe.svg',
+        href: '/cards?subCategory=Kobe',
+        color: 'bg-purple-50/50 dark:bg-purple-950/10'
+    },
+    {
+        name: 'Curry',
+        logo: '/brand-logos/svg/curry.svg',
+        href: '/cards?subCategory=Curry',
+        color: 'bg-blue-50/50 dark:bg-blue-950/10'
+    },
+    {
+        name: 'Wembanyama',
+        icon: Sparkles,
+        href: '/cards?subCategory=Wembanyama',
+        color: 'bg-indigo-50 dark:bg-indigo-950/20'
+    },
+    {
+        name: 'Rookies',
+        icon: Trophy,
+        href: '/cards?subCategory=Rookies',
+        color: 'bg-amber-50 dark:bg-amber-950/20'
+    },
+    {
+        name: 'Signed',
+        icon: Signature,
+        href: '/cards?subCategory=Signed',
+        color: 'bg-emerald-50 dark:bg-emerald-950/20'
+    },
+    {
+        name: 'Flag',
+        icon: Flag,
+        href: '/cards?subCategory=Flag',
+        color: 'bg-slate-50 dark:bg-slate-900/20'
+    },
     {
         name: 'NBA Cards',
         icon: Library,
@@ -12,7 +55,7 @@ const CARD_CATEGORIES = [
         color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
-        name: 'View All Cards',
+        name: 'View All',
         icon: ArrowRight,
         href: '/cards',
         color: 'bg-gray-50 dark:bg-gray-800'
@@ -46,10 +89,19 @@ export default function CardCategoryGrid() {
                                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                 <div className={cn(
-                                    "relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-5 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
-                                    cat.color.includes('dark:bg-') ? cat.color : "bg-slate-100 dark:bg-slate-800"
+                                    "relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
                                 )}>
-                                    <cat.icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />
+                                    {cat.logo ? (
+                                        <Image
+                                            src={cat.logo}
+                                            alt={`${cat.name} logo`}
+                                            fill
+                                            className="object-contain p-2 dark:invert filter drop-shadow-sm"
+                                            sizes="(max-width: 768px) 80px, 96px"
+                                        />
+                                    ) : (
+                                        <cat.icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />
+                                    )}
                                 </div>
                                 <span className="font-black text-slate-900 dark:text-white text-xs md:text-sm uppercase tracking-widest text-center relative z-10">
                                     {cat.name}

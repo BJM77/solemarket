@@ -28,6 +28,13 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
         order: 2,
         subcategories: [
             { id: 'sub_basketball_cards', name: 'Basketball Cards', slug: 'basketball-cards', parentId: 'cat_cards' },
+            { id: 'sub_jordan_cards', name: 'Jordan', slug: 'jordan', parentId: 'cat_cards' },
+            { id: 'sub_flag_cards', name: 'Flag', slug: 'flag', parentId: 'cat_cards' },
+            { id: 'sub_wembanyama_cards', name: 'Wembanyama', slug: 'wembanyama', parentId: 'cat_cards' },
+            { id: 'sub_kobe_cards', name: 'Kobe', slug: 'kobe', parentId: 'cat_cards' },
+            { id: 'sub_curry_cards', name: 'Curry', slug: 'curry', parentId: 'cat_cards' },
+            { id: 'sub_rookies_cards', name: 'Rookies', slug: 'rookies', parentId: 'cat_cards' },
+            { id: 'sub_signed_cards', name: 'Signed', slug: 'signed', parentId: 'cat_cards' },
         ]
     }
 ];

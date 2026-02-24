@@ -154,7 +154,7 @@ export default function ConfirmationPage() {
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4 group">
                                             <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100 transition-transform group-hover:scale-105">
-                                                <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" />
+                                                <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-slate-900 line-clamp-1 text-sm">{item.title}</p>
