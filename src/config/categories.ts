@@ -35,6 +35,8 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
             { id: 'sub_curry_cards', name: 'Curry', slug: 'curry', parentId: 'cat_cards' },
             { id: 'sub_rookies_cards', name: 'Rookies', slug: 'rookies', parentId: 'cat_cards' },
             { id: 'sub_signed_cards', name: 'Signed', slug: 'signed', parentId: 'cat_cards' },
+            { id: 'sub_pokemon_cards', name: 'Pokemon', slug: 'pokemon', parentId: 'cat_cards' },
+            { id: 'sub_top100_cards', name: 'Top 100', slug: 'top-100', parentId: 'cat_cards' },
         ]
     }
 ];

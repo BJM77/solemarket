@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Library, Trophy, Zap, Sparkles, Flag, PenTool as Signature } from 'lucide-react';
+import { ArrowRight, Library, Trophy, Zap, Sparkles, Flag, PenTool as Signature, Medal } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const CARD_CATEGORIES = [
@@ -23,6 +23,18 @@ const CARD_CATEGORIES = [
         logo: '/brand-logos/svg/curry.svg',
         href: '/cards?subCategory=Curry',
         color: 'bg-blue-50/50 dark:bg-blue-950/10'
+    },
+    {
+        name: 'Pokemon',
+        icon: Zap,
+        href: '/cards?subCategory=Pokemon',
+        color: 'bg-yellow-50 dark:bg-yellow-950/20'
+    },
+    {
+        name: 'Top 100',
+        icon: Medal,
+        href: '/cards?subCategory=Top%20100',
+        color: 'bg-blue-50 dark:bg-blue-950/20'
     },
     {
         name: 'Wembanyama',
