@@ -29,8 +29,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             authors: [guide.author],
             images: [guide.coverImage],
         },
+        alternates: {
+            canonical: `/guides/${slug}`,
+        }
     };
 }
+
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export async function generateStaticParams() {
     return SEO_GUIDES.map((guide) => ({
@@ -74,6 +79,14 @@ export default async function GuideArticlePage({ params }: Props) {
 
     return (
         <>
+            <BreadcrumbSchema
+                items={[
+                    { name: 'Home', item: '/' },
+                    { name: 'Collector Guides', item: '/guides' },
+                    { name: guide.category, item: `/guides` },
+                    { name: guide.title, item: `/guides/${slug}` },
+                ]}
+            />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

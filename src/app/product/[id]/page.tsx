@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import SEO from '@/components/SEO';
 import ProductSchema from '@/components/seo/ProductSchema';
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -53,6 +54,14 @@ export default async function ProductPage({ params }: Props) {
         url={`/product/${product.id}`}
       />
       <ProductSchema product={product} reviews={initialReviews} />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', item: '/' },
+          { name: 'Browse Marketplace', item: '/browse' },
+          { name: product.category, item: `/browse?category=${encodeURIComponent(product.category)}` },
+          { name: product.title, item: `/product/${product.id}` },
+        ]}
+      />
       <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
         <ProductDetailsModern
           productId={id}

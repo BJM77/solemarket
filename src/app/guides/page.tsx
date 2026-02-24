@@ -7,11 +7,22 @@ import Image from 'next/image';
 export const metadata: Metadata = {
     title: 'Collector Guides & Articles | Benched',
     description: 'Expert guides, authentication tips, and market analysis for sneakerheads and card collectors in Australia.',
+    alternates: {
+        canonical: '/guides',
+    }
 };
+
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export default function GuidesIndexPage() {
     return (
         <div className="min-h-screen bg-background pb-20">
+            <BreadcrumbSchema
+                items={[
+                    { name: 'Home', item: '/' },
+                    { name: 'Collector Guides', item: '/guides' },
+                ]}
+            />
             {/* Header */}
             <div className="bg-slate-900 text-white py-20">
                 <div className="container mx-auto px-4 max-w-5xl">
