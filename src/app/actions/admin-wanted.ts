@@ -25,7 +25,7 @@ export async function getAdminWantedCriteria(idToken: string) {
             .orderBy('createdAt', 'desc')
             .get();
 
-        const criteria = snapshot.docs.map(doc => ({
+        const criteria = snapshot.docs.map((doc: any) => ({
             id: doc.id,
             ...doc.data()
         }));

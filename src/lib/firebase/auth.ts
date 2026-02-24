@@ -7,6 +7,8 @@ import {
   signOut,
   updateProfile,
   getIdToken,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth } from "./config";
 import { createUserProfile } from "./client-ops";
@@ -85,9 +87,40 @@ export async function signOutUser() {
 }
 
 export async function getCurrentUserIdToken(): Promise<string | null> {
-    if (!auth.currentUser) {
-        return null;
-    }
-    // Force refresh to ensure the token is valid for server-side verification
-    return await getIdToken(auth.currentUser, true);
+  if (!auth.currentUser) {
+    return null;
+  }
+  // Force refresh to ensure the token is valid for server-side verification
+  return await getIdToken(auth.currentUser, true);
+}
+
+export async function signInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Check if it's a new user or update profile
+    const profileData = {
+      email: user.email || undefined,
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
+      lastLogin: new Date(),
+    };
+
+    await createUserProfile(user.uid, profileData);
+
+    const safeUser = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    };
+
+    return { user: safeUser, error: null };
+  } catch (error: any) {
+    console.error("Google sign-in error:", error);
+    return { user: null, error: { code: error.code, message: error.message } };
+  }
 }

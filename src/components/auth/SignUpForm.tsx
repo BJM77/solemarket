@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { signUpWithEmail } from "@/lib/firebase/auth";
+import { signUpWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
 import { Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,13 +47,13 @@ const formSchema = z.object({
   message: "Passwords do not match.",
   path: ["confirmPassword"],
 }).refine((data) => {
-    if (data.accountType === 'seller') {
-        return !!data.storeName && data.storeName.length >= 2;
-    }
-    return true;
+  if (data.accountType === 'seller') {
+    return !!data.storeName && data.storeName.length >= 2;
+  }
+  return true;
 }, {
-    message: "Store name is required for sellers.",
-    path: ["storeName"],
+  message: "Store name is required for sellers.",
+  path: ["storeName"],
 });
 
 function SignUpFormInner() {
@@ -63,6 +63,7 @@ function SignUpFormInner() {
   const refCode = searchParams.get('ref');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,16 +81,51 @@ function SignUpFormInner() {
 
   const accountType = form.watch("accountType");
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const { user, error } = await signInWithGoogle();
+
+    if (error) {
+      toast({
+        title: "Sign-up failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsGoogleLoading(false);
+    } else {
+      // Set session cookie
+      try {
+        const { auth } = await import("@/lib/firebase/config");
+        if (auth?.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          await fetch("/api/auth/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+          });
+        }
+      } catch (e) {
+        console.error("Failed to set session cookie", e);
+      }
+
+      toast({
+        title: "Success",
+        description: "Account created with Google",
+      });
+      window.location.href = redirectUrl;
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     const { error } = await signUpWithEmail({
-        email: values.email, 
-        password: values.password, 
-        displayName: values.displayName,
-        accountType: values.accountType,
-        storeName: values.storeName,
-        storeDescription: values.storeDescription,
-        referralCode: refCode || undefined,
+      email: values.email,
+      password: values.password,
+      displayName: values.displayName,
+      accountType: values.accountType,
+      storeName: values.storeName,
+      storeDescription: values.storeDescription,
+      referralCode: refCode || undefined,
     });
 
     if (error) {
@@ -114,7 +150,7 @@ function SignUpFormInner() {
         description: errorMessage,
         variant: "destructive",
       });
-       setIsLoading(false);
+      setIsLoading(false);
     } else {
       toast({
         title: "Success!",
@@ -128,7 +164,7 @@ function SignUpFormInner() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          
+
           <FormField
             control={form.control}
             name="accountType"
@@ -195,8 +231,8 @@ function SignUpFormInner() {
                 <FormControl>
                   <Input placeholder="••••••••" {...field} type="password" autoComplete="new-password" />
                 </FormControl>
-                 <FormDescription className="text-xs">
-                    Must be 8+ characters with uppercase, lowercase, and a number.
+                <FormDescription className="text-xs">
+                  Must be 8+ characters with uppercase, lowercase, and a number.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -215,66 +251,93 @@ function SignUpFormInner() {
               </FormItem>
             )}
           />
-          
+
           {accountType === "seller" && (
-             <div className="space-y-4 border-t pt-4">
-                <h3 className="text-lg font-medium">Seller Information</h3>
-                 <FormField
-                    control={form.control}
-                    name="storeName"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Store Name</FormLabel>
-                        <FormControl>
-                        <Input placeholder="e.g., John's Collectibles" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="storeDescription"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Store Description (Optional)</FormLabel>
-                        <FormControl>
-                        <Textarea placeholder="Specializing in rare cards and coins..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-             </div>
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-lg font-medium">Seller Information</h3>
+              <FormField
+                control={form.control}
+                name="storeName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Store Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., John's Collectibles" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="storeDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Store Description (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Specializing in rare cards and coins..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
 
-           <FormField
-                control={form.control}
-                name="agreedToTerms"
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                        <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                        <FormLabel>
-                           I agree to the <Link href="/terms" className="text-primary hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
-                        </FormLabel>
-                         <FormMessage />
-                    </div>
-                    </FormItem>
-                )}
-            />
+          <FormField
+            control={form.control}
+            name="agreedToTerms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    I agree to the <Link href="/terms" className="text-primary hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
 
           <div>
-            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            <Button type="submit" className="w-full" size="lg" disabled={isLoading || isGoogleLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
+              Create Account with Email
             </Button>
           </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            size="lg"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading || isGoogleLoading}
+          >
+            {isGoogleLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+              </svg>
+            )}
+            Google
+          </Button>
         </form>
       </Form>
       <div className="mt-6">
@@ -303,9 +366,9 @@ function SignUpFormInner() {
 }
 
 export default function SignUpForm() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <SignUpFormInner />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignUpFormInner />
+    </Suspense>
+  )
 }

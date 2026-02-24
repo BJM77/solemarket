@@ -31,7 +31,8 @@ import {
     Briefcase,
     Sparkles,
     DollarSign,
-    BellRing
+    BellRing,
+    Tag
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { motion } from "framer-motion";

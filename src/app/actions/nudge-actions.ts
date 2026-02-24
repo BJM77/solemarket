@@ -25,8 +25,8 @@ export async function getOrdersNeedingNudge(idToken: string) {
         const threeDaysAgo = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000));
 
         const needingNudge = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() } as any))
-            .filter(order => {
+            .map((doc: any) => ({ id: doc.id, ...doc.data() } as any))
+            .filter((order: any) => {
                 const updatedAt = order.updatedAt?.toDate ? order.updatedAt.toDate() : new Date(order.updatedAt);
                 // Older than 3 days AND nudgeCount < 3
                 return updatedAt < threeDaysAgo && (order.nudgeCount || 0) < 3;
@@ -34,7 +34,7 @@ export async function getOrdersNeedingNudge(idToken: string) {
 
         return {
             success: true,
-            orders: needingNudge.map(order => serializeFirestoreData({
+            orders: needingNudge.map((order: any) => serializeFirestoreData({
                 ...order,
                 createdAt: order.createdAt?.toDate?.().toISOString() || order.createdAt,
                 updatedAt: order.updatedAt?.toDate?.().toISOString() || order.updatedAt,

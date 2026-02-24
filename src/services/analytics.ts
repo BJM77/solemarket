@@ -41,3 +41,15 @@ export async function getCategoryDistribution() {
 
     return Object.entries(distribution).map(([name, value]) => ({ name, value }));
 }
+
+export async function getRealtimeUsers(): Promise<number> {
+    try {
+        const response = await fetch('/api/analytics/realtime');
+        if (!response.ok) return 0;
+        const data = await response.json();
+        return data.activeUsers || 0;
+    } catch (error) {
+        console.error('Failed to fetch realtime users:', error);
+        return 0;
+    }
+}

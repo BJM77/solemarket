@@ -111,9 +111,10 @@ export default function CardCategoryGrid() {
                                             className="object-contain p-2 dark:invert filter drop-shadow-sm"
                                             sizes="(max-width: 768px) 80px, 96px"
                                         />
-                                    ) : (
-                                        <cat.icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />
-                                    )}
+                                    ) : cat.icon ? (() => {
+                                        const Icon = cat.icon;
+                                        return <Icon className="h-10 w-10 text-slate-700 dark:text-slate-300" />;
+                                    })() : null}
                                 </div>
                                 <span className="font-black text-slate-900 dark:text-white text-xs md:text-sm uppercase tracking-widest text-center relative z-10">
                                     {cat.name}
