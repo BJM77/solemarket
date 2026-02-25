@@ -19,14 +19,19 @@ export async function getPlatformStats(idToken: string): Promise<{
     // This avoids reliance on custom claims which might not be set immediately
     const userDoc = await firestoreDb.collection('users').doc(decodedToken.uid).get();
 
-    if (!userDoc.exists) {
-      return { error: 'User profile not found.' };
+    // Import SUPER_ADMIN_UIDS from constants
+    const { SUPER_ADMIN_UIDS } = await import('@/lib/constants');
+    let isAdmin = SUPER_ADMIN_UIDS.includes(decodedToken.uid);
+
+    if (userDoc.exists && !isAdmin) {
+      const userData = userDoc.data();
+      isAdmin = userData?.isAdmin === true || userData?.role === 'admin' || userData?.role === 'superadmin';
     }
 
-    const userData = userDoc.data();
-    const isAdmin = userData?.isAdmin === true || userData?.role === 'admin' || userData?.role === 'superadmin';
-
     if (!isAdmin) {
+      if (!userDoc.exists) {
+        return { error: 'User profile not found.' };
+      }
       return { error: 'You do not have permission to view platform statistics.' };
     }
 

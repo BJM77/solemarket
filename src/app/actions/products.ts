@@ -27,16 +27,40 @@ export async function createProductAction(
         const userRef = firestoreDb.collection('users').doc(decodedToken.uid);
         const userSnap = await userRef.get();
 
-        if (!userSnap.exists) {
+        const { SUPER_ADMIN_UIDS } = await import('@/lib/constants');
+        const isSuperAdmin = SUPER_ADMIN_UIDS.includes(decodedToken.uid);
+
+        let userRole = 'viewer';
+        let canSell = false;
+        let sellerName = 'User';
+        let sellerAvatar = '';
+        let sellerVerified = false;
+
+        if (userSnap.exists) {
+            const userProfile = userSnap.data() as UserProfile;
+            userRole = userProfile.role || 'viewer';
+            canSell = userProfile.canSell === true;
+            sellerName = userProfile.displayName || 'Seller';
+            sellerAvatar = userProfile.photoURL || '';
+            sellerVerified = userProfile.isVerified || false;
+
+            if (isSuperAdmin) {
+                userRole = 'superadmin';
+                canSell = true;
+            }
+        } else if (isSuperAdmin) {
+            userRole = 'superadmin';
+            canSell = true;
+            sellerName = decodedToken.name || 'Super Admin';
+            sellerAvatar = decodedToken.picture || '';
+            sellerVerified = true;
+        } else {
             console.error('User profile not found');
             return { success: false, error: 'User profile not found.' };
         }
 
-        const userProfile = userSnap.data() as UserProfile;
-        const userRole = userProfile.role || 'viewer';
-
         // Check for permission to sell
-        if (userRole !== 'superadmin' && userRole !== 'admin' && userProfile.canSell !== true) {
+        if (userRole !== 'superadmin' && userRole !== 'admin' && !canSell) {
             return { success: false, error: 'You do not have permission to list products.' };
         }
 
@@ -69,17 +93,17 @@ export async function createProductAction(
             id: docRef.id,
             sellerId: decodedToken.uid,
             sellerEmail: decodedToken.email || '',
-            sellerName: userProfile.displayName,
-            sellerAvatar: userProfile.photoURL,
-            sellerVerified: userProfile.isVerified || false,
+            sellerName: sellerName,
+            sellerAvatar: sellerAvatar,
+            sellerVerified: sellerVerified,
             // All new listings require approval
             status: 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
-            
+
             // Default visibility fields for sorting/indexing
             isFeatured: false,
-            isPromoted: false, 
+            isPromoted: false,
             views: 0,
             uniqueViews: 0,
         };
@@ -250,19 +274,37 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
 export const getFeaturedProducts = unstable_cache(
     async (limitCount: number = 8): Promise<Product[]> => {
         try {
-            const snapshot = await firestoreDb.collection('products')
+            // Try the optimal query first (requires composite index)
+            try {
+                const snapshot = await firestoreDb.collection('products')
+                    .where('status', '==', 'available')
+                    .orderBy('isPromoted', 'desc')
+                    .orderBy('createdAt', 'desc')
+                    .limit(limitCount)
+                    .get();
+
+                if (!snapshot.empty) {
+                    return snapshot.docs.map((doc: any) => serializeFirestoreData({
+                        id: doc.id,
+                        ...doc.data(),
+                    })) as Product[];
+                }
+            } catch (indexError: any) {
+                console.warn("Featured products optimal query failed (likely missing index), falling back to simple query.");
+            }
+
+            // Fallback: simple query that doesn't need composite index
+            const fallbackSnapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
-                .orderBy('isPromoted', 'desc')
-                .orderBy('createdAt', 'desc')
                 .limit(limitCount)
                 .get();
 
-            return snapshot.docs.map((doc: any) => serializeFirestoreData({
+            return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[];
         } catch (error) {
-            console.debug("Error fetching featured products (Locally missing Admin service account expected):", error);
+            console.error("Error fetching featured products:", error);
             return [];
         }
     },
