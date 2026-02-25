@@ -83,25 +83,36 @@ export default function SellerDashboard() {
 
 
   const handleMarkAsSold = async () => {
-    if (!selectedProductForSold) return;
+    if (!selectedProductForSold || !user) return;
     setActionLoading(true);
-    const result = await markAsSold(selectedProductForSold.id, fulfillmentType);
-    if (result.success) {
-      toast({ title: "Success", description: "Listing marked as sold." });
-      setIsSoldDialogOpen(false);
-    } else {
-      toast({ title: "Error", description: result.error, variant: "destructive" });
+    try {
+      const idToken = await user.getIdToken();
+      const result = await markAsSold(idToken, selectedProductForSold.id, fulfillmentType);
+      if (result.success) {
+        toast({ title: "Success", description: "Listing marked as sold." });
+        setIsSoldDialogOpen(false);
+      } else {
+        toast({ title: "Error", description: result.error, variant: "destructive" });
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   };
 
   const handleDelete = async (productId: string) => {
-    if (!confirm("Are you sure you want to delete this listing?")) return;
-    const result = await deleteListing(productId);
-    if (result.success) {
-      toast({ title: "Success", description: "Listing deleted." });
-    } else {
-      toast({ title: "Error", description: result.error, variant: "destructive" });
+    if (!confirm("Are you sure you want to delete this listing?") || !user) return;
+    try {
+      const idToken = await user.getIdToken();
+      const result = await deleteListing(idToken, productId);
+      if (result.success) {
+        toast({ title: "Success", description: "Listing deleted." });
+      } else {
+        toast({ title: "Error", description: result.error, variant: "destructive" });
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -112,6 +123,7 @@ export default function SellerDashboard() {
     if (!products || !reviews) {
       return {
         totalRevenue: 0,
+        actualRevenue: 0,
         activeListings: 0,
         averageRating: 0,
         totalReviews: 0,
@@ -120,6 +132,7 @@ export default function SellerDashboard() {
       };
     }
     const totalRevenue = activeProducts.reduce((acc, p) => acc + Number(p.price || 0), 0);
+    const actualRevenue = soldProducts.reduce((acc, p) => acc + Number(p.price || 0), 0);
     const activeListings = activeProducts.length;
     const totalReviews = reviews.length;
     const averageRating = totalReviews > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews : 0;
@@ -129,7 +142,7 @@ export default function SellerDashboard() {
     // Real conversion rate: Sold / Total Views
     const conversionRate = totalViews > 0 ? (soldProducts.length / totalViews) * 100 : 0;
 
-    return { totalRevenue, activeListings, averageRating, totalReviews, totalViews, conversionRate };
+    return { totalRevenue, actualRevenue, activeListings, averageRating, totalReviews, totalViews, conversionRate };
   }, [products, reviews, activeProducts, soldProducts]);
 
 
@@ -145,9 +158,9 @@ export default function SellerDashboard() {
   }
 
   const statCards = [
-    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-100' },
+    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '', icon: DollarSign, color: 'text-orange-600 bg-orange-100' },
+    { label: 'Total Earnings', value: `$${formatPrice(stats.actualRevenue)}`, change: '', icon: DollarSign, color: 'text-green-600 bg-green-100' },
     { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Conversion Rate', value: `${typeof stats.conversionRate === 'number' ? stats.conversionRate.toFixed(1) : '0.0'}%`, change: '+1.4%', icon: TrendingUp, color: 'text-purple-600 bg-purple-100' },
     { label: 'Seller Rating', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
   ];
 
@@ -155,9 +168,11 @@ export default function SellerDashboard() {
 
 
   const handleRepublish = async (product: Product) => {
+    if (!user) return;
     try {
       setActionLoading(true);
-      const result = await republishListing(product.id);
+      const idToken = await user.getIdToken();
+      const result = await republishListing(idToken, product.id);
 
       if (result.success) {
         toast({

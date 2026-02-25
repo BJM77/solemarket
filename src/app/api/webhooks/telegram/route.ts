@@ -7,6 +7,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 
 // Secret token verification for production
 const TELEGRAM_SECRET_TOKEN = process.env.TELEGRAM_SECRET_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,12 +15,20 @@ export async function POST(req: NextRequest) {
         if (TELEGRAM_SECRET_TOKEN) {
             const secretToken = req.headers.get('x-telegram-bot-api-secret-token');
             if (secretToken !== TELEGRAM_SECRET_TOKEN) {
-                console.warn('Unauthorized Telegram Webhook attempt.');
+                console.warn('Unauthorized Telegram Webhook attempt: Invalid secret token.');
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
         }
 
         const body = await req.json();
+
+        // Strict validation: Only process messages from the authorized chat ID
+        const incomingChatId = body.callback_query?.message?.chat?.id || body.message?.chat?.id;
+        
+        if (TELEGRAM_CHAT_ID && String(incomingChatId) !== String(TELEGRAM_CHAT_ID)) {
+            console.warn(`Unauthorized Telegram Webhook attempt from Chat ID: ${incomingChatId}. Expected: ${TELEGRAM_CHAT_ID}`);
+            return NextResponse.json({ error: 'Unauthorized chat ID' }, { status: 403 });
+        }
 
         // 1. Handle "Callback Queries" (Button Clicks)
         if (body.callback_query) {

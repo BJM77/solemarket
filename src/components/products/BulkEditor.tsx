@@ -32,6 +32,15 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { safeDate } from '@/lib/date-utils';
 import { useDoc, useMemoFirebase, useFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { 
+    DEFAULT_CATEGORIES, 
+    DEFAULT_SUB_CATEGORIES, 
+    DEFAULT_CONDITIONS,
+    CATEGORY_SNEAKERS,
+    CATEGORY_ACCESSORIES,
+    CATEGORY_TRADING_CARDS,
+    CATEGORY_GENERAL
+} from '@/lib/constants/marketplace';
 
 const STATUS_OPTIONS = ['available', 'sold', 'draft'];
 
@@ -61,13 +70,13 @@ export default function BulkEditor({ isAdmin = false, sellerId, title = "Bulk Ed
     const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
     const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
-    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Collector Cards', 'Coins', 'Collectibles', 'General'];
-    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['Mint', 'Near Mint', 'Excellent', 'Good', 'Fair', 'Poor'];
+    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || DEFAULT_CATEGORIES;
+    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || DEFAULT_CONDITIONS;
     const SUB_CATEGORIES: Record<string, string[]> = {
-        'Collector Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
-        'Coins': marketplaceOptions?.subCategories?.coins || ['Coins', 'World Coins', 'Ancient Coins', 'Bullion'],
-        'Collectibles': marketplaceOptions?.subCategories?.collectibles || ['Stamps', 'Comics', 'Figurines', 'Toys', 'Shoes', 'Memorabilia'],
-        'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
+        [CATEGORY_TRADING_CARDS]: marketplaceOptions?.subCategories?.collector_cards || DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS],
+        [CATEGORY_SNEAKERS]: marketplaceOptions?.subCategories?.sneakers || DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS],
+        [CATEGORY_ACCESSORIES]: marketplaceOptions?.subCategories?.accessories || DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES],
+        [CATEGORY_GENERAL]: marketplaceOptions?.subCategories?.general || DEFAULT_SUB_CATEGORIES[CATEGORY_GENERAL]
     };
 
     useEffect(() => {

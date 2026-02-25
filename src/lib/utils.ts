@@ -101,8 +101,10 @@ export function slugify(text: string): string {
     .replace(/--+/g, '-'); // Replace multiple - with single -
 }
 
+import { isCardCategory } from "./constants/marketplace"
+
 export function getProductUrl(product: { id: string; title: string; category?: string }): string {
-  const section = product.category === 'Trading Cards' ? 'cards' : 'shoes';
+  const section = isCardCategory(product.category) ? 'cards' : 'shoes';
   const slug = slugify(product.title);
   return `/${section}/${slug}/${product.id}`;
 }

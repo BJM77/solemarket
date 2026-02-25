@@ -29,6 +29,15 @@ import { updateListing } from '@/app/actions/seller-actions';
 import { MultibuyTier } from '@/types/multibuy';
 import { getMultibuyTemplates } from '@/app/actions/multibuy-actions';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
+import { 
+    DEFAULT_CATEGORIES, 
+    DEFAULT_SUB_CATEGORIES, 
+    DEFAULT_CONDITIONS, 
+    CATEGORY_SNEAKERS, 
+    CATEGORY_ACCESSORIES, 
+    CATEGORY_TRADING_CARDS,
+    isCardCategory
+} from '@/lib/constants/marketplace';
 
 const formSchema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -144,21 +153,21 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     // Determine type from category
     // Default to general if not matched
     let listingType: 'sneakers' | 'accessories' | 'cards' | 'general' = 'general';
-    if (watchedCategory === 'Sneakers') {
+    if (watchedCategory === CATEGORY_SNEAKERS) {
         listingType = 'sneakers';
-    } else if (watchedCategory === 'Accessories') {
+    } else if (watchedCategory === CATEGORY_ACCESSORIES) {
         listingType = 'accessories';
-    } else if (watchedCategory === 'Collector Cards' || watchedCategory === 'Cards' || watchedCategory === 'Trading Cards') {
+    } else if (isCardCategory(watchedCategory)) {
         listingType = 'cards';
     }
 
-    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Sneakers', 'Accessories', 'Cards', 'General'];
-    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];
+    const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || DEFAULT_CATEGORIES;
+    const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || DEFAULT_CONDITIONS;
     const SUB_CATEGORIES: Record<string, string[]> = {
-        'Sneakers': marketplaceOptions?.subCategories?.sneakers || ['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Other'],
-        'Accessories': marketplaceOptions?.subCategories?.accessories || ['Watches', 'Bags', 'Hats', 'Jewelry', 'Other'],
-        'Cards': marketplaceOptions?.subCategories?.collector_cards || ['Sports Cards', 'Trading Cards'],
-        'General': marketplaceOptions?.subCategories?.general || ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
+        [CATEGORY_SNEAKERS]: marketplaceOptions?.subCategories?.sneakers || DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS],
+        [CATEGORY_ACCESSORIES]: marketplaceOptions?.subCategories?.accessories || DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES],
+        [CATEGORY_TRADING_CARDS]: marketplaceOptions?.subCategories?.collector_cards || DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS],
+        'General': marketplaceOptions?.subCategories?.general || DEFAULT_SUB_CATEGORIES['General']
     };
 
     const imageFiles = form.watch('imageFiles');
@@ -239,7 +248,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
 
             const { imageFiles: _, ...cleanData } = data;
 
-            const result = await updateListing(initialData.id, {
+            const idToken = await user.getIdToken();
+            const result = await updateListing(idToken, initialData.id, {
                 ...cleanData,
                 imageUrls: finalImageUrls
             });
@@ -322,7 +332,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                     )} />
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField control={form.control} name="subCategory" render={({ field }) => (
-                                            <FormItem><FormLabel>Specifc Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selection" /></SelectTrigger></FormControl><SelectContent>{(SUB_CATEGORIES[form.getValues('category')] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></FormItem>
+                                            <FormItem><FormLabel>Specifc Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selection" /></SelectTrigger></FormControl><SelectContent>{(SUB_CATEGORIES[watchedCategory] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></FormItem>
                                         )} />
                                         <FormField control={form.control} name="condition" render={({ field }) => (
                                             <FormItem><FormLabel>Condition</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger></FormControl><SelectContent>{CONDITION_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></FormItem>

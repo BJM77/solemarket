@@ -26,9 +26,13 @@ export async function generateMetadata({
     description = `Shop the best ${category} on Benched. Verified authentic and secure shipping.`;
   }
 
+  const hasFilters = Object.keys(resolvedParams).filter(k => k !== 'category' && resolvedParams[k] !== undefined).length > 0;
+  const isSearch = !!q;
+
   return {
     title,
     description,
+    robots: (isSearch || hasFilters) ? 'noindex, follow' : 'index, follow',
     openGraph: {
       title,
       description,

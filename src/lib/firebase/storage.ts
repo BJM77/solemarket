@@ -2,6 +2,14 @@
 import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
 import { storage } from "./config";
 import { auth } from "./config";
+import imageCompression from "browser-image-compression";
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const COMPRESSION_OPTIONS = {
+  maxSizeMB: 2,
+  maxWidthOrHeight: 2048,
+  useWebWorker: true,
+};
 
 function sanitizePath(path: string): string {
   // Remove any path traversal attempts
@@ -21,13 +29,24 @@ export async function uploadImages(
   files: File[],
   path: string
 ): Promise<string[]> {
-  const user = auth.currentUser;
-  // Loosening this restriction to allow category image uploads, etc.
-  // if (!user) throw new Error("User not authenticated");
-
   const sanitizedPath = sanitizePath(path);
 
   const uploadPromises = files.map(async (file) => {
+    // 1. Enforce size limit
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File ${file.name} is too large. Max size is 25MB.`);
+    }
+
+    // 2. Compress image if it's a large image
+    let fileToUpload: File | Blob = file;
+    if (file.type.startsWith('image/')) {
+      try {
+        fileToUpload = await imageCompression(file, COMPRESSION_OPTIONS);
+      } catch (error) {
+        console.error("Image compression failed, uploading original:", error);
+      }
+    }
+
     // Sanitize filename
     const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const uniqueFilename = `${Date.now()}-${safeFilename}`;
@@ -40,12 +59,13 @@ export async function uploadImages(
       storage,
       fullPath
     );
-    await uploadBytes(fileRef, file);
+    await uploadBytes(fileRef, fileToUpload);
     return getDownloadURL(fileRef);
   });
 
   return Promise.all(uploadPromises);
 }
+
 
 // Uploads files to a general 'media-library' folder
 export async function uploadMedia(files: File[]): Promise<string[]> {

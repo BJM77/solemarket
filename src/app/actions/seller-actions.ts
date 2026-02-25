@@ -5,10 +5,12 @@ import { UserProfile, Product } from "@/lib/types";
 import { serializeFirestoreData } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { jwtDecode } from "jwt-decode";
+import { verifyIdToken } from "@/lib/firebase/auth-admin";
+import { SUPER_ADMIN_UIDS } from "@/lib/constants";
 
 /**
  * Helper to get the authenticated user's ID from the session cookie.
+ * @deprecated Use verifyIdToken with a client-supplied token for sensitive actions.
  */
 export async function getUserIdFromSession(): Promise<string | null> {
     const cookieStore = await cookies();
@@ -16,13 +18,30 @@ export async function getUserIdFromSession(): Promise<string | null> {
 
     if (session?.value) {
         try {
-            const decoded = jwtDecode(session.value) as any;
-            return decoded.user_id || decoded.sub || null;
+            // This is insecure as it only decodes. 
+            // For sensitive actions, use verifyIdToken from @/lib/firebase/auth-admin
+            const decodedToken = await verifyIdToken(session.value);
+            return decodedToken.uid || null;
         } catch (error) {
             return null;
         }
     }
     return null;
+}
+
+/**
+ * Checks if a user is authorized to modify a product.
+ * Returns true if user is the seller or an admin.
+ */
+async function isAuthorized(decodedToken: any, productData: Product): Promise<boolean> {
+    const userId = decodedToken.uid;
+    const isOwner = productData.sellerId === userId;
+    const isAdmin = decodedToken.role === 'admin' || 
+                    decodedToken.role === 'superadmin' || 
+                    decodedToken.admin === true ||
+                    SUPER_ADMIN_UIDS.includes(userId);
+    
+    return isOwner || isAdmin;
 }
 
 export type SellerWithCategories = UserProfile & {
@@ -94,17 +113,17 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
     }
 }
 
-export async function markAsSold(productId: string, fulfillmentType: string) {
+export async function markAsSold(idToken: string, productId: string, fulfillmentType: string) {
     try {
-        const userId = await getUserIdFromSession();
-        if (!userId) return { success: false, error: 'Unauthorized' };
+        const decodedToken = await verifyIdToken(idToken);
+        const userId = decodedToken.uid;
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
         if (!productSnap.exists) return { success: false, error: 'Product not found' };
 
         const productData = productSnap.data() as Product;
-        if (productData.sellerId !== userId) {
+        if (!(await isAuthorized(decodedToken, productData))) {
             return { success: false, error: 'You do not have permission to modify this listing.' };
         }
 
@@ -121,17 +140,17 @@ export async function markAsSold(productId: string, fulfillmentType: string) {
     }
 }
 
-export async function deleteListing(productId: string) {
+export async function deleteListing(idToken: string, productId: string) {
     try {
-        const userId = await getUserIdFromSession();
-        if (!userId) return { success: false, error: 'Unauthorized' };
+        const decodedToken = await verifyIdToken(idToken);
+        const userId = decodedToken.uid;
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
         if (!productSnap.exists) return { success: false, error: 'Product not found' };
 
         const productData = productSnap.data() as Product;
-        if (productData.sellerId !== userId) {
+        if (!(await isAuthorized(decodedToken, productData))) {
             return { success: false, error: 'You do not have permission to delete this listing.' };
         }
 
@@ -144,17 +163,17 @@ export async function deleteListing(productId: string) {
     }
 }
 
-export async function updateListing(productId: string, data: any) {
+export async function updateListing(idToken: string, productId: string, data: any) {
     try {
-        const userId = await getUserIdFromSession();
-        if (!userId) return { success: false, error: 'Unauthorized' };
+        const decodedToken = await verifyIdToken(idToken);
+        const userId = decodedToken.uid;
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
         if (!productSnap.exists) return { success: false, error: 'Product not found' };
 
         const productData = productSnap.data() as Product;
-        if (productData.sellerId !== userId) {
+        if (!(await isAuthorized(decodedToken, productData))) {
             return { success: false, error: 'You do not have permission to update this listing.' };
         }
 
@@ -171,17 +190,17 @@ export async function updateListing(productId: string, data: any) {
     }
 }
 
-export async function republishListing(productId: string) {
+export async function republishListing(idToken: string, productId: string) {
     try {
-        const userId = await getUserIdFromSession();
-        if (!userId) return { success: false, error: 'Unauthorized' };
+        const decodedToken = await verifyIdToken(idToken);
+        const userId = decodedToken.uid;
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
         if (!productSnap.exists) return { success: false, error: 'Product not found' };
 
         const productData = productSnap.data() as Product;
-        if (productData.sellerId !== userId) {
+        if (!(await isAuthorized(decodedToken, productData))) {
             return { success: false, error: 'You do not have permission to republish this listing.' };
         }
 
@@ -199,3 +218,4 @@ export async function republishListing(productId: string) {
         return { success: false, error: 'Failed to republish listing' };
     }
 }
+

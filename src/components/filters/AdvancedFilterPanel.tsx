@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Filter, X, SlidersHorizontal } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 // These are now defaults, but get overridden by Firestore values.
 const DEFAULT_CATEGORIES = [
@@ -71,6 +72,7 @@ export default function AdvancedFilterPanel({
     onClearFilters,
 }: AdvancedFilterPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const { toast } = useToast();
     const { firestore } = useFirebase();
 
     // Fetch dynamic category/condition configs
@@ -103,7 +105,18 @@ export default function AdvancedFilterPanel({
 
     const toggleCategory = (category: string) => {
         const currentCategories = (localFilters.categories as string[]) || [];
-        const newCategories = currentCategories.includes(category)
+        const isSelected = currentCategories.includes(category);
+
+        if (!isSelected && currentCategories.length >= 30) {
+            toast({
+                title: "Maximum Categories Reached",
+                description: "Firestore limits search to 30 categories at once.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        const newCategories = isSelected
             ? currentCategories.filter(c => c !== category)
             : [...currentCategories, category];
         handleLocalChange('categories', newCategories.length > 0 ? newCategories : undefined);
@@ -119,7 +132,18 @@ export default function AdvancedFilterPanel({
 
     const toggleSize = (size: string) => {
         const currentSizes = (localFilters.sizes as string[]) || [];
-        const newSizes = currentSizes.includes(size)
+        const isSelected = currentSizes.includes(size);
+
+        if (!isSelected && currentSizes.length >= 10) {
+            toast({
+                title: "Maximum Sizes Reached",
+                description: "Search is limited to 10 sizes at once.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        const newSizes = isSelected
             ? currentSizes.filter(s => s !== size)
             : [...currentSizes, size];
         handleLocalChange('sizes', newSizes.length > 0 ? newSizes : undefined);
