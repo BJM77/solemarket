@@ -10,7 +10,7 @@ import { jwtDecode } from "jwt-decode";
 /**
  * Helper to get the authenticated user's ID from the session cookie.
  */
-async function getUserIdFromSession(): Promise<string | null> {
+export async function getUserIdFromSession(): Promise<string | null> {
     const cookieStore = await cookies();
     const session = cookieStore.get('session') || cookieStore.get('__session');
 
