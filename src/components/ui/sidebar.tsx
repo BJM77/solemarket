@@ -106,9 +106,11 @@ const SidebarMenuButton = React.forwardRef<
   const { isSidebarOpen, isHovered } = useSidebar()
   const effectiveOpen = isSidebarOpen || isHovered
 
-  const { asChild } = props
-
-  const Comp = asChild ? React.Fragment : React.Fragment
+  // Destructure asChild out so it's never forwarded to Button.
+  // If asChild is forwarded, Button activates Radix Slot which calls
+  // React.Children.only — but the button renders multiple children
+  // (the link + the active indicator), causing a crash.
+  const { asChild, ...buttonProps } = props
 
   const buttonContent = (
     <Button
@@ -121,7 +123,7 @@ const SidebarMenuButton = React.forwardRef<
         !effectiveOpen && "justify-center px-2",
         className
       )}
-      {...props}
+      {...buttonProps}
     >
       {asChild ? children : React.Children.map(children, (child, index) => {
         // Always render the first child (Icon)
