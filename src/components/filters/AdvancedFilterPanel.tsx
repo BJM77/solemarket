@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useFirebase, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import {
     Sheet,
     SheetContent,
@@ -28,22 +30,24 @@ import { Filter, X, SlidersHorizontal } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-const CATEGORIES = [
+// These are now defaults, but get overridden by Firestore values.
+const DEFAULT_CATEGORIES = [
     'Sneakers',
     'Accessories',
+    'Trading Cards',
 ];
 
-
-const SIZES = [
+const DEFAULT_SIZES = [
     'US 4', 'US 4.5', 'US 5', 'US 5.5', 'US 6', 'US 6.5', 'US 7', 'US 7.5', 'US 8', 'US 8.5',
     'US 9', 'US 9.5', 'US 10', 'US 10.5', 'US 11', 'US 11.5', 'US 12', 'US 12.5', 'US 13', 'US 14', 'US 15'
 ];
 
-const CONDITIONS = [
+const DEFAULT_CONDITIONS = [
     'New with Box',
     'New without Box',
+    'New with Defects',
+    'Used with Box',
     'Used',
-    'Worn',
 ];
 
 const SORT_OPTIONS = [
@@ -67,6 +71,15 @@ export default function AdvancedFilterPanel({
     onClearFilters,
 }: AdvancedFilterPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const { firestore } = useFirebase();
+
+    // Fetch dynamic category/condition configs
+    const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
+    const { data: marketplaceOptions } = useDoc<any>(optionsRef);
+
+    const displayCategories = marketplaceOptions?.categories || DEFAULT_CATEGORIES;
+    const displayConditions = marketplaceOptions?.conditions || DEFAULT_CONDITIONS;
+    const displaySizes = DEFAULT_SIZES; // SIZES are static for now
 
     // Local state for filters
     const [localFilters, setLocalFilters] = useState<Partial<ProductSearchParams>>(currentFilters);
@@ -165,9 +178,14 @@ export default function AdvancedFilterPanel({
 
                     {/* Size Grid (Visual) */}
                     <div className="space-y-3">
-                        <Label className="text-base font-bold">Size (US Men)</Label>
+                        <div className="flex justify-between items-center">
+                            <Label className="text-base font-bold">Size (US Men)</Label>
+                            {(localFilters.sizes?.length || 0) > 10 && (
+                                <span className="text-xs text-amber-600 font-medium">Max 10 sizes applied</span>
+                            )}
+                        </div>
                         <div className="grid grid-cols-4 gap-2">
-                            {SIZES.map(size => {
+                            {displaySizes.map(size => {
                                 const isSelected = (localFilters.sizes as string[] || []).includes(size);
                                 const simpleSize = size.replace('US ', '');
                                 return (
@@ -229,9 +247,14 @@ export default function AdvancedFilterPanel({
 
                     {/* Categories */}
                     <div className="space-y-3">
-                        <Label className="text-base font-semibold">Categories</Label>
+                        <div className="flex justify-between items-center">
+                            <Label className="text-base font-semibold">Categories</Label>
+                            {(localFilters.categories?.length || 0) > 30 && (
+                                <span className="text-xs text-amber-600 font-medium">Max 30 applied</span>
+                            )}
+                        </div>
                         <div className="space-y-2">
-                            {CATEGORIES.map(category => {
+                            {displayCategories.map((category: string) => {
                                 const isSelected = (localFilters.categories as string[] || []).includes(category);
                                 return (
                                     <div key={category} className="flex items-center space-x-2">
@@ -258,7 +281,7 @@ export default function AdvancedFilterPanel({
                     <div className="space-y-3">
                         <Label className="text-base font-semibold">Condition</Label>
                         <div className="grid grid-cols-2 gap-2">
-                            {CONDITIONS.map(condition => {
+                            {displayConditions.map((condition: string) => {
                                 const isSelected = (localFilters.conditions as string[] || []).includes(condition);
                                 return (
                                     <div key={condition} className="flex items-center space-x-2">

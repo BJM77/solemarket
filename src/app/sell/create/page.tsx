@@ -90,7 +90,7 @@ function CreateListingForm() {
     return map;
   }, []);
 
-  const CONDITION_OPTIONS: string[] = ['New with Box', 'New without Box', 'New with Defects', 'Used with Box', 'Used', 'Refurbished'];
+  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(formSchema),

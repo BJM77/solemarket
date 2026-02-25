@@ -20,7 +20,7 @@ function CategoryPageContent() {
     const slug = params.slug as string;
 
     const { firestore } = useFirebase() || {};
-    
+
     const categoryName = toTitleCase(slug);
 
     // Query by both category and subCategory for efficiency
@@ -30,7 +30,7 @@ function CategoryPageContent() {
             collection(firestore, "products"),
             where('category', '==', toTitleCase(section)),
             where('subCategory', '==', categoryName),
-            where('isDraft', '==', false),
+            where('status', '==', 'available'),
             orderBy("createdAt", "desc"),
             limit(100)
         );
@@ -49,7 +49,7 @@ function CategoryPageContent() {
                     description={pageDescription}
                 />
             </div>
-            
+
             {isLoading ? (
                 <div className="container mx-auto px-4">
                     <ProductGridSkeleton count={20} />

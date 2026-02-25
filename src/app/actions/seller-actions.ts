@@ -4,6 +4,26 @@ import { firestoreDb } from "@/lib/firebase/admin";
 import { UserProfile, Product } from "@/lib/types";
 import { serializeFirestoreData } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { jwtDecode } from "jwt-decode";
+
+/**
+ * Helper to get the authenticated user's ID from the session cookie.
+ */
+async function getUserIdFromSession(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('session') || cookieStore.get('__session');
+
+    if (session?.value) {
+        try {
+            const decoded = jwtDecode(session.value) as any;
+            return decoded.user_id || decoded.sub || null;
+        } catch (error) {
+            return null;
+        }
+    }
+    return null;
+}
 
 export type SellerWithCategories = UserProfile & {
     categories: string[];
@@ -76,7 +96,19 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
 
 export async function markAsSold(productId: string, fulfillmentType: string) {
     try {
-        await firestoreDb.collection('products').doc(productId).update({
+        const userId = await getUserIdFromSession();
+        if (!userId) return { success: false, error: 'Unauthorized' };
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+        if (!productSnap.exists) return { success: false, error: 'Product not found' };
+
+        const productData = productSnap.data() as Product;
+        if (productData.sellerId !== userId) {
+            return { success: false, error: 'You do not have permission to modify this listing.' };
+        }
+
+        await productRef.update({
             status: 'sold',
             fulfillmentStatus: fulfillmentType,
             soldAt: new Date(),
@@ -91,7 +123,19 @@ export async function markAsSold(productId: string, fulfillmentType: string) {
 
 export async function deleteListing(productId: string) {
     try {
-        await firestoreDb.collection('products').doc(productId).delete();
+        const userId = await getUserIdFromSession();
+        if (!userId) return { success: false, error: 'Unauthorized' };
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+        if (!productSnap.exists) return { success: false, error: 'Product not found' };
+
+        const productData = productSnap.data() as Product;
+        if (productData.sellerId !== userId) {
+            return { success: false, error: 'You do not have permission to delete this listing.' };
+        }
+
+        await productRef.delete();
         revalidatePath('/sell/dashboard');
         return { success: true };
     } catch (error) {
@@ -102,7 +146,19 @@ export async function deleteListing(productId: string) {
 
 export async function updateListing(productId: string, data: any) {
     try {
-        await firestoreDb.collection('products').doc(productId).update({
+        const userId = await getUserIdFromSession();
+        if (!userId) return { success: false, error: 'Unauthorized' };
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+        if (!productSnap.exists) return { success: false, error: 'Product not found' };
+
+        const productData = productSnap.data() as Product;
+        if (productData.sellerId !== userId) {
+            return { success: false, error: 'You do not have permission to update this listing.' };
+        }
+
+        await productRef.update({
             ...data,
             updatedAt: new Date(),
         });
@@ -117,7 +173,19 @@ export async function updateListing(productId: string, data: any) {
 
 export async function republishListing(productId: string) {
     try {
-        await firestoreDb.collection('products').doc(productId).update({
+        const userId = await getUserIdFromSession();
+        if (!userId) return { success: false, error: 'Unauthorized' };
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+        if (!productSnap.exists) return { success: false, error: 'Product not found' };
+
+        const productData = productSnap.data() as Product;
+        if (productData.sellerId !== userId) {
+            return { success: false, error: 'You do not have permission to republish this listing.' };
+        }
+
+        await productRef.update({
             status: 'available', // Or 'active' depending on your schema. Using 'available' based on previous context.
             updatedAt: new Date(),
             soldAt: null, // Clear the sold date

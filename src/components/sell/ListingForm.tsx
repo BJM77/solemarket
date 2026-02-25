@@ -98,14 +98,6 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
     const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
-    // Determine type from category
-    // Default to general if not matched
-    let listingType: 'sneakers' | 'accessories' | 'cards' | 'general' = 'general';
-    const cat = initialData?.category || '';
-    if (cat === 'Sneakers') listingType = 'sneakers';
-    else if (cat === 'Accessories') listingType = 'accessories';
-    else if (cat === 'Collector Cards' || cat === 'Cards') listingType = 'cards';
-
     const form = useForm<ListingFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -146,6 +138,19 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             multibuyTiers: initialData.multibuyTiers || [],
         },
     });
+
+    const watchedCategory = form.watch('category');
+
+    // Determine type from category
+    // Default to general if not matched
+    let listingType: 'sneakers' | 'accessories' | 'cards' | 'general' = 'general';
+    if (watchedCategory === 'Sneakers') {
+        listingType = 'sneakers';
+    } else if (watchedCategory === 'Accessories') {
+        listingType = 'accessories';
+    } else if (watchedCategory === 'Collector Cards' || watchedCategory === 'Cards' || watchedCategory === 'Trading Cards') {
+        listingType = 'cards';
+    }
 
     const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || ['Sneakers', 'Accessories', 'Cards', 'General'];
     const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];

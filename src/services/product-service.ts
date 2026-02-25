@@ -231,13 +231,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // Only fetch count on first page to save reads
   // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
   if (!searchParams.lastId && page === 1 && !q) {
-      try {
-          const countQuery = query(productsRef, ...constraints); 
-          const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
-          totalCount = snapshot.data().count;
-      } catch (e) {
-          console.error("Failed to count products", e);
-      }
+    try {
+      const countQuery = query(productsRef, ...constraints);
+      const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
+      totalCount = snapshot.data().count;
+    } catch (e) {
+      console.error("Failed to count products", e);
+    }
   }
 
   const result = { products, hasMore, lastVisibleId, totalCount };
@@ -247,7 +247,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
 export async function getAllProducts(): Promise<Product[]> {
   const productsRef = collection(db, 'products');
-  const q = query(productsRef, where('isDraft', '==', false), orderBy('createdAt', 'desc'));
+  const q = query(productsRef, where('status', '==', 'available'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
   const products = querySnapshot.docs.map(doc => serializeFirestoreData({
     id: doc.id,
