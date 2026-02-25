@@ -8,6 +8,7 @@ import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Product } from '@/lib/types';
+import { getProductUrl } from '@/lib/utils';
 
 export function MarketTicker() {
     const [isClient, setIsClient] = useState(false);
@@ -49,7 +50,7 @@ export function MarketTicker() {
                 {[...items, ...items, ...items].map((item, i) => (
                     <Link
                         key={`${item.id}-${i}`}
-                        href={`/product/${item.id}`}
+                        href={getProductUrl(item)}
                         className="flex items-center gap-3 hover:text-black/70 transition-colors group"
                     >
                         <span className="flex items-center gap-1 opacity-90">

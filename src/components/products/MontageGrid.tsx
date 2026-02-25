@@ -14,7 +14,7 @@ import { deleteProductByAdmin } from '@/app/actions/admin';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getProductUrl } from '@/lib/utils';
 
 export interface MontageGridProps {
   products: Product[];
@@ -93,7 +93,7 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false,
             transition={{ duration: 0.3, delay: index * 0.02 }}
             className="group relative aspect-square w-full h-full overflow-hidden rounded-md"
           >
-            <Link href={`/product/${product.id}`} className="absolute inset-0 z-10" title={product.title}>
+            <Link href={getProductUrl(product)} className="absolute inset-0 z-10" title={product.title}>
               <span className="sr-only">View {product.title}</span>
             </Link>
 

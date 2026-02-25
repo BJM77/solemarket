@@ -90,3 +90,19 @@ export function safeDate(value: any): Date | undefined {
 
   return undefined;
 }
+
+export function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w-]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '-'); // Replace multiple - with single -
+}
+
+export function getProductUrl(product: { id: string; title: string; category?: string }): string {
+  const section = product.category === 'Trading Cards' ? 'cards' : 'shoes';
+  const slug = slugify(product.title);
+  return `/${section}/${slug}/${product.id}`;
+}

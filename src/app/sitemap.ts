@@ -1,8 +1,9 @@
 
 import { MetadataRoute } from 'next';
-import { getCategories, getActiveProductIds, getActiveProductCount } from '@/lib/firebase/firestore';
+import { getCategories, getActiveProductIds, getActiveProductCount, getProductById, getActiveProducts } from '@/lib/firebase/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getProductUrl } from '@/lib/utils';
 
 /**
  * World-Class Sitemap Generation
@@ -97,9 +98,9 @@ export default async function sitemap({
     }));
 
     // Add first chunk of products to sitemap 0
-    const productIds = await getActiveProductIds(PRODUCT_SITEMAP_SIZE, 0);
-    const productRoutes: MetadataRoute.Sitemap = productIds.map(id => ({
-      url: `${baseUrl}/product/${id}`,
+    const productsChunk = await getActiveProducts(PRODUCT_SITEMAP_SIZE, 0);
+    const productRoutes: MetadataRoute.Sitemap = productsChunk.map(p => ({
+      url: `${baseUrl}${getProductUrl(p)}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.6,
@@ -110,10 +111,10 @@ export default async function sitemap({
 
   // Subsequent IDs only contain products
   const offset = id * PRODUCT_SITEMAP_SIZE;
-  const productIds = await getActiveProductIds(PRODUCT_SITEMAP_SIZE, offset);
+  const productsChunk = await getActiveProducts(PRODUCT_SITEMAP_SIZE, offset);
 
-  return productIds.map(id => ({
-    url: `${baseUrl}/product/${id}`,
+  return productsChunk.map(p => ({
+    url: `${baseUrl}${getProductUrl(p)}`,
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.6,

@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getProductUrl } from '@/lib/utils';
 import { ProductImageLightbox } from './ProductImageLightbox';
 import { updateProductPrice } from '@/app/actions/product-updates';
 import { toggleProductHold } from '@/app/actions/admin';
@@ -441,7 +441,7 @@ export default function ProductCard({
       <div className="group relative flex items-center justify-between border-b border-gray-100 dark:border-white/5 py-2 px-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
         {!selectable && (
           <Link
-            href={`/product/${product.id}`}
+            href={getProductUrl(product)}
             className="absolute inset-0 z-0"
             title={product.title}
           >
@@ -559,7 +559,7 @@ export default function ProductCard({
             <div
               className="relative w-full h-full cursor-pointer group/image"
             >
-              <Link href={`/product/${product.id}`} className="absolute inset-0 z-0" title={product.title}>
+              <Link href={getProductUrl(product)} className="absolute inset-0 z-0" title={product.title}>
                 <SmartImage
                   product={product}
                   imageIndex={0}
@@ -666,7 +666,7 @@ export default function ProductCard({
         </div>
         {!selectable && (
           <Link
-            href={`/product/${product.id}`}
+            href={getProductUrl(product)}
             className="absolute inset-0 z-0"
             title={product.title}
           >
@@ -898,7 +898,7 @@ export default function ProductCard({
         </div>
         {product.imageUrls?.[0] && (
           <Link
-            href={`/product/${product.id}`}
+            href={getProductUrl(product)}
             className="relative w-full h-full cursor-pointer overflow-hidden block"
             title={product.title}
           >
@@ -916,7 +916,7 @@ export default function ProductCard({
 
       {!selectable && (
         <Link
-          href={`/product/${product.id}`}
+          href={getProductUrl(product)}
           className="absolute inset-0 z-0"
           title={product.title}
         >
@@ -974,7 +974,7 @@ export default function ProductCard({
                   e.preventDefault();
                   e.stopPropagation();
                   if (product.isUntimed) {
-                    router.push(`/product/${product.id}`);
+                    router.push(getProductUrl(product));
                   } else {
                     handleAddToCart(e);
                   }

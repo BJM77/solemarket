@@ -129,6 +129,24 @@ export async function getActiveProductIds(limitCount = 1000, offset = 0): Promis
     }
 }
 
+export async function getActiveProducts(limitCount = 1000, offset = 0): Promise<Product[]> {
+    try {
+        let query = firestoreDb.collection('products')
+            .where('status', '==', 'available')
+            .where('isDraft', '==', false);
+
+        if (offset > 0) {
+            query = query.offset(offset);
+        }
+
+        const snapshot = await query.limit(limitCount).get();
+        return snapshot.docs.map((doc: any) => serializeData(doc.data(), doc.id) as Product);
+    } catch (e: any) {
+        console.error("Failed to fetch active products:", e.message);
+        return [];
+    }
+}
+
 export async function getActiveProductCount(): Promise<number> {
     try {
         const snapshot = await firestoreDb.collection('products')

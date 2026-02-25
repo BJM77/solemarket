@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import EmptyState from '../ui/EmptyState';
 import { Package } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getProductUrl } from '@/lib/utils';
 
 interface ProductListProps {
   products: Product[];
@@ -53,7 +53,7 @@ export default function ProductList({ products }: ProductListProps) {
               <TableCell className="text-right font-semibold">${formatPrice(product.price)}</TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="ghost" size="sm">
-                  <Link href={`/product/${product.id}`}>View</Link>
+                  <Link href={getProductUrl(product)}>View</Link>
                 </Button>
               </TableCell>
             </TableRow>
