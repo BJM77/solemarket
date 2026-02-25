@@ -12,7 +12,7 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     : 5;
 
   // Map product condition to Schema.org conditions
-  const getConditionSchema = (condition: string) => {
+  const getConditionSchema = (condition?: string) => {
     if (condition?.toLowerCase().includes('new')) return 'https://schema.org/NewCondition';
     if (condition?.toLowerCase().includes('used')) return 'https://schema.org/UsedCondition';
     if (condition?.toLowerCase().includes('refurbished')) return 'https://schema.org/RefurbishedCondition';
