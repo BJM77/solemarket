@@ -629,6 +629,7 @@ function InfiniteProductGridInner({
               alt="You've reached the bench"
               fill
               sizes="(max-width: 768px) 90vw, 576px"
+              priority
               className="object-contain"
             />
           </div>

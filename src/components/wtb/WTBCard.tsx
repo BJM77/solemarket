@@ -26,6 +26,7 @@ export function WTBCard({ listing }: WTBCardProps) {
                             src={imageUrl}
                             alt={listing.title}
                             fill
+                            priority
                             className="object-cover group-hover:scale-105 transition-transform duration-200"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />

@@ -83,7 +83,7 @@ function SignUpFormInner() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const { user, error } = await signInWithGoogle();
+    const { user, needsProfileCompletion, error } = await signInWithGoogle();
 
     if (error) {
       toast({
@@ -112,7 +112,11 @@ function SignUpFormInner() {
         title: "Success",
         description: "Account created with Google",
       });
-      window.location.href = redirectUrl;
+      if (needsProfileCompletion) {
+        window.location.href = '/complete-profile';
+      } else {
+        window.location.href = redirectUrl;
+      }
     }
   };
 

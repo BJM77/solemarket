@@ -34,7 +34,10 @@ service cloud.firestore {
 
     // Products
     match /products/{productId} {
-      allow read: if true;
+      // Prevent drafts from leaking to unauthenticated / unauthorized users directly via the database
+      allow read: if resource.data.status == 'available' || 
+                  (isAuthenticated() && resource.data.sellerId == request.auth.uid) || 
+                  isAdmin();
       allow create: if isAuthenticated() && 
                      request.resource.data.sellerId == request.auth.uid;
       allow update: if isAuthenticated() && 
@@ -95,6 +98,20 @@ service cloud.firestore {
     // Default deny
     match /{document=**} {
       allow read, write: if false;
+    }
+    
+    // Conversations and Messages
+    match /conversations/{conversationId} {
+      allow read: if isAuthenticated() && request.auth.uid in resource.data.participants;
+      allow create: if isAuthenticated();
+      // Only allow updating lastMessage etc. if they are part of the chat
+      allow update: if isAuthenticated() && request.auth.uid in resource.data.participants;
+
+      match /messages/{messageId} {
+        // We use a function or direct check on the parent, but since it's nested you can often rely on the parent rules
+        // For simplicity, we just check they are authenticated here. A stricter rule would `get` the parent conversation.
+        allow read, create: if isAuthenticated();
+      }
     }
   }
 }

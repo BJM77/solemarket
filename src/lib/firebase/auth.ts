@@ -101,6 +101,12 @@ export async function signInWithGoogle() {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
+    const { getDoc, doc } = await import('firebase/firestore');
+    const { db } = await import('./config');
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    const userData = userDocSnap.data();
+
     // Check if it's a new user or update profile
     const profileData = {
       email: user.email || undefined,
@@ -118,9 +124,11 @@ export async function signInWithGoogle() {
       photoURL: user.photoURL,
     };
 
-    return { user: safeUser, error: null };
+    const needsProfileCompletion = !userData?.accountType;
+
+    return { user: safeUser, needsProfileCompletion, error: null };
   } catch (error: any) {
     console.error("Google sign-in error:", error);
-    return { user: null, error: { code: error.code, message: error.message } };
+    return { user: null, needsProfileCompletion: false, error: { code: error.code, message: error.message } };
   }
 }

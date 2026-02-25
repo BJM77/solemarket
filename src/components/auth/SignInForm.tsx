@@ -51,7 +51,7 @@ function SignInFormInner() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const { user, error } = await signInWithGoogle();
+    const { user, needsProfileCompletion, error } = await signInWithGoogle();
 
     if (error) {
       toast({
@@ -80,7 +80,11 @@ function SignInFormInner() {
         title: "Success",
         description: "Signed in with Google",
       });
-      window.location.href = redirectUrl;
+      if (needsProfileCompletion) {
+        window.location.href = '/complete-profile';
+      } else {
+        window.location.href = redirectUrl;
+      }
     }
   };
 
@@ -159,32 +163,34 @@ function SignInFormInner() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email address</FormLabel>
-                <FormControl>
-                  <Input placeholder="you@example.com" {...field} type="email" autoComplete="email" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="••••••••" {...field} type="password" autoComplete="current-password" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex gap-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Email address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="you@example.com" {...field} type="email" autoComplete="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="••••••••" {...field} type="password" autoComplete="current-password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <div className="flex items-center justify-between">
             <div />
             <Button variant="link" asChild className="p-0 text-sm">

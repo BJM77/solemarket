@@ -352,7 +352,7 @@ export default function ProductDetailsModern({
     };
 
     return (
-        <main className="min-h-screen bg-gray-50/50 dark:bg-background-dark/50 pb-16">
+        <main className="min-h-screen bg-background pb-16">
             <div className="max-w-7xl mx-auto px-4 pt-6">
                 {/* Breadcrumbs */}
                 <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-6 overflow-x-auto whitespace-nowrap pb-2">
@@ -396,83 +396,7 @@ export default function ProductDetailsModern({
                             />
                         </div>
 
-                        {/* Description & Specs */}
-                        <div className="mt-8">
-                            <div className="flex items-center gap-3 mb-4">
-                                <h2 className="text-2xl font-bold">Product Description</h2>
-                                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-0 font-bold uppercase tracking-wider text-[10px]">
-                                    {product.condition}
-                                </Badge>
-                            </div>
-
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8 whitespace-pre-line text-lg">
-                                {product.description}
-                            </p>
-
-                            <h3 className="font-bold mb-4 text-lg">Technical Specifications</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {(product.brand || product.manufacturer) && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Brand</span>
-                                        <span className="font-bold">{product.brand || product.manufacturer}</span>
-                                    </div>
-                                )}
-                                {product.model && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Model</span>
-                                        <span className="font-bold">{product.model}</span>
-                                    </div>
-                                )}
-                                {product.styleCode && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Style Code</span>
-                                        <span className="font-bold">{product.styleCode}</span>
-                                    </div>
-                                )}
-                                {product.colorway && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Colorway</span>
-                                        <span className="font-bold">{product.colorway}</span>
-                                    </div>
-                                )}
-                                {product.size && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col gap-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-gray-500 font-medium">Select Size (US Men)</span>
-                                                <SizeChart brand={product.brand?.toLowerCase()} />
-                                            </div>
-                                            <span className="font-bold text-primary">{product.size}</span>
-                                        </div>
-                                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                                            {['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13', '14'].map((s) => (
-                                                <button
-                                                    key={s}
-                                                    className={cn(
-                                                        "h-12 rounded-xl border text-sm font-bold transition-all duration-200",
-                                                        product.size === s || product.size === `US ${s}`
-                                                            ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
-                                                            : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
-                                                    )}
-                                                >
-                                                    {s}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {product.year && (
-                                    <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-gray-500 font-medium">Release Year</span>
-                                        <span className="font-bold">{product.year}</span>
-                                    </div>
-                                )}
-                                <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                    <span className="text-gray-500 font-medium">Category</span>
-                                    <span className="font-bold">{product.category}</span>
-                                </div>
-                            </div>
-                        </div>
+                        {/* The description and specs have been moved to the right column as per the request */}
 
                         {/* Reviews Tab Section */}
                         <div className="mt-12">
@@ -492,6 +416,18 @@ export default function ProductDetailsModern({
                     {/* Right Column: Sticky Buy Box */}
                     <div className="lg:col-span-5 relative">
                         <div className="sticky top-24 space-y-6">
+                            {/* Back Button */}
+                            <div className="flex justify-end mb-4">
+                                <Button
+                                    variant="ghost"
+                                    className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                                    onClick={() => router.back()}
+                                >
+                                    <ChevronLeft className="h-4 w-4 mr-1" />
+                                    Back to previous
+                                </Button>
+                            </div>
+
                             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
                                 {/* Admin Controls (eBay Search / Delete) */}
                                 {isSuperAdmin && (
@@ -613,6 +549,66 @@ export default function ProductDetailsModern({
                                             />
                                         </div>
                                     )}
+
+                                    {/* Consolidated Product Description & Specs */}
+                                    <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h2 className="text-lg font-bold">Listing Details</h2>
+                                                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
+                                                    {product.condition}
+                                                </Badge>
+                                            </div>
+                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line text-sm">
+                                                {product.description}
+                                            </p>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                {(product.brand || product.manufacturer) && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                        <span className="text-gray-500 block text-xs mb-1">Brand</span>
+                                                        <span className="font-bold">{product.brand || product.manufacturer}</span>
+                                                    </div>
+                                                )}
+                                                {product.size && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
+                                                        <div>
+                                                            <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
+                                                            <span className="font-bold text-primary">{product.size}</span>
+                                                        </div>
+                                                        <SizeChart brand={product.brand?.toLowerCase()} />
+                                                    </div>
+                                                )}
+                                                {product.model && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                        <span className="text-gray-500 block text-xs mb-1">Model</span>
+                                                        <span className="font-bold truncate block" title={product.model}>{product.model}</span>
+                                                    </div>
+                                                )}
+                                                {product.styleCode && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                        <span className="text-gray-500 block text-xs mb-1">Style Code</span>
+                                                        <span className="font-bold">{product.styleCode}</span>
+                                                    </div>
+                                                )}
+                                                {product.colorway && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
+                                                        <span className="text-gray-500 block text-xs mb-1">Colorway</span>
+                                                        <span className="font-bold">{product.colorway}</span>
+                                                    </div>
+                                                )}
+                                                {product.year && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                        <span className="text-gray-500 block text-xs mb-1">Release Year</span>
+                                                        <span className="font-bold">{product.year}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

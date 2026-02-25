@@ -166,6 +166,7 @@ export function WTBForm({ listing, mode = 'create' }: WTBFormProps) {
                                         alt="Preview"
                                         width={400}
                                         height={300}
+                                        style={{ width: 'auto', height: 'auto' }}
                                         className="rounded-lg object-cover"
                                     />
                                     <Button

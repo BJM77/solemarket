@@ -8,9 +8,6 @@ export default function SignInPage() {
       <Card className="w-full max-w-md p-6 shadow-xl border-t-4 border-primary h-fit bg-card text-card-foreground">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold font-headline text-center">Sign In</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email and password to access your account
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <SignInForm />

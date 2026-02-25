@@ -5,11 +5,20 @@ import { formatPrice } from '@/lib/utils';
 
 import { firestoreDb } from '@/lib/firebase/admin';
 
-// Secret token verification (optional but recommended for production)
-// const TELEGRAM_SECRET_TOKEN = process.env.TELEGRAM_SECRET_TOKEN;
+// Secret token verification for production
+const TELEGRAM_SECRET_TOKEN = process.env.TELEGRAM_SECRET_TOKEN;
 
 export async function POST(req: NextRequest) {
     try {
+        // Enforce secret token verification
+        if (TELEGRAM_SECRET_TOKEN) {
+            const secretToken = req.headers.get('x-telegram-bot-api-secret-token');
+            if (secretToken !== TELEGRAM_SECRET_TOKEN) {
+                console.warn('Unauthorized Telegram Webhook attempt.');
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            }
+        }
+
         const body = await req.json();
 
         // 1. Handle "Callback Queries" (Button Clicks)

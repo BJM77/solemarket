@@ -45,6 +45,7 @@ export default function Footer() {
                 fill
                 className="object-contain object-left"
                 sizes="160px"
+                priority
               />
             </div>
           </div>

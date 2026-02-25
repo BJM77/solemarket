@@ -46,6 +46,7 @@ export default function GuidesIndexPage() {
                                     alt={guide.title}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
                                 />
                                 <div className="absolute top-4 left-4">
                                     <span className="bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
