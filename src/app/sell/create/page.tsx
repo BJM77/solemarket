@@ -35,6 +35,7 @@ const formSchema = z.object({
   isReverseBidding: z.boolean().default(false),
   isNegotiable: z.boolean().default(false),
   autoRepricingEnabled: z.boolean().default(false),
+  isVault: z.boolean().default(false),
   imageFiles: z.array(z.any()).default([]),
   // Benched Specs
   brand: z.string().optional(),
@@ -105,6 +106,7 @@ function CreateListingForm() {
       isReverseBidding: false,
       isNegotiable: true, // Smart Default - users like offers
       autoRepricingEnabled: false,
+      isVault: false,
       imageFiles: [],
       brand: '',
       model: '',
@@ -122,16 +124,16 @@ function CreateListingForm() {
   });
 
   const imageFiles = form.watch('imageFiles');
+  const formValues = form.watch();
 
   // Background Autosave
   useEffect(() => {
     if (!user || currentStep === 0 || isSubmitting) return;
 
     const autosaveTimer = setTimeout(async () => {
-      const values = form.getValues();
-      const { imageFiles, ...rest } = values;
+      const { imageFiles, ...rest } = form.getValues();
       
-      const draftData = {
+      const draftData: any = {
         ...rest,
         imageUrls: imagePreviews.filter(p => !p.startsWith('blob:')),
         status: 'draft',
@@ -146,7 +148,7 @@ function CreateListingForm() {
     }, 30000); // Autosave every 30 seconds
 
     return () => clearTimeout(autosaveTimer);
-  }, [form.watch(), user, currentStep, imagePreviews, editId, isSubmitting]);
+  }, [formValues, user, currentStep, imagePreviews, editId, isSubmitting, form]);
 
   // Initialize from persistence/URL
   useEffect(() => {
