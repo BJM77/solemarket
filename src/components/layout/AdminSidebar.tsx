@@ -34,7 +34,7 @@ import {
     BellRing,
     Tag
 } from "lucide-react";
-import { Logo } from "@/components/logo";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useUser } from "@/firebase";
 import { useSidebar } from "@/components/layout/sidebar-provider";
@@ -109,7 +109,7 @@ export default function AdminSidebar() {
                 <div className="flex items-center justify-between w-full">
                     {effectiveOpen ? (
                         <Link href="/admin" className="block transform transition-transform hover:scale-105">
-                            <Logo className="w-auto h-8" />
+                            <Image src="/benched.png" alt="Benched Logo" width={150} height={45} className="w-auto h-10" priority />
                         </Link>
                     ) : (
                         <div className="mx-auto bg-primary/10 p-2 rounded-lg">

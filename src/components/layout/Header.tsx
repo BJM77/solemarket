@@ -29,7 +29,7 @@ export default function Header() {
         <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between gap-2 lg:gap-8">
           <div className={cn("flex items-center gap-2 lg:gap-8 flex-1", isPinned && "w-full")}>
             {isClient && <MobileNav />}
-            
+
             <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
               <Logo />
             </Link>
@@ -40,7 +40,7 @@ export default function Header() {
                 <MarketTicker compact />
               </div>
             )}
-            
+
             {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
           </div>
 
@@ -49,17 +49,7 @@ export default function Header() {
           </div>
 
           <div className={cn("flex items-center justify-end gap-1 md:gap-2", isPinned ? "hidden md:flex" : "flex")}>
-            {isClient && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden h-10 w-10"
-                onClick={() => setShowMobileSearch(!showMobileSearch)}
-                aria-label="Toggle search"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            )}
+            {/* Mobile search icon removed as requested */}
             {isClient && (
               <Suspense fallback={<div className="h-10 w-24 bg-muted/20 rounded-md" />}>
                 <HeaderActions />

@@ -63,10 +63,20 @@ function initializeFirebaseAdmin() {
         if (pk && clientEmail) {
             console.log('✅ Firebase Admin: Using Individual Secrets');
             try {
+                // Handle both literal string "\n" (from .env files) and actual newlines (from secrets managers)
                 let privateKey = pk;
                 if (privateKey.includes('\\n')) {
                     privateKey = privateKey.replace(/\\n/g, '\n');
                 }
+                
+                // Some CI/CD pipelines wrap the entire key in extra quotes, strip them
+                if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+                    privateKey = privateKey.slice(1, -1);
+                }
+                if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
+                    privateKey = privateKey.slice(1, -1);
+                }
+
                 return admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert({

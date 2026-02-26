@@ -3,6 +3,7 @@
 import * as admin from 'firebase-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { createUserProfile } from '@/lib/firebase/client-ops';
 import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
@@ -56,7 +57,20 @@ export async function createProductAction(
             sellerVerified = true;
         } else {
             console.error('User profile not found');
-            return { success: false, error: 'User profile not found.' };
+            // Create a minimal profile for superadmin or fallback seller
+            await createUserProfile(decodedToken.uid, {
+                email: decodedToken.email,
+                displayName: decodedToken.name || 'User',
+                role: isSuperAdmin ? 'superadmin' : 'seller',
+                canSell: true,
+            });
+            // Set defaults for the newly created profile
+            userRole = isSuperAdmin ? 'superadmin' : 'seller';
+            canSell = true;
+            sellerName = decodedToken.name || 'User';
+            sellerAvatar = decodedToken.picture || '';
+            sellerVerified = true;
+            // Continue processing without returning error
         }
 
         // Check for permission to sell

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import Image from 'next/image';
 import { MobileNavContent } from './MobileNavContent';
 import Link from 'next/link';
 
@@ -27,7 +27,7 @@ export function MobileNav() {
         <div className="flex h-full flex-col">
           <div className="border-b p-4">
             <Link href="/" onClick={() => setIsOpen(false)} aria-label="Back to homepage">
-              <Logo />
+              <Image src="/benched.png" alt="Benched Logo" width={150} height={45} className="w-auto h-8" priority />
             </Link>
           </div>
           <MobileNavContent setIsOpen={setIsOpen} />

@@ -57,7 +57,7 @@ const formSchema = z.object({
 
 type ListingFormValues = z.infer<typeof formSchema>;
 
-const STEPS = ['Type', 'Photos', 'Details', 'Pricing'];
+const STEPS = ['Type', 'Photos', 'Details'];
 
 import { Suspense } from 'react';
 
@@ -100,10 +100,10 @@ function CreateListingForm() {
       price: 0,
       category: '',
       subCategory: '',
-      condition: '',
-      quantity: 1,
+      condition: 'Used', // Smart Default
+      quantity: 1, // Smart Default
       isReverseBidding: false,
-      isNegotiable: false,
+      isNegotiable: true, // Smart Default - users like offers
       autoRepricingEnabled: false,
       imageFiles: [],
       brand: '',
@@ -117,11 +117,36 @@ function CreateListingForm() {
       hasOtherBrand: false,
       multibuyEnabled: false,
       multibuyTiers: [],
-      acceptsPayId: false,
+      acceptsPayId: true, // Smart Default for our preferred path
     },
   });
 
   const imageFiles = form.watch('imageFiles');
+
+  // Background Autosave
+  useEffect(() => {
+    if (!user || currentStep === 0 || isSubmitting) return;
+
+    const autosaveTimer = setTimeout(async () => {
+      const values = form.getValues();
+      const { imageFiles, ...rest } = values;
+      
+      const draftData = {
+        ...rest,
+        imageUrls: imagePreviews.filter(p => !p.startsWith('blob:')),
+        status: 'draft',
+        updatedAt: new Date(),
+      };
+
+      try {
+        await saveDraftListing(user.uid, draftData, editId || undefined);
+      } catch (e) {
+        console.warn("Autosave failed", e);
+      }
+    }, 30000); // Autosave every 30 seconds
+
+    return () => clearTimeout(autosaveTimer);
+  }, [form.watch(), user, currentStep, imagePreviews, editId, isSubmitting]);
 
   // Initialize from persistence/URL
   useEffect(() => {
@@ -137,12 +162,13 @@ function CreateListingForm() {
         styleCode: searchParams.get('styleCode') || '',
         colorway: searchParams.get('colorway') || '',
         size: searchParams.get('size') || '',
-        condition: searchParams.get('condition') || '',
+        condition: searchParams.get('condition') || 'Used',
         description: searchParams.get('description') || '',
         // Defaults
         price: 0,
         quantity: 1,
         imageFiles: [],
+        acceptsPayId: true,
       });
       setSelectedType('sneakers');
       setCurrentStep(1); // Jump to Photos
@@ -195,14 +221,21 @@ function CreateListingForm() {
     setSelectedType(type);
     localStorage.setItem('preferredListingType', type);
     form.setValue('category', type === 'sneakers' ? 'Sneakers' : 'Trading Cards');
+    // AUTO-ADVANCE
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleImagesChange = (newFiles: File[], newPreviews: string[]) => {
     const currentFiles = form.getValues('imageFiles');
-    form.setValue('imageFiles', [...currentFiles, ...newFiles], { shouldValidate: true });
+    const updatedFiles = [...currentFiles, ...newFiles];
+    form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
     setImagePreviews(prev => [...prev, ...newPreviews]);
+
+    // PROACTIVE AI: Trigger analysis if we have enough images and fields are empty
+    if (updatedFiles.length >= 2 && !form.getValues('title')) {
+      handleAutoFill();
+    }
   };
 
   const removeImage = (index: number) => {
@@ -215,7 +248,7 @@ function CreateListingForm() {
 
   const handleAutoFill = async () => {
     const currentFiles = form.getValues('imageFiles');
-    if (!currentFiles.length || !user) return;
+    if (!currentFiles.length || !user || isAnalyzing) return;
     setIsAnalyzing(true);
     try {
       const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File) as File[];
@@ -230,11 +263,15 @@ function CreateListingForm() {
       const idToken = await user.getIdToken();
       const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
       if (suggestions) {
-        Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
+        Object.entries(suggestions).forEach(([key, value]) => { 
+          if (value && !form.getValues(key as any)) { // Only fill empty fields
+            form.setValue(key as any, value); 
+          }
+        });
         toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
       }
     } catch (error: any) {
-      toast({ title: "Auto-Fill Failed", description: error.message, variant: "destructive" });
+      console.warn("Auto-fill error:", error);
     } finally {
       setIsAnalyzing(false);
     }
@@ -243,33 +280,32 @@ function CreateListingForm() {
   const nextStep = async () => {
     const fieldsToValidate: any[] = [];
     if (currentStep === 1) { // Photos
-      // Enforce at least 1 photo before proceeding
       if (imageFiles.length === 0) {
         toast({
           title: "Photos Required",
-          description: "Please upload at least one photo of your item to proceed.",
+          description: "Please upload at least one photo to proceed.",
           variant: "destructive"
         });
         return;
       }
-    } else if (currentStep === 2) { // Details
-      // Validate everything that is shown on Step 2
+    } else if (currentStep === 2) { // Merged Details & Pricing
       fieldsToValidate.push(
-        'title', 'category', 'condition', 'brand', 'size', 'description',
-        'styleCode', 'colorway', 'year', 'gradingCompany', 'grade', 'certNumber', 'cardNumber'
+        'title', 'category', 'condition', 'brand', 'price', 'quantity'
       );
     }
 
     if (fieldsToValidate.length > 0) {
       const isValid = await form.trigger(fieldsToValidate);
-      if (!isValid) return;
+      if (!isValid) {
+        toast({ title: "Check required fields", variant: "destructive" });
+        return;
+      }
     }
 
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Final Step: Review/Submit
       await handleSubmit();
     }
   };
@@ -316,7 +352,7 @@ function CreateListingForm() {
 
       const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
 
-      toast({ title: "Draft Saved", description: "Proceeding to review..." });
+      toast({ title: "Success!", description: "Review your listing details." });
       router.push(`/sell/review?draftId=${draftId}`);
 
     } catch (error: any) {
@@ -330,7 +366,6 @@ function CreateListingForm() {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  // Step 0: Type Selection (Full Screen)
   if (currentStep === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-background flex flex-col items-center justify-center p-4">
@@ -351,11 +386,11 @@ function CreateListingForm() {
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                {currentStep === 1 ? 'Upload Photos' : currentStep === 2 ? 'Details' : 'Pricing & Review'}
+                {currentStep === 1 ? 'Upload Photos' : 'Item Details \u0026 Price'}
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 3</span>
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 2</span>
             </div>
           </div>
           {/* Progress Bar */}
@@ -363,7 +398,7 @@ function CreateListingForm() {
             <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
               <div
                 className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
+                style={{ width: `${(currentStep / 2) * 100}%` }}
               />
             </div>
           </div>
@@ -386,19 +421,18 @@ function CreateListingForm() {
           )}
 
           {currentStep === 2 && (
-            <DetailsStep
-              form={form}
-              selectedType={selectedType || 'sneakers'}
-              subCategories={SUB_CATEGORIES}
-              conditionOptions={CONDITION_OPTIONS}
-              onAutoFill={handleAutoFill}
-              isAnalyzing={isAnalyzing}
-              imageFiles={imageFiles}
-            />
-          )}
-
-          {currentStep === 3 && (
-            <PricingAndDeliveryStep form={form} />
+            <div className="space-y-8">
+              <DetailsStep
+                form={form}
+                selectedType={selectedType || 'sneakers'}
+                subCategories={SUB_CATEGORIES}
+                conditionOptions={CONDITION_OPTIONS}
+                onAutoFill={handleAutoFill}
+                isAnalyzing={isAnalyzing}
+                imageFiles={imageFiles}
+              />
+              <PricingAndDeliveryStep form={form} />
+            </div>
           )}
         </main>
 
@@ -410,7 +444,7 @@ function CreateListingForm() {
             </Button>
             <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-              {currentStep === 3 ? (
+              {currentStep === 2 ? (
                 <>
                   <Eye className="mr-2 h-5 w-5" /> Review Listing
                 </>

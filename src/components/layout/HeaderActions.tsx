@@ -48,7 +48,11 @@ export default function HeaderActions() {
                 </div>
             )}
 
-            {user && <NotificationBell />}
+            {user && (
+                <div className="hidden md:flex">
+                    <NotificationBell />
+                </div>
+            )}
 
             <Button
                 variant="ghost"
