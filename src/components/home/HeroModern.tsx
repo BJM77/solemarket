@@ -11,40 +11,40 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
             <div className="container mx-auto px-6 relative z-10 pt-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-6 leading-[0.9] slide-up">
+                    <h1 className="text-4xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
                         SHOES <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">&</span><br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span>
                     </h1>
-                    <div className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium slide-up space-y-2" style={{ animationDelay: '0.2s' }}>
+                    <div className="text-sm md:text-2xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
                         <p>The destination for performance sneakers and cards.</p>
                         <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 slide-up mb-16" style={{ animationDelay: '0.3s' }}>
-                        <Link href="/browse" className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2">
-                            Search the lineup... <span className="text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
+                        <Link href="/browse" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
+                            Search the lineup... <span className="text-[10px] md:text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
                         </Link>
-                        <Link href="/sell" className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center">
+                        <Link href="/sell" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center text-sm md:text-base">
                             Put Yours on the Bench
                         </Link>
                     </div>
 
                     {/* Metrics Section */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-6 md:pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
                         <div className="text-center">
-                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">Local</div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Verified Auth</div>
+                            <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">Local</div>
+                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Verified Auth</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">Community</div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Peer-to-Peer</div>
+                            <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">Community</div>
+                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Peer-to-Peer</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-3xl font-black text-primary mb-1">{listingCount.toLocaleString()}</div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Listings</div>
+                            <div className="text-xl md:text-3xl font-black text-primary mb-0.5 md:mb-1">{listingCount.toLocaleString()}</div>
+                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Active Listings</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">0%</div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Selling Fees</div>
+                            <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">0%</div>
+                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Selling Fees</div>
                         </div>
                     </div>
                 </div>
