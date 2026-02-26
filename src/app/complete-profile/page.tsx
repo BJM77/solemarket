@@ -30,6 +30,9 @@ const formSchema = z.object({
     }),
     storeName: z.string().optional(),
     storeDescription: z.string().optional(),
+    acceptsStripe: z.boolean().default(false),
+    acceptsCOD: z.boolean().default(false),
+    acceptsPayID: z.boolean().default(false),
     agreedToTerms: z.boolean().refine((val) => val === true, {
         message: 'You must agree to the Terms & Conditions and Privacy Policy.',
     }),
@@ -41,6 +44,14 @@ const formSchema = z.object({
 }, {
     message: 'Store name is required for sellers.',
     path: ['storeName'],
+}).refine((data) => {
+    if (data.accountType === 'seller') {
+        return data.acceptsStripe || data.acceptsCOD || data.acceptsPayID;
+    }
+    return true;
+}, {
+    message: 'Sellers must select at least one payment method.',
+    path: ['acceptsStripe'], // Attach error to the first payment method field
 });
 
 export default function CompleteProfilePage() {
@@ -54,6 +65,9 @@ export default function CompleteProfilePage() {
             accountType: 'buyer',
             storeName: '',
             storeDescription: '',
+            acceptsStripe: true,
+            acceptsCOD: false,
+            acceptsPayID: false,
             agreedToTerms: false,
         },
     });
@@ -67,6 +81,9 @@ export default function CompleteProfilePage() {
                 accountType: values.accountType,
                 storeName: values.storeName,
                 storeDescription: values.storeDescription,
+                acceptsStripe: values.acceptsStripe,
+                acceptsCOD: values.acceptsCOD,
+                acceptsPayID: values.acceptsPayID,
             });
 
             if (success) {
@@ -161,6 +178,67 @@ export default function CompleteProfilePage() {
                                         </FormItem>
                                     )}
                                 />
+
+                                <div className="space-y-3 pt-2">
+                                    <div className="space-y-1">
+                                        <FormLabel>Accepted Payment Methods</FormLabel>
+                                        <p className="text-[0.8rem] text-muted-foreground">Select at least one way you want to be paid.</p>
+                                    </div>
+                                    
+                                    <FormField
+                                        control={form.control}
+                                        name="acceptsStripe"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 dark:border-white/10 p-3">
+                                                <FormControl>
+                                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel className="text-sm font-normal">Card Payments (Stripe)</FormLabel>
+                                                    <p className="text-[0.8rem] text-muted-foreground">Secure credit/debit processing.</p>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    
+                                    <FormField
+                                        control={form.control}
+                                        name="acceptsPayID"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 dark:border-white/10 p-3">
+                                                <FormControl>
+                                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel className="text-sm font-normal">PayID / Bank Transfer</FormLabel>
+                                                    <p className="text-[0.8rem] text-muted-foreground">Direct transfer from buyers.</p>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="acceptsCOD"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 dark:border-white/10 p-3">
+                                                <FormControl>
+                                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel className="text-sm font-normal">Cash on Delivery (COD)</FormLabel>
+                                                    <p className="text-[0.8rem] text-muted-foreground">Local meetups and cash exchanges.</p>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    
+                                    {form.formState.errors.acceptsStripe?.message && (
+                                        <p className="text-sm font-medium text-destructive mt-2">
+                                            {form.formState.errors.acceptsStripe.message}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         )}
 

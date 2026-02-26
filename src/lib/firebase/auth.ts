@@ -21,10 +21,13 @@ interface SignUpOptions {
   storeName?: string;
   storeDescription?: string;
   referralCode?: string;
+  acceptsStripe?: boolean;
+  acceptsCOD?: boolean;
+  acceptsPayID?: boolean;
 }
 
 export async function signUpWithEmail(options: SignUpOptions) {
-  const { email, password, displayName, accountType, storeName, storeDescription, referralCode } = options;
+  const { email, password, displayName, accountType, storeName, storeDescription, referralCode, acceptsStripe, acceptsCOD, acceptsPayID } = options;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -42,6 +45,9 @@ export async function signUpWithEmail(options: SignUpOptions) {
     if (accountType === 'seller') {
       profileData.storeName = storeName;
       profileData.storeDescription = storeDescription;
+      profileData.acceptsStripe = acceptsStripe ?? false;
+      profileData.acceptsCOD = acceptsCOD ?? false;
+      profileData.acceptsPayID = acceptsPayID ?? false;
     }
 
     await createUserProfile(user.uid, profileData);

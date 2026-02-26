@@ -7,6 +7,9 @@ export async function completeUserProfile(data: {
     accountType: 'buyer' | 'seller';
     storeName?: string;
     storeDescription?: string;
+    acceptsStripe?: boolean;
+    acceptsCOD?: boolean;
+    acceptsPayID?: boolean;
 }) {
     try {
         const uid = await getUserIdFromSession();
@@ -29,6 +32,9 @@ export async function completeUserProfile(data: {
         if (data.accountType === 'seller') {
             updateData.storeName = data.storeName || '';
             updateData.storeDescription = data.storeDescription || '';
+            updateData.acceptsStripe = data.acceptsStripe ?? false;
+            updateData.acceptsCOD = data.acceptsCOD ?? false;
+            updateData.acceptsPayID = data.acceptsPayID ?? false;
         }
 
         await userRef.set(updateData, { merge: true });
