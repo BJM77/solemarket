@@ -10,10 +10,14 @@ import { MainNavLinks } from './MainNavLinks';
 import { SearchBar } from './search-bar';
 import { Search } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useMobileNav } from '@/context/MobileNavContext';
+import { MarketTicker } from '../home/MarketTicker';
+import { cn } from '@/lib/utils';
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const { isPinned } = useMobileNav();
 
   useEffect(() => {
     setIsClient(true);
@@ -23,11 +27,20 @@ export default function Header() {
     <>
       <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-40 bg-background/90 dark:bg-background/90 backdrop-blur-md transition-all duration-300">
         <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between gap-2 lg:gap-8">
-          <div className="flex items-center gap-2 lg:gap-8 flex-1">
+          <div className={cn("flex items-center gap-2 lg:gap-8 flex-1", isPinned && "w-full")}>
             {isClient && <MobileNav />}
-            <Link href="/" className="flex items-center" aria-label="Back to homepage">
+            
+            <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
               <Logo />
             </Link>
+
+            {/* Mobile Market Ticker when pinned */}
+            {isPinned && isClient && (
+              <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
+                <MarketTicker compact />
+              </div>
+            )}
+            
             {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
           </div>
 
@@ -35,7 +48,7 @@ export default function Header() {
             {isClient && <MainNavLinks />}
           </div>
 
-          <div className="flex items-center justify-end gap-1 md:gap-2">
+          <div className={cn("flex items-center justify-end gap-1 md:gap-2", isPinned ? "hidden md:flex" : "flex")}>
             {isClient && (
               <Button
                 variant="ghost"

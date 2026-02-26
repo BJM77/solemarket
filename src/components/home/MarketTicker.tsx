@@ -9,9 +9,11 @@ import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Product } from '@/lib/types';
 import { getProductUrl } from '@/lib/utils';
+import { useMobileNav } from '@/context/MobileNavContext';
 
-export function MarketTicker() {
+export function MarketTicker({ compact = false }: { compact?: boolean }) {
     const [isClient, setIsClient] = useState(false);
+    const { isPinned } = useMobileNav();
 
     useEffect(() => {
         setIsClient(true);
@@ -35,7 +37,7 @@ export function MarketTicker() {
     // If no products and not loading, show a blank bar
     if (!isLoading && (!products || products.length === 0)) {
         return (
-            <div className="w-full bg-slate-950 h-5 md:h-10 border-y border-white/5 relative z-50">
+            <div className={cn("w-full bg-slate-950 border-white/5 relative z-50", compact ? "h-full border-0" : "h-5 md:h-10 border-y")}>
                 {/* Blank bar state as requested when no listings exist */}
             </div>
         );
@@ -45,8 +47,17 @@ export function MarketTicker() {
     const items = products || [];
 
     return (
-        <div className="bg-primary text-black py-1 md:py-2 overflow-hidden border-y-2 border-primary/20 relative z-30">
-            <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center gap-4 md:gap-8 text-xs md:text-xl font-black tracking-widest uppercase">
+        <div className={cn(
+            "bg-primary text-black overflow-hidden relative z-30",
+            compact 
+              ? "py-0 h-full w-full flex items-center rounded-lg shadow-inner" 
+              : "py-1 md:py-2 border-y-2 border-primary/20",
+            !compact && isPinned ? "hidden md:block" : ""
+        )}>
+            <div className={cn(
+                "flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center font-black tracking-widest uppercase",
+                compact ? "gap-4 text-xs h-full" : "gap-4 md:gap-8 text-xs md:text-xl"
+            )}>
                 {[...items, ...items, ...items].map((item, i) => (
                     <Link
                         key={`${item.id}-${i}`}
@@ -54,7 +65,7 @@ export function MarketTicker() {
                         className="flex items-center gap-2 md:gap-3 hover:text-black/70 transition-colors group"
                     >
                         <span className="flex items-center gap-1 opacity-90">
-                            <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                            <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />
                             {item.category === 'Trading Cards' ? 'NEW BOX' : 'NEW KICK'}
                         </span>
                         <span>•</span>

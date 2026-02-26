@@ -11,6 +11,7 @@ import { MarketTicker } from '@/components/home/MarketTicker';
 import { FirebaseProvider } from '@/firebase/provider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
+import { MobileNavProvider } from '@/context/MobileNavContext';
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import QueryProvider from '@/providers/QueryProvider';
 import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
@@ -212,19 +213,21 @@ export default function RootLayout({
           <FirebaseProvider>
             <QueryProvider>
               <SidebarProvider>
-                <CartProvider>
-                  <ViewedProductsProvider>
-                    <GoogleAnalytics />
-                    <Header />
-                    <MarketTicker />
-                    <main className="min-h-screen">
-                      {children}
-                    </main>
-                    <Footer />
-                    <BottomNav />
-                    <CartDrawer />
-                  </ViewedProductsProvider>
-                </CartProvider>
+                <MobileNavProvider>
+                  <CartProvider>
+                    <ViewedProductsProvider>
+                      <GoogleAnalytics />
+                      <Header />
+                      <MarketTicker />
+                      <main className="min-h-screen">
+                        {children}
+                      </main>
+                      <Footer />
+                      <BottomNav />
+                      <CartDrawer />
+                    </ViewedProductsProvider>
+                  </CartProvider>
+                </MobileNavProvider>
               </SidebarProvider>
             </QueryProvider>
           </FirebaseProvider>
