@@ -11,12 +11,12 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
             <div className="container mx-auto px-6 relative z-10 pt-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
+                    <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
                         SHOES <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">&</span><br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span>
                     </h1>
                     <div className="text-sm md:text-2xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p>The destination for performance sneakers and cards.</p>
+                        <p className="text-black dark:text-white">The destination for performance sneakers and cards.</p>
                         <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
