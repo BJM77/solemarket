@@ -144,7 +144,7 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'Australia\'s premier marketplace for performance basketball sneakers, trading cards, and culture.'
+            'The destination for performance basketball sneakers, trading cards, and culture.'
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
@@ -186,7 +186,7 @@ export const brandConfig: BrandConfig = {
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The premier marketplace for basketball culture in Australia. Buy and sell performance sneakers and trading cards. Your rotation, upgraded.'
+            'The destination for performance sneakers and trading cards. Your rotation, upgraded.'
         ),
         keywords: [
             'basketball shoes',

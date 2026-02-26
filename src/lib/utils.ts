@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { isCardCategory } from "./constants/marketplace"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -100,8 +101,6 @@ export function slugify(text: string): string {
     .replace(/[^\w-]+/g, '') // Remove all non-word chars
     .replace(/--+/g, '-'); // Replace multiple - with single -
 }
-
-import { isCardCategory } from "./constants/marketplace"
 
 export function getProductUrl(product: { id: string; title: string; category?: string }): string {
   const section = isCardCategory(product.category) ? 'cards' : 'shoes';

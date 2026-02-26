@@ -44,7 +44,7 @@ export default function AboutPage() {
       <div className="container py-12 md:py-16">
         <PageHeader
           title="Our Story"
-          description="Australia's premier marketplace for local sneakers — Perth-based, with nationwide shipping."
+          description="The destination for local sneakers — Perth-based, with nationwide shipping."
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8">
           <div className="prose lg:prose-lg max-w-none">

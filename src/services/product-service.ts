@@ -174,12 +174,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
   }
 
-  const querySnapshot = await getDocs(finalQuery);
+  try {
+    const querySnapshot = await getDocs(finalQuery);
 
-  let products = querySnapshot.docs.map(doc => serializeFirestoreData({
-    id: doc.id,
-    ...doc.data()
-  }) as Product);
+    let products = querySnapshot.docs.map(doc => serializeFirestoreData({
+      id: doc.id,
+      ...doc.data()
+    }) as Product);
 
   // In-Memory Filters
   const now = new Date();
@@ -243,6 +244,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const result = { products, hasMore, lastVisibleId, totalCount };
 
   return result;
+  } catch (error: any) {
+    console.error("Error in getProducts:", error.message);
+    if (error.code === 'failed-precondition') {
+      console.warn("Firestore index missing. Returning empty results to prevent crash.");
+    }
+    return { products: [], hasMore: false };
+  }
 }
 
 export async function getAllProducts(): Promise<Product[]> {

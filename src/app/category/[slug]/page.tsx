@@ -16,10 +16,10 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     'sneakers': {
         title: 'Buy & Sell Authentic Sneakers Australia | Benched',
         h1: 'Authentic Sneakers Marketplace',
-        description: 'Shop verified authentic sneakers including Nike, Jordan, Adidas, Yeezy, and New Balance. Australia\'s premier sneaker marketplace.',
+        description: 'Shop verified authentic sneakers including Nike, Jordan, Adidas, Yeezy, and New Balance. The sneaker marketplace.',
         categoryName: 'Sneakers',
         seoText: `
-      Benched is Australia's premier destination for buying and selling authentic sneakers. 
+      Benched is the destination for buying and selling authentic sneakers. 
       From the latest Air Jordan releases to rare Yeezys and Nike Dunks, our platform connects sneakerheads with trusted sellers.
       
       Every pair is verified for authenticity, ensuring you can cop with confidence. 
