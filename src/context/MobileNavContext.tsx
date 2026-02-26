@@ -9,13 +9,13 @@ interface MobileNavContextType {
 }
 
 const MobileNavContext = createContext<MobileNavContextType>({
-  isPinned: true,
+  isPinned: false,
   setIsPinned: () => {},
   isVisible: true,
 });
 
 export const MobileNavProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isPinned, setIsPinned] = useState(true);
+  const [isPinned, setIsPinned] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
