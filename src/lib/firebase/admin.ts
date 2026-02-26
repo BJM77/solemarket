@@ -63,25 +63,36 @@ function initializeFirebaseAdmin() {
         if (pk && clientEmail) {
             console.log('✅ Firebase Admin: Using Individual Secrets');
             try {
-                // Handle both literal string "\n" (from .env files) and actual newlines (from secrets managers)
-                let privateKey = pk;
+                // Formatting Fixes for Private Key
+                let privateKey = pk.trim();
+
+                // Handle literal string "\n"
                 if (privateKey.includes('\\n')) {
                     privateKey = privateKey.replace(/\\n/g, '\n');
                 }
-                
-                // Some CI/CD pipelines wrap the entire key in extra quotes, strip them
-                if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-                    privateKey = privateKey.slice(1, -1);
+
+                // Ensure newlines are restored if they were stripped (common in some UI dashboards)
+                // PEM keys must have newlines between lines.
+                if (!privateKey.includes('\n')) {
+                    console.log('🔧 Firebase Admin: Single-line private key detected, attempting to restore PEM formatting.');
+                    // Standard PEM line length is 64 chars, but we only really care about the wrap
+                    privateKey = privateKey
+                        .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
+                        .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----\n');
+
+                    // We can't easily guess where the internal newlines should be if they are gone, 
+                    // but usually modern Google SDKs can handle long lines IF the header/footer are on their own lines.
                 }
-                if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
-                    privateKey = privateKey.slice(1, -1);
-                }
+
+                // Strip extra quotes
+                if (privateKey.startsWith('"') && privateKey.endsWith('"')) privateKey = privateKey.slice(1, -1);
+                if (privateKey.startsWith("'") && privateKey.endsWith("'")) privateKey = privateKey.slice(1, -1);
 
                 return admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert({
                         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
-                        clientEmail: clientEmail,
+                        clientEmail: clientEmail.trim(),
                         privateKey: privateKey,
                     }),
                 });

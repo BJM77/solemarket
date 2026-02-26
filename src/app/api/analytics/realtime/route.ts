@@ -16,10 +16,15 @@ function getAnalyticsClient() {
     }
 
     try {
+        let pk = privateKey.trim();
+        if (pk.includes('\\n')) pk = pk.replace(/\\n/g, '\n');
+        if (pk.startsWith('"') && pk.endsWith('"')) pk = pk.slice(1, -1);
+        if (pk.startsWith("'") && pk.endsWith("'")) pk = pk.slice(1, -1);
+
         analyticsClient = new BetaAnalyticsDataClient({
             credentials: {
-                client_email: clientEmail,
-                private_key: privateKey,
+                client_email: clientEmail.trim(),
+                private_key: pk,
             },
         });
         return analyticsClient;

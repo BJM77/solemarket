@@ -14,6 +14,9 @@ env:
   - variable: GOOGLE_GENAI_API_KEY
     secret: GOOGLE_GENAI_API_KEY
 
+  - variable: SUPER_ADMIN_EMAILS
+    value: "bjm4ck13@gmail.com"
+
   # Firebase Admin SDK (Secrets)
   - variable: FIREBASE_ADMIN_PRIVATE_KEY
     secret: FIREBASE_ADMIN_PRIVATE_KEY
@@ -21,6 +24,14 @@ env:
     secret: FIREBASE_ADMIN_CLIENT_EMAIL
   - variable: FIREBASE_ADMIN_PROJECT_ID
     secret: FIREBASE_ADMIN_PROJECT_ID
+
+  # Google Analytics 4 (Secrets)
+  - variable: GA_PRIVATE_KEY
+    secret: GA_PRIVATE_KEY
+  - variable: GA_CLIENT_EMAIL
+    secret: GA_CLIENT_EMAIL
+  - variable: GA_PROPERTY_ID
+    secret: GA_PROPERTY_ID
 
 
   # Public Config
@@ -36,6 +47,8 @@ env:
     value: "500786148926"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:500786148926:web:c723a2d60bce617b2d836f"
+  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    value: "G-1824TM1TT0"
 
     
   # Application Config
