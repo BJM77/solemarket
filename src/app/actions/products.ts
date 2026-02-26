@@ -104,6 +104,7 @@ export async function createProductAction(
 
         const finalData: Product = {
             ...validData,
+            description: validData.description || '', // Ensure string to match Product type
             id: docRef.id,
             sellerId: decodedToken.uid,
             sellerEmail: decodedToken.email || '',

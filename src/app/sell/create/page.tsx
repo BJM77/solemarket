@@ -189,37 +189,36 @@ function CreateListingForm() {
       }
       return;
     }
-  }
 
     const loadDraft = async () => {
-    setIsLoadingDraft(true);
-    try {
-      const data = await getDraftListing(editId, user.uid);
-      if (data) {
-        form.reset({
-          ...data,
-          imageFiles: data.imageUrls || [],
-          price: Number(data.price),
-          quantity: Number(data.quantity),
-          year: data.year ? Number(data.year) : undefined,
-        });
-        setImagePreviews(data.imageUrls || []);
+      setIsLoadingDraft(true);
+      try {
+        const data = await getDraftListing(editId, user.uid);
+        if (data) {
+          form.reset({
+            ...data,
+            imageFiles: data.imageUrls || [],
+            price: Number(data.price),
+            quantity: Number(data.quantity),
+            year: data.year ? Number(data.year) : undefined,
+          });
+          setImagePreviews(data.imageUrls || []);
 
-        // Infer type
-        if (data.category === 'Sneakers') setSelectedType('sneakers');
-        else if (data.category === 'Trading Cards') setSelectedType('trading-cards');
+          // Infer type
+          if (data.category === 'Sneakers') setSelectedType('sneakers');
+          else if (data.category === 'Trading Cards') setSelectedType('trading-cards');
 
-        setCurrentStep(1); // Jump to photos on draft load
+          setCurrentStep(1); // Jump to photos on draft load
+        }
+      } catch (e) {
+        console.error(e);
+        toast({ title: "Error loading draft", variant: "destructive" });
+      } finally {
+        setIsLoadingDraft(false);
       }
-    } catch (e) {
-      console.error(e);
-      toast({ title: "Error loading draft", variant: "destructive" });
-    } finally {
-      setIsLoadingDraft(false);
-    }
-  };
-  loadDraft();
-}, [editId, user, form, toast, searchParams]);
+    };
+    loadDraft();
+  }, [editId, user, form, toast, searchParams]);
 
 // Handle Type Selection
 const handleTypeSelect = (type: 'sneakers' | 'trading-cards') => {
