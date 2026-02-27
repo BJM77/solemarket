@@ -30,6 +30,11 @@ service cloud.firestore {
       match /favorite_categories/{docId} {
         allow read, write: if isOwner(userId);
       }
+
+      // Allow users to manage their favorite products
+      match /favorites/{docId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Products

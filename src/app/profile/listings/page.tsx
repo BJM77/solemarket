@@ -29,7 +29,7 @@ export default function MyListingsPage() {
     return query(
       collection(firestore, 'products'),
       where('sellerId', '==', user.uid),
-      orderBy('createdAt', 'desc')
+      // orderBy removed to avoid composite index requirement
     );
   }, [firestore, user?.uid]);
 

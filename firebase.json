@@ -5,6 +5,9 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "hosting": {
     "source": ".",
     "ignore": [
@@ -31,7 +34,7 @@
     "providers": {
       "emailPassword": true,
       "googleSignIn": {
-        "oAuthBrandDisplayName": "Sole Market",
+        "oAuthBrandDisplayName": "Benched",
         "supportEmail": "bjm4ck13@gmail.com"
       }
     }

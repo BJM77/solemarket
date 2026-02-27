@@ -60,7 +60,7 @@ export default function SellerDashboard() {
 
   const sellerIdQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'products'), where('sellerId', '==', user.uid), orderBy('createdAt', 'desc'));
+    return query(collection(firestore, 'products'), where('sellerId', '==', user.uid));
   }, [firestore, user?.uid]);
 
   const userIdQuery = useMemoFirebase(() => {
@@ -100,7 +100,7 @@ export default function SellerDashboard() {
 
   const sellerReviewsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'reviews'), where('sellerId', '==', user.uid), orderBy('createdAt', 'desc'));
+    return query(collection(firestore, 'reviews'), where('sellerId', '==', user.uid));
   }, [firestore, user?.uid]);
 
   const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(sellerReviewsQuery);

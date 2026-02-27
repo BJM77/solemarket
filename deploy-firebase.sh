@@ -52,7 +52,7 @@ echo ""
 # Apply Storage CORS
 echo "🌐 Applying Storage CORS Configuration..."
 if command -v gsutil &> /dev/null; then
-    gsutil cors set storage.cors.json gs://studio-8322868971-8ca89.appspot.com
+    gsutil cors set storage.cors.json gs://studio-8322868971-8ca89.firebasestorage.app
     if [ $? -eq 0 ]; then
         echo "✅ CORS configuration applied successfully"
     else

@@ -17,10 +17,8 @@ const nextConfig = {
         'studio-3973035687-658c0.web.app',
         'benched.au',
         'www.benched.au',
-        'localhost:9004',
-        'localhost:9005',
-        '127.0.0.1:9004',
-        '127.0.0.1:9005'
+        'localhost:9007',
+        '127.0.0.1:9007'
       ],
     },
   },

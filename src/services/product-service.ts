@@ -150,6 +150,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     // SCENARIO 4: STANDARD SORT (No Ranges)
     // No inequality filters, so we can sort by whatever we want.
     // Prioritize Featured items if no range filters interfere
+    // IMPORTANT: Firestore queries with orderBy(field) exclude documents missing that field.
     if (sortField === 'createdAt' || sortField === 'views') {
       orderByConstraints.push(orderBy('isFeatured', 'desc'));
     }
@@ -182,68 +183,68 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       ...doc.data()
     }) as Product);
 
-  // In-Memory Filters
-  const now = new Date();
+    // In-Memory Filters
+    const now = new Date();
 
-  // Tiered Access Filtering
-  const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
+    // Tiered Access Filtering
+    const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
 
-  products = products.filter(p => {
-    // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
+    products = products.filter(p => {
+      // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
 
-    // 2. Year Filter (in memory)
-    if (filterYearInMemory && yearRange && p.year) {
-      // Manual check for yearRange existence to satisfy TS, though logic guarantees it
-      if (p.year < yearRange[0] || p.year > yearRange[1]) return false;
-    }
+      // 2. Year Filter (in memory)
+      if (filterYearInMemory && yearRange && p.year) {
+        // Manual check for yearRange existence to satisfy TS, though logic guarantees it
+        if (p.year < yearRange[0] || p.year > yearRange[1]) return false;
+      }
 
-    // 3. Public Release Timing (for non-business/non-admin)
-    if (!isBusinessOrHigher) {
-      const releaseAt = p.publicReleaseAt as any;
-      if (releaseAt) {
-        // Handle Firestore Timestamp or Date object or serialized
-        let releaseDate: Date | null = null;
-        if (typeof releaseAt.toDate === 'function') {
-          releaseDate = releaseAt.toDate();
-        } else if (releaseAt.seconds) {
-          releaseDate = new Date(releaseAt.seconds * 1000);
-        } else if (releaseAt instanceof Date) {
-          releaseDate = releaseAt;
+      // 3. Public Release Timing (for non-business/non-admin)
+      if (!isBusinessOrHigher) {
+        const releaseAt = p.publicReleaseAt as any;
+        if (releaseAt) {
+          // Handle Firestore Timestamp or Date object or serialized
+          let releaseDate: Date | null = null;
+          if (typeof releaseAt.toDate === 'function') {
+            releaseDate = releaseAt.toDate();
+          } else if (releaseAt.seconds) {
+            releaseDate = new Date(releaseAt.seconds * 1000);
+          } else if (releaseAt instanceof Date) {
+            releaseDate = releaseAt;
+          }
+
+          if (releaseDate && releaseDate > now) {
+            return false; // Not yet public
+          }
         }
+      }
 
-        if (releaseDate && releaseDate > now) {
-          return false; // Not yet public
-        }
+      // 4. Multibuy Filter (Removed in favor of Firestore filter)
+      // if (searchParams.multibuyEnabled && !p.multibuyEnabled) {
+      //   return false;
+      // }
+
+      return true;
+    });
+
+    const hasMore = querySnapshot.docs.length === PAGE_SIZE;
+    const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
+
+    let totalCount: number | undefined = undefined;
+    // Only fetch count on first page to save reads
+    // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
+    if (!searchParams.lastId && page === 1 && !q) {
+      try {
+        const countQuery = query(productsRef, ...constraints);
+        const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
+        totalCount = snapshot.data().count;
+      } catch (e) {
+        console.error("Failed to count products", e);
       }
     }
 
-    // 4. Multibuy Filter (Removed in favor of Firestore filter)
-    // if (searchParams.multibuyEnabled && !p.multibuyEnabled) {
-    //   return false;
-    // }
+    const result = { products, hasMore, lastVisibleId, totalCount };
 
-    return true;
-  });
-
-  const hasMore = querySnapshot.docs.length === PAGE_SIZE;
-  const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
-
-  let totalCount: number | undefined = undefined;
-  // Only fetch count on first page to save reads
-  // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
-  if (!searchParams.lastId && page === 1 && !q) {
-    try {
-      const countQuery = query(productsRef, ...constraints);
-      const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
-      totalCount = snapshot.data().count;
-    } catch (e) {
-      console.error("Failed to count products", e);
-    }
-  }
-
-  const result = { products, hasMore, lastVisibleId, totalCount };
-
-  return result;
+    return result;
   } catch (error: any) {
     console.error("Error in getProducts:", error.message);
     if (error.code === 'failed-precondition') {

@@ -77,6 +77,8 @@ export async function saveDraftListing(userId: string, data: Omit<DraftListingDa
         ...data,
         status: 'draft',
         isDraft: true,
+        isFeatured: false,
+        isPromoted: false,
         updatedAt: FieldValue.serverTimestamp(),
     };
 
@@ -221,6 +223,8 @@ export async function publishListing(draftId: string, userId: string): Promise<v
             sellerEmail: userData?.email || '',
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,
+            isFeatured: data?.isFeatured ?? false,
+            isPromoted: data?.isPromoted ?? false,
         };
 
         // Check for Super Admin Personal Wanted list matches

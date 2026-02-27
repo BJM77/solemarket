@@ -74,8 +74,7 @@ export default function SellerPage() {
     if (!firestore || !sellerId) return null;
     return query(
       collection(firestore, 'reviews'),
-      where('sellerId', '==', sellerId),
-      orderBy('createdAt', 'desc')
+      where('sellerId', '==', sellerId)
     );
   }, [firestore, sellerId]);
   const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery);
