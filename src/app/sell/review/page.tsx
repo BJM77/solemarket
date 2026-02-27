@@ -106,14 +106,14 @@ function ReviewPageContent() {
           <div className="md:w-1/2 relative group">
             <div className="aspect-square bg-muted relative">
               <Image
-                src={imageUrls[0]}
+                src={imageUrls?.[0] || '/wtb-wanted-placeholder.png'}
                 alt={title}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
-            {imageUrls.length > 1 && (
+            {imageUrls && imageUrls.length > 1 && (
               <div className="absolute bottom-4 left-4 flex gap-2">
                 <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-sm border border-white/20">
                   + {imageUrls.length - 1} Photos

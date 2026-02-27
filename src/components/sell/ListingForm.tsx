@@ -251,7 +251,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         if (!currentFiles.length || !user) return;
         setIsAnalyzing(true);
         try {
-            const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File) as File[];
+            const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
             let photoUrls: string[] = [];
             if (filesToProcess.length > 0) {
                 photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
@@ -285,7 +285,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         try {
             const data = form.getValues();
 
-            const newFiles = data.imageFiles.filter(f => f instanceof File) as File[];
+            const newFiles = data.imageFiles.filter(f => f instanceof File || f instanceof Blob) as (File | Blob)[];
             const existingUrls = data.imageFiles.filter(f => typeof f === 'string') as string[];
 
             const newImageUrls = await uploadImages(newFiles, `products/${user.uid}`);

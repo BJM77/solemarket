@@ -63,7 +63,13 @@ export function ImageUploadStep({
 
         for (const file of newFiles) {
             try {
-                const compressedFile = await imageCompression(file, options);
+                const compressed = await imageCompression(file, options);
+
+                // Ensure we always store a File (not Blob) so instanceof File works later
+                const compressedFile = compressed instanceof File
+                    ? compressed
+                    : new File([compressed], file.name, { type: file.type, lastModified: Date.now() });
+
                 compressedFiles.push(compressedFile);
                 newPreviews.push(URL.createObjectURL(compressedFile));
             } catch (error) {
@@ -137,7 +143,7 @@ export function ImageUploadStep({
             {/* AI Grading & Scanning for Trading Cards */}
             {selectedType === 'trading-cards' && (
                 <AICardGrader
-                    imageFiles={imageFiles.filter(f => f instanceof File)}
+                    imageFiles={imageFiles.filter(f => f instanceof File || f instanceof Blob)}
                     onGradeComplete={onGradeComplete}
                     onApplySuggestions={onApplySuggestions!}
                 />

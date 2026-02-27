@@ -4,7 +4,7 @@ import { storage } from "./config";
 import { auth } from "./config";
 import imageCompression from "browser-image-compression";
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB (matches storage.rules)
 const COMPRESSION_OPTIONS = {
   maxSizeMB: 2,
   maxWidthOrHeight: 2048,
@@ -26,7 +26,7 @@ function sanitizePath(path: string): string {
 }
 
 export async function uploadImages(
-  files: File[],
+  files: (File | Blob)[],
   path: string
 ): Promise<string[]> {
   const sanitizedPath = sanitizePath(path);
@@ -34,21 +34,15 @@ export async function uploadImages(
   const uploadPromises = files.map(async (file) => {
     // 1. Enforce size limit
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`File ${file.name} is too large. Max size is 25MB.`);
+      throw new Error(`File ${(file as File).name || 'Unknown'} is too large. Max size is 20MB.`);
     }
 
-    // 2. Compress image if it's a large image
+    // 2. Compression is now handled in the frontend before storing in form state
+    // to ensure AI analysis uses the same pixels as the upload.
     let fileToUpload: File | Blob = file;
-    if (file.type.startsWith('image/')) {
-      try {
-        fileToUpload = await imageCompression(file, COMPRESSION_OPTIONS);
-      } catch (error) {
-        console.error("Image compression failed, uploading original:", error);
-      }
-    }
 
     // Sanitize filename
-    const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const safeFilename = ((file as File).name || 'image.png').replace(/[^a-zA-Z0-9.-]/g, '_');
     const uniqueFilename = `${Date.now()}-${safeFilename}`;
 
     const fullPath = sanitizedPath.endsWith('/')

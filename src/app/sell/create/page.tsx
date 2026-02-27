@@ -255,7 +255,7 @@ const handleAutoFill = async () => {
   if (!currentFiles.length || !user || isAnalyzing) return;
   setIsAnalyzing(true);
   try {
-    const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File) as File[];
+    const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
     let photoUrls: string[] = [];
     if (filesToProcess.length > 0) {
       photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
@@ -352,13 +352,21 @@ const handleSubmit = async () => {
 
     const values = form.getValues();
     const currentFiles = values.imageFiles;
-    const newFiles = currentFiles.filter((f: any) => f instanceof File) as File[];
+    const newFiles = currentFiles.filter(
+      (f: any) => f instanceof File || f instanceof Blob
+    ) as (File | Blob)[];
     const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
 
     let finalUrls = existingUrls;
     if (newFiles.length > 0) {
       const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
       finalUrls = [...existingUrls, ...uploaded];
+    }
+
+    if (!finalUrls.length) {
+      toast({ title: "Upload failed", description: "Please re-select your images.", variant: "destructive" });
+      setIsSubmitting(false);
+      return;
     }
 
     const { imageFiles, ...rest } = values;
