@@ -28,7 +28,8 @@ export function SmartImage({
     sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
     priority = false
 }: SmartImageProps) {
-    const imageUrl = product.imageUrls?.[imageIndex] || '/wtb-wanted-placeholder.png';
+    const [error, setError] = React.useState(false);
+    const imageUrl = error ? '/wtb-wanted-placeholder.png' : (product.imageUrls?.[imageIndex] || '/wtb-wanted-placeholder.png');
     const intelligence = product.aiIntelligence?.[imageIndex];
     const imageAlt = alt || product.imageAltTexts?.[imageIndex] || product.title;
 
@@ -37,7 +38,7 @@ export function SmartImage({
 
     // If AI Smart Crop data exists, calculate the CSS object-position
     // Note: CSS object-position uses the center point of the focus area.
-    if (intelligence?.smartCrop) {
+    if (intelligence?.smartCrop && !error) {
         const { x, y } = intelligence.smartCrop;
         // x and y are 0-1 relative coordinates from AI
         objectPosition = `${x * 100}% ${y * 100}%`;
@@ -53,6 +54,7 @@ export function SmartImage({
                 sizes={sizes}
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 style={{ objectPosition }}
+                onError={() => setError(true)}
                 placeholder="blur"
                 blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
             />
