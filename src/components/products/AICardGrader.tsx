@@ -14,7 +14,7 @@ import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import type { SuggestListingDetailsOutput } from '@/ai/flows/schemas';
 import { useUser } from '@/firebase';
 
-const fileToDataUri = (file: File): Promise<string> => {
+const fileToDataUri = (file: File | Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target?.result as string);
@@ -26,7 +26,7 @@ const fileToDataUri = (file: File): Promise<string> => {
 interface AICardGraderProps {
   onGradeComplete?: (grade: string) => void;
   onApplySuggestions: (suggestions: SuggestListingDetailsOutput) => void;
-  imageFiles: File[];
+  imageFiles: (File | Blob)[];
 }
 
 export default function AICardGrader({ onGradeComplete, onApplySuggestions, imageFiles }: AICardGraderProps) {

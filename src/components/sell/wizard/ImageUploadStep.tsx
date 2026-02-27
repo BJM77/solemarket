@@ -19,7 +19,7 @@ interface ImageUploadStepProps {
     onRemoveImage: (index: number) => void;
     onAutoFill: () => Promise<void>;
     isAnalyzing: boolean;
-    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'trading-cards' | 'general';
+    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'collector-cards' | 'general';
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
     form: any; // Passed for direct setValue if needed by sub-components
@@ -162,8 +162,7 @@ export function ImageUploadStep({
                 </CardContent>
             </Card>
 
-            {/* AI Grading & Scanning for Trading Cards */}
-            {selectedType === 'trading-cards' && (
+            {selectedType === 'collector-cards' && (
                 <AICardGrader
                     imageFiles={imageFiles.filter(f => f instanceof File || f instanceof Blob)}
                     onGradeComplete={onGradeComplete}

@@ -91,6 +91,9 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  verification: {
+    google: 'google94b3d37b300bc166',
+  },
 };
 
 export const viewport: Viewport = {

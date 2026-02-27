@@ -15,7 +15,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 
 interface DetailsStepProps {
     form: any;
-    selectedType: 'sneakers' | 'trading-cards';
+    selectedType: 'sneakers' | 'collector-cards';
     subCategories: Record<string, string[]>;
     conditionOptions: string[];
     onAutoFill?: () => Promise<void>;
@@ -24,8 +24,8 @@ interface DetailsStepProps {
 }
 
 export function DetailsStep({ form, selectedType, subCategories, conditionOptions, onAutoFill, isAnalyzing, imageFiles = [] }: DetailsStepProps) {
-    const category = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Trading Cards');
-    const isTradingCard = category === 'Trading Cards';
+    const category = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    const isTradingCard = category === 'Trading Cards' || category === 'Collector Cards';
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">

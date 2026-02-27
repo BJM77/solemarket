@@ -91,7 +91,7 @@ export default async function sitemap({
     // High-value Programmatic SEO Topic Routes
     const { SEO_TOPICS } = await import('@/config/seo-topics');
     const topicRoutes: MetadataRoute.Sitemap = SEO_TOPICS.map(topic => ({
-      url: `${baseUrl}/${topic.category === 'Trading Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
+      url: `${baseUrl}/${topic.category === 'Collector Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,
