@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const topic = getTopicBySlug(slug);
 
-    if (!topic || topic.category !== 'Trading Cards') {
+    if (!topic || topic.category !== 'Collector Cards') {
         return { title: 'Not Found' };
     }
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-    return SEO_TOPICS.filter(t => t.category === 'Trading Cards').map(t => ({
+    return SEO_TOPICS.filter(t => t.category === 'Collector Cards').map(t => ({
         slug: t.slug,
     }));
 }
@@ -40,14 +40,14 @@ export default async function CardTopicPage({ params }: Props) {
     const { slug } = await params;
     const topic = getTopicBySlug(slug);
 
-    if (!topic || topic.category !== 'Trading Cards') {
+    if (!topic || topic.category !== 'Collector Cards') {
         notFound();
     }
 
     // Server-side fetch for the initial products
     const initialData = await getProducts({
         q: topic.searchQuery,
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         page: 1,
         limit: 24
     });
@@ -75,7 +75,7 @@ export default async function CardTopicPage({ params }: Props) {
                     pageDescription={`The rarest ${topic.searchQuery} cards available now in Australia.`}
                     initialFilterState={{
                         q: topic.searchQuery,
-                        category: 'Trading Cards'
+                        category: 'Collector Cards'
                     }}
                     initialData={initialData}
                 />

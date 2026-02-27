@@ -16,9 +16,9 @@ interface PriceLookupPopupProps {
   onPriceSelect?: (price: number) => void;
 }
 
-export function EbayPriceLookup({ 
-  isOpen, 
-  onClose, 
+export function EbayPriceLookup({
+  isOpen,
+  onClose,
   searchParams = {},
 }: PriceLookupPopupProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +42,7 @@ export function EbayPriceLookup({
     // LH_Sold=1: Sold items
     // LH_Complete=1: Completed listings (usually goes with Sold)
     const encodedQuery = encodeURIComponent(searchQuery);
-    const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}&LH_Sold=1&LH_Complete=1&_ipg=60`;
+    const ebayUrl = `https://www.ebay.com.au/sch/i.html?_nkw=${encodedQuery}&LH_Sold=1&LH_Complete=1&_ipg=60`;
     window.open(ebayUrl, '_blank', 'noopener,noreferrer');
     onClose();
   };
@@ -53,12 +53,12 @@ export function EbayPriceLookup({
         <DialogHeader>
           <DialogTitle>Research Sold Prices</DialogTitle>
           <DialogDescription>
-             Search for similar sold items on eBay to determine a competitive price.
+            Search for similar sold items on eBay to determine a competitive price.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="flex items-center space-x-2 my-4">
-          <Input 
+          <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="e.g. 2023 Panini Prizm Victor Wembanyama"
@@ -67,13 +67,13 @@ export function EbayPriceLookup({
         </div>
 
         <DialogFooter className="sm:justify-start">
-           <Button type="button" onClick={handleSearchClick} className="w-full sm:w-auto">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Search Sold Items on eBay
-           </Button>
-           <Button type="button" variant="secondary" onClick={onClose} className="w-full sm:w-auto mt-2 sm:mt-0">
-             Close
-           </Button>
+          <Button type="button" onClick={handleSearchClick} className="w-full sm:w-auto">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Search Sold Items on eBay
+          </Button>
+          <Button type="button" variant="secondary" onClick={onClose} className="w-full sm:w-auto mt-2 sm:mt-0">
+            Close
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

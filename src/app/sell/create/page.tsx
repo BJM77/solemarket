@@ -69,7 +69,7 @@ function CreateListingForm() {
   const editId = searchParams.get('edit');
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<'sneakers' | 'trading-cards' | null>(null);
+  const [selectedType, setSelectedType] = useState<'sneakers' | 'collector-cards' | null>(null);
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -180,11 +180,11 @@ function CreateListingForm() {
     // 2. Load draft if editId exists
     if (!user || !editId) {
       // Recover persistent type if no editId
-      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'trading-cards' | null;
+      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | null;
       if (storedType) {
         setSelectedType(storedType);
         // ensure category is set when skipping Type step to avoid hidden validation failure
-        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : 'Trading Cards', { shouldValidate: true });
+        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : 'Collector Cards', { shouldValidate: true });
         setCurrentStep(1);
       }
       return;
@@ -206,7 +206,7 @@ function CreateListingForm() {
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
-          else if (data.category === 'Trading Cards') setSelectedType('trading-cards');
+          else if (data.category === 'Collector Cards') setSelectedType('collector-cards');
 
           setCurrentStep(1); // Jump to photos on draft load
         }
@@ -220,275 +220,275 @@ function CreateListingForm() {
     loadDraft();
   }, [editId, user, form, toast, searchParams]);
 
-// Handle Type Selection
-const handleTypeSelect = (type: 'sneakers' | 'trading-cards') => {
-  setSelectedType(type);
-  localStorage.setItem('preferredListingType', type);
-  form.setValue('category', type === 'sneakers' ? 'Sneakers' : 'Trading Cards');
-  // AUTO-ADVANCE
-  setCurrentStep(1);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const handleImagesChange = (newFiles: File[], newPreviews: string[]) => {
-  const currentFiles = form.getValues('imageFiles');
-  const updatedFiles = [...currentFiles, ...newFiles];
-  form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
-  setImagePreviews(prev => [...prev, ...newPreviews]);
-
-  // PROACTIVE AI: Trigger analysis if we have enough images and fields are empty
-  if (updatedFiles.length >= 2 && !form.getValues('title')) {
-    handleAutoFill();
-  }
-};
-
-const removeImage = (index: number) => {
-  const currentFiles = form.getValues('imageFiles');
-  const urlToRemove = imagePreviews[index];
-  form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
-  setImagePreviews(prev => prev.filter((_, i) => i !== index));
-  if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
-};
-
-const handleAutoFill = async () => {
-  const currentFiles = form.getValues('imageFiles');
-  if (!currentFiles.length || !user || isAnalyzing) return;
-  setIsAnalyzing(true);
-  try {
-    const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
-    let photoUrls: string[] = [];
-    if (filesToProcess.length > 0) {
-      photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
-    }
-    const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
-    const allUrls = [...existingUrls, ...photoUrls];
-
-    if (allUrls.length === 0) return;
-    const idToken = await user.getIdToken();
-    const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
-    if (suggestions) {
-      Object.entries(suggestions).forEach(([key, value]) => {
-        if (value && !form.getValues(key as any)) { // Only fill empty fields
-          form.setValue(key as any, value);
-        }
-      });
-      toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
-    }
-  } catch (error: any) {
-    console.warn("Auto-fill error:", error);
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
-
-const nextStep = async () => {
-  const fieldsToValidate: any[] = [];
-  if (currentStep === 1) { // Photos
-    if (imageFiles.length === 0) {
-      toast({
-        title: "Photos Required",
-        description: "Please upload at least one photo to proceed.",
-        variant: "destructive"
-      });
-      return;
-    }
-  } else if (currentStep === 2) { // Details step
-    fieldsToValidate.push('title', 'category', 'condition');
-    // Brand is required for sneakers, not cards
-    if (selectedType === 'sneakers') {
-      fieldsToValidate.push('brand');
-    }
-  } else if (currentStep === 3) { // Pricing step
-    fieldsToValidate.push('price', 'quantity');
-  }
-
-  if (fieldsToValidate.length > 0) {
-    const isValid = await form.trigger(fieldsToValidate);
-    if (!isValid) {
-      const missing = fieldsToValidate
-        .filter((f) => {
-          const val = form.getValues(f);
-          return val === undefined || val === '' || val === 0;
-        })
-        .map((f) => f.charAt(0).toUpperCase() + f.slice(1).replace(/([A-Z])/g, ' $1'));
-
-      toast({
-        title: "Missing Information",
-        description: missing.length ? `Please fill in: ${missing.join(', ')}` : "Please check the highlighted fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-  }
-
-  if (currentStep < STEPS.length - 1) {
-    setCurrentStep(prev => prev + 1);
+  // Handle Type Selection
+  const handleTypeSelect = (type: 'sneakers' | 'collector-cards') => {
+    setSelectedType(type);
+    localStorage.setItem('preferredListingType', type);
+    form.setValue('category', type === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    // AUTO-ADVANCE
+    setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    await handleSubmit();
-  }
-};
+  };
 
-const prevStep = () => {
-  if (currentStep > 0) {
-    setCurrentStep(prev => prev - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-};
+  const handleImagesChange = (newFiles: File[], newPreviews: string[]) => {
+    const currentFiles = form.getValues('imageFiles');
+    const updatedFiles = [...currentFiles, ...newFiles];
+    form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
+    setImagePreviews(prev => [...prev, ...newPreviews]);
 
-const handleSubmit = async () => {
-  setIsSubmitting(true);
-  try {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      toast({ title: "Please check all fields", variant: "destructive" });
+    // PROACTIVE AI: Trigger analysis if we have enough images and fields are empty
+    if (updatedFiles.length >= 2 && !form.getValues('title')) {
+      handleAutoFill();
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const currentFiles = form.getValues('imageFiles');
+    const urlToRemove = imagePreviews[index];
+    form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
+  };
+
+  const handleAutoFill = async () => {
+    const currentFiles = form.getValues('imageFiles');
+    if (!currentFiles.length || !user || isAnalyzing) return;
+    setIsAnalyzing(true);
+    try {
+      const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
+      let photoUrls: string[] = [];
+      if (filesToProcess.length > 0) {
+        photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
+      }
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+      const allUrls = [...existingUrls, ...photoUrls];
+
+      if (allUrls.length === 0) return;
+      const idToken = await user.getIdToken();
+      const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
+      if (suggestions) {
+        Object.entries(suggestions).forEach(([key, value]) => {
+          if (value && !form.getValues(key as any)) { // Only fill empty fields
+            form.setValue(key as any, value);
+          }
+        });
+        toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
+      }
+    } catch (error: any) {
+      console.warn("Auto-fill error:", error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const nextStep = async () => {
+    const fieldsToValidate: any[] = [];
+    if (currentStep === 1) { // Photos
+      if (imageFiles.length === 0) {
+        toast({
+          title: "Photos Required",
+          description: "Please upload at least one photo to proceed.",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else if (currentStep === 2) { // Details step
+      fieldsToValidate.push('title', 'category', 'condition');
+      // Brand is required for sneakers, not cards
+      if (selectedType === 'sneakers') {
+        fieldsToValidate.push('brand');
+      }
+    } else if (currentStep === 3) { // Pricing step
+      fieldsToValidate.push('price', 'quantity');
+    }
+
+    if (fieldsToValidate.length > 0) {
+      const isValid = await form.trigger(fieldsToValidate);
+      if (!isValid) {
+        const missing = fieldsToValidate
+          .filter((f) => {
+            const val = form.getValues(f);
+            return val === undefined || val === '' || val === 0;
+          })
+          .map((f) => f.charAt(0).toUpperCase() + f.slice(1).replace(/([A-Z])/g, ' $1'));
+
+        toast({
+          title: "Missing Information",
+          description: missing.length ? `Please fill in: ${missing.join(', ')}` : "Please check the highlighted fields.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      await handleSubmit();
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const isValid = await form.trigger();
+      if (!isValid) {
+        toast({ title: "Please check all fields", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+      if (!user) {
+        toast({ title: "You must be logged in", variant: "destructive" });
+        return;
+      }
+
+      const values = form.getValues();
+      const currentFiles = values.imageFiles;
+      const newFiles = currentFiles.filter(
+        (f: any) => f instanceof File || f instanceof Blob
+      ) as (File | Blob)[];
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+
+      let finalUrls = existingUrls;
+      if (newFiles.length > 0) {
+        const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
+        finalUrls = [...existingUrls, ...uploaded];
+      }
+
+      if (!finalUrls.length) {
+        toast({ title: "Upload failed", description: "Please re-select your images.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { imageFiles, ...rest } = values;
+      const listingData = {
+        ...rest,
+        imageUrls: finalUrls,
+        category: values.category || 'Sneakers',
+        isVault: false,
+      };
+
+      const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
+
+      toast({ title: "Success!", description: "Review your listing details." });
+      router.push(`/sell/review?draftId=${draftId}`);
+
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-    if (!user) {
-      toast({ title: "You must be logged in", variant: "destructive" });
-      return;
-    }
+  };
 
-    const values = form.getValues();
-    const currentFiles = values.imageFiles;
-    const newFiles = currentFiles.filter(
-      (f: any) => f instanceof File || f instanceof Blob
-    ) as (File | Blob)[];
-    const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
-
-    let finalUrls = existingUrls;
-    if (newFiles.length > 0) {
-      const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
-      finalUrls = [...existingUrls, ...uploaded];
-    }
-
-    if (!finalUrls.length) {
-      toast({ title: "Upload failed", description: "Please re-select your images.", variant: "destructive" });
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { imageFiles, ...rest } = values;
-    const listingData = {
-      ...rest,
-      imageUrls: finalUrls,
-      category: values.category || 'Sneakers',
-      isVault: false,
-    };
-
-    const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
-
-    toast({ title: "Success!", description: "Review your listing details." });
-    router.push(`/sell/review?draftId=${draftId}`);
-
-  } catch (error: any) {
-    toast({ title: "Error", description: error.message, variant: "destructive" });
-  } finally {
-    setIsSubmitting(false);
+  if (isLoadingDraft) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
-};
 
-if (isLoadingDraft) {
-  return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-}
+  if (currentStep === 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-background flex flex-col items-center justify-center p-4">
+        <div className="max-w-4xl w-full">
+          <ListingTypeStep onSelect={handleTypeSelect} selectedType={selectedType} />
+        </div>
+      </div>
+    );
+  }
 
-if (currentStep === 0) {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background flex flex-col items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
-        <ListingTypeStep onSelect={handleTypeSelect} selectedType={selectedType} />
-      </div>
-    </div>
-  );
-}
-
-return (
-  <Form {...form}>
-    <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
-    <div className="bg-slate-50 dark:bg-background min-h-screen pb-32">
-      {/* Header */}
-      <div className="bg-white dark:bg-card border-b border-slate-200 dark:border-border sticky top-0 z-30 shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-              {currentStep === 1 && 'Upload Photos'}
-              {currentStep === 2 && 'Item Details'}
-              {currentStep === 3 && 'Price & Delivery'}
-            </h1>
+    <Form {...form}>
+      <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
+      <div className="bg-slate-50 dark:bg-background min-h-screen pb-32">
+        {/* Header */}
+        <div className="bg-white dark:bg-card border-b border-slate-200 dark:border-border sticky top-0 z-30 shadow-sm">
+          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+                {currentStep === 1 && 'Upload Photos'}
+                {currentStep === 2 && 'Item Details'}
+                {currentStep === 3 && 'Price & Delivery'}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 3</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 3</span>
+          {/* Progress Bar */}
+          <div className="container mx-auto px-4 pb-0">
+            <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(currentStep / 3) * 100}%` }}
+              />
+            </div>
           </div>
         </div>
-        {/* Progress Bar */}
-        <div className="container mx-auto px-4 pb-0">
-          <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${(currentStep / 3) * 100}%` }}
+
+        <main className="container mx-auto px-4 py-8 pb-48 max-w-3xl">
+          {currentStep === 1 && (
+            <ImageUploadStep
+              imageFiles={imageFiles}
+              imagePreviews={imagePreviews}
+              onImagesChange={handleImagesChange}
+              onRemoveImage={removeImage}
+              onAutoFill={handleAutoFill}
+              isAnalyzing={isAnalyzing}
+              selectedType={selectedType || 'sneakers'}
+              onGradeComplete={(grade) => form.setValue('condition', grade)}
+              onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
+              form={form}
             />
+          )}
+
+          {currentStep === 2 && (
+            <DetailsStep
+              form={form}
+              selectedType={selectedType || 'sneakers'}
+              subCategories={SUB_CATEGORIES}
+              conditionOptions={CONDITION_OPTIONS}
+              onAutoFill={handleAutoFill}
+              isAnalyzing={isAnalyzing}
+              imageFiles={imageFiles}
+            />
+          )}
+
+          {currentStep === 3 && (
+            <PricingAndDeliveryStep form={form} />
+          )}
+        </main>
+
+        {/* Floating Footer Navigation */}
+        <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-4 bg-white dark:bg-card border-t border-slate-200 dark:border-border z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+          <div className="max-w-3xl mx-auto flex gap-4">
+            <Button variant="outline" size="lg" className="flex-1 rounded-xl h-14" onClick={prevStep}>
+              Back
+            </Button>
+            <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              {currentStep === 3 ? (
+                <>
+                  <Eye className="mr-2 h-5 w-5" /> Review Listing
+                </>
+              ) : (
+                <>
+                  Next <ChevronRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
-
-      <main className="container mx-auto px-4 py-8 pb-48 max-w-3xl">
-        {currentStep === 1 && (
-          <ImageUploadStep
-            imageFiles={imageFiles}
-            imagePreviews={imagePreviews}
-            onImagesChange={handleImagesChange}
-            onRemoveImage={removeImage}
-            onAutoFill={handleAutoFill}
-            isAnalyzing={isAnalyzing}
-            selectedType={selectedType || 'sneakers'}
-            onGradeComplete={(grade) => form.setValue('condition', grade)}
-            onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
-            form={form}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <DetailsStep
-            form={form}
-            selectedType={selectedType || 'sneakers'}
-            subCategories={SUB_CATEGORIES}
-            conditionOptions={CONDITION_OPTIONS}
-            onAutoFill={handleAutoFill}
-            isAnalyzing={isAnalyzing}
-            imageFiles={imageFiles}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <PricingAndDeliveryStep form={form} />
-        )}
-      </main>
-
-      {/* Floating Footer Navigation */}
-      <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-4 bg-white dark:bg-card border-t border-slate-200 dark:border-border z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <div className="max-w-3xl mx-auto flex gap-4">
-          <Button variant="outline" size="lg" className="flex-1 rounded-xl h-14" onClick={prevStep}>
-            Back
-          </Button>
-          <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-            {currentStep === 3 ? (
-              <>
-                <Eye className="mr-2 h-5 w-5" /> Review Listing
-              </>
-            ) : (
-              <>
-                Next <ChevronRight className="ml-2 h-5 w-5" />
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-    </div>
-  </Form>
-);
+    </Form>
+  );
 }
 
 export default function CreateListingPage() {

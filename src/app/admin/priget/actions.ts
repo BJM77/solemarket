@@ -46,7 +46,7 @@ export async function getMarketData(productId: string): Promise<MarketData | nul
             averageSoldPrice,
             lastSoldDate,
             suggestedPrice,
-            ebayLink: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1`,
+            ebayLink: `https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1`,
             sampleSize: results.length,
         };
 

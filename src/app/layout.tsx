@@ -68,11 +68,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: brandConfig.branding.faviconUrl || '/favicon.ico' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: brandConfig.branding.faviconUrl || '/benched.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png' },
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: ['/favicon.ico'],
   },
   twitter: {
     card: "summary_large_image",

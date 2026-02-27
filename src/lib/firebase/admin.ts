@@ -36,10 +36,21 @@ function initializeFirebaseAdmin() {
     };
 
     try {
-        // Priority 1: Service Account JSON from Environment Variable (Generic)
+        // Priority 1: Local Service Account File (Development)
+        const fs = require('fs');
+        const path = require('path');
+        const saFile = path.resolve(process.cwd(), 'service-account.json');
+        if (fs.existsSync(saFile)) {
+            const serviceAccount = JSON.parse(fs.readFileSync(saFile, 'utf8'));
+            return admin.initializeApp({
+                ...config,
+                credential: admin.credential.cert(serviceAccount),
+            });
+        }
+
+        // Priority 2: Service Account JSON from Environment Variable (Generic/GCP)
         const saJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
         if (saJson) {
-            console.log('✅ Firebase Admin: Using Service Account JSON from env');
             try {
                 const serviceAccount = JSON.parse(saJson);
                 if (serviceAccount.private_key) {

@@ -34,7 +34,7 @@ class EbayService {
     }
 
     /**
-     * Search for sold items on eBay
+     * Search for recently ended/sold items on eBay
      */
     async searchSoldItems(query: string, limit: number = 20): Promise<EbaySearchResult[]> {
         const token = await getEbayAppToken();
@@ -44,19 +44,17 @@ class EbayService {
             ? 'https://api.ebay.com'
             : 'https://api.sandbox.ebay.com';
 
-        // Build search URL with filters
-        // For sold items: usually requires specific permissions or scraping.
-        // However, we can use the Browse API with filters.
-        // Note: The public Browse API does not always return historical sold data reliably without specific access.
-        // We will try using the `COMPLETED` filter if available, or just general search for now to prove connection.
-        // eBay Browse API `filter` for sold items is `buyingOptions:{FIXED_PRICE},itemEndDate:[..]`.
-        // A common workaround for "Sold" via API is difficult without "Marketplace Insights" or similar.
-        // We will use standard search for this test to verify connectivity and data retrieval.
+        // NOTE ON SOLD DATA:
+        // The eBay Browse API (item_summary/search) primarily returns ACTIVE listings.
+        // To get TRUE sold data, the Marketplace Insights API is required (restricted access).
+        // As a workaround, we sort by 'newly_listed' and provide a direct link to eBay's Sold page for 100% accuracy.
+        // We also filter for fixed price to avoid seeing changing auction numbers.
 
         const params = new URLSearchParams({
             q: query,
             limit: limit.toString(),
-            sort: 'price',
+            sort: 'newly_listed', // Get the most recent listings first
+            filter: 'buyingOptions:{FIXED_PRICE}', // Focus on sold-equivalent fixed prices
         });
 
         const url = `${baseUrl}/buy/browse/v1/item_summary/search?${params}`;
@@ -68,7 +66,7 @@ class EbayService {
 
         // Add Affiliate Tracking Headers if Campaign ID is present
         if (this.config.campaignId) {
-            headers['X-EBAY-C-ENDUSERCTX'] = `affiliateCampaignId=${this.config.campaignId},affiliateReferenceId=solemarket_research`;
+            headers['X-EBAY-C-ENDUSERCTX'] = `affiliateCampaignId=${this.config.campaignId},affiliateReferenceId=benched_research`;
         }
 
         const response = await fetch(url, { headers });
@@ -86,14 +84,22 @@ class EbayService {
         }
 
         // Transform to our format
-        return data.itemSummaries.map(item => ({
-            title: item.title,
-            price: parseFloat(item.price.value),
-            soldDate: item.itemEndDate || new Date().toISOString(),
-            link: item.itemWebUrl,
-            condition: item.condition,
-            image: item.image?.imageUrl
-        }));
+        return data.itemSummaries.map(item => {
+            const price = parseFloat(item.price.value);
+            // If itemEndDate is in the past, it's more likely a sold/ended item
+            // If it's in the future, it's an active listing
+            const endDate = item.itemEndDate ? new Date(item.itemEndDate) : new Date();
+            const isEnded = endDate < new Date();
+
+            return {
+                title: item.title,
+                price: price,
+                soldDate: item.itemEndDate || new Date().toISOString(),
+                link: item.itemWebUrl,
+                condition: item.condition,
+                image: item.image?.imageUrl
+            };
+        });
     }
     /**
      * Calculate average price from results

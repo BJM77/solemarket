@@ -48,9 +48,6 @@ export function MainNavLinks() {
         DealSafe
       </Link>
 
-      <Link href="/donate" className={cn(buttonVariants({ variant: "default" }), "text-sm font-bold uppercase tracking-widest px-4 rounded-xl shadow-lg shadow-primary/20 ml-2")}>
-        Donate
-      </Link>
     </nav>
   );
 }

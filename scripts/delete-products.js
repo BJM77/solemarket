@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 // Initialize with ADC (Application Default Credentials)
 if (!admin.apps.length) {
     admin.initializeApp({
-        projectId: 'studio-8322868971-8ca89',
+        projectId: 'studio-3973035687-658c0',
     });
 }
 

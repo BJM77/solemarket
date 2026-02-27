@@ -11,15 +11,15 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Browse Trading Cards | Benched';
-  let description = 'Discover rare NBA and Basketball cards on Benched Australia.';
+  let title = 'Browse Collector Cards | Benched';
+  let description = 'Discover rare NBA and Basketball collector cards on Benched Australia.';
 
   if (q && category) {
     title = `${q} in ${category} | Benched`;
     description = `Searching for ${q} in ${category}. Find the best card deals on Benched.`;
   } else if (q) {
     title = `Search: ${q} | Benched`;
-    description = `Results for "${q}". Browse verified authentic trading cards on Benched.`;
+    description = `Results for "${q}". Browse verified authentic collector cards on Benched.`;
   } else if (category) {
     title = `${category} | Browse | Benched`;
     description = `Shop the best ${category} on Benched. Verified authentic and secure shipping.`;
@@ -43,7 +43,7 @@ export default async function CardsBrowsePage({
 }) {
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
-  const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Trading Cards';
+  const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Collector Cards';
 
   // Initial Server Fetch
   let initialProductsData;
@@ -63,7 +63,7 @@ export default async function CardsBrowsePage({
 
   return (
     <InfiniteProductGrid
-      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Trading Cards'}
+      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Collector Cards'}
       pageDescription="Browse the rarest cards from thousands of collectors."
       initialFilterState={{
         q: searchTerm,

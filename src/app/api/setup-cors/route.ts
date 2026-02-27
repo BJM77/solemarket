@@ -4,7 +4,7 @@ import { storageAdmin } from '@/lib/firebase/admin'; // Use our robust admin exp
 export async function GET() {
   try {
     const bucket = storageAdmin.bucket(); // Uses default bucket
-    // Or specify explicit bucket if needed: storage.bucket('studio-8322868971-8ca89.appspot.com');
+    // Or specify explicit bucket if needed: storage.bucket('studio-3973035687-658c0.firebasestorage.app');
 
     await bucket.setCorsConfiguration([
       {

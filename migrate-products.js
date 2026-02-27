@@ -1,6 +1,6 @@
 
 const admin = require('firebase-admin');
-const saPath = '/Users/bjm/Desktop/Pick1901/studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json';
+const saPath = './service-account.json';
 
 if (!admin.apps.length) {
     admin.initializeApp({

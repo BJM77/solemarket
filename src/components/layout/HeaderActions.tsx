@@ -35,16 +35,7 @@ export default function HeaderActions() {
 
             {user && (
                 <div className="flex items-center gap-1 lg:gap-2">
-                    {/* Mobile Plus Button */}
-                    <Button asChild variant="default" size="icon" className="h-9 w-9 flex lg:hidden rounded-xl shadow-lg shadow-primary/20">
-                        <Link href="/sell/create" aria-label="SELL">
-                            <PlusCircle className="h-5 w-5" />
-                        </Link>
-                    </Button>
-                    {/* Desktop Button - Styled to match Donate */}
-                    <Button asChild variant="default" size="sm" className="hidden lg:flex rounded-xl px-4 font-black uppercase tracking-widest shadow-lg shadow-primary/20 h-10 transition-all hover:scale-105 active:scale-95">
-                        <Link href="/sell/create">SELL</Link>
-                    </Button>
+                    {/* Sell buttons removed as requested */}
                 </div>
             )}
 

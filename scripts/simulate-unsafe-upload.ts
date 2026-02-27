@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin
-const projectId = 'studio-8322868971-8ca89'; // Your project ID
+const projectId = 'studio-3973035687-658c0'; // Your project ID
 if (!admin.apps.length) {
     admin.initializeApp({
         projectId: projectId,

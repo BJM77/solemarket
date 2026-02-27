@@ -4,7 +4,7 @@ const { getAuth } = require('firebase-admin/auth');
 const path = require('path');
 const fs = require('fs');
 
-const saPath = path.resolve(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
+const saPath = path.resolve(process.cwd(), 'service-account.json');
 const serviceAccount = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 
 initializeApp({

@@ -75,7 +75,7 @@ export default function BulkImageListerPage() {
             const result = await createProductAction(idToken, {
                 title: 'Draft from Image Upload',
                 description: 'Auto-generated draft.',
-                category: 'Trading Cards', // Default assumption for MVP, can be adjusted
+                category: 'Collector Cards', // Default assumption for MVP, can be adjusted
                 condition: 'Near Mint', // Default
                 price: 0,
                 imageUrls: [imageUrl],

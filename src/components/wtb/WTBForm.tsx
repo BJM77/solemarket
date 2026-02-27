@@ -243,7 +243,7 @@ export function WTBForm({ listing, mode = 'create' }: WTBFormProps) {
                                 <SelectContent>
                                     <SelectItem value="sneakers">Sneakers</SelectItem>
                                     <SelectItem value="accessories">Accessories</SelectItem>
-                                    <SelectItem value="cards">Trading Cards</SelectItem>
+                                    <SelectItem value="cards">Collector Cards</SelectItem>
                                     <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>

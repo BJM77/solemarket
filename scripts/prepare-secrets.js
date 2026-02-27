@@ -23,7 +23,7 @@ if (genAiKey) {
 
 // 3. Read Service Account JSON
 try {
-    const saPath = path.join(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
+    const saPath = path.join(process.cwd(), 'service-account.json');
     if (fs.existsSync(saPath)) {
         const sa = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 

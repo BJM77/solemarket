@@ -40,94 +40,94 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
         : listing.desiredCondition.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
     return (
-        <div className="min-h-screen bg-background py-8">
-            <div className="container mx-auto max-w-6xl px-4">
-                <Button variant="ghost" asChild className="mb-6">
+        <div className="min-h-screen bg-black text-white py-12">
+            <div className="container mx-auto max-w-6xl px-6">
+                <Button variant="ghost" asChild className="mb-10 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <Link href="/wtb">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to WTB Listings
+                        <ArrowLeft className="mr-3 h-5 w-5" />
+                        Back to requests
                     </Link>
                 </Button>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                <div className="grid lg:grid-cols-3 gap-10">
                     {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-start justify-between gap-4 mb-4">
-                                    <div className="flex-1">
-                                        <CardTitle className="text-3xl font-headline mb-2">{listing.title}</CardTitle>
+                    <div className="lg:col-span-2 space-y-10">
+                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+                            <CardHeader className="p-8 pb-4">
+                                <div className="flex flex-col gap-6 mb-8">
+                                    <div className="space-y-4">
                                         <div className="flex flex-wrap gap-2">
                                             {listing.category && (
-                                                <Badge variant="secondary">{listing.category}</Badge>
+                                                <Badge className="bg-primary text-black font-black italic rounded-lg tracking-tighter">
+                                                    {listing.category.toUpperCase()}
+                                                </Badge>
                                             )}
                                             {listing.status === 'fulfilled' && (
-                                                <Badge className="bg-green-600">Fulfilled</Badge>
-                                            )}
-                                            {listing.status === 'cancelled' && (
-                                                <Badge variant="destructive">Cancelled</Badge>
+                                                <Badge className="bg-green-500 text-black font-black italic">FULFILLED</Badge>
                                             )}
                                         </div>
+                                        <CardTitle className="text-4xl md:text-5xl font-black italic tracking-tight">{listing.title}</CardTitle>
                                     </div>
                                 </div>
 
-                                <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                                <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] bg-slate-900 border border-white/5">
                                     <Image
                                         src={imageUrl}
                                         alt={listing.title}
                                         fill
-                                        className="object-cover"
+                                        className="object-cover opacity-90"
                                         sizes="(max-width: 768px) 100vw, 66vw"
                                         priority
                                     />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 </div>
                             </CardHeader>
-                            <CardContent className="space-y-6">
+                            <CardContent className="p-8 pt-4 space-y-10">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-lg">What they're looking for</h3>
-                                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                    <h3 className="text-xl font-black italic mb-4 text-primary uppercase tracking-widest">Description.</h3>
+                                    <p className="text-slate-300 text-lg leading-relaxed whitespace-pre-wrap font-medium">
                                         {listing.description}
                                     </p>
                                 </div>
 
-                                <div className="grid sm:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                            <DollarSign className="h-5 w-5 text-primary" />
+                                <div className="grid sm:grid-cols-2 gap-6 p-8 bg-white/5 rounded-[2rem] border border-white/5 shadow-inner">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
+                                            <DollarSign className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Maximum Price</p>
-                                            <p className="font-semibold text-lg">${listing.maxPrice.toLocaleString()}</p>
+                                            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Max Budget</p>
+                                            <p className="font-black text-2xl italic tracking-tighter">${listing.maxPrice.toLocaleString()}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                            <Star className="h-5 w-5 text-primary" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
+                                            <Star className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Desired Condition</p>
-                                            <p className="font-semibold">{condition}</p>
+                                            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Condition</p>
+                                            <p className="font-black text-xl italic tracking-tighter uppercase">{condition}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                            <MapPin className="h-5 w-5 text-primary" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
+                                            <MapPin className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Location</p>
-                                            <p className="font-semibold">{listing.location}</p>
+                                            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Location</p>
+                                            <p className="font-black text-xl italic tracking-tighter">{listing.location}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                            <MessageCircle className="h-5 w-5 text-primary" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
+                                            <MessageCircle className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Contacts</p>
-                                            <p className="font-semibold">{listing.contactCount} {listing.contactCount === 1 ? 'seller' : 'sellers'}</p>
+                                            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Interest</p>
+                                            <p className="font-black text-xl italic tracking-tighter">{listing.contactCount} Sellers</p>
                                         </div>
                                     </div>
                                 </div>
@@ -136,38 +136,41 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                     </div>
 
                     {/* Sidebar */}
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Buyer Information</CardTitle>
+                    <div className="space-y-10">
+                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem]">
+                            <CardHeader className="p-8">
+                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-slate-400">Buyer Profile.</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center gap-3">
+                            <CardContent className="p-8 pt-0 space-y-8">
+                                <div className="flex items-center gap-5 p-4 bg-white/5 rounded-2xl border border-white/5">
                                     {listing.userPhotoURL ? (
                                         <Image
                                             src={listing.userPhotoURL}
                                             alt={listing.userDisplayName}
-                                            width={48}
-                                            height={48}
-                                            className="rounded-full"
+                                            width={60}
+                                            height={60}
+                                            className="rounded-xl border-2 border-primary/50"
                                         />
                                     ) : (
-                                        <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
-                                            <span className="font-semibold text-primary">
+                                        <div className="h-16 w-16 bg-primary/10 rounded-xl flex items-center justify-center border-2 border-primary/20">
+                                            <span className="font-black text-2xl text-primary">
                                                 {listing.userDisplayName.charAt(0).toUpperCase()}
                                             </span>
                                         </div>
                                     )}
                                     <div>
-                                        <p className="font-semibold">{listing.userDisplayName}</p>
-                                        <p className="text-sm text-muted-foreground">Verified Buyer</p>
+                                        <p className="font-black text-lg italic">{listing.userDisplayName}</p>
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                            <p className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Verified Member</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Calendar className="h-4 w-4" />
+                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-900/40 p-3 rounded-lg border border-white/5">
+                                    <Calendar className="h-4 w-4 text-primary" />
                                     <span>
-                                        Posted {listing.createdAt && typeof listing.createdAt === 'object' && 'toDate' in listing.createdAt
+                                        Demanded {listing.createdAt && typeof listing.createdAt === 'object' && 'toDate' in listing.createdAt
                                             ? formatDistanceToNow(listing.createdAt.toDate(), { addSuffix: true })
                                             : 'recently'}
                                     </span>
@@ -180,22 +183,34 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                 )}
 
                                 {listing.status === 'fulfilled' && (
-                                    <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-sm text-center text-green-700 dark:text-green-400">
-                                        ✓ This listing has been fulfilled
+                                    <div className="p-5 bg-green-500/10 rounded-2xl border border-green-500/20 text-sm font-black italic text-center text-green-500 uppercase tracking-widest">
+                                        ✓ This Demand has been met
                                     </div>
                                 )}
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-muted/50">
-                            <CardHeader>
-                                <CardTitle className="text-base">About WTB Listings</CardTitle>
+                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border-dashed">
+                            <CardHeader className="p-8">
+                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-slate-400">Protocols.</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-sm text-muted-foreground space-y-2">
-                                <p>• All buyers are verified members</p>
-                                <p>• Messages are private and secure</p>
-                                <p>• Both parties must be verified to communicate</p>
-                                <p>• You can negotiate directly with the buyer</p>
+                            <CardContent className="p-8 pt-0 text-[11px] text-slate-500 font-bold uppercase tracking-[0.2em] space-y-4">
+                                <div className="flex gap-4">
+                                    <span className="text-primary">01</span>
+                                    <p>Identity is strictly verified for all participants.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-primary">02</span>
+                                    <p>Communications are end-to-end encrypted.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-primary">03</span>
+                                    <p>Direct negotiation permitted through Benched.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-primary">04</span>
+                                    <p>Escrow payment via DealSafe is recommended.</p>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

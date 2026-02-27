@@ -23,7 +23,7 @@ const serviceAccount = JSON.parse(serviceAccountJson);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: 'studio-8322868971-8ca89.firebasestorage.app'
+    storageBucket: 'studio-3973035687-658c0.firebasestorage.app'
 });
 
 const db = admin.firestore();

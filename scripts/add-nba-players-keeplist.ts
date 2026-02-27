@@ -12,7 +12,7 @@ function initializeAdmin() {
     const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
     const config = { projectId, storageBucket };
 
-    const saPath = path.resolve(process.cwd(), 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
+    const saPath = path.resolve(process.cwd(), 'service-account.json');
     if (fs.existsSync(saPath)) {
         console.log('✅ Using local service account file');
         admin.initializeApp({ ...config, credential: admin.credential.cert(require(saPath)) });

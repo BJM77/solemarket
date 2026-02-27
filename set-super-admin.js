@@ -10,12 +10,12 @@ const admin = require('firebase-admin');
 const path = require('path');
 
 // Initialize Firebase Admin
-const serviceAccountPath = path.resolve(__dirname, 'studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json');
+const serviceAccountPath = path.resolve(__dirname, 'service-account.json');
 
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(require(serviceAccountPath)),
-        projectId: 'studio-8322868971-8ca89'
+        projectId: 'studio-3973035687-658c0'
     });
 }
 

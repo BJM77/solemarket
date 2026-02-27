@@ -54,7 +54,7 @@ export const SEO_GUIDES: Guide[] = [
       <h2>The Prizm Standard</h2>
       <p>In the modern era (2012-present), Panini Prizm is considered the flagship set. A player's "Silver Prizm" rookie card is the benchmark for its value across the hobby.</p>
     `,
-        coverImage: 'https://images.unsplash.com/photo-1606016159991-cdf4a33237f6?q=80&w=2600&auto=format&fit=crop',
+        coverImage: 'https://images.unsplash.com/photo-1540198163009-7afda7da2945?q=80&w=2600&auto=format&fit=crop',
         date: '2024-04-02',
         author: 'Alex (Benched Cards Expert)',
         readingTime: '8 min read',

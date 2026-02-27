@@ -14,37 +14,50 @@ interface CategoryConfig {
 
 const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     'sneakers': {
-        title: 'Buy & Sell Authentic Sneakers Australia | Benched',
-        h1: 'Authentic Sneakers Marketplace',
-        description: 'Shop verified authentic sneakers including Nike, Jordan, Adidas, Yeezy, and New Balance. The sneaker marketplace.',
+        title: 'Buy & Sell Performance Basketball Shoes Australia | Benched',
+        h1: 'Performance Basketball Shoes',
+        description: 'Shop verified authentic performance basketball shoes including Nike, Jordan, Curry, and KD. The premier hoop marketplace.',
         categoryName: 'Sneakers',
         seoText: `
-      Benched is the destination for buying and selling authentic sneakers. 
-      From the latest Air Jordan releases to rare Yeezys and Nike Dunks, our platform connects sneakerheads with trusted sellers.
+      Benched is the destination for buying and selling performance basketball shoes. 
+      From the latest Air Jordan releases to specialized Nike G.T. Cut and Kobe grails, our platform connects hoopers with trusted sellers.
       
-      Every pair is verified for authenticity, ensuring you can cop with confidence. 
-      Whether you're looking for deadstock heat or lightly worn grails, Benched has you covered.
-      Join the community today and experience the future of sneaker trading in Australia.
+      Every pair is verified for authenticity, ensuring you can play with confidence. 
+      Whether you're looking for the ultimate court feel or rare player editions, Benched has you covered.
+      Join the community today and experience the future of basketball shoe trading in Australia.
+    `
+    },
+    'collector-cards': {
+        title: 'Rare NBA & Basketball Collector Cards Australia | Benched',
+        h1: 'Collector Cards Marketplace',
+        description: 'Discover rare NBA and Basketball collector cards. Panini, Topps, and PSA graded sets for serious collectors.',
+        categoryName: 'Collector Cards',
+        seoText: `
+      Benched is the specialized marketplace for basketball and NBA collector cards. 
+      Explore a curated selection of rookie cards, autographs, and PSA-graded grails from top manufacturers like Panini and Topps.
+      
+      Our community focuses specifically on the intersection of basketball culture and card collecting. 
+      Build your portfolio or find that one missing piece for your set with Benched.
     `
     },
     'accessories': {
-        title: 'Sneaker Accessories & Care | Benched',
-        h1: 'Sneaker Accessories',
-        description: 'Shop laces, cleaning kits, display cases, and more to keep your kicks fresh.',
+        title: 'Basketball Accessories & Sneaker Care | Benched',
+        h1: 'Basketball & Sneaker Accessories',
+        description: 'Shop performance laces, cleaning kits, and display cases to keep your rotation fresh.',
         categoryName: 'Accessories',
         seoText: `
-      Complete your setup with essential sneaker accessories. 
-      From premium laces to deep cleaning kits and display solutions, find everything you need to maintain your collection.
+      Complete your setup with essential performance basketball and sneaker accessories. 
+      From premium laces to deep cleaning kits and display solutions, find everything you need to maintain your rotation.
       
-      Benched brings you the best accessory brands to help you care for and showcase your sneakers.
+      Benched brings you the best accessory brands to help you care for and showcase your gear.
     `
     },
     'apparel': {
-        title: 'Apparel | Benched',
-        h1: 'Apparel',
-        description: 'Shop verified authentic apparel.',
+        title: 'Performance Apparel | Benched',
+        h1: 'Basketball Apparel',
+        description: 'Shop verified authentic basketball and lifestyle apparel.',
         categoryName: 'Apparel',
-        seoText: `Shop verified authentic apparel on Benched.`
+        seoText: `Shop verified authentic performance and lifestyle apparel on Benched.`
     }
 };
 

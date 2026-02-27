@@ -2,33 +2,34 @@
 
 **Basketball Culture's Second Half Starts Here**
 
-Benched is Australia's premier specialized marketplace for performance basketball sneakers, providing a secure, high-end platform for the hoop community to rotate their rotation.
+Benched is Australia's premier specialized marketplace for performance basketball shoes and collector cards, providing a secure, high-end platform for the hoop community and hobbyists to upgrade their collection.
 
 ## 🎯 The Vision
 
 "These kicks aren't done. They're just Benched." 
 
-Benched solves the trust and fragmentation issues in the sneaker market by focusing on **performance basketball heritage**. We've created a premium environment where every pair is treated like an All-Star, and every transaction is backed by authenticity and security.
+Benched solves the trust and fragmentation issues in the secondary market by focusing on **performance basketball heritage and collector cards**. We've created a premium environment where every item is treated like a grail, and every transaction is backed by authenticity and security.
 
 ## ✨ Key Features
 
 ### For the Hoop Community
 - **The Starting Lineup** - Curated browse experience for top performance models.
 - **Checked In** - Verified sales and authenticated transactions.
-- **Role Player to All-Star** - Clear condition grading (Role Player, All-Star, Still Has Minutes).
-- **Price Research** - Deep data on basketball sneaker market trends.
+- **Role Player to All-Star** - Clear condition grading for shoes and cards.
+- **Price Research** - Deep data on basketball shoes and collector card market trends.
 
 ### For Sellers
 - **Put on the Bench** - Intuitive listing flow optimized for performance kicks.
 - **AI-Powered Attributes** - Automatic model identification and tech spec mapping.
-- **Multibuy Tiers** - Create bulk deals for team rotations.
+- **Collector Card Protocol** - Specialized listing for NBA, basketball, and rare collector sets.
+- **Multibuy Tiers** - Create bulk deals for team rotations or card sets.
 - **Pro Dashboard** - Manage your roster of listings with ease.
 
 ### Category Focus
 - Jordan Performance & Retro
 - Nike Basketball (LeBron, KD, Kobe, G.T. Series)
-- Adidas Basketball (Harden, Dame, AE1)
-- Performance Brands (Puma Hoops, Under Armour, New Balance, ANTA)
+- Collector Cards (NBA Prizm, Optic, Select, PSA Graded)
+- Performance Brands (Puma Hoops, Under Armour, New Balance)
 
 ## 🚀 Technology Stack
 

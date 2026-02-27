@@ -30,7 +30,7 @@ if (serviceAccountJson) {
     }
 } else {
     initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-8322868971-8ca89'
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3973035687-658c0'
     });
     console.log('⚠️ Initialized with default project ID');
 }

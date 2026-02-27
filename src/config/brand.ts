@@ -144,7 +144,7 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'The destination for performance basketball sneakers, trading cards, and culture.'
+            'The destination for performance basketball shoes, collector cards, and culture.'
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
@@ -158,9 +158,9 @@ export const brandConfig: BrandConfig = {
         primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#111111'), // Matte Black
         secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#F5F5F5'), // Off White
         accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
-        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/shoe.png'),
-        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/shoe.png'),
-        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/shoe.png'),
+        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benched.png'),
+        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benched.png'),
+        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benched.png'),
         ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', '/og-image.jpg'),
     },
 
@@ -182,23 +182,23 @@ export const brandConfig: BrandConfig = {
         siteName: getEnv('NEXT_PUBLIC_SITE_NAME', 'Benched'),
         defaultTitle: getEnv(
             'NEXT_PUBLIC_DEFAULT_TITLE',
-            'Benched | Performance Basketball Sneakers & Trading Cards'
+            'Benched | Best Performance Basketball Shoes & Collector Cards'
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The destination for performance sneakers and trading cards. Your rotation, upgraded.'
+            'The premier marketplace for performance basketball shoes and collector cards. Your rotation, upgraded.'
         ),
         keywords: [
-            'basketball shoes',
-            'trading cards',
-            'nba cards',
+            'basketball shoes Australia',
+            'collector cards',
+            'NBA cards',
             'basketball cards',
             'sneakers',
             'hoop shoes',
             'Air Jordan',
-            'Nike Basketball',
+            'Nike Basketball shoes',
             'Panini Prizm',
-            'PSA Graded',
+            'PSA Graded cards',
             'marketplace',
             'Australia',
             'buy sell sneakers',

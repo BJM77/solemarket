@@ -56,14 +56,30 @@ export function ImageUploadStep({
         const newPreviews: string[] = [];
 
         const options = {
-            maxSizeMB: 1.5,
-            maxWidthOrHeight: 1920,
+            maxSizeMB: 5,
+            maxWidthOrHeight: 2560, // Increased resolution for better quality
             useWebWorker: true,
         };
 
+        let currentTotalSize = imageFiles.reduce((acc, file) => acc + (file.size || 0), 0);
+        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
+
         for (const file of newFiles) {
+            // Check individual file size limit (5MB) before compression if desired, 
+            // but the user's request is to reduce the size of the pictures to 5MB.
+            // Compression will handle this.
+
             try {
                 const compressed = await imageCompression(file, options);
+
+                if (currentTotalSize + compressed.size > MAX_TOTAL_SIZE) {
+                    toast({
+                        title: "Total listing size exceeded.",
+                        description: "Maximum 20MB allowed for all photos in a listing.",
+                        variant: "destructive"
+                    });
+                    break;
+                }
 
                 // Ensure we always store a File (not Blob) so instanceof File works later
                 const compressedFile = compressed instanceof File
@@ -72,10 +88,16 @@ export function ImageUploadStep({
 
                 compressedFiles.push(compressedFile);
                 newPreviews.push(URL.createObjectURL(compressedFile));
+                currentTotalSize += compressedFile.size;
             } catch (error) {
                 console.error('Image compression failed:', error);
+                if (currentTotalSize + file.size > MAX_TOTAL_SIZE) {
+                    toast({ title: "Total listing size exceeded.", variant: "destructive" });
+                    break;
+                }
                 compressedFiles.push(file);
                 newPreviews.push(URL.createObjectURL(file));
+                currentTotalSize += file.size;
             }
         }
 

@@ -30,7 +30,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const groupedCategories = useMemo(() => {
         const mainSections = {
             'sneakers': { label: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers', items: [] as Category[] },
-            'trading-cards': { label: 'Cards', icon: Gem, href: '/cards', items: [] as Category[] },
+            'collector-cards': { label: 'Cards', icon: Gem, href: '/cards', items: [] as Category[] },
         } as Record<string, { label: string, icon: any, href: string, items: Category[] }>;
 
         if (!categories) return mainSections;
@@ -46,8 +46,8 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
             const sectionMap: Record<string, string> = {
                 'sneakers': 'sneakers',
                 'cat_sneakers': 'sneakers',
-                'cat_cards': 'trading-cards',
-                'trading-cards': 'trading-cards',
+                'cat_cards': 'collector-cards',
+                'collector-cards': 'collector-cards',
             };
 
             const targetSection = sectionMap[cat.section] || 'sneakers';
@@ -146,7 +146,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <div className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <Gem className="h-5 w-5" />
                                     </div>
-                                    Trading Cards
+                                    Collector Cards
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
@@ -175,10 +175,6 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Wanted
                         </Button>
                     )}
-
-                    <Button variant="default" className="justify-start text-sm font-bold px-4 rounded-xl h-11 shadow-lg shadow-primary/20 mt-2" onClick={() => handleLinkClick('/donate')}>
-                        <Heart className="mr-3 h-4 w-4 fill-white" /> Donate Kicks
-                    </Button>
                 </nav>
 
                 {/* Tools & Services Sections (Matching Desktop) */}
@@ -389,12 +385,6 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/listings')}>
                                     <Tag className="mr-3 h-4 w-4 text-primary" /> My Listings
                                 </Button>
-
-                                {canSell && (
-                                    <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/sell/create')}>
-                                        <ShoppingBag className="mr-3 h-4 w-4 text-primary" /> Sell Item
-                                    </Button>
-                                )}
                             </div>
 
                             <div className="border-t mt-4 pt-4">

@@ -4,7 +4,7 @@ export interface SEOTopic {
     title: string;
     h1: string;
     description: string;
-    category: 'Sneakers' | 'Trading Cards';
+    category: 'Sneakers' | 'Collector Cards';
     searchQuery: string;
     keywords: string[];
 }
@@ -50,10 +50,10 @@ export const SEO_TOPICS: SEOTopic[] = [
     // Cards
     {
         slug: 'panini-prizm-basketball',
-        title: 'Panini Prizm Basketball Cards Australia',
+        title: 'Panini Prizm Basketball Collector Cards Australia',
         h1: 'Panini Prizm NBA Cards',
         description: 'The gold standard of NBA collecting. Shop Panini Prizm Basketball hobby boxes, retail, and graded singles in Australia.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'Panini Prizm Basketball',
         keywords: ['panini prizm', 'nba cards', 'basketball cards', 'hobby box']
     },
@@ -62,7 +62,7 @@ export const SEO_TOPICS: SEOTopic[] = [
         title: 'Victor Wembanyama Rookie Cards Australia',
         h1: 'Wemby Rookie Card Collection',
         description: 'Invest in the future. Shop authenticated Victor Wembanyama rookie cards from Panini Prizm, Optic, and more.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'Victor Wembanyama',
         keywords: ['wembanyama', 'rookie card', 'wemby', 'spurs cards']
     },
@@ -71,16 +71,16 @@ export const SEO_TOPICS: SEOTopic[] = [
         title: 'Donruss Optic Basketball Cards Australia',
         h1: 'Donruss Optic NBA Collection',
         description: 'Shop Donruss Optic Basketball cards. Home of the Rated Rookie. Discover rare holos and signatures from your favorite NBA stars.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'Donruss Optic Basketball',
         keywords: ['donruss optic', 'rated rookie', 'nba cards', 'basketball']
     },
     {
         slug: 'michael-jordan-cards',
-        title: 'Michael Jordan Basketball Cards Australia',
+        title: 'Michael Jordan Basketball Collector Cards Australia',
         h1: 'Michael Jordan Collectibles',
         description: 'The GOAT. Shop authentic Michael Jordan basketball cards, from Fleer rookies to rare 90s inserts and modern high-end cards.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'Michael Jordan',
         keywords: ['michael jordan', 'bulls cards', 'mj cards', 'basketball goat']
     },
@@ -105,10 +105,10 @@ export const SEO_TOPICS: SEOTopic[] = [
     },
     {
         slug: 'upper-deck-lebron-james-rookie',
-        title: 'LeBron James Rookie Cards | Upper Deck & Topps Chrome',
+        title: 'LeBron James Rookie Collector Cards | Upper Deck & Topps Chrome',
         h1: 'LeBron James Rookie Card Grails',
         description: 'Invest in the King. Browse our curated selection of authenticated LeBron James rookie cards from Upper Deck, Topps Chrome and more.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'LeBron James Rookie',
         keywords: ['lebron james rookie', 'topps chrome lebron', 'upper deck lebron', 'nba grail cards']
     },
@@ -117,7 +117,7 @@ export const SEO_TOPICS: SEOTopic[] = [
         title: 'Pokemon 151 English Booster Boxes Australia',
         h1: 'Pokemon Scarlet & Violet 151 Collection',
         description: 'Catch the original 151. Shop sealed English booster boxes and rare Illustrator Rare singles from the Pokemon 151 set.',
-        category: 'Trading Cards',
+        category: 'Collector Cards',
         searchQuery: 'Pokemon 151',
         keywords: ['pokemon 151', 'scarlet violet 151', 'pokemon booster box', 'tcg australia']
     },

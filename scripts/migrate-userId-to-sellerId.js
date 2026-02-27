@@ -1,7 +1,7 @@
 
 const admin = require('firebase-admin');
 const fs = require('fs');
-const saPath = '/Users/bjm/Desktop/Pick1901/studio-8322868971-8ca89-firebase-adminsdk-fbsvc-b2a4041fbd.json';
+const saPath = '/Users/bjm/Desktop/Pick1901/service-account.json';
 
 if (!admin.apps.length) {
     const serviceAccount = JSON.parse(fs.readFileSync(saPath, 'utf8'));

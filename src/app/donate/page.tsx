@@ -15,14 +15,14 @@ export default function DonatePage() {
             {/* Hero Mission Section */}
             <div className="relative bg-slate-900 py-20 lg:py-32 overflow-hidden">
                 <div className="absolute inset-0 opacity-20">
-                    <img 
-                        src="https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?auto=format&fit=crop&q=80&w=2000" 
-                        alt="Basketball Court" 
+                    <img
+                        src="https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?auto=format&fit=crop&q=80&w=2000"
+                        alt="Basketball Court"
                         className="w-full h-full object-cover"
                     />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900"></div>
-                
+
                 <div className="container relative z-10 mx-auto px-4 text-center">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 border border-primary/30 text-primary mb-8 animate-bounce">
                         <Heart className="h-4 w-4 fill-primary" />
@@ -33,7 +33,7 @@ export default function DonatePage() {
                         <span className="text-primary italic">No Zip Code.</span>
                     </h1>
                     <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
-                        We love basketball. But not everyone has the gear to play it. 
+                        We love basketball. But not everyone has the gear to play it.
                         Donate your shoes & cards to help less privileged hoopers chase their goals.
                     </p>
                 </div>
@@ -106,7 +106,7 @@ export default function DonatePage() {
                             <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">
                                 <Library className="h-10 w-10 text-indigo-600" />
                             </div>
-                            <h3 className="text-2xl font-black uppercase mb-4">Trading Cards</h3>
+                            <h3 className="text-2xl font-black uppercase mb-4">Collector Cards</h3>
                             <p className="text-muted-foreground mb-8">NBA and basketball cards. Helping kids start their collection and love for the hobby.</p>
                             <Button className="w-full h-14 rounded-2xl font-bold text-lg bg-indigo-600 hover:bg-indigo-700 border-none">Donate Cards</Button>
                         </div>
