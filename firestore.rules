@@ -99,6 +99,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if (isAuthenticated() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid)) || isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+    }
     
     // Default deny
     match /{document=**} {

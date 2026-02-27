@@ -9,13 +9,12 @@ import {
   collection,
   onSnapshot,
   query,
-  orderBy,
-  doc
+  orderBy
 } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 import { useUser } from '@/firebase';
 import type { Category } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -33,12 +32,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { createCategory, updateCategory, deleteCategory } from '@/app/actions/admin-categories';
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Category name is required.'),
   section: z.string().min(2, 'Section slug is required (e.g., collector-cards).'),
-  href: z.string().min(1, 'Href is required (e.g., /collector-cards/sports).')
+  href: z.string().min(1, 'Href is required (e.g., /collector-cards/sports).'),
+  showOnHomepage: z.boolean().default(false),
+  showInNav: z.boolean().default(true),
+  isPopular: z.boolean().default(false),
+  order: z.number().int().default(0)
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -54,7 +58,15 @@ export default function CategoriesManager() {
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: '', section: '', href: '' },
+    defaultValues: {
+      name: '',
+      section: '',
+      href: '',
+      showOnHomepage: false,
+      showInNav: true,
+      isPopular: false,
+      order: 0
+    },
   });
 
   useEffect(() => {
@@ -62,6 +74,8 @@ export default function CategoriesManager() {
     const q = query(collection(firestore, 'categories'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const cats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+      // Client-side sort by order
+      cats.sort((a, b) => (a.order || 0) - (b.order || 0));
       setCategories(cats);
       setIsLoading(false);
     }, (error) => {
@@ -74,9 +88,25 @@ export default function CategoriesManager() {
 
   useEffect(() => {
     if (editingCategory) {
-      form.reset(editingCategory);
+      form.reset({
+        name: editingCategory.name,
+        section: editingCategory.section,
+        href: editingCategory.href || '',
+        showOnHomepage: editingCategory.showOnHomepage || false,
+        showInNav: editingCategory.showInNav !== false,
+        isPopular: editingCategory.isPopular || false,
+        order: editingCategory.order || 0
+      });
     } else {
-      form.reset({ name: '', section: '', href: '' });
+      form.reset({
+        name: '',
+        section: '',
+        href: '',
+        showOnHomepage: false,
+        showInNav: true,
+        isPopular: false,
+        order: 0
+      });
     }
   }, [editingCategory, form]);
 
@@ -84,9 +114,7 @@ export default function CategoriesManager() {
     setIsSubmitting(true);
     try {
       const token = await user?.getIdToken();
-      if (!token) {
-        throw new Error('Authentication required');
-      }
+      if (!token) throw new Error('Authentication required');
 
       if (editingCategory) {
         await updateCategory(editingCategory.id, values, token);
@@ -107,9 +135,7 @@ export default function CategoriesManager() {
   const deleteCategoryHandler = async (id: string) => {
     try {
       const token = await user?.getIdToken();
-      if (!token) {
-        throw new Error('Authentication required');
-      }
+      if (!token) throw new Error('Authentication required');
 
       await deleteCategory(id, token);
       toast({ title: 'Category deleted successfully.' });
@@ -137,6 +163,43 @@ export default function CategoriesManager() {
                 <FormField control={form.control} name="href" render={({ field }) => (
                   <FormItem><FormLabel>Link Href</FormLabel><FormControl><Input placeholder="e.g., /collector-cards/sports" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+                <FormField control={form.control} name="order" render={({ field }) => (
+                  <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                )} />
+
+                <div className="flex flex-col gap-4 py-2">
+                  <FormField control={form.control} name="showOnHomepage" render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Show on Homepage</FormLabel>
+                      </div>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="showInNav" render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Show in Nav Menu</FormLabel>
+                      </div>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="isPopular" render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Mark as Popular</FormLabel>
+                      </div>
+                    </FormItem>
+                  )} />
+                </div>
+
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
                   {editingCategory ? 'Update Category' : 'Add Category'}
@@ -162,6 +225,10 @@ export default function CategoriesManager() {
                     <TableHead>Name</TableHead>
                     <TableHead>Section</TableHead>
                     <TableHead>Href</TableHead>
+                    <TableHead>Homepage</TableHead>
+                    <TableHead>Nav</TableHead>
+                    <TableHead>Popular</TableHead>
+                    <TableHead>Order</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -171,6 +238,10 @@ export default function CategoriesManager() {
                       <TableCell className="font-medium">{cat.name}</TableCell>
                       <TableCell>{cat.section}</TableCell>
                       <TableCell>{cat.href}</TableCell>
+                      <TableCell>{cat.showOnHomepage ? 'Yes' : 'No'}</TableCell>
+                      <TableCell>{cat.showInNav !== false ? 'Yes' : 'No'}</TableCell>
+                      <TableCell>{cat.isPopular ? 'Yes' : 'No'}</TableCell>
+                      <TableCell>{cat.order || 0}</TableCell>
                       <TableCell className="text-right space-x-1">
                         <Button variant="ghost" size="icon" onClick={() => setEditingCategory(cat)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>

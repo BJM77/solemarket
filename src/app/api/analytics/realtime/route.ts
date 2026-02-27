@@ -11,15 +11,18 @@ function getAnalyticsClient() {
     const clientEmail = process.env.GA_CLIENT_EMAIL;
     const privateKey = process.env.GA_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-    if (!clientEmail || !privateKey) {
-        return null;
-    }
+    if (!privateKey) return null;
 
     try {
         let pk = privateKey.trim();
+        // Handle literal \n strings that might come from environment variables
         if (pk.includes('\\n')) pk = pk.replace(/\\n/g, '\n');
-        if (pk.startsWith('"') && pk.endsWith('"')) pk = pk.slice(1, -1);
-        if (pk.startsWith("'") && pk.endsWith("'")) pk = pk.slice(1, -1);
+        // Remove surrounding quotes if they exist
+        if (pk.startsWith('"') && pk.endsWith('"')) pk = pk.slice(1, -1).replace(/\\n/g, '\n');
+        if (pk.startsWith("'") && pk.endsWith("'")) pk = pk.slice(1, -1).replace(/\\n/g, '\n');
+
+        const clientEmail = process.env.GA_CLIENT_EMAIL;
+        if (!clientEmail) return null;
 
         analyticsClient = new BetaAnalyticsDataClient({
             credentials: {

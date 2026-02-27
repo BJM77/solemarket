@@ -50,11 +50,13 @@ class EbayService {
         // As a workaround, we sort by 'newly_listed' and provide a direct link to eBay's Sold page for 100% accuracy.
         // We also filter for fixed price to avoid seeing changing auction numbers.
 
+        const optimizedQuery = await optimizeSearchQuery(query);
+
         const params = new URLSearchParams({
-            q: query,
+            q: optimizedQuery,
             limit: limit.toString(),
-            sort: 'newly_listed', // Get the most recent listings first
-            filter: 'buyingOptions:{FIXED_PRICE}', // Focus on sold-equivalent fixed prices
+            // Remove the restrictive FIXED_PRICE filter and newly_listed sort 
+            // to improve results for specific player searches like Kon Knueppel
         });
 
         const url = `${baseUrl}/buy/browse/v1/item_summary/search?${params}`;
@@ -133,9 +135,13 @@ export const ebayService = new EbayService();
 export async function optimizeSearchQuery(title: string): Promise<string> {
     if (!title) return '';
 
-    // Remove common filler words
-    let query = title
-        .replace(/\b(L@@K|WOW|HOT|RARE|INVESTMENT|PSA\?|GEM|MINT|SSSP|1\/1)\b/gi, '')
+    // Handle year ranges often used in sports cards (e.g., 2025-26 -> 2025 2026)
+    let query = title.replace(/(\d{4})-(\d{2,4})/g, '$1 $2');
+
+    // Remove common filler/spam words that don't help search accuracy
+    query = query
+        .replace(/\b(L@@K|WOW|HOT|RARE|INVESTMENT|PSA\?|GEM|MINT|SSSP|1\/1|CASE HIT|SSP|SHORT PRINT|VHTF|LOOK|EBAY)\b/gi, '')
+        .replace(/\+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 
