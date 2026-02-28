@@ -10,28 +10,38 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ status: "success" }, { status: 200 });
         }
 
-        // Set the cookie
-        // In a real app, you might want to verify the token with firebase-admin here
-        // before setting it as a session cookie, or swap it for a session cookie.
-        // For now, we will store the ID token (or a flag) to indicate auth.
-        // NOTE: Storing the raw ID token in a cookie is checking for existence in middleware.
+        const { authAdmin } = await import('@/lib/firebase/admin');
 
-        // expiry: 5 days
-        const expiresIn = 60 * 60 * 24 * 5 * 1000;
+        // Verify the ID token first
+        const decodedIdToken = await authAdmin.verifyIdToken(idToken);
 
-        (await cookies()).set("session", idToken, {
-            maxAge: expiresIn,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            path: "/",
-            sameSite: "lax",
-        });
+        // Only process if the user recently signed in (e.g. within the last 5 minutes)
+        if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
+            // expiry: 5 days
+            const expiresIn = 60 * 60 * 24 * 5 * 1000;
 
-        return NextResponse.json({ status: "success" }, { status: 200 });
+            // Create the session cookie
+            const sessionCookie = await authAdmin.createSessionCookie(idToken, { expiresIn });
+
+            (await cookies()).set("session", sessionCookie, {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                path: "/",
+                sameSite: "lax",
+            });
+
+            return NextResponse.json({ status: "success" }, { status: 200 });
+        } else {
+            return NextResponse.json({ error: "Recent sign in required" }, { status: 401 });
+        }
+
     } catch (error) {
+        console.error('Session creation failed:', error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
 
 export async function DELETE() {
     (await cookies()).delete("session");

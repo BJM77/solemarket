@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
+  }
   const status = {
     envVarPresent: !!process.env.SERVICE_ACCOUNT_JSON,
     envVarLength: process.env.SERVICE_ACCOUNT_JSON?.length || 0,
@@ -15,14 +18,14 @@ export async function GET() {
       // Try to initialize manually to catch the error
       const serviceAccountJson = process.env.SERVICE_ACCOUNT_JSON;
       if (serviceAccountJson) {
-         const serviceAccount = JSON.parse(serviceAccountJson);
-         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-         });
+        const serviceAccount = JSON.parse(serviceAccountJson);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
       } else if (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-         admin.initializeApp({ projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID });
+        admin.initializeApp({ projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID });
       } else {
-         throw new Error("No credentials found");
+        throw new Error("No credentials found");
       }
     }
     // Try a simple read
@@ -30,11 +33,11 @@ export async function GET() {
     return NextResponse.json({ status: 'OK', details: status });
   } catch (error: any) {
     console.error("Debug Route Error:", error);
-    return NextResponse.json({ 
-      status: 'ERROR', 
+    return NextResponse.json({
+      status: 'ERROR',
       details: status,
       message: error.message,
-      stack: error.stack 
+      stack: error.stack
     }, { status: 500 });
   }
 }

@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
+  }
   return NextResponse.json({
     message: 'Debug endpoint working',
     timestamp: new Date().toISOString(),

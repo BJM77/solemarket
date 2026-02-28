@@ -1,9 +1,29 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { jwtDecode } from 'jwt-decode';
+import { jwtVerify, decodeProtectedHeader, importX509 } from 'jose';
 
-export function middleware(request: NextRequest) {
+// Cache keys in memory during Edge function execution
+let cachedPublicKeys: Record<string, string> | null = null;
+let keysExpiry = 0;
+
+async function getFirebasePublicKeys() {
+  if (cachedPublicKeys && Date.now() < keysExpiry) {
+    return cachedPublicKeys;
+  }
+  const res = await fetch('https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys', {
+    next: { revalidate: 3600 } // Cache for 1 hour
+  });
+  const keys = await res.json();
+  const maxAgeMatch = res.headers.get('cache-control')?.match(/max-age=(\d+)/);
+  const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) * 1000 : 3600000;
+
+  cachedPublicKeys = keys;
+  keysExpiry = Date.now() + maxAge;
+  return keys;
+}
+
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // 1. Security Headers (Always Safe & Recommended)
@@ -18,13 +38,32 @@ export function middleware(request: NextRequest) {
 
   if (session?.value) {
     try {
-      const decoded = jwtDecode(session.value) as any;
-      const currentTime = Date.now() / 1000;
-      if (decoded.exp && decoded.exp > currentTime) {
-        isAuth = true;
+      const token = session.value;
+      const header = decodeProtectedHeader(token);
+
+      if (header.kid) {
+        const publicKeys = await getFirebasePublicKeys();
+        const pem = publicKeys[header.kid];
+
+        if (pem) {
+          const publicKey = await importX509(pem, 'RS256');
+
+          const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+          const { payload } = await jwtVerify(token, publicKey, {
+            audience: projectId,
+            issuer: `https://session.firebase.google.com/${projectId}`,
+            algorithms: ['RS256']
+          });
+
+          // Token is cryptographically verified
+          const currentTime = Date.now() / 1000;
+          if (payload.exp && payload.exp > currentTime) {
+            isAuth = true;
+          }
+        }
       }
     } catch (error) {
-      // Invalid token
+      console.warn("Middleware Auth Verification Failed:", error);
       isAuth = false;
     }
   }

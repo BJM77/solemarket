@@ -2,13 +2,22 @@ import { NextResponse } from 'next/server';
 import { storageAdmin } from '@/lib/firebase/admin'; // Use our robust admin export
 
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Forbidden in production environment' }, { status: 403 });
+  }
+
   try {
     const bucket = storageAdmin.bucket(); // Uses default bucket
     // Or specify explicit bucket if needed: storage.bucket('studio-3973035687-658c0.firebasestorage.app');
 
     await bucket.setCorsConfiguration([
       {
-        origin: ["*"],
+        origin: [
+          "http://localhost:3000",
+          "http://localhost:9007",
+          "https://picksy.au",
+          "https://www.picksy.au"
+        ],
         method: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
         responseHeader: ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-resumable"],
         maxAgeSeconds: 3600
