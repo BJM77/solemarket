@@ -51,12 +51,12 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
             "bg-primary text-black overflow-hidden relative z-30",
             compact
                 ? "py-0 h-full w-full flex items-center rounded-lg shadow-inner"
-                : "py-1 md:py-2 border-y-2 border-primary/20",
+                : "py-1 md:py-1.5 border-y-2 border-primary/20 w-4/5 mx-auto rounded-full my-1 md:my-2 shadow-sm",
             !compact && isPinned ? "hidden md:block" : ""
         )}>
             <div className={cn(
                 "flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center font-black tracking-widest uppercase",
-                compact ? "gap-4 text-xs h-full" : "gap-4 md:gap-8 text-xs md:text-xl"
+                compact ? "gap-4 text-[10px] sm:text-xs h-full" : "gap-4 md:gap-6 text-xs md:text-sm"
             )}>
                 {[...items, ...items, ...items].map((item, i) => (
                     <Link
