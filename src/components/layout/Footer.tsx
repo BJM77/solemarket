@@ -9,7 +9,7 @@ const footerLinks = {
     { name: 'New Arrivals', href: '/browse?sort=newest' },
     { name: 'Best Sellers', href: '/browse?sort=popular' },
     { name: 'Sneakers', href: '/browse' },
-    { name: 'Trading Cards', href: '/cards' },
+    { name: 'Collector Cards', href: '/cards' },
   ],
   Brands: [
     { name: 'Nike', href: '/browse?category=Nike' },

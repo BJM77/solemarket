@@ -80,7 +80,7 @@ Based on the images and/or title, provide the following details:
 1.  **Title:** A concise, descriptive, and SEO-friendly title. For sneakers: Brand, Model, Colorway. For cards: Year, Set, Player, Card #.
 2.  **Description:** A one-to-two-line description highlighting key features and condition.
 3.  **Price:** An estimated market price in AUD (Australian Dollars).
-4.  **Category:** Choose from 'Sneakers', 'Trading Cards'.
+4.  **Category:** Choose from 'Sneakers', 'Collector Cards'.
 5.  **Sub-Category:** (e.g. 'Men's Sneakers', 'Basketball Cards').
 6.  **Condition:** For sneakers: 'New with Box', 'Used'. For cards: 'Mint 9', 'Near Mint 7', 'Raw'.
 7.  **Brand:** e.g. Nike, Adidas (Sneakers) or Panini, Upper Deck (Cards).

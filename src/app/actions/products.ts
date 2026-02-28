@@ -348,7 +348,7 @@ function generateKeywords(title: string): string[] {
     return [...new Set(keywords)]; // Unique
 }
 
-const ACTIVE_CATEGORIES = ['Sneakers', 'Trading Cards', 'Accessories', 'Apparel'];
+const ACTIVE_CATEGORIES = ['Sneakers', 'Collector Cards', 'Accessories', 'Apparel'];
 
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {

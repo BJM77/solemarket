@@ -15,7 +15,7 @@ export function CardScanner() {
     const router = useRouter();
     const { user } = useUser();
     const { toast } = useToast();
-    
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -41,11 +41,11 @@ export function CardScanner() {
             reader.onload = async () => {
                 const base64Data = reader.result as string;
                 const idToken = await user.getIdToken();
-                
+
                 try {
                     const result = await suggestListingDetails({
                         photoDataUris: [base64Data],
-                        category: 'Trading Cards', // Hint for the AI
+                        category: 'Collector Cards', // Hint for the AI
                         idToken
                     });
                     setAnalysisResult(result);
@@ -77,7 +77,7 @@ export function CardScanner() {
         if (analysisResult.condition) params.set('condition', analysisResult.condition);
         if (analysisResult.description) params.set('description', analysisResult.description);
         if (analysisResult.category) params.set('category', analysisResult.category);
-        
+
         router.push(`/sell/create?${params.toString()}`);
     };
 
@@ -88,11 +88,11 @@ export function CardScanner() {
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                     <div className="relative aspect-[2.5/3.5] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-black/5 border">
-                        <Image 
-                            src={imagePreview} 
-                            alt="Card Scan Preview" 
-                            fill 
-                            className="object-contain" 
+                        <Image
+                            src={imagePreview}
+                            alt="Card Scan Preview"
+                            fill
+                            className="object-contain"
                         />
                         {isAnalyzing && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white">
@@ -101,9 +101,9 @@ export function CardScanner() {
                             </div>
                         )}
                         {!isAnalyzing && (
-                            <Button 
-                                variant="secondary" 
-                                size="sm" 
+                            <Button
+                                variant="secondary"
+                                size="sm"
                                 className="absolute top-2 right-2"
                                 onClick={() => {
                                     setImagePreview(null);
@@ -123,7 +123,7 @@ export function CardScanner() {
                                     <Sparkles className="w-5 h-5" />
                                     <span>Card Identified!</span>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
                                         <p className="text-xs text-muted-foreground uppercase font-bold">Player/Set</p>
@@ -144,8 +144,8 @@ export function CardScanner() {
                                 </div>
 
                                 <div className="pt-4 border-t flex gap-3">
-                                    <Button 
-                                        className="w-full h-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700" 
+                                    <Button
+                                        className="w-full h-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700"
                                         onClick={handleCreateListing}
                                     >
                                         Create Listing <ArrowRight className="ml-2 h-4 w-4" />

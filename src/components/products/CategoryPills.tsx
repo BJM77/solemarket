@@ -16,7 +16,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
     const currentCategory = searchParams.get('category');
 
     // Determine the context visually based on paths or explicitly passed params
-    const isCardsMode = pathname?.includes('/cards') || currentCategory === 'Trading Cards';
+    const isCardsMode = pathname?.includes('/cards') || currentCategory === 'Collector Cards' || currentCategory === 'Trading Cards';
 
     let pills = [];
 

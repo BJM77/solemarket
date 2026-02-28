@@ -99,7 +99,7 @@ export default async function Image({ params }: { params: { id: string } }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
               <span style={{ fontSize: '24px', fontWeight: 900, color: '#F26A21', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
-                {product.category === 'Trading Cards' ? 'Authenticated Card' : 'Authenticated Kicks'}
+                {product.category === 'Collector Cards' || product.category === 'Trading Cards' ? 'Authenticated Card' : 'Authenticated Kicks'}
               </span>
               <span style={{ fontSize: '48px', fontWeight: 900, maxWidth: '800px', lineHeight: 1.1 }}>
                 {product.title}

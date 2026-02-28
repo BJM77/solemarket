@@ -20,9 +20,9 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
     },
     {
         id: 'cat_cards',
-        name: 'Trading Cards',
+        name: 'Collector Cards',
         description: 'Elite NBA and Basketball cards',
-        slug: 'trading-cards',
+        slug: 'collector-cards',
         imageUrl: '/images/categories/cards.jpg',
         section: 'Marketplace',
         order: 2,

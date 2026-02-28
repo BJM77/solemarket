@@ -83,7 +83,7 @@ export async function saveDraftListing(userId: string, data: Omit<DraftListingDa
     };
 
     // Auto-apply Bronze Multibuy for cards < $5
-    if (listingData.category === 'Trading Cards' && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
+    if ((listingData.category === 'Collector Cards' || listingData.category === 'Trading Cards') && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
         listingData.multibuyEnabled = true;
         listingData.multiCardTier = 'bronze';
     }

@@ -11,8 +11,8 @@ export function Logo({ className }: { className?: string }) {
                 alt={`${brandConfig.company.name} Logo Desktop`}
                 width={150}
                 height={45}
-                className="hidden md:block w-auto h-8 md:h-12"
-                style={{ width: 'auto', height: 'auto' }}
+                className="hidden md:block w-auto h-9"
+                style={{ width: 'auto' }}
                 priority
             />
             {/* Mobile Logo */}
@@ -21,8 +21,8 @@ export function Logo({ className }: { className?: string }) {
                 alt={`${brandConfig.company.name} Logo Mobile`}
                 width={150}
                 height={45}
-                className="md:hidden w-auto h-10"
-                style={{ width: 'auto', height: 'auto' }}
+                className="md:hidden w-auto h-7"
+                style={{ width: 'auto' }}
                 priority
             />
         </div>

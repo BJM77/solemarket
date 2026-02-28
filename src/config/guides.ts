@@ -7,7 +7,7 @@ export interface Guide {
     date: string;
     author: string;
     readingTime: string;
-    category: 'Sneakers' | 'Trading Cards' | 'General';
+    category: 'Sneakers' | 'Collector Cards' | 'General';
 }
 
 export const SEO_GUIDES: Guide[] = [
@@ -58,7 +58,7 @@ export const SEO_GUIDES: Guide[] = [
         date: '2024-04-02',
         author: 'Alex (Benched Cards Expert)',
         readingTime: '8 min read',
-        category: 'Trading Cards'
+        category: 'Collector Cards'
     }
 ];
 

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: 'Product Not Found | Benched' };
 
   const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
-  const section = product.category === 'Trading Cards' ? 'cards' : 'shoes';
+  const section = (product.category === 'Collector Cards' || product.category === 'Trading Cards') ? 'cards' : 'shoes';
   const slug = slugify(product.title);
   const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
 

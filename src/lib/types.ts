@@ -139,6 +139,7 @@ export type Product = {
   autoRepricingEnabled?: boolean;
   minStockQuantity?: number;
   contactCallCount?: number; // Analytics for phone reveals
+  watchCount?: number; // Total number of users watching this product
   isNegotiable?: boolean;
   isFeatured?: boolean;
   isPromoted?: boolean;

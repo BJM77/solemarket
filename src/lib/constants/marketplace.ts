@@ -4,7 +4,7 @@
  * Standardizing these ensures consistent SEO, URLs, and data structure across the platform.
  */
 
-export const CATEGORY_TRADING_CARDS = 'Trading Cards';
+export const CATEGORY_TRADING_CARDS = 'Collector Cards';
 export const CATEGORY_SNEAKERS = 'Sneakers';
 export const CATEGORY_ACCESSORIES = 'Accessories';
 export const CATEGORY_GENERAL = 'General';
@@ -39,6 +39,7 @@ export const DEFAULT_CONDITIONS = [
 export const CATEGORY_MAPPING: Record<string, string> = {
   'Cards': CATEGORY_TRADING_CARDS,
   'Collector Cards': CATEGORY_TRADING_CARDS,
+  'Trading Cards': CATEGORY_TRADING_CARDS,
   'collector-cards': CATEGORY_TRADING_CARDS,
   'trading-cards': CATEGORY_TRADING_CARDS,
   'Shoes': CATEGORY_SNEAKERS,

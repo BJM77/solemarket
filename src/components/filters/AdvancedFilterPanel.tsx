@@ -35,7 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 const DEFAULT_CATEGORIES = [
     'Sneakers',
     'Accessories',
-    'Trading Cards',
+    'Collector Cards',
 ];
 
 const DEFAULT_SIZES = [

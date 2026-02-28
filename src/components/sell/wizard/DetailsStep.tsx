@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -10,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrandRequestModal } from '../BrandRequestModal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
 import { Loader2, Sparkles } from 'lucide-react';
+import { isCardCategory } from '@/lib/constants/marketplace';
 
 interface DetailsStepProps {
     form: any;
@@ -25,7 +24,7 @@ interface DetailsStepProps {
 
 export function DetailsStep({ form, selectedType, subCategories, conditionOptions, onAutoFill, isAnalyzing, imageFiles = [] }: DetailsStepProps) {
     const category = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
-    const isTradingCard = category === 'Trading Cards' || category === 'Collector Cards';
+    const isTradingCard = isCardCategory(category);
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
@@ -240,4 +239,3 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
         </div>
     );
 }
-

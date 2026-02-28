@@ -46,6 +46,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
 import { SmartImage } from './SmartImage';
+import { isCardCategory } from '@/lib/constants/marketplace';
 
 
 
@@ -389,6 +390,7 @@ export default function ProductCard({
         return 'aspect-[4/3]';
       case 'Accessories':
         return 'aspect-square';
+      case 'Collector Cards':
       case 'Trading Cards':
         return 'aspect-[2.5/3.5]';
       default:
@@ -768,13 +770,13 @@ export default function ProductCard({
               "inline-flex items-center gap-1 font-black px-2 py-1 rounded-lg uppercase text-[10px] tracking-tighter backdrop-blur-md pointer-events-auto shadow-sm",
               product.condition.includes('New') || product.grade?.includes('10') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
             )}>
-              {product.category === 'Trading Cards' ? (product.grade || 'RAW') :
+              {isCardCategory(product.category) ? (product.grade || 'RAW') :
                 (product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES')}
             </Badge>
           )}
           <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-            {(product.id.charCodeAt(0) % 15) + 3} Watching
+            {product.watchCount || 0} Watching
           </Badge>
           {hasViewed && (
             <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto">

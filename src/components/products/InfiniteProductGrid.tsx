@@ -339,7 +339,7 @@ function InfiniteProductGridInner({
 
   const itemLabel = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
-    if (category === 'Trading Cards') return 'Cards';
+    if (category === 'Collector Cards' || category === 'Trading Cards') return 'Cards';
     if (category === 'Sneakers') return 'Kicks';
     return 'Items';
   }, [currentSearchParams.category, initialFilterState.category]);
@@ -347,6 +347,7 @@ function InfiniteProductGridInner({
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
     if (category === 'Sneakers') return 'aspect-[4/3]';
+    if (category === 'Collector Cards' || category === 'Trading Cards') return 'aspect-square';
     return 'aspect-square';
   }, [currentSearchParams.category, initialFilterState.category]);
 

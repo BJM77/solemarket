@@ -149,7 +149,7 @@ export default function AdminWantedManager() {
                                     <SelectContent>
                                         <SelectItem value="All">All Categories</SelectItem>
                                         <SelectItem value="Sneakers">Sneakers</SelectItem>
-                                        <SelectItem value="Trading Cards">Trading Cards</SelectItem>
+                                        <SelectItem value="Collector Cards">Collector Cards</SelectItem>
                                         <SelectItem value="Accessories">Accessories</SelectItem>
                                     </SelectContent>
                                 </Select>
