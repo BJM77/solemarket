@@ -66,13 +66,17 @@ function initializeFirebaseAdmin() {
         }
 
         // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
-        // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
         const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
         const pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY;
-        console.log('DIAGNOSTICS:', { hasClientEmail: !!clientEmail, hasPk: !!pk });
+
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('DIAGNOSTICS:', { hasClientEmail: !!clientEmail, hasPk: !!pk });
+        }
 
         if (pk && clientEmail) {
-            console.log('✅ Firebase Admin: Using Individual Secrets');
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('✅ Firebase Admin: Using Individual Secrets');
+            }
             try {
                 // Formatting Fixes for Private Key
                 let privateKey = pk.trim();
@@ -85,7 +89,9 @@ function initializeFirebaseAdmin() {
                 // Ensure newlines are restored if they were stripped (common in some UI dashboards)
                 // PEM keys must have newlines between lines.
                 if (!privateKey.includes('\n')) {
-                    console.log('🔧 Firebase Admin: Single-line private key detected, attempting to restore PEM formatting.');
+                    if (process.env.NODE_ENV !== 'production') {
+                        console.log('🔧 Firebase Admin: Single-line private key detected, attempting to restore PEM formatting.');
+                    }
                     // Standard PEM line length is 64 chars, but we only really care about the wrap
                     privateKey = privateKey
                         .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
@@ -114,7 +120,9 @@ function initializeFirebaseAdmin() {
 
         // Priority 3: Default ADC Fallback (Production/GCP)
         // This works automatically on Google Cloud without manual file checks
-        console.log('ℹ️ Firebase Admin: Falling back to Application Default Credentials');
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('ℹ️ Firebase Admin: Falling back to Application Default Credentials');
+        }
         return admin.initializeApp({
             ...config,
             credential: admin.credential.applicationDefault(),
@@ -140,7 +148,9 @@ try {
     authAdmin = firebaseAdminApp.auth();
     storageAdmin = firebaseAdminApp.storage();
     messagingAdmin = firebaseAdminApp.messaging();
-    console.log('✅ Firebase Admin: All services initialized successfully');
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('✅ Firebase Admin: All services initialized successfully');
+    }
 } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
 }

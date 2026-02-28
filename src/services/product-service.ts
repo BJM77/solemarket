@@ -34,7 +34,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   // Handle Multi-select Categories
   if (categories && categories.length > 0) {
-    constraints.push(where('category', 'in', categories.slice(0, 30)));
+    constraints.push(where('category', 'in', categories.slice(0, 10)));
   } else if (category) {
     // Fallback for single category
     constraints.push(where('category', '==', category));
@@ -44,16 +44,14 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     constraints.push(where('subCategory', '==', subCategory));
   }
   if (conditions && conditions.length > 0) {
-    constraints.push(where('condition', 'in', conditions));
+    constraints.push(where('condition', 'in', conditions.slice(0, 10)));
   }
   if (searchParams.sizes && searchParams.sizes.length > 0) {
-    // Firestore 'in' limitation: max 10 (or 30 in newer versions). 
-    // If > 10 selected, this might fail or we need multiple queries. 
-    // For now, slice to 10 to be safe.
+    // Firestore 'in' limitation: max 10. 
     constraints.push(where('size', 'in', searchParams.sizes.slice(0, 10)));
   }
   if (sellers && sellers.length > 0) {
-    constraints.push(where('sellerId', 'in', sellers.slice(0, 30)));
+    constraints.push(where('sellerId', 'in', sellers.slice(0, 10)));
   }
 
   // Verified Only Filter
