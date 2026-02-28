@@ -69,19 +69,6 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
             return;
         }
 
-        // If user is logged in, their profile might have roles/verification rules
-        if (user) {
-            if ((user as any).role !== 'admin' && (user as any).role !== 'superadmin' && !(user as any).isVerified) {
-                toast({
-                    title: "Verification Required",
-                    description: "You must verify your identity before making offers.",
-                    variant: "destructive"
-                });
-                router.push('/verify');
-                return;
-            }
-        }
-
         // --- STEP 1: AMOUNT ---
         if (step === 'amount') {
             if (paymentMethodId) {
