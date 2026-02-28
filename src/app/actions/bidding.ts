@@ -6,11 +6,35 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product, Bid } from '@/lib/types';
 import { sendNotification } from '@/services/notifications';
 import { revalidatePath } from 'next/cache';
+import { verifyActionCode } from './email-verification';
 
-export async function placeBidAction(productId: string, idToken: string, amount: number, paymentMethodId?: string) {
+export async function placeBidAction(
+    productId: string,
+    amount: number,
+    idToken?: string,
+    guestEmail?: string,
+    verificationCode?: string,
+    paymentMethodId?: string
+) {
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const { uid: bidderId, name: bidderName } = decodedToken;
+        let bidderId: string;
+        let bidderName: string;
+
+        if (idToken) {
+            const decodedToken = await verifyIdToken(idToken);
+            bidderId = decodedToken.uid;
+            bidderName = decodedToken.name || 'User';
+        } else if (guestEmail && verificationCode) {
+            // Verify guest email before proceeding
+            const verifyResult = await verifyActionCode(guestEmail, verificationCode);
+            if (!verifyResult.success) {
+                return { success: false, error: verifyResult.error || "Verification failed" };
+            }
+            bidderId = `guest_${guestEmail.replace(/\./g, '_')}`;
+            bidderName = `Guest (${guestEmail.split('@')[0]})`;
+        } else {
+            return { success: false, error: "Authentication or Guest Verification required." };
+        }
 
         const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);

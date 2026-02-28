@@ -10,6 +10,7 @@ import { Bid, Product, SafeUser } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { placeBidAction } from '@/app/actions/bidding';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/email-verification';
 
 interface BiddingInterfaceProps {
     product: Product;
@@ -20,18 +21,76 @@ interface BiddingInterfaceProps {
 export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfaceProps) {
     const { toast } = useToast();
     const [bidAmount, setBidAmount] = useState('');
+    const [verificationCode, setVerificationCode] = useState('');
+    const [guestEmail, setGuestEmail] = useState('');
+    const [step, setStep] = useState<'amount' | 'verify'>('amount');
     const [loading, setLoading] = useState(false);
 
-    const handlePlaceBid = async () => {
-        if (!user) return;
-        if (!bidAmount) return;
+    const handleSendVerification = async () => {
+        const email = user?.email || guestEmail;
+        if (!email) {
+            toast({ title: "Email required", description: "Please enter a valid email address.", variant: "destructive" });
+            return;
+        }
 
         try {
             setLoading(true);
-            const idToken = await getCurrentUserIdToken();
-            if (!idToken) throw new Error("Please sign in to place an offer.");
+            const result = await sendActionVerificationEmail(email);
+            if (result.success) {
+                setStep('verify');
+                toast({ title: "Verification Code Sent", description: `Check ${email} for your code.` });
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (err: any) {
+            toast({ variant: "destructive", title: "Failed to send code", description: err.message });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-            const result = await placeBidAction(product.id, idToken, parseFloat(bidAmount));
+    const handlePlaceBid = async () => {
+        if (!bidAmount) return;
+
+        // --- STEP 1: AMOUNT ---
+        if (step === 'amount') {
+            if (user) {
+                // AUTHENTICATED USERS: Place bid directly
+                await executeBidPlacement();
+            } else {
+                // GUESTS: Transition to verification
+                if (!guestEmail || !guestEmail.includes('@')) {
+                    toast({ title: "Email required", description: "Please provide an email to verify your bid.", variant: "destructive" });
+                    return;
+                }
+                await handleSendVerification();
+            }
+            return;
+        }
+
+        // --- STEP 2: VERIFY (Guests only) ---
+        if (!verificationCode) {
+            toast({ title: "Code required", variant: "destructive" });
+            return;
+        }
+
+        await executeBidPlacement();
+    };
+
+    const executeBidPlacement = async () => {
+        try {
+            setLoading(true);
+            const amount = parseFloat(bidAmount);
+            const idToken = user ? await getCurrentUserIdToken() : undefined;
+            if (user && !idToken) throw new Error("Authentication failed");
+
+            const result = await placeBidAction(
+                product.id,
+                amount,
+                idToken || undefined,
+                !user ? guestEmail : undefined,
+                !user ? verificationCode : undefined
+            );
 
             if (!result.success) {
                 throw new Error(result.error);
@@ -42,10 +101,13 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                 description: "Your offer has been sent to the seller!",
             });
             setBidAmount('');
+            setVerificationCode('');
+            setGuestEmail('');
+            setStep('amount');
         } catch (err: any) {
             toast({
                 variant: "destructive",
-                title: "Offer Failed",
+                title: "Action Failed",
                 description: err.message,
             });
         } finally {
@@ -134,30 +196,101 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
             </div>
 
             {!isSeller && product.status !== 'sold' && (
-                <div className="p-6 rounded-3xl bg-indigo-600 shadow-xl shadow-indigo-500/20 text-white">
-                    <div className="flex items-center gap-2 mb-4">
-                        <TrendingUp className="h-4 w-4" />
-                        <span className="text-xs font-black uppercase tracking-widest">Place Your Offer</span>
-                    </div>
-                    <div className="flex gap-3">
-                        <div className="relative flex-1">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 font-black">$</span>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                className="pl-10 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xl font-black rounded-2xl focus-visible:ring-white/30"
-                                value={bidAmount}
-                                onChange={(e) => setBidAmount(e.target.value)}
-                            />
-                        </div>
-                        <Button
-                            onClick={handlePlaceBid}
-                            disabled={loading || !bidAmount}
-                            className="h-14 px-8 bg-white text-indigo-600 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
-                        >
-                            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "SEND OFFER"}
-                        </Button>
-                    </div>
+                <div className="p-6 rounded-3xl bg-indigo-600 shadow-xl shadow-indigo-500/20 text-white relative overflow-hidden">
+                    <AnimatePresence mode="wait">
+                        {step === 'amount' ? (
+                            <motion.div
+                                key="amount"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-4"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span className="text-xs font-black uppercase tracking-widest">Place Your Offer</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex gap-3">
+                                        <div className="relative flex-1">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 font-black">$</span>
+                                            <Input
+                                                type="number"
+                                                placeholder="0.00"
+                                                className="pl-10 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xl font-black rounded-2xl focus-visible:ring-white/30"
+                                                value={bidAmount}
+                                                onChange={(e) => setBidAmount(e.target.value)}
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={handlePlaceBid}
+                                            disabled={loading || !bidAmount}
+                                            className="h-14 px-8 bg-white text-indigo-600 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
+                                        >
+                                            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : user ? "SEND OFFER" : "NEXT"}
+                                        </Button>
+                                    </div>
+
+                                    {!user && (
+                                        <div className="relative">
+                                            <Input
+                                                type="email"
+                                                placeholder="Your email address"
+                                                className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold rounded-xl focus-visible:ring-white/30"
+                                                value={guestEmail}
+                                                onChange={(e) => setGuestEmail(e.target.value)}
+                                            />
+                                            <p className="text-[9px] font-bold text-white/40 mt-1 uppercase tracking-widest pl-1">Guest verification required</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="verify"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-4"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4" />
+                                        <span className="text-xs font-black uppercase tracking-widest">Verify Identity</span>
+                                    </div>
+                                    <button
+                                        onClick={() => setStep('amount')}
+                                        className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                                    >
+                                        Go Back
+                                    </button>
+                                </div>
+                                <p className="text-[11px] font-bold text-white/80 leading-snug">
+                                    A verification code was sent to <strong>{user?.email || guestEmail}</strong>. Enter it below to confirm your offer.
+                                </p>
+                                <div className="flex gap-3">
+                                    <div className="relative flex-1">
+                                        <Input
+                                            type="text"
+                                            placeholder="•••••"
+                                            maxLength={5}
+                                            className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xl font-black rounded-2xl focus-visible:ring-white/30 text-center tracking-[8px] uppercase"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value.substring(0, 5))}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <Button
+                                        onClick={handlePlaceBid}
+                                        disabled={loading || verificationCode.length < 5}
+                                        className="h-14 px-8 bg-white text-indigo-600 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
+                                    >
+                                        {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "VERIFY & BID"}
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                     <p className="text-[10px] font-bold text-white/50 mt-4 flex items-center gap-1.5 uppercase tracking-tighter">
                         <InfoIcon className="h-3 w-3" />
                         Offers are binding. Seller will be notified immediately.

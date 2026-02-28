@@ -540,7 +540,7 @@ export default function ProductDetailsModern({
                                     )}
 
                                     {/* Auction Interface if Reverse Bidding */}
-                                    {product.isReverseBidding && user && (
+                                    {product.isReverseBidding && (
                                         <div className="mt-4">
                                             <BiddingInterface
                                                 product={product}
