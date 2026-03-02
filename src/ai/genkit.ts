@@ -8,12 +8,7 @@ import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const plugins = [];
-// PRIORITY: Use the new key directly to bypass expired secrets in production
-const newKey = "AIzaSyBQ12zsEyPKtQvOOQZEuasDmnYdUr3u1_c";
-const envKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-
-// Use the new key unless the environment specifically provides a different (presumably newer) one
-const apiKey = newKey || envKey;
+const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
 if (apiKey) {
   plugins.push(googleAI({ apiKey: apiKey }));
