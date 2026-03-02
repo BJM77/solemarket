@@ -9,8 +9,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 
 const plugins = [];
 const apiKeyFromEnv = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-// User-provided fallback key for testing
-const apiKey = apiKeyFromEnv || "AIzaSyBhjkLfR6-ov0gaCg455-KBZLE0dyyYvpQ";
+const apiKey = apiKeyFromEnv || "AIzaSyBQ12zsEyPKtQvOOQZEuasDmnYdUr3u1_c";
 
 if (apiKey) {
   plugins.push(googleAI({ apiKey: apiKey }));
