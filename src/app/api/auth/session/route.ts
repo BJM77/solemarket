@@ -11,6 +11,18 @@ export async function POST(request: NextRequest) {
         }
 
         const { authAdmin } = await import('@/lib/firebase/admin');
+        const cookieStore = await cookies();
+        const existingSessionCookie = cookieStore.get("session")?.value;
+
+        if (existingSessionCookie) {
+            try {
+                // If they already have a valid session, just return 200 and skip recreating it
+                await authAdmin.verifySessionCookie(existingSessionCookie, true);
+                return NextResponse.json({ status: "success" }, { status: 200 });
+            } catch (err) {
+                // Session expired or invalid, we will try to create a new one below if the ID token is fresh
+            }
+        }
 
         // Verify the ID token first
         const decodedIdToken = await authAdmin.verifyIdToken(idToken);
@@ -23,7 +35,7 @@ export async function POST(request: NextRequest) {
             // Create the session cookie
             const sessionCookie = await authAdmin.createSessionCookie(idToken, { expiresIn });
 
-            (await cookies()).set("session", sessionCookie, {
+            cookieStore.set("session", sessionCookie, {
                 maxAge: expiresIn,
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
@@ -33,8 +45,8 @@ export async function POST(request: NextRequest) {
 
             return NextResponse.json({ status: "success" }, { status: 200 });
         } else {
-            // Return 200 instead of 401 to prevent console errors. We are intentionally ignoring this valid but old token.
-            return NextResponse.json({ status: "ignored", message: "Recent sign in required" }, { status: 200 });
+            // Revert back to returning a 401 to accurately report missing session creation ability
+            return NextResponse.json({ error: "Recent sign in required" }, { status: 401 });
         }
 
     } catch (error) {
