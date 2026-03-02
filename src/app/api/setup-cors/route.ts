@@ -15,8 +15,8 @@ export async function GET() {
         origin: [
           "http://localhost:3000",
           "http://localhost:9007",
-          "https://picksy.au",
-          "https://www.picksy.au"
+          "https://benched.au",
+          "https://www.benched.au"
         ],
         method: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
         responseHeader: ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-resumable"],

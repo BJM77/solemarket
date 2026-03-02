@@ -63,6 +63,14 @@ const nextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/sitemap_index.xml',
+      },
+    ];
+  },
   async headers() {
     return [
       {
