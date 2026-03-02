@@ -50,18 +50,25 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
         const idToken = await user?.getIdToken();
         if (!idToken) throw new Error("Authentication required");
 
-        const gradingReport = await suggestListingDetails({
+        const suggestionsResponse = await suggestListingDetails({
           photoDataUris: dataUris,
           idToken: idToken,
         });
 
-        setResult(gradingReport);
-
-        if (gradingReport.condition && onGradeComplete) {
-          onGradeComplete(gradingReport.condition);
+        if (suggestionsResponse.error) {
+          throw new Error(suggestionsResponse.error);
         }
 
-        toast({ title: "AI Analysis Complete!", description: "Review the suggestions below and apply them to your listing." });
+        const gradingReport = suggestionsResponse.data;
+        if (gradingReport) {
+          setResult(gradingReport);
+
+          if (gradingReport.condition && onGradeComplete) {
+            onGradeComplete(gradingReport.condition);
+          }
+
+          toast({ title: "AI Analysis Complete!", description: "Review the suggestions below and apply them to your listing." });
+        }
 
       } catch (error) {
         console.error(error);

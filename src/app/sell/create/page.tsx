@@ -133,11 +133,12 @@ function CreateListingForm() {
     const autosaveTimer = setTimeout(async () => {
       const { imageFiles, ...rest } = form.getValues();
 
-      const draftData: any = {
+      // Sanitize data: remove undefined values and ensure serializability
+      const draftData: any = JSON.parse(JSON.stringify({
         ...rest,
         imageUrls: imagePreviews.filter(p => !p.startsWith('blob:')),
         status: 'draft',
-      };
+      }));
 
       try {
         await saveDraftListing(user.uid, draftData, editId || undefined);
@@ -264,7 +265,21 @@ function CreateListingForm() {
 
       if (allUrls.length === 0) return;
       const idToken = await user.getIdToken();
-      const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, category: form.getValues('category'), idToken });
+
+      // Sanitize input
+      const input = JSON.parse(JSON.stringify({
+        photoDataUris: allUrls,
+        title: form.getValues('title') || undefined,
+        category: form.getValues('category'),
+        idToken
+      }));
+
+      const suggestionsResponse = await suggestListingDetails(input);
+      if (suggestionsResponse.error) {
+        throw new Error(suggestionsResponse.error);
+      }
+
+      const suggestions = suggestionsResponse.data;
       if (suggestions) {
         Object.entries(suggestions).forEach(([key, value]) => {
           if (value && !form.getValues(key as any)) { // Only fill empty fields
@@ -274,7 +289,12 @@ function CreateListingForm() {
         toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
       }
     } catch (error: any) {
-      console.warn("Auto-fill error:", error);
+      console.error("Auto-fill error detailed:", error);
+      toast({
+        title: "Auto-fill stalled",
+        description: "AI analysis failed. You can still fill details manually.",
+        variant: "destructive"
+      });
     } finally {
       setIsAnalyzing(false);
     }
@@ -369,12 +389,13 @@ function CreateListingForm() {
       }
 
       const { imageFiles, ...rest } = values;
-      const listingData = {
+      // Deep sanitize listing data for Server Action
+      const listingData = JSON.parse(JSON.stringify({
         ...rest,
         imageUrls: finalUrls,
         category: values.category || 'Sneakers',
         isVault: false,
-      };
+      }));
 
       const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
 

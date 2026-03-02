@@ -131,11 +131,17 @@ export default function MultiGenPage() {
         setIsAnalyzing(true);
         try {
             const idToken = await user.getIdToken();
-            const result = await suggestListingDetails({
+            const suggestionsResponse = await suggestListingDetails({
                 photoDataUris: [img],
                 idToken
             });
 
+            if (suggestionsResponse.error) {
+                toast({ title: "AI Error", description: suggestionsResponse.error, variant: "destructive" });
+                return;
+            }
+
+            const result = suggestionsResponse.data;
             if (result) {
                 setTitle(result.title);
                 setAiData(result);

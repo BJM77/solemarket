@@ -261,7 +261,12 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
 
             if (allUrls.length === 0) return;
             const idToken = await user.getIdToken();
-            const suggestions = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, idToken });
+            const suggestionsResponse = await suggestListingDetails({ photoDataUris: allUrls, title: form.getValues('title') || undefined, idToken });
+            if (suggestionsResponse.error) {
+                throw new Error(suggestionsResponse.error);
+            }
+
+            const suggestions = suggestionsResponse.data;
             if (suggestions) {
                 Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
                 toast({ title: '✨ AI Magic Applied!' });

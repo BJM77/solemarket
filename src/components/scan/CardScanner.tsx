@@ -43,12 +43,17 @@ export function CardScanner() {
                 const idToken = await user.getIdToken();
 
                 try {
-                    const result = await suggestListingDetails({
+                    const suggestionsResponse = await suggestListingDetails({
                         photoDataUris: [base64Data],
                         category: 'Collector Cards', // Hint for the AI
                         idToken
                     });
-                    setAnalysisResult(result);
+
+                    if (suggestionsResponse.error) {
+                        throw new Error(suggestionsResponse.error);
+                    }
+
+                    setAnalysisResult(suggestionsResponse.data);
                 } catch (error: any) {
                     console.error("AI Analysis failed:", error);
                     toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });

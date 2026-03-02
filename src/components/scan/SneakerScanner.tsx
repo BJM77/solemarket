@@ -15,7 +15,7 @@ export function SneakerScanner() {
     const router = useRouter();
     const { user } = useUser();
     const { toast } = useToast();
-    
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -41,14 +41,19 @@ export function SneakerScanner() {
             reader.onload = async () => {
                 const base64Data = reader.result as string;
                 const idToken = await user.getIdToken();
-                
+
                 try {
-                    const result = await suggestListingDetails({
+                    const suggestionsResponse = await suggestListingDetails({
                         photoDataUris: [base64Data],
                         category: 'Sneakers', // Hint for the AI
                         idToken
                     });
-                    setAnalysisResult(result);
+
+                    if (suggestionsResponse.error) {
+                        throw new Error(suggestionsResponse.error);
+                    }
+
+                    setAnalysisResult(suggestionsResponse.data);
                 } catch (error: any) {
                     console.error("AI Analysis failed:", error);
                     toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
@@ -77,18 +82,18 @@ export function SneakerScanner() {
         if (analysisResult.condition) params.set('condition', analysisResult.condition);
         if (analysisResult.description) params.set('description', analysisResult.description);
         if (analysisResult.category) params.set('category', analysisResult.category);
-        
+
         // Pass the image via temporary local storage or re-upload flow?
         // Since we can't pass File object via URL, we'll pass the analysis data.
         // The user will re-upload the photo or we can upload it here and pass the URL.
         // For speed, let's let the user re-select or we upload it now.
         // Better UX: Upload now.
-        
+
         // Actually, upload is async and might take time. Let's redirect with data and ask user to add photo 
         // OR pass the preview via Context if we were using a global state manager.
         // Simplest: Redirect with text data, user adds photos in step 2. 
         // "We found these details! Now just add your photos."
-        
+
         router.push(`/sell/create?${params.toString()}`);
     };
 
@@ -99,11 +104,11 @@ export function SneakerScanner() {
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                     <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/5 border">
-                        <Image 
-                            src={imagePreview} 
-                            alt="Scan Preview" 
-                            fill 
-                            className="object-contain" 
+                        <Image
+                            src={imagePreview}
+                            alt="Scan Preview"
+                            fill
+                            className="object-contain"
                         />
                         {isAnalyzing && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white">
@@ -112,9 +117,9 @@ export function SneakerScanner() {
                             </div>
                         )}
                         {!isAnalyzing && (
-                            <Button 
-                                variant="secondary" 
-                                size="sm" 
+                            <Button
+                                variant="secondary"
+                                size="sm"
                                 className="absolute top-2 right-2"
                                 onClick={() => {
                                     setImagePreview(null);
@@ -134,7 +139,7 @@ export function SneakerScanner() {
                                     <Sparkles className="w-5 h-5" />
                                     <span>Match Found!</span>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
                                         <p className="text-xs text-muted-foreground uppercase font-bold">Model</p>
@@ -155,8 +160,8 @@ export function SneakerScanner() {
                                 </div>
 
                                 <div className="pt-4 border-t flex gap-3">
-                                    <Button 
-                                        className="w-full h-12 text-lg font-bold" 
+                                    <Button
+                                        className="w-full h-12 text-lg font-bold"
                                         onClick={handleCreateListing}
                                     >
                                         Create Listing <ArrowRight className="ml-2 h-4 w-4" />
