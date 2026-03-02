@@ -29,25 +29,29 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const [isSellingSection, setIsSellingSection] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem('benched-sidebar-open');
-        if (saved !== null) {
-            setIsSidebarOpen(saved === 'true');
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+            const saved = localStorage.getItem('benched-sidebar-open');
+            if (saved !== null) {
+                setIsSidebarOpen(saved === 'true');
+            }
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('benched-sidebar-open', String(isSidebarOpen));
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+            localStorage.setItem('benched-sidebar-open', String(isSidebarOpen));
+        }
     }, [isSidebarOpen]);
-    
+
     // This provider will wrap layouts that need a sidebar.
     return (
-        <SidebarContext.Provider value={{ 
-            isSidebarOpen, 
-            setIsSidebarOpen, 
-            isHovered, 
+        <SidebarContext.Provider value={{
+            isSidebarOpen,
+            setIsSidebarOpen,
+            isHovered,
             setIsHovered,
-            isSellingSection, 
-            setIsSellingSection 
+            isSellingSection,
+            setIsSellingSection
         }}>
             {children}
         </SidebarContext.Provider>

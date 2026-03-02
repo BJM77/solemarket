@@ -33,7 +33,7 @@ export function ARCameraOverlay({ guideType }: ARCameraOverlayProps) {
     >
       <div
         style={guideStyles[guideType]}
-        className="shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"
+        className="pointer-events-none shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"
       />
     </div>
   );

@@ -87,13 +87,13 @@ export default function AdminSidebar() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Close sidebar on navigation change (for mobile)
+    // Ensure sidebar is closed when on mobile initially.
     useEffect(() => {
-        if (isMobile && isSidebarOpen) {
+        if (isMobile) {
             setIsSidebarOpen(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname, isMobile, setIsSidebarOpen]);
+    }, [isMobile, pathname]);
 
     const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 
