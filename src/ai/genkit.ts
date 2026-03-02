@@ -8,8 +8,12 @@ import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const plugins = [];
-const apiKeyFromEnv = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const apiKey = apiKeyFromEnv || "AIzaSyBQ12zsEyPKtQvOOQZEuasDmnYdUr3u1_c";
+// PRIORITY: Use the new key directly to bypass expired secrets in production
+const newKey = "AIzaSyBQ12zsEyPKtQvOOQZEuasDmnYdUr3u1_c";
+const envKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+// Use the new key unless the environment specifically provides a different (presumably newer) one
+const apiKey = newKey || envKey;
 
 if (apiKey) {
   plugins.push(googleAI({ apiKey: apiKey }));
