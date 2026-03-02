@@ -20,19 +20,28 @@ export function CategoryPills({ className }: CategoryPillsProps) {
 
     let pills = [];
 
+    // Base path to ensure we don't redirect out of admin
+    const basePath = pathname || '/browse';
+
+    // In admin mode, the isCardsMode flag is solely dependent on search params right now unless we check
+    // However, if we're in /admin/products, we might want simple universal filters or both.
+    // Let's keep the user's specific subCategory tabs but make them use basePath.
+
     if (isCardsMode) {
         pills = [
-            { name: 'All Cards', icon: Library, href: '/cards' },
-            { name: 'Basketball Cards', icon: Library, href: '/cards?subCategory=Basketball%20Cards' },
-            { name: 'New Arrivals', icon: Sparkles, href: '/cards?sort=newest' },
+            { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Trading Cards' : ''}` },
+            { name: 'Basketball Cards', icon: Library, href: `${basePath}?category=Trading Cards&subCategory=Basketball%20Cards` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Trading Cards&sort=newest` },
+            { name: 'Sneakers →', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
         ];
     } else {
         pills = [
-            { name: 'All Sneakers', icon: Footprints, href: '/browse' },
-            { name: 'Basketball', icon: Footprints, href: '/browse?subCategory=Basketball' },
-            { name: 'Lifestyle', icon: Footprints, href: '/browse?subCategory=Lifestyle' },
-            { name: 'Running', icon: Footprints, href: '/browse?subCategory=Running' },
-            { name: 'New Arrivals', icon: Sparkles, href: '/browse?sort=newest' },
+            { name: 'All Sneakers', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
+            { name: 'Basketball', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Basketball` },
+            { name: 'Lifestyle', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Lifestyle` },
+            { name: 'Running', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Running` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Sneakers&sort=newest` },
+            { name: 'Cards →', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Trading Cards' : '?category=Trading Cards'}` },
         ];
     }
 

@@ -41,8 +41,8 @@ export async function getPlatformStats(idToken: string): Promise<{
 
     // Fetch dynamic counts
     const activeSellersSnap = await firestoreDb.collection('users')
-      .where('role', '==', 'seller')
-      .where('onStop', '==', false)
+      .where('accountType', '==', 'seller')
+      // .where('onStop', '==', false) // Note: firestore strict equality requires the field to exist. If undefined, it skips. You might want to remove this if not all users have onStop false.
       .count().get();
 
     const suspendedSellersSnap = await firestoreDb.collection('users')

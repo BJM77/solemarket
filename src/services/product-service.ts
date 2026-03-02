@@ -14,15 +14,8 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   // Admin sees all, others see only 'available'
   if (userRole === 'admin' || userRole === 'superadmin') {
-    // Admins can see everything, but usually want to see non-drafts unless specified
-    // We'll leave it open or filter by status if provided in searchParams
-    // If no specific filter, maybe show all?
-    // For the main grid, we usually don't want 'sold' items unless asked.
-    // But for now, let's just NOT filter by status if admin, unless they want to.
     if (searchParams.status) {
       constraints.push(where('status', '==', searchParams.status));
-    } else {
-      constraints.push(where('isDraft', '==', false)); // Legacy/Basic check
     }
   } else {
     // Public/Business/Seller
