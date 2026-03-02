@@ -19,6 +19,9 @@ import { formatPrice } from '@/lib/utils';
 import { lodgeDispute } from '@/app/actions/disputes';
 import { useUser } from '@/firebase';
 
+import { trackEcommerceEvent } from '@/lib/analytics';
+import { useRef } from 'react';
+
 export default function ConfirmationPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [isDisputeOpen, setIsDisputeOpen] = useState(false);
@@ -26,6 +29,7 @@ export default function ConfirmationPage() {
     const [disputeReason, setDisputeReason] = useState('');
     const [disputeDescription, setDisputeDescription] = useState('');
     const [isSubmittingDispute, setIsSubmittingDispute] = useState(false);
+    const trackingFired = useRef(false);
 
     const router = useRouter();
     const { toast } = useToast();
@@ -68,7 +72,21 @@ export default function ConfirmationPage() {
         if (savedOrders) {
             try {
                 const parsed = JSON.parse(savedOrders);
-                setOrders(Array.isArray(parsed) ? parsed : [parsed]);
+                const parsedOrders = Array.isArray(parsed) ? parsed : [parsed];
+                setOrders(parsedOrders);
+
+                if (!trackingFired.current) {
+                    parsedOrders.forEach((o: any) => {
+                        trackEcommerceEvent.purchase(
+                            o.id,
+                            o.totalAmount,
+                            o.items,
+                            o.shippingCost,
+                            o.taxAmount
+                        );
+                    });
+                    trackingFired.current = true;
+                }
             } catch {
                 router.push('/');
             }

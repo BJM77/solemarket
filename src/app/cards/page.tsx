@@ -11,18 +11,18 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Browse Collector Cards | Benched';
-  let description = 'Discover rare NBA and Basketball collector cards on Benched Australia.';
+  let title = 'Buy NBA Trading Cards & Collector Cards | Benched Australia';
+  let description = 'Shop Australia\'s premier marketplace for rare NBA trading cards, Panini Prizms, and exclusive sports cards. 100% authenticated. Peer-to-peer. Zero selling fees.';
 
   if (q && category) {
-    title = `${q} in ${category} | Benched`;
-    description = `Searching for ${q} in ${category}. Find the best card deals on Benched.`;
+    title = `Buy ${q} Cards in ${category} | Benched`;
+    description = `Searching for ${q} in ${category}. Find the best deals on rare and graded trading cards in Australia.`;
   } else if (q) {
-    title = `Search: ${q} | Benched`;
-    description = `Results for "${q}". Browse verified authentic collector cards on Benched.`;
+    title = `Search Results for "${q}" Cards | Benched`;
+    description = `Shop verified authentic results for "${q}". Browse the best rare collector cards on Benched Australia.`;
   } else if (category) {
-    title = `${category} | Browse | Benched`;
-    description = `Shop the best ${category} on Benched. Verified authentic and secure shipping.`;
+    title = `Buy ${category} Trading Cards | Benched Australia`;
+    description = `Shop the best rare ${category} on Benched. Secure shipping Australia-wide and vetted authentic.`;
   }
 
   return {

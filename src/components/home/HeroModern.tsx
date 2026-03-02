@@ -11,17 +11,22 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
             <div className="container mx-auto px-6 relative z-10 pt-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
+                    {/* Visually hidden but semantically perfect H1 for SEO */}
+                    <h1 className="sr-only">Buy & Sell Performance Basketball Shoes & Collector Cards in Australia</h1>
+
+                    {/* Visual Hero Text */}
+                    <div className="text-7xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up" aria-hidden="true">
                         SHOES <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">&</span><br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">CARDS.</span>
-                    </h1>
+                    </div>
+
                     <div className="text-sm md:text-2xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p className="text-black dark:text-white">The destination for performance sneakers and cards.</p>
-                        <p className="text-primary font-bold">The safest way to upgrade your rotation.</p>
+                        <p className="text-black dark:text-white">Australia's premier marketplace for hoopers & collectors.</p>
+                        <p className="text-primary font-bold">Secure payments. Authenticated gear. Zero selling fees.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
                         <Link href="/browse" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
-                            Search the lineup... <span className="text-[10px] md:text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
+                            Shop the lineup <span className="text-[10px] md:text-xs bg-white text-primary px-2 py-1 rounded-sm ml-2">GO</span>
                         </Link>
                         <Link href="/sell" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center text-sm md:text-base">
                             Put Yours on the Bench

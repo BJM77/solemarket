@@ -41,6 +41,7 @@ import ReviewList from '@/components/reviews/ReviewList';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import { deleteProductByAdmin } from '@/app/actions/admin';
 import { recordProductView } from '@/app/actions/products';
+import { trackEcommerceEvent } from '@/lib/analytics';
 import { incrementProductContactCount } from '@/app/actions/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import {
@@ -226,6 +227,7 @@ export default function ProductDetailsModern({
         }
 
         addItem(product!, 1);
+        trackEcommerceEvent.addToCart(product, 1);
         toast({
             title: "Added to Cart!",
             description: `${product?.title} is now in your cart.`,
@@ -292,12 +294,15 @@ export default function ProductDetailsModern({
         const recordView = async () => {
             try {
                 await recordProductView(productId, user?.uid);
+                trackEcommerceEvent.viewItem(product);
             } catch (error) {
                 console.error("Failed to record product view:", error);
             }
         };
-        recordView();
-    }, [productId, user?.uid]);
+        if (product) {
+            recordView();
+        }
+    }, [productId, user?.uid, product]);
 
     useEffect(() => {
         if (product) {

@@ -12,18 +12,18 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Browse Sneakers | Benched';
-  let description = 'Discover exclusive and authenticated sneakers on Benched Australia.';
+  let title = 'Buy Performance Basketball Shoes & Sneakers | Benched Australia';
+  let description = 'Shop Australia\'s premier marketplace for performance basketball shoes and exclusive sneakers. Verified authentic, peer-to-peer, with zero selling fees.';
 
   if (q && category) {
-    title = `${q} in ${category} | Benched`;
-    description = `Searching for ${q} in ${category}. Find the best sneaker deals on Benched.`;
+    title = `Buy ${q} in ${category} | Benched`;
+    description = `Searching for ${q} in ${category}. Find the best sneaker deals authenticated by experts on Benched.`;
   } else if (q) {
-    title = `Search: ${q} | Benched`;
-    description = `Results for "${q}". Browse verified authentic sneakers on Benched.`;
+    title = `Search Results for "${q}" | Benched`;
+    description = `Shop verified authentic results for "${q}". Browse the best performance basketball shoes on Benched Australia.`;
   } else if (category) {
-    title = `${category} | Browse | Benched`;
-    description = `Shop the best ${category} on Benched. Verified authentic and secure shipping.`;
+    title = `Buy ${category} Sneakers | Benched Australia`;
+    description = `Shop the best ${category} on Benched. Verified authentic performance footwear and secure shipping Australia-wide.`;
   }
 
   const hasFilters = Object.keys(resolvedParams).filter(k => k !== 'category' && resolvedParams[k] !== undefined).length > 0;
