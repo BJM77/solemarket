@@ -117,11 +117,7 @@ export function ImageUploadStep({
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
-            <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold">Upload Photos</h2>
-                <p className="text-muted-foreground">High quality photos sell faster. Target Ratio: {getTargetRatio()}</p>
-            </div>
+        <div className="space-y-6">
 
             <Card className="border-0 shadow-md">
                 <CardHeader className="bg-slate-900 text-white p-5 rounded-t-xl">
@@ -161,6 +157,32 @@ export function ImageUploadStep({
 
                 </CardContent>
             </Card>
+
+            {imageFiles.length > 0 && onAutoFill && (
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/20 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                        <div className="space-y-1">
+                            <h4 className="font-bold text-primary flex items-center justify-center sm:justify-start gap-2">
+                                <Sparkles className="h-4 w-4" /> AI Magic Available
+                            </h4>
+                            <p className="text-xs text-muted-foreground font-medium">
+                                AI analyzes your first 3 photos (max 5) to auto-fill details.
+                            </p>
+                        </div>
+                        <Button
+                            onClick={(e) => { e.preventDefault(); onAutoFill(); }}
+                            disabled={isAnalyzing}
+                            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl h-11 px-6 font-black shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
+                        >
+                            {isAnalyzing ? (
+                                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analyzing...</>
+                            ) : (
+                                <><Sparkles className="h-4 w-4 mr-2" />Auto-Fill All Details</>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {selectedType === 'collector-cards' && (
                 <AICardGrader

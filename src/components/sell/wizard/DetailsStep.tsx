@@ -27,33 +27,8 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
     const isTradingCard = isCardCategory(category);
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
-            <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold">Item Details</h2>
-                <p className="text-muted-foreground">Describe your {isTradingCard ? 'card' : 'item'} accurately.</p>
-            </div>
-
-            {imageFiles.length > 0 && (
-                <div className="p-5 bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 mb-6 shadow-sm">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl">
-                            <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div className="flex-1">
-                            <h4 className="font-bold text-indigo-900 dark:text-indigo-300 text-lg">AI Assistant Available</h4>
-                            <p className="text-sm text-indigo-700 dark:text-indigo-400/80">Save time. We can scan your photos and auto-fill the details below.</p>
-                        </div>
-                        <Button
-                            onClick={(e) => { e.preventDefault(); onAutoFill?.(); }}
-                            disabled={isAnalyzing}
-                            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 px-6 font-bold shadow-md shadow-indigo-200 dark:shadow-none"
-                        >
-                            {isAnalyzing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                            {isAnalyzing ? 'Analyzing...' : 'Auto-Fill with AI'}
-                        </Button>
-                    </div>
-                </div>
-            )}
+        <div className="space-y-6">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 my-4" />
 
             <Card className="border-0 shadow-md">
                 <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>

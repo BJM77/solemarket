@@ -58,7 +58,7 @@ const formSchema = z.object({
 
 type ListingFormValues = z.infer<typeof formSchema>;
 
-const STEPS = ['Type', 'Photos', 'Details', 'Pricing'];
+const STEPS = ['Type', 'Item Description', 'Pricing'];
 
 import { Suspense } from 'react';
 
@@ -302,7 +302,7 @@ function CreateListingForm() {
 
   const nextStep = async () => {
     const fieldsToValidate: any[] = [];
-    if (currentStep === 1) { // Photos
+    if (currentStep === 1) { // Combined Photos & Details
       if (imageFiles.length === 0) {
         toast({
           title: "Photos Required",
@@ -311,29 +311,20 @@ function CreateListingForm() {
         });
         return;
       }
-    } else if (currentStep === 2) { // Details step
       fieldsToValidate.push('title', 'category', 'condition');
-      // Brand is required for sneakers, not cards
       if (selectedType === 'sneakers') {
         fieldsToValidate.push('brand');
       }
-    } else if (currentStep === 3) { // Pricing step
+    } else if (currentStep === 2) { // Pricing step
       fieldsToValidate.push('price', 'quantity');
     }
 
     if (fieldsToValidate.length > 0) {
       const isValid = await form.trigger(fieldsToValidate);
       if (!isValid) {
-        const missing = fieldsToValidate
-          .filter((f) => {
-            const val = form.getValues(f);
-            return val === undefined || val === '' || val === 0;
-          })
-          .map((f) => f.charAt(0).toUpperCase() + f.slice(1).replace(/([A-Z])/g, ' $1'));
-
         toast({
           title: "Missing Information",
-          description: missing.length ? `Please fill in: ${missing.join(', ')}` : "Please check the highlighted fields.",
+          description: "Please check the highlighted fields.",
           variant: "destructive"
         });
         return;
@@ -433,13 +424,12 @@ function CreateListingForm() {
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                {currentStep === 1 && 'Upload Photos'}
-                {currentStep === 2 && 'Item Details'}
-                {currentStep === 3 && 'Price & Delivery'}
+                {currentStep === 1 && 'Item Description'}
+                {currentStep === 2 && 'Price & Delivery'}
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 3</span>
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Step {currentStep} of 2</span>
             </div>
           </div>
           {/* Progress Bar */}
@@ -447,7 +437,7 @@ function CreateListingForm() {
             <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
               <div
                 className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
+                style={{ width: `${(currentStep / 2) * 100}%` }}
               />
             </div>
           </div>
@@ -455,33 +445,32 @@ function CreateListingForm() {
 
         <main className="container mx-auto px-4 py-8 pb-48 max-w-3xl">
           {currentStep === 1 && (
-            <ImageUploadStep
-              imageFiles={imageFiles}
-              imagePreviews={imagePreviews}
-              onImagesChange={handleImagesChange}
-              onRemoveImage={removeImage}
-              onAutoFill={handleAutoFill}
-              isAnalyzing={isAnalyzing}
-              selectedType={selectedType || 'sneakers'}
-              onGradeComplete={(grade) => form.setValue('condition', grade)}
-              onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
-              form={form}
-            />
+            <div className="space-y-4">
+              <ImageUploadStep
+                imageFiles={imageFiles}
+                imagePreviews={imagePreviews}
+                onImagesChange={handleImagesChange}
+                onRemoveImage={removeImage}
+                onAutoFill={handleAutoFill}
+                isAnalyzing={isAnalyzing}
+                selectedType={selectedType || 'sneakers'}
+                onGradeComplete={(grade) => form.setValue('condition', grade)}
+                onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
+                form={form}
+              />
+              <DetailsStep
+                form={form}
+                selectedType={selectedType || 'sneakers'}
+                subCategories={SUB_CATEGORIES}
+                conditionOptions={CONDITION_OPTIONS}
+                onAutoFill={handleAutoFill}
+                isAnalyzing={isAnalyzing}
+                imageFiles={imageFiles}
+              />
+            </div>
           )}
 
           {currentStep === 2 && (
-            <DetailsStep
-              form={form}
-              selectedType={selectedType || 'sneakers'}
-              subCategories={SUB_CATEGORIES}
-              conditionOptions={CONDITION_OPTIONS}
-              onAutoFill={handleAutoFill}
-              isAnalyzing={isAnalyzing}
-              imageFiles={imageFiles}
-            />
-          )}
-
-          {currentStep === 3 && (
             <PricingAndDeliveryStep form={form} />
           )}
         </main>
@@ -494,7 +483,7 @@ function CreateListingForm() {
             </Button>
             <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-              {currentStep === 3 ? (
+              {currentStep === 2 ? (
                 <>
                   <Eye className="mr-2 h-5 w-5" /> Review Listing
                 </>
