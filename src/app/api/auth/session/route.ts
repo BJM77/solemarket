@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
 
             return NextResponse.json({ status: "success" }, { status: 200 });
         } else {
-            return NextResponse.json({ error: "Recent sign in required" }, { status: 401 });
+            // Return 200 instead of 401 to prevent console errors. We are intentionally ignoring this valid but old token.
+            return NextResponse.json({ status: "ignored", message: "Recent sign in required" }, { status: 200 });
         }
 
     } catch (error) {

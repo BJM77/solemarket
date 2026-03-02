@@ -82,6 +82,13 @@ export async function saveDraftListing(userId: string, data: Omit<DraftListingDa
         updatedAt: FieldValue.serverTimestamp(),
     };
 
+    // Sanitize to remove undefined values, which causes Firestore Admin to crash
+    Object.keys(listingData).forEach(key => {
+        if (listingData[key] === undefined) {
+            delete listingData[key];
+        }
+    });
+
     // Auto-apply Bronze Multibuy for cards < $5
     if ((listingData.category === 'Collector Cards' || listingData.category === 'Trading Cards') && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
         listingData.multibuyEnabled = true;

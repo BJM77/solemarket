@@ -137,7 +137,6 @@ function CreateListingForm() {
         ...rest,
         imageUrls: imagePreviews.filter(p => !p.startsWith('blob:')),
         status: 'draft',
-        updatedAt: new Date(),
       };
 
       try {
@@ -179,13 +178,13 @@ function CreateListingForm() {
 
     // 2. Load draft if editId exists
     if (!user || !editId) {
-      // Recover persistent type if no editId
+      // Recover persistent type if no editId, but DO NOT auto-advance. We want users to choose.
       const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | null;
       if (storedType) {
         setSelectedType(storedType);
-        // ensure category is set when skipping Type step to avoid hidden validation failure
+        // ensure category is set to avoid hidden validation failure if they don't change it
         form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : 'Collector Cards', { shouldValidate: true });
-        setCurrentStep(1);
+        // Removed setCurrentStep(1) here to force the category selection screen every time
       }
       return;
     }

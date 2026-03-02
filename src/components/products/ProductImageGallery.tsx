@@ -176,20 +176,20 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
           {images.length > 1 && (
             <>
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10 hidden sm:flex"
+                className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-white hover:bg-gray-50 text-gray-900 shadow-lg border border-gray-200 rounded-full h-11 w-11 z-10 hidden sm:flex"
                 onClick={scrollPrev}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-6 h-6" strokeWidth={3} />
               </Button>
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white rounded-full h-9 w-9 z-10 hidden sm:flex"
+                className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-white hover:bg-gray-50 text-gray-900 shadow-lg border border-gray-200 rounded-full h-11 w-11 z-10 hidden sm:flex"
                 onClick={scrollNext}
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-6 h-6" strokeWidth={3} />
               </Button>
             </>
           )}
@@ -296,18 +296,18 @@ export default function ProductImageGallery({ images = [], title, isCard, condit
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-12 w-12 rounded-full z-40"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-14 w-14 rounded-full z-40 transition-colors"
                   onClick={goToPreviousFullscreen}
                 >
-                  <ChevronLeft className="w-8 h-8" />
+                  <ChevronLeft className="w-10 h-10" strokeWidth={3} />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-12 w-12 rounded-full z-40"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 h-14 w-14 rounded-full z-40 transition-colors"
                   onClick={goToNextFullscreen}
                 >
-                  <ChevronRight className="w-8 h-8" />
+                  <ChevronRight className="w-10 h-10" strokeWidth={3} />
                 </Button>
               </>
             )}
