@@ -3,7 +3,20 @@ import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
     try {
-        const { idToken } = await request.json();
+        let idToken = null;
+        try {
+            const body = await request.json();
+            idToken = body.idToken;
+        } catch (e) {
+            // body might be empty
+        }
+
+        if (!idToken) {
+            const authHeader = request.headers.get("authorization");
+            if (authHeader && authHeader.startsWith("Bearer ")) {
+                idToken = authHeader.split("Bearer ")[1];
+            }
+        }
 
         if (!idToken) {
             (await cookies()).delete("session");
@@ -45,6 +58,8 @@ export async function POST(request: NextRequest) {
 
             return NextResponse.json({ status: "success" }, { status: 200 });
         } else {
+            const currentTime = new Date().getTime() / 1000;
+            console.warn(`[Auth Session] Rejecting token. auth_time: ${decodedIdToken.auth_time}, current_time: ${currentTime}, diff: ${currentTime - decodedIdToken.auth_time}s (max 300s)`);
             // Revert back to returning a 401 to accurately report missing session creation ability
             return NextResponse.json({ error: "Recent sign in required" }, { status: 401 });
         }
