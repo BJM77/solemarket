@@ -60,7 +60,7 @@ const detectFraudFlow = ai.defineFlow(
         inputSchema: DetectFraudInputSchema,
         outputSchema: DetectFraudOutputSchema,
     },
-    async input => {
+    async (input: DetectFraudInput) => {
         const { output } = await prompt(input);
         return output!;
     }

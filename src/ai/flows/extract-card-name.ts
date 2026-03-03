@@ -68,7 +68,7 @@ const extractCardNameFlow = ai.defineFlow(
         inputSchema: ExtractCardNameInputSchema,
         outputSchema: ExtractCardNameOutputSchema,
     },
-    async (input) => {
+    async (input: ExtractCardNameInput) => {
         if (!input.cardImageDataUri.startsWith('data:image/')) {
             throw new Error('Invalid image format. Use JPEG or PNG.');
         }

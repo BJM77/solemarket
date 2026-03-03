@@ -48,7 +48,7 @@ const quickScanFlow = ai.defineFlow(
         inputSchema: QuickScanInputSchema,
         outputSchema: QuickScanOutputSchema,
     },
-    async (input) => {
+    async (input: QuickScanInput) => {
         if (!input.cardImageDataUri.startsWith('data:image/')) {
             throw new Error('Invalid image format. Use JPEG or PNG.');
         }

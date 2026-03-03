@@ -50,7 +50,7 @@ const notifySellerOfRemovalFlow = ai.defineFlow(
         inputSchema: NotifySellerInputSchema,
         outputSchema: NotifySellerOutputSchema,
     },
-    async (input) => {
+    async (input: NotifySellerInput) => {
         const { text } = await prompt(input);
 
         console.log('--- SIMULATING EMAIL ---');

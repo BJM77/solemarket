@@ -93,7 +93,7 @@ const moderateContentFlow = ai.defineFlow(
         inputSchema: ModerateContentInputSchema,
         outputSchema: ModerateContentOutputSchema,
     },
-    async input => {
+    async (input: ModerateContentInput) => {
         const { output } = await moderateContentPrompt(input);
         return output!;
     }

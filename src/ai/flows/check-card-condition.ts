@@ -50,7 +50,7 @@ const cardConditionFlow = ai.defineFlow(
         inputSchema: cardConditionInputSchema,
         outputSchema: cardConditionOutputSchema,
     },
-    async (input) => {
+    async (input: CardConditionInput) => {
         const { output } = await cardConditionPrompt(input);
         if (!output) {
             throw new Error('Failed to get a response from the AI model.');

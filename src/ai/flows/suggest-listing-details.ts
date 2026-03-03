@@ -105,10 +105,10 @@ const suggestListingDetailsFlow = ai.defineFlow(
         inputSchema: suggestListingDetailsInputSchema,
         outputSchema: suggestListingDetailsOutputSchema,
     },
-    async (input) => {
+    async (input: SuggestListingDetailsInput) => {
         const { output } = await suggestListingDetailsPrompt(input);
         if (!output) {
-            throw new Error('Failed to get a response from the AI model for listing details.');
+            throw new Error("AI failed to return valid metadata.");
         }
         return output;
     }

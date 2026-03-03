@@ -18,19 +18,21 @@ if (apiKey) {
   );
 }
 
-let aiInstance: any;
-
-try {
-  aiInstance = genkit({
-    plugins,
-  });
-} catch (error) {
-  console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
-  // Fallback to a dummy object to prevent import-time crashes
-  aiInstance = {
-    defineFlow: () => { console.warn('AI features are disabled.'); return () => { }; },
-    run: () => { throw new Error('AI features are currently unavailable.'); }
-  };
-}
-
-export const ai = aiInstance;
+export const ai = (() => {
+  try {
+    return genkit({
+      plugins,
+    });
+  } catch (error) {
+    console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
+    // Use an any cast to the fallback to satisfy the type checker for the consumer while providing a dummy implementation
+    return {
+      defineFlow: (cfg: any, fn: any) => {
+        console.warn('AI features are disabled.');
+        return Object.assign(fn || (() => { }), { run: () => { throw new Error('AI disabled'); } });
+      },
+      definePrompt: () => () => { throw new Error('AI disabled'); },
+      run: () => { throw new Error('AI features are unavailable.'); }
+    } as unknown as ReturnType<typeof genkit>;
+  }
+})();

@@ -41,7 +41,7 @@ const processDonationFlow = ai.defineFlow(
         inputSchema: processDonationInputSchema,
         outputSchema: processDonationOutputSchema,
     },
-    async (input) => {
+    async (input: z.infer<typeof processDonationInputSchema>) => {
         const fakeShippingLabel = 'https://example.com/shipping-label/fake-label-12345.pdf';
 
         const result = await ai.generate({
