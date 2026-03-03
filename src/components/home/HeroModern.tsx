@@ -22,7 +22,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
 
                     <div className="text-sm md:text-2xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
                         <p className="text-black dark:text-white">Australia's premier marketplace for hoopers & collectors.</p>
-                        <p className="text-primary font-bold">Secure payments. Authenticated gear. Zero selling fees.</p>
+                        <p className="text-primary font-bold">Secure payments. Zero selling fees.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
                         <Link href="/browse" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
