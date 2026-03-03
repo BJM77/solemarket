@@ -165,18 +165,17 @@ export async function approveProductByAdmin(
 
         const admin = require('firebase-admin');
         const now = admin.firestore.Timestamp.now();
-        const oneHourLater = admin.firestore.Timestamp.fromMillis(now.toMillis() + (60 * 60 * 1000));
 
         await productRef.update({
             status: 'available',
             approvedAt: now,
-            publicReleaseAt: oneHourLater,
+            publicReleaseAt: now,
             updatedAt: now,
         });
 
         return {
             success: true,
-            message: `Product has been approved and released to Business users. It will be public in 1 hour.`,
+            message: `Product has been approved and is now live and public.`,
         };
     } catch (error: any) {
         console.error('Admin Approve Product Error:', error);

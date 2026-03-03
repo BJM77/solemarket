@@ -111,8 +111,8 @@ export async function createProductAction(
             sellerName: sellerName,
             sellerAvatar: sellerAvatar,
             sellerVerified: sellerVerified,
-            // All new listings require approval
-            status: 'pending_approval',
+            // Admins create 'available' products, others are 'pending_approval'
+            status: (userRole === 'admin' || userRole === 'superadmin') ? 'available' : 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
 
