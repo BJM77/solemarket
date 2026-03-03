@@ -63,14 +63,14 @@ function InfiniteProductGridInner({
   const searchParams = useSearchParams();
 
   const { user } = useUser();
-  const { userProfile, isAdmin, isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
+  const { userProfile, isAdmin: isUserAdmin, isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
 
   // Consolidate the effective role for data fetching
   const userRole = useMemo(() => {
     if (isSuperAdmin) return 'superadmin';
-    if (isAdmin) return 'admin';
+    if (isUserAdmin) return 'admin';
     return userProfile?.role || 'viewer';
-  }, [isSuperAdmin, isAdmin, userProfile?.role]);
+  }, [isSuperAdmin, isUserAdmin, userProfile?.role]);
 
   // Define currentSearchParams BEFORE using it in useInfiniteQuery
   const currentSearchParams = useMemo(() => {
