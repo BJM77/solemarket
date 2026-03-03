@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+
 import { getProducts } from '@/services/product-service';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
@@ -58,7 +59,9 @@ function InfiniteProductGridInner({
   isAdmin?: boolean,
   initialData?: any
 }) {
+  const queryClient = useQueryClient();
   const router = useRouter();
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -321,9 +324,8 @@ function InfiniteProductGridInner({
         setIsBulkDialogOpen(false);
         setSelectedIds(new Set());
         setIsSelectionMode(false);
-        // Instead of reloading, you could invalidate the query cache
-        // queryClient.invalidateQueries({ queryKey: ['products'] });
-        window.location.reload();
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+
       } else {
         throw new Error(result.error);
       }
@@ -359,15 +361,20 @@ function InfiniteProductGridInner({
 
   const renderProducts = () => {
     if (isError) {
+      const isIndexError = error instanceof Error && error.message.includes('index');
       return (
-        <Alert variant="destructive" className="col-span-full">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load products. {error instanceof Error ? error.message : 'Unknown error'}
+        <Alert variant={isIndexError ? "default" : "destructive"} className="col-span-full border-primary/20 bg-primary/5">
+          <AlertCircle className={cn("h-4 w-4", isIndexError ? "text-primary" : "text-destructive")} />
+          <AlertDescription className={cn(isIndexError ? "text-primary font-medium" : "text-destructive")}>
+            {isIndexError
+              ? "The database is currently optimizing its indexes. This may take a few minutes. Please check back shortly."
+              : `Failed to load products. ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           </AlertDescription>
         </Alert>
       );
     }
+
 
     if (products.length === 0 && isLoading) {
       return (
@@ -502,7 +509,7 @@ function InfiniteProductGridInner({
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
-            <SelectTrigger className="w-[140px] sm:w-[180px] h-9 sm:h-10 text-xs sm:text-sm">
+            <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
@@ -511,6 +518,21 @@ function InfiniteProductGridInner({
               <SelectItem value="price-desc">Price: High-Low</SelectItem>
             </SelectContent>
           </Select>
+
+          {isAdmin && (
+            <Select value={currentSearchParams.status || 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? null : v)}>
+              <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="sold">Sold</SelectItem>
+                <SelectItem value="pending_approval">Pending</SelectItem>
+                <SelectItem value="on_hold">On Hold</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
 
 
           <div className="flex items-center rounded-md border bg-card p-0.5 sm:p-1 h-9 sm:h-10">

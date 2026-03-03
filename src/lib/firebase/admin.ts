@@ -105,6 +105,7 @@ function initializeFirebaseAdmin() {
                 if (privateKey.startsWith('"') && privateKey.endsWith('"')) privateKey = privateKey.slice(1, -1);
                 if (privateKey.startsWith("'") && privateKey.endsWith("'")) privateKey = privateKey.slice(1, -1);
 
+                console.log(`✅ Firebase Admin: Initialized for project ${process.env.FIREBASE_ADMIN_PROJECT_ID || projectId}`);
                 return admin.initializeApp({
                     ...config,
                     credential: admin.credential.cert({

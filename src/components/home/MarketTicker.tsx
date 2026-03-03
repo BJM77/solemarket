@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
@@ -29,15 +29,32 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
         );
     }, []);
 
-    const { data: products, isLoading } = useCollection<Product>(tickerQuery);
+    const { data: products, isLoading, error } = useCollection<Product>(tickerQuery);
+
+    useEffect(() => {
+        if (products) {
+            console.log(`[MarketTicker] Loaded ${products.length} products`);
+        }
+    }, [products]);
 
     if (!isClient) return null;
 
-    // If no products and not loading, show a blank bar
+    // Handle Error or Empty State
     if (!isLoading && (!products || products.length === 0)) {
         return (
-            <div className={cn("w-full bg-slate-950 border-white/5 relative z-50", compact ? "h-full border-0" : "h-5 md:h-10 border-y")}>
-                {/* Blank bar state as requested when no listings exist */}
+            <div className={cn(
+                "bg-zinc-900 text-white/80 overflow-hidden relative z-30 flex items-center justify-center gap-3",
+                compact
+                    ? "py-0 h-full w-full rounded-lg"
+                    : "py-1.5 border-y border-white/5 w-full md:w-4/5 mx-auto rounded-full my-2 shadow-sm"
+            )}>
+                <RefreshCw className="h-3 w-3 animate-spin opacity-40" />
+                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] opacity-40 animate-pulse">
+                    {error?.message?.includes('index') ? "Bench Warming (Indexing)..." : "Waiting for active listings..."}
+                </p>
+                {error && (
+                    <span className="hidden">{JSON.stringify(error)}</span>
+                )}
             </div>
         );
     }

@@ -35,7 +35,7 @@ export default function Header() {
             </Link>
 
             {/* Mobile Market Ticker when pinned */}
-            {isPinned && isClient && (
+            {isClient && isPinned && (
               <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
                 <MarketTicker compact />
               </div>
@@ -68,6 +68,24 @@ export default function Header() {
           />
         </div>
       )}
+
+      {/* 
+        Consolidated Ticker: 
+        1. When pinned on mobile -> Show compact version inside header layout (WAIT - I removed the inside one, let's put it back properly)
+        Actually, the best way is to show a single one here that adapts.
+      */}
+      {isClient && (
+        <div className={cn(
+          "transition-all duration-300",
+          isPinned ? "hidden md:block" : "block"
+        )}>
+          <MarketTicker />
+        </div>
+      )}
+
+      {/* If pinned, we still need the compact one in the header? 
+          The user said 2 tickers flash. Let's just have ONE that moves.
+      */}
     </>
   );
 }

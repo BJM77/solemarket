@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+
 
 export async function generateMetadata({
   searchParams,
@@ -76,15 +78,27 @@ export default async function BrowsePage({
           { name: 'Browse Marketplace', item: '/browse' },
         ]}
       />
-      <InfiniteProductGrid
-        pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
-        pageDescription="Browse items from thousands of sellers."
-        initialFilterState={{
-          q: searchTerm,
-          category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
-        }}
-        initialData={initialProductsData} // Pass initial data
-      />
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="h-12 w-64 bg-muted animate-pulse rounded-lg mb-8" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      }>
+        <InfiniteProductGrid
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
+          pageDescription="Browse items from thousands of sellers."
+          initialFilterState={{
+            q: searchTerm,
+            category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
+          }}
+          initialData={initialProductsData} // Pass initial data
+        />
+      </Suspense>
     </>
   );
 }
+

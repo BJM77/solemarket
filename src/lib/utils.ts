@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { isCardCategory } from "./constants/marketplace"
+import { formatDistanceToNow } from "date-fns"
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -56,7 +58,7 @@ export function serializeFirestoreData(data: any): any {
 }
 
 export function safeDate(value: any): Date | undefined {
-  if (!value) return undefined;
+  if (value === null || value === undefined) return undefined;
 
   // Handle standard Date objects
   if (value instanceof Date) {
@@ -72,10 +74,18 @@ export function safeDate(value: any): Date | undefined {
     }
   }
 
-  // Handle serialized Firestore Timestamps { seconds, nanoseconds }
-  if (typeof value === 'object' && 'seconds' in value) {
-    const millis = value.seconds * 1000;
-    return isNaN(millis) ? undefined : new Date(millis);
+  // Handle serialized Firestore Timestamps { seconds, nanoseconds } or { _seconds, _nanoseconds }
+  if (typeof value === 'object') {
+    const s = value.seconds ?? value._seconds;
+    if (typeof s === 'number') {
+      const millis = s * 1000;
+      return isNaN(millis) ? undefined : new Date(millis);
+    }
+
+    // Handle { value: Date | string | number } pattern
+    if (value.value) {
+      return safeDate(value.value);
+    }
   }
 
   // Handle numbers (milliseconds)
@@ -83,14 +93,21 @@ export function safeDate(value: any): Date | undefined {
     return isNaN(value) ? undefined : new Date(value);
   }
 
-  // Handle ISO strings
+  // Handle ISO strings or date strings
   if (typeof value === 'string') {
     const d = new Date(value);
     return isNaN(d.getTime()) ? undefined : d;
   }
-
   return undefined;
 }
+
+export function formatRelativeTime(value: any): string {
+  if (!value) return '';
+  const date = safeDate(value);
+  if (!date) return '';
+  return formatDistanceToNow(date, { addSuffix: true });
+}
+
 
 export function slugify(text: string): string {
   return text

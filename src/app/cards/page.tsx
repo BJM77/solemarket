@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
@@ -62,14 +63,26 @@ export default async function CardsBrowsePage({
   }
 
   return (
-    <InfiniteProductGrid
-      pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Collector Cards'}
-      pageDescription="Browse the rarest cards from thousands of collectors."
-      initialFilterState={{
-        q: searchTerm,
-        category: categoryParam
-      }}
-      initialData={initialProductsData} // Pass initial data
-    />
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="h-12 w-64 bg-muted animate-pulse rounded-lg mb-8" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    }>
+      <InfiniteProductGrid
+        pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Collector Cards'}
+        pageDescription="Browse the rarest cards from thousands of collectors."
+        initialFilterState={{
+          q: searchTerm,
+          category: categoryParam
+        }}
+        initialData={initialProductsData} // Pass initial data
+      />
+    </Suspense>
   );
 }
+

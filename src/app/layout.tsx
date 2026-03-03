@@ -224,7 +224,6 @@ export default function RootLayout({
                     <ViewedProductsProvider>
                       <GoogleAnalytics />
                       <Header />
-                      <MarketTicker />
                       <main className="min-h-screen">
                         {children}
                       </main>

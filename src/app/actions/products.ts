@@ -201,7 +201,7 @@ export async function createBulkProductsAction(
 
         await batch.commit();
         revalidatePath('/browse');
-        
+
         return { success: true, count: productsData.length };
     } catch (error: any) {
         console.error("Bulk Create Error:", error);
@@ -325,6 +325,8 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
 
 export const getFeaturedProducts = unstable_cache(
     async (limitCount: number = 8): Promise<Product[]> => {
+        const { isFirebaseAdminReady } = await import('@/lib/firebase/admin');
+        console.log(`[getFeaturedProducts] Fetching (Admin Ready: ${isFirebaseAdminReady})...`);
         try {
             // Try the optimal query first (requires composite index)
             try {
@@ -336,10 +338,13 @@ export const getFeaturedProducts = unstable_cache(
                     .get();
 
                 if (!snapshot.empty) {
+                    console.log(`[getFeaturedProducts] Found ${snapshot.size} products (Optimal)`);
                     return snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[];
+                } else {
+                    console.log(`[getFeaturedProducts] No documents in optimal snapshot.`);
                 }
             } catch (indexError: any) {
                 console.warn("Featured products optimal query failed (likely missing index), falling back to simple query.");
@@ -361,7 +366,7 @@ export const getFeaturedProducts = unstable_cache(
         }
     },
     ['products-featured'],
-    { revalidate: 300, tags: ['products-featured'] }
+    { revalidate: 1, tags: ['products-featured'] }
 );
 
 function generateKeywords(title: string): string[] {
@@ -390,25 +395,37 @@ const ACTIVE_CATEGORIES = ['Sneakers', 'Collector Cards', 'Accessories', 'Appare
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
         try {
-            const snapshot = await firestoreDb.collection('products')
-                .where('category', 'in', ACTIVE_CATEGORIES)
-                .where('status', '==', 'available')
-                .orderBy('isPromoted', 'desc')
-                .orderBy('createdAt', 'desc')
-                .limit(limitCount)
-                .get();
+            try {
+                const snapshot = await firestoreDb.collection('products')
+                    .where('category', 'in', ACTIVE_CATEGORIES)
+                    .where('status', '==', 'available')
+                    .orderBy('isPromoted', 'desc')
+                    .orderBy('createdAt', 'desc')
+                    .limit(limitCount)
+                    .get();
 
-            return snapshot.docs.map((doc: any) => serializeFirestoreData({
-                id: doc.id,
-                ...doc.data(),
-            })) as Product[];
+                return snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Product[];
+            } catch (indexError) {
+                console.warn("Active products optimal query failed (likely missing index), falling back.");
+                const fallbackSnapshot = await firestoreDb.collection('products')
+                    .where('status', '==', 'available')
+                    .limit(limitCount)
+                    .get();
+                return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Product[];
+            }
         } catch (error) {
             console.debug("Error fetching sneakers (Locally missing Admin service account expected):", error);
             return [];
         }
     },
     ['products-sneakers'],
-    { revalidate: 300, tags: ['products-sneakers'] }
+    { revalidate: 1, tags: ['products-sneakers'] }
 );
 
 export const getActiveListingCount = unstable_cache(
@@ -419,14 +436,15 @@ export const getActiveListingCount = unstable_cache(
                 .count()
                 .get();
 
+            console.log(`[getActiveListingCount] Count: ${snapshot.data().count}`);
             return snapshot.data().count;
-        } catch (error) {
-            console.debug("Error fetching active listing count (Locally missing Admin service account expected):", error);
+        } catch (error: any) {
+            console.error(`[getActiveListingCount] Error: ${error.message}`);
             return 0;
         }
     },
     ['active-listings-count'],
-    { revalidate: 600, tags: ['active-listings-count'] }
+    { revalidate: 1, tags: ['active-listings-count'] }
 );
 
 export const getSimilarProductsByCategory = unstable_cache(

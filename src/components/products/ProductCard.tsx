@@ -38,7 +38,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice, getProductUrl } from '@/lib/utils';
+import { formatPrice, getProductUrl, formatRelativeTime } from '@/lib/utils';
+
 import { ProductImageLightbox } from './ProductImageLightbox';
 import { updateProductPrice } from '@/app/actions/product-updates';
 import { toggleProductHold } from '@/app/actions/admin';
@@ -81,13 +82,13 @@ export default function ProductCard({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { viewedProductIds } = useViewedProducts();
 
-  const [imgError, setImgError] = useState(false);
-  // Reset error state when product changes (e.g. infinite scroll reuse)
+  // HYDRATION FIX: Use state and useEffect to avoid server/client mismatch on dates and auth state
+  const [mounted, setMounted] = useState(false);
   React.useEffect(() => {
-    setImgError(false);
-  }, [product.id]);
+    setMounted(true);
+  }, []);
 
-  const hasViewed = viewedProductIds.includes(product.id);
+  const hasViewed = mounted && viewedProductIds.includes(product.id);
 
   // Price Editing State
   const [isEditingPrice, setIsEditingPrice] = useState(false);
@@ -203,7 +204,7 @@ export default function ProductCard({
 
 
   // Super admin check
-  const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+  const isSuperAdmin = mounted && ((user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email)));
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -354,36 +355,7 @@ export default function ProductCard({
   };
 
 
-  const getFormattedDate = (dateValue: any) => {
-    if (!dateValue) return '';
-
-    try {
-      // Handle both Firestore Timestamps and JS Date objects
-      if (dateValue instanceof Timestamp) {
-        return formatDistanceToNow(dateValue.toDate(), { addSuffix: true });
-      }
-      // Check for serialized Timestamp from server-side rendering {seconds, nanoseconds}
-      if (typeof dateValue === 'object' && (dateValue.seconds || dateValue._seconds)) {
-        const s = dateValue.seconds ?? dateValue._seconds;
-        return formatDistanceToNow(new Date(s * 1000), { addSuffix: true });
-      }
-      // Handle ISO strings or other date strings
-      if (typeof dateValue === 'string') {
-        const d = new Date(dateValue);
-        if (!isNaN(d.getTime())) {
-          return formatDistanceToNow(d, { addSuffix: true });
-        }
-      }
-      // Handle standard JS Date object
-      if (dateValue instanceof Date) {
-        return formatDistanceToNow(dateValue, { addSuffix: true });
-      }
-    } catch (error) {
-      console.error("Error formatting date:", error);
-    }
-    return '';
-  }
-
+  const getFormattedDate = formatRelativeTime;
   const getAspectRatio = (category: string) => {
     switch (category) {
       case 'Sneakers':
@@ -430,8 +402,10 @@ export default function ProductCard({
     else if (product.createdAt.seconds) d = new Date(product.createdAt.seconds * 1000);
     else d = new Date(product.createdAt as any);
 
+    if (isNaN(d.getTime())) return false;
     return (now.getTime() - d.getTime()) < threshold;
   };
+
 
 
   if (isDeleted) {
@@ -595,7 +569,7 @@ export default function ProductCard({
                 Vault
               </Badge>
             )}
-            {hasViewed && (
+            {mounted && hasViewed && (
               <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-sm">
                 <Eye className="h-3 w-3" />
                 Viewed
@@ -748,7 +722,7 @@ export default function ProductCard({
               WATCH MATCH
             </Badge>
           )}
-          {isNewArrival() && (
+          {mounted && isNewArrival() && (
             <Badge variant="default" className="inline-flex items-center gap-1 bg-secondary text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
               <Sparkles className="h-3 w-3" />
               FRESH OFF THE BENCH

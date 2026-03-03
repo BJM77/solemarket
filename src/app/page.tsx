@@ -6,11 +6,11 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 import CardCategoryGrid from "@/components/home/CardCategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
-import { MarketTicker } from "@/components/home/MarketTicker";
 import { PlayerCollections } from "@/components/home/PlayerCollections";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const revalidate = 60; // ISR: Revalidate every 60 seconds
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
@@ -48,7 +48,6 @@ export default async function HomePage() {
 
   return (
     <main>
-      <MarketTicker />
       <HeroModern listingCount={listingCount} />
       <BrandLogos />
       <CategoryGrid />
