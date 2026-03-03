@@ -3,11 +3,14 @@ import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
 import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
+import { normalizeCategory } from '@/lib/constants/marketplace';
 
 const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
-  const { page = 1, sort = 'createdAt-desc', q, category, categories, subCategory, conditions, priceRange, sellers, yearRange, isUntimed } = searchParams;
+  const { page = 1, sort = 'createdAt-desc', q, subCategory, conditions, priceRange, sellers, yearRange, isUntimed } = searchParams;
+  let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
+  let categories = searchParams.categories?.map(c => normalizeCategory(c));
 
   const productsRef = collection(db, 'products');
   let constraints: QueryConstraint[] = [];
@@ -195,6 +198,8 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
             releaseDate = releaseAt.toDate();
           } else if (releaseAt.seconds) {
             releaseDate = new Date(releaseAt.seconds * 1000);
+          } else if (releaseAt.value) {
+            releaseDate = new Date(releaseAt.value);
           } else if (releaseAt instanceof Date) {
             releaseDate = releaseAt;
           }

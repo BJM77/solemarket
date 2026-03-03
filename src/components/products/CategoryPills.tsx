@@ -29,9 +29,9 @@ export function CategoryPills({ className }: CategoryPillsProps) {
 
     if (isCardsMode) {
         pills = [
-            { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Trading Cards' : ''}` },
-            { name: 'Basketball Cards', icon: Library, href: `${basePath}?category=Trading Cards&subCategory=Basketball%20Cards` },
-            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Trading Cards&sort=newest` },
+            { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Collector Cards' : ''}` },
+            { name: 'Basketball Cards', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Basketball%20Cards` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector Cards&sort=newest` },
             { name: 'Sneakers →', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
         ];
     } else {

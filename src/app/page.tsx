@@ -48,6 +48,7 @@ export default async function HomePage() {
 
   return (
     <main>
+      <MarketTicker />
       <HeroModern listingCount={listingCount} />
       <BrandLogos />
       <CategoryGrid />

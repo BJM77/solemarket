@@ -69,6 +69,36 @@ export const suggestListingDetailsOutputSchema = z.object({
 export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
 
 
+// Schema for src/ai/flows/bulk-suggest-cards.ts
+export const bulkSuggestCardsInputSchema = z.object({
+  photoDataUris: z
+    .array(z.string().describe("Image URL or Data URI"))
+    .max(20, 'A maximum of 20 images are allowed.')
+    .default([]),
+  idToken: z.string().describe('The Firebase ID token of the user.'),
+});
+export type BulkSuggestCardsInput = z.infer<typeof bulkSuggestCardsInputSchema>;
+
+export const bulkSuggestCardsOutputSchema = z.object({
+  cards: z.array(z.object({
+    id: z.string().describe("Original index of the image provided."),
+    title: z.string().describe('Card Name/Player/Set/Year (e.g., "2019 Panini Prizm Zion Williamson #248").'),
+    description: z.string().describe("Brief description of the card."),
+    price: z.number().describe('Estimated market price in AUD.'),
+    category: z.string().default('Collector Cards'),
+    subCategory: z.string().describe("Sport or type (e.g., 'Basketball Cards')."),
+    condition: z.string().describe("Estimated condition or grade (e.g., 'Raw', 'Near Mint')."),
+    brand: z.string().describe("Manufacturer (e.g., 'Panini', 'Topps')."),
+    model: z.string().describe("Set name (e.g., 'Prizm', 'Chrome')."),
+    year: z.number().optional().describe("Release year."),
+    cardNumber: z.string().optional().describe("Card number (e.g., #248)."),
+    gradingCompany: z.string().optional().describe("PSA, BGS, etc."),
+    grade: z.string().optional().describe("10, 9, etc."),
+  })).describe("The list of detected cards corresponding to the provided images.")
+});
+export type BulkSuggestCardsOutput = z.infer<typeof bulkSuggestCardsOutputSchema>;
+
+
 // Schema for src/ai/flows/process-donation.ts
 export const processDonationInputSchema = z.object({
   donationId: z.string().describe('The ID of the donation document in Firestore.'),

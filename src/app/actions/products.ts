@@ -174,6 +174,41 @@ export async function createProductAction(
     }
 }
 
+export async function createBulkProductsAction(
+    idToken: string,
+    productsData: Partial<Product>[]
+): Promise<{ success: true; count: number } | { success: false; error: string }> {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const productsCollection = firestoreDb.collection("products");
+        const batch = firestoreDb.batch();
+
+        for (const data of productsData) {
+            const docRef = productsCollection.doc();
+            const finalData = {
+                ...data,
+                id: docRef.id,
+                sellerId: decodedToken.uid,
+                sellerEmail: decodedToken.email || '',
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                status: 'available', // Bulk uploads from authenticated users are assumed live for this flow
+                views: 0,
+                uniqueViews: 0,
+            };
+            batch.set(docRef, finalData);
+        }
+
+        await batch.commit();
+        revalidatePath('/browse');
+        
+        return { success: true, count: productsData.length };
+    } catch (error: any) {
+        console.error("Bulk Create Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 export async function recordProductView(productId: string, userId?: string) {
     const productRef = firestoreDb.collection('products').doc(productId);
 
@@ -245,6 +280,8 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
             timestamp = createdAt;
         } else if (createdAt && createdAt.seconds) {
             timestamp = admin.firestore.Timestamp.fromMillis(createdAt.seconds * 1000);
+        } else if (createdAt && createdAt.value) {
+            timestamp = admin.firestore.Timestamp.fromDate(new Date(createdAt.value));
         } else if (createdAt instanceof Date) {
             timestamp = admin.firestore.Timestamp.fromDate(createdAt);
         } else if (typeof createdAt === 'string' || typeof createdAt === 'number') {

@@ -55,7 +55,12 @@ export async function POST(request: NextRequest) {
                 manufacturer: 'Jordan',
                 createdAt: Timestamp.now() as any,
                 updatedAt: Timestamp.now() as any,
-                isAuction: false
+                isAuction: false,
+                isFeatured: false,
+                isPromoted: false,
+                views: 0,
+                title_lowercase: 'air jordan 1 retro high og "chicago"',
+                keywords: ['jordan', 'nike', 'chicago', 'retro', 'high', 'og']
             },
             {
                 id: 'prod_yeezy_350',
@@ -74,7 +79,12 @@ export async function POST(request: NextRequest) {
                 manufacturer: 'Adidas',
                 createdAt: Timestamp.now() as any,
                 updatedAt: Timestamp.now() as any,
-                isAuction: false
+                isAuction: false,
+                isFeatured: false,
+                isPromoted: false,
+                views: 0,
+                title_lowercase: 'adidas yeezy boost 350 v2 "zebra"',
+                keywords: ['adidas', 'yeezy', '350', 'v2', 'zebra', 'boost']
             }
         ];
 
