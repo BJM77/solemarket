@@ -15,7 +15,7 @@ export async function sendContactEmail(formData: FormData) {
     }
 
     try {
-        if (!process.env.RESEND_API_KEY) {
+        if (!resend) {
             console.warn('RESEND_API_KEY is missing. pseudo-success for dev.');
             return { success: true };
         }
