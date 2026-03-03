@@ -7,43 +7,35 @@
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
-const plugins = [];
-const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-
-if (apiKey) {
-  plugins.push(googleAI({ apiKey: apiKey }));
-} else {
-  console.warn(
-    'GEMINI_API_KEY or GOOGLE_API_KEY environment variable is not set. AI features will be disabled.'
-  );
-}
-
 export const ai = (() => {
   try {
+    const plugins = [];
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+    if (apiKey) {
+      plugins.push(googleAI({ apiKey }));
+    } else {
+      console.warn('⚠️ No AI API key found. AI features will be disabled at runtime.');
+    }
+
     return genkit({
       plugins,
     });
   } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
 
-    // Return a Proxy as fallback to prevent any method call from crashing the app
-    const fallback: any = new Proxy(() => {
-      throw new Error('AI is disabled due to initialization failure.');
-    }, {
-      get: (target, prop) => {
-        if (prop === 'defineFlow') {
-          return (cfg: any, fn: any) => {
-            console.warn(`AI disabled: defineFlow ignored for ${cfg.name}`);
-            return Object.assign(fn || (() => { }), { run: () => { throw new Error('AI disabled'); } });
-          };
-        }
-        if (prop === 'definePrompt' || prop === 'defineTool') {
-          return () => () => { throw new Error('AI disabled'); };
-        }
-        return () => { throw new Error(`AI disabled: ${String(prop)} is unavailable.`); };
-      }
-    });
-
-    return fallback as unknown as ReturnType<typeof genkit>;
+    // Static fallback instead of Proxy for maximum stability and compatibility
+    return {
+      defineFlow: (cfg: any, fn: any) => {
+        console.warn(`AI disabled: defineFlow ignored for ${cfg?.name || 'unknown'}`);
+        const dummyFlow: any = fn || (() => { throw new Error('AI disabled'); });
+        dummyFlow.run = () => { throw new Error('AI disabled'); };
+        return dummyFlow;
+      },
+      definePrompt: () => () => { throw new Error('AI disabled'); },
+      defineTool: () => () => { throw new Error('AI disabled'); },
+      generate: () => { throw new Error('AI disabled'); },
+      run: () => { throw new Error('AI disabled'); }
+    } as unknown as ReturnType<typeof genkit>;
   }
 })();

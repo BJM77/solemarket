@@ -163,6 +163,8 @@ try {
         runTransaction: () => Promise.resolve()
     };
     authAdmin = { verifyIdToken: () => { throw new Error('Auth disabled'); } };
+    storageAdmin = { bucket: () => ({ name: 'unknown', setCorsConfiguration: () => Promise.resolve() }) };
+    messagingAdmin = { send: () => Promise.resolve() };
 }
 
 export {
