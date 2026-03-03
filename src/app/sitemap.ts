@@ -37,7 +37,7 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
 
 export async function generateSitemaps() {
   const totalProducts = await getActiveProductCount();
-  const numberOfSitemaps = Math.ceil(totalProducts / PRODUCT_SITEMAP_SIZE);
+  const numberOfSitemaps = Math.max(1, Math.ceil(totalProducts / PRODUCT_SITEMAP_SIZE));
 
   // Return an array of sitemap IDs
   return Array.from({ length: numberOfSitemaps }, (_, i) => ({ id: i }));

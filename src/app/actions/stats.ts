@@ -49,12 +49,17 @@ export async function getPlatformStats(idToken: string): Promise<{
       .where('onStop', '==', true)
       .count().get();
 
-    const pendingApprovalsSnap = await firestoreDb.collection('users')
-      .where('sellerStatus', '==', 'pending')
+    // Dynamic product counts
+    const totalItemsSnap = await firestoreDb.collection('products')
+      .where('status', 'in', ['available', 'pending_approval'])
+      .count().get();
+
+    const pendingApprovalsSnap = await firestoreDb.collection('products')
+      .where('status', '==', 'pending_approval')
       .count().get();
 
     return {
-      totalItems: globalData?.totalItems || 0,
+      totalItems: totalItemsSnap.data().count || globalData?.totalItems || 0,
       totalRevenue: globalData?.totalRevenue || 0,
       activeSellers: activeSellersSnap.data().count,
       suspendedSellers: suspendedSellersSnap.data().count,

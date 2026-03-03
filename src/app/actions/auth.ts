@@ -18,8 +18,15 @@ export async function syncUserOnLogin(idToken: string) {
         const isSuperAdminUser = SUPER_ADMIN_UIDS.includes(uid) || (email && SUPER_ADMIN_EMAILS.includes(email));
 
         if (isSuperAdminUser) {
+            console.log(`[Auth Sync] User ${uid} identified as Super Admin. Synchronizing claims...`);
+
+            // 1. Set Custom Claims for Security Rules
+            const { auth } = await import('@/lib/firebase/admin');
+            await auth.setCustomUserClaims(uid, { role: 'superadmin' });
+
+            // 2. Sync Firestore Profile
             if (userSnap.exists && (!userSnap.data()?.isAdmin || userSnap.data()?.role !== 'superadmin')) {
-                await userRef.set({ isAdmin: true, role: 'superadmin', canSell: true }, { merge: true });
+                await userRef.set({ isAdmin: true, role: 'superadmin', canSell: true, accountType: 'seller' }, { merge: true });
             } else if (!userSnap.exists) {
                 await userRef.set({
                     email,
@@ -27,6 +34,7 @@ export async function syncUserOnLogin(idToken: string) {
                     isAdmin: true,
                     role: 'superadmin',
                     canSell: true,
+                    accountType: 'seller',
                     createdAt: new Date(),
                 }, { merge: true });
             }
