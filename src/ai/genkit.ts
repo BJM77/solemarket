@@ -9,7 +9,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 
 export const ai = (() => {
   try {
-    const plugins = [];
+    const plugins: any[] = [];
     const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
     if (apiKey) {
@@ -18,14 +18,17 @@ export const ai = (() => {
       console.warn('⚠️ No AI API key found. AI features will be disabled at runtime.');
     }
 
-    return genkit({
+    const instance = genkit({
       plugins,
     });
+    (instance as any).isReady = true;
+    return instance as unknown as ReturnType<typeof genkit> & { isReady: boolean };
   } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
 
     // Static fallback instead of Proxy for maximum stability and compatibility
     return {
+      isReady: false,
       defineFlow: (cfg: any, fn: any) => {
         console.warn(`AI disabled: defineFlow ignored for ${cfg?.name || 'unknown'}`);
         const dummyFlow: any = fn || (() => { throw new Error('AI disabled'); });
@@ -36,6 +39,8 @@ export const ai = (() => {
       defineTool: () => () => { throw new Error('AI disabled'); },
       generate: () => { throw new Error('AI disabled'); },
       run: () => { throw new Error('AI disabled'); }
-    } as unknown as ReturnType<typeof genkit>;
+    } as unknown as ReturnType<typeof genkit> & { isReady: boolean };
   }
 })();
+
+export const isAIReady = (ai as any).isReady !== false;

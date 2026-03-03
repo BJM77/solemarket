@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail, Brain } from "lucide-react";
+import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail, Brain, RefreshCcw } from "lucide-react";
 import Link from 'next/link';
 import { AdminStatsGrid } from "@/components/admin/StatsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,10 @@ import { motion } from "framer-motion";
 import { getPlatformStats } from "@/app/actions/stats";
 import { useEffect, useState } from "react";
 import { useUser } from "@/firebase";
+import { SystemHealth } from "@/components/admin/SystemHealth";
+import { recalculatePlatformStats } from "@/app/actions/recalculate-stats";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlatformStats {
     totalRevenue: number;
@@ -64,7 +68,9 @@ export default function AdminDashboardPage() {
     const { user } = useUser();
     const [stats, setStats] = useState<PlatformStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isRecalculating, setIsRecalculating] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -96,6 +102,29 @@ export default function AdminDashboardPage() {
         fetchStats();
     }, [user]);
 
+    const handleRecalculate = async () => {
+        if (!user) return;
+        setIsRecalculating(true);
+        try {
+            const idToken = await user.getIdToken();
+            const result = await recalculatePlatformStats(idToken);
+            if (result.success) {
+                toast({ title: "Stats Updated", description: "Platform metrics have been synced with live data." });
+                setStats(prev => prev ? {
+                    ...prev,
+                    totalItems: result.totalItems || 0,
+                    activeSellers: result.activeSellers || 0
+                } : null);
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (err: any) {
+            toast({ title: "Update Failed", description: err.message, variant: "destructive" });
+        } finally {
+            setIsRecalculating(false);
+        }
+    };
+
     const displayStats = {
         revenue: stats?.totalRevenue || 0,
         pendingApprovals: stats?.pendingApprovals || 0,
@@ -105,13 +134,32 @@ export default function AdminDashboardPage() {
 
     return (
         <div>
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                <h1 className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">
-                    Admin Dashboard
-                </h1>
-                <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs">
-                    Manage all aspects of the Benched marketplace.
-                </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                    <h1 className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">
+                        Admin Dashboard
+                    </h1>
+                    <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs">
+                        Manage all aspects of the Benched marketplace.
+                    </p>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRecalculate}
+                        disabled={isRecalculating}
+                        className="bg-background font-bold tracking-tight rounded-xl border-primary/20 hover:border-primary/50 transition-colors"
+                    >
+                        {isRecalculating ? <RefreshCcw className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
+                        Recalculate Live Stats
+                    </Button>
+                </motion.div>
+            </div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <SystemHealth />
             </motion.div>
 
             <div className="mt-8">

@@ -140,6 +140,7 @@ let firestoreDb: admin.firestore.Firestore | any;
 let authAdmin: admin.auth.Auth | any;
 let storageAdmin: admin.storage.Storage | any;
 let messagingAdmin: admin.messaging.Messaging | any;
+let isFirebaseAdminReady = false;
 
 try {
     firebaseAdminApp = initializeFirebaseAdmin();
@@ -149,6 +150,7 @@ try {
         authAdmin = firebaseAdminApp.auth();
         storageAdmin = firebaseAdminApp.storage();
         messagingAdmin = firebaseAdminApp.messaging();
+        isFirebaseAdminReady = true;
         if (process.env.NODE_ENV !== 'production') {
             console.log('✅ Firebase Admin: All services initialized successfully');
         }
@@ -157,12 +159,45 @@ try {
     }
 } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
+    isFirebaseAdminReady = false;
     // Fallback dummies to prevent massive 500s on the homepage
-    firestoreDb = {
-        collection: () => ({ doc: () => ({ get: () => Promise.resolve({ exists: false, data: () => ({}) }), count: () => ({ get: () => Promise.resolve({ data: () => ({ count: 0 }) }) }) }) }),
-        runTransaction: () => Promise.resolve()
+    // Robust recursive proxy to handle any chain of Firestore calls without crashing
+    const createPlaceholder = (name: string): any => {
+        const placeholder: any = new Proxy(() => { }, {
+            get: (target, prop) => {
+                const p = String(prop);
+                // Terminal methods that return promises
+                if (p === 'get') return () => Promise.resolve({
+                    exists: false,
+                    data: () => ({}),
+                    docs: [],
+                    size: 0,
+                    empty: true
+                });
+                if (p === 'set' || p === 'update' || p === 'add' || p === 'delete' || p === 'commit') return () => Promise.resolve();
+
+                // Chainable methods
+                if (['collection', 'doc', 'where', 'orderBy', 'limit', 'startAfter', 'count'].includes(p)) {
+                    return () => placeholder;
+                }
+
+                // Data access on the result of a get() might call .data() or .count
+                if (p === 'data') return () => ({ count: 0 });
+
+                return placeholder;
+            }
+        });
+        return placeholder;
     };
-    authAdmin = { verifyIdToken: () => { throw new Error('Auth disabled'); } };
+
+    firestoreDb = createPlaceholder('firestore');
+    firestoreDb.runTransaction = () => Promise.resolve();
+    authAdmin = {
+        verifyIdToken: () => {
+            console.warn('⚠️ Firebase Admin: verifyIdToken called on fallback.');
+            throw new Error('Firebase Authentication is currently unavailable.');
+        }
+    };
     storageAdmin = { bucket: () => ({ name: 'unknown', setCorsConfiguration: () => Promise.resolve() }) };
     messagingAdmin = { send: () => Promise.resolve() };
 }
@@ -173,6 +208,7 @@ export {
     storageAdmin,
     messagingAdmin,
     firebaseAdminApp,
-    initializeFirebaseAdmin
+    initializeFirebaseAdmin,
+    isFirebaseAdminReady
 };
 export const auth = authAdmin; // Alias
