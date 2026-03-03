@@ -100,18 +100,6 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Externalize firebase-admin and related packages for server-side
-      config.externals = config.externals || [];
-      config.externals.push({
-        'firebase-admin': 'commonjs firebase-admin',
-        '@google-cloud/firestore': 'commonjs @google-cloud/firestore',
-        '@genkit-ai/google-genai': 'commonjs @genkit-ai/google-genai',
-      });
-    }
-    return config;
-  },
 }
 
 module.exports = nextConfig
