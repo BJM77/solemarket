@@ -138,13 +138,9 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       }
     }
   } else {
-    // SCENARIO 4: STANDARD SORT (No Ranges)
+    // Standard Sort (No Ranges)
     // No inequality filters, so we can sort by whatever we want.
-    // Prioritize Featured items if no range filters interfere
-    // IMPORTANT: Firestore queries with orderBy(field) exclude documents missing that field.
-    if (sortField === 'createdAt' || sortField === 'views') {
-      orderByConstraints.push(orderBy('isFeatured', 'desc'));
-    }
+    // NOTE: Removed orderBy('isFeatured') as it excludes documents missing the field.
     orderByConstraints.push(orderBy(sortField, sortDirection));
   }
 
