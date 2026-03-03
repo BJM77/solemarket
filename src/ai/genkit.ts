@@ -25,14 +25,25 @@ export const ai = (() => {
     });
   } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
-    // Use an any cast to the fallback to satisfy the type checker for the consumer while providing a dummy implementation
-    return {
-      defineFlow: (cfg: any, fn: any) => {
-        console.warn('AI features are disabled.');
-        return Object.assign(fn || (() => { }), { run: () => { throw new Error('AI disabled'); } });
-      },
-      definePrompt: () => () => { throw new Error('AI disabled'); },
-      run: () => { throw new Error('AI features are unavailable.'); }
-    } as unknown as ReturnType<typeof genkit>;
+
+    // Return a Proxy as fallback to prevent any method call from crashing the app
+    const fallback: any = new Proxy(() => {
+      throw new Error('AI is disabled due to initialization failure.');
+    }, {
+      get: (target, prop) => {
+        if (prop === 'defineFlow') {
+          return (cfg: any, fn: any) => {
+            console.warn(`AI disabled: defineFlow ignored for ${cfg.name}`);
+            return Object.assign(fn || (() => { }), { run: () => { throw new Error('AI disabled'); } });
+          };
+        }
+        if (prop === 'definePrompt' || prop === 'defineTool') {
+          return () => () => { throw new Error('AI disabled'); };
+        }
+        return () => { throw new Error(`AI disabled: ${String(prop)} is unavailable.`); };
+      }
+    });
+
+    return fallback as unknown as ReturnType<typeof genkit>;
   }
 })();

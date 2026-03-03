@@ -20,7 +20,7 @@ export const keywordSearchSales = ai.defineTool(
             })).describe('List of recent sold items used for calculation.'),
         }),
     },
-    async ({ query }) => {
+    async ({ query }: { query: string }) => {
         try {
             console.log(`[AI Tool] Searching eBay Sales for: "${query}"`);
             const results = await ebayService.searchSoldItems(query, 10); // Fetch top 10 for better average

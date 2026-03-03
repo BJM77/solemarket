@@ -28,7 +28,7 @@ const sendConfirmationEmailTool = ai.defineTool(
         }),
         outputSchema: z.object({ success: z.boolean() }),
     },
-    async (input) => {
+    async (input: { email: string; fullName: string; shippingLabelUrl: string }) => {
         console.log(`INFO: [Simulated Email] Sent to ${input.email} for ${input.fullName} with label ${input.shippingLabelUrl}`);
         // In a real app, this would integrate with an email service like SendGrid or Resend.
         return { success: true };
