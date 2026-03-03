@@ -5,7 +5,7 @@ import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile } from '@/lib/types';
-import { SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
 interface UserPermissions {
     isSuperAdmin: boolean;
@@ -34,10 +34,15 @@ export function useUserPermissions(): UserPermissions {
 
     const isLoading = isAuthLoading || isProfileLoading;
 
+    const isSuperByUidOrEmail = user?.uid && (
+        SUPER_ADMIN_UIDS.includes(user.uid) ||
+        (user.email && SUPER_ADMIN_EMAILS.includes(user.email))
+    );
+
     if (isLoading || !user || !userProfile) {
         return {
-            isSuperAdmin: user?.uid ? SUPER_ADMIN_UIDS.includes(user.uid) : false,
-            isAdmin: user?.uid ? SUPER_ADMIN_UIDS.includes(user.uid) : false,
+            isSuperAdmin: !!isSuperByUidOrEmail,
+            isAdmin: !!isSuperByUidOrEmail,
             canSell: false,
             isLoading,
             userProfile: userProfile || null,
@@ -48,9 +53,9 @@ export function useUserPermissions(): UserPermissions {
     const role = userProfile.role;
 
     return {
-        isSuperAdmin: role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
-        isAdmin: role === 'admin' || role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
-        canSell: userProfile.canSell === true || role === 'superadmin' || SUPER_ADMIN_UIDS.includes(user.uid),
+        isSuperAdmin: role === 'superadmin' || !!isSuperByUidOrEmail,
+        isAdmin: role === 'admin' || role === 'superadmin' || !!isSuperByUidOrEmail,
+        canSell: userProfile.canSell === true || role === 'superadmin' || !!isSuperByUidOrEmail,
         isLoading: false,
         userProfile,
     };
