@@ -24,7 +24,6 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
         return query(
             collection(db, 'products'),
             where('status', '==', 'available'),
-            orderBy('isFeatured', 'desc'),
             orderBy('createdAt', 'desc'),
             limit(10)
         );
