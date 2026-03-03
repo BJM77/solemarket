@@ -18,6 +18,19 @@ if (apiKey) {
   );
 }
 
-export const ai = genkit({
-  plugins,
-});
+let aiInstance: any;
+
+try {
+  aiInstance = genkit({
+    plugins,
+  });
+} catch (error) {
+  console.error('❌ CRITICAL: Failed to initialize Genkit AI:', error);
+  // Fallback to a dummy object to prevent import-time crashes
+  aiInstance = {
+    defineFlow: () => { console.warn('AI features are disabled.'); return () => { }; },
+    run: () => { throw new Error('AI features are currently unavailable.'); }
+  };
+}
+
+export const ai = aiInstance;

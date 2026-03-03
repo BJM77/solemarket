@@ -143,16 +143,26 @@ let messagingAdmin: admin.messaging.Messaging | any;
 
 try {
     firebaseAdminApp = initializeFirebaseAdmin();
-    // Lazy getters or just direct assignment? Direct assignment matches original file structure.
-    firestoreDb = firebaseAdminApp.firestore();
-    authAdmin = firebaseAdminApp.auth();
-    storageAdmin = firebaseAdminApp.storage();
-    messagingAdmin = firebaseAdminApp.messaging();
-    if (process.env.NODE_ENV !== 'production') {
-        console.log('✅ Firebase Admin: All services initialized successfully');
+    // Use a proxy or simple object if init failed to avoid "Cannot read properties of undefined"
+    if (firebaseAdminApp) {
+        firestoreDb = firebaseAdminApp.firestore();
+        authAdmin = firebaseAdminApp.auth();
+        storageAdmin = firebaseAdminApp.storage();
+        messagingAdmin = firebaseAdminApp.messaging();
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('✅ Firebase Admin: All services initialized successfully');
+        }
+    } else {
+        throw new Error('initializeFirebaseAdmin returned undefined');
     }
 } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
+    // Fallback dummies to prevent massive 500s on the homepage
+    firestoreDb = {
+        collection: () => ({ doc: () => ({ get: () => Promise.resolve({ exists: false, data: () => ({}) }), count: () => ({ get: () => Promise.resolve({ data: () => ({ count: 0 }) }) }) }) }),
+        runTransaction: () => Promise.resolve()
+    };
+    authAdmin = { verifyIdToken: () => { throw new Error('Auth disabled'); } };
 }
 
 export {
