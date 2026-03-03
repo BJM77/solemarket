@@ -479,10 +479,10 @@ export default function ProductDetailsModern({
                                 <div className="space-y-4">
                                     {/* Stock Status */}
                                     {(!product.quantity || product.quantity === 0) && (
-                                        <Alert variant="destructive" className="mb-4">
+                                        <div className="mb-4 flex items-center gap-3 border border-destructive/20 bg-destructive/5 text-destructive p-4 rounded-lg">
                                             <AlertCircle className="h-4 w-4" />
-                                            <AlertDescription className="font-bold">Out of Stock</AlertDescription>
-                                        </Alert>
+                                            <p className="font-bold text-sm">Out of Stock</p>
+                                        </div>
                                     )}
 
                                     {/* Main Buy Actions */}

@@ -363,15 +363,15 @@ function InfiniteProductGridInner({
     if (isError) {
       const isIndexError = error instanceof Error && error.message.includes('index');
       return (
-        <Alert variant={isIndexError ? "default" : "destructive"} className="col-span-full border-primary/20 bg-primary/5">
-          <AlertCircle className={cn("h-4 w-4", isIndexError ? "text-primary" : "text-destructive")} />
-          <AlertDescription className={cn(isIndexError ? "text-primary font-medium" : "text-destructive")}>
+        <div className="col-span-full p-4 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 text-sm">
+          <AlertCircle className={cn("h-4 w-4 shrink-0", isIndexError ? "text-primary" : "text-destructive")} />
+          <div className={cn("leading-relaxed", isIndexError ? "text-primary font-medium" : "text-destructive")}>
             {isIndexError
               ? "The database is currently optimizing its indexes. This may take a few minutes. Please check back shortly."
               : `Failed to load products. ${error instanceof Error ? error.message : 'Unknown error'}`
             }
-          </AlertDescription>
-        </Alert>
+          </div>
+        </div>
       );
     }
 
