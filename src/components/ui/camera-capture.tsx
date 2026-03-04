@@ -224,6 +224,8 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
 
         const img = new window.Image();
         img.onload = () => {
+            URL.revokeObjectURL(img.src); // Cleanup temporary URL
+
             const canvas = document.createElement('canvas');
             canvas.width = img.height;
             canvas.height = img.width;
