@@ -9,8 +9,7 @@ import TrustBar from "@/components/trust/TrustBar";
 import { PlayerCollections } from "@/components/home/PlayerCollections";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60; // Revalidate every 60 seconds (ISR)
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);

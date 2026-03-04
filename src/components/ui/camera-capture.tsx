@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2 } from 'lucide-react';
+import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2, RotateCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ARCameraOverlay } from '@/components/ar-camera-overlay';
@@ -218,6 +218,46 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         }, 'image/jpeg', 0.9);
     };
 
+    const rotateImage = (indexToRotate: number) => {
+        const file = capturedFiles[indexToRotate];
+        if (!file) return;
+
+        const img = new window.Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.height;
+            canvas.height = img.width;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(90 * Math.PI / 180);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const rotatedFile = new File([blob], file.name, { type: file.type });
+                    const newUrl = URL.createObjectURL(rotatedFile);
+                    
+                    setCapturedFiles(prev => {
+                        const next = [...prev];
+                        next[indexToRotate] = rotatedFile;
+                        return next;
+                    });
+                    
+                    setCapturedPreviews(prev => {
+                        const next = [...prev];
+                        URL.revokeObjectURL(next[indexToRotate]); // Cleanup old URL
+                        next[indexToRotate] = newUrl;
+                        return next;
+                    });
+                }
+            }, file.type, 0.9);
+        };
+        img.src = URL.createObjectURL(file); // Temporary URL just for loading the image to canvas
+    };
+
     const removeCapturedImage = (indexToRemove: number) => {
         const urlToRemove = capturedPreviews[indexToRemove];
         URL.revokeObjectURL(urlToRemove);
@@ -314,13 +354,23 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                             {capturedPreviews.map((url, idx) => (
                                 <div key={url} className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-white/20 group">
                                     <Image src={url} alt={`Capture ${idx}`} className="w-full h-full object-cover" width={64} height={64} style={{ WebkitUserSelect: 'none', WebkitTransform: 'translateZ(0)' }} />
-                                    <button
-                                        onClick={() => removeCapturedImage(idx)}
-                                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <Trash2 className="w-6 h-6 text-white" />
-                                    </button>
-                                    <Badge className="absolute bottom-0 right-0 rounded-none rounded-tl-md bg-indigo-600 px-1 py-0 text-[10px]">
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => rotateImage(idx)}
+                                            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                                            title="Rotate 90°"
+                                        >
+                                            <RotateCw className="w-4 h-4 text-white" />
+                                        </button>
+                                        <button
+                                            onClick={() => removeCapturedImage(idx)}
+                                            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                                            title="Remove Image"
+                                        >
+                                            <Trash2 className="w-4 h-4 text-red-400" />
+                                        </button>
+                                    </div>
+                                    <Badge className="absolute bottom-0 right-0 rounded-none rounded-tl-md bg-indigo-600 px-1 py-0 text-[10px] pointer-events-none">
                                         {idx + 1}
                                     </Badge>
                                 </div>
