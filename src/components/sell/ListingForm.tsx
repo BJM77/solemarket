@@ -317,7 +317,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         }
     };
 
-    const captureMode = listingType === 'cards' ? 'card' : 'general';
+    const captureMode = ['cards', 'Collector Cards', 'trading-cards'].includes(listingType) ? 'card' : 'general';
     const STEP_TITLES = [
         "Product Photos",
         "Essential Info",
@@ -499,7 +499,29 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                 <CardContent className="p-6 space-y-8">
                                     <FormField control={form.control} name="price" render={({ field }) => (
                                         <FormItem className={cn("transition-opacity duration-300", form.watch('isUntimed') ? 'opacity-30 pointer-events-none' : 'opacity-100')}>
-                                            <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">List Price (AUD)</FormLabel>
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                                                <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">List Price (AUD)</FormLabel>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(['cards', 'Collector Cards', 'trading-cards'].includes(listingType) 
+                                                        ? [5, 7, 10] 
+                                                        : [30, 50, 80, 100]
+                                                    ).map((preset) => (
+                                                        <Button
+                                                            key={preset}
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-7 text-xs font-semibold px-3"
+                                                            onClick={() => {
+                                                                form.setValue('price', preset, { shouldValidate: true, shouldDirty: true });
+                                                                form.setValue('isUntimed', false, { shouldValidate: true, shouldDirty: true });
+                                                            }}
+                                                        >
+                                                            ${preset}
+                                                        </Button>
+                                                    ))}
+                                                </div>
+                                            </div>
                                             <div className="relative">
                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">$</span>
                                                 <FormControl>

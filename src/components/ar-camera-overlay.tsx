@@ -9,7 +9,8 @@ export function ARCameraOverlay({ guideType }: ARCameraOverlayProps) {
   const guideStyles = {
     card: {
       aspectRatio: '5 / 7', // Standard trading card aspect ratio
-      width: '80%',
+      height: 'calc(100% - 16px)',
+      maxWidth: 'calc(100% - 16px)',
       border: '2px dashed white',
       borderRadius: '4%',
     },

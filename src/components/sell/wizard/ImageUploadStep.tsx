@@ -104,7 +104,7 @@ export function ImageUploadStep({
         onImagesChange(compressedFiles, newPreviews);
     };
 
-    const captureMode = 'general'; // Defaulting to general for now
+    const captureMode = ['cards', 'Collector Cards', 'trading-cards'].includes(selectedType) ? 'card' : 'general';
 
     // Target aspect ratio display string
     const getTargetRatio = () => {
@@ -128,10 +128,12 @@ export function ImageUploadStep({
                     <div className="grid grid-cols-2 gap-3">
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-colors"
+                            className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
                         >
-                            <Upload className="h-8 w-8 text-primary mb-2" />
-                            <span className="text-xs font-medium text-slate-600">Select Files</span>
+                            <div className="bg-primary/10 p-3 rounded-full group-hover:scale-110 transition-transform">
+                                <Upload className="h-6 w-6 text-primary" />
+                            </div>
+                            <span className="text-xs font-medium mt-2 text-slate-500">Upload</span>
                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div className="aspect-square">

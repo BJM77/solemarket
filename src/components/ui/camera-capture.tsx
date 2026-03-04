@@ -236,14 +236,11 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
                 <DialogTrigger asChild>
                     {variant === 'hero' ? (
-                        <div className="group relative aspect-square sm:aspect-video rounded-3xl border-2 border-solid border-indigo-600 bg-indigo-600/5 hover:bg-indigo-600/10 cursor-pointer flex flex-col items-center justify-center text-center p-6 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]">
-                            <div className="bg-indigo-600 p-5 rounded-full shadow-lg shadow-indigo-200 mb-4 group-hover:scale-110 transition-transform">
-                                <Camera className="h-8 w-8 text-white" />
+                        <div className="w-full h-full rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-all group">
+                            <div className="bg-primary/10 p-3 rounded-full group-hover:scale-110 transition-transform">
+                                <Camera className="h-6 w-6 text-primary" />
                             </div>
-                            <h3 className="text-xl font-black text-indigo-900 tracking-tight">Use Camera</h3>
-                            <p className="text-sm font-medium text-indigo-600/70 mt-2 max-w-[200px]">
-                                Snap a photo from your <span className="font-bold">mobile device</span> or <span className="font-bold">computer camera</span>
-                            </p>
+                            <span className="text-xs font-medium mt-2 text-slate-500">Use Camera</span>
                         </div>
                     ) : (
                         <Button variant="outline" className="gap-2">
