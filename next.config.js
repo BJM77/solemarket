@@ -18,7 +18,9 @@ const nextConfig = {
         'benched.au',
         'www.benched.au',
         'localhost:9007',
-        '127.0.0.1:9007'
+        '127.0.0.1:9007',
+        'localhost:9008',
+        '127.0.0.1:9008'
       ],
     },
   },

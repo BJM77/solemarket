@@ -196,14 +196,25 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         const videoWidth = video.videoWidth;
         const videoHeight = video.videoHeight;
 
-        // Reset canvas dimensions to match the current video frame
-        canvas.width = videoWidth;
-        canvas.height = videoHeight;
+        // Auto-rotation fix: If taking a card photo in landscape (width > height), 
+        // automatically rotate it 90deg clockwise to fit portrait card standards (5x7 aspect).
+        const shouldRotate = (captureMode === 'card' || captureMode === 'default') && videoWidth > videoHeight;
 
-        // Clear any previous drawing
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        context.drawImage(video, 0, 0, videoWidth, videoHeight);
+        if (shouldRotate) {
+            canvas.width = videoHeight;
+            canvas.height = videoWidth;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.save();
+            context.translate(canvas.width / 2, canvas.height / 2);
+            context.rotate(90 * Math.PI / 180);
+            context.drawImage(video, -videoWidth / 2, -videoHeight / 2, videoWidth, videoHeight);
+            context.restore();
+        } else {
+            canvas.width = videoWidth;
+            canvas.height = videoHeight;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(video, 0, 0, videoWidth, videoHeight);
+        }
 
         canvas.toBlob((blob) => {
             if (blob) {
@@ -229,25 +240,25 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
             const canvas = document.createElement('canvas');
             canvas.width = img.height;
             canvas.height = img.width;
-            
+
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
-            
+
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate(90 * Math.PI / 180);
             ctx.drawImage(img, -img.width / 2, -img.height / 2);
-            
+
             canvas.toBlob((blob) => {
                 if (blob) {
                     const rotatedFile = new File([blob], file.name, { type: file.type });
                     const newUrl = URL.createObjectURL(rotatedFile);
-                    
+
                     setCapturedFiles(prev => {
                         const next = [...prev];
                         next[indexToRotate] = rotatedFile;
                         return next;
                     });
-                    
+
                     setCapturedPreviews(prev => {
                         const next = [...prev];
                         URL.revokeObjectURL(next[indexToRotate]); // Cleanup old URL
