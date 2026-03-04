@@ -450,20 +450,36 @@ export const getActiveListingCount = unstable_cache(
 export const getSimilarProductsByCategory = unstable_cache(
     async (currentId: string, category: string, limitCount: number = 8): Promise<Product[]> => {
         try {
-            const snapshot = await firestoreDb.collection('products')
-                .where('category', '==', category)
-                .where('status', '==', 'available')
-                .orderBy('createdAt', 'desc')
-                .limit(limitCount + 1) // Fetch +1 to filter out currentId locally
-                .get();
+            try {
+                const snapshot = await firestoreDb.collection('products')
+                    .where('category', '==', category)
+                    .where('status', '==', 'available')
+                    .orderBy('createdAt', 'desc')
+                    .limit(limitCount + 1) // Fetch +1 to filter out currentId locally
+                    .get();
 
-            let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
-                id: doc.id,
-                ...doc.data(),
-            })) as Product[];
+                let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Product[];
 
-            // Filter out the current product and slice to the requested limit
-            return products.filter(p => p.id !== currentId).slice(0, limitCount);
+                // Filter out the current product and slice to the requested limit
+                return products.filter(p => p.id !== currentId).slice(0, limitCount);
+            } catch (indexError) {
+                console.warn("Similar products optimal query failed (likely missing index), falling back to simple query.");
+                const fallbackSnapshot = await firestoreDb.collection('products')
+                    .where('category', '==', category)
+                    .where('status', '==', 'available')
+                    .limit(limitCount + 10)
+                    .get();
+
+                let products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Product[];
+
+                return products.filter(p => p.id !== currentId).slice(0, limitCount);
+            }
         } catch (error) {
             console.error("Error fetching similar products:", error);
             return [];

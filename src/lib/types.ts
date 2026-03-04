@@ -154,6 +154,7 @@ export type Product = {
   bundlePrice?: number;
   keywords?: string[];
   acceptsPayId?: boolean;
+  sellerRating?: number;
 };
 
 export type ProductSearchParams = {
@@ -177,6 +178,7 @@ export type ProductSearchParams = {
   status?: string;
   isUntimed?: boolean;
   multibuyEnabled?: boolean;
+  minRating?: number;
 };
 
 

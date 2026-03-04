@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Grid } from 'lucide-react';
+import { LayoutGrid, List, Grid3x3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ViewMode = 'grid' | 'list' | 'montage';
@@ -32,14 +32,14 @@ export default function ProductViewSwitcher({ view, setView }: ProductViewSwitch
       >
         <List className="h-4 w-4" />
       </Button>
-       <Button
+      <Button
         variant="outline"
         size="icon"
         onClick={() => setView('montage')}
         className={cn(view === 'montage' && 'bg-accent text-accent-foreground')}
         aria-label="Montage View"
       >
-        <Grid className="h-4 w-4" />
+        <Grid3x3 className="h-4 w-4" />
       </Button>
     </div>
   );

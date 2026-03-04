@@ -8,7 +8,7 @@ import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import {
   DropdownMenu,
@@ -21,8 +21,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { QuickView } from './QuickView';
-import { Timestamp } from 'firebase/firestore';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin';
 import {
@@ -90,14 +90,63 @@ export default function ProductCard({
 
   const hasViewed = mounted && viewedProductIds.includes(product.id);
 
+  // Favorite Logic
+  const firestore = useFirestore();
+  const favoriteQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid, 'favorites', product.id);
+  }, [firestore, user?.uid, product.id]);
+
+  const { data: favorite } = useDoc<any>(favoriteQuery);
+  const isFavorited = !!favorite;
+
   // Price Editing State
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [editedPrice, setEditedPrice] = useState(product.price.toString());
   const [isSavingPrice, setIsSavingPrice] = useState(false);
 
+  const handleFavoriteToggle = React.useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save favorites.",
+        variant: "destructive"
+      });
+      router.push('/sign-in');
+      return;
+    }
+
+    if (!favoriteQuery) return;
+
+    try {
+      if (isFavorited) {
+        await deleteDoc(favoriteQuery);
+        toast({ title: "Removed from favorites" });
+      } else {
+        await setDoc(favoriteQuery, {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          image: product.imageUrls?.[0] || '',
+          category: product.category,
+          addedAt: new Date()
+        });
+        toast({ title: "Added to favorites" });
+      }
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+      toast({ title: "Error", description: "Could not update favorites", variant: "destructive" });
+    }
+  }, [user, favoriteQuery, isFavorited, product.id, product.title, product.price, product.imageUrls, product.category, toast, router]);
+
   const handlePriceSave = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!isAdmin) return;
+
+
 
     const newPrice = parseFloat(editedPrice);
     if (isNaN(newPrice) || newPrice < 0) {
@@ -581,7 +630,32 @@ export default function ProductCard({
               </Badge>
             )}
           </div>
-          <div className="absolute top-2 right-2 z-20">
+          <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
+            <Button
+              variant="secondary"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm border-none transition-all duration-300",
+                isFavorited ? "text-red-500 bg-red-50" : "text-white hover:bg-black/70"
+              )}
+              onClick={handleFavoriteToggle}
+              title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            >
+              <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
+            </Button>
+            <QuickView
+              product={product}
+              trigger={
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm border-none text-white hover:bg-black/70 transition-all duration-300"
+                  title="Quick View"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              }
+            />
             {(isSuperAdmin || isAdmin) && (
               <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
                 {isSuperAdmin && (
@@ -781,7 +855,35 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-20 scale-90 sm:scale-100 origin-top-right">
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-30 scale-90 sm:scale-100 origin-top-right flex flex-col items-center gap-1.5 sm:gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            className={cn(
+              "h-8 w-8 sm:h-9 sm:w-9 rounded-full backdrop-blur-md border-none transition-all duration-300 pointer-events-auto shadow-md",
+              isFavorited ? "text-red-500 bg-red-50" : "bg-black/40 text-white hover:bg-black/60"
+            )}
+            onClick={handleFavoriteToggle}
+            title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+          >
+            <Heart className={cn("h-4 w-4 sm:h-5 sm:w-5", isFavorited && "fill-current")} />
+          </Button>
+          <div className="scale-75 sm:scale-100">
+            <QuickView
+              product={product}
+              trigger={
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-black/40 backdrop-blur-md border-none text-white hover:bg-black/60 transition-all duration-300 shadow-md pointer-events-auto"
+                  title="Quick View"
+                >
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              }
+            />
+          </div>
+
           {(isSuperAdmin || isAdmin) && (
             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">

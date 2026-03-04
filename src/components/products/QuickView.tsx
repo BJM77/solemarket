@@ -12,26 +12,38 @@ import { useViewedProducts } from '@/context/ViewedProductsContext';
 import ProductImageGallery from './ProductImageGallery';
 import { Heart, Share2, ShoppingCart, Edit, Eye, Search, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/firebase';
-import { useState } from 'react';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { db } from '@/lib/firebase/config';
+import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { useState, useCallback } from 'react';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { formatPrice, cn } from '@/lib/utils';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 
 interface QuickViewProps {
   product: Product;
+  trigger?: React.ReactNode;
 }
 
-export function QuickView({ product }: QuickViewProps) {
+export function QuickView({ product, trigger }: QuickViewProps) {
   const { user } = useUser();
   const { addItem } = useCart();
   const { markAsViewed } = useViewedProducts();
   const { toast } = useToast();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const isOwner = user && user.uid === product.sellerId;
   const isSuperAdmin = user && ((user.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user.email && SUPER_ADMIN_EMAILS.includes(user.email)));
   const canEdit = isOwner || isSuperAdmin;
+
+  // Favorite Logic
+  const favoriteRef = useMemoFirebase(() =>
+    user?.uid ? doc(db, `users/${user.uid}/favorites/${product.id}`) : null
+    , [user?.uid, product.id]);
+  const { data: favorite } = useDoc(favoriteRef);
+  const isFavorited = favorite !== null;
 
 
   const handleOpen = (openState: boolean) => {
@@ -41,13 +53,22 @@ export function QuickView({ product }: QuickViewProps) {
     }
   };
 
-  const handleFavorite = () => {
-    // This would eventually be a database action
-    toast({
-      title: "Added to Favorites!",
-      description: `${product.title} has been added to your favorites list.`
-    });
-  }
+  const handleFavorite = useCallback(async () => {
+    if (!user || !favoriteRef) {
+      router.push(`/sign-in?redirect=/product/${product.id}`);
+      return;
+    }
+    if (isFavorited) {
+      await deleteDoc(favoriteRef);
+      toast({ title: "Removed from favorites." });
+    } else {
+      await setDoc(favoriteRef, {
+        productId: product.id,
+        addedAt: serverTimestamp(),
+      });
+      toast({ title: "Added to favorites!" });
+    }
+  }, [user, favoriteRef, isFavorited, product.id, router, toast]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(`${window.location.origin}/product/${product.id}`);
@@ -81,10 +102,12 @@ export function QuickView({ product }: QuickViewProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full mt-2">
-          <Eye className="mr-2 h-4 w-4" />
-          Quick View
-        </Button>
+        {trigger || (
+          <Button variant="outline" size="sm" className="w-full mt-2">
+            <Eye className="mr-2 h-4 w-4" />
+            Quick View
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl w-full h-auto md:h-[80vh] flex flex-col md:flex-row p-0">
         <DialogTitle className="sr-only">{`Quick view of ${product.title}`}</DialogTitle>
@@ -129,8 +152,13 @@ export function QuickView({ product }: QuickViewProps) {
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Buy It
               </Button>
-              <Button size="icon" variant="outline" onClick={handleFavorite}>
-                <Heart className="h-5 w-5" />
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={handleFavorite}
+                className={cn(isFavorited && "text-red-500 bg-red-50 border-red-200")}
+              >
+                <Heart className={cn("h-5 w-5", isFavorited && "fill-current")} />
               </Button>
               <Button size="icon" variant="outline" onClick={handleShare}>
                 <Share2 className="h-5 w-5" />

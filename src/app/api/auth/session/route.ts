@@ -40,29 +40,26 @@ export async function POST(request: NextRequest) {
         // Verify the ID token first
         const decodedIdToken = await authAdmin.verifyIdToken(idToken);
 
-        // Only process if the user recently signed in (e.g. within the last 5 minutes)
-        if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
-            // expiry: 5 days
-            const expiresIn = 60 * 60 * 24 * 5 * 1000;
+        // ALWAYS allow session creation if the ID token is valid. 
+        // Previously we checked if auth_time was < 5 mins, but this caused 
+        // persistent 401s for returning users who were still logged into 
+        // the client SDK but had no session cookie.
 
-            // Create the session cookie
-            const sessionCookie = await authAdmin.createSessionCookie(idToken, { expiresIn });
+        // expiry: 5 days
+        const expiresIn = 60 * 60 * 24 * 5 * 1000;
 
-            cookieStore.set("session", sessionCookie, {
-                maxAge: expiresIn,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                path: "/",
-                sameSite: "lax",
-            });
+        // Create the session cookie
+        const sessionCookie = await authAdmin.createSessionCookie(idToken, { expiresIn });
 
-            return NextResponse.json({ status: "success" }, { status: 200 });
-        } else {
-            const currentTime = new Date().getTime() / 1000;
-            console.warn(`[Auth Session] Rejecting token. auth_time: ${decodedIdToken.auth_time}, current_time: ${currentTime}, diff: ${currentTime - decodedIdToken.auth_time}s (max 300s)`);
-            // Revert back to returning a 401 to accurately report missing session creation ability
-            return NextResponse.json({ error: "Recent sign in required" }, { status: 401 });
-        }
+        cookieStore.set("session", sessionCookie, {
+            maxAge: expiresIn,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            sameSite: "lax",
+        });
+
+        return NextResponse.json({ status: "success" }, { status: 200 });
 
     } catch (error) {
         console.error('Session creation failed:', error);

@@ -92,7 +92,13 @@ export const FirebaseProvider: React.FC<{
       const unsubscribe = onAuthStateChanged(
         authService,
         async (firebaseUser) => { // Raw Firebase user
+          // Optimistic update: Set user state immediately so UI isn't stuck spinning
+          const safeUser = getSafeUser(firebaseUser);
+
           if (firebaseUser) {
+            // Do sync in background/sequential but after state update
+            setUserAuthState({ user: safeUser, isUserLoading: false, userError: null });
+
             try {
               const token = await firebaseUser.getIdToken();
               // 1. Sync Session Cookie
@@ -102,20 +108,20 @@ export const FirebaseProvider: React.FC<{
               });
 
               // 2. Sync User Data (Server Action)
-              // Dynamically import to avoid server-action-in-client-component issues if not carefully handled, 
-              // though importing server action in client component IS allowed in Next.js.
-              // We'll use the imported function.
               await syncUserOnLogin(token);
 
             } catch (err) {
               console.error("Failed to sync session/user:", err);
+              // We don't revert state here yet because they are still logged in on client
             }
           } else {
-            // Clear session cookie
-            await fetch("/api/auth/session", { method: "DELETE" });
+            // Logged out
+            setUserAuthState({ user: null, isUserLoading: false, userError: null });
+            // Cleanup session cookie in background
+            fetch("/api/auth/session", { method: "DELETE" }).catch(() => { });
           }
-          setUserAuthState({ user: getSafeUser(firebaseUser), isUserLoading: false, userError: null });
         },
+
         (error) => {
           console.error("FirebaseProvider: onAuthStateChanged error:", error);
           setUserAuthState({ user: null, isUserLoading: false, userError: error });

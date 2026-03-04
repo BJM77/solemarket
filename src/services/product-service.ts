@@ -28,9 +28,21 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   // Build constraints based on search params
 
+  // Firestore allows only ONE 'in' filter per query.
+  // We prioritize: category > size > condition > sellers
+  let inFilterUsed = false;
+  let filterConditionsInMemory: string[] | null = null;
+  let filterSizesInMemory: string[] | null = null;
+  let filterSellersInMemory: string[] | null = null;
+
   // Handle Multi-select Categories
   if (categories && categories.length > 0) {
-    constraints.push(where('category', 'in', categories.slice(0, 10)));
+    if (categories.length === 1) {
+      constraints.push(where('category', '==', categories[0]));
+    } else {
+      constraints.push(where('category', 'in', categories.slice(0, 10)));
+      inFilterUsed = true;
+    }
   } else if (category) {
     // Fallback for single category
     constraints.push(where('category', '==', category));
@@ -39,15 +51,39 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   if (subCategory) {
     constraints.push(where('subCategory', '==', subCategory));
   }
+
   if (conditions && conditions.length > 0) {
-    constraints.push(where('condition', 'in', conditions.slice(0, 10)));
+    if (conditions.length === 1) {
+      constraints.push(where('condition', '==', conditions[0]));
+    } else if (!inFilterUsed) {
+      constraints.push(where('condition', 'in', conditions.slice(0, 10)));
+      inFilterUsed = true;
+    } else {
+      filterConditionsInMemory = conditions;
+    }
   }
+
   if (searchParams.sizes && searchParams.sizes.length > 0) {
-    // Firestore 'in' limitation: max 10. 
-    constraints.push(where('size', 'in', searchParams.sizes.slice(0, 10)));
+    const sizes = searchParams.sizes;
+    if (sizes.length === 1) {
+      constraints.push(where('size', '==', sizes[0]));
+    } else if (!inFilterUsed) {
+      constraints.push(where('size', 'in', sizes.slice(0, 10)));
+      inFilterUsed = true;
+    } else {
+      filterSizesInMemory = sizes;
+    }
   }
+
   if (sellers && sellers.length > 0) {
-    constraints.push(where('sellerId', 'in', sellers.slice(0, 10)));
+    if (sellers.length === 1) {
+      constraints.push(where('sellerId', '==', sellers[0]));
+    } else if (!inFilterUsed) {
+      constraints.push(where('sellerId', 'in', sellers.slice(0, 10)));
+      inFilterUsed = true;
+    } else {
+      filterSellersInMemory = sellers;
+    }
   }
 
   // Verified Only Filter
@@ -183,9 +219,29 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
 
       // 2. Year Filter (in memory)
-      if (filterYearInMemory && yearRange && p.year) {
-        // Manual check for yearRange existence to satisfy TS, though logic guarantees it
-        if (p.year < yearRange[0] || p.year > yearRange[1]) return false;
+      if (filterYearInMemory && yearRange) {
+        const itemYear = p.year ? Number(p.year) : null;
+        if (!itemYear || itemYear < yearRange[0] || itemYear > yearRange[1]) return false;
+      }
+
+      // 3. Condition Filter (in memory if multiple conditions and 'in' already used)
+      if (filterConditionsInMemory) {
+        if (!p.condition || !filterConditionsInMemory.includes(p.condition)) return false;
+      }
+
+      // 4. Size Filter (in memory if multiple sizes and 'in' already used)
+      if (filterSizesInMemory) {
+        if (!p.size || !filterSizesInMemory.includes(p.size)) return false;
+      }
+
+      // 5. Seller Filter (in memory if multiple sellers and 'in' already used)
+      if (filterSellersInMemory) {
+        if (!p.sellerId || !filterSellersInMemory.includes(p.sellerId)) return false;
+      }
+
+      // 6. Minimum Rating Filter (if present)
+      if (searchParams.minRating && p.sellerRating !== undefined) {
+        if (p.sellerRating < searchParams.minRating) return false;
       }
 
       // 3. Public Release Timing (for non-business/non-admin)

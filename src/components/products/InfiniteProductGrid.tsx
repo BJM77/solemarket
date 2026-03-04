@@ -10,7 +10,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Grid, Rows, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
@@ -85,7 +85,7 @@ function InfiniteProductGridInner({
         } catch {
           // Ignore invalid formats
         }
-      } else if (key === 'conditions' || key === 'sellers' || key === 'categories') {
+      } else if (key === 'conditions' || key === 'sellers' || key === 'categories' || key === 'sizes') {
         params[key] = value.split(',');
       } else if (key === 'verifiedOnly') {
         params[key] = value === 'true';
@@ -537,9 +537,11 @@ function InfiniteProductGridInner({
 
           <div className="flex items-center rounded-md border bg-card p-0.5 sm:p-1 h-9 sm:h-10">
             <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('grid')} title="Grid View"><LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
-            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('montage')} title="Mosaic View"><Grid className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
+            <Button variant={viewMode === 'montage' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleViewChange('montage')} title="Montage View">
+              <Grid3x3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
             <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden xs:flex" onClick={() => handleViewChange('list')} title="List View"><List className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
-            <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex" onClick={() => handleViewChange('compact')} title="Compact View"><Rows className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
+            <Button variant={viewMode === 'compact' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex" onClick={() => handleViewChange('compact')} title="Compact View"><Rows3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></Button>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center space-x-2 bg-card border rounded-md px-3 h-9 sm:h-10">
