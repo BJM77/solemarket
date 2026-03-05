@@ -161,7 +161,7 @@ export const brandConfig: BrandConfig = {
         logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benched.png'),
         logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benched.png'),
         faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benched.png'),
-        ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', '/og-image.jpg'),
+        ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=1200'),
     },
 
     // Feature Toggles

@@ -41,6 +41,9 @@ try {
   metadataBase = new URL('https://benched.au');
 }
 
+const ogImage = brandConfig.branding.ogImageUrl || '/og-image.jpg';
+const absoluteOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+
 export const metadata: Metadata = {
   metadataBase,
   alternates: {
@@ -64,7 +67,7 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     url: './',
     siteName: SITE_NAME,
-    images: [{ url: brandConfig.branding.ogImageUrl || '/og-image.jpg', width: 1200, height: 630 }],
+    images: [{ url: absoluteOgImage, width: 1200, height: 630 }],
   },
   icons: {
     icon: [
@@ -81,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: brandConfig.seo.defaultTitle,
     description: brandConfig.seo.defaultDescription,
-    images: [`${SITE_URL}${brandConfig.branding.ogImageUrl || '/og-image.jpg'}`],
+    images: [absoluteOgImage],
   },
   robots: {
     index: true,
