@@ -65,6 +65,11 @@ function InfiniteProductGridInner({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const { user } = useUser();
   const { userProfile, isAdmin: isUserAdmin, isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
 
@@ -483,7 +488,7 @@ function InfiniteProductGridInner({
                   priority={index < 4}
                 />
               </div>
-              {showAd && (
+              {showAd && typeof AdUnit !== 'undefined' && (
                 <div className="col-span-full py-4">
                   <AdUnit placement="grid_interstitial" className="w-full aspect-[6/1] md:aspect-[8/1] rounded-2xl" />
                 </div>
@@ -508,18 +513,20 @@ function InfiniteProductGridInner({
           </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
-          <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
-            <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
-              <SelectValue placeholder="Sort" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="createdAt-desc">Newest</SelectItem>
-              <SelectItem value="price-asc">Price: Low-High</SelectItem>
-              <SelectItem value="price-desc">Price: High-Low</SelectItem>
-            </SelectContent>
-          </Select>
+          {isClient && typeof Select !== 'undefined' && (
+            <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
+              <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="createdAt-desc">Newest</SelectItem>
+                <SelectItem value="price-asc">Price: Low-High</SelectItem>
+                <SelectItem value="price-desc">Price: High-Low</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
 
-          {isAdmin && (
+          {isClient && isAdmin && typeof Select !== 'undefined' && (
             <Select value={currentSearchParams.status || 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? null : v)}>
               <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
                 <SelectValue placeholder="Status" />
@@ -560,20 +567,22 @@ function InfiniteProductGridInner({
               </label>
             </div>
 
-            <AdvancedFilterPanel
-              currentFilters={currentSearchParams}
-              onFilterChange={(newFilters) => {
-                const newQuery = createQueryString(newFilters);
-                router.push(`${pathname}?${newQuery}`, { scroll: false });
-              }}
-              onClearFilters={() => router.push(pathname, { scroll: false })}
-            />
+            {isClient && (
+              <AdvancedFilterPanel
+                currentFilters={currentSearchParams}
+                onFilterChange={(newFilters) => {
+                  const newQuery = createQueryString(newFilters);
+                  router.push(`${pathname}?${newQuery}`, { scroll: false });
+                }}
+                onClearFilters={() => router.push(pathname, { scroll: false })}
+              />
+            )}
           </div>
         </div>
       </header>
 
       <div className="mb-6">
-        <CategoryPills />
+        {typeof CategoryPills !== 'undefined' && <CategoryPills />}
       </div>
 
       {isAdmin && (
@@ -598,34 +607,36 @@ function InfiniteProductGridInner({
           {isSelectionMode && selectedIds.size > 0 && (
             <div className="flex items-center gap-2 animate-in fade-in">
               <span className="text-sm font-medium mr-2">{selectedIds.size} Selected</span>
-              <Dialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm">Edit Price</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Bulk Update Price</DialogTitle>
-                    <DialogDescription>
-                      Set a new price for {selectedIds.size} selected items.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4">
-                    <Input
-                      type="number"
-                      placeholder="New Price"
-                      value={bulkPrice}
-                      onChange={(e) => setBulkPrice(e.target.value)}
-                    />
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsBulkDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleBulkUpdatePrice} disabled={isBulkUpdating}>
-                      {isBulkUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Update Prices
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              {typeof Dialog !== 'undefined' && (
+                <Dialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">Edit Price</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Bulk Update Price</DialogTitle>
+                      <DialogDescription>
+                        Set a new price for {selectedIds.size} selected items.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <Input
+                        type="number"
+                        placeholder="New Price"
+                        value={bulkPrice}
+                        onChange={(e) => setBulkPrice(e.target.value)}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsBulkDialogOpen(false)}>Cancel</Button>
+                      <Button onClick={handleBulkUpdatePrice} disabled={isBulkUpdating}>
+                        {isBulkUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Update Prices
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           )}
         </div>

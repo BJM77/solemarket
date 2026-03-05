@@ -78,7 +78,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
                                 "active:scale-95"
                             )}
                         >
-                            <Icon className="h-3.5 w-3.5" />
+                            {Icon && <Icon className="h-3.5 w-3.5" />}
                             {cat.name}
                         </Link>
                     );

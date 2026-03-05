@@ -9,6 +9,8 @@ import { useParams } from 'next/navigation';
 import MontageGrid from '@/components/products/MontageGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 
+import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
+
 function toTitleCase(str: string) {
     if (!str) return '';
     return str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -26,9 +28,12 @@ function CategoryPageContent() {
     // Query by both category and subCategory for efficiency
     const productsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
+        const normalizedCategory = normalizeCategory(section);
+        const related = RELATED_CATEGORIES[normalizedCategory] || [normalizedCategory];
+
         return query(
             collection(firestore, "products"),
-            where('category', '==', toTitleCase(section)),
+            where('category', 'in', related),
             where('subCategory', '==', categoryName),
             where('status', '==', 'available'),
             orderBy("createdAt", "desc"),

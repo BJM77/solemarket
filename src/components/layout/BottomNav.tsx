@@ -43,18 +43,22 @@ export function BottomNav() {
           className="absolute -top-3 right-4 bg-background border border-white/10 rounded-full p-1.5 shadow-md text-slate-400 hover:text-white flex items-center justify-center group z-10"
           aria-label={isPinned ? "Unpin menu" : "Pin menu"}
         >
-          {isPinned ? <Pin className="h-3 w-3 fill-primary text-primary" /> : <PinOff className="h-3 w-3 group-hover:text-primary transition-colors" />}
+          {isPinned ? (
+            Pin && <Pin className="h-3 w-3 fill-primary text-primary" />
+          ) : (
+            PinOff && <PinOff className="h-3 w-3 group-hover:text-primary transition-colors" />
+          )}
         </button>
 
         <Link href="/" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/' ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            <Home className="h-6 w-6" />
+            {Home && <Home className="h-6 w-6" />}
           </div>
         </Link>
 
         <Link href="/browse" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/browse' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/browse' ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            <Search className="h-6 w-6" />
+            {Search && <Search className="h-6 w-6" />}
           </div>
         </Link>
 
@@ -62,14 +66,14 @@ export function BottomNav() {
         <div className="relative -top-6">
           <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping"></div>
           <Link href="/sell/create" className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
-            <PlusSquare className="h-7 w-7" />
+            {PlusSquare && <PlusSquare className="h-7 w-7" />}
           </Link>
         </div>
 
         <button className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/cart' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/cart' ? "bg-primary/10" : "group-hover:bg-white/5")}>
             <div className="relative">
-              <ShoppingBag className="h-6 w-6" />
+              {ShoppingBag && <ShoppingBag className="h-6 w-6" />}
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-3 w-3 flex items-center justify-center rounded-full bg-primary text-[8px] text-white font-bold">
                   {cartCount}
@@ -79,9 +83,9 @@ export function BottomNav() {
           </div>
         </button>
 
-        <Link href={user ? '/profile' : '/sign-in'} className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname.startsWith('/profile') ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname.startsWith('/profile') ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            <User className="h-6 w-6" />
+        <Link href={user ? '/profile' : '/sign-in'} className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", (pathname || '').startsWith('/profile') ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
+          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", (pathname || '').startsWith('/profile') ? "bg-primary/10" : "group-hover:bg-white/5")}>
+            {User && <User className="h-6 w-6" />}
           </div>
         </Link>
       </div>

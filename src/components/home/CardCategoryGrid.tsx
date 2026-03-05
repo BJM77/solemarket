@@ -91,37 +91,39 @@ export default function CardCategoryGrid() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
-                    {CARD_CATEGORIES.map((cat) => (
-                        <Link
-                            key={cat.name}
-                            href={cat.href}
-                            className="group block"
-                        >
-                            <div className="relative h-full bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    {CARD_CATEGORIES.map((cat) => {
+                        const IconComponent = cat.icon;
+                        return (
+                            <Link
+                                key={cat.name}
+                                href={cat.href}
+                                className="group block"
+                            >
+                                <div className="relative h-full bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                                <div className={cn(
-                                    "relative w-12 h-12 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
-                                )}>
-                                    {cat.logo ? (
-                                        <Image
-                                            src={cat.logo}
-                                            alt={`${cat.name} logo`}
-                                            fill
-                                            className="object-contain p-2 dark:invert filter drop-shadow-sm"
-                                            sizes="(max-width: 768px) 48px, 96px"
-                                        />
-                                    ) : cat.icon ? (() => {
-                                        const Icon = cat.icon;
-                                        return <Icon className="h-6 w-6 md:h-10 md:w-10 text-slate-700 dark:text-slate-300" />;
-                                    })() : null}
+                                    <div className={cn(
+                                        "relative w-12 h-12 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+                                    )}>
+                                        {cat.logo ? (
+                                            <Image
+                                                src={cat.logo}
+                                                alt={`${cat.name} logo`}
+                                                fill
+                                                className="object-contain p-2 dark:invert filter drop-shadow-sm"
+                                                sizes="(max-width: 768px) 48px, 96px"
+                                            />
+                                        ) : (IconComponent && typeof IconComponent === 'function') ? (
+                                            <IconComponent className="h-6 w-6 md:h-10 md:w-10 text-slate-700 dark:text-slate-300" />
+                                        ) : null}
+                                    </div>
+                                    <span className="font-black text-slate-900 dark:text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
+                                        {cat.name}
+                                    </span>
                                 </div>
-                                <span className="font-black text-slate-900 dark:text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
-                                    {cat.name}
-                                </span>
-                            </div>
-                        </Link>
-                    ))}
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 <Link href="/cards" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-indigo-500 hover:text-indigo-400 flex justify-center items-center transition-all bg-indigo-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-indigo-500/20 w-full text-center">

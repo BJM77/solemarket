@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,8 +59,6 @@ const formSchema = z.object({
 type ListingFormValues = z.infer<typeof formSchema>;
 
 const STEPS = ['Type', 'Item Description', 'Pricing'];
-
-import { Suspense } from 'react';
 
 // Main component that uses searchParams
 function CreateListingForm() {

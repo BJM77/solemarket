@@ -8,6 +8,7 @@ import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from '@/lib/utils';
+import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -332,7 +333,6 @@ export const getFeaturedProducts = unstable_cache(
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
-                    .orderBy('isPromoted', 'desc')
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
@@ -356,10 +356,13 @@ export const getFeaturedProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+            const products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[];
+
+            console.log(`[getFeaturedProducts] Returning ${products.length} products (Fallback)`);
+            return products;
         } catch (error) {
             console.error("Error fetching featured products:", error);
             return [];
@@ -390,7 +393,11 @@ function generateKeywords(title: string): string[] {
     return [...new Set(keywords)]; // Unique
 }
 
-const ACTIVE_CATEGORIES = ['Sneakers', 'Collector Cards', 'Accessories', 'Apparel'];
+const ACTIVE_CATEGORIES = [
+    'Sneakers', 'Shoes', 'shoes', 'sneakers',
+    'Collector Cards', 'Trading Cards', 'Cards', 'collector-cards', 'trading-cards',
+    'Accessories', 'Apparel'
+];
 
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
@@ -399,7 +406,6 @@ export const getActiveProducts = unstable_cache(
                 const snapshot = await firestoreDb.collection('products')
                     .where('category', 'in', ACTIVE_CATEGORIES)
                     .where('status', '==', 'available')
-                    .orderBy('isPromoted', 'desc')
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
@@ -450,9 +456,12 @@ export const getActiveListingCount = unstable_cache(
 export const getSimilarProductsByCategory = unstable_cache(
     async (currentId: string, category: string, limitCount: number = 8): Promise<Product[]> => {
         try {
+            const normalized = normalizeCategory(category);
+            const related = RELATED_CATEGORIES[normalized] || [category];
+
             try {
                 const snapshot = await firestoreDb.collection('products')
-                    .where('category', '==', category)
+                    .where('category', 'in', related)
                     .where('status', '==', 'available')
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount + 1) // Fetch +1 to filter out currentId locally
@@ -468,7 +477,7 @@ export const getSimilarProductsByCategory = unstable_cache(
             } catch (indexError) {
                 console.warn("Similar products optimal query failed (likely missing index), falling back to simple query.");
                 const fallbackSnapshot = await firestoreDb.collection('products')
-                    .where('category', '==', category)
+                    .where('category', 'in', related)
                     .where('status', '==', 'available')
                     .limit(limitCount + 10)
                     .get();

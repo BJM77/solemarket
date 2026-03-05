@@ -3,7 +3,7 @@ import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
 import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
-import { normalizeCategory } from '@/lib/constants/marketplace';
+import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
 const PAGE_SIZE = 24;
 
@@ -15,12 +15,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const productsRef = collection(db, 'products');
   let constraints: QueryConstraint[] = [];
 
-  // Admin sees all, others see only 'available'
+  // 1. Status Filter (Security & Visibility)
   if (userRole === 'admin' || userRole === 'superadmin') {
     if (searchParams.status) {
       constraints.push(where('status', '==', searchParams.status));
     }
-    // Public/Business/Seller
+  } else {
+    // Normal users and visitors ONLY see available listings
     constraints.push(where('status', '==', 'available'));
   }
 
@@ -34,17 +35,29 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   let filterSizesInMemory: string[] | null = null;
   let filterSellersInMemory: string[] | null = null;
 
-  // Handle Multi-select Categories
+  // Handle Multi-select Categories or Expand Single Category to Related
   if (categories && categories.length > 0) {
     if (categories.length === 1) {
-      constraints.push(where('category', '==', categories[0]));
+      const related = RELATED_CATEGORIES[categories[0]];
+      if (related && related.length > 1) {
+        constraints.push(where('category', 'in', related));
+        inFilterUsed = true;
+      } else {
+        constraints.push(where('category', '==', categories[0]));
+      }
     } else {
       constraints.push(where('category', 'in', categories.slice(0, 10)));
       inFilterUsed = true;
     }
   } else if (category) {
-    // Fallback for single category
-    constraints.push(where('category', '==', category));
+    // Single category: check for related terms (e.g. Sneakers -> [Sneakers, Shoes])
+    const related = RELATED_CATEGORIES[category];
+    if (related && related.length > 1) {
+      constraints.push(where('category', 'in', related));
+      inFilterUsed = true;
+    } else {
+      constraints.push(where('category', '==', category));
+    }
   }
 
   if (subCategory) {

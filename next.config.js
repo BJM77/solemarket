@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  // output: 'standalone',
   serverExternalPackages: [
     'firebase-admin',
     '@genkit-ai/google-genai',
@@ -30,6 +30,7 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
+    domains: ['images.unsplash.com', 'plus.unsplash.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -57,8 +58,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.unsplash.com',
-        pathname: '/**',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.unsplash.com',
       },
       {
         protocol: 'https',

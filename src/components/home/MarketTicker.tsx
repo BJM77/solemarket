@@ -53,14 +53,19 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
                     {error?.message?.includes('index') ? "Bench Warming (Indexing)..." : "Waiting for active listings..."}
                 </p>
                 {error && (
-                    <span className="hidden">{JSON.stringify(error)}</span>
+                    <span className="hidden">{error.message}</span>
                 )}
             </div>
         );
     }
 
-    // Prepare data for the marquee
-    const items = products || [];
+    // Prepare data for the marquee, ensure stability and no null items
+    const items = (products || []).filter(item => item && item.id);
+
+    if (items.length === 0) return null;
+
+    // Use a smaller duplication for better performance if items are few
+    const displayItems = items.length < 5 ? [...items, ...items, ...items, ...items] : [...items, ...items, ...items];
 
     return (
         <div className={cn(
@@ -74,23 +79,29 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
                 "flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center font-black tracking-widest uppercase",
                 compact ? "gap-4 text-[10px] sm:text-xs h-full" : "gap-4 md:gap-6 text-xs md:text-sm"
             )}>
-                {[...items, ...items, ...items].map((item, i) => (
-                    <Link
-                        key={`${item.id}-${i}`}
-                        href={getProductUrl(item)}
-                        className="flex items-center gap-2 md:gap-3 hover:text-black/70 transition-colors group"
-                    >
-                        <span className="flex items-center gap-1 opacity-90">
-                            <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />
-                            {item.category === 'Collector Cards' || item.category === 'Trading Cards' ? 'NEW BOX' : 'NEW KICK'}
-                        </span>
-                        <span>•</span>
-                        <span className="group-hover:underline underline-offset-4">
-                            {item.title}
-                        </span>
-                        <span className="text-white bg-black/90 px-1.5 md:px-2 py-0.5 rounded-sm">${item.price}</span>
-                    </Link>
-                ))}
+                {displayItems.map((item, i) => {
+                    if (!item) return null;
+                    const url = getProductUrl(item);
+                    return (
+                        <Link
+                            key={`${item.id}-${i}`}
+                            href={url}
+                            className="flex items-center gap-2 md:gap-3 hover:text-black/70 transition-colors group"
+                        >
+                            <span className="flex items-center gap-1 opacity-90">
+                                {TrendingUp && <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />}
+                                {item.category === 'Collector Cards' || item.category === 'Trading Cards' ? 'NEW BOX' : 'NEW KICK'}
+                            </span>
+                            <span>•</span>
+                            <span className="group-hover:underline underline-offset-4">
+                                {item.title || 'Product'}
+                            </span>
+                            <span className="text-white bg-black/90 px-1.5 md:px-2 py-0.5 rounded-sm">
+                                ${item.price || '0.00'}
+                            </span>
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );

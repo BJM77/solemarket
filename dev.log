@@ -1,0 +1,128 @@
+
+> benched-au@0.1.0 dev
+> next dev --port 9007
+
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:9007
+   - Network:      http://192.168.1.143:9007
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 1673ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1079ms (225 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 7.9s (2887 modules)
+✅ Firebase Admin: All services initialized successfully
+ ✓ Compiled in 5.9s (1006 modules)
+[getActiveListingCount] Count: 4
+[getFeaturedProducts] Fetching (Admin Ready: true)...
+[getFeaturedProducts] Found 4 products (Optimal)
+ GET / 200 in 16642ms
+ ○ Compiling /browse ...
+ ✓ Compiled /browse in 5.7s (2936 modules)
+ GET /browse 200 in 13872ms
+ ○ Compiling /api/auth/session ...
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1556906781-99412902f7c9?auto=format&fit=crop&q=80&w=800 404
+ ✓ Compiled /api/auth/session in 1109ms (2889 modules)
+✅ Firebase Admin: All services initialized successfully
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1556906781-99412902f7c9?auto=format&fit=crop&q=80&w=800 404
+ POST /api/auth/session 200 in 3218ms
+✅ Firebase Admin: All services initialized successfully
+[Auth Sync] User 6bOgyg1KNqMLTYtv3hiO4yN7bVl1 identified as Super Admin. Synchronizing claims...
+ POST /browse 200 in 2188ms
+ ○ Compiling /[section]/[slug]/[id] ...
+ ✓ Compiled /[section]/[slug]/[id] in 20.7s (3590 modules)
+✅ Firebase Admin: All services initialized successfully
+✅ Firebase Admin: All services initialized successfully
+getProductById: Attempting to fetch prod_yeezy_350
+getProductById: Fetch complete. Exists: true
+ GET /shoes/adidas-yeezy-boost-350-v2-zebra/prod_yeezy_350 200 in 53633ms
+ ○ Compiling /manifest.webmanifest ...
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1556906781-99412902f7c9?auto=format&fit=crop&q=80&w=800 404
+ ✓ Compiled /manifest.webmanifest in 18s (3592 modules)
+ GET /manifest.webmanifest 200 in 18800ms
+✅ Firebase Admin: All services initialized successfully
+ POST /shoes/adidas-yeezy-boost-350-v2-zebra/prod_yeezy_350 200 in 17963ms
+ POST /shoes/adidas-yeezy-boost-350-v2-zebra/prod_yeezy_350 200 in 2626ms
+ POST /shoes/adidas-yeezy-boost-350-v2-zebra/prod_yeezy_350 200 in 801ms
+✅ Firebase Admin: All services initialized successfully
+ ○ Compiling /guides ...
+ ✓ Compiled /guides in 14.9s (3602 modules)
+ GET /guides 200 in 15984ms
+ GET /manifest.webmanifest 200 in 68ms
+ GET /guides 200 in 542ms
+ GET /manifest.webmanifest 200 in 108ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.7s (3584 modules)
+ HEAD /sitemap.xml 404 in 6804ms
+ ○ Compiling /sitemap/[id] ...
+ ✓ Compiled /sitemap/[id] in 835ms (3604 modules)
+✅ Firebase Admin: All services initialized successfully
+✅ Firebase Admin: All services initialized successfully
+ HEAD /sitemap/0.xml 200 in 3796ms
+✅ Firebase Admin: All services initialized successfully
+ HEAD /sitemap/0.xml 200 in 2076ms
+ ✓ Compiled in 3.7s (3822 modules)
+ ✓ Compiled in 1660ms (3597 modules)
+ ○ Compiling /sitemap.xml ...
+ ✓ Compiled /sitemap.xml in 533ms (3603 modules)
+✅ Firebase Admin: All services initialized successfully
+ HEAD /sitemap.xml 200 in 1323ms
+ ✓ Compiled in 575ms (1105 modules)
+ ✓ Compiled in 235ms (1105 modules)
+ ✓ Compiled in 6.3s (3597 modules)
+ ✓ Compiled in 11s (3583 modules)
+ ✓ Compiled in 843ms (3597 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 737ms (2522 modules)
+✅ Firebase Admin: All services initialized successfully
+[getFeaturedProducts] Fetching (Admin Ready: true)...
+ GET / 200 in 3574ms
+[getActiveListingCount] Count: 4
+[getFeaturedProducts] Found 4 products (Optimal)
+[getFeaturedProducts] Fetching (Admin Ready: true)...
+ GET / 200 in 435ms
+[getActiveListingCount] Count: 4
+[getFeaturedProducts] Found 4 products (Optimal)
+ ✓ Compiled in 8.1s (3597 modules)
+ ✓ Compiled in 615ms (1105 modules)
+✅ Firebase Admin: All services initialized successfully
+getProductById: Attempting to fetch 44yP3zgFDN2zr41ThfcT
+✅ Firebase Admin: All services initialized successfully
+getProductById: Fetch complete. Exists: true
+ GET /cards/soccer-card/44yP3zgFDN2zr41ThfcT 200 in 4183ms
+ ✓ Compiled in 5.9s (1105 modules)
+ ✓ Compiled in 5.4s (3600 modules)
+   Reload env: .env
+ ✓ Compiled in 16.3s (3843 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1443ms (3811 modules)
+ ✓ Compiled in 4.9s (225 modules)
+ ✓ Compiled in 3.7s (3600 modules)
+ ✓ Compiled in 1125ms (3600 modules)
+ ⨯ ./src/components/products/CategoryPills.tsx
+Error:   [31mx[0m Expected ';', '}' or <eof>
+    ,-[[36;1;4m/Users/bjm/Desktop/Sneak/src/components/products/CategoryPills.tsx[0m:38:1]
+ [2m35[0m |             { name: 'Sneakers →', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
+ [2m36[0m |         ];
+ [2m37[0m |     } else {
+ [2m38[0m |         { name: 'All Sneakers', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
+    : [35;1m                ^^^^^^^^^^|^^^^^^^^^[0m[33;1m^[0m
+    :                           [35;1m`-- [35;1mThis is the expression part of an expression statement[0m[0m
+ [2m39[0m |         { name: 'Basketball', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Basketball` },
+ [2m40[0m |         { name: 'Lifestyle', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Lifestyle` },
+ [2m41[0m |         { name: 'Running', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Running` },
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/products/CategoryPills.tsx
+./src/components/products/InfiniteProductGrid.tsx
+ ✓ Compiled in 5.4s (3600 modules)
+ ✓ Compiled in 1114ms (3600 modules)
+ ✓ Compiled in 3.2s (3600 modules)

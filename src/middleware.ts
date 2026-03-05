@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
     script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://connect.facebook.net;
     worker-src 'self' blob:;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com https://www.facebook.com;
+    img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com https://www.facebook.com *.unsplash.com;
     font-src 'self' https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
@@ -50,6 +50,15 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('X-Content-Type-Options', 'nosniff');
   requestHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   requestHeaders.set('Permissions-Policy', 'camera=*, microphone=(), geolocation=()');
+
+  // 1. Critical Bypass: Allow internal Next.js and all static files to pass through instantly.
+  // This prevents MIME-type errors and ChunkLoadErrors during development.
+  const isStaticFile = request.nextUrl.pathname.includes('.') || 
+                       request.nextUrl.pathname.startsWith('/_next');
+  
+  if (isStaticFile || request.nextUrl.pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
 
   const response = NextResponse.next({
     request: {
@@ -118,8 +127,6 @@ export async function middleware(request: NextRequest) {
   // Protect Seller Routes
   if (request.nextUrl.pathname.startsWith('/sell')) {
     if (!isAuth) {
-      // Allow unauthenticated access if it is just a product review page to reduce friction, 
-      // but strictly protect creation/dashboard pages.
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
       return NextResponse.redirect(signInUrl);
@@ -137,8 +144,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (standard SEO files)
-     * - Files with extensions (static assets in public directory)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:html|txt|xml|ico|svg|jpg|jpeg|png|gif|webp|js|css|woff|woff2|ttf|otf)).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };

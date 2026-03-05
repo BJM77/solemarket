@@ -48,6 +48,14 @@ export const CATEGORY_MAPPING: Record<string, string> = {
 };
 
 /**
+ * Mapping for related category names to support legacy data during migrations.
+ */
+export const RELATED_CATEGORIES: Record<string, string[]> = {
+  [CATEGORY_SNEAKERS]: ['Sneakers', 'Shoes', 'shoes', 'sneakers'],
+  [CATEGORY_TRADING_CARDS]: ['Collector Cards', 'Trading Cards', 'Cards', 'collector-cards', 'trading-cards'],
+};
+
+/**
  * Normalizes a category string to the canonical version.
  */
 export function normalizeCategory(category?: string): string {
