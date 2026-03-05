@@ -10,14 +10,26 @@ export async function getProductsForBulkEdit(sellerId?: string) {
         if (sellerId) {
             const productsRef = firestoreDb.collection('products');
             const snapshot = await productsRef.where('sellerId', '==', sellerId).get();
-            products = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+            // Use the same serialization as other actions
+            products = snapshot.docs.map((doc: any) => {
+                const data = doc.data();
+                const serialized: any = { id: doc.id };
+                for (const key in data) {
+                    if (data[key] && typeof data[key].toDate === 'function') {
+                        serialized[key] = data[key].toDate().toISOString();
+                    } else {
+                        serialized[key] = data[key];
+                    }
+                }
+                return serialized;
+            });
         } else {
             products = await getAllProducts();
         }
         return products;
     } catch (error) {
         console.error('Error fetching products for bulk edit:', error);
-        return [];
+        throw error; // Let Next.js handle it or return a safe error object
     }
 }
 

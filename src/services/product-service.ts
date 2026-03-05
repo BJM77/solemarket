@@ -114,7 +114,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   let filterYearInMemory = false;
   let filterPriceInMemory = false;
 
-  const [sortField, sortDirection] = sort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
+  // Handle sort aliases and potential missing directions
+  let effectiveSort = sort;
+  if (sort === 'newest') effectiveSort = 'createdAt-desc';
+  if (sort === 'price-asc' || sort === 'price-desc') effectiveSort = sort;
+  if (!effectiveSort.includes('-')) effectiveSort = 'createdAt-desc';
+
+  const [sortField, sortDirection] = effectiveSort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
   let orderByConstraints: QueryConstraint[] = [];
 
   if (q) {
@@ -283,8 +289,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     if (!searchParams.lastId && page === 1 && !q) {
       try {
         const countQuery = query(productsRef, ...constraints);
-        const snapshot = await import('firebase/firestore').then(mod => mod.getCountFromServer(countQuery));
-        totalCount = snapshot.data().count;
+        const firestoreMod = await import('firebase/firestore');
+        if (firestoreMod && typeof firestoreMod.getCountFromServer === 'function') {
+          const snapshot = await firestoreMod.getCountFromServer(countQuery);
+          totalCount = snapshot.data().count;
+        }
       } catch (e) {
         console.error("Failed to count products", e);
       }

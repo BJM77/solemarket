@@ -31,7 +31,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
         pills = [
             { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Collector Cards' : ''}` },
             { name: 'Basketball Cards', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Basketball%20Cards` },
-            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector Cards&sort=newest` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector Cards&sort=createdAt-desc` },
             { name: 'Sneakers →', icon: Footprints, href: basePath.includes('admin') ? `${basePath}?category=Sneakers` : `/browse` },
         ];
     } else {
@@ -40,7 +40,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
             { name: 'Basketball', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Basketball` },
             { name: 'Lifestyle', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Lifestyle` },
             { name: 'Running', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Running` },
-            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Sneakers&sort=newest` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Sneakers&sort=createdAt-desc` },
             { name: 'Cards →', icon: Library, href: basePath.includes('admin') ? `${basePath}?category=Collector Cards` : `/cards` },
         ];
     }
