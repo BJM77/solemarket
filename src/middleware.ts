@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     font-src 'self' https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' https://www.facebook.com;
     frame-ancestors 'none';
     frame-src https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://www.facebook.com;
     connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com https://api.stripe.com https://maps.googleapis.com https://*.facebook.com blob: data:;

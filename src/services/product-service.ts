@@ -20,7 +20,6 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     if (searchParams.status) {
       constraints.push(where('status', '==', searchParams.status));
     }
-  } else {
     // Public/Business/Seller
     constraints.push(where('status', '==', 'available'));
   }
