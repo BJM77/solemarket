@@ -106,6 +106,8 @@ export const viewport: Viewport = {
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
+import { FacebookPixel } from '@/components/analytics/FacebookPixel';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -117,6 +119,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
+            // ... keeping existing schema
             __html: JSON.stringify([
               {
                 '@context': 'https://schema.org',
@@ -226,6 +229,7 @@ export default function RootLayout({
                   <CartProvider>
                     <ViewedProductsProvider>
                       <GoogleAnalytics />
+                      <FacebookPixel />
                       <Header />
                       <main className="min-h-screen">
                         {children}
