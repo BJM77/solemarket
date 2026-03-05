@@ -9,9 +9,9 @@ export function Logo({ className }: { className?: string }) {
             <Image
                 src={brandConfig.branding.logoUrl || '/shoe.png'}
                 alt={`${brandConfig.company.name} Logo Desktop`}
-                width={150}
-                height={45}
-                className="hidden md:block w-auto h-9"
+                width={172}
+                height={52}
+                className="hidden md:block w-auto h-[42px]"
                 style={{ width: 'auto' }}
                 priority
             />
@@ -19,9 +19,9 @@ export function Logo({ className }: { className?: string }) {
             <Image
                 src="/benched.png"
                 alt={`${brandConfig.company.name} Logo Mobile`}
-                width={150}
-                height={45}
-                className="md:hidden w-auto h-7"
+                width={172}
+                height={52}
+                className="md:hidden w-auto h-[32px]"
                 style={{ width: 'auto' }}
                 priority
             />

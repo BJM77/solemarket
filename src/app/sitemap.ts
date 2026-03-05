@@ -35,88 +35,62 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-export async function generateSitemaps() {
-  const totalProducts = await getActiveProductCount();
-  const numberOfSitemaps = Math.max(1, Math.ceil(totalProducts / PRODUCT_SITEMAP_SIZE));
-
-  // Return an array of sitemap IDs
-  return Array.from({ length: numberOfSitemaps }, (_, i) => ({ id: i }));
-}
-
-export default async function sitemap({
-  id,
-}: {
-  id: number;
-}): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
 
-  // ID 0 contains static routes, categories, AND GUIDES
-  if (id === 0) {
-    const staticRoutes: MetadataRoute.Sitemap = [
-      '',
-      '/browse',
-      '/sell',
-      '/scan',
-      '/drops',
-      '/about',
-      '/how-it-works',
-      '/safety-tips',
-      '/donate',
-      '/vault',
-      '/bidsy',
-      '/consign',
-      '/terms',
-      '/privacy',
-      '/dmca',
-      '/prohibited-items'
-    ].map((route) => ({
-      url: `${baseUrl}${route}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: route === '' ? 1 : 0.8,
-    }));
+  const staticRoutes: MetadataRoute.Sitemap = [
+    '',
+    '/browse',
+    '/sell',
+    '/scan',
+    '/drops',
+    '/about',
+    '/how-it-works',
+    '/safety-tips',
+    '/donate',
+    '/vault',
+    '/bidsy',
+    '/consign',
+    '/terms',
+    '/privacy',
+    '/dmca',
+    '/prohibited-items'
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: route === '' ? 1 : 0.8,
+  }));
 
-    const categories = await getCategories();
-    const categoryRoutes: MetadataRoute.Sitemap = categories
-      .filter(category => category.slug)
-      .map((category) => ({
-        url: `${baseUrl}/${category.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      }));
-
-    const guideRoutes = await getGuideRoutes(baseUrl);
-
-    // High-value Programmatic SEO Topic Routes
-    const { SEO_TOPICS } = await import('@/config/seo-topics');
-    const topicRoutes: MetadataRoute.Sitemap = SEO_TOPICS.map(topic => ({
-      url: `${baseUrl}/${topic.category === 'Collector Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
+  const categories = await getCategories();
+  const categoryRoutes: MetadataRoute.Sitemap = categories
+    .filter(category => category.slug)
+    .map((category) => ({
+      url: `${baseUrl}/${category.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.9,
+      priority: 0.7,
     }));
 
-    // Add first chunk of products to sitemap 0
-    const productsChunk = await getActiveProducts(PRODUCT_SITEMAP_SIZE, 0);
-    const productRoutes: MetadataRoute.Sitemap = productsChunk.map(p => ({
-      url: `${baseUrl}${getProductUrl(p)}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.6,
-    }));
+  const guideRoutes = await getGuideRoutes(baseUrl);
 
-    return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...topicRoutes, ...productRoutes];
-  }
+  // High-value Programmatic SEO Topic Routes
+  const { SEO_TOPICS } = await import('@/config/seo-topics');
+  const topicRoutes: MetadataRoute.Sitemap = SEO_TOPICS.map(topic => ({
+    url: `${baseUrl}/${topic.category === 'Collector Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  }));
 
-  // Subsequent IDs only contain products
-  const offset = id * PRODUCT_SITEMAP_SIZE;
-  const productsChunk = await getActiveProducts(PRODUCT_SITEMAP_SIZE, offset);
-
-  return productsChunk.map(p => ({
+  // Fetch all active products limit 50000 for standard sitemap
+  const productsChunk = await getActiveProducts(PRODUCT_SITEMAP_SIZE, 0);
+  const productRoutes: MetadataRoute.Sitemap = productsChunk.map(p => ({
     url: `${baseUrl}${getProductUrl(p)}`,
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.6,
   }));
+
+  return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...topicRoutes, ...productRoutes];
 }
