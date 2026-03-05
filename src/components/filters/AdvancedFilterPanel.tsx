@@ -267,37 +267,7 @@ export default function AdvancedFilterPanel({
                         </div>
                     </div>
 
-                    <Separator />
 
-                    {/* Categories */}
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                            <Label className="text-base font-semibold">Categories</Label>
-                            {(localFilters.categories?.length || 0) > 30 && (
-                                <span className="text-xs text-amber-600 font-medium">Max 30 applied</span>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            {displayCategories.map((category: string) => {
-                                const isSelected = (localFilters.categories as string[] || []).includes(category);
-                                return (
-                                    <div key={category} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`category-${category}`}
-                                            checked={isSelected}
-                                            onCheckedChange={() => toggleCategory(category)}
-                                        />
-                                        <label
-                                            htmlFor={`category-${category}`}
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                                        >
-                                            {category}
-                                        </label>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
 
                     <Separator />
 

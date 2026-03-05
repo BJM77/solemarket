@@ -56,10 +56,12 @@ export default async function BrowsePage({
 
   // Initial Server Fetch
   let initialProductsData;
+  const targetCategory = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Sneakers';
+
   try {
     initialProductsData = await getProducts({
       q: searchTerm,
-      category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined,
+      category: targetCategory,
       sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
       page: 1,
       limit: 24
@@ -93,7 +95,7 @@ export default async function BrowsePage({
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{
             q: searchTerm,
-            category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
+            category: targetCategory
           }}
           initialData={initialProductsData} // Pass initial data
         />
