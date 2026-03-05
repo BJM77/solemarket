@@ -152,6 +152,13 @@ export default function ProductDetailsModern({
         }
     }, [user, favoriteRef, isFavorited, productId, router, toast]);
 
+    const handleShare = useCallback(() => {
+        if (typeof window === 'undefined') return;
+        const url = window.location.href;
+        const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        window.open(fbShareUrl, 'facebook-share-dialog', 'width=800,height=600');
+    }, []);
+
     const handleStartConversation = async () => {
         if (!user || !product || !seller) {
             if (!user && product && seller) {
@@ -516,7 +523,7 @@ export default function ProductDetailsModern({
                                                 <Button variant="ghost" size="icon" onClick={toggleFavorite} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
                                                     <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-50 text-gray-500">
+                                                <Button variant="ghost" size="icon" onClick={handleShare} className="rounded-full hover:bg-blue-50 text-gray-500">
                                                     <Share2 className="h-6 w-6" />
                                                 </Button>
                                             </div>

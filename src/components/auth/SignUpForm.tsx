@@ -76,6 +76,8 @@ function SignUpFormInner() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  const accountTypeParam = searchParams.get('accountType');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -83,7 +85,9 @@ function SignUpFormInner() {
       email: "",
       password: "",
       confirmPassword: "",
-      accountType: "buyer",
+      accountType: (accountTypeParam === 'seller' || accountTypeParam === 'buyer') 
+        ? accountTypeParam 
+        : "buyer",
       storeName: "",
       storeDescription: "",
       acceptsStripe: true,
