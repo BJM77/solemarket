@@ -55,12 +55,12 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                 </div>
             </div>
 
-            {/* Floating Elements (Sneakers) */}
-            <div className="absolute top-20 left-10 w-64 h-64 opacity-50 blur-sm mix-blend-multiply dark:mix-blend-screen float overflow-hidden rounded-full -rotate-12" style={{ animationDuration: '6s' }}>
-                <Image src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800" alt="Nike Sneakers" fill priority sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+            {/* Floating Elements (Sneakers & Cards) */}
+            <div className="absolute top-20 left-10 w-48 h-48 md:w-64 md:h-64 opacity-80 md:opacity-100 float -rotate-12 drop-shadow-2xl" style={{ animationDuration: '6s' }}>
+                <Image src="/shoe.png" alt="Grail Sneaker" fill priority sizes="(max-width: 768px) 50vw, 33vw" className="object-contain" />
             </div>
-            <div className="absolute bottom-20 right-10 w-80 h-80 opacity-60 blur-sm mix-blend-multiply dark:mix-blend-screen float overflow-hidden rounded-full rotate-12" style={{ animationDuration: '8s', animationDelay: '2s' }}>
-                <Image src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800" alt="Jordan Sneakers" fill priority sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+            <div className="absolute bottom-20 right-10 w-56 h-56 md:w-80 md:h-80 opacity-80 md:opacity-100 float rotate-12 drop-shadow-2xl overflow-hidden rounded-2xl" style={{ animationDuration: '8s', animationDelay: '2s' }}>
+                <Image src="/real_cards_test.jpg" alt="Grail Card" fill priority sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
             </div>
         </section>
     );

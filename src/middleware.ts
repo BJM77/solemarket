@@ -63,6 +63,13 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=*, microphone=(), geolocation=()');
 
+  // 1.5. SEO Rules (Noindex parametric search pages to prevent crawl bloat)
+  const searchParams = request.nextUrl.searchParams;
+  const hasFilterParams = ['price', 'size', 'condition', 'brand', 'model', 'sort', 'colorway'].some(param => searchParams.has(param));
+  if (hasFilterParams) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+
   // 2. Route Protection
   const session = request.cookies.get('session') || request.cookies.get('__session');
   let isAuth = false;

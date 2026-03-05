@@ -60,7 +60,8 @@ export function BottomNav() {
 
         {/* Center Floating Button for Drop/Sell */}
         <div className="relative -top-6">
-          <Link href="/sell/create" className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
+          <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping"></div>
+          <Link href="/sell/create" className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
             <PlusSquare className="h-7 w-7" />
           </Link>
         </div>

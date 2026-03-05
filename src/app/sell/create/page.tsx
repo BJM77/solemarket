@@ -145,7 +145,7 @@ function CreateListingForm() {
       } catch (e) {
         console.warn("Autosave failed", e);
       }
-    }, 30000); // Autosave every 30 seconds
+    }, 5000); // Autosave 5 seconds after typing stops
 
     return () => clearTimeout(autosaveTimer);
   }, [formValues, user, currentStep, imagePreviews, editId, isSubmitting, form]);
