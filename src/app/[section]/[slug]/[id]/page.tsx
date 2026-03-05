@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
   const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
+  const primaryImage = product.imageUrls[0];
 
   return {
     title: `${product.title} | ${product.category} | Benched`,
@@ -32,20 +33,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: canonicalUrl,
       type: 'article',
-      images: product.imageUrls.map(url => ({ url })),
+      images: [
+        {
+          url: primaryImage,
+          secureUrl: primaryImage,
+          width: 1200,
+          height: 1200,
+          alt: `${product.title} product image`,
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: product.title,
       description,
-      images: [product.imageUrls[0]],
+      images: [primaryImage],
     }
   };
 }
 
 export default async function ProductPage({ params }: Props) {
   const { id, section, slug } = await params;
-  
+
   const product = await getProductById(id);
   if (!product) notFound();
 
