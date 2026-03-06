@@ -20,10 +20,10 @@ service cloud.firestore {
 
     // Users
     match /users/{userId} {
-      // Changed from true to isAuthenticated() to prevent completely anonymous scraping of user profiles.
       allow read: if isAuthenticated(); 
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
+      // Only superadmins should be able to delete user accounts permanently
       allow delete: if isAdmin();
       
       // Allow users to manage their favorite categories
@@ -39,7 +39,6 @@ service cloud.firestore {
 
     // Products
     match /products/{productId} {
-      // Prevent drafts from leaking to unauthenticated / unauthorized users directly via the database
       allow read: if resource.data.status == 'available' || 
                   (isAuthenticated() && resource.data.sellerId == request.auth.uid) || 
                   isAdmin();
@@ -47,9 +46,9 @@ service cloud.firestore {
                      request.resource.data.sellerId == request.auth.uid;
       allow update: if isAuthenticated() && 
                      (resource.data.sellerId == request.auth.uid || isAdmin());
-      // Allow sellers to delete their own products, or admins
-      allow delete: if isAuthenticated() && 
-                     (resource.data.sellerId == request.auth.uid || isAdmin());
+      // Explicitly DENY permanent delete through client SDK for safety.
+      // All deletions must be "soft deletes" performed via update.
+      allow delete: if false;
     }
 
     // Ads - Public Read, Admin Write
@@ -76,7 +75,10 @@ service cloud.firestore {
     match /wanted_listings/{listingId} {
       allow read: if true;
       allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      // Explicitly DENY permanent delete through client SDK for safety.
+      // All deletions must be "soft deletes" performed via update.
+      allow delete: if false;
     }
     
     // Bids

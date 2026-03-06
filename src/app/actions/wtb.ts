@@ -3,6 +3,7 @@
 import { firestoreDb as db, auth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { WantedListing, WTBMessage } from '@/lib/types';
+import { logActivity } from '@/services/activity-logs';
 
 // Helper to verify ID token
 async function verifyIdToken(idToken: string) {
@@ -89,10 +90,50 @@ export async function updateWTBListing(
             updatedAt: FieldValue.serverTimestamp(),
         });
 
+        // Enterprise Safety: Log the update activity
+        await logActivity({
+            action: 'product_updated', // We can use product_updated or add wtb_updated to types
+            resourceId: listingId,
+            resourceType: 'wanted_listing',
+            performedBy: {
+                uid: decodedToken.uid,
+                email: decodedToken.email,
+                displayName: decodedToken.name,
+                role: decodedToken.role || 'user'
+            },
+            details: {
+                listingTitle: wtbData.title,
+                changedFields: Object.keys(data)
+            }
+        });
+
         return { success: true };
     } catch (error: any) {
         console.error('Error updating WTB listing:', error);
         return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Cancel all pending messages for a WTB listing (e.g., when it's deleted)
+ */
+async function cancelMessagesForWTBListing(listingId: string) {
+    try {
+        const snapshot = await db.collection('wtb_messages')
+            .where('wtbListingId', '==', listingId)
+            .where('status', '==', 'pending')
+            .get();
+
+        if (snapshot.empty) return;
+
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => {
+            batch.update(doc.ref, { status: 'cancelled' });
+        });
+
+        await batch.commit();
+    } catch (error) {
+        console.error('Error cancelling WTB messages:', error);
     }
 }
 
@@ -118,7 +159,32 @@ export async function deleteWTBListing(listingId: string, idToken: string) {
             return { success: false, error: 'Unauthorized to delete this listing' };
         }
 
-        await wtbRef.delete();
+        // SOFT DELETE
+        await wtbRef.update({
+            status: 'deleted',
+            deletedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        // Cleanup: Cancel pending messages
+        await cancelMessagesForWTBListing(listingId);
+
+        // Enterprise Safety: Log the deletion activity
+        await logActivity({
+            action: 'wtb_deleted',
+            resourceId: listingId,
+            resourceType: 'wanted_listing',
+            performedBy: {
+                uid: decodedToken.uid,
+                email: decodedToken.email,
+                displayName: decodedToken.name,
+                role: decodedToken.role || 'user'
+            },
+            details: {
+                listingTitle: wtbData.title,
+                originalStatus: wtbData.status
+            }
+        });
 
         return { success: true };
     } catch (error: any) {

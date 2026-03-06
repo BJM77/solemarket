@@ -358,7 +358,7 @@ export interface WTBMessage {
   sellerId: string;
   sellerName: string;
   message: string;
-  status: 'pending' | 'read' | 'replied';
+  status: 'pending' | 'read' | 'replied' | 'cancelled' | 'archived';
   createdAt: Timestamp;
 }
 
@@ -374,6 +374,20 @@ export interface Advertisement {
   startDate: Timestamp;
   endDate: Timestamp;
   impressions: number;
-  clicks: number;
-  createdAt: Timestamp;
-}
+// Activity Logging for Enterprise-grade safety
+export type ActivityLog = {
+  id?: string;
+  timestamp: Timestamp | Date;
+  action: 'product_deleted' | 'product_updated' | 'product_created' | 'price_changed' | 'status_changed' | 'user_banned' | 'user_unbanned' | 'login' | 'wtb_deleted' | 'wtb_fulfilled';
+  performedBy: {
+    uid: string;
+    email?: string;
+    displayName?: string;
+    role?: string;
+  };
+  resourceId: string;
+  resourceType: 'product' | 'user' | 'order' | 'wanted_listing' | 'category';
+  details?: any; // Stores 'before' and 'after' snapshots or specific changes
+  ipAddress?: string;
+  userAgent?: string;
+};

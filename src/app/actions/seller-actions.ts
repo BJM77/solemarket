@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifyIdToken } from "@/lib/firebase/auth-admin";
 import { SUPER_ADMIN_UIDS } from "@/lib/constants";
+import { logActivity } from "@/services/activity-logs";
+import { rejectAllBidsForProduct } from "./bidding";
 
 /**
  * Helper to get the authenticated user's ID from the session cookie.
@@ -154,7 +156,32 @@ export async function deleteListing(idToken: string, productId: string) {
             return { success: false, error: 'You do not have permission to delete this listing.' };
         }
 
-        await productRef.delete();
+        await productRef.update({
+            status: 'deleted',
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        // Notify Bidders that the item is no longer available
+        await rejectAllBidsForProduct(productId, 'Seller removed listing');
+
+        // Enterprise Safety: Log the deletion activity
+        await logActivity({
+            action: 'product_deleted',
+            resourceId: productId,
+            resourceType: 'product',
+            performedBy: {
+                uid: userId,
+                email: decodedToken.email,
+                displayName: decodedToken.name,
+                role: decodedToken.role || 'seller'
+            },
+            details: {
+                productTitle: productData.title,
+                originalStatus: productData.status
+            }
+        });
+
         revalidatePath('/sell/dashboard');
         return { success: true };
     } catch (error) {
@@ -181,6 +208,24 @@ export async function updateListing(idToken: string, productId: string, data: an
             ...data,
             updatedAt: new Date(),
         });
+
+        // Enterprise Safety: Log the update activity
+        await logActivity({
+            action: 'product_updated',
+            resourceId: productId,
+            resourceType: 'product',
+            performedBy: {
+                uid: userId,
+                email: decodedToken.email,
+                displayName: decodedToken.name,
+                role: decodedToken.role || 'seller'
+            },
+            details: {
+                productTitle: productData.title,
+                changedFields: Object.keys(data)
+            }
+        });
+
         revalidatePath('/sell/dashboard');
         revalidatePath(`/product/${productId}`);
         return { success: true };

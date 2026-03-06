@@ -76,7 +76,10 @@ export async function updateUserProfile(user: SafeUser, data: {
 export async function deleteProduct(productId: string) {
   if (!productId) throw new Error("Product ID is required.");
   const productRef = doc(db, 'products', productId);
-  await deleteDoc(productRef);
+  await updateDoc(productRef, {
+    status: 'deleted',
+    deletedAt: serverTimestamp()
+  });
 }
 
 

@@ -348,11 +348,43 @@ export async function resetOffersAction(productId: string, idToken: string) {
             ));
         }
 
-        revalidatePath(`/product/${productId}`);
-        return { success: true, message: 'All offers have been reset.' };
+export async function rejectAllBidsForProduct(productId: string, reason: string = 'Listing removed') {
+    try {
+        await firestoreDb.runTransaction(async (transaction: any) => {
+            const productRef = firestoreDb.collection('products').doc(productId);
+            const productSnap = await transaction.get(productRef);
 
-    } catch (error: any) {
-        console.error('Reset offers failed:', error);
-        return { success: false, error: error.message || 'Failed to reset offers.' };
+            if (!productSnap.exists) return;
+
+            const product = productSnap.data() as Product;
+            const bids = product.bids || [];
+
+            if (bids.length === 0) return;
+
+            const updatedBids = bids.map(bid => {
+                if (bid.status === 'pending') {
+                    return { ...bid, status: 'rejected' as const };
+                }
+                return bid;
+            });
+
+            transaction.update(productRef, { bids: updatedBids });
+
+            // Send notifications to all outbid/rejected bidders
+            const pendingBidders = bids.filter(b => b.status === 'pending');
+            for (const bid of pendingBidders) {
+                await sendNotification(
+                    bid.bidderId,
+                    'system',
+                    'Offer Declined',
+                    `The listing for "${product.title}" has been removed. Your offer of $${bid.amount.toLocaleString()} was declined.`,
+                    `/browse`
+                );
+            }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('Error rejecting all bids:', error);
+        return { success: false, error: 'Failed to notify bidders' };
     }
 }
