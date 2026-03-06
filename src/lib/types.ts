@@ -377,6 +377,7 @@ export interface Advertisement {
   startDate: Timestamp;
   endDate: Timestamp;
   impressions: number;
+  clicks: number;
 }
 
 // Activity Logging for Enterprise-grade safety
