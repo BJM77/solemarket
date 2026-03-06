@@ -93,7 +93,7 @@ export type Product = {
     size?: string | null;
     colorway?: string | null;
   };
-  status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold'; // Added on_hold
+  status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold' | 'deleted'; // Added deleted for soft deletion
   holdReason?: string;
   isPrivate?: boolean;
   approvedAt?: Timestamp;
@@ -347,7 +347,7 @@ export interface WantedListing {
   imageUrl?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  status: 'active' | 'fulfilled' | 'cancelled';
+  status: 'active' | 'fulfilled' | 'cancelled' | 'deleted';
   contactCount: number;
 }
 
