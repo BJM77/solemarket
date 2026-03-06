@@ -4,6 +4,8 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendTelegramNotification } from '@/lib/telegram';
+import { revalidateTag } from 'next/cache';
+
 
 export async function updateProductPrice(productId: string, newPrice: number, idToken: string) {
     if (!productId || typeof newPrice !== 'number' || !idToken) {
@@ -20,7 +22,7 @@ export async function updateProductPrice(productId: string, newPrice: number, id
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
         if (!docSnap.exists) return { success: false, error: 'Product not found' };
-        
+
         const productData = docSnap.data();
         const oldPrice = productData?.price || 0;
 
@@ -48,9 +50,12 @@ export async function updateProductPrice(productId: string, newPrice: number, id
             const favoritesSnap = await firestoreDb.collectionGroup('favorites')
                 .where('id', '==', productId) // Assuming the favorite doc has the product ID
                 .get();
-            
+
             console.log(`Price drop: Notifying ${favoritesSnap.size} interested users.`);
         }
+
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return { success: true };
     } catch (error: any) {
@@ -81,6 +86,9 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
         });
 
         await batch.commit();
+
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return { success: true };
     } catch (error: any) {

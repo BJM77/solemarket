@@ -179,6 +179,8 @@ export type ProductSearchParams = {
   isUntimed?: boolean;
   multibuyEnabled?: boolean;
   minRating?: number;
+  gradingCompanies?: string[];
+  manufacturer?: string;
 };
 
 

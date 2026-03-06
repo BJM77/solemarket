@@ -3,6 +3,8 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
+import { revalidateTag } from 'next/cache';
+
 // import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
 
 /**
@@ -71,6 +73,10 @@ export async function deleteProductByAdmin(
                 notificationStatus = ' but failed to notify the seller';
             }
         }
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return {
             success: true,
@@ -173,6 +179,10 @@ export async function approveProductByAdmin(
             updatedAt: now,
         });
 
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+
         return {
             success: true,
             message: `Product has been approved and is now live and public.`,
@@ -230,6 +240,10 @@ export async function toggleProductHold(
                 await issueWarning(idToken, sellerId, `Product "${productSnap.data()?.title}" placed on hold: ${reason}`);
             }
         }
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return {
             success: true,

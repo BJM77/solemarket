@@ -60,16 +60,37 @@ const SORT_OPTIONS = [
     { value: 'title-asc', label: 'Title: A to Z' },
 ];
 
+const GRADING_COMPANIES = [
+    'PSA',
+    'BGS',
+    'CGC',
+    'SGC',
+    'Raw',
+];
+
+const CARD_MANUFACTURERS = [
+    'Panini',
+    'Topps',
+    'Upper Deck',
+    'Bowman',
+    'Fleer',
+    'Skybox',
+    'Donruss',
+    'Other',
+];
+
 interface AdvancedFilterPanelProps {
     currentFilters: Partial<ProductSearchParams>;
     onFilterChange: (filters: Partial<ProductSearchParams>) => void;
     onClearFilters: () => void;
+    targetCategory?: string;
 }
 
 export default function AdvancedFilterPanel({
     currentFilters,
     onFilterChange,
     onClearFilters,
+    targetCategory,
 }: AdvancedFilterPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
     const { toast } = useToast();
@@ -156,6 +177,17 @@ export default function AdvancedFilterPanel({
     const priceRange = (localFilters.priceRange as [number, number]) || [0, 10000];
     const yearRange = (localFilters.yearRange as [number, number]) || [1900, new Date().getFullYear()];
 
+    const isSneakers = targetCategory === 'Sneakers' || (localFilters.categories as string[])?.includes('Sneakers');
+    const isCards = targetCategory === 'Collector Cards' || targetCategory === 'Trading Cards' || (localFilters.categories as string[])?.some(c => c.includes('Card'));
+
+    const toggleGradingCompany = (company: string) => {
+        const currentCompanies = (localFilters.gradingCompanies as string[]) || [];
+        const newCompanies = currentCompanies.includes(company)
+            ? currentCompanies.filter(c => c !== company)
+            : [...currentCompanies, company];
+        handleLocalChange('gradingCompanies', newCompanies.length > 0 ? newCompanies : undefined);
+    };
+
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -171,9 +203,11 @@ export default function AdvancedFilterPanel({
             </SheetTrigger>
             <SheetContent className="w-full sm:max-w-lg overflow-y-auto border-l-0" side="right">
                 <SheetHeader className="text-left pb-6 border-b border-border/10">
-                    <SheetTitle className="text-3xl font-black uppercase tracking-tight">Filters</SheetTitle>
+                    <SheetTitle className="text-3xl font-black uppercase tracking-tight">
+                        {isSneakers ? 'Sneaker Filters' : isCards ? 'Card Filters' : 'Filters'}
+                    </SheetTitle>
                     <SheetDescription className="font-medium text-muted-foreground">
-                        Refine your search for the perfect pair.
+                        {isSneakers ? 'Refine your search for the perfect pair.' : isCards ? 'Find that specific grail for your collection.' : 'Refine your search across the marketplace.'}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -200,37 +234,84 @@ export default function AdvancedFilterPanel({
 
                     <Separator />
 
-                    {/* Size Grid (Visual) */}
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                            <Label className="text-base font-bold">Size (US Men)</Label>
-                            {(localFilters.sizes?.length || 0) > 10 && (
-                                <span className="text-xs text-amber-600 font-medium">Max 10 sizes applied</span>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                            {displaySizes.map(size => {
-                                const isSelected = (localFilters.sizes as string[] || []).includes(size);
-                                const simpleSize = size.replace('US ', '');
-                                return (
-                                    <button
-                                        key={size}
-                                        onClick={() => toggleSize(size)}
-                                        className={cn(
-                                            "h-12 rounded-md border text-sm font-medium transition-all",
-                                            isSelected
-                                                ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                                                : "border-gray-200 bg-white text-gray-900 hover:border-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:border-gray-100"
-                                        )}
-                                    >
-                                        {simpleSize}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    {/* Size Grid (Visual) - Sneakers Only */}
+                    {isSneakers && (
+                        <>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <Label className="text-base font-bold">Size (US Men)</Label>
+                                    {(localFilters.sizes?.length || 0) > 10 && (
+                                        <span className="text-xs text-amber-600 font-medium">Max 10 sizes applied</span>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {displaySizes.map(size => {
+                                        const isSelected = (localFilters.sizes as string[] || []).includes(size);
+                                        const simpleSize = size.replace('US ', '');
+                                        return (
+                                            <button
+                                                key={size}
+                                                onClick={() => toggleSize(size)}
+                                                className={cn(
+                                                    "h-12 rounded-md border text-sm font-medium transition-all",
+                                                    isSelected
+                                                        ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
+                                                        : "border-gray-200 bg-white text-gray-900 hover:border-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:border-gray-100"
+                                                )}
+                                            >
+                                                {simpleSize}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <Separator />
+                        </>
+                    )}
 
-                    <Separator />
+                    {/* Grading - Cards Only */}
+                    {isCards && (
+                        <>
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Grading Company</Label>
+                                <div className="flex flex-wrap gap-2">
+                                    {GRADING_COMPANIES.map(company => {
+                                        const isSelected = (localFilters.gradingCompanies as string[] || []).includes(company);
+                                        return (
+                                            <Badge
+                                                key={company}
+                                                variant={isSelected ? "default" : "outline"}
+                                                className="cursor-pointer px-3 py-1 text-sm font-semibold"
+                                                onClick={() => toggleGradingCompany(company)}
+                                            >
+                                                {company}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <Separator />
+
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Manufacturer</Label>
+                                <Select
+                                    value={localFilters.manufacturer as string || 'all'}
+                                    onValueChange={(v) => handleLocalChange('manufacturer', v === 'all' ? undefined : v)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All Manufacturers" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Manufacturers</SelectItem>
+                                        {CARD_MANUFACTURERS.map(m => (
+                                            <SelectItem key={m} value={m}>{m}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Separator />
+                        </>
+                    )}
 
                     {/* Price Range */}
                     <div className="space-y-4">

@@ -5,7 +5,9 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { createUserProfile } from '@/lib/firebase/client-ops';
 import type { Product, UserProfile } from '@/lib/types';
-import { revalidatePath, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+
+
 import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from '@/lib/utils';
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
@@ -166,6 +168,9 @@ export async function createProductAction(
 
         revalidatePath('/browse');
         revalidatePath(`/product/${docRef.id}`);
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return { success: true, productId: docRef.id };
 
@@ -202,6 +207,9 @@ export async function createBulkProductsAction(
 
         await batch.commit();
         revalidatePath('/browse');
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
 
         return { success: true, count: productsData.length };
     } catch (error: any) {

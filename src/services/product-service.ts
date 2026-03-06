@@ -8,7 +8,7 @@ import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketpla
 const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
-  const { page = 1, sort = 'createdAt-desc', q, subCategory, conditions, priceRange, sellers, yearRange, isUntimed } = searchParams;
+  const { page = 1, sort = 'createdAt-desc', q, subCategory, conditions, priceRange, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
   let categories = searchParams.categories?.map(c => normalizeCategory(c));
 
@@ -34,6 +34,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   let filterConditionsInMemory: string[] | null = null;
   let filterSizesInMemory: string[] | null = null;
   let filterSellersInMemory: string[] | null = null;
+  let filterGradingInMemory: string[] | null = null;
 
   // Handle Multi-select Categories or Expand Single Category to Related
   if (categories && categories.length > 0) {
@@ -96,6 +97,22 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     } else {
       filterSellersInMemory = sellers;
     }
+  }
+
+  // Card Specific Filters
+  if (gradingCompanies && gradingCompanies.length > 0) {
+    if (gradingCompanies.length === 1) {
+      constraints.push(where('gradingCompany', '==', gradingCompanies[0]));
+    } else if (!inFilterUsed) {
+      constraints.push(where('gradingCompany', 'in', gradingCompanies.slice(0, 10)));
+      inFilterUsed = true;
+    } else {
+      filterGradingInMemory = gradingCompanies;
+    }
+  }
+
+  if (manufacturer) {
+    constraints.push(where('manufacturer', '==', manufacturer));
   }
 
   // Verified Only Filter
@@ -260,6 +277,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       // 6. Minimum Rating Filter (if present)
       if (searchParams.minRating && p.sellerRating !== undefined) {
         if (p.sellerRating < searchParams.minRating) return false;
+      }
+
+      // 7. Grading Filter (in memory)
+      if (filterGradingInMemory) {
+        if (!p.gradingCompany || !filterGradingInMemory.includes(p.gradingCompany)) return false;
       }
 
       // 3. Public Release Timing (for non-business/non-admin)

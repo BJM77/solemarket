@@ -7,17 +7,25 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Search, Plus, Loader2 } from 'lucide-react';
 import type { WantedListing } from '@/lib/types';
+import WantedFilterPanel from '@/components/wtb/WantedFilterPanel';
 
 export default function WTBBrowsePage() {
     const [listings, setListings] = useState<WantedListing[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [filters, setFilters] = useState<{ category?: string; maxPrice?: number; condition?: string }>({});
 
     useEffect(() => {
         async function fetchListings() {
             try {
                 setLoading(true);
-                const result = await getWTBListingsClient({ status: 'active', limit: 50 });
+                const result = await getWTBListingsClient({
+                    status: 'active',
+                    limit: 50,
+                    category: filters.category,
+                    maxPrice: filters.maxPrice,
+                    condition: filters.condition === 'any' ? undefined : filters.condition
+                });
 
                 if (result.success) {
                     setListings(result.listings);
@@ -32,7 +40,7 @@ export default function WTBBrowsePage() {
         }
 
         fetchListings();
-    }, []);
+    }, [filters]);
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -61,8 +69,28 @@ export default function WTBBrowsePage() {
                 </div>
             </section>
 
+            {/* Listings Header & Filters */}
+            <section className="container mx-auto max-w-screen-2xl px-6 pt-16 pb-8">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        <h2 className="text-2xl font-black italic tracking-wider uppercase text-slate-400">
+                            {loading ? 'Searching...' : `${listings.length} Open Inquiries`}
+                        </h2>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <WantedFilterPanel
+                            currentFilters={filters}
+                            onFilterChange={setFilters}
+                            onClearFilters={() => setFilters({})}
+                        />
+                    </div>
+                </div>
+            </section>
+
             {/* Listings Grid */}
-            <section className="container mx-auto max-w-screen-2xl px-6 py-16">
+            <section className="container mx-auto max-w-screen-2xl px-6 pb-16">
                 {loading ? (
                     <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-white/5">
                         <Loader2 className="w-16 h-16 mx-auto animate-spin text-primary mb-6" />
@@ -81,31 +109,21 @@ export default function WTBBrowsePage() {
                 ) : listings.length === 0 ? (
                     <div className="text-center py-32 bg-white/5 rounded-[3rem] border border-dashed border-white/10 group">
                         <Search className="w-24 h-24 mx-auto text-slate-800 mb-8 transition-transform group-hover:scale-110 duration-500" />
-                        <h2 className="text-4xl font-black mb-4 italic">The feed is clear.</h2>
-                        <p className="text-slate-400 mb-12 text-xl max-w-lg mx-auto">Be the first to demand a specific piece and let the market find you.</p>
+                        <h2 className="text-4xl font-black mb-4 italic">No matching requests.</h2>
+                        <p className="text-slate-400 mb-12 text-xl max-w-lg mx-auto">Try adjusting your filters or be the first to demand a specific piece.</p>
                         <Button asChild size="lg" className="h-14 px-10 rounded-xl">
                             <Link href="/wtb/create">
                                 <Plus className="mr-2 h-5 w-5" />
-                                Create First Listing
+                                Post New Request
                             </Link>
                         </Button>
                     </div>
                 ) : (
-                    <>
-                        <div className="flex items-center justify-between mb-12">
-                            <div className="flex items-center gap-4">
-                                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                                <h2 className="text-2xl font-black italic tracking-wider uppercase text-slate-400">
-                                    {listings.length} Open Inquiries
-                                </h2>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            {listings.map((listing) => (
-                                <WTBCard key={listing.id} listing={listing} />
-                            ))}
-                        </div>
-                    </>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {listings.map((listing) => (
+                            <WTBCard key={listing.id} listing={listing} />
+                        ))}
+                    </div>
                 )}
             </section>
         </div>

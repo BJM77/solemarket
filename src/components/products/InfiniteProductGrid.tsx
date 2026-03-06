@@ -90,7 +90,7 @@ function InfiniteProductGridInner({
         } catch {
           // Ignore invalid formats
         }
-      } else if (key === 'conditions' || key === 'sellers' || key === 'categories' || key === 'sizes') {
+      } else if (key === 'conditions' || key === 'sellers' || key === 'categories' || key === 'sizes' || key === 'gradingCompanies') {
         params[key] = value.split(',');
       } else if (key === 'verifiedOnly') {
         params[key] = value === 'true';
@@ -569,6 +569,7 @@ function InfiniteProductGridInner({
 
             {isClient && (
               <AdvancedFilterPanel
+                targetCategory={currentSearchParams.category || initialFilterState.category}
                 currentFilters={currentSearchParams}
                 onFilterChange={(newFilters) => {
                   const newQuery = createQueryString(newFilters);
