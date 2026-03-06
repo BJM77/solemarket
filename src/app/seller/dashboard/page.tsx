@@ -83,10 +83,10 @@ export default function SellerDashboard() {
 
     // Combine products from both queries and remove duplicates by ID
     const combined = [...(sellerProducts || []), ...(userProducts || [])];
-    const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
+    const unique = Array.from(new Map(combined.map((p: Product) => [p.id, p])).values());
 
     // Ensure all products have a sellerId for consistency in the UI
-    return unique.map(p => ({
+    return unique.map((p: Product) => ({
       ...p,
       sellerId: p.sellerId || (p as any).userId
     })).sort((a, b) => {
@@ -125,18 +125,18 @@ export default function SellerDashboard() {
       .filter((o: any) => o.status !== 'cancelled')
       .reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0);
 
-    const activeListings = products.filter(p => !['sold', 'draft', 'deleted'].includes(p.status || '')).length;
+    const activeListings = products.filter((p: Product) => !['sold', 'draft', 'deleted'].includes(p.status || '')).length;
     const totalReviews = reviews.length;
-    const averageRating = totalReviews > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews : 0;
+    const averageRating = totalReviews > 0 ? reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / totalReviews : 0;
     
     // Only count views for non-deleted products to keep stats clean
     const totalViews = products
-      .filter(p => p.status !== 'deleted')
-      .reduce((acc, p) => acc + ((p as any).views || 0), 0);
+      .filter((p: Product) => p.status !== 'deleted')
+      .reduce((acc: number, p: Product) => acc + ((p as any).views || 0), 0);
       
     const orderCount = orders.length;
 
-    const soldCount = products.filter(p => p.status === 'sold').length;
+    const soldCount = products.filter((p: Product) => p.status === 'sold').length;
 
     // Real conversion rate calculation
     const conversionRate = totalViews > 0 ? (soldCount / totalViews) * 100 : 0;
@@ -497,7 +497,7 @@ function SyncListingsButton({ userId }: { userId: string }) {
       const snapshot = await getDocs(q);
       let count = 0;
 
-      const promises = snapshot.docs.map(async (docSnap) => {
+      const promises = snapshot.docs.map(async (docSnap: any) => {
         const data = docSnap.data();
         const updates: any = {};
 

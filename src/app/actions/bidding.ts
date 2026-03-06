@@ -86,7 +86,7 @@ export async function placeBidAction(
             };
 
             if (isAutoAccept) {
-                const updatedBids = [...currentBids, newBid].map(b => {
+                const updatedBids = [...currentBids, newBid].map((b: Bid) => {
                     if (b.id !== newBid.id && b.status === 'pending') {
                         return { ...b, status: 'rejected' as const };
                     }
@@ -233,7 +233,7 @@ export async function acceptBidAction(productId: string, idToken: string, bidId:
             }
 
             // Update statuses
-            const updatedBids = bids.map(bid => {
+            const updatedBids = bids.map((bid: Bid) => {
                 if (bid.id === bidId) {
                     return { ...bid, status: 'accepted' as const };
                 }
@@ -404,7 +404,7 @@ export async function resetOffersAction(productId: string, idToken: string) {
 
             // Archive all bids that are not already accepted/sold (which shouldn't happen here anyway as we filter for available products usually)
             // But strict logic: pending/rejected -> archived.
-            const updatedBids = activeBids.map(bid => {
+            const updatedBids = activeBids.map((bid: Bid) => {
                 if (['pending', 'rejected'].includes(bid.status)) {
                     return { ...bid, status: 'archived' as const };
                 }
@@ -454,7 +454,7 @@ export async function rejectAllBidsForProduct(productId: string, reason: string 
 
             if (bids.length === 0) return;
 
-            const updatedBids = bids.map(bid => {
+            const updatedBids = bids.map((bid: Bid) => {
                 if (bid.status === 'pending') {
                     return { ...bid, status: 'rejected' as const };
                 }

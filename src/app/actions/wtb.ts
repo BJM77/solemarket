@@ -127,7 +127,7 @@ async function cancelMessagesForWTBListing(listingId: string) {
         if (snapshot.empty) return;
 
         const batch = db.batch();
-        snapshot.docs.forEach(doc => {
+        snapshot.docs.forEach((doc: any) => {
             batch.update(doc.ref, { status: 'cancelled' });
         });
 

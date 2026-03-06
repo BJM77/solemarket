@@ -10,7 +10,7 @@ const PAGE_SIZE = 24;
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
   const { page = 1, sort = 'createdAt-desc', q, subCategory, conditions, priceRange, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
-  let categories = searchParams.categories?.map(c => normalizeCategory(c));
+  let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
   const productsRef = collection(db, 'products');
   let constraints: QueryConstraint[] = [];
@@ -240,7 +240,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   try {
     const querySnapshot = await getDocs(finalQuery);
 
-    let products = querySnapshot.docs.map(doc => serializeFirestoreData({
+    let products = querySnapshot.docs.map((doc: any) => serializeFirestoreData({
       id: doc.id,
       ...doc.data()
     }) as Product);
@@ -251,7 +251,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     // Tiered Access Filtering
     const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
 
-    products = products.filter(p => {
+    products = products.filter((p: Product) => {
       // 0. Logical Delete Filter (Admins only, normal users handled by Firestore query above)
       if ((userRole === 'admin' || userRole === 'superadmin') && !searchParams.status && p.status === 'deleted') {
         return false;
@@ -355,7 +355,7 @@ export async function getAllProducts(): Promise<Product[]> {
   const productsRef = collection(db, 'products');
   const q = query(productsRef, where('status', '==', 'available'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
-  const products = querySnapshot.docs.map(doc => serializeFirestoreData({
+  const products = querySnapshot.docs.map((doc: any) => serializeFirestoreData({
     id: doc.id,
     ...doc.data()
   }) as Product);
