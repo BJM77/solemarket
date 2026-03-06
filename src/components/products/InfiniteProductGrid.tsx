@@ -10,6 +10,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library, X } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
