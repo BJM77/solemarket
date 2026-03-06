@@ -20,11 +20,13 @@ export async function placeBidAction(
     try {
         let bidderId: string;
         let bidderName: string;
+        let buyerEmail: string;
 
         if (idToken) {
             const decodedToken = await verifyIdToken(idToken);
             bidderId = decodedToken.uid;
             bidderName = decodedToken.name || 'User';
+            buyerEmail = decodedToken.email || '';
         } else if (guestEmail && verificationCode) {
             // Verify guest email before proceeding
             const verifyResult = await verifyActionCode(guestEmail, verificationCode);
@@ -33,6 +35,7 @@ export async function placeBidAction(
             }
             bidderId = `guest_${guestEmail.replace(/\./g, '_')}`;
             bidderName = `Guest (${guestEmail.split('@')[0]})`;
+            buyerEmail = guestEmail;
         } else {
             return { success: false, error: "Authentication or Guest Verification required." };
         }
@@ -117,7 +120,7 @@ export async function placeBidAction(
                     shippingCost: 0, // Auto-accept usually implies pickup or free terms
                     taxAmount: 0,
                     buyerId: bidderId,
-                    buyerEmail: idToken ? (decodedToken.email || '') : (guestEmail || 'anonymous@benched.au'),
+                    buyerEmail: buyerEmail || 'anonymous@benched.au',
                     buyerName: bidderName,
                     sellerId: product.sellerId,
                     sellerName: product.sellerName,
