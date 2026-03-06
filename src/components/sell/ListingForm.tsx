@@ -72,6 +72,8 @@ const formSchema = z.object({
     authenticationNumber: z.string().optional(),
     signer: z.string().optional(),
     isUntimed: z.boolean().default(false),
+    autoAcceptPrice: z.coerce.number().optional(),
+    floorPrice: z.coerce.number().optional(),
     multibuyEnabled: z.boolean().default(false),
     multibuyTiers: z.array(z.object({
         minQuantity: z.number().min(2),
@@ -146,6 +148,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             authentication: initialData.authentication || '',
             authenticationNumber: initialData.authenticationNumber || '',
             signer: initialData.signer || '',
+            autoAcceptPrice: initialData.autoAcceptPrice ? Number(initialData.autoAcceptPrice) : '' as any,
+            floorPrice: initialData.floorPrice ? Number(initialData.floorPrice) : '' as any,
             multibuyEnabled: initialData.multibuyEnabled || false,
             multibuyTiers: initialData.multibuyTiers || [],
         },
@@ -628,13 +632,44 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-4">
                                     <FormField control={form.control} name="isNegotiable" render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
-                                            <div className="space-y-0.5 pe-4">
-                                                <FormLabel className="font-bold">Allow Offers</FormLabel>
-                                                <FormDescription className="text-[10px]">Buyers can send binding offers for this item.</FormDescription>
-                                            </div>
-                                            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                                        </FormItem>
+                                        <div className="space-y-4">
+                                            <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
+                                                <div className="space-y-0.5 pe-4">
+                                                    <FormLabel className="font-bold">Allow Offers</FormLabel>
+                                                    <FormDescription className="text-[10px]">Buyers can send binding offers for this item.</FormDescription>
+                                                </div>
+                                                <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                            </FormItem>
+
+                                            {(field.value || form.watch('isUntimed')) && (
+                                                <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-300">
+                                                    <FormField control={form.control} name="autoAcceptPrice" render={({ field: numField }) => (
+                                                        <FormItem className="bg-green-50/50 p-4 rounded-xl border border-green-100">
+                                                            <FormLabel className="text-xs font-bold text-green-700">Auto-Accept Price</FormLabel>
+                                                            <div className="relative">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-600 font-bold">$</span>
+                                                                <FormControl>
+                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-white border-green-200" {...numField} />
+                                                                </FormControl>
+                                                            </div>
+                                                            <FormDescription className="text-[10px] leading-tight text-green-800/70">Offers at or above this instantly win.</FormDescription>
+                                                        </FormItem>
+                                                    )} />
+                                                    <FormField control={form.control} name="floorPrice" render={({ field: numField }) => (
+                                                        <FormItem className="bg-red-50/50 p-4 rounded-xl border border-red-100">
+                                                            <FormLabel className="text-xs font-bold text-red-700">Minimum Offer</FormLabel>
+                                                            <div className="relative">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600 font-bold">$</span>
+                                                                <FormControl>
+                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-white border-red-200" {...numField} />
+                                                                </FormControl>
+                                                            </div>
+                                                            <FormDescription className="text-[10px] leading-tight text-red-800/70">Offers below this are auto-declined.</FormDescription>
+                                                        </FormItem>
+                                                    )} />
+                                                </div>
+                                            )}
+                                        </div>
                                     )} />
                                     <FormField control={form.control} name="isReverseBidding" render={({ field }) => (
                                         <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">

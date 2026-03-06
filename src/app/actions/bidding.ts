@@ -60,9 +60,16 @@ export async function placeBidAction(
 
             const currentBids = product.bids || [];
 
+            if (product.floorPrice && amount < product.floorPrice) {
+                throw new Error(`This offer is below the seller's minimum of $${product.floorPrice.toLocaleString()}.`);
+            }
+
             // Identify previous highest bidder for notification
             const sortedBids = [...currentBids].sort((a, b) => b.amount - a.amount);
             const previousHighestBid = sortedBids[0];
+
+            const isAutoAccept = Boolean(product.autoAcceptPrice && amount >= product.autoAcceptPrice);
+            const bidStatus = isAutoAccept ? 'accepted' : 'pending';
 
             const newBid: Bid = {
                 id: crypto.randomUUID(),
@@ -70,16 +77,33 @@ export async function placeBidAction(
                 bidderName: bidderName || 'Anonymous',
                 amount,
                 timestamp: firebaseAdmin.firestore.Timestamp.now() as any,
-                status: 'pending',
+                status: bidStatus,
                 paymentMethodId: paymentMethodId || undefined
             };
 
-            transaction.update(productRef, {
-                bids: firebaseAdmin.firestore.FieldValue.arrayUnion(newBid)
-            });
+            if (isAutoAccept) {
+                const updatedBids = [...currentBids, newBid].map(b => {
+                    if (b.id !== newBid.id && b.status === 'pending') {
+                        return { ...b, status: 'rejected' as const };
+                    }
+                    return b;
+                });
+                transaction.update(productRef, {
+                    bids: updatedBids,
+                    acceptedBidId: newBid.id,
+                    price: amount,
+                    status: 'sold',
+                    soldAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                transaction.update(productRef, {
+                    bids: firebaseAdmin.firestore.FieldValue.arrayUnion(newBid)
+                });
+            }
 
             return {
                 newBid,
+                isAutoAccept,
                 sellerId: product.sellerId,
                 productTitle: product.title,
                 previousHighestBidderId: previousHighestBid?.bidderId !== bidderId ? previousHighestBid?.bidderId : null,
@@ -89,14 +113,33 @@ export async function placeBidAction(
 
         // Notifications (outside transaction)
 
-        // 1. Notify Seller
-        await sendNotification(
-            result.sellerId,
-            'system',
-            'New Offer Received',
-            `You received a new offer of $${amount.toLocaleString()} for "${result.productTitle}".`,
-            `/product/${productId}`
-        );
+        if (result.isAutoAccept) {
+            // Notify Buyer it was accepted instantly
+            await sendNotification(
+                bidderId,
+                'system',
+                'Offer Auto-Accepted!',
+                `Your offer of $${amount.toLocaleString()} for "${result.productTitle}" matched the seller's auto-accept price!`,
+                `/profile/orders`
+            );
+            // Notify Seller
+            await sendNotification(
+                result.sellerId,
+                'system',
+                'Item Sold!',
+                `Your item "${result.productTitle}" sold for $${amount.toLocaleString()} via Auto-Accept.`,
+                `/sell/dashboard`
+            );
+        } else {
+            // 1. Notify Seller
+            await sendNotification(
+                result.sellerId,
+                'system',
+                'New Offer Received',
+                `You received a new offer of $${amount.toLocaleString()} for "${result.productTitle}".`,
+                `/product/${productId}`
+            );
+        }
 
         // 2. Notify Previous Highest Bidder if outbid
         if (result.previousHighestBidderId && amount > (result.previousHighestAmount || 0)) {

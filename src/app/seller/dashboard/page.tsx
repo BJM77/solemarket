@@ -208,8 +208,10 @@ export default function SellerDashboard() {
   const statCards = [
     { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-600 bg-emerald-100' },
     { label: 'Order Volume', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-600 bg-blue-100' },
+    { label: 'Total Views', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-600 bg-indigo-100' },
+    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-600 bg-orange-100' },
     { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-600 bg-purple-100' },
-    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} transmissions)`, icon: Star, color: 'text-amber-600 bg-amber-100' },
+    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-600 bg-amber-100' },
   ];
 
   return (
@@ -233,17 +235,17 @@ export default function SellerDashboard() {
 
         <Tabs defaultValue="overview" className="space-y-8">
           <div className="flex items-center justify-between">
-            <TabsList className="bg-white border shadow-sm p-1 rounded-xl">
-              <TabsTrigger value="overview" className="rounded-lg px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Overview</TabsTrigger>
-              <TabsTrigger value="products" className="rounded-lg px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Products</TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-lg px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Orders</TabsTrigger>
-              <TabsTrigger value="financials" className="rounded-lg px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Financials</TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-lg px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Reviews</TabsTrigger>
+            <TabsList className="bg-white border shadow-sm p-1 rounded-xl flex-wrap h-auto gap-1">
+              <TabsTrigger value="overview" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Overview</TabsTrigger>
+              <TabsTrigger value="products" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Products</TabsTrigger>
+              <TabsTrigger value="orders" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Orders</TabsTrigger>
+              <TabsTrigger value="financials" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Financials</TabsTrigger>
+              <TabsTrigger value="reviews" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Reviews</TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
                 <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow duration-200">
                   <CardContent className="pt-6">

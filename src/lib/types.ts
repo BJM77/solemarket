@@ -138,6 +138,8 @@ export type Product = {
   buyItNowPrice?: number;
   bidHistory?: Bid[];
   autoRepricingEnabled?: boolean;
+  autoAcceptPrice?: number; // Auto-accept offers equal to or above this price
+  floorPrice?: number; // Auto-reject offers below this price
   minStockQuantity?: number;
   contactCallCount?: number; // Analytics for phone reveals
   watchCount?: number; // Total number of users watching this product
@@ -375,6 +377,8 @@ export interface Advertisement {
   startDate: Timestamp;
   endDate: Timestamp;
   impressions: number;
+}
+
 // Activity Logging for Enterprise-grade safety
 export type ActivityLog = {
   id?: string;

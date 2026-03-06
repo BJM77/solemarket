@@ -16,6 +16,8 @@ export interface DraftListingData {
     quantity: number;
     isReverseBidding: boolean;
     autoRepricingEnabled: boolean;
+    autoAcceptPrice?: number;
+    floorPrice?: number;
     isVault: boolean;
     imageUrls: string[];
     status: 'draft' | 'available';
