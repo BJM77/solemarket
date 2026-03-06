@@ -125,10 +125,15 @@ export default function SellerDashboard() {
       .filter((o: any) => o.status !== 'cancelled')
       .reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0);
 
-    const activeListings = products.filter(p => !['sold', 'draft'].includes(p.status || '')).length;
+    const activeListings = products.filter(p => !['sold', 'draft', 'deleted'].includes(p.status || '')).length;
     const totalReviews = reviews.length;
     const averageRating = totalReviews > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews : 0;
-    const totalViews = products.reduce((acc, p) => acc + ((p as any).views || 0), 0);
+    
+    // Only count views for non-deleted products to keep stats clean
+    const totalViews = products
+      .filter(p => p.status !== 'deleted')
+      .reduce((acc, p) => acc + ((p as any).views || 0), 0);
+      
     const orderCount = orders.length;
 
     const soldCount = products.filter(p => p.status === 'sold').length;

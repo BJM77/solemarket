@@ -7,6 +7,7 @@ import { Product, Bid } from '@/lib/types';
 import { sendNotification } from '@/services/notifications';
 import { revalidatePath } from 'next/cache';
 import { verifyActionCode } from './email-verification';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function placeBidAction(
     productId: string,
@@ -93,8 +94,45 @@ export async function placeBidAction(
                     acceptedBidId: newBid.id,
                     price: amount,
                     status: 'sold',
-                    soldAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+                    soldAt: firebaseAdmin.firestore.Timestamp.now()
                 });
+
+                // Create the Order document immediately inside the transaction
+                const orderRef = firestoreDb.collection('orders').doc();
+                const payIdReference = `AUTO-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+                const newOrder = {
+                    groupOrderId: `GRP-AUTO-${Date.now()}`,
+                    items: [{
+                        id: productId,
+                        title: product.title,
+                        price: product.price,
+                        discountedPrice: amount,
+                        quantity: 1,
+                        image: product.imageUrls?.[0] || '',
+                        sellerId: product.sellerId,
+                    }],
+                    totalAmount: amount,
+                    subtotal: amount,
+                    shippingCost: 0, // Auto-accept usually implies pickup or free terms
+                    taxAmount: 0,
+                    buyerId,
+                    buyerEmail: idToken ? (decodedToken.email || '') : (guestEmail || ''),
+                    buyerName: bidderName,
+                    sellerId: product.sellerId,
+                    sellerName: product.sellerName,
+                    status: 'processing',
+                    paymentStatus: 'pending',
+                    paymentMethod: 'Auto-Accept Offer',
+                    shippingMethod: 'pickup',
+                    createdAt: firebaseAdmin.firestore.Timestamp.now(),
+                    updatedAt: firebaseAdmin.firestore.Timestamp.now(),
+                    payIdReference,
+                    isAutoAccepted: true,
+                    nudgeCount: 0,
+                    lastNudgeAt: null,
+                };
+                transaction.set(orderRef, newOrder);
             } else {
                 transaction.update(productRef, {
                     bids: firebaseAdmin.firestore.FieldValue.arrayUnion(newBid)

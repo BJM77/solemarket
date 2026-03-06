@@ -20,8 +20,9 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     if (searchParams.status) {
       constraints.push(where('status', '==', searchParams.status));
     }
+    // We will filter out 'deleted' in memory for admins later to avoid query restrictions
   } else {
-    // Normal users and visitors ONLY see available listings
+    // Normal users and visitors ONLY see available listings - this is an exact match query, very fast and indexed.
     constraints.push(where('status', '==', 'available'));
   }
 
@@ -251,6 +252,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
 
     products = products.filter(p => {
+      // 0. Logical Delete Filter (Admins only, normal users handled by Firestore query above)
+      if ((userRole === 'admin' || userRole === 'superadmin') && !searchParams.status && p.status === 'deleted') {
+        return false;
+      }
+
       // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
 
       // 2. Year Filter (in memory)
