@@ -117,7 +117,7 @@ export async function placeBidAction(
                     shippingCost: 0, // Auto-accept usually implies pickup or free terms
                     taxAmount: 0,
                     buyerId,
-                    buyerEmail: idToken ? (decodedToken.email || '') : (guestEmail || ''),
+                    buyerEmail: idToken ? (decodedToken.email || '') : (guestEmail || 'anonymous@benched.au'),
                     buyerName: bidderName,
                     sellerId: product.sellerId,
                     sellerName: product.sellerName,
@@ -428,6 +428,15 @@ export async function resetOffersAction(productId: string, idToken: string) {
                 )
             ));
         }
+
+        revalidatePath(`/product/${productId}`);
+        return { success: true, message: 'All offers have been reset.' };
+
+    } catch (error: any) {
+        console.error('Reset offers failed:', error);
+        return { success: false, error: error.message || 'Failed to reset offers.' };
+    }
+}
 
 export async function rejectAllBidsForProduct(productId: string, reason: string = 'Listing removed') {
     try {

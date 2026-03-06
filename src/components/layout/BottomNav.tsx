@@ -50,13 +50,13 @@ export function BottomNav() {
           )}
         </button>
 
-        <Link href="/" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
+        <Link href="/" aria-label="Home" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/' ? "bg-primary/10" : "group-hover:bg-white/5")}>
             {Home && <Home className="h-6 w-6" />}
           </div>
         </Link>
 
-        <Link href="/browse" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/browse' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
+        <Link href="/browse" aria-label="Browse Marketplace" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/browse' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/browse' ? "bg-primary/10" : "group-hover:bg-white/5")}>
             {Search && <Search className="h-6 w-6" />}
           </div>
@@ -65,12 +65,12 @@ export function BottomNav() {
         {/* Center Floating Button for Drop/Sell */}
         <div className="relative -top-6">
           <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping"></div>
-          <Link href="/sell/create" className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
+          <Link href="/sell/create" aria-label="Create Listing" className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
             {PlusSquare && <PlusSquare className="h-7 w-7" />}
           </Link>
         </div>
 
-        <button className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/cart' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
+        <button aria-label={`View Cart (${cartCount} items)`} className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/cart' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/cart' ? "bg-primary/10" : "group-hover:bg-white/5")}>
             <div className="relative">
               {ShoppingBag && <ShoppingBag className="h-6 w-6" />}
@@ -83,7 +83,7 @@ export function BottomNav() {
           </div>
         </button>
 
-        <Link href={user ? '/profile' : '/sign-in'} className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", (pathname || '').startsWith('/profile') ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
+        <Link href={user ? '/profile' : '/sign-in'} aria-label="Account" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", (pathname || '').startsWith('/profile') ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", (pathname || '').startsWith('/profile') ? "bg-primary/10" : "group-hover:bg-white/5")}>
             {User && <User className="h-6 w-6" />}
           </div>

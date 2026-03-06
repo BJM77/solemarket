@@ -13,6 +13,7 @@ interface SmartImageProps {
     alt?: string;
     sizes?: string;
     priority?: boolean;
+    quality?: number;
 }
 
 /**
@@ -26,7 +27,8 @@ export function SmartImage({
     className,
     alt,
     sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
-    priority = false
+    priority = false,
+    quality = 75
 }: SmartImageProps) {
     const [error, setError] = React.useState(false);
     const imageUrl = error ? '/wtb-wanted-placeholder.png' : (product.imageUrls?.[imageIndex] || '/wtb-wanted-placeholder.png');
@@ -52,11 +54,12 @@ export function SmartImage({
                 fill
                 priority={priority}
                 sizes={sizes}
+                quality={quality}
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 style={{ objectPosition }}
                 onError={() => setError(true)}
                 placeholder="blur"
-                blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
             />
         </div>
     );

@@ -8,6 +8,13 @@ import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
 import { PlayerCollections } from "@/components/home/PlayerCollections";
 import { Skeleton } from "@/components/ui/skeleton";
+import { brandConfig } from "@/config/brand";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: brandConfig.seo.defaultTitle,
+  description: brandConfig.seo.defaultDescription,
+};
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

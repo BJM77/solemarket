@@ -109,6 +109,11 @@ service cloud.firestore {
       allow create: if isAuthenticated();
       allow update: if isAdmin();
     }
+
+    // Activity Logs - System only
+    match /activity_logs/{logId} {
+      allow read, write: if false;
+    }
     
     // Default deny
     match /{document=**} {

@@ -38,7 +38,7 @@ export default function Footer() {
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-6">
-            <div className="relative w-40 h-24">
+            <div className="relative w-40 h-[73px]">
               <Image
                 src="/benched.png"
                 alt="Benched"
@@ -49,7 +49,7 @@ export default function Footer() {
               />
             </div>
           </div>
-          <p className="text-sm text-gray-500 max-w-xs mb-4">{brandConfig.company.tagline}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-4">{brandConfig.company.tagline}</p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -76,12 +76,12 @@ export default function Footer() {
         ))}
         <div>
           <h5 className="font-black text-xs uppercase tracking-widest mb-6">Newsletter</h5>
-          <p className="text-sm text-gray-500 mb-4">Get early access to weekly drops.</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Get early access to weekly drops.</p>
           <NewsletterSignup />
         </div>
       </div>
-      <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-[#e7ebf3] dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-        <Link href="/log" className="cursor-default hover:text-gray-400 transition-colors">
+      <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-[#e7ebf3] dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <Link href="/log" className="cursor-default hover:text-slate-500 transition-colors">
           © {new Date().getFullYear()} {brandConfig.company.legalName}. All rights reserved.
         </Link>
         <div className="flex gap-8">
