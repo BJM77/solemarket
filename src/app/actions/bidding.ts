@@ -116,7 +116,7 @@ export async function placeBidAction(
                     subtotal: amount,
                     shippingCost: 0, // Auto-accept usually implies pickup or free terms
                     taxAmount: 0,
-                    buyerId,
+                    buyerId: bidderId,
                     buyerEmail: idToken ? (decodedToken.email || '') : (guestEmail || 'anonymous@benched.au'),
                     buyerName: bidderName,
                     sellerId: product.sellerId,
