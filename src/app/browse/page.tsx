@@ -53,6 +53,7 @@ export default async function BrowsePage({
 }) {
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
+  const subCategoryParam = typeof resolvedParams.subCategory === 'string' ? resolvedParams.subCategory : undefined;
 
   // Initial Server Fetch
   let initialProductsData;
@@ -62,6 +63,7 @@ export default async function BrowsePage({
     initialProductsData = await getProducts({
       q: searchTerm,
       category: targetCategory,
+      subCategory: subCategoryParam,
       sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
       page: 1,
       limit: 24
@@ -91,11 +93,12 @@ export default async function BrowsePage({
         </div>
       }>
         <InfiniteProductGrid
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Sneakers'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : 'All Sneakers'}
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{
             q: searchTerm,
-            category: targetCategory
+            category: targetCategory,
+            subCategory: subCategoryParam
           }}
           initialData={initialProductsData} // Pass initial data
         />

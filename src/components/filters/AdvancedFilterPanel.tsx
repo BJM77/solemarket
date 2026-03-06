@@ -79,6 +79,33 @@ const CARD_MANUFACTURERS = [
     'Other',
 ];
 
+const SNEAKER_BRANDS = [
+    'Jordan',
+    'Nike',
+    'Adidas',
+    'Yeezy',
+    'New Balance',
+    'Asics',
+    'Puma',
+    'Reebok',
+    'Other',
+];
+
+const CARD_SUB_CATEGORIES = [
+    'Basketball Cards',
+    'Sports Cards',
+    'Pokémon',
+    'Yu-Gi-Oh!',
+    'Magic: The Gathering',
+    'Jordan',
+    'Kobe',
+    'Curry',
+    'LeBron',
+    'Rookies',
+    'Signed',
+    'Other',
+];
+
 interface AdvancedFilterPanelProps {
     currentFilters: Partial<ProductSearchParams>;
     onFilterChange: (filters: Partial<ProductSearchParams>) => void;
@@ -233,6 +260,55 @@ export default function AdvancedFilterPanel({
                     </div>
 
                     <Separator />
+
+                    {/* Sub Category - Sneakers */}
+                    {isSneakers && (
+                        <>
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Brand</Label>
+                                <Select
+                                    value={localFilters.subCategory as string || 'all'}
+                                    onValueChange={(v) => handleLocalChange('subCategory', v === 'all' ? undefined : v)}
+                                >
+                                    <SelectTrigger className="h-12">
+                                        <SelectValue placeholder="All Brands" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Brands</SelectItem>
+                                        {SNEAKER_BRANDS.map(b => (
+                                            <SelectItem key={b} value={b}>{b}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Separator />
+                        </>
+                    )}
+
+                    {/* Sub Category - Cards */}
+                    {isCards && (
+                        <>
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Card Sub-Category</Label>
+                                <div className="flex flex-wrap gap-2">
+                                    {CARD_SUB_CATEGORIES.map(sub => {
+                                        const isSelected = localFilters.subCategory === sub;
+                                        return (
+                                            <Badge
+                                                key={sub}
+                                                variant={isSelected ? "default" : "outline"}
+                                                className="cursor-pointer px-3 py-1 text-sm font-semibold"
+                                                onClick={() => handleLocalChange('subCategory', isSelected ? undefined : sub)}
+                                            >
+                                                {sub}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <Separator />
+                        </>
+                    )}
 
                     {/* Size Grid (Visual) - Sneakers Only */}
                     {isSneakers && (

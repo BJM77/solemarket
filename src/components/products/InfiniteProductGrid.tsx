@@ -10,7 +10,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library, X } from 'lucide-react';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
@@ -585,6 +585,61 @@ function InfiniteProductGridInner({
       <div className="mb-6">
         {typeof CategoryPills !== 'undefined' && <CategoryPills />}
       </div>
+
+      {/* Active Filters Display */}
+      {Object.keys(currentSearchParams).some(key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentSearchParams[key as keyof ProductSearchParams]) && (
+        <div className="flex flex-wrap items-center gap-2 mb-6 animate-in fade-in slide-in-from-top-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-1">Active:</span>
+          {Object.entries(currentSearchParams).map(([key, value]) => {
+            if (['view', 'sort', 'page', 'category', 'categories'].includes(key) || !value) return null;
+
+            // Handle arrays (conditions, sizes, etc.)
+            if (Array.isArray(value)) {
+              return value.map((v) => (
+                <Badge key={`${key}-${v}`} variant="secondary" className="pl-2 pr-1 py-1 gap-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10">
+                  <span className="text-[10px] font-bold uppercase">{key === 'gradingCompanies' ? 'Grade:' : key === 'sizes' ? 'Size:' : ''} {String(v)}</span>
+                  <button
+                    onClick={() => {
+                      const newArr = (value as any[]).filter(x => x !== v);
+                      handleFilterChange(key, newArr.length > 0 ? newArr : null);
+                    }}
+                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ));
+            }
+
+            // Handle simple values (q, subCategory, verifiedOnly)
+            return (
+              <Badge key={key} variant="secondary" className="pl-2 pr-1 py-1 gap-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10">
+                <span className="text-[10px] font-bold uppercase">
+                  {key === 'q' ? 'Search:' : key === 'subCategory' ? 'Type:' : key === 'manufacturer' ? 'Brand:' : ''} {String(value)}
+                </span>
+                <button
+                  onClick={() => handleFilterChange(key, null)}
+                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            );
+          })}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              // Construct a URL that only keeps the category
+              const newUrl = pathname + (currentSearchParams.category ? `?category=${currentSearchParams.category}` : '');
+              router.push(newUrl, { scroll: false });
+            }}
+            className="h-7 px-2 text-[10px] font-bold uppercase tracking-tight hover:text-destructive transition-colors"
+          >
+            Clear All
+          </Button>
+        </div>
+      )}
 
       {isAdmin && (
         <div className="mb-4 flex items-center justify-between bg-secondary/20 p-2 rounded-lg">

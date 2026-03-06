@@ -30,16 +30,20 @@ export function CategoryPills({ className }: CategoryPillsProps) {
     if (isCardsMode) {
         pills = [
             { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Collector Cards' : ''}` },
-            { name: 'Basketball Cards', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Basketball%20Cards` },
+            { name: 'Basketball', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Basketball%20Cards` },
+            { name: 'Pokémon', icon: Sparkles, href: `${basePath}?category=Collector Cards&subCategory=Pokémon` },
+            { name: 'Yu-Gi-Oh!', icon: Sparkles, href: `${basePath}?category=Collector Cards&subCategory=Yu-Gi-Oh!` },
+            { name: 'Rookies', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Rookies` },
             { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector Cards&sort=createdAt-desc` },
             { name: 'Sneakers →', icon: Footprints, href: basePath.includes('admin') ? `${basePath}?category=Sneakers` : `/browse` },
         ];
     } else {
         pills = [
             { name: 'All Sneakers', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
-            { name: 'Basketball', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Basketball` },
-            { name: 'Lifestyle', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Lifestyle` },
-            { name: 'Running', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Running` },
+            { name: 'Jordan', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Jordan` },
+            { name: 'Nike', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Nike` },
+            { name: 'Adidas', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Adidas` },
+            { name: 'Yeezy', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Yeezy` },
             { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Sneakers&sort=createdAt-desc` },
             { name: 'Cards →', icon: Library, href: basePath.includes('admin') ? `${basePath}?category=Collector Cards` : `/cards` },
         ];

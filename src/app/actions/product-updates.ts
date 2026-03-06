@@ -28,6 +28,7 @@ export async function updateProductPrice(productId: string, newPrice: number, id
 
         await docRef.update({
             price: newPrice,
+            oldPrice: oldPrice, // Save for visual "Price Drop" badge
             updatedAt: FieldValue.serverTimestamp()
         });
 

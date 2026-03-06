@@ -45,6 +45,7 @@ export default async function CardsBrowsePage({
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Collector Cards';
+  const subCategoryParam = typeof resolvedParams.subCategory === 'string' ? resolvedParams.subCategory : undefined;
 
   // Initial Server Fetch
   let initialProductsData;
@@ -52,6 +53,7 @@ export default async function CardsBrowsePage({
     initialProductsData = await getProducts({
       q: searchTerm,
       category: categoryParam,
+      subCategory: subCategoryParam,
       sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
       page: 1,
       limit: 24
@@ -74,11 +76,12 @@ export default async function CardsBrowsePage({
       </div>
     }>
       <InfiniteProductGrid
-        pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'All Collector Cards'}
+        pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
         pageDescription="Browse the rarest cards from thousands of collectors."
         initialFilterState={{
           q: searchTerm,
-          category: categoryParam
+          category: categoryParam,
+          subCategory: subCategoryParam
         }}
         initialData={initialProductsData} // Pass initial data
       />

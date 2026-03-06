@@ -71,6 +71,7 @@ export type Product = {
   title: string;
   description: string;
   price: number;
+  oldPrice?: number; // To track price drops for visual indicators
   category: string;
   subCategory?: string;
   sellerId: string;

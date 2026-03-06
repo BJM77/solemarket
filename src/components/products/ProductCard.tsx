@@ -1007,11 +1007,28 @@ export default function ProductCard({
           <h3 className="text-sm sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2.5rem] sm:min-h-0">
             {product.title}
           </h3>
-          {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto">{product.grade}</span>}
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0">{product.grade}</span>}
+            {!isCardCategory(product.category) && product.size && (
+              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
+                US {product.size.replace('US ', '')}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 mt-1 mb-2 pointer-events-auto px-0.5">
-          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-1.5 mt-1 mb-2 pointer-events-auto px-0.5 overflow-x-auto scrollbar-hide">
+          {product.oldPrice && product.oldPrice > product.price && (
+            <Badge variant="default" className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 animate-pulse">
+              🔥 Price Drop
+            </Badge>
+          )}
+          {mounted && isNewArrival() && (
+            <Badge variant="outline" className="border-indigo-500 text-indigo-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0">
+              Just In
+            </Badge>
+          )}
+          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-gray-200 dark:border-gray-700 flex-shrink-0">
             <AvatarImage src={product.sellerAvatar || ''} />
             <AvatarFallback className="text-[8px] sm:text-[10px] bg-gray-100 dark:bg-gray-800">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
           </Avatar>
