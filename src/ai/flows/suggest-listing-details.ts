@@ -22,26 +22,23 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
             return { error: `Authentication failed: ${authErr.message}` };
         }
 
-        // Pre-process images: Convert URLs to Data URIs (Base64)
-        // This ensures Gemini receives the image data directly, avoiding access/CORS issues with Firebase Storage URLs.
+        // Pre-process images: Convert URLs to Data URIs (Base64) only if necessary
         if (input.photoDataUris && input.photoDataUris.length > 0) {
-            console.log('🔄 [Server] converting URLs to Base64...');
+            console.log('🔄 [Server] checking image formats...');
             const processedImages = await Promise.all(input.photoDataUris.map(async (uri) => {
                 if (uri.startsWith('http')) {
-                    // Removed inner try-catch as the outer one will catch fetch errors
+                    console.log('🌐 Fetching remote image for AI analysis');
                     const response = await fetch(uri);
                     if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
                     const arrayBuffer = await response.arrayBuffer();
                     const base64String = Buffer.from(arrayBuffer).toString('base64');
                     const mimeType = response.headers.get('content-type') || 'image/jpeg';
-                    // Return standard data URI format
                     return `data:${mimeType};base64,${base64String}`;
                 }
-                return uri; // Already a data URI or invalid
+                return uri; // Already a data URI (compressed locally by client)
             }));
 
             input.photoDataUris = processedImages;
-            console.log('✅ [Server] Conversion complete. Payload ready.');
         }
 
         const result = await suggestListingDetailsFlow(input);
@@ -60,7 +57,7 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',
-    model: 'googleai/gemini-flash-latest',
+    model: 'googleai/gemini-2.0-flash-exp',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
     prompt: `You are an expert in valuing and listing authentic sneakers and streetwear. Analyze the provided information (images and/or title) to generate listing details.

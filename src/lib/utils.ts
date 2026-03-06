@@ -124,3 +124,39 @@ export function getProductUrl(product: { id: string; title: string; category?: s
   const slug = slugify(product.title);
   return `/${section}/${slug}/${product.id}`;
 }
+
+/**
+ * Resizes and compresses an image for AI processing.
+ * Keeps payload small for faster API response times.
+ */
+export async function resizeAndCompressImage(file: File | Blob, maxWidth: number = 800, quality: number = 0.7): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Use jpeg for compression
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+}
