@@ -161,7 +161,13 @@ try {
 } catch (error) {
     console.error('❌ CRITICAL: Failed to initialize Firebase Admin services:', error);
     isFirebaseAdminReady = false;
-    // Fallback dummies to prevent massive 500s on the homepage
+
+    // Fail-fast in production: Do not hide fatal infrastructure errors with placeholders.
+    if (process.env.NODE_ENV === 'production') {
+        throw error;
+    }
+
+    // Fallback dummies for local development to prevent massive 500s on the homepage
     // Robust recursive proxy to handle any chain of Firestore calls without crashing
     const createPlaceholder = (name: string): any => {
         const placeholder: any = new Proxy(() => { }, {

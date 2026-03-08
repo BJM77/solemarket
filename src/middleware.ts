@@ -82,6 +82,7 @@ export async function middleware(request: NextRequest) {
   // 2. Route Protection
   const session = request.cookies.get('session') || request.cookies.get('__session');
   let isAuth = false;
+  let userRole = 'user';
 
   if (session?.value) {
     try {
@@ -106,6 +107,7 @@ export async function middleware(request: NextRequest) {
           const currentTime = Date.now() / 1000;
           if (payload.exp && payload.exp > currentTime) {
             isAuth = true;
+            userRole = (payload.role as string) || 'user';
           }
         }
       }
@@ -117,7 +119,8 @@ export async function middleware(request: NextRequest) {
 
   // Protect Admin Routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!isAuth) {
+    const isAdmin = isAuth && (userRole === 'admin' || userRole === 'superadmin');
+    if (!isAdmin) {
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
       return NextResponse.redirect(signInUrl);

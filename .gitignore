@@ -49,3 +49,8 @@ secrets_staging/
 # Temporary files
 codes*.txt
 data/
+local/
+*.log
+*.jpg
+marchsite.txt
+users.json

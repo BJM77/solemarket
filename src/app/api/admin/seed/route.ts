@@ -7,11 +7,15 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
 export async function POST(request: NextRequest) {
+    // 1. Critical Production Gate
+    if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Forbidden in production' }, { status: 403 });
+    }
+
     try {
         const authHeader = request.headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ')) {
-            // allowing no auth for local dev ease if needed, but keeping improved security
-            // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!authHeader?.startsWith('Bearer ') || authHeader.split(' ')[1] !== process.env.ADMIN_SEED_TOKEN) {
+            return NextResponse.json({ error: 'Unauthorized: Invalid or missing seed token' }, { status: 401 });
         }
 
         // Seed Categories

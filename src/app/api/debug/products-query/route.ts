@@ -1,10 +1,24 @@
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { authAdmin } from '@/lib/firebase/admin';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    // 1. Production Gate
+    if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
+    }
+
     try {
+        // 2. Admin Check
+        const session = request.cookies.get('session')?.value || request.cookies.get('__session')?.value;
+        if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        
+        const decodedToken = await authAdmin.verifySessionCookie(session);
+        if (decodedToken.role !== 'admin' && decodedToken.role !== 'superadmin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
         const productsRef = collection(db, 'products');
         // Mimic the Default Public Query
         // status == 'available'
