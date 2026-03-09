@@ -40,8 +40,9 @@ import { cn } from '@/lib/utils';
 import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
+import { QuickFilterChips } from './QuickFilterChips';
 import { exportAllProductsCSV } from '@/app/actions/export';
-import { Download } from 'lucide-react';
+import { Download, Search } from 'lucide-react';
 import { AdUnit } from '@/components/ads/AdUnit';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
@@ -109,6 +110,7 @@ function InfiniteProductGridInner({
     isFetchingNextPage,
     status,
     isLoading,
+    isPending,
     error,
     isError
   } = useInfiniteQuery({
@@ -382,7 +384,7 @@ function InfiniteProductGridInner({
     }
 
 
-    if (products.length === 0 && isLoading) {
+    if ((products.length === 0 && (isLoading || isPending)) || (isClient && products.length === 0 && !data)) {
       return (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-4 md:gap-x-6 md:gap-y-8">
           {[...Array(12)].map((_, i) => (
@@ -584,8 +586,15 @@ function InfiniteProductGridInner({
         </div>
       </header>
 
-      <div className="mb-6">
+      <div className="space-y-4 mb-6">
         {typeof CategoryPills !== 'undefined' && <CategoryPills />}
+        {isClient && (
+          <QuickFilterChips
+            currentFilters={currentSearchParams}
+            onFilterChange={handleFilterChange}
+            targetCategory={currentSearchParams.category || initialFilterState.category}
+          />
+        )}
       </div>
 
       {/* Active Filters Display */}

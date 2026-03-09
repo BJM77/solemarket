@@ -527,7 +527,7 @@ export default function ProductCard({
                 </Button>
               </div>
             )}
-            {isSuperAdmin && (
+            {mounted && isSuperAdmin && (
               <div className="flex items-center gap-1.5 pointer-events-auto mr-2" onClick={(e) => e.stopPropagation()}>
                 <EbaySearchModal
                   defaultQuery={getEbayQuery()}
@@ -657,7 +657,7 @@ export default function ProductCard({
                 </Button>
               }
             />
-            {(isSuperAdmin || isAdmin) && (
+            {mounted && (isSuperAdmin || isAdmin) && (
               <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
                 {isSuperAdmin && (
                   <EbaySearchModal
@@ -885,7 +885,7 @@ export default function ProductCard({
             />
           </div>
 
-          {(isSuperAdmin || isAdmin) && (
+          {mounted && (isSuperAdmin || isAdmin) && (
             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
                 {isSuperAdmin && (

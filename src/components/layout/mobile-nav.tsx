@@ -7,6 +7,9 @@ import { Menu } from 'lucide-react';
 import Image from 'next/image';
 import { MobileNavContent } from './MobileNavContent';
 import Link from 'next/link';
+import { Logo } from '../logo';
+
+import { brandConfig } from '@/config/brand';
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +30,7 @@ export function MobileNav() {
         <div className="flex h-full flex-col">
           <div className="border-b p-4">
             <Link href="/" onClick={() => setIsOpen(false)} aria-label="Back to homepage">
-              <Image src="/benched.png" alt="Benched Logo" width={150} height={45} className="w-auto h-8" priority />
+              <Logo className="h-10" />
             </Link>
           </div>
           <MobileNavContent setIsOpen={setIsOpen} />

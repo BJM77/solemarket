@@ -4,25 +4,13 @@ import { brandConfig } from '@/config/brand';
 
 export function Logo({ className }: { className?: string }) {
     return (
-        <div className={cn("flex items-center gap-2", className)}>
-            {/* Desktop Logo */}
+        <div className={cn("flex items-center", className)}>
             <Image
-                src={brandConfig.branding.logoUrl || '/shoe.png'}
-                alt={`${brandConfig.company.name} Logo Desktop`}
-                width={172}
-                height={52}
-                className="hidden md:block w-auto h-[42px]"
-                style={{ width: 'auto' }}
-                priority
-            />
-            {/* Mobile Logo */}
-            <Image
-                src="/benched.png"
-                alt={`${brandConfig.company.name} Logo Mobile`}
-                width={172}
-                height={52}
-                className="md:hidden w-auto h-[32px]"
-                style={{ width: 'auto' }}
+                src={brandConfig.branding.logoUrl || '/benched.png'}
+                alt={`${brandConfig.company.name} Logo`}
+                width={422}
+                height={193}
+                className="w-auto h-full object-contain"
                 priority
             />
         </div>

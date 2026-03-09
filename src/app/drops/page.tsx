@@ -67,7 +67,7 @@ export default function DropsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {UPCOMING_DROPS.map((drop) => (
+                {UPCOMING_DROPS.map((drop, index) => (
                     <Card key={drop.id} className="overflow-hidden group hover:shadow-xl transition-all border-none bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800">
                         <div className="aspect-square relative bg-muted/30 p-0 overflow-hidden">
                             <Image
@@ -75,6 +75,7 @@ export default function DropsPage() {
                                 alt={drop.title}
                                 fill
                                 className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                priority={index === 0}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="absolute top-4 left-4 bg-black/90 text-white px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 backdrop-blur-md shadow-xl z-10">

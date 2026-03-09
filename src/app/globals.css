@@ -215,8 +215,8 @@
 @layer components {
   /* Keyframe Animations */
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
   }
   
   @keyframes float {
@@ -251,11 +251,31 @@
     }
   }
 
-  @keyframes particle {
-    0% { transform: translate(0, 0) scale(1); opacity: 0; }
-    20% { opacity: 0.5; }
-    80% { opacity: 0.5; }
-    100% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(0); opacity: 0; }
+  /* Interaction Utilities */
+  .tap-haptic {
+    @apply active:scale-90 transition-transform duration-200;
+  }
+  
+  .tap-haptic-subtle {
+    @apply active:scale-95 transition-transform duration-200;
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(242, 108, 13, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(242, 108, 13, 0.4); }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  .bounce-subtle {
+    animation: bounce-subtle 2s infinite ease-in-out;
   }
 
   /* Custom Utilities for Benched */

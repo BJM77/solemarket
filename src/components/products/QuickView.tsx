@@ -1,6 +1,6 @@
-
 'use client';
 
+import React, { useState, useCallback } from 'react';
 import type { Product } from '@/lib/types';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { db } from '@/lib/firebase/config';
 import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { useState, useCallback } from 'react';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { useRouter } from 'next/navigation';
 import { formatPrice, cn } from '@/lib/utils';
@@ -33,9 +32,14 @@ export function QuickView({ product, trigger }: QuickViewProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isOwner = user && user.uid === product.sellerId;
-  const isSuperAdmin = user && ((user.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user.email && SUPER_ADMIN_EMAILS.includes(user.email)));
+  const isSuperAdmin = mounted && user && ((user.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user.email && SUPER_ADMIN_EMAILS.includes(user.email)));
   const canEdit = isOwner || isSuperAdmin;
 
   // Favorite Logic

@@ -8,7 +8,17 @@ import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
-export function SearchBar({ className, inputClassName, buttonClassName }: { className?: string; inputClassName?: string; buttonClassName?: string; }) {
+export function SearchBar({
+  className,
+  inputClassName,
+  buttonClassName,
+  onSearch
+}: {
+  className?: string;
+  inputClassName?: string;
+  buttonClassName?: string;
+  onSearch?: () => void;
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
@@ -16,6 +26,7 @@ export function SearchBar({ className, inputClassName, buttonClassName }: { clas
     e.preventDefault();
     if (searchTerm.trim()) {
       router.push(`/browse?q=${encodeURIComponent(searchTerm.trim())}`);
+      onSearch?.();
     }
   };
 

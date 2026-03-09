@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NewsletterSignup } from './NewsletterSignup';
 import { SITE_NAME, brandConfig } from '@/config/brand';
+import { Logo } from '../logo';
 
 const footerLinks = {
   Marketplace: [
@@ -37,17 +38,8 @@ export default function Footer() {
     <footer className="bg-background border-t border-border py-12 px-4 md:px-10">
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div className="col-span-2 md:col-span-1">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="relative w-40 h-[73px]">
-              <Image
-                src="/benched.png"
-                alt="Benched"
-                fill
-                className="object-contain object-left"
-                sizes="160px"
-                priority
-              />
-            </div>
+          <div className="flex items-center mb-6">
+            <Logo className="h-16 md:h-20" />
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-4">{brandConfig.company.tagline}</p>
           <Link

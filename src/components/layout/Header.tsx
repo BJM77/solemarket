@@ -12,6 +12,7 @@ import { Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
+import { MobileNavPills } from './MobileNavPills';
 import { cn } from '@/lib/utils';
 
 export default function Header() {
@@ -31,13 +32,13 @@ export default function Header() {
             {isClient && <MobileNav />}
 
             <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
-              <Logo />
+              <Logo className="h-10 md:h-12 lg:h-14" />
             </Link>
 
-            {/* Mobile Market Ticker when pinned */}
+            {/* Mobile Nav Pills when pinned - replacing ticker */}
             {isClient && isPinned && (
               <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
-                <MarketTicker compact />
+                <MobileNavPills onSearchClick={() => setShowMobileSearch(!showMobileSearch)} />
               </div>
             )}
 
@@ -61,24 +62,31 @@ export default function Header() {
 
       {/* Mobile Search Overlay */}
       {isClient && showMobileSearch && (
-        <div className="lg:hidden sticky top-[60px] z-40 bg-background border-b px-4 py-3 shadow-md">
+        <div className="lg:hidden sticky top-[60px] z-40 bg-background border-b px-4 py-3 shadow-md animate-in slide-in-from-top-4 duration-300">
           <SearchBar
             className="w-full h-12"
             inputClassName="h-12"
+            onSearch={() => setShowMobileSearch(false)}
           />
         </div>
       )}
 
       {/* 
-        Consolidated Ticker: 
-        1. When pinned on mobile -> Show compact version inside header layout (WAIT - I removed the inside one, let's put it back properly)
-        Actually, the best way is to show a single one here that adapts.
+        Home Navigation Pills (Mobile Only)
+        Replacing the scrolling ticker with discovery pills
       */}
       {isClient && (
         <div className={cn(
-          "transition-all duration-300",
-          isPinned ? "hidden md:block" : "block"
+          "transition-all duration-300 md:hidden",
+          isPinned ? "hidden" : "block"
         )}>
+          <MobileNavPills onSearchClick={() => setShowMobileSearch(!showMobileSearch)} />
+        </div>
+      )}
+
+      {/* Desktop Ticker Only */}
+      {isClient && (
+        <div className="hidden md:block transition-all duration-300">
           <MarketTicker />
         </div>
       )}

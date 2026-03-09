@@ -38,7 +38,7 @@ export default function GuidesIndexPage() {
             {/* Grid */}
             <div className="container mx-auto px-4 max-w-5xl mt-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {SEO_GUIDES.map((guide) => (
+                    {SEO_GUIDES.map((guide, index) => (
                         <Link key={guide.slug} href={`/guides/${guide.slug}`} className="group relative bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border flex flex-col h-full">
                             <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
                                 <Image
@@ -47,6 +47,7 @@ export default function GuidesIndexPage() {
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     sizes="(max-width: 768px) 100vw, 50vw"
+                                    priority={index === 0}
                                 />
                                 <div className="absolute top-4 left-4">
                                     <span className="bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">

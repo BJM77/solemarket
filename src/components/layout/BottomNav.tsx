@@ -2,92 +2,82 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, PlusSquare, ShoppingBag, User, Pin, PinOff } from 'lucide-react';
+import { Home, Search, PlusCircle, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/firebase';
-import { useCart } from '@/context/CartContext';
-import { useState, useEffect } from 'react';
 import { useMobileNav } from '@/context/MobileNavContext';
 
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
-  const { items } = useCart();
-  const cartCount = items.length;
-  const [isClient, setIsClient] = useState(false);
-  const { isPinned, setIsPinned, isVisible } = useMobileNav();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) return null;
+  const { isVisible } = useMobileNav();
 
   const navItems = [
     { label: 'Home', href: '/', icon: Home },
     { label: 'Browse', href: '/browse', icon: Search },
-    { label: 'Sell', href: '/sell/create', icon: PlusSquare },
-    { label: 'Cart', href: '#', icon: ShoppingBag, isCart: true },
-    { label: 'Account', href: user ? '/profile' : '/sign-in', icon: User },
+    { label: 'Sell', href: '/sell/create', icon: PlusCircle, primary: true },
+    { label: 'Activity', href: '/profile/orders', icon: Bell },
+    { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
   ];
 
   return (
     <nav className={cn(
-      "md:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-6 pt-0 transition-transform duration-300 ease-in-out",
-      !isVisible && !isPinned ? "translate-y-[150%]" : "translate-y-0"
+      "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-border/50 px-2 pb-safe pt-2 h-[4.5rem] transition-all duration-500 ease-in-out shadow-[0_-8px_30px_rgb(0,0,0,0.12)]",
+      !isVisible ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
     )}>
-      <div className="max-w-md mx-auto bg-card/95 backdrop-blur-lg border border-white/10 rounded-full px-2 py-2 flex items-center justify-between shadow-2xl relative">
-        {/* Pin Button */}
-        <button
-          onClick={() => setIsPinned(!isPinned)}
-          className="absolute -top-3 right-4 bg-background border border-white/10 rounded-full p-1.5 shadow-md text-slate-400 hover:text-white flex items-center justify-center group z-10"
-          aria-label={isPinned ? "Unpin menu" : "Pin menu"}
-        >
-          {isPinned ? (
-            Pin && <Pin className="h-3 w-3 fill-primary text-primary" />
-          ) : (
-            PinOff && <PinOff className="h-3 w-3 group-hover:text-primary transition-colors" />
-          )}
-        </button>
+      <div className="flex items-center justify-around h-full max-w-lg mx-auto relative">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
 
-        <Link href="/" aria-label="Home" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/' ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            {Home && <Home className="h-6 w-6" />}
-          </div>
-        </Link>
-
-        <Link href="/browse" aria-label="Browse Marketplace" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/browse' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/browse' ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            {Search && <Search className="h-6 w-6" />}
-          </div>
-        </Link>
-
-        {/* Center Floating Button for Drop/Sell */}
-        <div className="relative -top-6">
-          <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping"></div>
-          <Link href="/sell/create" aria-label="Create Listing" className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_0_15px_rgba(242,108,13,0.6)] border-4 border-background transform transition-transform hover:scale-110 active:scale-95">
-            {PlusSquare && <PlusSquare className="h-7 w-7" />}
-          </Link>
-        </div>
-
-        <button aria-label={`View Cart (${cartCount} items)`} className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", pathname === '/cart' ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", pathname === '/cart' ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            <div className="relative">
-              {ShoppingBag && <ShoppingBag className="h-6 w-6" />}
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-3 w-3 flex items-center justify-center rounded-full bg-primary text-[8px] text-white font-bold">
-                  {cartCount}
+          if (item.primary) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative -top-6 flex flex-col items-center group tap-haptic"
+              >
+                <div className="bg-primary text-black p-4 rounded-full shadow-2xl shadow-primary/40 transition-all duration-300 hover:scale-105 ring-[4px] ring-background group-hover:shadow-primary/60 pulse-glow">
+                  <item.icon className="h-6 w-6" strokeWidth={3} />
+                </div>
+                <span className={cn(
+                  "text-[10px] font-black mt-1 uppercase tracking-widest transition-colors duration-300",
+                  isActive ? "text-primary" : "text-muted-foreground/60"
+                )}>
+                  {item.label}
                 </span>
-              )}
-            </div>
-          </div>
-        </button>
+                <div className="absolute -inset-1 bg-primary/20 rounded-full blur-xl opacity-0 group-active:opacity-100 transition-opacity" />
+              </Link>
+            );
+          }
 
-        <Link href={user ? '/profile' : '/sign-in'} aria-label="Account" className={cn("flex flex-1 flex-col items-center justify-center gap-1 group", (pathname || '').startsWith('/profile') ? "text-primary" : "text-slate-400 hover:text-white transition-colors")}>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-colors", (pathname || '').startsWith('/profile') ? "bg-primary/10" : "group-hover:bg-white/5")}>
-            {User && <User className="h-6 w-6" />}
-          </div>
-        </Link>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center justify-center flex-1 transition-all duration-300 tap-haptic-subtle group relative",
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <div className={cn(
+                "p-1 rounded-xl transition-all duration-300",
+                isActive ? "bg-primary/10" : "group-hover:bg-accent/50"
+              )}>
+                <item.icon className={cn("h-5 w-5 transition-all duration-300", isActive && "stroke-[2.5px] scale-110")} />
+              </div>
+              <span className={cn(
+                "text-[10px] font-bold mt-1 uppercase tracking-tighter transition-all duration-300",
+                isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100"
+              )}>
+                {item.label}
+              </span>
+
+              {isActive && (
+                <div className="absolute -top-1 w-1 h-1 bg-primary rounded-full bounce-subtle" />
+              )}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
