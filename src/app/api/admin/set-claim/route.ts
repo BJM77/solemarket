@@ -13,8 +13,15 @@ export async function POST(request: Request) {
         const decodedToken = await authAdmin.verifyIdToken(idToken);
         const { uid, email } = decodedToken;
 
+        const allowAutoElevate = process.env.ALLOW_AUTO_ADMIN_ELEVATION === 'true';
+
         if (!email || !SUPER_ADMIN_EMAILS.includes(email)) {
             return NextResponse.json({ error: 'Unauthorized: Email not in super admin list' }, { status: 403 });
+        }
+
+        if (!allowAutoElevate) {
+            console.warn(`[SetClaim] Self-granting admin claim attempted for ${email} but auto-elevation is disabled.`);
+            return NextResponse.json({ error: 'Forbidden: Auto-elevation is disabled in this environment' }, { status: 403 });
         }
 
         await authAdmin.setCustomUserClaims(uid, {

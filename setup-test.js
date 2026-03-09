@@ -11,16 +11,22 @@ const db = admin.firestore();
 
 async function setupTestUser() {
     try {
-        const email = 'testbenched@example.com';
+        const email = process.env.TEST_USER_EMAIL || 'testbenched@example.com';
+        const password = process.env.TEST_USER_PASSWORD;
+
+        if (!password || password.length < 12) {
+            throw new Error('TEST_USER_PASSWORD must be at least 12 characters long.');
+        }
+
         let user;
         try {
             user = await auth.getUserByEmail(email);
-            await auth.updateUser(user.uid, { password: 'password123', emailVerified: true });
+            await auth.updateUser(user.uid, { password: password, emailVerified: true });
             console.log('User updated');
         } catch (e) {
             user = await auth.createUser({
                 email,
-                password: 'password123',
+                password: password,
                 emailVerified: true,
                 displayName: 'Automated Tester'
             });

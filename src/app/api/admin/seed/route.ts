@@ -13,8 +13,15 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+        const seedToken = process.env.ADMIN_SEED_TOKEN;
         const authHeader = request.headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ') || authHeader.split(' ')[1] !== process.env.ADMIN_SEED_TOKEN) {
+
+        if (!seedToken || seedToken.length < 16) {
+            console.error('CRITICAL: ADMIN_SEED_TOKEN is missing or too weak. Seeding denied.');
+            return NextResponse.json({ error: 'Seeding is currently disabled for security reasons.' }, { status: 503 });
+        }
+
+        if (!authHeader?.startsWith('Bearer ') || authHeader.split(' ')[1] !== seedToken) {
             return NextResponse.json({ error: 'Unauthorized: Invalid or missing seed token' }, { status: 401 });
         }
 

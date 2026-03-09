@@ -25,5 +25,12 @@ async function grantAdmin(email) {
     }
 }
 
-const email = '1@1.com';
+const email = process.argv[2];
+
+if (!email) {
+    console.error('❌ Error: Please provide an email address as the first argument.');
+    console.log('Usage: node scripts/grant-admin.js user@example.com');
+    process.exit(1);
+}
+
 grantAdmin(email);

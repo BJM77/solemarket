@@ -12,12 +12,15 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 export async function POST(req: NextRequest) {
     try {
         // Enforce secret token verification
-        if (TELEGRAM_SECRET_TOKEN) {
-            const secretToken = req.headers.get('x-telegram-bot-api-secret-token');
-            if (secretToken !== TELEGRAM_SECRET_TOKEN) {
-                console.warn('Unauthorized Telegram Webhook attempt: Invalid secret token.');
-                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-            }
+        if (!TELEGRAM_SECRET_TOKEN) {
+            console.error('CRITICAL: TELEGRAM_SECRET_TOKEN is missing from environment. Failing closed for security.');
+            return NextResponse.json({ error: 'Webhook misconfigured' }, { status: 500 });
+        }
+
+        const secretToken = req.headers.get('x-telegram-bot-api-secret-token');
+        if (secretToken !== TELEGRAM_SECRET_TOKEN) {
+            console.warn('Unauthorized Telegram Webhook attempt: Invalid secret token.');
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const body = await req.json();

@@ -3,6 +3,13 @@ import { firestoreDb } from '@/lib/firebase/admin';
 
 export async function POST(request: Request) {
     try {
+        const logSecret = process.env.LOG_SECRET;
+        const incomingSecret = request.headers.get('x-log-secret');
+
+        if (!logSecret || incomingSecret !== logSecret) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const errorData = await request.json();
 
         // Log to Firestore for later review

@@ -16,13 +16,14 @@ export async function syncUserOnLogin(idToken: string) {
 
         // Identify super admin
         const isSuperAdminUser = SUPER_ADMIN_UIDS.includes(uid) || (email && SUPER_ADMIN_EMAILS.includes(email));
+        const allowAutoElevate = process.env.ALLOW_AUTO_ADMIN_ELEVATION === 'true';
 
-        if (isSuperAdminUser) {
+        if (isSuperAdminUser && allowAutoElevate) {
             console.log(`[Auth Sync] User ${uid} identified as Super Admin. Synchronizing claims...`);
 
             // 1. Set Custom Claims for Security Rules
-            const { auth } = await import('@/lib/firebase/admin');
-            await auth.setCustomUserClaims(uid, { role: 'superadmin' });
+            const { authAdmin } = await import('@/lib/firebase/admin');
+            await authAdmin.setCustomUserClaims(uid, { role: 'superadmin' });
 
             // 2. Sync Firestore Profile
             if (userSnap.exists && (!userSnap.data()?.isAdmin || userSnap.data()?.role !== 'superadmin')) {
@@ -38,18 +39,19 @@ export async function syncUserOnLogin(idToken: string) {
                     createdAt: new Date(),
                 }, { merge: true });
             }
-
-            // Initialize stats if needed
-            const statsRef = firestoreDb.collection('platform_stats').doc('global');
-            const statsSnap = await statsRef.get();
-            if (!statsSnap.exists) {
-                await statsRef.set({
-                    totalRevenue: 0,
-                    activeSellers: 0,
-                    disputeCount: 0,
-                    totalItems: 0,
-                });
-            }
+        } else if (isSuperAdminUser && !allowAutoElevate) {
+            console.warn(`[Auth Sync] User ${uid} is in Super Admin list but auto-elevation is disabled.`);
+        }
+        // Initialize stats if needed
+        const statsRef = firestoreDb.collection('platform_stats').doc('global');
+        const statsSnap = await statsRef.get();
+        if (!statsSnap.exists) {
+            await statsRef.set({
+                totalRevenue: 0,
+                activeSellers: 0,
+                disputeCount: 0,
+                totalItems: 0,
+            });
         }
 
         return { success: true };

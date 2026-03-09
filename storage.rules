@@ -27,10 +27,13 @@ service firebase.storage {
         allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Media library files are readable by anyone, writable only by authenticated users.
+    // Media library files are readable by anyone, writable only by administrators.
     match /media-library/{allPaths=**} {
        allow read: if true;
-       allow write: if request.auth != null && isImage();
+       allow write: if request.auth != null 
+                    && (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin')
+                    && isImage()
+                    && isSizeValid();
     }
 
     // Temporary uploads for AI analysis (Auto-Fill)

@@ -10,6 +10,14 @@ export async function GET(
     const { service } = params;
     const start = Date.now();
 
+    // Secure the endpoint with a secret token
+    const healthSecret = process.env.HEALTH_CHECK_SECRET;
+    const incomingSecret = request.headers.get('x-health-check-secret');
+
+    if (!healthSecret || incomingSecret !== healthSecret) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         let status = 'unknown';
         let details: any = {};
