@@ -239,9 +239,11 @@ export default function ProductDetailsClient({
             return;
         }
         
-        // Allow staff/admins to bypass, others must have verified email
-        const isStaff = (user as any).role === 'admin' || (user as any).role === 'superadmin';
-        if (!isStaff && !user.emailVerified) {
+        // Allow staff/admins AND established buyers/sellers to bypass
+        const role = (user as any).role;
+        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
+        
+        if (!isExempt && !user.emailVerified) {
             toast({
                 title: "Email Verification Required",
                 description: "Please verify your email address to buy or offer on listings.",

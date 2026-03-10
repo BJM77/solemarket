@@ -17,7 +17,7 @@ import { syncUserOnLogin } from '@/app/actions/auth';
  * @param user The raw Firebase User object.
  * @returns A "safe" user object with only primitive values, or null.
  */
-function getSafeUser(user: User | null): SafeUser {
+function getSafeUser(user: User | null, role?: string): SafeUser {
   if (!user) {
     return null;
   }
@@ -27,6 +27,7 @@ function getSafeUser(user: User | null): SafeUser {
     displayName: user.displayName,
     photoURL: user.photoURL,
     emailVerified: user.emailVerified,
+    role: role,
     // Pass the function reference, it will be called in components
     getIdTokenResult: (forceRefresh?: boolean) => user.getIdTokenResult(forceRefresh),
     getIdToken: (forceRefresh?: boolean) => user.getIdToken(forceRefresh),
@@ -38,32 +39,10 @@ interface UserAuthState {
   user: SafeUser;
   isUserLoading: boolean;
   userError: Error | null;
+  role?: string;
 }
 
-// Combined state for the Firebase context
-export interface FirebaseContextState {
-  areServicesAvailable: boolean;
-  firebaseApp: FirebaseApp | null;
-  firestore: Firestore | null;
-  auth: Auth | null;
-  // User authentication state now uses SafeUser
-  user: SafeUser;
-  isUserLoading: boolean;
-  userError: Error | null;
-}
-
-// Return type for useFirebase()
-export interface FirebaseServicesAndUser {
-  firebaseApp: FirebaseApp | null; // Can be null on server
-  firestore: Firestore | null; // Can be null on server
-  auth: Auth | null; // Can be null on server
-  user: SafeUser;
-  isUserLoading: boolean;
-  userError: Error | null;
-}
-
-// React Context
-export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
+// ... rest of imports/types
 
 /**
  * FirebaseProvider manages and provides Firebase services and user authentication state.
@@ -77,6 +56,7 @@ export const FirebaseProvider: React.FC<{
       user: null,
       isUserLoading: true,
       userError: null,
+      role: undefined
     });
 
     const authService = typeof window !== 'undefined' ? authInstance : null;
@@ -93,14 +73,15 @@ export const FirebaseProvider: React.FC<{
       const unsubscribe = onAuthStateChanged(
         authService,
         async (firebaseUser) => { // Raw Firebase user
-          // Optimistic update: Set user state immediately so UI isn't stuck spinning
-          const safeUser = getSafeUser(firebaseUser);
-
           if (firebaseUser) {
-            // Do sync in background/sequential but after state update
-            setUserAuthState({ user: safeUser, isUserLoading: false, userError: null });
-
             try {
+              const tokenResult = await firebaseUser.getIdTokenResult();
+              const role = tokenResult.claims.role as string;
+              
+              // Optimistic update with role
+              const safeUser = getSafeUser(firebaseUser, role);
+              setUserAuthState({ user: safeUser, isUserLoading: false, userError: null, role });
+
               const token = await firebaseUser.getIdToken();
               // 1. Sync Session Cookie
               await fetch("/api/auth/session", {
@@ -113,11 +94,12 @@ export const FirebaseProvider: React.FC<{
 
             } catch (err) {
               console.error("Failed to sync session/user:", err);
-              // We don't revert state here yet because they are still logged in on client
+              // Fallback to basic safe user without role if claim fetch fails
+              setUserAuthState({ user: getSafeUser(firebaseUser), isUserLoading: false, userError: null });
             }
           } else {
             // Logged out
-            setUserAuthState({ user: null, isUserLoading: false, userError: null });
+            setUserAuthState({ user: null, isUserLoading: false, userError: null, role: undefined });
             // Cleanup session cookie in background
             fetch("/api/auth/session", { method: "DELETE" }).catch(() => { });
           }

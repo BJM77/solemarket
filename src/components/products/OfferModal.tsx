@@ -76,8 +76,18 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
             }
 
             if (user) {
-                // AUTHENTICATED USERS: Place bid directly (no email code needed)
-                await executeBidPlacement(amount, paymentMethodId);
+                // AUTHENTICATED USERS: Check for exemption
+                const role = (user as any).role;
+                const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
+                const emailVerified = user.emailVerified;
+
+                if (isExempt || emailVerified) {
+                    // Place bid directly
+                    await executeBidPlacement(amount, paymentMethodId);
+                } else {
+                    // Force verification for role-less/unverified accounts
+                    await handleSendVerification();
+                }
             } else {
                 // GUESTS: Transition to verification step
                 if (!guestEmail || !guestEmail.includes('@')) {
@@ -89,7 +99,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
             return;
         }
 
-        // --- STEP 2: VERIFY (Guests only) ---
+        // --- STEP 2: VERIFY (Guests and Unverified Users) ---
         if (!verificationCode) {
             toast({ title: "Enter verification code", variant: "destructive" });
             return;

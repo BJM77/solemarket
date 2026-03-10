@@ -223,10 +223,12 @@ export default function ProductDetailsModern({
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
         }
-        const isStaff = (user as any).role === 'admin' || (user as any).role === 'superadmin';
+        // Allow staff/admins AND established buyers/sellers to bypass
+        const role = (user as any).role;
+        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
         const emailVerified = (user as any).emailVerified;
 
-        if (!isStaff && !emailVerified) {
+        if (!isExempt && !emailVerified) {
             toast({
                 title: "Email Verification Required",
                 description: "Please verify your email address to buy items.",
