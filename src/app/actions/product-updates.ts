@@ -2,7 +2,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { sendSellerEnquiryEmail } from '@/lib/email';
 import { revalidateTag } from 'next/cache';
