@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrandRequestModal } from '../BrandRequestModal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck } from 'lucide-react';
 import { isCardCategory } from '@/lib/constants/marketplace';
 
 interface DetailsStepProps {
@@ -48,9 +48,26 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger><SelectValue placeholder="Selection" /></SelectTrigger></FormControl>
                                     <SelectContent>
-                                        {(subCategories[category] || []).map((s: string) => (
-                                            <SelectItem key={s} value={s}>{s}</SelectItem>
-                                        ))}
+                                        {(subCategories[category] || []).map((s: string) => {
+                                            // Dynamic Icon Mapping
+                                            let Icon = undefined;
+                                            if (s === 'Jordan') Icon = Flame;
+                                            if (s === 'Kobe') Icon = Star;
+                                            if (s === 'Limited') Icon = Sparkles;
+                                            if (s === 'Vintage') Icon = History;
+                                            if (s === 'Rookies') Icon = Trophy;
+                                            if (s === 'Pokémon' || s === 'Pokemon') Icon = Zap;
+                                            if (['Nike', 'Adidas', 'Yeezy', 'Basketball Cards'].includes(s)) Icon = ShieldCheck;
+
+                                            return (
+                                                <SelectItem key={s} value={s}>
+                                                    <div className="flex items-center gap-2">
+                                                        {Icon && <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
+                                                        <span>{s}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            );
+                                        })}
                                     </SelectContent>
                                 </Select>
                             </FormItem>

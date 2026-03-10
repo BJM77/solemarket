@@ -464,7 +464,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField control={form.control} name="subCategory" render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</FormLabel>
+                                                <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Sub-Category</FormLabel>
                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className="h-11">
@@ -472,7 +472,24 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {(SUB_CATEGORIES[watchedCategory] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                                        {(DEFAULT_SUB_CATEGORIES[watchedCategory] || []).map(s => {
+                                                            // Visual icon mapping for heat categories
+                                                            let Icon = undefined;
+                                                            if (s === 'Jordan') Icon = Flame;
+                                                            if (s === 'Kobe') Icon = Star;
+                                                            if (s === 'Limited') Icon = Sparkles;
+                                                            if (s === 'Vintage') Icon = History;
+                                                            if (s === 'Nike' || s === 'Adidas' || s === 'Yeezy') Icon = ShieldCheck;
+
+                                                            return (
+                                                                <SelectItem key={s} value={s}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {Icon && <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" /* Accessibility: Decorative icon */ />}
+                                                                        <span>{s}</span>
+                                                                    </div>
+                                                                </SelectItem>
+                                                            );
+                                                        })}
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />
