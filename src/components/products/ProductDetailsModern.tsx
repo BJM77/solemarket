@@ -223,10 +223,13 @@ export default function ProductDetailsModern({
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
         }
-        if ((user as any).role !== 'admin' && (user as any).role !== 'superadmin' && !(user as any).isVerified) {
+        const isStaff = (user as any).role === 'admin' || (user as any).role === 'superadmin';
+        const emailVerified = (user as any).emailVerified;
+
+        if (!isStaff && !emailVerified) {
             toast({
-                title: "Verification Required",
-                description: "You must verify your identity before adding items to cart.",
+                title: "Email Verification Required",
+                description: "Please verify your email address to buy items.",
                 variant: "destructive"
             });
             router.push('/verify');

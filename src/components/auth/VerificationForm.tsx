@@ -1,196 +1,136 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { useUser, useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { uploadImages } from '@/lib/firebase/storage'; // Re-using image upload logic
-import { submitVerificationRequest } from '@/app/actions/verification';
-import { Loader2, Upload, FileCheck, AlertCircle } from 'lucide-react';
+import { Loader2, Mail, CheckCircle2, AlertCircle, RefreshCcw } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { sendEmailVerification } from 'firebase/auth';
 
 export default function VerificationForm() {
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
+    const auth = useAuth();
     const router = useRouter();
     const { toast } = useToast();
 
-    const [idImageFront, setIdImageFront] = useState<File | null>(null);
-    const [companyDoc, setCompanyDoc] = useState<File | null>(null); // Optional secondary doc
-    const [reason, setReason] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
 
-    // If user is already verified (unlikely to land here if guarded, but good safety)
-    if ((user as any)?.isVerified) {
-        return (
-            <div className="text-center p-8">
-                <div className="bg-green-100 text-green-700 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
-                    <FileCheck className="w-8 h-8" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Verified!</h2>
-                <p className="text-gray-600 mb-6">Your identity has been verified. You have full access to the marketplace.</p>
-                <Button onClick={() => router.push('/')}>Continue Shopping</Button>
-            </div>
-        );
-    }
-
-    // If pending
-    if ((user as any)?.verificationStatus === 'pending' || isSubmitted) {
-        return (
-            <div className="text-center p-8 max-w-md mx-auto">
-                <div className="bg-blue-100 text-blue-700 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Verification Pending</h2>
-                <p className="text-gray-600 mb-6">
-                    Your documents have been submitted and are currently under review by our team.
-                    This usually takes 24-48 hours. You will be notified once approved.
-                </p>
-                <Button variant="outline" onClick={() => router.push('/')}>Return Home</Button>
-            </div>
-        );
-    }
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (f: File | null) => void) => {
-        if (e.target.files && e.target.files[0]) {
-            setter(e.target.files[0]);
+    // Effect for resend cooldown
+    useEffect(() => {
+        if (cooldown > 0) {
+            const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+            return () => clearTimeout(timer);
         }
-    };
+    }, [cooldown]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!idImageFront) {
-            toast({ variant: 'destructive', title: "Missing ID", description: "Please upload an image of your Government ID." });
-            return;
-        }
-
-        setIsLoading(true);
-
+    const handleSendVerification = async () => {
+        if (!auth?.currentUser) return;
+        
+        setIsSending(true);
         try {
-            const token = await getCurrentUserIdToken();
-            if (!token) throw new Error("Not authenticated");
-
-            // 1. Upload Images
-            const filesToUpload = [idImageFront];
-            if (companyDoc) filesToUpload.push(companyDoc);
-
-            // Using 'grading-temp' or a new folder 'verification-docs' if policy allows.
-            // Re-using storage utils. Note: Ideally this should be a private bucket, but for MVP strict public read rules apply or use secure paths.
-            // As per implementation plan, we are using the existing storage setup.
-            // PLEASE NOTE: In a real prod app, these URLs should likely be signed URLs or strictly private.
-
-            // Checking storage.ts, allowed prefixes are ['products/', 'media-library/', 'temp-analysis/', 'grading-temp/']
-            // 'grading-temp/' seems most appropriate for "temporary analysis/processing" or we can add a new one.
-            // Let's use 'media-library/' with a specific naming convention for now as per `sanitizePath` fallback.
-
-            const uploadedUrls = await uploadImages(filesToUpload, 'media-library/verification/');
-
-            // 2. Submit Request
-            const result = await submitVerificationRequest(token, uploadedUrls, reason);
-
-            if (result.success) {
-                setIsSubmitted(true);
-                toast({ title: "Submitted", description: "Your verification request has been received." });
-            } else {
-                toast({ variant: 'destructive', title: "Error", description: result.error });
-            }
-
+            await sendEmailVerification(auth.currentUser);
+            toast({
+                title: "Verification Email Sent",
+                description: `A verification link has been sent to ${auth.currentUser.email}. Please check your inbox and spam folder.`,
+            });
+            setCooldown(60); // 60 seconds cooldown
         } catch (error: any) {
-            console.error(error);
-            toast({ variant: 'destructive', title: "Error", description: "Failed to upload documents or submit request." });
+            console.error("Error sending verification email:", error);
+            toast({
+                variant: 'destructive',
+                title: "Failed to send email",
+                description: error.message || "Please try again later.",
+            });
         } finally {
-            setIsLoading(false);
+            setIsSending(false);
         }
     };
+
+    if (isUserLoading) {
+        return (
+            <div className="flex justify-center p-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <Card className="max-w-md mx-auto">
+                <CardHeader>
+                    <CardTitle>Sign In Required</CardTitle>
+                    <CardDescription>Please sign in to verify your account.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button className="w-full" onClick={() => router.push('/sign-in')}>Sign In</Button>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (user.emailVerified) {
+        return (
+            <div className="text-center p-8 bg-black/40 border border-white/10 rounded-2xl max-w-md mx-auto">
+                <div className="bg-green-500/20 text-green-400 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h2 className="text-2xl font-bold mb-2 text-white">Account Verified!</h2>
+                <p className="text-gray-400 mb-6">Your email address has been verified. You can now buy and offer on all listings.</p>
+                <Button className="w-full bg-white text-black hover:bg-gray-200" onClick={() => router.push('/browse')}>Start Browsing</Button>
+            </div>
+        );
+    }
 
     return (
-        <Card className="w-full max-w-lg mx-auto shadow-lg">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Upload className="w-5 h-5" /> Identity Verification
-                </CardTitle>
-                <CardDescription>
-                    To ensure the safety of our marketplace, we require all users to verify their identity before buying or selling.
+        <Card className="w-full max-w-lg mx-auto shadow-2xl bg-[#0A0A0A] border-white/10 text-white">
+            <CardHeader className="text-center pb-2">
+                <div className="mx-auto w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-4">
+                    <Mail className="w-8 h-8 text-indigo-400" />
+                </div>
+                <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
+                <CardDescription className="text-gray-400">
+                    We've sent a verification link to <span className="text-white font-medium">{user.email}</span>
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                <Alert className="mb-6 bg-yellow-50 text-yellow-800 border-yellow-200">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Why is this required?</AlertTitle>
-                    <AlertDescription>
-                        This helps prevent fraud and ensures you are dealing with real people. Your data is stored securely and only used for verification.
+            <CardContent className="space-y-6 pt-4">
+                <Alert className="bg-indigo-500/5 border-indigo-500/20 text-indigo-200">
+                    <AlertCircle className="h-4 w-4 text-indigo-400" />
+                    <AlertTitle className="font-bold">Next Steps</AlertTitle>
+                    <AlertDescription className="text-indigo-300/80">
+                        Once you click the link in your email, refresh this page or click "Check Status" to unlock buying and offering.
                     </AlertDescription>
                 </Alert>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="id-front">Government ID (Driver's License / Passport) <span className="text-red-500">*</span></Label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                            <Input
-                                id="id-front"
-                                type="file"
-                                accept="image/*,.pdf"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                onChange={(e) => handleFileChange(e, setIdImageFront)}
-                            />
-                            {idImageFront ? (
-                                <div className="text-green-600 font-medium flex items-center justify-center gap-2">
-                                    <FileCheck className="w-4 h-4" /> {idImageFront.name}
-                                </div>
-                            ) : (
-                                <div className="text-gray-500">
-                                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                    <span className="text-sm">Click to upload front of ID</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="doc-secondary">Secondary Document (Optional)</Label>
-                        <p className="text-xs text-gray-500">Utility bill or proof of address if ID address doesn't match.</p>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                            <Input
-                                id="doc-secondary"
-                                type="file"
-                                accept="image/*,.pdf"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                onChange={(e) => handleFileChange(e, setCompanyDoc)}
-                            />
-                            {companyDoc ? (
-                                <div className="text-green-600 font-medium flex items-center justify-center gap-2">
-                                    <FileCheck className="w-4 h-4" /> {companyDoc.name}
-                                </div>
-                            ) : (
-                                <div className="text-gray-500">
-                                    <span className="text-sm">Click to upload secondary doc</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="reason">Why do you want to join Benched?</Label>
-                        <Textarea
-                            id="reason"
-                            placeholder="I am a collector looking to buy rare cards..."
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
-                        />
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Submit for Verification
+                <div className="space-y-3">
+                    <Button 
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 font-bold transition-all"
+                        onClick={() => window.location.reload()}
+                    >
+                        Check Status & Refresh
                     </Button>
-                </form>
+                    
+                    <Button 
+                        variant="outline" 
+                        className="w-full border-white/10 hover:bg-white/5 h-12 text-gray-300"
+                        onClick={handleSendVerification}
+                        disabled={isSending || cooldown > 0}
+                    >
+                        {isSending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <RefreshCcw className="mr-2 h-4 w-4" />
+                        )}
+                        {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend Verification Email"}
+                    </Button>
+                </div>
+
+                <p className="text-center text-xs text-gray-500 px-8">
+                    Didn't receive the email? Check your spam folder or try resending.
+                </p>
             </CardContent>
         </Card>
     );

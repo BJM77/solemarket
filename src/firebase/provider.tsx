@@ -26,6 +26,7 @@ function getSafeUser(user: User | null): SafeUser {
     email: user.email,
     displayName: user.displayName,
     photoURL: user.photoURL,
+    emailVerified: user.emailVerified,
     // Pass the function reference, it will be called in components
     getIdTokenResult: (forceRefresh?: boolean) => user.getIdTokenResult(forceRefresh),
     getIdToken: (forceRefresh?: boolean) => user.getIdToken(forceRefresh),

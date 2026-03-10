@@ -238,12 +238,16 @@ export default function ProductDetailsClient({
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
         }
-        if ((user as any).role !== 'admin' && (user as any).role !== 'superadmin' && !(user as any).isVerified) {
+        
+        // Allow staff/admins to bypass, others must have verified email
+        const isStaff = (user as any).role === 'admin' || (user as any).role === 'superadmin';
+        if (!isStaff && !user.emailVerified) {
             toast({
-                title: "Verification Required",
-                description: "You must verify your identity before adding items to cart.",
+                title: "Email Verification Required",
+                description: "Please verify your email address to buy or offer on listings.",
                 variant: "destructive"
             });
+            // Redirect to the verification page
             router.push('/verify');
             return;
         }

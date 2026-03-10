@@ -158,8 +158,8 @@ export const brandConfig: BrandConfig = {
         primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#111111'), // Matte Black
         secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#F5F5F5'), // Off White
         accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
-        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benched.png'),
-        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benched.png'),
+        logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/logomain.png'),
+        logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/logomain.png'),
         faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benched.png'),
         ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=1200'),
     },
