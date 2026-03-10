@@ -22,31 +22,39 @@ export async function GET() {
             ...doc.data()
         }));
 
-        let xml = `<?xml version="1.0"?>
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
   <channel>
-    <title>Benched.au Product Feed</title>
+    <title><![CDATA[Benched.au Product Feed]]></title>
     <link>${SITE_URL}</link>
-    <description>The premier marketplace for performance basketball shoes and collector cards.</description>
+    <description><![CDATA[The premier marketplace for performance basketball shoes and collector cards.]]></description>
 `;
 
         items.forEach((item: any) => {
-            // Clean up description (remove HTML or excessive whitespace)
+            // Skip items missing critical data
+            if (!item.title || !item.imageUrls || item.imageUrls.length === 0) return;
+
+            // Clean up description
             const description = item.description?.replace(/<[^>]*>?/gm, '').substring(0, 5000) || 'Collector item from Benched.au';
+            
+            // Meta-supported conditions: new, used, refurbished
             const condition = item.condition?.toLowerCase().includes('new') ? 'new' : 'used';
+            
+            // Ensure valid price format (e.g., 100.00 AUD)
+            const price = parseFloat(item.price).toFixed(2);
             
             xml += `    <item>
       <g:id>${item.id}</g:id>
       <g:title><![CDATA[${item.title}]]></g:title>
       <g:description><![CDATA[${description}]]></g:description>
       <g:link>${SITE_URL}/product/${item.id}</g:link>
-      <g:image_link>${item.imageUrls?.[0] || ''}</g:image_link>
-      <g:brand>${item.brand || item.manufacturer || 'Benched'}</g:brand>
+      <g:image_link>${item.imageUrls[0]}</g:image_link>
+      <g:brand><![CDATA[${item.brand || item.manufacturer || 'Benched'}]]></g:brand>
       <g:condition>${condition}</g:condition>
       <g:availability>in stock</g:availability>
-      <g:price>${item.price} AUD</g:price>
+      <g:price>${price} AUD</g:price>
       <g:google_product_category>187</g:google_product_category>
-      <g:item_group_id>${item.category || 'Collectibles'}</g:item_group_id>
+      <g:item_group_id><![CDATA[${item.category || 'Collectibles'}]]></g:item_group_id>
     </item>
 `;
         });
@@ -56,7 +64,7 @@ export async function GET() {
 
         return new NextResponse(xml, {
             headers: {
-                'Content-Type': 'application/xml',
+                'Content-Type': 'application/rss+xml; charset=UTF-8',
                 'Cache-Control': 's-maxage=3600, stale-while-revalidate',
             },
         });
