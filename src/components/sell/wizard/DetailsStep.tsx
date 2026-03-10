@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrandRequestModal } from '../BrandRequestModal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck } from 'lucide-react';
 import { isCardCategory } from '@/lib/constants/marketplace';
 
