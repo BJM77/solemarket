@@ -66,6 +66,15 @@ import { BiddingInterface } from '@/components/products/BiddingInterface';
 import { acceptBidAction } from '@/app/actions/bidding';
 import { getRecentViewCount } from '@/app/actions/products';
 import { TrendingUp } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { SizeChart } from '@/components/sneakers/SizeChart';
@@ -94,6 +103,7 @@ export default function ProductDetailsModern({
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+    const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
     const [recentViews, setRecentViews] = useState<number>(0);
     const viewRecordedRef = useRef<string | null>(null);
@@ -329,6 +339,7 @@ export default function ProductDetailsModern({
             
             if (result.success) {
                 setIsPhoneRevealed(true);
+                setIsSafetyModalOpen(false);
                 toast({
                     title: "Hold Active (5 Mins)",
                     description: "You have a 5-minute window to contact the seller. Others cannot enquire during this time."
@@ -339,6 +350,7 @@ export default function ProductDetailsModern({
                     title: "Action Restricted",
                     description: result.error
                 });
+                setIsSafetyModalOpen(false);
             }
         } catch (e) {
             console.error("Failed to record enquiry", e);
@@ -435,6 +447,43 @@ export default function ProductDetailsModern({
 
     return (
         <main className="min-h-screen bg-background pb-16">
+            <Dialog open={isSafetyModalOpen} onOpenChange={setIsSafetyModalOpen}>
+                <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
+                    <DialogHeader className="text-center pt-4">
+                        <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                            <ShieldCheck className="h-8 w-8 text-amber-600" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black text-slate-900">Safety First</DialogTitle>
+                        <DialogDescription className="text-slate-500 font-medium">
+                            To keep our community safe, please follow these guidelines for local collection:
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="flex gap-3 items-start bg-slate-50 p-4 rounded-2xl">
+                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0 font-bold text-xs">1</div>
+                            <p className="text-sm text-slate-700">Meet in a <b>public, well-lit place</b> (e.g., a Police Station lobby or busy cafe).</p>
+                        </div>
+                        <div className="flex gap-3 items-start bg-slate-50 p-4 rounded-2xl">
+                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0 font-bold text-xs">2</div>
+                            <p className="text-sm text-slate-700">Thoroughly <b>inspect the item</b> before handing over any cash.</p>
+                        </div>
+                        <div className="flex gap-3 items-start bg-slate-50 p-4 rounded-2xl">
+                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0 font-bold text-xs">3</div>
+                            <p className="text-sm text-slate-700">By proceeding, you agree to place a <b>5-minute hold</b> on this item.</p>
+                        </div>
+                    </div>
+                    <DialogFooter className="sm:justify-center">
+                        <Button 
+                            className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg"
+                            onClick={handleRevealPhone}
+                            disabled={isEnquiring}
+                        >
+                            {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : "I Understand, Proceed"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="max-w-7xl mx-auto px-4 pt-6">
                 {/* Breadcrumbs */}
                 <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-6 overflow-x-auto whitespace-nowrap pb-2">
@@ -621,7 +670,7 @@ export default function ProductDetailsModern({
                                                         <Button
                                                             variant="outline"
                                                             className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
-                                                            onClick={handleRevealPhone}
+                                                            onClick={() => setIsSafetyModalOpen(true)}
                                                             disabled={isEnquiring || isPhoneRevealed || (isCurrentlyHeld && !heldByMe)}
                                                         >
                                                             {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
@@ -639,8 +688,18 @@ export default function ProductDetailsModern({
                                                                     )}
                                                                 </p>
                                                                 <p className="text-indigo-700 dark:text-indigo-300 text-xs leading-relaxed mb-3">
-                                                                    Call or SMS the seller directly to arrange a safe time and place for pickup.
+                                                                    Call or SMS the seller to arrange pickup. When you meet, show them this QR code to finalize the sale.
                                                                 </p>
+                                                                
+                                                                <div className="bg-white p-3 rounded-xl mb-3 flex flex-col items-center gap-2">
+                                                                    <QRCodeCanvas 
+                                                                        value={`${window.location.origin}/api/seller/quick-action?productId=${product.id}&token=${(product as any).quickActionToken}&action=sold`}
+                                                                        size={120}
+                                                                        level="H"
+                                                                    />
+                                                                    <span className="text-[9px] font-black uppercase text-slate-400">Proof of Pickup</span>
+                                                                </div>
+
                                                                 <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
                                                                     <a href={`tel:${(product as any).phoneNumber || seller?.phoneNumber}`}>
                                                                         Call Seller Now
