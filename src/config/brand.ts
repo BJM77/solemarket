@@ -254,7 +254,7 @@ export const brandConfig: BrandConfig = {
         },
         analytics: {
             googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID,
-            facebookPixelId: process.env.NEXT_PUBLIC_FB_PIXEL_ID,
+            facebookPixelId: getEnv('NEXT_PUBLIC_FB_PIXEL_ID', '2233335404089795'),
         },
     },
 };
