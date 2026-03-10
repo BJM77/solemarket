@@ -160,7 +160,7 @@ export const brandConfig: BrandConfig = {
         accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
         logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benchedlogo.png'),
         logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benchedlogo.png'),
-        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benched.png'),
+        faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benchedlogo.png'),
         ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=1200'),
     },
 

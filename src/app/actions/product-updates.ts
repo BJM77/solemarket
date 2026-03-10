@@ -4,6 +4,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendTelegramNotification } from '@/lib/telegram';
+import { sendSellerEnquiryEmail } from '@/lib/email';
 import { revalidateTag } from 'next/cache';
 
 
@@ -158,8 +159,17 @@ export async function recordProductEnquiry(productId: string, buyerUid: string) 
             `<a href="${pendingLink}">Mark as Pending</a> | <a href="${relistLink}">Relist</a>`
         );
 
-        // Notify via Email (Mocking the send call, assuming sendGrid is in services)
-        console.log(`[EMAIL SENT TO ${data?.sellerEmail || 'Seller'}] High Intent Alert for ${data?.title}. Quick Actions: ${pendingLink}`);
+        // Notify via Email (Professional Transactional Email)
+        if (data?.sellerEmail) {
+            await sendSellerEnquiryEmail({
+                to: data.sellerEmail,
+                sellerName: data.sellerName || 'Seller',
+                productTitle: data.title,
+                price: data.price.toString(),
+                pendingLink,
+                relistLink
+            });
+        }
 
         return { success: true, expiresAt: holdExpiresAt };
     } catch (error: any) {
