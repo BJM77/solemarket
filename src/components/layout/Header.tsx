@@ -32,7 +32,7 @@ export default function Header() {
             {isClient && <MobileNav />}
 
             <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
-              <Logo className="h-10 md:h-12 lg:h-14" />
+              <Logo className="h-[60px] md:h-12 lg:h-14" />
             </Link>
 
             {/* Mobile Nav Pills when pinned - replacing ticker */}
