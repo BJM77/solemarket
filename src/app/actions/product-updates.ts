@@ -102,11 +102,28 @@ export async function recordProductEnquiry(productId: string) {
     if (!productId) return { success: false, error: 'Invalid Product ID' };
 
     try {
-        await firestoreDb.collection('products').doc(productId).update({
+        const docRef = firestoreDb.collection('products').doc(productId);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) return { success: false, error: 'Product not found' };
+        
+        const data = docSnap.data();
+
+        await docRef.update({
             contactCallCount: FieldValue.increment(1),
             enquiryStatus: 'enquired',
             enquiryUpdatedAt: FieldValue.serverTimestamp()
         });
+
+        // Notify via Telegram
+        await sendTelegramNotification(
+            `<b>🤝 New 'Buy & Collect' Enquiry!</b>\n\n` +
+            `<b>Item:</b> ${data?.title}\n` +
+            `<b>Seller:</b> ${data?.sellerName}\n` +
+            `<b>Price:</b> $${data?.price}\n\n` +
+            `<i>A buyer has revealed the contact details for this item. Please check your dashboard to manage this sale.</i>\n\n` +
+            `<a href="https://benched.au/product/${productId}">View Listing</a>`
+        );
+
         return { success: true };
     } catch (error: any) {
         console.error('Record enquiry error:', error);

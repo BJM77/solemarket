@@ -587,15 +587,31 @@ export default function ProductDetailsModern({
                                                     <p className="text-amber-700 text-[10px] uppercase tracking-wider font-black">Seller is finalising a deal</p>
                                                 </div>
                                             ) : (
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
-                                                    onClick={handleRevealPhone}
-                                                    disabled={isEnquiring || isPhoneRevealed}
-                                                >
-                                                    {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
-                                                    {isPhoneRevealed ? "Contact Revealed" : "Buy & Collect"}
-                                                </Button>
+                                                <div className="space-y-3">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                        onClick={handleRevealPhone}
+                                                        disabled={isEnquiring || isPhoneRevealed}
+                                                    >
+                                                        {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
+                                                        {isPhoneRevealed ? "Contact Revealed" : "Buy & Collect"}
+                                                    </Button>
+
+                                                    {isPhoneRevealed && (
+                                                        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                                                            <p className="text-indigo-900 dark:text-indigo-100 font-bold text-sm mb-1">Next Steps:</p>
+                                                            <p className="text-indigo-700 dark:text-indigo-300 text-xs leading-relaxed mb-3">
+                                                                Call or SMS the seller directly to arrange a safe time and place for pickup.
+                                                            </p>
+                                                            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
+                                                                <a href={`tel:${(product as any).phoneNumber || seller?.phoneNumber}`}>
+                                                                    Call Seller Now
+                                                                </a>
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
 
                                             <div className="flex items-center justify-center gap-2 mt-2">

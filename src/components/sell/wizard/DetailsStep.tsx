@@ -33,43 +33,21 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
             <Card className="border-0 shadow-md">
                 <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                    <FormField control={form.control} name="title" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
-                            <FormControl><Input placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="subCategory" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Specific Category</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Selection" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        {(subCategories[category] || []).map((s: string) => {
-                                            // Dynamic Icon Mapping
-                                            let Icon = undefined;
-                                            if (s === 'Jordan') Icon = Flame;
-                                            if (s === 'Kobe') Icon = Star;
-                                            if (s === 'Limited') Icon = Sparkles;
-                                            if (s === 'Vintage') Icon = History;
-                                            if (s === 'Rookies') Icon = Trophy;
-                                            if (s === 'Pokémon' || s === 'Pokemon') Icon = Zap;
-                                            if (['Nike', 'Adidas', 'Yeezy', 'Basketball Cards'].includes(s)) Icon = ShieldCheck;
+                        <FormField control={form.control} name="title" render={({ field }) => (
+                            <FormItem className="md:col-span-2">
+                                <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
+                                <FormControl><Input placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
 
-                                            return (
-                                                <SelectItem key={s} value={s}>
-                                                    <div className="flex items-center gap-2">
-                                                        {Icon && <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
-                                                        <span>{s}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            );
-                                        })}
-                                    </SelectContent>
-                                </Select>
+                        <FormField control={form.control} name="phoneNumber" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Contact Number <span className="text-red-500">*</span></FormLabel>
+                                <FormControl><Input placeholder="e.g. 0400 000 000" {...field} /></FormControl>
+                                <FormDescription className="text-[10px]">Visible only to buyers who click "Buy & Collect".</FormDescription>
+                                <FormMessage />
                             </FormItem>
                         )} />
 

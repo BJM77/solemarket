@@ -30,6 +30,7 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, 'Price must be 0 or more'),
   category: z.string().min(1, 'Category is required'),
   subCategory: z.string().optional(),
+  phoneNumber: z.string().min(8, 'Valid phone number is required'),
   condition: z.string().min(1, 'Condition is required'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
   isReverseBidding: z.boolean().default(false),
@@ -99,6 +100,7 @@ function CreateListingForm() {
       price: 0,
       category: '',
       subCategory: '',
+      phoneNumber: '',
       condition: 'Used', // Smart Default
       quantity: 1, // Smart Default
       isReverseBidding: false,
