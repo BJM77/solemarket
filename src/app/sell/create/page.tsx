@@ -37,6 +37,7 @@ const formSchema = z.object({
   isNegotiable: z.boolean().default(false),
   autoRepricingEnabled: z.boolean().default(false),
   isVault: z.boolean().default(false),
+  allowLocalPickup: z.boolean().default(true),
   imageFiles: z.array(z.any()).default([]),
   // Benched Specs
   brand: z.string().optional(),
@@ -107,6 +108,7 @@ function CreateListingForm() {
       isNegotiable: true, // Smart Default - users like offers
       autoRepricingEnabled: false,
       isVault: false,
+      allowLocalPickup: true,
       imageFiles: [],
       brand: '',
       model: '',

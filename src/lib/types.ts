@@ -133,6 +133,7 @@ export type Product = {
   uniqueViews?: number; // Unique views for auto-repricing
   lastViewedTimestamp?: Timestamp; // Timestamp of the most recent view for auto-repricing
   isVault?: boolean;
+  allowLocalPickup?: boolean;
   // New Auction Fields
   isAuction?: boolean;
   startingBid?: number;

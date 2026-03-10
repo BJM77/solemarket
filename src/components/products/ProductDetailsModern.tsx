@@ -325,12 +325,21 @@ export default function ProductDetailsModern({
         
         setIsEnquiring(true);
         try {
-            await recordProductEnquiry(productId);
-            setIsPhoneRevealed(true);
-            toast({
-                title: "Contact Revealed",
-                description: "You can now see the seller's contact number. Please arrange pickup directly."
-            });
+            const result = await recordProductEnquiry(productId, user.uid);
+            
+            if (result.success) {
+                setIsPhoneRevealed(true);
+                toast({
+                    title: "Hold Active (5 Mins)",
+                    description: "You have a 5-minute window to contact the seller. Others cannot enquire during this time."
+                });
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: "Action Restricted",
+                    description: result.error
+                });
+            }
         } catch (e) {
             console.error("Failed to record enquiry", e);
         } finally {
@@ -580,39 +589,68 @@ export default function ProductDetailsModern({
                                                 />
                                             )}
 
-                                            {/* Cash on Pickup / Enquiry Workflow */}
-                                            {(product as any).enquiryStatus === 'pending' ? (
-                                                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center">
-                                                    <p className="text-amber-800 font-bold text-sm">Under Offer</p>
-                                                    <p className="text-amber-700 text-[10px] uppercase tracking-wider font-black">Seller is finalising a deal</p>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
-                                                        onClick={handleRevealPhone}
-                                                        disabled={isEnquiring || isPhoneRevealed}
-                                                    >
-                                                        {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
-                                                        {isPhoneRevealed ? "Contact Revealed" : "Buy & Collect"}
-                                                    </Button>
+                                            {/* Cash on Pickup / Enquiry Workflow - Only show if seller opted in */}
+                                            {product.allowLocalPickup && (() => {
+                                                const holdExpiresAt = (product as any).holdExpiresAt?.toDate();
+                                                const isCurrentlyHeld = holdExpiresAt && holdExpiresAt > new Date();
+                                                const heldByMe = (product as any).heldBy === user?.uid;
+                                                const isPending = (product as any).enquiryStatus === 'pending';
 
-                                                    {isPhoneRevealed && (
-                                                        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
-                                                            <p className="text-indigo-900 dark:text-indigo-100 font-bold text-sm mb-1">Next Steps:</p>
-                                                            <p className="text-indigo-700 dark:text-indigo-300 text-xs leading-relaxed mb-3">
-                                                                Call or SMS the seller directly to arrange a safe time and place for pickup.
-                                                            </p>
-                                                            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
-                                                                <a href={`tel:${(product as any).phoneNumber || seller?.phoneNumber}`}>
-                                                                    Call Seller Now
-                                                                </a>
-                                                            </Button>
+                                                if (isPending) {
+                                                    return (
+                                                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center">
+                                                            <p className="text-amber-800 font-bold text-sm">Under Offer</p>
+                                                            <p className="text-amber-700 text-[10px] uppercase tracking-wider font-black">Seller is finalising a deal</p>
                                                         </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                    );
+                                                }
+
+                                                if (isCurrentlyHeld && !heldByMe) {
+                                                    return (
+                                                        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
+                                                            <p className="text-slate-800 font-bold text-sm flex items-center justify-center gap-2">
+                                                                <Clock className="h-4 w-4" /> Temporarily Reserved
+                                                            </p>
+                                                            <p className="text-slate-500 text-[10px] uppercase tracking-wider font-black">A buyer is contacting the seller</p>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div className="space-y-3">
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                            onClick={handleRevealPhone}
+                                                            disabled={isEnquiring || isPhoneRevealed || (isCurrentlyHeld && !heldByMe)}
+                                                        >
+                                                            {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
+                                                            {isPhoneRevealed || (isCurrentlyHeld && heldByMe) ? "Contact Revealed" : "Buy & Collect"}
+                                                        </Button>
+
+                                                        {(isPhoneRevealed || (isCurrentlyHeld && heldByMe)) && (
+                                                            <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                                                                <p className="text-indigo-900 dark:text-indigo-100 font-bold text-sm mb-1 flex justify-between items-center">
+                                                                    <span>Next Steps:</span>
+                                                                    {isCurrentlyHeld && (
+                                                                        <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 text-[10px] font-black">
+                                                                            HOLD ACTIVE
+                                                                        </Badge>
+                                                                    )}
+                                                                </p>
+                                                                <p className="text-indigo-700 dark:text-indigo-300 text-xs leading-relaxed mb-3">
+                                                                    Call or SMS the seller directly to arrange a safe time and place for pickup.
+                                                                </p>
+                                                                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
+                                                                    <a href={`tel:${(product as any).phoneNumber || seller?.phoneNumber}`}>
+                                                                        Call Seller Now
+                                                                    </a>
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
 
                                             <div className="flex items-center justify-center gap-2 mt-2">
                                                 <Button variant="ghost" size="icon" onClick={toggleFavorite} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>

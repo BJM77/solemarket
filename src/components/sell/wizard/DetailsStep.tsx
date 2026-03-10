@@ -51,6 +51,21 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                             </FormItem>
                         )} />
 
+                        <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm bg-slate-50/50">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-sm font-bold text-slate-900">Enable Buy & Collect</FormLabel>
+                                    <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
                         <FormField control={form.control} name="condition" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Condition <span className="text-red-500">*</span></FormLabel>
