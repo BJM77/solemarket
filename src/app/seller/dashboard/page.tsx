@@ -50,10 +50,35 @@ function DashboardSkeleton() {
   )
 }
 
+import { updateEnquiryStatus } from '@/app/actions/product-updates';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+
 export default function SellerDashboard() {
   const router = useRouter();
   const { firestore } = useFirebase();
   const { user, isUserLoading } = useUser();
+  const { toast } = useToast();
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+
+  const handleEnquiryAction = async (productId: string, newStatus: 'pending' | 'sold' | 'available') => {
+    setIsUpdatingStatus(productId);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Session expired");
+
+      const result = await updateEnquiryStatus(productId, newStatus, idToken);
+      if (result.success) {
+        toast({ title: "Status Updated", description: `Listing marked as ${newStatus}.` });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Update Failed", description: error.message });
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
+
   const userRef = useMemoFirebase(() => user ? doc(firestore!, 'users', user.uid) : null, [user, firestore]);
   const { data: userProfile, isLoading: profileLoading } = useDoc<any>(userRef);
 
@@ -392,9 +417,43 @@ export default function SellerDashboard() {
                             {product.createdAt ? formatDistanceToNow(product.createdAt instanceof Timestamp ? product.createdAt.toDate() : product.createdAt, { addSuffix: true }) : 'N/A'}
                           </TableCell>
                           <TableCell className="text-right pr-6">
-                            <Button variant="ghost" size="sm" className="font-bold rounded-lg" asChild>
-                              <Link href={`/product/${product.id}`}>Inspect</Link>
-                            </Button>
+                            <div className="flex items-center justify-end gap-2">
+                              {(product as any).enquiryStatus === 'enquired' || (product as any).enquiryStatus === 'pending' ? (
+                                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="h-7 text-[10px] font-black uppercase bg-white hover:bg-amber-50 hover:text-amber-700"
+                                    onClick={() => handleEnquiryAction(product.id, 'pending')}
+                                    disabled={isUpdatingStatus === product.id || (product as any).enquiryStatus === 'pending'}
+                                  >
+                                    Pending
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="h-7 text-[10px] font-black uppercase bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                                    onClick={() => handleEnquiryAction(product.id, 'sold')}
+                                    disabled={isUpdatingStatus === product.id}
+                                  >
+                                    Sold
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-7 text-[10px] font-black uppercase hover:bg-red-50 hover:text-red-700"
+                                    onClick={() => handleEnquiryAction(product.id, 'available')}
+                                    disabled={isUpdatingStatus === product.id}
+                                  >
+                                    Relist
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button variant="ghost" size="sm" className="font-bold rounded-lg" asChild>
+                                  <Link href={`/product/${product.id}`}>Inspect</Link>
+                                </Button>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

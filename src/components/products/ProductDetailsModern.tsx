@@ -42,7 +42,7 @@ import ReviewForm from '@/components/reviews/ReviewForm';
 import { deleteProductByAdmin } from '@/app/actions/admin';
 import { recordProductView } from '@/app/actions/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
-import { incrementProductContactCount } from '@/app/actions/product-updates';
+import { incrementProductContactCount, recordProductEnquiry } from '@/app/actions/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import {
     AlertDialog,
@@ -152,12 +152,58 @@ export default function ProductDetailsModern({
         }
     }, [user, favoriteRef, isFavorited, productId, router, toast]);
 
-    const handleShare = useCallback(() => {
+    const handleShare = useCallback((platform: 'fb' | 'ig') => {
         if (typeof window === 'undefined') return;
         const url = window.location.href;
-        const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        window.open(fbShareUrl, 'facebook-share-dialog', 'width=800,height=600');
-    }, []);
+        
+        if (platform === 'fb') {
+            const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            window.open(fbShareUrl, 'facebook-share-dialog', 'width=800,height=600');
+        } else {
+            // Instagram doesn't have a direct URL sharer, so we copy link
+            navigator.clipboard.writeText(url);
+            toast({ title: "Link Copied!", description: "Share this link on your Instagram stories or bio." });
+        }
+    }, [toast]);
+
+    const handleOfficialFBPost = async () => {
+        if (!isSuperAdmin || !product) return;
+        
+        setIsDeleting(true); // Re-using loading state for simplicity
+        try {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Auth required");
+
+            const response = await fetch('/api/admin/facebook/post', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+                body: JSON.stringify({
+                    productId: product.id,
+                    title: product.title,
+                    imageUrl: product.imageUrls[0],
+                    link: `${window.location.origin}/product/${product.id}`
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Posted to Facebook!", description: result.message });
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error: any) {
+            toast({ 
+                variant: 'destructive', 
+                title: "Posting Failed", 
+                description: error.message 
+            });
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const handleStartConversation = async () => {
         if (!user || !product || !seller) {
@@ -269,16 +315,26 @@ export default function ProductDetailsModern({
         }
     };
 
+    const [isEnquiring, setIsEnquiring] = useState(false);
+
     const handleRevealPhone = async () => {
         if (!user) {
-            router.push(`/sign-in?redirect=/product/${product?.id}`);
+            router.push(`/sign-in?redirect=/product/${productId}`);
             return;
         }
-        setIsPhoneRevealed(true);
+        
+        setIsEnquiring(true);
         try {
-            await incrementProductContactCount(productId);
+            await recordProductEnquiry(productId);
+            setIsPhoneRevealed(true);
+            toast({
+                title: "Enquiry Sent",
+                description: "The seller has been notified. You can now see their contact number."
+            });
         } catch (e) {
-            console.error("Failed to increment contact count", e);
+            console.error("Failed to record enquiry", e);
+        } finally {
+            setIsEnquiring(false);
         }
     };
 
@@ -524,14 +580,47 @@ export default function ProductDetailsModern({
                                                 />
                                             )}
 
+                                            {/* Cash on Pickup / Enquiry Workflow */}
+                                            {(product as any).enquiryStatus === 'pending' ? (
+                                                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center">
+                                                    <p className="text-amber-800 font-bold text-sm">Under Offer</p>
+                                                    <p className="text-amber-700 text-[10px] uppercase tracking-wider font-black">Seller is finalising a deal</p>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                    onClick={handleRevealPhone}
+                                                    disabled={isEnquiring || isPhoneRevealed}
+                                                >
+                                                    {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
+                                                    {isPhoneRevealed ? "Enquiry Sent" : "Enquire for Pickup"}
+                                                </Button>
+                                            )}
+
                                             <div className="flex items-center justify-center gap-2 mt-2">
                                                 <Button variant="ghost" size="icon" onClick={toggleFavorite} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
                                                     <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" onClick={handleShare} className="rounded-full hover:bg-blue-50 text-gray-500">
+                                                <Button variant="ghost" size="icon" onClick={() => handleShare('fb')} className="rounded-full hover:bg-blue-50 text-blue-600" title="Share to Facebook Profile">
                                                     <Share2 className="h-6 w-6" />
                                                 </Button>
+                                                <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram">
+                                                    <ExternalLink className="h-6 w-6" />
+                                                </Button>
                                             </div>
+
+                                            {isSuperAdmin && (
+                                                <Button 
+                                                    variant="secondary" 
+                                                    className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-2xl gap-2 shadow-lg"
+                                                    onClick={handleOfficialFBPost}
+                                                    disabled={isDeleting}
+                                                >
+                                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                                                    Post to Official Facebook
+                                                </Button>
+                                            )}
 
                                             <div className="flex items-center justify-center gap-1.5 mt-3 text-emerald-600 bg-emerald-50 py-2 rounded-lg">
                                                 <CheckCircle className="h-3.5 w-3.5" />

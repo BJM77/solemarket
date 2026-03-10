@@ -98,6 +98,63 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
     }
 }
 
+export async function recordProductEnquiry(productId: string) {
+    if (!productId) return { success: false, error: 'Invalid Product ID' };
+
+    try {
+        await firestoreDb.collection('products').doc(productId).update({
+            contactCallCount: FieldValue.increment(1),
+            enquiryStatus: 'enquired',
+            enquiryUpdatedAt: FieldValue.serverTimestamp()
+        });
+        return { success: true };
+    } catch (error: any) {
+        console.error('Record enquiry error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateEnquiryStatus(productId: string, newStatus: 'pending' | 'sold' | 'available', idToken: string) {
+    if (!productId || !idToken) return { success: false, error: 'Missing data' };
+
+    try {
+        const decoded = await verifyIdToken(idToken);
+        const docRef = firestoreDb.collection('products').doc(productId);
+        const docSnap = await docRef.get();
+        
+        if (!docSnap.exists) return { success: false, error: 'Product not found' };
+        
+        const data = docSnap.data();
+        // Ensure only the seller or admin can update status
+        if (data?.sellerId !== decoded.uid && decoded.role !== 'admin' && decoded.role !== 'superadmin') {
+            return { success: false, error: 'Unauthorized' };
+        }
+
+        let updateData: any = { 
+            enquiryStatus: newStatus,
+            updatedAt: FieldValue.serverTimestamp() 
+        };
+
+        if (newStatus === 'sold') {
+            updateData.status = 'sold';
+            // We soft-delete by setting status to sold, effectively removing it from the feed
+        } else if (newStatus === 'available') {
+            updateData.status = 'available';
+            updateData.enquiryStatus = FieldValue.delete(); // Clear the flag
+        } else if (newStatus === 'pending') {
+            // Pending keeps status 'available' but enquiryStatus 'pending' blocks contact
+        }
+
+        await docRef.update(updateData);
+        revalidateTag('products-featured');
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error('Update enquiry status error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 export async function incrementProductContactCount(productId: string) {
     if (!productId) {
         return { success: false, error: 'Invalid Product ID' };
