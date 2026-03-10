@@ -21,8 +21,11 @@ export type SafeUser = {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  emailVerified: boolean;
+  role?: string;
   // Add the getIdTokenResult method for custom claims
   getIdTokenResult: (forceRefresh?: boolean) => Promise<{ claims: { [key: string]: any; }; }>;
+  getIdToken: (forceRefresh?: boolean) => Promise<string>;
 } | null;
 
 export type UserRole = 'viewer' | 'seller' | 'business' | 'admin' | 'superadmin';
