@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Trash2, DollarSign, Sparkles, Loader2, GripVertical, ShieldCheck, Eye, ImagePlus, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import { Upload, Trash2, DollarSign, Sparkles, Loader2, GripVertical, ShieldCheck, Eye, ImagePlus, ChevronLeft, ChevronRight, Save, Flame, Star, History } from 'lucide-react';
 import { cn, resizeAndCompressImage } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
