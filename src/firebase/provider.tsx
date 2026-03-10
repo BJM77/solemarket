@@ -42,7 +42,32 @@ interface UserAuthState {
   role?: string;
 }
 
-// ... rest of imports/types
+// Combined state for the Firebase context
+export interface FirebaseContextState {
+  areServicesAvailable: boolean;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
+  // User authentication state now uses SafeUser
+  user: SafeUser;
+  isUserLoading: boolean;
+  userError: Error | null;
+  role?: string;
+}
+
+// Return type for useFirebase()
+export interface FirebaseServicesAndUser {
+  firebaseApp: FirebaseApp | null; // Can be null on server
+  firestore: Firestore | null; // Can be null on server
+  auth: Auth | null; // Can be null on server
+  user: SafeUser;
+  isUserLoading: boolean;
+  userError: Error | null;
+  role?: string;
+}
+
+// React Context
+export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
 
 /**
  * FirebaseProvider manages and provides Firebase services and user authentication state.
@@ -125,6 +150,7 @@ export const FirebaseProvider: React.FC<{
         user: userAuthState.user,
         isUserLoading: userAuthState.isUserLoading,
         userError: userAuthState.userError,
+        role: userAuthState.role,
       };
     }, [userAuthState]);
 
@@ -155,6 +181,7 @@ export const useFirebase = (): FirebaseServicesAndUser => {
     user: context.user,
     isUserLoading: context.isUserLoading,
     userError: context.userError,
+    role: context.role,
   };
 };
 
