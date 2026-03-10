@@ -17,7 +17,7 @@ export const DEFAULT_CATEGORIES = [
 ];
 
 export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
-  [CATEGORY_SNEAKERS]: ['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Other'],
+  [CATEGORY_SNEAKERS]: ['Jordan', 'Kobe', 'Limited', 'Vintage', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Other'],
   [CATEGORY_ACCESSORIES]: ['Watches', 'Bags', 'Hats', 'Jewelry', 'Other'],
   [CATEGORY_TRADING_CARDS]: ['Basketball Cards', 'Sports Cards', 'Trading Cards', 'Pokémon', 'Yu-Gi-Oh!', 'Other'],
   [CATEGORY_GENERAL]: ['Household', 'Electronics', 'Clothing', 'Books', 'Other']

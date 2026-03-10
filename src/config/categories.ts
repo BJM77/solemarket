@@ -11,11 +11,14 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
         section: 'Marketplace',
         order: 1,
         subcategories: [
+            { id: 'sub_jordan_sneakers', name: 'Jordan', slug: 'jordan', parentId: 'cat_sneakers' },
+            { id: 'sub_kobe_sneakers', name: 'Kobe', slug: 'kobe', parentId: 'cat_sneakers' },
+            { id: 'sub_limited_sneakers', name: 'Limited', slug: 'limited', parentId: 'cat_sneakers' },
+            { id: 'sub_vintage_sneakers', name: 'Vintage', slug: 'vintage', parentId: 'cat_sneakers' },
             { id: 'sub_basketball_sneakers', name: 'Basketball', slug: 'basketball', parentId: 'cat_sneakers' },
             { id: 'sub_men_sneakers', name: 'Men\'s Sneakers', slug: 'mens-sneakers', parentId: 'cat_sneakers' },
             { id: 'sub_women_sneakers', name: 'Women\'s Sneakers', slug: 'womens-sneakers', parentId: 'cat_sneakers' },
             { id: 'sub_youth_sneakers', name: 'Youth (GS)', slug: 'youth-sneakers', parentId: 'cat_sneakers' },
-            { id: 'sub_infant_sneakers', name: 'Infant & Toddler', slug: 'infant-sneakers', parentId: 'cat_sneakers' },
         ]
     },
     {
