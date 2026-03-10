@@ -328,8 +328,8 @@ export default function ProductDetailsModern({
             await recordProductEnquiry(productId);
             setIsPhoneRevealed(true);
             toast({
-                title: "Enquiry Sent",
-                description: "The seller has been notified. You can now see their contact number."
+                title: "Contact Revealed",
+                description: "You can now see the seller's contact number. Please arrange pickup directly."
             });
         } catch (e) {
             console.error("Failed to record enquiry", e);
@@ -594,7 +594,7 @@ export default function ProductDetailsModern({
                                                     disabled={isEnquiring || isPhoneRevealed}
                                                 >
                                                     {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
-                                                    {isPhoneRevealed ? "Enquiry Sent" : "Enquire for Pickup"}
+                                                    {isPhoneRevealed ? "Contact Revealed" : "Buy & Collect"}
                                                 </Button>
                                             )}
 
