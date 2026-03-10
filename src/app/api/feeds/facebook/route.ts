@@ -17,7 +17,7 @@ export async function GET() {
             .limit(1000)
             .get();
 
-        const items = snapshot.docs.map(doc => ({
+        const items = snapshot.docs.map((doc: any) => ({
             id: doc.id,
             ...doc.data()
         }));
