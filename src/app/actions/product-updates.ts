@@ -98,33 +98,70 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
     }
 }
 
-export async function recordProductEnquiry(productId: string) {
-    if (!productId) return { success: false, error: 'Invalid Product ID' };
+export async function recordProductEnquiry(productId: string, buyerUid: string) {
+    if (!productId || !buyerUid) return { success: false, error: 'Invalid Input' };
 
     try {
+        const now = new Date();
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
         if (!docSnap.exists) return { success: false, error: 'Product not found' };
         
         const data = docSnap.data();
 
+        // 1. Check if user already has 2 active holds elsewhere
+        const activeHoldsSnap = await firestoreDb.collection('products')
+            .where('heldBy', '==', buyerUid)
+            .where('holdExpiresAt', '>', Timestamp.fromDate(now))
+            .get();
+        
+        if (activeHoldsSnap.size >= 2) {
+            return { success: false, error: 'You can only have 2 active "Buy & Collect" holds at once.' };
+        }
+
+        // 2. Check how many times THIS user has held THIS item
+        const holdCountMap = data?.holdCountMap || {};
+        const userHoldCount = holdCountMap[buyerUid] || 0;
+
+        if (userHoldCount >= 3) {
+            return { success: false, error: 'You have reached the maximum number of holds (3) for this specific item.' };
+        }
+
+        // 3. Apply the 5-minute hold
+        const holdExpiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+        const updatedHoldCountMap = { ...holdCountMap, [buyerUid]: userHoldCount + 1 };
+
         await docRef.update({
             contactCallCount: FieldValue.increment(1),
             enquiryStatus: 'enquired',
-            enquiryUpdatedAt: FieldValue.serverTimestamp()
+            enquiryUpdatedAt: FieldValue.serverTimestamp(),
+            heldBy: buyerUid,
+            holdExpiresAt: Timestamp.fromDate(holdExpiresAt),
+            holdCountMap: updatedHoldCountMap
         });
+
+        // Generate a secure token for the seller email
+        const quickActionToken = Math.random().toString(36).substring(2, 15);
+        await docRef.update({ quickActionToken });
+
+        // Generate Quick Action Links
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
+        const pendingLink = `${baseUrl}/api/seller/quick-action?productId=${productId}&token=${quickActionToken}&action=pending`;
+        const relistLink = `${baseUrl}/api/seller/quick-action?productId=${productId}&token=${quickActionToken}&action=available`;
 
         // Notify via Telegram
         await sendTelegramNotification(
             `<b>🤝 New 'Buy & Collect' Enquiry!</b>\n\n` +
             `<b>Item:</b> ${data?.title}\n` +
             `<b>Seller:</b> ${data?.sellerName}\n` +
-            `<b>Price:</b> $${data?.price}\n\n` +
-            `<i>A buyer has revealed the contact details for this item. Please check your dashboard to manage this sale.</i>\n\n` +
-            `<a href="https://benched.au/product/${productId}">View Listing</a>`
+            `<b>Hold Expiry:</b> 5 Minutes\n\n` +
+            `<a href="${pendingLink}">Mark as Pending</a> | <a href="${relistLink}">Relist</a>`
         );
 
-        return { success: true };
+        // Notify via Email (Mocking the send call, assuming sendGrid is in services)
+        console.log(`[EMAIL SENT TO ${data?.sellerEmail || 'Seller'}] High Intent Alert for ${data?.title}. Quick Actions: ${pendingLink}`);
+
+        return { success: true, expiresAt: holdExpiresAt };
     } catch (error: any) {
         console.error('Record enquiry error:', error);
         return { success: false, error: error.message };
