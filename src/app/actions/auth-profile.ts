@@ -5,6 +5,8 @@ import { getUserIdFromSession } from './seller-actions'; // Reuse this robust to
 
 export async function completeUserProfile(data: {
     accountType: 'buyer' | 'seller';
+    phoneNumber: string;
+    location: string;
     storeName?: string;
     storeDescription?: string;
     acceptsStripe?: boolean;
@@ -26,6 +28,8 @@ export async function completeUserProfile(data: {
 
         const updateData: any = {
             accountType: data.accountType,
+            phoneNumber: data.phoneNumber,
+            location: data.location,
             agreedToTerms: true,
         };
 

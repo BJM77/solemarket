@@ -28,6 +28,8 @@ const formSchema = z.object({
     accountType: z.enum(['buyer', 'seller'], {
         required_error: 'You must select an account type.',
     }),
+    phoneNumber: z.string().min(8, { message: 'Please enter a valid phone number.' }),
+    location: z.string().min(2, { message: 'Please enter your suburb or city.' }),
     storeName: z.string().optional(),
     storeDescription: z.string().optional(),
     acceptsStripe: z.boolean().default(false),
@@ -63,6 +65,8 @@ export default function CompleteProfilePage() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             accountType: 'buyer',
+            phoneNumber: '',
+            location: '',
             storeName: '',
             storeDescription: '',
             acceptsStripe: true,
@@ -79,6 +83,8 @@ export default function CompleteProfilePage() {
         try {
             const { success, error } = await completeUserProfile({
                 accountType: values.accountType,
+                phoneNumber: values.phoneNumber,
+                location: values.location,
                 storeName: values.storeName,
                 storeDescription: values.storeDescription,
                 acceptsStripe: values.acceptsStripe,
@@ -148,6 +154,35 @@ export default function CompleteProfilePage() {
                                 </FormItem>
                             )}
                         />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="phoneNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Phone Number</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="0400 000 000" {...field} type="tel" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="location"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Suburb / City</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Richmond, VIC" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
                         {accountType === 'seller' && (
                             <div className="space-y-4 border-t pt-4 border-slate-200 dark:border-white/10">

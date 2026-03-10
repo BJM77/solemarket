@@ -60,6 +60,7 @@ export type UserProfile = {
   stopReason?: string; // Reason for suspension
   // New Contact & Management Fields
   phoneNumber?: string;
+  location?: string;
   businessName?: string; // For Business users (Slug can be derived or stored in storeName)
   bannerUrl?: string;
   isFounder?: boolean;

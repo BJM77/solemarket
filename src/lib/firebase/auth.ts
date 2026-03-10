@@ -9,6 +9,7 @@ import {
   getIdToken,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "./config";
 import { createUserProfile } from "./client-ops";
@@ -17,6 +18,8 @@ interface SignUpOptions {
   email: string;
   password: string;
   displayName: string;
+  phoneNumber?: string;
+  location?: string;
   accountType: 'buyer' | 'seller';
   storeName?: string;
   storeDescription?: string;
@@ -27,17 +30,39 @@ interface SignUpOptions {
 }
 
 export async function signUpWithEmail(options: SignUpOptions) {
-  const { email, password, displayName, accountType, storeName, storeDescription, referralCode, acceptsStripe, acceptsCOD, acceptsPayID } = options;
+  const { 
+    email, 
+    password, 
+    displayName, 
+    phoneNumber,
+    location,
+    accountType, 
+    storeName, 
+    storeDescription, 
+    referralCode, 
+    acceptsStripe, 
+    acceptsCOD, 
+    acceptsPayID 
+  } = options;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
     await updateProfile(user, { displayName });
+    
+    // Trigger verification email immediately
+    try {
+      await sendEmailVerification(user);
+    } catch (e) {
+      console.error("Failed to send verification email during signup:", e);
+    }
 
     // Prepare profile data
     const profileData: any = {
       email: user.email,
       displayName: user.displayName,
+      phoneNumber: phoneNumber || null,
+      location: location || null,
       accountType: accountType,
       referralCode: referralCode, // Pass to profile
     };

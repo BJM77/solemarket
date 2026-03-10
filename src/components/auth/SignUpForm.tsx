@@ -29,6 +29,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 const formSchema = z.object({
   displayName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  phoneNumber: z.string().min(8, { message: "Please enter a valid phone number." }),
+  location: z.string().min(2, { message: "Please enter your suburb or city." }),
   password: z.string()
     .min(8, { message: "Password must be at least 8 characters long." })
     .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
@@ -83,6 +85,8 @@ function SignUpFormInner() {
     defaultValues: {
       displayName: "",
       email: "",
+      phoneNumber: "",
+      location: "",
       password: "",
       confirmPassword: "",
       accountType: (accountTypeParam === 'seller' || accountTypeParam === 'buyer') 
@@ -144,6 +148,8 @@ function SignUpFormInner() {
       email: values.email,
       password: values.password,
       displayName: values.displayName,
+      phoneNumber: values.phoneNumber,
+      location: values.location,
       accountType: values.accountType,
       storeName: values.storeName,
       storeDescription: values.storeDescription,
@@ -179,9 +185,9 @@ function SignUpFormInner() {
     } else {
       toast({
         title: "Success!",
-        description: "Your account has been created.",
+        description: "Your account has been created. Please verify your email.",
       });
-      window.location.href = redirectUrl;
+      window.location.href = '/verify';
     }
   }
 
@@ -247,6 +253,35 @@ function SignUpFormInner() {
               </FormItem>
             )}
           />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="0400 000 000" {...field} type="tel" autoComplete="tel" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Suburb / City</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Richmond, VIC" {...field} autoComplete="address-level2" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
             name="password"
