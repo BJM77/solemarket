@@ -235,3 +235,71 @@ export async function incrementProductContactCount(productId: string) {
         return { success: false, error: error.message };
     }
 }
+
+export async function deleteProductsAction(productIds: string[], idToken: string) {
+    if (!productIds.length || !idToken) return { success: false, error: 'Missing data' };
+    try {
+        const decoded = await verifyIdToken(idToken);
+        const batch = firestoreDb.batch();
+        
+        const productsRef = firestoreDb.collection('products');
+        const snapshots = await Promise.all(productIds.map(id => productsRef.doc(id).get()));
+        
+        let deletedCount = 0;
+        snapshots.forEach(snap => {
+            if (snap.exists) {
+                const data = snap.data();
+                if (data?.sellerId === decoded.uid || decoded.role === 'admin' || decoded.role === 'superadmin') {
+                    batch.update(snap.ref, { 
+                        status: 'deleted',
+                        updatedAt: FieldValue.serverTimestamp()
+                    });
+                    deletedCount++;
+                }
+            }
+        });
+
+        if (deletedCount > 0) {
+            await batch.commit();
+        }
+
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+        revalidateTag('active-listings-count');
+        
+        return { success: true, count: deletedCount };
+    } catch (error: any) {
+        console.error('Bulk delete error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function activateProductAction(productId: string, idToken: string) {
+    if (!productId || !idToken) return { success: false, error: 'Missing data' };
+    try {
+        const decoded = await verifyIdToken(idToken);
+        const docRef = firestoreDb.collection('products').doc(productId);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) return { success: false, error: 'Product not found' };
+        
+        const data = docSnap.data();
+        if (data?.sellerId !== decoded.uid && decoded.role !== 'admin' && decoded.role !== 'superadmin') {
+            return { success: false, error: 'Unauthorized' };
+        }
+
+        await docRef.update({
+            status: 'available',
+            isDraft: false,
+            updatedAt: FieldValue.serverTimestamp()
+        });
+
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+        revalidateTag('active-listings-count');
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error('Activate product error:', error);
+        return { success: false, error: error.message };
+    }
+}

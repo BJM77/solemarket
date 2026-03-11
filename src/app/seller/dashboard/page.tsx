@@ -50,8 +50,12 @@ function DashboardSkeleton() {
   )
 }
 
-import { updateEnquiryStatus } from '@/app/actions/product-updates';
+import { updateEnquiryStatus, deleteProductsAction, activateProductAction } from '@/app/actions/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Trash2 } from 'lucide-react';
+
+import { useToast } from '@/hooks/use-toast';
 
 export default function SellerDashboard() {
   const router = useRouter();
@@ -59,6 +63,8 @@ export default function SellerDashboard() {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   const handleEnquiryAction = async (productId: string, newStatus: 'pending' | 'sold' | 'available') => {
     setIsUpdatingStatus(productId);
@@ -77,6 +83,62 @@ export default function SellerDashboard() {
     } finally {
       setIsUpdatingStatus(null);
     }
+  };
+
+  const handleActivate = async (productId: string) => {
+    setIsUpdatingStatus(productId);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Session expired");
+      const result = await activateProductAction(productId, idToken);
+      if (result.success) {
+        toast({ title: "Product Activated", description: "Listing is now live." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Activation Failed", description: error.message });
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedProducts.length} listings?`)) return;
+    
+    setIsBulkDeleting(true);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Session expired");
+      const result = await deleteProductsAction(selectedProducts, idToken);
+      if (result.success) {
+        toast({ title: "Products Deleted", description: `Successfully deleted ${result.count} products.` });
+        setSelectedProducts([]);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Deletion Failed", description: error.message });
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
+
+  const toggleAllSelection = () => {
+    if (selectedProducts.length === products.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(products.map(p => p.id));
+    }
+  };
+
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProducts(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
   };
 
   const userRef = useMemoFirebase(() => user ? doc(firestore!, 'users', user.uid) : null, [user, firestore]);
@@ -182,17 +244,17 @@ export default function SellerDashboard() {
     return <DashboardSkeleton />;
   }
 
-  // Onboarding screens
+  // Onboarding screens - now following Dark Theme protocol
   if (!userProfile?.agreementAccepted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center p-8">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center p-8 bg-card border-white/5 shadow-2xl">
           <div className="bg-primary/10 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
             <Package className="h-10 w-10 text-primary" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-4">Become a Seller</h2>
-          <p className="text-slate-600 mb-8">Start your business on Benched today. Lists your cards, coins, and collectibles to millions of buyers.</p>
-          <Button asChild size="lg" className="w-full">
+          <h2 className="text-2xl font-black text-white mb-4">Become a Seller</h2>
+          <p className="text-slate-400 mb-8 font-medium">Start your business on Benched today. List your cards, coins, and collectibles to millions of buyers.</p>
+          <Button asChild size="lg" className="w-full font-black uppercase rounded-xl shadow-glow">
             <Link href="/seller/agreement">Review Agreement</Link>
           </Button>
         </Card>
@@ -202,14 +264,14 @@ export default function SellerDashboard() {
 
   if (userProfile?.sellerStatus === 'pending') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center p-8">
-          <div className="bg-yellow-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-            <Clock className="h-10 w-10 text-yellow-600" />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center p-8 bg-card border-white/5">
+          <div className="bg-amber-950/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
+            <Clock className="h-10 w-10 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-4">Application Pending</h2>
-          <p className="text-slate-600 mb-8">We've received your application! Our team is reviewing it. This usually takes 24-48 hours. We'll notify you once you're approved.</p>
-          <Button variant="outline" className="w-full" asChild>
+          <h2 className="text-2xl font-black text-white mb-4">Application Pending</h2>
+          <p className="text-slate-400 mb-8 font-medium">We've received your application! Our team is reviewing it. This usually takes 24-48 hours. We'll notify you once you're approved.</p>
+          <Button variant="outline" className="w-full font-bold border-white/10 hover:bg-white/5 rounded-xl" asChild>
             <Link href="/">Back to Marketplace</Link>
           </Button>
         </Card>
@@ -219,14 +281,14 @@ export default function SellerDashboard() {
 
   if (userProfile?.sellerStatus === 'rejected') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center p-8 border-red-200">
-          <div className="bg-red-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="h-10 w-10 text-red-600" />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center p-8 border-red-500/20 bg-card">
+          <div className="bg-red-950/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+            <AlertCircle className="h-10 w-10 text-red-500" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-4">Application Declined</h2>
-          <p className="text-slate-600 mb-8">Unfortunately, your seller application was not approved at this time. Please contact support for more details.</p>
-          <Button variant="outline" className="w-full" asChild>
+          <h2 className="text-2xl font-black text-white mb-4">Application Declined</h2>
+          <p className="text-slate-400 mb-8 font-medium">Unfortunately, your seller application was not approved at this time. Please contact support for more details.</p>
+          <Button variant="outline" className="w-full font-bold border-white/10 hover:bg-white/5 rounded-xl" asChild>
             <Link href="/contact">Contact Support</Link>
           </Button>
         </Card>
@@ -236,91 +298,117 @@ export default function SellerDashboard() {
 
 
   const statCards = [
-    { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-600 bg-emerald-100' },
-    { label: 'Order Volume', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Total Views', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-600 bg-indigo-100' },
-    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-600 bg-orange-100' },
-    { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-600 bg-purple-100' },
-    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-600 bg-amber-100' },
+    { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-500 bg-emerald-500/10' },
+    { label: 'Order Volume', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-500 bg-blue-500/10' },
+    { label: 'Total Views', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-500 bg-indigo-500/10' },
+    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-500 bg-orange-500/10' },
+    { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-500 bg-purple-500/10' },
+    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-500 bg-amber-500/10' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user.displayName}! Here's your business overview.</p>
-          </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button asChild>
-              <Link href="/sell/create">
-                <Upload className="h-4 w-4 mr-2" />
-                New Listing
-              </Link>
-            </Button>
-            <SyncListingsButton userId={user.uid} />
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <div className="bg-card/50 backdrop-blur-md border-b border-white/5 sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] uppercase px-3 py-1">
+                  Secure Protocol Active
+                </Badge>
+              </div>
+              <h1 className="text-4xl font-black tracking-tighter text-white">
+                Seller <span className="text-primary italic">Terminal</span>
+              </h1>
+              <p className="text-slate-400 font-medium text-sm mt-1">Authorized access for {userProfile?.displayName || user?.email}</p>
+            </div>
+            
+            <div className="flex items-center gap-3 mt-4 md:mt-0">
+              <Button className="rounded-xl font-bold px-6 shadow-glow transition-all hover:scale-105" asChild>
+                <Link href="/sell/create">
+                  <Upload className="mr-2 h-4 w-4" /> Deploy Listing
+                </Link>
+              </Button>
+              <SyncListingsButton userId={user.uid} />
+            </div>
           </div>
         </div>
+      </div>
 
-        <Tabs defaultValue="overview" className="space-y-8">
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-white border shadow-sm p-1 rounded-xl flex-wrap h-auto gap-1">
-              <TabsTrigger value="overview" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Overview</TabsTrigger>
-              <TabsTrigger value="products" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Products</TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Orders</TabsTrigger>
-              <TabsTrigger value="financials" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Financials</TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-lg px-4 py-2 sm:px-6 font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white">Reviews</TabsTrigger>
+      <div className="container mx-auto px-4 py-12">
+
+        <Tabs defaultValue="overview" className="space-y-12">
+          <div className="flex items-center justify-between overflow-x-auto pb-2 no-scrollbar">
+            <TabsList className="bg-card border border-white/5 p-1.5 rounded-2xl h-14">
+              <TabsTrigger value="overview" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
+                System Overview
+              </TabsTrigger>
+              <TabsTrigger value="products" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
+                Product Catalog
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all flex items-center gap-2">
+                Fulfillment {orders && orders.length > 0 && <span className="bg-black/20 px-2 py-0.5 rounded-md text-[10px]">{orders.length}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="financials" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
+                Revenue Infrastructure
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
+                Feedback Loop
+              </TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="overview" className="space-y-8">
+          <TabsContent value="overview" className="space-y-12">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow duration-200">
+                <Card key={index} className="border border-white/5 bg-card/50 backdrop-blur-sm shadow-2xl transition-all duration-300 hover:border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`${stat.color} p-2.5 rounded-xl`}>
+                      <div className={`${stat.color} p-2.5 rounded-xl border border-white/5 shadow-inner`}>
                         <stat.icon className="h-5 w-5" />
                       </div>
-                      {stat.change && <Badge variant={stat.change.startsWith('+') ? 'default' : 'secondary'} className="text-[10px] uppercase font-black">{stat.change}</Badge>}
+                      {stat.change && <Badge variant="outline" className="text-[10px] uppercase font-black bg-primary/10 text-primary border-primary/20">{stat.change}</Badge>}
                     </div>
-                    <div className="text-3xl font-black mb-1">{stat.value}</div>
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stat.label}</div>
+                    <div className="text-3xl font-black mb-1 text-white tabular-nums">{stat.value}</div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{stat.label}</div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            <Card className="border-none shadow-sm overflow-hidden rounded-2xl">
-              <CardHeader className="pb-4 bg-slate-900 text-white">
+            <Card className="border border-white/5 bg-card/50 overflow-hidden rounded-2xl shadow-2xl">
+              <CardHeader className="pb-4 bg-slate-900/50 backdrop-blur-md border-b border-white/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-bold">Listing Tier Status</CardTitle>
-                    <CardDescription className="text-slate-400">You have used {stats.activeListings} of your {listingLimit} authorized listings.</CardDescription>
+                    <CardTitle className="text-lg font-black text-white uppercase tracking-tight">Listing Capacity Plan</CardTitle>
+                    <CardDescription className="text-slate-400 font-medium">You have consumed {stats.activeListings} of your {listingLimit} authorized units.</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline" className="text-white border-white/20 hover:bg-white/10 rounded-lg">
+                  <Button size="sm" variant="outline" className="text-white border-white/20 hover:bg-white/10 rounded-lg font-bold">
                     Upgrade Capability
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  <Progress value={listingProgress} className="h-3 bg-slate-100" />
-                  <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+              <CardContent className="pt-8">
+                <div className="space-y-4">
+                  <div className="flex justify-between text-xs font-black uppercase tracking-widest">
+                    <span className="text-slate-500">Utilization Rate</span>
+                    <span className="text-primary">{Math.round(listingProgress)}% deployed</span>
+                  </div>
+                  <Progress value={listingProgress} className="h-3 bg-white/5 overflow-hidden rounded-full shadow-inner" />
+                  <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-2">
                     <span>{stats.activeListings} Allocated</span>
-                    <span>{listingLimit} Max Capacity</span>
+                    <span>{listingLimit} Max capacity</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <Card className="lg:col-span-2 border-none shadow-sm rounded-2xl overflow-hidden">
-                <CardHeader className="border-b bg-white">
+              <Card className="lg:col-span-2 border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+                <CardHeader className="border-b border-white/5 bg-slate-900/30">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold">Recent Fulfillment</CardTitle>
-                    <Button variant="ghost" size="sm" className="font-bold text-primary" onClick={() => { }}>View All Orders</Button>
+                    <CardTitle className="text-lg font-black text-white uppercase">Critical Fulfillment</CardTitle>
+                    <Button variant="ghost" size="sm" className="font-bold text-primary hover:bg-primary/10" onClick={() => { }}>Access Full Feed</Button>
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -328,32 +416,32 @@ export default function SellerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
-                <CardHeader className="border-b bg-white">
-                  <CardTitle className="text-lg font-bold">Feedback Loop</CardTitle>
+              <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+                <CardHeader className="border-b border-white/5 bg-slate-900/30">
+                  <CardTitle className="text-lg font-black text-white uppercase">Reputation Loop</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-8">
                   {reviews && reviews.length > 0 ? (
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                       {reviews.slice(0, 3).map(review => (
-                        <div key={review.id} className="space-y-2">
+                        <div key={review.id} className="space-y-3 relative pl-6 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-primary/20 before:rounded-full">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-0.5">
                               {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                                <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'text-primary fill-primary' : 'text-slate-800'}`} />
                               ))}
                             </div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d')}</span>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d')}</span>
                           </div>
-                          <p className="text-sm font-medium text-slate-700 line-clamp-2 italic">"{review.comment}"</p>
-                          <p className="text-[10px] font-black text-slate-400 uppercase">— {review.buyerName}</p>
+                          <p className="text-sm font-medium text-slate-300 line-clamp-2 italic leading-relaxed">"{review.comment}"</p>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— {review.buyerName}</p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-slate-400">
+                    <div className="text-center py-12 text-slate-600">
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-10" />
-                      <p className="font-bold">No Feedback Received</p>
+                      <p className="font-black uppercase text-xs tracking-widest">Awaiting Transmissions</p>
                     </div>
                   )}
                 </CardContent>
@@ -362,21 +450,51 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="products">
-            <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
-              <CardHeader className="bg-white border-b">
+            <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-bold">Product Catalog</CardTitle>
-                    <CardDescription>Manage your inventory and availability.</CardDescription>
+                    <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Product Inventory</CardTitle>
+                    <CardDescription className="text-slate-400 font-medium">Global control of your marketplace assets.</CardDescription>
                   </div>
+                  {selectedProducts.length > 0 && (
+                    <div className="flex items-center gap-3 bg-red-950/20 border border-red-500/20 p-2.5 px-5 rounded-2xl animate-in fade-in slide-in-from-top-2 shadow-2xl backdrop-blur-sm">
+                      <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{selectedProducts.length} Selected</span>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        className="h-9 font-black uppercase text-[10px] bg-red-600 hover:bg-red-700 px-6 rounded-xl shadow-glow-red"
+                        onClick={handleBulkDelete}
+                        disabled={isBulkDeleting}
+                      >
+                        {isBulkDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                        Execute Deletion
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-9 font-black uppercase text-[10px] text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                        onClick={() => setSelectedProducts([])}
+                      >
+                        Abort
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 {products && products.length > 0 ? (
                   <Table>
-                    <TableHeader className="bg-slate-50">
-                      <TableRow className="border-none">
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400 pl-6">Product</TableHead>
+                    <TableHeader className="bg-white/5">
+                      <TableRow className="border-white/5">
+                        <TableHead className="w-12 pl-6">
+                          <Checkbox 
+                            checked={selectedProducts.length === products.length && products.length > 0}
+                            onCheckedChange={toggleAllSelection}
+                            className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                          />
+                        </TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Product</TableHead>
                         <TableHead className="font-black text-[10px] uppercase text-slate-400">Price</TableHead>
                         <TableHead className="font-black text-[10px] uppercase text-slate-400">Intelligence</TableHead>
                         <TableHead className="font-black text-[10px] uppercase text-slate-400">Status</TableHead>
@@ -386,16 +504,26 @@ export default function SellerDashboard() {
                     </TableHeader>
                     <TableBody>
                       {products.map(product => (
-                        <TableRow key={product.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
-                          <TableCell className="pl-6 py-4">
+                        <TableRow key={product.id} className={cn(
+                          "hover:bg-white/5 transition-colors border-white/5",
+                          selectedProducts.includes(product.id) && "bg-primary/5"
+                        )}>
+                          <TableCell className="pl-6">
+                            <Checkbox 
+                              checked={selectedProducts.includes(product.id)}
+                              onCheckedChange={() => toggleProductSelection(product.id)}
+                              className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                            />
+                          </TableCell>
+                          <TableCell className="py-4">
                             <div className="flex items-center gap-4">
-                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/5">
                                 <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
                               </div>
-                              <span className="font-bold text-slate-900 line-clamp-1 max-w-[200px]">{product.title}</span>
+                              <span className="font-bold text-white line-clamp-1 max-w-[200px]">{product.title}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="font-bold text-slate-900">{formatPrice(product.price)}</TableCell>
+                          <TableCell className="font-bold text-white">{formatPrice(product.price)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
                               <Eye className="h-3 w-3" />
@@ -407,7 +535,7 @@ export default function SellerDashboard() {
                               variant="outline"
                               className={cn(
                                 "font-black text-[10px] uppercase tracking-tighter px-3 py-1 border-none",
-                                product.status === 'draft' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700'
+                                product.status === 'draft' ? 'bg-slate-800 text-slate-400' : 'bg-emerald-950/40 text-emerald-500'
                               )}
                             >
                               {product.status || 'Active'}
@@ -419,11 +547,11 @@ export default function SellerDashboard() {
                           <TableCell className="text-right pr-6">
                             <div className="flex items-center justify-end gap-2">
                               {(product as any).enquiryStatus === 'enquired' || (product as any).enquiryStatus === 'pending' ? (
-                                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+                                <div className="flex items-center gap-1 bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/5">
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-white hover:bg-amber-50 hover:text-amber-700"
+                                    className="h-7 text-[10px] font-black uppercase bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'pending')}
                                     disabled={isUpdatingStatus === product.id || (product as any).enquiryStatus === 'pending'}
                                   >
@@ -432,7 +560,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                                    className="h-7 text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'sold')}
                                     disabled={isUpdatingStatus === product.id}
                                   >
@@ -441,7 +569,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="ghost" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase hover:bg-red-50 hover:text-red-700"
+                                    className="h-7 text-[10px] font-black uppercase text-slate-400 hover:text-white hover:bg-white/5"
                                     onClick={() => handleEnquiryAction(product.id, 'available')}
                                     disabled={isUpdatingStatus === product.id}
                                   >
@@ -449,8 +577,20 @@ export default function SellerDashboard() {
                                   </Button>
                                 </div>
                               ) : (
-                                <Button variant="ghost" size="sm" className="font-bold rounded-lg" asChild>
+                                <Button variant="ghost" size="sm" className="font-bold rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all" asChild>
                                   <Link href={`/product/${product.id}`}>Inspect</Link>
+                                </Button>
+                              )}
+                              {product.status === 'draft' && (
+                                <Button 
+                                  variant="default" 
+                                  size="sm" 
+                                  className="font-black text-[10px] uppercase bg-emerald-600 hover:bg-emerald-700 h-8 rounded-lg"
+                                  onClick={() => handleActivate(product.id)}
+                                  disabled={isUpdatingStatus === product.id}
+                                >
+                                  {isUpdatingStatus === product.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <CheckCircle className="h-3 w-3 mr-1" />}
+                                  Activate
                                 </Button>
                               )}
                             </div>
@@ -460,12 +600,12 @@ export default function SellerDashboard() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="text-center py-20 text-slate-400">
-                    <Package className="h-16 w-16 mx-auto mb-4 opacity-10" />
-                    <p className="font-bold text-lg text-slate-600">No Listings Protocol Found</p>
-                    <p className="text-sm mt-1">Initiate your first market entry now.</p>
-                    <Button className="mt-6 rounded-xl font-bold" asChild>
-                      <Link href="/sell/create">Create New Listing</Link>
+                  <div className="text-center py-32 bg-card/30 backdrop-blur-sm">
+                    <Package className="h-20 w-20 mx-auto mb-6 opacity-5 text-primary" />
+                    <p className="font-black text-2xl text-white uppercase tracking-tighter">No Listings Found</p>
+                    <p className="text-slate-500 font-medium mt-2 max-w-xs mx-auto">Your inventory is currently empty. Initiate your first market entry to begin operations.</p>
+                    <Button className="mt-8 rounded-xl font-black uppercase px-8 h-12 shadow-glow" asChild>
+                      <Link href="/sell/create">Deploy New Listing</Link>
                     </Button>
                   </div>
                 )}
@@ -481,7 +621,7 @@ export default function SellerDashboard() {
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-8 w-1.5 bg-primary rounded-full" />
-                <h2 className="text-2xl font-black text-slate-900">Revenue Infrastructure</h2>
+                <h2 className="text-2xl font-black text-white">Revenue Infrastructure</h2>
               </div>
               <StripeConnect
                 stripeEnabled={userProfile?.stripeEnabled}
@@ -492,38 +632,38 @@ export default function SellerDashboard() {
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-8 w-1.5 bg-primary rounded-full" />
-                <h2 className="text-2xl font-black text-slate-900">Subscription Protocol</h2>
+                <h2 className="text-2xl font-black text-white">Subscription Protocol</h2>
               </div>
               <SubscriptionTier currentPlan={userProfile?.plan || 'base'} />
             </div>
           </TabsContent>
 
           <TabsContent value="reviews">
-            <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Comprehensive Feedback</CardTitle>
-                <CardDescription>Your reputation score across the network.</CardDescription>
+            <Card className="border border-white/5 shadow-2xl rounded-2xl overflow-hidden bg-card/50">
+              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
+                <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Identity Reputation</CardTitle>
+                <CardDescription className="text-slate-400 font-medium">Your global trust score across the decentralized marketplace.</CardDescription>
               </CardHeader>
               <CardContent>
                 {reviews && reviews.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {reviews.map(review => (
-                      <div key={review.id} className="p-6 rounded-2xl border border-slate-50 bg-slate-50/30 space-y-3">
+                      <div key={review.id} className="p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-4 hover:border-primary/20 transition-all duration-300">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                              <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-primary fill-primary' : 'text-slate-800'}`} />
                             ))}
                           </div>
-                          <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d, yyyy')}</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d, yyyy')}</span>
                         </div>
-                        <p className="text-slate-700 font-medium italic">"{review.comment}"</p>
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <p className="text-slate-300 font-medium italic text-sm leading-relaxed">"{review.comment}"</p>
+                        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold uppercase">{review.buyerName[0]}</div>
-                            <span className="text-xs font-bold text-slate-900">{review.buyerName}</span>
+                            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs text-primary font-black uppercase">{review.buyerName[0]}</div>
+                            <span className="text-xs font-bold text-white uppercase tracking-tight">{review.buyerName}</span>
                           </div>
-                          <span className="text-[10px] font-black text-slate-400 uppercase">{review.productTitle}</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase">{review.productTitle}</span>
                         </div>
                       </div>
                     ))}
@@ -542,6 +682,7 @@ export default function SellerDashboard() {
     </div>
   );
 }
+
 function SyncListingsButton({ userId }: { userId: string }) {
   const { firestore } = useFirebase();
   const [isSyncing, setIsSyncing] = useState(false);
@@ -605,4 +746,3 @@ function SyncListingsButton({ userId }: { userId: string }) {
   );
 }
 
-import { useToast } from '@/hooks/use-toast';

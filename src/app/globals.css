@@ -7,15 +7,15 @@
 
 @layer base {
   :root {
-    /* Base Colors */
-    --background: 34 33% 97%; /* #f8f7f5 */
-    --foreground: 22 23% 10%; /* Matte Black #111111 */
+    /* Base Colors - Default to Dark Theme as requested by USER */
+    --background: 24 10% 4%; /* Near black with a tiny hint of warmth #0b0a09 */
+    --foreground: 0 0% 96%;
     
     /* Surface Colors */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --card: 24 12% 6%; /* Slightly lighter than background #110e0c */
+    --card-foreground: 0 0% 96%;
+    --popover: 24 12% 8%; /* Step above card #141210 */
+    --popover-foreground: 0 0% 96%;
     
     /* Brand Colors - Hype Inspired */
     --primary: 25 90% 50%;  /* Exact #f26c0d */
@@ -24,13 +24,13 @@
     --secondary-foreground: 0 0% 96%;
     
     /* Premium Neutrals */
-    --sneaker-cream: 40 33% 98%;
-    --sneaker-grey: 210 20% 96%;
+    --sneaker-cream: 24 15% 12%;
+    --sneaker-grey: 24 15% 15%;
     --deep-black: 0 0% 4%;
     
     /* Utility Colors */
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 24 15% 12%; /* #221d19 */
+    --muted-foreground: 0 0% 65%;
     --accent: 25 90% 50%; /* Exact #f26c0d */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
@@ -41,43 +41,25 @@
     --eco-green-foreground: 0 0% 100%;
     
     /* Borders & Inputs */
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
+    --border: 24 15% 15%; /* #2b2420 */
+    --input: 24 15% 15%; /* #2b2420 */
     --ring: 25 90% 50%; /* Exact #f26c0d */
     --radius: 1rem;
     
     /* Shadows - Elevation System */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.7), 0 2px 4px -2px rgb(0 0 0 / 0.7);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.8), 0 4px 6px -4px rgb(0 0 0 / 0.8);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.9), 0 8px 10px -6px rgb(0 0 0 / 0.9);
     --shadow-glow: 0 0 20px rgb(242 108 13 / 0.5);
-    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
+  /* Keep .dark class for compatibility but it's now redundant as :root is dark */
   .dark {
-    --background: 24 10% 4%; /* Near black with a tiny hint of warmth #0b0a09 */
+    --background: 24 10% 4%;
     --foreground: 0 0% 96%;
-    --card: 24 12% 6%; /* Slightly lighter than background #110e0c */
-    --card-foreground: 0 0% 96%;
-    --popover: 24 12% 8%; /* Step above card #141210 */
-    --popover-foreground: 0 0% 96%;
-    --primary: 25 90% 50%; /* Exact #f26c0d */
-    --primary-foreground: 0 0% 0%; /* Black */
-    --secondary: 26 37% 15%; /* #342418 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 24 15% 12%; /* #221d19 */
-    --muted-foreground: 0 0% 65%;
-    --accent: 25 90% 50%; /* Exact #f26c0d */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 100%;
-    --eco-green: 147 50% 47%;
-    --eco-green-foreground: 0 0% 100%;
-    --border: 24 15% 15%; /* #2b2420 */
-    --input: 24 15% 15%; /* #2b2420 */
-    --ring: 25 90% 50%; /* Exact #f26c0d */
-    --shadow-glow: 0 0 40px rgb(242 108 13 / 0.15);
+    /* ... other variables already set in :root ... */
   }
 }
 
