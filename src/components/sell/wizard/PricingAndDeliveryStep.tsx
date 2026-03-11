@@ -20,7 +20,7 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                 <p className="text-muted-foreground">Set your price and selling options.</p>
             </div>
 
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md bg-card">
                 <CardHeader><CardTitle>Price & Quantity</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="price" render={({ field }) => (
@@ -43,7 +43,7 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                 </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md bg-card">
                 <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                         <DollarSign className="h-5 w-5" /> Selling Options
@@ -54,7 +54,7 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                         control={form.control}
                         name="isNegotiable"
                         render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Allow Offers</FormLabel>
                                     <FormDescription className="text-[10px]">Buyers can make binding offers on this item.</FormDescription>
@@ -72,7 +72,7 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                         control={form.control}
                         name="isReverseBidding"
                         render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Reverse Bidding</FormLabel>
                                     <FormDescription className="text-[10px]">Lowest bid wins (Dutch auction style).</FormDescription>

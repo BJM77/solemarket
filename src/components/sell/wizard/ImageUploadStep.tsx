@@ -119,8 +119,8 @@ export function ImageUploadStep({
     return (
         <div className="space-y-6">
 
-            <Card className="border-0 shadow-md">
-                <CardHeader className="bg-slate-900 text-white p-5 rounded-t-xl">
+            <Card className="border-0 shadow-md bg-card">
+                <CardHeader className="bg-white/5 border-b border-white/10 text-white p-5 rounded-t-xl">
                     <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Gallery</CardTitle>
                     <CardDescription className="text-slate-400">Add up to 8 photos.</CardDescription>
                 </CardHeader>
@@ -128,12 +128,12 @@ export function ImageUploadStep({
                     <div className="grid grid-cols-2 gap-3">
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                            className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
                         >
-                            <div className="bg-primary/10 p-3 rounded-full group-hover:scale-110 transition-transform">
+                            <div className="bg-primary/20 p-3 rounded-full group-hover:scale-110 transition-transform">
                                 <Upload className="h-6 w-6 text-primary" />
                             </div>
-                            <span className="text-xs font-medium mt-2 text-slate-500">Upload</span>
+                            <span className="text-xs font-medium mt-2 text-slate-400">Upload</span>
                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div className="aspect-square">
@@ -143,7 +143,7 @@ export function ImageUploadStep({
 
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
                         {imagePreviews.map((p, i) => (
-                            <div key={p} className="relative aspect-square bg-slate-100 rounded-lg overflow-hidden border group">
+                            <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-white/10 group">
                                 <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
                                 <button
                                     onClick={() => onRemoveImage(i)}

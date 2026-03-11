@@ -29,9 +29,9 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
 
     return (
         <div className="space-y-6">
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 my-4" />
+            <div className="pt-2 border-t border-white/10 my-4" />
 
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md bg-card">
                 <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,9 +53,9 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                         )} />
 
                         <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm bg-slate-50/50">
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-sm font-bold text-slate-900">Enable Buy & Collect</FormLabel>
+                                    <FormLabel className="text-sm font-bold text-white">Enable Buy & Collect</FormLabel>
                                     <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>
                                 </div>
                                 <FormControl>
@@ -167,7 +167,7 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
             </Card>
 
             {isTradingCard ? (
-                <Card className="border-0 shadow-md">
+                <Card className="border-0 shadow-md bg-card">
                     <CardHeader><CardTitle>Trading Card Specs</CardTitle></CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="gradingCompany" render={({ field }) => (
@@ -204,7 +204,7 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                     </CardContent>
                 </Card>
             ) : (
-                <Card className="border-0 shadow-md">
+                <Card className="border-0 shadow-md bg-card">
                     <CardHeader><CardTitle>Sneaker Specs</CardTitle></CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="size" render={({ field }) => (
