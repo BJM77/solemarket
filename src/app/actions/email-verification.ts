@@ -37,7 +37,7 @@ export async function sendActionVerificationEmail(email: string) {
             html: `
                 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; color: #1a202c; background-color: #ffffff;">
                   <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #F26A21; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">BENCHED</h1>
+                    <h1 style="color: #f26c0d; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">BENCHED</h1>
                     <p style="color: #718096; font-size: 14px; margin-top: 5px;">MARKETPLACE VERIFICATION</p>
                   </div>
                   
@@ -51,7 +51,7 @@ export async function sendActionVerificationEmail(email: string) {
                     <span style="font-size: 48px; font-weight: 900; letter-spacing: 12px; color: #1a202c; font-family: monospace;">${code}</span>
                   </div>
                   
-                  <div style="background: #fffaf0; padding: 15px; border-left: 4px solid #F26A21; border-radius: 4px; margin-bottom: 30px;">
+                  <div style="background: #fffaf0; padding: 15px; border-left: 4px solid #f26c0d; border-radius: 4px; margin-bottom: 30px;">
                     <p style="font-size: 13px; color: #744210; margin: 0;"><strong>Security Note:</strong> This code is valid for 10 minutes. <strong>Never</strong> share this code with anyone, including Benched staff.</p>
                   </div>
                   

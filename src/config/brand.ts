@@ -157,7 +157,7 @@ export const brandConfig: BrandConfig = {
     branding: {
         primaryColor: getEnv('NEXT_PUBLIC_PRIMARY_COLOR', '#111111'), // Matte Black
         secondaryColor: getEnv('NEXT_PUBLIC_SECONDARY_COLOR', '#F5F5F5'), // Off White
-        accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#F26A21'), // Court Orange
+        accentColor: getEnv('NEXT_PUBLIC_ACCENT_COLOR', '#f26c0d'), // New Benched Orange
         logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benchedlogo.png'),
         logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benchedlogo.png'),
         faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benchedlogo.png'),
