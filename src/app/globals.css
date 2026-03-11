@@ -18,7 +18,7 @@
     --popover-foreground: 0 0% 7%;
     
     /* Brand Colors - Hype Inspired */
-    --primary: 25 93% 50%;  /* Hype Orange #f26c0d */
+    --primary: 25 90% 50%;  /* Exact #f26c0d */
     --primary-foreground: 0 0% 0%; /* Black */
     --secondary: 26 37% 15%;  /* Surface Highlight #342418 */
     --secondary-foreground: 0 0% 96%;
@@ -31,7 +31,7 @@
     /* Utility Colors */
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
-    --accent: 25 93% 50%; /* Hype Orange */
+    --accent: 25 90% 50%; /* Exact #f26c0d */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -43,7 +43,7 @@
     /* Borders & Inputs */
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 25 93% 50%; /* Hype Orange */
+    --ring: 25 90% 50%; /* Exact #f26c0d */
     --radius: 1rem;
     
     /* Shadows - Elevation System */
@@ -51,7 +51,7 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px rgb(242 106 33 / 0.5);
+    --shadow-glow: 0 0 20px rgb(242 108 13 / 0.5);
     --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
   }
 
@@ -62,13 +62,13 @@
     --card-foreground: 0 0% 96%;
     --popover: 24 12% 8%; /* Step above card #141210 */
     --popover-foreground: 0 0% 96%;
-    --primary: 25 93% 50%; /* #f26c0d */
+    --primary: 25 90% 50%; /* Exact #f26c0d */
     --primary-foreground: 0 0% 0%; /* Black */
     --secondary: 26 37% 15%; /* #342418 */
     --secondary-foreground: 0 0% 100%;
     --muted: 24 15% 12%; /* #221d19 */
     --muted-foreground: 0 0% 65%;
-    --accent: 25 93% 50%; /* #f26c0d */
+    --accent: 25 90% 50%; /* Exact #f26c0d */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
@@ -76,7 +76,7 @@
     --eco-green-foreground: 0 0% 100%;
     --border: 24 15% 15%; /* #2b2420 */
     --input: 24 15% 15%; /* #2b2420 */
-    --ring: 25 93% 50%; /* #f26c0d */
+    --ring: 25 90% 50%; /* Exact #f26c0d */
     --shadow-glow: 0 0 40px rgb(242 108 13 / 0.15);
   }
 }
