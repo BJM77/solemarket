@@ -8,10 +8,7 @@ export async function GET() {
         // Basic health check: Try to reach Firestore
         // Using a dedicated health document to avoid list operations
         const healthRef = firestoreDb.collection('_health').doc('status');
-        await healthRef.set({
-            lastCheck: new Date(),
-            status: 'ok'
-        }, { merge: true });
+        await healthRef.get();
 
         return NextResponse.json({
             status: 'healthy',

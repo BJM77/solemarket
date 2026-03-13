@@ -348,20 +348,20 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     return (
         <Form {...form}>
             <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
-            <div className="flex flex-col h-full bg-slate-50">
+            <div className="flex flex-col h-full bg-background text-white">
                 {/* Sticky Header with Progress */}
-                <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                <div className="bg-background border-b border-white/10 sticky top-0 z-30 shadow-sm">
                     <div className="p-4 flex items-center justify-between max-w-2xl mx-auto w-full">
                         <div>
-                            <h2 className="text-lg font-bold">Edit Listing</h2>
-                            <p className="text-xs text-gray-500">Step {currentStep} of {totalSteps}: {STEP_TITLES[currentStep - 1]}</p>
+                            <h2 className="text-lg font-bold text-white">Edit Listing</h2>
+                            <p className="text-xs text-slate-400">Step {currentStep} of {totalSteps}: {STEP_TITLES[currentStep - 1]}</p>
                         </div>
                         <div className="flex gap-2">
-                            {onCancel && <Button variant="ghost" size="sm" onClick={onCancel} disabled={isSubmitting}>Cancel</Button>}
+                            {onCancel && <Button variant="ghost" className="text-white hover:bg-white/10" size="sm" onClick={onCancel} disabled={isSubmitting}>Cancel</Button>}
                         </div>
                     </div>
                     {/* Progress Bar */}
-                    <div className="w-full bg-slate-100 h-1">
+                    <div className="w-full bg-white/10 h-1">
                         <div
                             className="bg-primary h-full transition-all duration-500 ease-out"
                             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
@@ -372,8 +372,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                 <div className="flex-1 overflow-y-auto p-4 md:p-8">
                     <div className="max-w-2xl mx-auto pb-24">
                         {currentStep === 1 && (
-                            <Card className="border-0 shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <CardHeader className="bg-slate-900 text-white p-6">
+                            <Card className="border-white/10 bg-card shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <CardHeader className="bg-white/5 text-white p-6 border-b border-white/5">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-xl flex items-center gap-3">
                                             <ImagePlus className="h-6 w-6" /> Step 1: Photos
@@ -388,19 +388,19 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         <div
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                                            className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
                                         >
                                             <div className="bg-primary/10 p-3 rounded-full group-hover:scale-110 transition-transform">
                                                 <Upload className="h-6 w-6 text-primary" />
                                             </div>
-                                            <span className="text-xs font-medium mt-2 text-slate-500">Upload</span>
+                                            <span className="text-xs font-medium mt-2 text-slate-400">Upload</span>
                                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                                         </div>
                                         <div className="aspect-square">
                                             <CameraCapture onCapture={addImages} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
                                         </div>
                                         {imagePreviews.map((p, i) => (
-                                            <div key={p} className="relative aspect-square bg-slate-100 rounded-2xl overflow-hidden border group shadow-sm">
+                                            <div key={p} className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden border border-white/10 group shadow-sm">
                                                 <Image src={p} fill alt="thumb" className="object-cover" />
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <Button
@@ -424,8 +424,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                                     <Sparkles className="h-5 w-5 text-primary" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-slate-900">AI Magic Available</p>
-                                                    <p className="text-[10px] text-slate-500">Auto-fill details from your photos</p>
+                                                    <p className="text-sm font-bold text-white">AI Magic Available</p>
+                                                    <p className="text-[10px] text-slate-400">Auto-fill details from your photos</p>
                                                 </div>
                                             </div>
                                             <Button
@@ -445,10 +445,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                         )}
 
                         {currentStep === 2 && (
-                            <Card className="border-0 shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
+                            <Card className="border border-white/10 bg-card shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
                                 <CardHeader className="p-6 pb-0">
-                                    <CardTitle>Step 2: Essential Info</CardTitle>
-                                    <CardDescription>Tell buyers the basics about your item.</CardDescription>
+                                    <CardTitle className="text-white">Step 2: Essential Info</CardTitle>
+                                    <CardDescription className="text-slate-400">Tell buyers the basics about your item.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-6">
                                     <FormField control={form.control} name="title" render={({ field }) => (
@@ -527,10 +527,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                         )}
 
                         {currentStep === 3 && (
-                            <Card className="border-0 shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
+                            <Card className="border border-white/10 bg-card shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
                                 <CardHeader className="p-6 pb-0">
-                                    <CardTitle>Step 3: Price & Quantity</CardTitle>
-                                    <CardDescription>Set your price and available stock.</CardDescription>
+                                    <CardTitle className="text-white">Step 3: Price & Quantity</CardTitle>
+                                    <CardDescription className="text-slate-400">Set your price and available stock.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-8">
                                     <FormField control={form.control} name="price" render={({ field }) => (
@@ -568,19 +568,19 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                         </FormItem>
                                     )} />
 
-                                    <div className="bg-slate-50 rounded-2xl p-4 border flex items-center justify-between">
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-white p-2 rounded-lg border shadow-sm">
+                                            <div className="bg-background p-2 rounded-lg border border-white/10 shadow-sm">
                                                 <Eye className="h-5 w-5 text-slate-400" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-slate-900">Quantity Available</p>
-                                                <p className="text-[10px] text-slate-500">How many do you have for sale?</p>
+                                                <p className="text-sm font-bold text-white">Quantity Available</p>
+                                                <p className="text-[10px] text-slate-400">How many do you have for sale?</p>
                                             </div>
                                         </div>
                                         <FormField control={form.control} name="quantity" render={({ field }) => (
                                             <FormControl>
-                                                <Input type="number" min="1" className="w-24 text-center text-lg font-bold h-12" {...field} />
+                                                <Input type="number" min="1" className="w-24 text-center text-lg font-bold h-12 border-white/10 bg-background text-white" {...field} />
                                             </FormControl>
                                         )} />
                                     </div>
@@ -589,10 +589,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                         )}
 
                         {currentStep === 4 && (
-                            <Card className="border-0 shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
+                            <Card className="border border-white/10 bg-card shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
                                 <CardHeader className="p-6 pb-0">
-                                    <CardTitle>Step 4: Item Specs</CardTitle>
-                                    <CardDescription>Specific details for your {listingType}.</CardDescription>
+                                    <CardTitle className="text-white">Step 4: Item Specs</CardTitle>
+                                    <CardDescription className="text-slate-400">Specific details for your {listingType}.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {listingType === 'sneakers' && (
@@ -654,21 +654,21 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                         )}
 
                         {currentStep === 5 && (
-                            <Card className="border-0 shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
+                            <Card className="border border-white/10 bg-card shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
                                 <CardHeader className="p-6 pb-0">
                                     <div className="flex items-center gap-2">
                                         <ShieldCheck className="h-5 w-5 text-green-500" />
-                                        <CardTitle>Step 5: Listing Options</CardTitle>
+                                        <CardTitle className="text-white">Step 5: Listing Options</CardTitle>
                                     </div>
-                                    <CardDescription>Final settings for your listing.</CardDescription>
+                                    <CardDescription className="text-slate-400">Final settings for your listing.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-4">
                                     <FormField control={form.control} name="isNegotiable" render={({ field }) => (
                                         <div className="space-y-4">
-                                            <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
+                                            <FormItem className="flex items-center justify-between rounded-2xl border border-white/10 p-4 bg-white/5 shadow-sm hover:border-primary/30 transition-colors">
                                                 <div className="space-y-0.5 pe-4">
-                                                    <FormLabel className="font-bold">Allow Offers</FormLabel>
-                                                    <FormDescription className="text-[10px]">Buyers can send binding offers for this item.</FormDescription>
+                                                    <FormLabel className="font-bold text-white">Allow Offers</FormLabel>
+                                                    <FormDescription className="text-[10px] text-slate-400">Buyers can send binding offers for this item.</FormDescription>
                                                 </div>
                                                 <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                             </FormItem>
@@ -676,27 +676,27 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             {(field.value || form.watch('isUntimed')) && (
                                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-300">
                                                     <FormField control={form.control} name="autoAcceptPrice" render={({ field: numField }) => (
-                                                        <FormItem className="bg-green-50/50 p-4 rounded-xl border border-green-100">
-                                                            <FormLabel className="text-xs font-bold text-green-700">Auto-Accept Price</FormLabel>
+                                                        <FormItem className="bg-emerald-950/20 p-4 rounded-xl border border-emerald-900/50">
+                                                            <FormLabel className="text-xs font-bold text-emerald-500">Auto-Accept Price</FormLabel>
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-600 font-bold">$</span>
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">$</span>
                                                                 <FormControl>
-                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-white border-green-200" {...numField} />
+                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-background border-emerald-900/50 text-white" {...numField} />
                                                                 </FormControl>
                                                             </div>
-                                                            <FormDescription className="text-[10px] leading-tight text-green-800/70">Offers at or above this instantly win.</FormDescription>
+                                                            <FormDescription className="text-[10px] leading-tight text-emerald-500/70">Offers at or above this instantly win.</FormDescription>
                                                         </FormItem>
                                                     )} />
                                                     <FormField control={form.control} name="floorPrice" render={({ field: numField }) => (
-                                                        <FormItem className="bg-red-50/50 p-4 rounded-xl border border-red-100">
-                                                            <FormLabel className="text-xs font-bold text-red-700">Minimum Offer</FormLabel>
+                                                        <FormItem className="bg-rose-950/20 p-4 rounded-xl border border-rose-900/50">
+                                                            <FormLabel className="text-xs font-bold text-rose-500">Minimum Offer</FormLabel>
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600 font-bold">$</span>
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500 font-bold">$</span>
                                                                 <FormControl>
-                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-white border-red-200" {...numField} />
+                                                                    <Input type="number" placeholder="0.00" className="pl-8 bg-background border-rose-900/50 text-white" {...numField} />
                                                                 </FormControl>
                                                             </div>
-                                                            <FormDescription className="text-[10px] leading-tight text-red-800/70">Offers below this are auto-declined.</FormDescription>
+                                                            <FormDescription className="text-[10px] leading-tight text-rose-500/70">Offers below this are auto-declined.</FormDescription>
                                                         </FormItem>
                                                     )} />
                                                 </div>
@@ -704,28 +704,28 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                         </div>
                                     )} />
                                     <FormField control={form.control} name="isReverseBidding" render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
+                                        <FormItem className="flex items-center justify-between rounded-2xl border border-white/10 p-4 bg-white/5 shadow-sm hover:border-primary/30 transition-colors">
                                             <div className="space-y-0.5 pe-4">
-                                                <FormLabel className="font-bold">Reverse Bidding</FormLabel>
-                                                <FormDescription className="text-[10px]">Dutch auction style: lowest bid wins.</FormDescription>
+                                                <FormLabel className="font-bold text-white">Reverse Bidding</FormLabel>
+                                                <FormDescription className="text-[10px] text-slate-400">Dutch auction style: lowest bid wins.</FormDescription>
                                             </div>
                                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                         </FormItem>
                                     )} />
                                     <FormField control={form.control} name="isVault" render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
+                                        <FormItem className="flex items-center justify-between rounded-2xl border border-white/10 p-4 bg-white/5 shadow-sm hover:border-primary/30 transition-colors">
                                             <div className="space-y-0.5 pe-4">
-                                                <FormLabel className="font-bold">Vault Item</FormLabel>
-                                                <FormDescription className="text-[10px]">Mark as a vaulted investment item.</FormDescription>
+                                                <FormLabel className="font-bold text-white">Vault Item</FormLabel>
+                                                <FormDescription className="text-[10px] text-slate-400">Mark as a vaulted investment item.</FormDescription>
                                             </div>
                                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                         </FormItem>
                                     )} />
                                     <FormField control={form.control} name="isUntimed" render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm hover:border-primary/30 transition-colors">
+                                        <FormItem className="flex items-center justify-between rounded-2xl border border-white/10 p-4 bg-white/5 shadow-sm hover:border-primary/30 transition-colors">
                                             <div className="space-y-0.5 pe-4">
-                                                <FormLabel className="font-bold">Untimed Listing</FormLabel>
-                                                <FormDescription className="text-[10px]">Open for offers with no set list price.</FormDescription>
+                                                <FormLabel className="font-bold text-white">Untimed Listing</FormLabel>
+                                                <FormDescription className="text-[10px] text-slate-400">Open for offers with no set list price.</FormDescription>
                                             </div>
                                             <FormControl>
                                                 <Switch checked={field.value} onCheckedChange={(checked) => {
@@ -746,14 +746,14 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                 </div>
 
                 {/* Fixed Footer Navigation */}
-                <div className="bg-white border-t border-slate-200 p-4 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                <div className="bg-background border-t border-white/10 p-4 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.2)]">
                     <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleBack}
                             disabled={currentStep === 1 || isSubmitting}
-                            className="flex-1 sm:flex-none h-12 px-6 rounded-xl"
+                            className="bg-background text-white border-white/20 hover:bg-white/10 flex-1 sm:flex-none h-12 px-6 rounded-xl"
                         >
                             <ChevronLeft className="h-4 w-4 mr-2" /> Back
                         </Button>

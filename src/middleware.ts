@@ -26,11 +26,14 @@ async function getFirebasePublicKeys() {
 export async function middleware(request: NextRequest) {
   const isDev = process.env.NODE_ENV === 'development';
 
+  // Generate nonce for CSP
+  const nonce = crypto.randomUUID();
+
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://connect.facebook.net;
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://connect.facebook.net;
     worker-src 'self' blob:;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com https://www.facebook.com *.unsplash.com;
     font-src 'self' https://fonts.gstatic.com;
     object-src 'none';
@@ -44,12 +47,13 @@ export async function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('Content-Security-Policy', cspHeader);
+  requestHeaders.set('x-nonce', nonce); // Pass nonce to Next.js
 
   // 1. Security Headers (Always Safe & Recommended)
   requestHeaders.set('X-Frame-Options', 'DENY');
   requestHeaders.set('X-Content-Type-Options', 'nosniff');
   requestHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  requestHeaders.set('Permissions-Policy', 'camera=*, microphone=(), geolocation=()');
+  requestHeaders.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
 
   // 1. Critical Bypass: Allow internal Next.js and all static files to pass through instantly.
   // This prevents MIME-type errors and ChunkLoadErrors during development.
@@ -70,7 +74,7 @@ export async function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=*, microphone=(), geolocation=()');
+  response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
 
   // 1.5. SEO Rules (Noindex parametric search pages to prevent crawl bloat)
   const searchParams = request.nextUrl.searchParams;

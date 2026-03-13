@@ -37,7 +37,16 @@ function getAnalyticsClient() {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+    // Basic protection: check for a server-to-server API key or auth token header
+    const authHeader = request.headers.get('authorization');
+    const apiKey = process.env.API_SECRET_KEY;
+    
+    // If an API key is configured, require it. (We use Bearer token format for simplicity)
+    if (apiKey && authHeader !== `Bearer ${apiKey}`) {
+         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const propertyId = process.env.GA_PROPERTY_ID;
     const client = getAnalyticsClient();
 

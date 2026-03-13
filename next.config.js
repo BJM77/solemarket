@@ -14,13 +14,18 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
       allowedOrigins: [
-        'studio-3973035687-658c0.web.app',
-        'benched.au',
-        'www.benched.au',
-        'localhost:9007',
-        '127.0.0.1:9007',
-        'localhost:9008',
-        '127.0.0.1:9008'
+        'https://studio-3973035687-658c0.web.app',
+        'https://benched.au',
+        'https://www.benched.au',
+        // Add localhost conditionally for dev
+        ...(process.env.NODE_ENV === 'development' ? [
+           'localhost:3000',
+           'http://localhost:3000',
+           'localhost:9007',
+           'http://localhost:9007',
+           'localhost:9008',
+           'http://localhost:9008'
+        ] : [])
       ],
     },
   },
@@ -71,14 +76,7 @@ const nextConfig = {
       }
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/sitemap.xml',
-        destination: '/sitemap_index.xml',
-      },
-    ];
-  },
+  // Removed broken rewrite for sitemap.xml
   async headers() {
     return [
       {
