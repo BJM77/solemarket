@@ -904,23 +904,24 @@ export default function ProductDetailsModern({
                                 </div>
                             )}
 
-                            {/* Reviews Tab Section */}
-                            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-sm mt-6">
-                                <h3 className="text-xl font-bold mb-6">Reviews ({reviews?.length || 0})</h3>
-                                <ReviewForm
-                                    user={user}
-                                    productId={product.id}
-                                    productTitle={product.title}
-                                    sellerId={product.sellerId}
-                                />
-                                <div className="mt-6 space-y-4">
-                                    <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
-                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* Reviews Tab Section - Moved here for full width */}
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-sm mt-8">
+                        <h3 className="text-xl font-bold mb-6">Reviews ({reviews?.length || 0})</h3>
+                        <ReviewForm
+                            user={user}
+                            productId={product.id}
+                            productTitle={product.title}
+                            sellerId={product.sellerId}
+                        />
+                        <div className="mt-6 space-y-4">
+                            <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
+                        </div>
+                    </div>
                 </div>
-            </div>
 
             {/* Related Items (Server Side Rendered for SEO) */}
             {initialRelatedProducts && initialRelatedProducts.length > 0 && (
