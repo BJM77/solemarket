@@ -11,11 +11,6 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
  * This is used specifically for confirming bids/offers.
  */
 export async function sendActionVerificationEmail(email: string) {
-    if (!resend) {
-        console.warn('RESEND_API_KEY is not set. Skipping email sending.');
-        return { success: false, error: 'Email service not configured.' };
-    }
-
     // Generate a 5-digit code for simplicity
     const code = Math.floor(10000 + Math.random() * 90000).toString();
     const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
@@ -28,6 +23,11 @@ export async function sendActionVerificationEmail(email: string) {
             used: false,
             createdAt: new Date(),
         });
+
+        if (!resend) {
+            console.warn(`[DEV MODE] Verification code for ${email} is: ${code}`);
+            return { success: true };
+        }
 
         // Send the email using the Resend service.
         const { error } = await resend.emails.send({
