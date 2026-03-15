@@ -20,9 +20,12 @@ import { createOrderAction } from '@/app/actions/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { getSystemSettings, type AdminSystemSettings } from '@/app/admin/settings/actions';
 import { useEffect } from 'react';
-import { calculateShipping, calculateTax } from '@/lib/pricing';
+import { calculateShipping, calculateTax, calculateItemTotal } from '@/lib/pricing';
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { useRef } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import type { UserProfile } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,14 +69,49 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'payid'>('card');
   const canUsePayId = items.length > 0 && items.every((item) => item.acceptsPayId);
 
+  const [sellerProfiles, setSellerProfiles] = useState<Record<string, UserProfile>>({});
+
+  useEffect(() => {
+    async function loadSellers() {
+      const sellerIds = Array.from(new Set(items.map(item => item.sellerId)));
+      const profiles: Record<string, UserProfile> = {};
+      
+      for (const id of sellerIds) {
+        if (!id) continue;
+        const docRef = doc(db, 'users', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          profiles[id] = { id: docSnap.id, ...docSnap.data() } as UserProfile;
+        }
+      }
+      setSellerProfiles(profiles);
+    }
+    
+    if (items.length > 0) {
+      loadSellers();
+    }
+  }, [items]);
+
   // Dynamic shipping and tax logic
   const shippingCost = calculateShipping(cartSubtotal, shippingMethod, {
     freightCharge: settings.freightCharge,
     freeShippingThreshold: settings.freeShippingThreshold
   });
 
-  const taxAmount = calculateTax(cartSubtotal, settings.standardTaxRate ?? 0.10);
-  const totalAmount = cartSubtotal + shippingCost + taxAmount;
+  // Calculate tax per item based on seller type
+  const taxAmount = items.reduce((acc, item) => {
+    const seller = sellerProfiles[item.sellerId];
+    if (seller?.role === 'business') {
+      const itemTotal = (item.dealId && item.bundlePrice !== undefined)
+        ? item.bundlePrice
+        : calculateItemTotal(item.price, item.quantity, item.multibuyEnabled, item.multibuyTiers);
+      
+      return acc + calculateTax(itemTotal, settings.standardTaxRate ?? 0.10, true);
+    }
+    return acc;
+  }, 0);
+
+  const totalAmount = cartSubtotal + shippingCost;
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -160,7 +198,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#020617] text-gray-100">
       <div className="container mx-auto px-4 py-12">
         <Button variant="ghost" className="mb-6" onClick={() => setIsCartOpen(true)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -171,9 +209,9 @@ export default function CheckoutPage() {
           <div className="order-2 lg:order-1 space-y-8">
             <form onSubmit={handlePlaceOrder} className="space-y-8">
               {/* Delivery Method Selection */}
-              <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
-                <CardHeader className="bg-slate-50/50 border-b">
-                  <CardTitle className="text-xl font-black uppercase tracking-tight">Delivery Method</CardTitle>
+              <Card className="border-gray-800 bg-gray-900 shadow-2xl overflow-hidden rounded-3xl">
+                <CardHeader className="bg-white/5 border-b border-white/5">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight text-white">Delivery Method</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <RadioGroup
@@ -213,9 +251,9 @@ export default function CheckoutPage() {
 
               {/* Shipping Address Form */}
               {shippingMethod === 'shipping' && (
-                <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl animate-in fade-in slide-in-from-top-4 duration-300">
-                  <CardHeader className="bg-slate-50/50 border-b">
-                    <CardTitle className="text-xl font-black uppercase tracking-tight">Shipping Address</CardTitle>
+                <Card className="border-gray-800 bg-gray-900 shadow-2xl overflow-hidden rounded-3xl animate-in fade-in slide-in-from-top-4 duration-300">
+                  <CardHeader className="bg-white/5 border-b border-white/5">
+                    <CardTitle className="text-xl font-black uppercase tracking-tight text-white">Shipping Address</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6 space-y-5">
                     <div className="grid gap-2">
@@ -282,9 +320,9 @@ export default function CheckoutPage() {
               )}
 
               {/* Payment Section */}
-              <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
-                <CardHeader className="bg-slate-50/50 border-b">
-                  <CardTitle className="text-xl font-black uppercase tracking-tight">Payment Method</CardTitle>
+              <Card className="border-gray-800 bg-gray-900 shadow-2xl overflow-hidden rounded-3xl">
+                <CardHeader className="bg-white/5 border-b border-white/5">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight text-white">Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
                   <RadioGroup
@@ -296,19 +334,19 @@ export default function CheckoutPage() {
                       <RadioGroupItem value="card" id="card" className="peer sr-only" />
                       <Label
                         htmlFor="card"
-                        className="flex items-center justify-between rounded-2xl border-2 border-muted bg-white p-5 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer hover:border-primary/30"
+                        className="flex items-center justify-between rounded-2xl border-2 border-gray-800 bg-gray-800/50 p-5 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer hover:border-primary/30"
                       >
                         <div className="flex items-center gap-4">
                           <div className="h-5 w-5 rounded-full border-4 border-primary bg-white ring-4 ring-primary/10 peer-data-[state=unchecked]:hidden" />
                           <div className="h-5 w-5 rounded-full border-2 border-muted bg-white peer-data-[state=checked]:hidden" />
                           <div>
-                            <p className="font-bold text-gray-900">Credit / Debit Card</p>
-                            <p className="text-xs text-muted-foreground font-medium">Secure Checkout via Stripe</p>
+                            <p className="font-bold text-white">Credit / Debit Card</p>
+                            <p className="text-xs text-gray-400 font-medium">Secure Checkout via Stripe</p>
                           </div>
                         </div>
-                        <div className="flex gap-1 opacity-60 grayscale hover:grayscale-0 transition-all">
+                        <div className="flex gap-2 opacity-90 transition-all">
                           <img src="/payment-logos/visa.svg" className="h-4 w-auto" alt="Visa" />
-                          <img src="/payment-logos/mastercard.svg" className="h-4 w-auto" alt="Mastercard" />
+                          <img src="/payment-logos/mastercard.svg" className="h-6 w-auto" alt="Mastercard" />
                         </div>
                       </Label>
                     </div>
@@ -318,7 +356,7 @@ export default function CheckoutPage() {
                         <RadioGroupItem value="payid" id="payid" className="peer sr-only" />
                         <Label
                           htmlFor="payid"
-                          className="flex flex-col gap-3 rounded-2xl border-2 border-muted bg-white p-5 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer hover:border-primary/30"
+                          className="flex flex-col gap-3 rounded-2xl border-2 border-gray-800 bg-gray-800/50 p-5 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer hover:border-primary/30"
                         >
                           <div className="flex items-center gap-4">
                             <div className="h-5 w-5 rounded-full border-4 border-primary bg-white ring-4 ring-primary/10 peer-data-[state=unchecked]:hidden" />
@@ -364,9 +402,9 @@ export default function CheckoutPage() {
 
           {/* Order Summary - Now sticky on mobile at bottom or normal on desktop? Actually, normal summary is fine if it's visible. */}
           <div className="order-1 lg:order-2 lg:sticky lg:top-24 h-fit">
-            <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
-              <CardHeader className="bg-slate-50/50 border-b">
-                <CardTitle className="text-xl font-black uppercase tracking-tight">Order Summary</CardTitle>
+            <Card className="border-gray-800 bg-gray-900 shadow-2xl overflow-hidden rounded-3xl">
+              <CardHeader className="bg-white/5 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight text-white">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
@@ -379,10 +417,10 @@ export default function CheckoutPage() {
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">{item.title}</p>
-                        <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
+                        <p className="font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">{item.title}</p>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-black text-gray-900">${formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-black text-white">${formatPrice(item.price * item.quantity)}</p>
                     </div>
                   ))}
                 </div>
@@ -392,26 +430,26 @@ export default function CheckoutPage() {
                     <span className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Subtotal</span>
                     <span className="font-bold">${formatPrice(cartSubtotal)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Shipping</span>
-                    <span className={cn("font-bold", shippingCost === 0 ? "text-green-600" : "text-gray-900")}>
+                  <div className="flex justify-between items-center text-gray-300">
+                    <span className="text-sm font-bold uppercase tracking-widest">Shipping</span>
+                    <span className={cn("font-bold", shippingCost === 0 ? "text-green-500" : "text-white")}>
                       {shippingCost === 0 ? 'FREE' : `$${formatPrice(shippingCost)}`}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-400">
+                  <div className="flex justify-between items-center text-gray-400">
                     <span className="text-sm font-bold uppercase tracking-widest italic">Taxes (Inc.)</span>
                     <span className="font-bold italic">${formatPrice(taxAmount)}</span>
                   </div>
                 </div>
-                <Separator className="bg-slate-100" />
+                <Separator className="bg-gray-800" />
                 <div className="flex justify-between items-center pt-2">
-                  <span className="text-lg font-black uppercase tracking-tight text-gray-900">Total</span>
+                  <span className="text-lg font-black uppercase tracking-tight text-white">Total</span>
                   <span className="text-2xl font-black text-primary tracking-tighter">${formatPrice(totalAmount)}</span>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="mt-6 flex items-center justify-center gap-6 opacity-40 grayscale pointer-events-none">
+            <div className="mt-8 flex items-center justify-center gap-8 opacity-60 pointer-events-none">
               <img src="/payment-logos/stripe.svg" className="h-6 w-auto" alt="Stripe" />
               <img src="/payment-logos/pci.svg" className="h-8 w-auto" alt="PCI Compliant" />
             </div>

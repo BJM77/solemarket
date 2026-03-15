@@ -165,9 +165,13 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] overflow-y-auto max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle>Make an Offer</DialogTitle>
-                    <DialogDescription>
-                        You are making an offer for "{product.title}".
+                    <DialogTitle className="text-2xl font-black text-gray-900">
+                        {step === 'verify' ? "Verify Identity" : `Make an Offer`}
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500">
+                        {step === 'verify' 
+                            ? "Enter the code sent to your email to verify your identity." 
+                            : `Enter your offer for ${product.title}.`}
                     </DialogDescription>
                 </DialogHeader>
 

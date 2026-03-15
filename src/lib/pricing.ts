@@ -35,7 +35,12 @@ export function calculateShipping(
 
 /**
  * Calculates tax amount.
+ * @param isInclusive If true, tax is already included in the subtotal (e.g. GST in AU for businesses)
  */
-export function calculateTax(subtotal: number, taxRate: number) {
+export function calculateTax(subtotal: number, taxRate: number, isInclusive: boolean = false) {
+    if (isInclusive) {
+        // Tax = Subtotal - (Subtotal / (1 + taxRate))
+        return subtotal - (subtotal / (1 + taxRate));
+    }
     return subtotal * taxRate;
 }

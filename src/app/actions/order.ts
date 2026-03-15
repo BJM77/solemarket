@@ -89,7 +89,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     quantity: item.quantity,
                     image: product.imageUrls?.[0] || '',
                     sellerId: product.sellerId,
-                    dealId: item.dealId,
+                    dealId: item.dealId || null,
                 });
                 sellerGroups[sellerId].subtotal += itemTotal;
 
@@ -107,6 +107,8 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             // 2. Create an order for each seller
             for (const [sellerId, group] of Object.entries(sellerGroups)) {
                 const orderRef = firestoreDb.collection('orders').doc();
+                const sellerProfile = fetchedUsers[sellerId];
+                const isBusiness = sellerProfile?.role === 'business';
 
                 const shippingCost = calculateShipping(
                     group.subtotal,
@@ -117,12 +119,17 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     }
                 );
 
-                const taxAmount = calculateTax(group.subtotal, settings.standardTaxRate);
-                const totalAmount = group.subtotal + shippingCost + taxAmount;
+                // Tax logic: Business = inclusive, Individual = 0
+                const taxAmount = isBusiness 
+                    ? calculateTax(group.subtotal, settings.standardTaxRate, true) 
+                    : 0;
+                
+                // Total amount = Subtotal + Shipping (Tax is already in subtotal if business)
+                const totalAmount = group.subtotal + shippingCost;
 
                 // Get the first product to determine seller - safe because group has items
                 // Use fetchedUsers to get PayPal link
-                const sellerPaypalLink = fetchedUsers[sellerId]?.paypalMeLink || null;
+                const sellerPaypalLink = sellerProfile?.paypalMeLink || null;
 
                 const payIdReference = `BNCH-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
@@ -138,6 +145,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     buyerName: buyerName || buyerEmail,
                     sellerId,
                     sellerName: group.sellerName,
+                    isBusinessSeller: isBusiness, // Track seller type for invoice/UI
                     status: options?.paymentMethod === 'PayID Escrow' ? 'awaiting_payment' : 'processing',
                     paymentStatus: 'pending',
                     paymentMethod: options?.paymentMethod || 'Card',
