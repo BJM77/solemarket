@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://connect.facebook.net;
     worker-src 'self' blob:;
-    style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: blob: https: *.googleapis.com *.firebasestorage.app *.firebaseapp.com https://www.facebook.com *.unsplash.com;
     font-src 'self' https://fonts.gstatic.com;
     object-src 'none';
