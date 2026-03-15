@@ -109,14 +109,14 @@ export default function ConfirmationPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12">
+        <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
             <div className="container mx-auto px-4 w-full">
                 <div className="max-w-2xl mx-auto text-center mb-10">
-                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+                    <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="w-12 h-12 text-emerald-500" />
                     </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Order Confirmed!</h1>
-                    <p className="text-lg text-slate-600">Thank you for your purchase. We've notified the sellers.</p>
+                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">Order Confirmed!</h1>
+                    <p className="text-lg text-slate-400">Thank you for your purchase. We've notified the sellers.</p>
                     {orders[0]?.groupOrderId && (
                         <p className="text-xs font-mono text-slate-400 mt-2 uppercase tracking-widest">Global Ref: {orders[0].groupOrderId}</p>
                     )}
@@ -124,7 +124,7 @@ export default function ConfirmationPage() {
 
                 <div className="max-w-2xl mx-auto space-y-6">
                     {orders.some(o => o.status === 'awaiting_payment') && (
-                        <Card className="border-2 border-primary bg-primary/5 shadow-xl overflow-hidden rounded-2xl mb-8">
+                        <Card className="border-2 border-primary bg-primary/5 shadow-2xl overflow-hidden rounded-2xl mb-8">
                             <CardHeader className="bg-primary text-white py-6 px-6 text-center">
                                 <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-white animate-pulse" />
                                 <CardTitle className="text-2xl font-black uppercase tracking-tight">Action Required: Transfer Funds</CardTitle>
@@ -132,22 +132,22 @@ export default function ConfirmationPage() {
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
                                 <div className="space-y-4">
-                                    <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">1. Send exactly</p>
-                                        <p className="text-3xl font-black text-slate-900">${formatPrice(orders.reduce((acc, curr) => acc + curr.totalAmount, 0))}</p>
+                                    <div className="bg-slate-900 p-4 rounded-xl border border-white/5">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">1. Send exactly</p>
+                                        <p className="text-3xl font-black text-white">${formatPrice(orders.reduce((acc, curr) => acc + curr.totalAmount, 0))}</p>
                                     </div>
-                                    <div className="bg-white p-4 rounded-xl border border-slate-200">
-                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">2. To Benched PayID</p>
+                                    <div className="bg-slate-900 p-4 rounded-xl border border-white/5">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">2. To Benched PayID</p>
                                         <div className="flex items-center justify-between">
                                             <p className="text-2xl font-black text-primary">dawn</p>
                                         </div>
                                     </div>
-                                    <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
-                                        <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-1">3. MUST INCLUDE AS DESCRIPTION/REFERENCE</p>
+                                    <div className="bg-rose-500/10 p-4 rounded-xl border border-rose-500/20">
+                                        <p className="text-xs font-bold text-rose-400 uppercase tracking-widest mb-1">3. MUST INCLUDE AS DESCRIPTION/REFERENCE</p>
                                         <div className="flex items-center justify-between">
-                                            <p className="text-2xl font-black font-mono text-rose-700">{orders[0]?.payIdReference || orders[0]?.groupOrderId}</p>
+                                            <p className="text-2xl font-black font-mono text-rose-500">{orders[0]?.payIdReference || orders[0]?.groupOrderId}</p>
                                         </div>
-                                        <p className="text-xs text-rose-600 mt-2 font-medium">If you do not include this exact code, we cannot match your payment to your order and you may lose the item.</p>
+                                        <p className="text-xs text-rose-400/80 mt-2 font-medium">If you do not include this exact code, we cannot match your payment to your order and you may lose the item.</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -155,12 +155,12 @@ export default function ConfirmationPage() {
                     )}
 
                     {orders.map((order, idx) => (
-                        <Card key={order.id || idx} className="border-none shadow-xl overflow-hidden rounded-2xl">
+                        <Card key={order.id || idx} className="border-white/5 bg-zinc-900/50 backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
                             <CardHeader className="bg-slate-900 text-white py-4 px-6">
                                 <div className="flex justify-between items-center">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Details</p>
-                                        <CardTitle className="text-base font-bold">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Order Details</p>
+                                        <CardTitle className="text-base font-bold text-white">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
                                     </div>
                                     <Badge variant="outline" className="border-slate-700 text-slate-300 bg-white/5 backdrop-blur-sm px-3 py-1">
                                         {order.status}
@@ -171,38 +171,38 @@ export default function ConfirmationPage() {
                                 <div className="space-y-4">
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4 group">
-                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100 transition-transform group-hover:scale-105">
+                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/5 transition-transform group-hover:scale-105">
                                                 <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-bold text-slate-900 line-clamp-1 text-sm">{item.title}</p>
-                                                <p className="text-xs text-slate-500 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
+                                                <p className="font-bold text-white line-clamp-1 text-sm">{item.title}</p>
+                                                <p className="text-xs text-slate-400 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
                                             </div>
-                                            <p className="font-black text-slate-900 text-sm whitespace-nowrap">${formatPrice(item.price * item.quantity)}</p>
+                                            <p className="font-black text-white text-sm whitespace-nowrap">${formatPrice(item.price * item.quantity)}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <Separator className="my-6 bg-slate-100" />
+                                <Separator className="my-6 bg-white/5" />
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-500">Subtotal</span>
-                                        <span className="text-slate-900">${formatPrice(order.subtotal)}</span>
+                                        <span className="text-slate-400">Subtotal</span>
+                                        <span className="text-white">${formatPrice(order.subtotal)}</span>
                                     </div>
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-500">Shipping & Handling</span>
-                                        <span className="text-slate-900">{order.shippingCost === 0 ? 'Free' : `$${formatPrice(order.shippingCost)}`}</span>
+                                        <span className="text-slate-400">Shipping & Handling</span>
+                                        <span className="text-white">{order.shippingCost === 0 ? 'Free' : `$${formatPrice(order.shippingCost)}`}</span>
                                     </div>
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-500">Estimated Tax</span>
-                                        <span className="text-slate-900">${formatPrice(order.taxAmount)}</span>
+                                        <span className="text-slate-400">Estimated Tax</span>
+                                        <span className="text-white">${formatPrice(order.taxAmount)}</span>
                                     </div>
-                                    <div className="flex justify-between font-black text-xl pt-2 text-slate-900 border-t border-slate-50">
+                                    <div className="flex justify-between font-black text-xl pt-2 text-white border-t border-white/5">
                                         <span>Total</span>
                                         <span className="text-primary">${formatPrice(order.totalAmount)}</span>
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 border-t border-slate-100/50 p-4">
+                            <CardFooter className="bg-white/5 border-t border-white/5 p-4">
                                 <Button
                                     variant="ghost"
                                     size="sm"
@@ -230,11 +230,11 @@ export default function ConfirmationPage() {
                         </Card>
                     ))}
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-8 border-t border-slate-200">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-8 border-t border-white/10">
                         <Button size="lg" className="flex-1 font-bold rounded-xl h-12" asChild>
                             <Link href="/">Back to Marketplace</Link>
                         </Button>
-                        <Button variant="outline" size="lg" className="flex-1 font-bold rounded-xl h-12 border-slate-200" asChild>
+                        <Button variant="outline" size="lg" className="flex-1 font-bold rounded-xl h-12 border-white/10 text-white hover:bg-white/5" asChild>
                             <Link href="/profile/orders">View Purchases</Link>
                         </Button>
                     </div>
