@@ -6,6 +6,7 @@ import { Share2, Instagram, Facebook, Link as LinkIcon, Check } from 'lucide-rea
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -55,6 +56,9 @@ export function ProductStoryShare({ product }: ProductStoryShareProps) {
       <DialogContent className="sm:max-w-md rounded-3xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-black uppercase tracking-tight text-center">Share to Story</DialogTitle>
+          <DialogDescription className="text-center text-xs">
+            Prepare a preview of {product.title} to share on your social stories.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6 py-4">
           <div className="relative aspect-[9/16] max-h-[400px] mx-auto overflow-hidden rounded-2xl shadow-2xl border-4 border-white">
