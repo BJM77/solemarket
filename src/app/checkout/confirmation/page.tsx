@@ -155,14 +155,14 @@ export default function ConfirmationPage() {
                     )}
 
                     {orders.map((order, idx) => (
-                        <Card key={order.id || idx} className="border-white/5 bg-zinc-900/50 backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
-                            <CardHeader className="bg-slate-900 text-white py-4 px-6">
+                        <Card key={order.id || idx} className="border-white/10 bg-[#0c1120] backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
+                            <CardHeader className="bg-[#1e293b] text-white py-4 px-6 border-b border-white/5">
                                 <div className="flex justify-between items-center">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Order Details</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Details</p>
                                         <CardTitle className="text-base font-bold text-white">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
                                     </div>
-                                    <Badge variant="outline" className="border-slate-700 text-slate-300 bg-white/5 backdrop-blur-sm px-3 py-1">
+                                    <Badge variant="outline" className="border-slate-600 text-slate-200 bg-white/5 px-3 py-1">
                                         {order.status}
                                     </Badge>
                                 </div>
@@ -171,18 +171,18 @@ export default function ConfirmationPage() {
                                 <div className="space-y-4">
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4 group">
-                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/5 transition-transform group-hover:scale-105">
+                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10 transition-transform group-hover:scale-105">
                                                 <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-white line-clamp-1 text-sm">{item.title}</p>
-                                                <p className="text-xs text-slate-400 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
+                                                <p className="text-xs text-slate-300 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
                                             </div>
                                             <p className="font-black text-white text-sm whitespace-nowrap">${formatPrice(item.price * item.quantity)}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <Separator className="my-6 bg-white/5" />
+                                <Separator className="my-6 bg-white/10" />
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-xs font-medium">
                                         <span className="text-slate-400">Subtotal</span>
@@ -196,13 +196,13 @@ export default function ConfirmationPage() {
                                         <span className="text-slate-400">Estimated Tax</span>
                                         <span className="text-white">${formatPrice(order.taxAmount)}</span>
                                     </div>
-                                    <div className="flex justify-between font-black text-xl pt-2 text-white border-t border-white/5">
+                                    <div className="flex justify-between font-black text-xl pt-2 text-white border-t border-white/10">
                                         <span>Total</span>
                                         <span className="text-primary">${formatPrice(order.totalAmount)}</span>
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-white/5 border-t border-white/5 p-4">
+                            <CardFooter className="bg-white/5 border-t border-white/10 p-4">
                                 <Button
                                     variant="ghost"
                                     size="sm"

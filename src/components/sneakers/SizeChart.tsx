@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Ruler } from 'lucide-react';
 
@@ -44,6 +44,9 @@ export function SizeChart({ brand = 'nike' }: { brand?: string }) {
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
                 <DialogHeader>
                     <DialogTitle>Sneaker Size Conversion Chart</DialogTitle>
+                    <DialogDescription>
+                        Convert between US, UK, EU and CM sizes for your perfect fit.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="mt-4">
                     <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-4">
