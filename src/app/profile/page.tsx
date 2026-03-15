@@ -10,7 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CheckCircle2, ShoppingBag, AlertTriangle, MessageSquare, Loader2, Edit, Globe, ExternalLink, Image as ImageIcon, Check, X } from 'lucide-react';
@@ -52,9 +53,13 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfileDetailsPage() {
   const { user } = useUser();
+  const { firestore } = useFirebase();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+
+  const firestoreQuery = user?.uid && firestore ? doc(firestore, 'users', user.uid) : null;
+  const { data: userDoc } = useDoc<any>(firestoreQuery);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -66,20 +71,20 @@ export default function ProfileDetailsPage() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user || userDoc) {
       form.reset({
-        displayName: user.displayName || '',
-        bio: (user as any).bio || '',
-        storeName: (user as any).storeName || '',
-        storeDescription: (user as any).storeDescription || '',
-        bannerUrl: (user as any).bannerUrl || '',
-        shopSlug: (user as any).shopSlug || '',
-        bsb: (user as any).bsb || '',
-        accountNumber: (user as any).accountNumber || '',
-        accountName: (user as any).accountName || '',
+        displayName: userDoc?.displayName || user?.displayName || '',
+        bio: userDoc?.bio || '',
+        storeName: userDoc?.storeName || '',
+        storeDescription: userDoc?.storeDescription || '',
+        bannerUrl: userDoc?.bannerUrl || '',
+        shopSlug: userDoc?.shopSlug || '',
+        bsb: userDoc?.bsb || '',
+        accountNumber: userDoc?.accountNumber || '',
+        accountName: userDoc?.accountName || '',
       });
     }
-  }, [user, form]);
+  }, [user, userDoc, form]);
 
   const watchSlug = form.watch('shopSlug');
   const userShopSlug = (user as any)?.shopSlug;

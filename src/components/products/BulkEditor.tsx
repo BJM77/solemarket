@@ -58,6 +58,7 @@ export default function BulkEditor({ isAdmin = false, sellerId, title = "Bulk Ed
     const [loading, setLoading] = useState(true);
     const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Bulk action states
     const [newPrice, setNewPrice] = useState<string>('');
@@ -203,7 +204,12 @@ export default function BulkEditor({ isAdmin = false, sellerId, title = "Bulk Ed
                                 <SelectValue placeholder="Sub-Cat" />
                             </SelectTrigger>
                             <SelectContent>
-                                {(SUB_CATEGORIES[newCategory] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                {(SUB_CATEGORIES[
+                                    newCategory === "Collectables & Trading Cards" ? CATEGORY_TRADING_CARDS :
+                                    newCategory === "Sneakers" ? CATEGORY_SNEAKERS :
+                                    newCategory === "Accessories" ? CATEGORY_ACCESSORIES :
+                                    CATEGORY_GENERAL
+                                ] || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
@@ -242,11 +248,45 @@ export default function BulkEditor({ isAdmin = false, sellerId, title = "Bulk Ed
                     </div>
                     <Button
                         onClick={handleApplyChanges}
-                        disabled={isUpdating || selectedProductIds.size === 0}
+                        disabled={isUpdating || isDeleting || selectedProductIds.size === 0}
                         className="mb-0.5"
                     >
                         {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Apply ({selectedProductIds.size})
+                    </Button>
+                    <Button
+                        onClick={async () => {
+                            if (selectedProductIds.size === 0) return;
+                            if (!window.confirm(`Are you sure you want to delete ${selectedProductIds.size} products? This cannot be undone.`)) return;
+                            
+                            setIsDeleting(true);
+                            try {
+                                const idToken = await getCurrentUserIdToken();
+                                if (!idToken) return toast({ title: "Auth Error", variant: "destructive" });
+                                
+                                const { bulkDeleteProducts } = await import('@/app/admin/bulk-editor/actions');
+                                const result = await bulkDeleteProducts(Array.from(selectedProductIds), idToken);
+                                
+                                if (result.success) {
+                                    toast({ title: "Success", description: result.message });
+                                    const fetchedProducts = await getProductsForBulkEdit(sellerId);
+                                    setProducts(fetchedProducts as Product[]);
+                                    setSelectedProductIds(new Set());
+                                } else {
+                                    toast({ variant: "destructive", title: "Error", description: result.message });
+                                }
+                            } catch (e) {
+                                toast({ variant: "destructive", title: "Error", description: "Failed to delete products." });
+                            } finally {
+                                setIsDeleting(false);
+                            }
+                        }}
+                        disabled={isUpdating || isDeleting || selectedProductIds.size === 0}
+                        variant="destructive"
+                        className="mb-0.5"
+                    >
+                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Delete Selected
                     </Button>
                 </div>
             </div>

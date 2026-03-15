@@ -62,8 +62,9 @@ export default async function ShopPage({ params }: ShopPageProps) {
 
                     <InfiniteProductGrid
                         pageTitle=""
-                        initialFilterState={{ sellers: [id] }}
+                        initialFilterState={{ sellers: [profile.id] }}
                     />
+
                 </div>
             </div>
         </div>

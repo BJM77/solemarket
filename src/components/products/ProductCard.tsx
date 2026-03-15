@@ -620,9 +620,8 @@ export default function ProductCard({
               </Badge>
             )}
             {mounted && hasViewed && (
-              <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-sm">
+              <Badge variant="secondary" className="inline-flex items-center justify-center h-6 w-6 bg-black/50 text-white rounded-full backdrop-blur-sm p-0">
                 <Eye className="h-3 w-3" />
-                Viewed
               </Badge>
             )}
             {product.status === 'sold' && (
@@ -819,8 +818,7 @@ export default function ProductCard({
               "inline-flex items-center gap-1 font-black px-2 py-1 rounded-lg uppercase text-[10px] tracking-tighter backdrop-blur-md pointer-events-auto shadow-sm",
               product.condition.includes('New') || product.grade?.includes('10') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
             )}>
-              {isCardCategory(product.category) ? (product.grade || 'RAW') :
-                (product.condition.includes('New') ? 'ALL-STAR' : product.condition === 'Used' ? 'ROLE PLAYER' : 'STILL HAS MINUTES')}
+              {isCardCategory(product.category) ? (product.grade || 'RAW') : (product.condition?.toUpperCase() || 'USED')}
             </Badge>
           )}
           <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
@@ -828,9 +826,8 @@ export default function ProductCard({
             {product.watchCount || 0} Watching
           </Badge>
           {hasViewed && (
-            <Badge variant="secondary" className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto">
-              <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              Viewed
+            <Badge variant="secondary" className="inline-flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 bg-black/50 text-white rounded-full backdrop-blur-sm pointer-events-auto shadow-sm p-0">
+              <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             </Badge>
           )}
           {product.multibuyEnabled && (
@@ -869,7 +866,7 @@ export default function ProductCard({
           >
             <Heart className={cn("h-4 w-4 sm:h-5 sm:w-5", isFavorited && "fill-current")} />
           </Button>
-          <div className="scale-75 sm:scale-100">
+          <div className="scale-75 sm:scale-100 hidden">
             <QuickView
               product={product}
               trigger={

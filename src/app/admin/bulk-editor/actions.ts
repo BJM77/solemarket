@@ -88,3 +88,24 @@ export async function bulkUpdateProducts(
         return { success: false, message: error.message || "An unexpected error occurred during the bulk update." };
     }
 }
+
+export async function bulkDeleteProducts(productIds: string[], idToken: string) {
+    try {
+        if (!idToken) return { success: false, message: "Authentication required." };
+        await verifyIdToken(idToken); // Ensure token is valid
+
+        if (productIds.length === 0) return { success: false, message: "No products selected." };
+
+        const batch = firestoreDb.batch();
+        productIds.forEach(id => {
+            const productRef = firestoreDb.collection('products').doc(id);
+            batch.delete(productRef);
+        });
+
+        await batch.commit();
+        return { success: true, message: `${productIds.length} products deleted successfully.` };
+    } catch (error: any) {
+        console.error("Error in bulkDeleteProducts:", error);
+        return { success: false, message: error.message || "Failed to delete products." };
+    }
+}

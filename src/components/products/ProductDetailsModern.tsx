@@ -9,6 +9,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
     Share2,
     Heart,
     Star,
@@ -176,10 +182,33 @@ export default function ProductDetailsModern({
         }
     }, [toast]);
 
-    const handleOfficialFBPost = async () => {
-        if (!isSuperAdmin || !product) return;
+    const handleMarketplaceShare = useCallback(() => {
+        if (!product || typeof window === 'undefined') return;
         
-        setIsDeleting(true); // Re-using loading state for simplicity
+        const marketplaceText = `Item: ${product.title}\nPrice: $${product.price}\nCondition: ${product.condition}\n\nBuy it securely here: ${window.location.href}`;
+        navigator.clipboard.writeText(marketplaceText);
+        
+        toast({ 
+            title: "Details Copied!", 
+            description: "Product details and link copied to clipboard. Paste them into your Marketplace listing." 
+        });
+        
+        // Open FB Marketplace create listing page in new tab
+        window.open('https://www.facebook.com/marketplace/create/item', '_blank');
+    }, [product, toast]);
+
+    const [isPostingFB, setIsPostingFB] = useState(false);
+
+    const handleOfficialFBPost = async () => {
+        if (!user || !product) return;
+        
+        // Changed to allow if user is superadmin OR if user is the seller
+        if (!isSuperAdmin && user.uid !== product.sellerId) {
+             toast({ title: "Unauthorized", description: "You must own this listing to post it to the main page.", variant: 'destructive' });
+             return;
+        }
+
+        setIsPostingFB(true);
         try {
             const idToken = await getCurrentUserIdToken();
             if (!idToken) throw new Error("Auth required");
@@ -715,25 +744,32 @@ export default function ProductDetailsModern({
                                                 <Button variant="ghost" size="icon" onClick={toggleFavorite} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
                                                     <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => handleShare('fb')} className="rounded-full hover:bg-blue-50 text-blue-600" title="Share to Facebook Profile">
-                                                    <Share2 className="h-6 w-6" />
-                                                </Button>
+
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-50 text-blue-600" title="Share to Facebook">
+                                                            {isPostingFB ? <Loader2 className="h-6 w-6 animate-spin" /> : <Share2 className="h-6 w-6" />}
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="w-56">
+                                                        <DropdownMenuItem onClick={() => handleShare('fb')} className="cursor-pointer">
+                                                            Post to Profile Feed
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={handleMarketplaceShare} className="cursor-pointer">
+                                                            Create Marketplace Listing
+                                                        </DropdownMenuItem>
+                                                        {(isSuperAdmin || user?.uid === product.sellerId) && (
+                                                            <DropdownMenuItem onClick={handleOfficialFBPost} className="cursor-pointer text-blue-600 font-medium">
+                                                                Send to Benched Page
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+
                                                 <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram">
                                                     <ExternalLink className="h-6 w-6" />
                                                 </Button>
                                             </div>
-
-                                            {isSuperAdmin && (
-                                                <Button 
-                                                    variant="secondary" 
-                                                    className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-2xl gap-2 shadow-lg"
-                                                    onClick={handleOfficialFBPost}
-                                                    disabled={isDeleting}
-                                                >
-                                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                                                    Post to Official Facebook
-                                                </Button>
-                                            )}
 
                                             <div className="flex items-center justify-center gap-1.5 mt-3 text-emerald-600 bg-emerald-50 py-2 rounded-lg">
                                                 <CheckCircle className="h-3.5 w-3.5" />

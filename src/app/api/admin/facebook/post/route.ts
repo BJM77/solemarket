@@ -20,11 +20,22 @@ export async function POST(request: NextRequest) {
         const isSuperAdmin = SUPER_ADMIN_UIDS.includes(decodedToken.uid) || 
                            (decodedToken.email && SUPER_ADMIN_EMAILS.includes(decodedToken.email));
         
-        if (!isSuperAdmin) {
-            return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-        }
-
         const { productId, title, imageUrl, link } = await request.json();
+
+        // If not super admin, verify they own the product they are trying to post
+        if (!isSuperAdmin) {
+            const { firestoreDb } = await import('@/lib/firebase/admin');
+            const productDoc = await firestoreDb.collection('products').doc(productId).get();
+            
+            if (!productDoc.exists) {
+                return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+            }
+
+            const productData = productDoc.data();
+            if (productData?.sellerId !== decodedToken.uid) {
+                return NextResponse.json({ error: 'Forbidden: You can only post your own listings to the official page.' }, { status: 403 });
+            }
+        }
 
         const PAGE_ID = process.env.FACEBOOK_PAGE_ID || '61586602780294';
         const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
