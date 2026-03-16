@@ -1,0 +1,48 @@
+[
+  {
+    "id": "jim-kidd-sports",
+    "name": "Jim Kidd Sports",
+    "slug": "jim-kidd-sports",
+    "title": "Buying New Shoes at Jim Kidd Sports?",
+    "description": "Great news that you are looking for some new shoes! Why not sell your old ones on Benched for free.",
+    "cta": "Sell Your Shoes Now",
+    "keywords": ["Jim Kidd Sports", "new shoes", "sell sneakers"]
+  },
+  {
+    "id": "jd-sports",
+    "name": "JD Sports",
+    "slug": "jd-sports",
+    "title": "Looking for New Kicks at JD Sports?",
+    "description": "Great news that you are looking for some new shoes! Why not sell your old ones on Benched for free.",
+    "cta": "Start Selling",
+    "keywords": ["JD Sports", "new sneakers", "resell shoes"]
+  },
+  {
+    "id": "nike",
+    "name": "Nike.com",
+    "slug": "nike",
+    "title": "Buying the Latest Nikes?",
+    "description": "Great news that you are looking for some new shoes! Why not sell your old ones on Benched for free.",
+    "cta": "Fund Your Next Pair",
+    "keywords": ["Nike", "new shoes", "environmentally friendly"]
+  },
+  {
+    "id": "rebel-sports",
+    "name": "Rebel Sport",
+    "slug": "rebel-sports",
+    "title": "Shopping at Rebel Sport?",
+    "description": "Great news that you are looking for some new shoes! Why not sell your old ones on Benched for free.",
+    "cta": "List for Free",
+    "keywords": ["Rebel Sport", "new gear", "sell old shoes"]
+  },
+  {
+    "id": "sportspower",
+    "name": "Sportspower",
+    "slug": "sportspower",
+    "title": "Getting New Performance Shoes at Sportspower?",
+    "description": "Great news that you are looking for some new shoes! Why not sell your old ones on Benched for free.",
+    "cta": "Give Them a Second Chance",
+    "keywords": ["Sportspower", "running shoes", "recycle sneakers"]
+  }
+]
+ house
