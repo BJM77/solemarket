@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props) {
   if (!competitor) return { title: "Page Not Found" };
 
   return {
-    title: `Shopping at ${competitor.name}? | Fund it by Selling on ${brandConfig.name}`,
-    description: `Upgrade your rotation at ${competitor.name} by selling your pre-loved sneakers on ${brandConfig.name}. 0% seller fees for new users.`,
+    title: `Shopping at ${competitor.name}? | Fund it by Selling on ${brandConfig.company.name}`,
+    description: `Upgrade your rotation at ${competitor.name} by selling your pre-loved sneakers on ${brandConfig.company.name}. 0% seller fees for new users.`,
   };
 }
 
@@ -113,7 +113,7 @@ export default async function ConquestingPage({ params }: Props) {
       <section className="py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">Why Sell on {brandConfig.name}?</h2>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">Why Sell on {brandConfig.company.name}?</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               We're the smartest way to fund your collection. Join thousands of Australian collectors.
             </p>
