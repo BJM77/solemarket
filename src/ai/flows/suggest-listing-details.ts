@@ -57,7 +57,7 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',
-    model: 'googleai/gemini-2.0-flash',
+    model: 'googleai/gemini-1.5-flash',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
     prompt: `You are an expert in valuing and listing authentic sneakers and streetwear. Analyze the provided information (images and/or title) to generate listing details.
