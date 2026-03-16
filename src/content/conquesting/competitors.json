@@ -1,0 +1,32 @@
+{
+  "jd-sports": {
+    "name": "JD Sports",
+    "primaryColor": "#FFD700",
+    "message": "Found some fresh kicks at JD? Sell your old rotation on Benched and make the upgrade basically free!",
+    "heroImage": "/brand-logos/nike.png"
+  },
+  "nike": {
+    "name": "Nike",
+    "primaryColor": "#000000",
+    "message": "New drops at Nike.com calling your name? Fund your next pair of SNKRS by selling your current ones on Benched for 0% seller fees.",
+    "heroImage": "/brand-logos/nike.png"
+  },
+  "rebel": {
+    "name": "Rebel Sport",
+    "primaryColor": "#E30613",
+    "message": "Geared up at Rebel? Don't let your old gear collect dust. Sell it on Benched and get paid fast.",
+    "heroImage": "/brand-logos/adidas.png"
+  },
+  "jim-kidd": {
+    "name": "Jim Kidd Sports",
+    "primaryColor": "#0056b3",
+    "message": "Scored a bargain at Jim Kidd? Make it even cheaper by selling your pre-loved sneakers on Benched today.",
+    "heroImage": "/brand-logos/new-balance.png"
+  },
+  "sportspower": {
+    "name": "Sportspower",
+    "primaryColor": "#f89e1b",
+    "message": "New season gear at Sportspower? Refresh your collection by listing your old favorites on Benched.",
+    "heroImage": "/brand-logos/yeezy.png"
+  }
+}
