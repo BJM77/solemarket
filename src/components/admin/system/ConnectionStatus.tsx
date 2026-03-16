@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, CheckCircle2, XCircle, ExternalLink, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { auth } from '@/lib/firebase/config';
 
 interface ConnectionStatusProps {
     serviceName: string;
@@ -27,10 +28,31 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
         setStatus('loading');
         setMessage("");
         setLatency(null);
+        const startTime = Date.now();
 
         try {
-            const res = await fetch(endpoint);
-            const data = await res.json();
+            const headers: HeadersInit = {};
+            
+            // Try to get current user token if authenticated
+            if (auth.currentUser) {
+                const token = await auth.currentUser.getIdToken();
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const res = await fetch(endpoint, { headers });
+            const contentType = res.headers.get("content-type");
+            
+            let data: any = {};
+            if (contentType && contentType.includes("application/json")) {
+                data = await res.json();
+            } else {
+                // For non-JSON responses (like XML feeds), just check if the response is OK
+                if (res.ok) {
+                    setStatus('success');
+                    setLatency(Date.now() - startTime); // Manual latency since it's not in the body
+                    return;
+                }
+            }
 
             if (res.ok && (data.status === 'healthy' || data.status === 'success')) {
                 setStatus('success');
@@ -38,7 +60,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
             } else {
                 setStatus('error');
                 setLatency(data.latency);
-                setMessage(data.error || data.details?.message || "Service unhealthy");
+                setMessage(data.error || data.details?.message || data.details?.error || "Service unhealthy");
             }
         } catch (error: any) {
             console.error("Connection test failed:", error);
