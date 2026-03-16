@@ -98,7 +98,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Sitemap: Error loading SEO topics:', err);
   }
 
-  // 5. Product Routes (All active products)
+  // 5. Competitor Conquesting Routes
+  let conquestingRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const competitors = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/content/conquesting/competitors.json'), 'utf-8'));
+    conquestingRoutes = Object.keys(competitors).map((slug) => ({
+      url: `${baseUrl}/shop-at/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
+  } catch (err) {
+    console.error('Sitemap: Error loading conquesting routes:', err);
+  }
+
+  // 6. Product Routes (All active products)
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     // Get all active products (up to the limit)
@@ -118,6 +132,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categoryRoutes,
     ...guideRoutes,
     ...topicRoutes,
+    ...conquestingRoutes,
     ...productRoutes
   ];
 }

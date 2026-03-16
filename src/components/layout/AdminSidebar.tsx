@@ -32,7 +32,8 @@ import {
     Sparkles,
     DollarSign,
     BellRing,
-    Tag
+    Tag,
+    Target
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -67,6 +68,7 @@ const integrityItems = [
 
 const sysItems = [
     { href: "/admin/seo", icon: Globe, label: "SEO" },
+    { href: "/admin/conquesting", icon: Target, label: "Conquesting" },
     { href: "/admin/categories", icon: ListChecks, label: "Categories" },
     { href: "/admin/system", icon: Activity, label: "System Health" },
     { href: "/admin/settings", icon: Settings, label: "System Settings" },

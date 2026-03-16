@@ -19,7 +19,7 @@ fi
 
 echo "🚀 Deploying to Firebase..."
 # We use --only to be specific, or just default deploy.
-# We skip local build because 'firebase deploy' for Next.js handles the build step.
-firebase deploy
+# We use npx to ensure we use the local or latest firebase tools
+npx firebase deploy
 
 echo "✅ Deploy Complete!"

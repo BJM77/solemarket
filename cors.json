@@ -1,6 +1,7 @@
 [
     {
         "origin": [
+            "http://localhost:9005",
             "http://localhost:9007",
             "http://127.0.0.1:9007",
             "https://benched.au",
