@@ -193,8 +193,13 @@ export default function ProductDetailsModern({
             description: "Product details and link copied to clipboard. Paste them into your Marketplace listing." 
         });
         
-        // Open FB Marketplace create listing page in new tab
-        window.open('https://www.facebook.com/marketplace/create/item', '_blank');
+        // Open FB Marketplace create listing page in new tab with pre-filled details
+        const fbUrl = new URL('https://www.facebook.com/marketplace/create/item');
+        fbUrl.searchParams.set('title', product.title);
+        fbUrl.searchParams.set('price', product.price.toString());
+        fbUrl.searchParams.set('description', marketplaceText);
+        
+        window.open(fbUrl.toString(), '_blank');
     }, [product, toast]);
 
     const [isPostingFB, setIsPostingFB] = useState(false);
