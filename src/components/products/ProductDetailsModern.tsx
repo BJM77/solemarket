@@ -182,18 +182,42 @@ export default function ProductDetailsModern({
         }
     }, [toast]);
 
-    const handleMarketplaceShare = useCallback(() => {
+    const handleMarketplaceShare = useCallback(async () => {
         if (!product || typeof window === 'undefined') return;
         
         const marketplaceText = `Item: ${product.title}\nPrice: $${product.price}\nCondition: ${product.condition}\n\nBuy it securely here: ${window.location.href}`;
         navigator.clipboard.writeText(marketplaceText);
         
+        // Helper to trigger image download
+        const triggerDownload = async (imageUrl: string) => {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = `benched-${product.title.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                console.error("Image download failed:", err);
+                // Fallback: If fetch fails (CORS), just open in new tab for manual save
+                window.open(imageUrl, '_blank');
+            }
+        };
+
+        if (product.imageUrls && product.imageUrls.length > 0) {
+            await triggerDownload(product.imageUrls[0]);
+        }
+        
         toast({ 
-            title: "Details Copied!", 
-            description: "Product details and link copied to clipboard. Paste them into your Marketplace listing." 
+            title: "Ready to Post!", 
+            description: "Details copied AND photo downloaded to your device for easy upload." 
         });
         
-        // Open FB Marketplace create listing page in new tab with pre-filled details
+        // Open FB Marketplace create listing page with pre-filled details
         const fbUrl = new URL('https://www.facebook.com/marketplace/create/item');
         fbUrl.searchParams.set('title', product.title);
         fbUrl.searchParams.set('price', product.price.toString());
