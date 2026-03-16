@@ -253,7 +253,8 @@ export async function republishListing(idToken: string, productId: string) {
             status: 'available', // Or 'active' depending on your schema. Using 'available' based on previous context.
             updatedAt: new Date(),
             soldAt: null, // Clear the sold date
-            fulfillmentStatus: null // Clear fulfillment status
+            fulfillmentStatus: null, // Clear fulfillment status
+            quantity: 1 // Ensure stock is reset when republishing
         });
         revalidatePath('/sell/dashboard');
         revalidatePath(`/product/${productId}`);
