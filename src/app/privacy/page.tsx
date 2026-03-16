@@ -32,17 +32,22 @@ export default function PrivacyPage() {
           <li>Comply with legal obligations, such as tax reporting and anti-money laundering laws.</li>
         </ul>
 
-        <h2>3. Data Security & Retention</h2>
+        <h2>3. Third-Party Services & Social Media</h2>
+        <p>
+          We use third-party services to improve our platform, including analytics, payment processing, and marketing. Specifically, we integrate with Meta (Facebook/Instagram) services such as the Facebook Pixel and Graph API to manage advertising and social sharing. These services may collect information about your interaction with our website, which is subject to their respective privacy policies. You can manage your ad preferences directly through your social media accounts.
+        </p>
+
+        <h2>4. Data Security & Retention</h2>
         <p>
           We implement appropriate security measures to prevent your personal data from being accidentally lost, used, or accessed in an unauthorized way. We retain your personal data only for as long as necessary to fulfil the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.
         </p>
 
-        <h2>4. Your Rights</h2>
+        <h2>5. Your Rights</h2>
         <p>
-          Under the Privacy Act, you have the right to access the personal information we hold about you and to ask for it to be corrected if it is inaccurate. You may also ask us to delete your data in certain circumstances.
+          Under the Privacy Act, you have the right to access the personal information we hold about you and to ask for it to be corrected if it is inaccurate. You may also ask us to delete your data in certain circumstances. To request the deletion of data collected via our social media integrations (such as Facebook Login or Pixel), please contact our Privacy Officer.
         </p>
 
-        <h2>5. Contact Us</h2>
+        <h2>6. Contact Us</h2>
         <p>
           If you have any questions about this Privacy Policy, please contact our Privacy Officer at: <br />
           <strong>Email:</strong> privacy@benched.au <br />
