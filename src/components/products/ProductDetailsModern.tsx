@@ -383,6 +383,7 @@ export default function ProductDetailsModern({
     const [isEnquiring, setIsEnquiring] = useState(false);
 
     const handleRevealContact = () => {
+        setIsSafetyModalOpen(false); // Auto-close safety modal
         if (!user) {
             setIsGuestVerificationOpen(true);
             return;
