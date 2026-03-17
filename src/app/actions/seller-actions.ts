@@ -134,6 +134,12 @@ export async function markAsSold(idToken: string, productId: string, fulfillment
             fulfillmentStatus: fulfillmentType,
             soldAt: new Date(),
         });
+
+        // Trigger review nudge if someone was holding/enquiring
+        if (productData.heldBy) {
+            const { triggerReviewNudge } = await import('./nudge-actions');
+            await triggerReviewNudge(productId, productData.heldBy);
+        }
         revalidatePath('/sell/dashboard');
         return { success: true };
     } catch (error) {

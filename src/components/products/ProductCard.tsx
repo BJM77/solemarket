@@ -545,25 +545,15 @@ export default function ProductCard({
             <Button
               size="sm"
               variant="outline"
-              className={cn(
-                "h-8 text-xs font-bold border-primary pointer-events-auto",
-                product.isUntimed
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600"
-                  : "text-primary hover:bg-primary hover:text-white"
-              )}
+              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-white"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (product.isUntimed) {
-                  // Navigate to product page for offer
-                  router.push(`/product/${product.id}`);
-                } else {
-                  handleAddToCart(e);
-                }
+                router.push(getProductUrl(product));
               }}
             >
-              {product.isUntimed ? "Make Offer" : "Buy"}
-              <span className="sr-only"> {product.isUntimed ? "on" : "now:"} {product.title} {product.isUntimed ? "" : `for $${formatPrice(product.price)}`}</span>
+              Details
+              <span className="sr-only"> view {product.title}</span>
             </Button>
           </div>
         </div>
@@ -1057,25 +1047,15 @@ export default function ProductCard({
             {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                variant={product.isUntimed ? "default" : "default"}
-                className={cn(
-                  "h-8 sm:h-10 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95",
-                  product.isUntimed
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                    : "bg-primary hover:bg-primary/90 text-white"
-                )}
+                className="h-8 sm:h-10 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (product.isUntimed) {
-                    router.push(getProductUrl(product));
-                  } else {
-                    handleAddToCart(e);
-                  }
+                  router.push(getProductUrl(product));
                 }}
               >
-                {product.isUntimed ? <Coins className="h-4 w-4 mr-1" /> : <ShoppingCart className="h-4 w-4 mr-1" />}
-                {product.isUntimed ? "Offer" : "Add"}
+                <Eye className="h-4 w-4 mr-1" />
+                Details
               </Button>
             )}
           </div>

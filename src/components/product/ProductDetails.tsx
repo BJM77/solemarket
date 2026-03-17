@@ -550,25 +550,19 @@ export default function ProductDetails({ productId, initialProduct }: { productI
 
                         <div className="space-y-4 pt-4 border-t">
                             {(!product.isReverseBidding || user?.uid === product.sellerId) && (
-                                <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="flex flex-col gap-3">
                                     <Button
                                         size="lg"
-                                        className="flex-1"
-                                        onClick={handleAddToCart}
+                                        className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+                                        onClick={handleStartConversation}
                                         disabled={!product.quantity || product.quantity === 0}
                                     >
-                                        <ShoppingCart className="h-5 w-5 mr-2" />
-                                        Add to Cart
+                                        <MessageSquare className="h-6 w-6 mr-2" />
+                                        Message Seller to Buy
                                     </Button>
-                                    <Button
-                                        size="lg"
-                                        className="flex-1 bg-gradient-to-r from-primary to-primary/80"
-                                        onClick={handleBuyNow}
-                                        disabled={!product.quantity || product.quantity === 0}
-                                    >
-                                        <CreditCard className="h-5 w-5 mr-2" />
-                                        Buy Now
-                                    </Button>
+                                    <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
+                                        Interested? Send a message to the seller to coordinate payment and delivery.
+                                    </p>
                                 </div>
                             )}
                         </div>

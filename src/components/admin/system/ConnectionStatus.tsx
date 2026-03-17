@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, CheckCircle2, XCircle, ExternalLink, HelpCircle } from "lucide-react";
+import { RefreshCw, CheckCircle2, XCircle, ExternalLink, HelpCircle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { auth } from '@/lib/firebase/config';
 
@@ -13,11 +13,12 @@ interface ConnectionStatusProps {
     serviceName: string;
     endpoint: string;
     docsUrl?: string;
+    managementUrl?: string;
 }
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
-export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionStatusProps) {
+export function ConnectionStatus({ serviceName, endpoint, docsUrl, managementUrl }: ConnectionStatusProps) {
     const [status, setStatus] = useState<Status>('idle');
     const [latency, setLatency] = useState<number | null>(null);
     const [message, setMessage] = useState<string>("");
@@ -114,6 +115,13 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl }: ConnectionS
                     <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground" asChild>
                         <a href={docsUrl} target="_blank" rel="noopener noreferrer">
                             <ExternalLink className="h-4 w-4" />
+                        </a>
+                    </Button>
+                )}
+                {managementUrl && (
+                    <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground" asChild>
+                        <a href={managementUrl}>
+                            <Mail className="h-4 w-4" />
                         </a>
                     </Button>
                 )}

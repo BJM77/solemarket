@@ -30,73 +30,22 @@ import type { UserProfile } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 
 export default function CheckoutPage() {
-  const { items, cartSubtotal, clearCart, itemCount, setIsCartOpen, shippingMethod, setShippingMethod } = useCart();
-  const { toast } = useToast();
   const router = useRouter();
-  const { user } = useUser();
-  const [isPending, startTransition] = useTransition();
-  const trackingFired = useRef(false);
-
-  const [settings, setSettings] = useState<AdminSystemSettings>({
-    freightCharge: 12.00,
-    freeShippingThreshold: 150.00,
-    standardTaxRate: 0.10,
-  });
-
+  
   useEffect(() => {
-    async function loadSettings() {
-      const data = await getSystemSettings();
-      setSettings(data);
-    }
-    loadSettings();
-  }, []);
+    router.replace('/');
+  }, [router]);
 
-  useEffect(() => {
-    if (items.length > 0 && cartSubtotal > 0 && !trackingFired.current) {
-      trackEcommerceEvent.beginCheckout(items, cartSubtotal);
-      trackingFired.current = true;
-    }
-  }, [items, cartSubtotal]);
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+    </div>
+  );
+}
 
-  const [shippingAddress, setShippingAddress] = useState({
-    fullName: '',
-    street: '',
-    city: '',
-    state: '',
-    zip: '',
-  });
-
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'payid'>('card');
-  const canUsePayId = items.length > 0 && items.every((item) => item.acceptsPayId);
-
-  const [sellerProfiles, setSellerProfiles] = useState<Record<string, UserProfile>>({});
-
-  useEffect(() => {
-    async function loadSellers() {
-      const sellerIds = Array.from(new Set(items.map(item => item.sellerId)));
-      const profiles: Record<string, UserProfile> = {};
-      
-      for (const id of sellerIds) {
-        if (!id) continue;
-        const docRef = doc(db, 'users', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          profiles[id] = { id: docSnap.id, ...docSnap.data() } as UserProfile;
-        }
-      }
-      setSellerProfiles(profiles);
-    }
-    
-    if (items.length > 0) {
-      loadSellers();
-    }
-  }, [items]);
-
-  // Dynamic shipping and tax logic
-  const shippingCost = calculateShipping(cartSubtotal, shippingMethod, {
-    freightCharge: settings.freightCharge,
-    freeShippingThreshold: settings.freeShippingThreshold
-  });
+// Full implementation commented out for now as direct payments are the only path.
+/*
+export function FullCheckoutPage() {
 
   // Calculate tax per item based on seller type
   const taxAmount = items.reduce((acc, item) => {
@@ -458,4 +407,4 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
-}
+}*/

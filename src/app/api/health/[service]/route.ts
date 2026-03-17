@@ -117,12 +117,15 @@ export async function GET(
                 break;
 
             case 'email':
-                if (cleanKey(process.env.SENDGRID_API_KEY) || cleanKey(process.env.RESEND_API_KEY)) {
+                if (cleanKey(process.env.SENDGRID_API_KEY)) {
                     status = 'healthy';
-                    details.provider = process.env.RESEND_API_KEY ? 'Resend' : 'SendGrid';
+                    details.provider = 'SendGrid';
+                } else if (cleanKey(process.env.RESEND_API_KEY)) {
+                    status = 'healthy';
+                    details.provider = 'Resend';
                 } else {
                     status = 'degraded';
-                    details.message = 'Email service (SendGrid or Resend) key not configured';
+                    details.message = 'Email service (SendGrid) key not configured';
                 }
                 break;
 

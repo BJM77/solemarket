@@ -56,6 +56,7 @@ export default function SystemPage() {
               serviceName="SendGrid Email"
               endpoint="/api/health/email"
               docsUrl="https://sendgrid.com/docs"
+              managementUrl="/admin/system/email"
             />
             <ConnectionStatus
               serviceName="Facebook Catalog Feed"

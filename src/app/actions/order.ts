@@ -72,6 +72,14 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     throw new Error(`Not enough stock for ${product.title}.`);
                 }
 
+                // Hold check: If quantity is 1 and it's held by someone else
+                const now = new Date();
+                const currentHoldExpiresAt = product.holdExpiresAt?.toDate();
+                const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
+                if (isCurrentlyHeld && product.heldBy !== buyerId) {
+                    throw new Error(`Sorry, ${product.title} is currently reserved by another buyer.`);
+                }
+
                 const sellerId = product.sellerId;
                 if (!sellerGroups[sellerId]) {
                     sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };

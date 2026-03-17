@@ -42,6 +42,12 @@ export async function GET(request: NextRequest) {
         if (action === 'sold') {
             updateData.status = 'sold';
             message = 'Congratulations! The item has been marked as SOLD and removed from the public feed.';
+            
+            // Trigger review nudge if someone was holding/enquiring
+            if (data.heldBy) {
+                const { triggerReviewNudge } = await import('@/app/actions/nudge-actions');
+                await triggerReviewNudge(productId, data.heldBy);
+            }
         } else if (action === 'available') {
             updateData.status = 'available';
             updateData.enquiryStatus = FieldValue.delete();

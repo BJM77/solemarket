@@ -44,7 +44,7 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
       price: product.price,
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
       itemCondition: getConditionSchema(product.condition),
-      availability: product.status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: (product.status === 'available' || product.status === 'on_hold') ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: `${siteUrl}/product/${product.id}`,
       seller: {
         '@type': 'Organization',

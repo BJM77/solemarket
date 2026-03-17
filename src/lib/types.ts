@@ -97,8 +97,8 @@ export type Product = {
     size?: string | null;
     colorway?: string | null;
   };
+  // holdReason moved to line 165 for better grouping
   status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold' | 'deleted'; // Added deleted for soft deletion
-  holdReason?: string;
   isPrivate?: boolean;
   approvedAt?: Timestamp;
   publicReleaseAt?: Timestamp;
@@ -162,6 +162,9 @@ export type Product = {
   bundlePrice?: number;
   keywords?: string[];
   acceptsPayId?: boolean;
+  holdReason?: 'checkout' | 'negotiation' | 'enquiry';
+  heldBy?: string;
+  holdExpiresAt?: Timestamp;
   sellerRating?: number;
 };
 

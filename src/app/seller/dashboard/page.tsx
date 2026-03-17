@@ -298,10 +298,10 @@ export default function SellerDashboard() {
 
 
   const statCards = [
-    { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-500 bg-emerald-500/10' },
-    { label: 'Order Volume', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-500 bg-blue-500/10' },
-    { label: 'Total Views', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-500 bg-indigo-500/10' },
-    { label: 'Conversion Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-500 bg-orange-500/10' },
+    // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-500 bg-emerald-500/10' },
+    { label: 'Active Enquiries', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-500 bg-blue-500/10' },
+    { label: 'Market Visibility', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-500 bg-indigo-500/10' },
+    { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-500 bg-orange-500/10' },
     { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-500 bg-purple-500/10' },
     { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-500 bg-amber-500/10' },
   ];
@@ -347,11 +347,11 @@ export default function SellerDashboard() {
                 Product Catalog
               </TabsTrigger>
               <TabsTrigger value="orders" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all flex items-center gap-2">
-                Fulfillment {orders && orders.length > 0 && <span className="bg-black/20 px-2 py-0.5 rounded-md text-[10px]">{orders.length}</span>}
+                Enquiries {orders && orders.length > 0 && <span className="bg-black/20 px-2 py-0.5 rounded-md text-[10px]">{orders.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="financials" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
+              {/* <TabsTrigger value="financials" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
                 Revenue Infrastructure
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger value="reviews" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
                 Feedback Loop
               </TabsTrigger>
@@ -613,30 +613,24 @@ export default function SellerDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="orders">
-            <SellerOrders />
+          <TabsContent value="orders" className="space-y-8">
+            <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
+                <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Deal Enquiries</CardTitle>
+                <CardDescription className="text-slate-400 font-medium">Manage your buyer messages and payment arrangements here.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <SellerOrders />
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="financials" className="space-y-12">
+          {/* <TabsContent value="financials" className="space-y-12">
             <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-8 w-1.5 bg-primary rounded-full" />
-                <h2 className="text-2xl font-black text-white">Revenue Infrastructure</h2>
-              </div>
-              <StripeConnect
-                stripeEnabled={userProfile?.stripeEnabled}
-                stripeAccountId={userProfile?.stripeAccountId}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-8 w-1.5 bg-primary rounded-full" />
-                <h2 className="text-2xl font-black text-white">Subscription Protocol</h2>
-              </div>
+...
               <SubscriptionTier currentPlan={userProfile?.plan || 'base'} />
             </div>
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="reviews">
             <Card className="border border-white/5 shadow-2xl rounded-2xl overflow-hidden bg-card/50">

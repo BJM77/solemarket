@@ -210,7 +210,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     {features.consignment && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/consign')}>Consignment</Button>
                                     )}
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button>
+                                    {/* <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button> */}
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
@@ -378,9 +378,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Heart className="mr-3 h-4 w-4 text-primary" /> My Favorites
                                 </Button>
 
-                                <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/orders')}>
+                                {/* <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/orders')}>
                                     <CreditCard className="mr-3 h-4 w-4 text-primary" /> My Purchases
-                                </Button>
+                                </Button> */}
 
                                 <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/listings')}>
                                     <Tag className="mr-3 h-4 w-4 text-primary" /> My Listings

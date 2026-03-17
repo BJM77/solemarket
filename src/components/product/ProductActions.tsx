@@ -36,18 +36,21 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
 
       <div className="space-y-4 pt-4 border-t">
         {(!product.isReverseBidding || user?.uid === product.sellerId) && (
-          <div className="flex flex-row gap-3">
-            {!product.isUntimed && (
-              <Button
-                size="lg"
-                className="flex-1 h-20 text-lg font-bold"
-                onClick={onAddToCart}
-                disabled={!product.quantity || product.quantity === 0}
-              >
-                <ShoppingCart className="h-6 w-6 mr-2" />
-                Buy It
-              </Button>
-            )}
+          <div className="flex flex-col gap-3">
+            <Button
+              size="lg"
+              className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={() => {
+                const messageButton = document.querySelector('[data-message-seller-btn]') as HTMLButtonElement;
+                if (messageButton) messageButton.click();
+                else window.location.href = `/product/${product.id}#message-seller`;
+              }}
+              disabled={!product.quantity || product.quantity === 0}
+            >
+              <MessageSquare className="h-6 w-6 mr-2" />
+              Message Seller to Buy
+            </Button>
+            
             {(product.isNegotiable || product.isUntimed) && (
               <OfferModal
                 product={product}
@@ -55,11 +58,11 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
                 trigger={
                   <Button
                     size="lg"
-                    variant={product.isUntimed ? "default" : "outline"}
-                    className={cn("flex-1 h-20 text-lg font-bold", product.isUntimed && "bg-indigo-600 hover:bg-indigo-700 text-white")}
+                    variant="outline"
+                    className="w-full h-14 text-lg font-bold border-2"
                   >
                     <DollarSign className="h-6 w-6 mr-2" />
-                    {product.isUntimed ? "Make Offer" : "Make Offer"}
+                    Make an Offer
                   </Button>
                 }
               />

@@ -1,10 +1,7 @@
 'use server'
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { Resend } from 'resend';
-
-// Configure Resend using API Key from environment variables.
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendEmail } from '@/services/email';
 
 /**
  * Generates a verification code and sends it to the user's email.
@@ -24,14 +21,9 @@ export async function sendActionVerificationEmail(email: string) {
             createdAt: new Date(),
         });
 
-        if (!resend) {
-            console.warn(`[DEV MODE] Verification code for ${email} is: ${code}`);
-            return { success: true };
-        }
-
-        // Send the email using the Resend service.
-        const { error } = await resend.emails.send({
-            from: 'Benched Verification <onboarding@resend.dev>', // In production, replace this with a verified domain
+        // Send the email using the unified email service.
+        const result = await sendEmail({
+            from: 'Benched Verification <onboarding@benched.au>',
             to: email,
             subject: `Action Required: ${code} is your code`,
             html: `
@@ -44,7 +36,7 @@ export async function sendActionVerificationEmail(email: string) {
                   <h2 style="color: #1a202c; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 20px;">Confirm Your Offer</h2>
                   
                   <p style="font-size: 16px; line-height: 1.6; text-align: center; color: #4a5568;">
-                    You're about to place a binding offer or bid. Please use the verification code below to confirm this action:
+                    You're about to place an offer or message a seller. Please use the verification code below to confirm this action:
                   </p>
                   
                   <div style="background: #f7fafc; padding: 40px; text-align: center; border-radius: 12px; margin: 30px 0; border: 2px dashed #cbd5e0;">
@@ -55,7 +47,7 @@ export async function sendActionVerificationEmail(email: string) {
                     <p style="font-size: 13px; color: #744210; margin: 0;"><strong>Security Note:</strong> This code is valid for 10 minutes. <strong>Never</strong> share this code with anyone, including Benched staff.</p>
                   </div>
                   
-                  <p style="font-size: 14px; color: #718096; text-align: center;">If you did not attempt to place an offer, please delete this email immediately and secure your account.</p>
+                  <p style="font-size: 14px; color: #718096; text-align: center;">If you did not attempt this action, please delete this email immediately and secure your account.</p>
                   
                   <hr style="border: 0; border-top: 1px solid #edf2f7; margin: 30px 0;" />
                   
@@ -64,9 +56,8 @@ export async function sendActionVerificationEmail(email: string) {
             `,
         });
 
-        if (error) {
-            console.error('Resend Error:', error);
-            return { success: false, error: 'Failed to send verification email. Please try again later.' };
+        if (!result.success) {
+            return { success: false, error: result.error || 'Failed to send verification email.' };
         }
 
         return { success: true };

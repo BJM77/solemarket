@@ -140,6 +140,16 @@ export async function placeBidAction(
                 transaction.update(productRef, {
                     bids: firebaseAdmin.firestore.FieldValue.arrayUnion(newBid)
                 });
+
+                // Set negotiation hold for quantity 1 items
+                if ((product.quantity || 0) === 1) {
+                    const holdExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours for offers
+                    transaction.update(productRef, {
+                        heldBy: bidderId,
+                        holdExpiresAt: firebaseAdmin.firestore.Timestamp.fromDate(holdExpiresAt),
+                        holdReason: 'negotiation'
+                    });
+                }
             }
 
             return {

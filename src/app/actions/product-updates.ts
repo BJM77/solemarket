@@ -6,6 +6,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { sendSellerEnquiryEmail } from '@/lib/email';
 import { revalidateTag } from 'next/cache';
+import { verifyActionCode } from './email-verification';
 
 
 export async function updateProductPrice(productId: string, newPrice: number, idToken: string) {
@@ -99,10 +100,73 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
     }
 }
 
-export async function recordProductEnquiry(productId: string, buyerUid: string) {
-    if (!productId || !buyerUid) return { success: false, error: 'Invalid Input' };
+export async function holdProductAction(
+    productId: string,
+    userId: string,
+    durationMinutes: number,
+    reason: 'checkout' | 'negotiation' | 'enquiry'
+) {
+    if (!productId || !userId) return { success: false, error: 'Invalid Input' };
 
     try {
+        const now = new Date();
+        const docRef = firestoreDb.collection('products').doc(productId);
+
+        const result = await firestoreDb.runTransaction(async (transaction: any) => {
+            const docSnap = await transaction.get(docRef);
+            if (!docSnap.exists) throw new Error('Product not found');
+            const data = docSnap.data();
+
+            const currentHoldExpiresAt = data.holdExpiresAt?.toDate();
+            const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
+
+            if (isCurrentlyHeld && data.heldBy !== userId) {
+                throw new Error('This item is currently reserved by another buyer.');
+            }
+
+            const holdExpiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
+            const updateData: any = {
+                heldBy: userId,
+                holdExpiresAt: Timestamp.fromDate(holdExpiresAt),
+                holdReason: reason,
+                updatedAt: FieldValue.serverTimestamp()
+            };
+
+            transaction.update(docRef, updateData);
+            return { success: true, expiresAt: holdExpiresAt };
+        });
+
+        return result;
+    } catch (error: any) {
+        console.error('Hold product error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function recordProductEnquiry(
+    productId: string, 
+    buyerUid?: string,
+    guestEmail?: string,
+    verificationCode?: string
+) {
+    if (!productId || (!buyerUid && !guestEmail)) return { success: false, error: 'Invalid Input' };
+
+    let effectiveUid = buyerUid;
+
+    try {
+        if (!buyerUid && guestEmail && verificationCode) {
+            // Verify guest email before proceeding
+            const verifyResult = await verifyActionCode(guestEmail, verificationCode);
+            if (!verifyResult.success) {
+                return { success: false, error: verifyResult.error || "Verification failed" };
+            }
+            effectiveUid = `guest_${guestEmail.replace(/\./g, '_')}`;
+        }
+
+        if (!effectiveUid) {
+            return { success: false, error: 'Authentication or Guest Verification required.' };
+        }
+
         const now = new Date();
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
@@ -112,7 +176,7 @@ export async function recordProductEnquiry(productId: string, buyerUid: string) 
 
         // 1. Check if user already has 2 active holds elsewhere
         const activeHoldsSnap = await firestoreDb.collection('products')
-            .where('heldBy', '==', buyerUid)
+            .where('heldBy', '==', effectiveUid)
             .where('holdExpiresAt', '>', Timestamp.fromDate(now))
             .get();
         
@@ -122,22 +186,23 @@ export async function recordProductEnquiry(productId: string, buyerUid: string) 
 
         // 2. Check how many times THIS user has held THIS item
         const holdCountMap = data?.holdCountMap || {};
-        const userHoldCount = holdCountMap[buyerUid] || 0;
+        const userHoldCount = holdCountMap[effectiveUid] || 0;
 
         if (userHoldCount >= 3) {
             return { success: false, error: 'You have reached the maximum number of holds (3) for this specific item.' };
         }
 
-        // 3. Apply the 5-minute hold
-        const holdExpiresAt = new Date(now.getTime() + 5 * 60 * 1000);
-        const updatedHoldCountMap = { ...holdCountMap, [buyerUid]: userHoldCount + 1 };
+        if (!effectiveUid) return { success: false, error: 'Authorization error' };
 
+        // 3. Apply the 5-minute hold using the shared logic
+        const holdResult = await holdProductAction(productId, effectiveUid, 5, 'enquiry');
+        if (!holdResult.success) return holdResult;
+
+        const updatedHoldCountMap = { ...holdCountMap, [effectiveUid!]: userHoldCount + 1 };
         await docRef.update({
             contactCallCount: FieldValue.increment(1),
             enquiryStatus: 'enquired',
             enquiryUpdatedAt: FieldValue.serverTimestamp(),
-            heldBy: buyerUid,
-            holdExpiresAt: Timestamp.fromDate(holdExpiresAt),
             holdCountMap: updatedHoldCountMap
         });
 
@@ -171,6 +236,7 @@ export async function recordProductEnquiry(productId: string, buyerUid: string) 
             });
         }
 
+        const holdExpiresAt = holdResult.expiresAt;
         return { success: true, expiresAt: holdExpiresAt };
     } catch (error: any) {
         console.error('Record enquiry error:', error);

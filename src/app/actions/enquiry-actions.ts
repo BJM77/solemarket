@@ -3,6 +3,7 @@
 import { firestoreDb as db } from '@/lib/firebase/admin';
 import { revalidatePath } from 'next/cache';
 import { Product } from '@/lib/types';
+import { verifyActionCode } from './email-verification';
 
 interface GuestEnquiryInput {
     sellerId: string;
@@ -11,28 +12,41 @@ interface GuestEnquiryInput {
     name: string;
     email: string;
     message: string;
+    verificationCode: string;
 }
 
 export async function sendGuestEnquiry(data: GuestEnquiryInput) {
     try {
         // Validate
-        if (!data.email || !data.message || !data.name) {
+        if (!data.email || !data.message || !data.name || !data.verificationCode) {
             return { success: false, error: 'Missing required fields' };
         }
 
+        // Block generic "available" messages
+        if (data.message.toLowerCase().includes('available')) {
+            return { 
+                success: false, 
+                error: "Your message contains 'available'. Please customize your message to be more specific (e.g., asking about condition or pickup) to ensure the seller responds." 
+            };
+        }
+
+        // Verify guest email before proceeding
+        const verifyResult = await verifyActionCode(data.email, data.verificationCode);
+        if (!verifyResult.success) {
+            return { success: false, error: verifyResult.error || "Verification failed" };
+        }
+
         const enquiryData = {
-            ...data,
+            sellerId: data.sellerId,
+            productId: data.productId,
+            productTitle: data.productTitle,
+            name: data.name,
+            email: data.email,
+            message: data.message,
             type: 'guest_enquiry',
             status: 'unread',
             createdAt: new Date().toISOString(),
         };
-
-        // Save to 'notifications' or specialized 'enquiries' collection
-        // For now, let's use 'conversations' but mark it specially, OR usage 'notifications' for seller
-        // Actually, creating a 'conversations' doc allows it to appear in the seller's inbox is best,
-        // but 'conversations' expects participantIds which implies UIDs.
-        // If we can't create a real conversation, we'll create a 'guest_enquiries' collection
-        // and send a notification to the seller.
 
         await db.collection('guest_enquiries').add(enquiryData);
 

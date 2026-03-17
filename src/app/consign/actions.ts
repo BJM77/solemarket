@@ -3,10 +3,7 @@
 import { z } from "zod";
 import { firestoreDb, admin as firebaseAdmin } from "@/lib/firebase/admin";
 import { sendNotification, getSuperAdminId } from "@/services/notifications";
-import { Resend } from 'resend';
-
-// Initialize Resend with API Key - use lazy/nullable pattern to prevent crash if key missing
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendEmail } from '@/services/email';
 
 const ConsignmentSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -128,13 +125,8 @@ export async function submitConsignmentInquiry(
  * Sends a confirmation email to the user using Resend.
  */
 async function sendConfirmationEmail(email: string, name: string): Promise<void> {
-    if (!resend) {
-        console.warn('RESEND_API_KEY is not set. Skipping email sending.');
-        return;
-    }
-
     try {
-        await resend.emails.send({
+        await sendEmail({
             from: 'Benched Consignments <consign@benched.au>',
             to: email,
             subject: 'We received your consignment inquiry',
@@ -148,7 +140,7 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
                 </div>
             `,
         });
-        console.log(`[EMAIL SENT] To: ${email} via Resend`);
+        console.log(`[EMAIL SENT] To: ${email} via SendGrid`);
     } catch (error) {
         console.error('Failed to send confirmation email:', error);
         // Don't throw, just log error so the user flow isn't interrupted
@@ -159,13 +151,9 @@ async function sendConfirmationEmail(email: string, name: string): Promise<void>
  * Sends a notification email to the admin.
  */
 async function sendAdminNotificationEmail(data: any): Promise<void> {
-    if (!resend) return;
-
-    // In a real app, fetch this from config or env
-    const ADMIN_EMAIL = 'ben@benched.au'; // Default fallback or use env var
-
+    const ADMIN_EMAIL = 'ben@benched.au'; 
     try {
-        await resend.emails.send({
+        await sendEmail({
             from: 'Benched Bot <system@benched.au>',
             to: ADMIN_EMAIL,
             subject: `New Consignment: ${data.itemType} ($${data.estimatedValue})`,

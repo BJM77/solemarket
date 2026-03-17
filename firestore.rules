@@ -20,7 +20,8 @@ service cloud.firestore {
 
     // Users
     match /users/{userId} {
-      allow read, get, list: if isOwner(userId) || isAdmin() || resource.data.accountType == 'seller';
+      allow get: if resource == null || resource.data.accountType == 'seller' || resource.data.role == 'seller';
+      allow read, list: if isOwner(userId) || isAdmin() || (resource != null && (resource.data.accountType == 'seller' || resource.data.role == 'seller'));
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       // Only superadmins should be able to delete user accounts permanently

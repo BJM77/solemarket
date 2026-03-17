@@ -33,8 +33,11 @@ import {
     MapPin,
     Clock,
     Gavel,
-    ExternalLink
+    ExternalLink,
+    Mail
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn, formatPrice } from '@/lib/utils';
 import { db } from '@/lib/firebase/config';
@@ -48,8 +51,9 @@ import ReviewForm from '@/components/reviews/ReviewForm';
 import { deleteProductByAdmin } from '@/app/actions/admin';
 import { recordProductView } from '@/app/actions/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
-import { incrementProductContactCount, recordProductEnquiry } from '@/app/actions/product-updates';
+import { incrementProductContactCount, recordProductEnquiry, holdProductAction } from '@/app/actions/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { sendActionVerificationEmail } from '@/app/actions/email-verification';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -111,7 +115,19 @@ export default function ProductDetailsModern({
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
+    const [isGuestVerificationOpen, setIsGuestVerificationOpen] = useState(false);
+    const [guestEmail, setGuestEmail] = useState('');
+    const [guestCode, setGuestCode] = useState('');
+    const [verifyingGuest, setVerifyingGuest] = useState(false);
     const [recentViews, setRecentViews] = useState<number>(0);
+
+    // Initial load of guest data
+    useEffect(() => {
+        const savedEmail = localStorage.getItem('guest_email');
+        const savedCode = localStorage.getItem('guest_code');
+        if (savedEmail) setGuestEmail(savedEmail);
+        if (savedCode) setGuestCode(savedCode);
+    }, []);
     const viewRecordedRef = useRef<string | null>(null);
 
     // Super admin check
@@ -277,11 +293,17 @@ export default function ProductDetailsModern({
     const handleStartConversation = async () => {
         if (!user || !product || !seller) {
             if (!user && product && seller) {
+                // Open guest message dialog instead of forcing sign-in
                 setIsGuestMessageOpen(true);
             }
             return;
         }
 
+        // Check if user is seller/buyer and bypass verification (though message is usually direct)
+        // For messaging, it's currently restricted to registered users in handleStartConversation, 
+        // but let's see if we want to allow guests here too. 
+        // The user said: "allow sellers to bypass... Also buyers that register... use email for non members"
+        
         if (user.uid === seller.id) {
             toast({ title: "You can't message yourself.", variant: 'destructive' });
             return;
@@ -333,33 +355,7 @@ export default function ProductDetailsModern({
         }
     };
 
-    const handleAddToCart = () => {
-        if (!user) {
-            router.push(`/sign-in?redirect=/product/${product?.id}`);
-            return;
-        }
-        // Allow staff/admins AND established buyers/sellers to bypass
-        const role = (user as any).role;
-        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
-        const emailVerified = (user as any).emailVerified;
-
-        if (!isExempt && !emailVerified) {
-            toast({
-                title: "Email Verification Required",
-                description: "Please verify your email address to buy items.",
-                variant: "destructive"
-            });
-            router.push('/verify');
-            return;
-        }
-
-        addItem(product!, 1);
-        trackEcommerceEvent.addToCart(product, 1);
-        toast({
-            title: "Added to Cart!",
-            description: `${product?.title} is now in your cart.`,
-        });
-    };
+    // handleAddToCart removed: Switching to direct communication model.
 
     const handleAcceptBid = async (bidId: string) => {
         try {
@@ -383,38 +379,84 @@ export default function ProductDetailsModern({
             });
         }
     };
-
     const [isEnquiring, setIsEnquiring] = useState(false);
 
-    const handleRevealPhone = async () => {
+    const handleRevealContact = () => {
         if (!user) {
-            router.push(`/sign-in?redirect=/product/${productId}`);
+            setIsGuestVerificationOpen(true);
             return;
         }
-        
-        setIsEnquiring(true);
+
+        // --- AUTHENTICATED USERS: Instant reveal for roles ---
+        const role = (user as any).role || 'buyer';
+        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role) || (user as any).emailVerified;
+
+        if (isExempt) {
+            setIsPhoneRevealed(true);
+            // Track contact revealed for registered users
+            trackEcommerceEvent.contactRevealed(product);
+        } else {
+            // Need to show "verify email" step in modal for new/unverified members
+            setIsGuestVerificationOpen(true);
+        }
+    };
+
+    const handleGuestVerifyAndReveal = async () => {
+        if (!guestEmail || !guestCode) {
+            toast({ title: "Missing Information", description: "Please enter both email and verification code.", variant: "destructive" });
+            return;
+        }
+
+        setVerifyingGuest(true);
         try {
-            const result = await recordProductEnquiry(productId, user.uid);
+            const result = await recordProductEnquiry(productId, undefined, guestEmail, guestCode);
             
             if (result.success) {
+                // Persist successful guest verification
+                localStorage.setItem('guest_email', guestEmail);
+                localStorage.setItem('guest_code', guestCode);
+
                 setIsPhoneRevealed(true);
-                setIsSafetyModalOpen(false);
+                setIsGuestVerificationOpen(false);
+                
+                // Track contact revealed for guest after verification
+                trackEcommerceEvent.contactRevealed(product);
+
                 toast({
                     title: "Hold Active (5 Mins)",
-                    description: "You have a 5-minute window to contact the seller. Others cannot enquire during this time."
+                    description: "You have a 5-minute window to contact the seller."
                 });
             } else {
                 toast({
                     variant: 'destructive',
-                    title: "Action Restricted",
+                    title: "Verification Failed",
                     description: result.error
                 });
-                setIsSafetyModalOpen(false);
             }
-        } catch (e) {
-            console.error("Failed to record enquiry", e);
+        } catch (e: any) {
+            toast({ title: "Error", description: e.message, variant: "destructive" });
         } finally {
-            setIsEnquiring(false);
+            setVerifyingGuest(false);
+        }
+    };
+
+    const handleSendGuestCode = async () => {
+        if (!guestEmail || !guestEmail.includes('@')) {
+            toast({ title: "Invalid Email", description: "Please enter a valid email address.", variant: "destructive" });
+            return;
+        }
+        setVerifyingGuest(true);
+        try {
+            const result = await sendActionVerificationEmail(guestEmail);
+            if (result.success) {
+                toast({ title: "Code Sent", description: "Check your email for the verification code." });
+            } else {
+                toast({ title: "Error", description: result.error, variant: "destructive" });
+            }
+        } catch (e: any) {
+            toast({ title: "Error", description: e.message, variant: "destructive" });
+        } finally {
+            setVerifyingGuest(false);
         }
     };
 
@@ -534,10 +576,68 @@ export default function ProductDetailsModern({
                     <DialogFooter className="sm:justify-center">
                         <Button 
                             className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg"
-                            onClick={handleRevealPhone}
+                            onClick={handleRevealContact}
                             disabled={isEnquiring}
                         >
                             {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : "I Understand, Proceed"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isGuestVerificationOpen} onOpenChange={setIsGuestVerificationOpen}>
+                <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
+                    <DialogHeader className="text-center pt-4">
+                        <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                            <Mail className="h-8 w-8 text-indigo-600" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black text-slate-900">Guest Verification</DialogTitle>
+                        <DialogDescription className="text-slate-500 font-medium">
+                            Verify your email to contact the seller.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="guest-email" className="text-sm font-bold ml-1 text-slate-700">Your Email</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    id="guest-email"
+                                    placeholder="your@email.com"
+                                    value={guestEmail}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGuestEmail(e.target.value)}
+                                    className="rounded-xl h-12 border-slate-200"
+                                />
+                                <Button 
+                                    variant="outline" 
+                                    className="rounded-xl h-12 px-4 whitespace-nowrap border-2 font-bold"
+                                    onClick={handleSendGuestCode}
+                                    disabled={verifyingGuest}
+                                >
+                                    Get Code
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="guest-code" className="text-sm font-bold ml-1 text-slate-700">Verification Code</Label>
+                            <Input
+                                id="guest-code"
+                                placeholder="5-digit code"
+                                value={guestCode}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGuestCode(e.target.value)}
+                                className="rounded-xl h-12 border-slate-200 text-center text-xl font-bold tracking-widest"
+                                maxLength={5}
+                            />
+                        </div>
+                        <p className="text-[10px] text-slate-400 text-center font-medium leading-relaxed">
+                            By verifying, you agree to our terms. This interaction will be logged for safety.
+                        </p>
+                    </div>
+                    <DialogFooter className="sm:justify-center">
+                        <Button 
+                            className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 transition-all active:scale-[0.98]"
+                            onClick={handleGuestVerifyAndReveal}
+                            disabled={verifyingGuest || !guestEmail || !guestCode}
+                        >
+                            {verifyingGuest ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify & Reveal Phone"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -673,35 +773,25 @@ export default function ProductDetailsModern({
                                     {/* Main Buy Actions */}
                                     {(!product.isReverseBidding || user?.uid === product.sellerId) && (
                                         <div className="space-y-3">
-                                            {!product.isUntimed && (product.quantity || 0) > 0 && (
-                                                <Button
-                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
-                                                    onClick={handleAddToCart}
-                                                >
-                                                    Buy Now
-                                                </Button>
-                                            )}
-
-                                            {(product.isNegotiable || product.isUntimed) && (
-                                                <OfferModal
-                                                    product={product}
-                                                    user={user}
-                                                    trigger={
-                                                        <Button
-                                                            variant="outline"
-                                                            className="w-full h-14 text-lg font-bold rounded-2xl border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-                                                        >
-                                                            Make Offer
-                                                        </Button>
-                                                    }
-                                                />
-                                            )}
-
-                                            {/* Cash on Pickup / Enquiry Workflow - Only show if seller opted in */}
-                                            {product.allowLocalPickup && (() => {
+                                            {!product.isUntimed && (product.quantity || 0) > 0 && (() => {
                                                 const holdExpiresAt = (product as any).holdExpiresAt?.toDate();
                                                 const isCurrentlyHeld = holdExpiresAt && holdExpiresAt > new Date();
                                                 const heldByMe = (product as any).heldBy === user?.uid;
+                                                const reason = (product as any).holdReason;
+
+                                                if (isCurrentlyHeld && !heldByMe) {
+                                                    return (
+                                                        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
+                                                            <p className="text-slate-800 font-bold text-sm flex items-center justify-center gap-2">
+                                                                <Clock className="h-4 w-4" /> Temporarily Reserved
+                                                            </p>
+                                                            <p className="text-slate-500 text-[10px] uppercase tracking-wider font-black">
+                                                                {reason === 'negotiation' ? 'Under negotiation' : 'A buyer is contacting the seller'}
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                }
+
                                                 const isPending = (product as any).enquiryStatus === 'pending';
 
                                                 if (isPending) {
@@ -727,13 +817,21 @@ export default function ProductDetailsModern({
                                                 return (
                                                     <div className="space-y-3">
                                                         <Button
+                                                            className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-indigo-600/25 bg-indigo-600 hover:bg-indigo-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                            onClick={handleStartConversation}
+                                                        >
+                                                            <MessageSquare className="h-5 w-5" />
+                                                            Message Seller
+                                                        </Button>
+                                                        
+                                                        <Button
                                                             variant="outline"
                                                             className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
                                                             onClick={() => setIsSafetyModalOpen(true)}
                                                             disabled={isEnquiring || isPhoneRevealed || (isCurrentlyHeld && !heldByMe)}
                                                         >
                                                             {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
-                                                            {isPhoneRevealed || (isCurrentlyHeld && heldByMe) ? "Contact Revealed" : "Buy & Collect"}
+                                                            {isPhoneRevealed || (isCurrentlyHeld && heldByMe) ? "Phone Number Revealed" : "Contact via SMS/Call"}
                                                         </Button>
 
                                                         {(isPhoneRevealed || (isCurrentlyHeld && heldByMe)) && (
@@ -747,7 +845,7 @@ export default function ProductDetailsModern({
                                                                     )}
                                                                 </p>
                                                                 <p className="text-indigo-700 dark:text-indigo-300 text-xs leading-relaxed mb-3">
-                                                                    Call or SMS the seller to arrange pickup. When you meet, show them this QR code to finalize the sale.
+                                                                    Call or SMS the seller to arrange payment and delivery. When you meet, show them this QR code to finalize the sale.
                                                                 </p>
                                                                 
                                                                 <div className="bg-white p-3 rounded-xl mb-3 flex flex-col items-center gap-2">
@@ -756,7 +854,7 @@ export default function ProductDetailsModern({
                                                                         size={120}
                                                                         level="H"
                                                                     />
-                                                                    <span className="text-[9px] font-black uppercase text-slate-400">Proof of Pickup</span>
+                                                                    <span className="text-[9px] font-black uppercase text-slate-400">Proof of Sale</span>
                                                                 </div>
 
                                                                 <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
@@ -766,6 +864,10 @@ export default function ProductDetailsModern({
                                                                 </Button>
                                                             </div>
                                                         )}
+
+                                                        <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
+                                                            Payments are made directly to the seller. Benched does not process payments at this stage.
+                                                        </p>
                                                     </div>
                                                 );
                                             })()}
@@ -924,7 +1026,7 @@ export default function ProductDetailsModern({
                                                     "rounded-xl h-10 transition-all duration-300",
                                                     isPhoneRevealed ? "w-auto px-4 gap-2" : "w-10"
                                                 )}
-                                                onClick={handleRevealPhone}
+                                                onClick={handleRevealContact}
                                             >
                                                 <Phone className="h-5 w-5 text-gray-600 shrink-0" />
                                                 {isPhoneRevealed && <span className="font-bold text-gray-800 dark:text-gray-200">{seller.phoneNumber}</span>}

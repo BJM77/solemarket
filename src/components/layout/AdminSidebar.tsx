@@ -45,8 +45,8 @@ import { useState, useEffect } from "react";
 // Navigation Items Configuration
 const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/admin/orders", icon: ShieldCheck, label: "Escrow Ledger" },
-    { href: "/admin/payouts", icon: DollarSign, label: "Payout Ledger" },
+    // { href: "/admin/orders", icon: ShieldCheck, label: "Escrow Ledger" },
+    // { href: "/admin/payouts", icon: DollarSign, label: "Payout Ledger" },
     { href: "/admin/products/approvals", icon: Gavel, label: "Approvals" },
     { href: "/admin/products/new", icon: Sparkles, label: "New Listings" },
     { href: "/admin/sellers", icon: Briefcase, label: "Sellers" },

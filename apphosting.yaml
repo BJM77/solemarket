@@ -15,6 +15,15 @@ env:
   - variable: GOOGLE_GENAI_API_KEY
     secret: GOOGLE_GENAI_API_KEY
 
+  - variable: SENDGRID_API_KEY
+    secret: SENDGRID_API_KEY
+
+  - variable: TELEGRAM_BOT_TOKEN
+    secret: TELEGRAM_BOT_TOKEN
+
+  - variable: TELEGRAM_CHAT_ID
+    secret: TELEGRAM_CHAT_ID
+
   - variable: SUPER_ADMIN_EMAILS
     value: "bjm4ck13@gmail.com"
 

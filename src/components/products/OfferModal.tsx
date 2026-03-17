@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product, Bid, SafeUser } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, ShieldCheck, Info } from 'lucide-react';
 import { placeBidAction } from '@/app/actions/bidding';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { BidsyOfferForm } from '@/components/payment/BidsyOfferForm';
 import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/email-verification';
+import { trackEcommerceEvent } from '@/lib/analytics';
 
 interface OfferModalProps {
     product: Product;
@@ -38,6 +38,21 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
+
+    // Load persisted guest data
+    useEffect(() => {
+        if (!user && isOpen) {
+            const savedEmail = localStorage.getItem('guest_email');
+            const savedCode = localStorage.getItem('guest_code');
+            if (savedEmail) setGuestEmail(savedEmail);
+            if (savedCode) {
+                setVerificationCode(savedCode);
+                // If we have both email and code, we can skip the send step
+                // but let's keep them at verified state for transparency
+                setStep('verify');
+            }
+        }
+    }, [user, isOpen]);
 
     const handleSendVerification = async () => {
         const email = user?.email || guestEmail;
@@ -62,7 +77,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
         }
     };
 
-    const handlePlaceOffer = async (paymentMethodId?: string) => {
+    const handlePlaceOffer = async () => {
         const amount = parseFloat(offerAmount);
         if (isNaN(amount) || amount <= 0) {
             toast({ title: "Invalid amount", variant: "destructive" });
@@ -71,19 +86,14 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
 
         // --- STEP 1: AMOUNT ---
         if (step === 'amount') {
-            if (paymentMethodId) {
-                setPendingPaymentMethodId(paymentMethodId);
-            }
-
             if (user) {
                 // AUTHENTICATED USERS: Check for exemption
                 const role = (user as any).role;
-                const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
-                const emailVerified = user.emailVerified;
+                const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role) || user.emailVerified;
 
-                if (isExempt || emailVerified) {
+                if (isExempt) {
                     // Place bid directly
-                    await executeBidPlacement(amount, paymentMethodId);
+                    await executeBidPlacement(amount);
                 } else {
                     // Force verification for role-less/unverified accounts
                     await handleSendVerification();
@@ -105,37 +115,43 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
             return;
         }
 
-        await executeBidPlacement(amount, paymentMethodId);
+        await executeBidPlacement(amount);
     };
 
-    const executeBidPlacement = async (amount: number, paymentMethodId?: string) => {
+    const executeBidPlacement = async (amount: number) => {
         setIsSubmitting(true);
         try {
             const idToken = user ? await getCurrentUserIdToken() : undefined;
             if (user && !idToken) throw new Error("Authentication failed");
 
-            const finalPmId = paymentMethodId || pendingPaymentMethodId;
-
-            // Call the updated placeBidAction
+            // Call the updated placeBidAction (without payment method)
             const result = await placeBidAction(
                 product.id,
                 amount,
                 idToken || undefined,
                 !user ? guestEmail : undefined,
-                !user ? verificationCode : undefined,
-                finalPmId
+                !user ? verificationCode : undefined
             );
 
             if (result.success) {
+                // Persist successful guest verification
+                if (!user) {
+                    localStorage.setItem('guest_email', guestEmail);
+                    localStorage.setItem('guest_code', verificationCode);
+                }
+
+                // Track lead generation
+                trackEcommerceEvent.generateLead(product, 'offer');
+
                 toast({
                     title: "Offer Sent!",
                     description: `Your binding offer of $${amount.toLocaleString()} has been sent.`,
                 });
                 setIsOpen(false);
                 setOfferAmount('');
-                setVerificationCode('');
+                setVerificationCode(verificationCode); // Keep code for session
                 setPendingPaymentMethodId(undefined);
-                setStep('amount');
+                setStep(user ? 'amount' : 'verify'); // Stay at verify for guests
             } else {
                 throw new Error(result.error);
             }
@@ -237,25 +253,9 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
 
                             {isValidAmount && isUntimed && (
                                 <div className="pt-2 border-t">
-                                    <Label className="mb-2 block">Payment Method (Binding Offer)</Label>
-                                    {user ? (
-                                        <BidsyOfferForm
-                                            offerAmount={amountNum}
-                                            onOfferSubmit={(pmId) => handlePlaceOffer(pmId)}
-                                        />
-                                    ) : (
-                                        <div className="bg-amber-50 p-4 rounded-xl text-amber-800 text-xs font-bold text-center border border-amber-100">
-                                            Binding payments require an account. Please sign in to place this offer.
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="w-full mt-2 bg-white border-amber-200 hover:bg-amber-100"
-                                                onClick={() => router.push(`/sign-in?redirect=/product/${product.id}`)}
-                                            >
-                                                Sign In to Buy
-                                            </Button>
-                                        </div>
-                                    )}
+                                    <div className="bg-indigo-50 p-4 rounded-xl text-indigo-800 text-xs font-bold text-center border border-indigo-100">
+                                        Offers are non-binding expressions of interest. You can negotiate terms with the seller after submitting.
+                                    </div>
                                 </div>
                             )}
                         </>
@@ -290,13 +290,13 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                     )}
 
                     {!isUntimed && (
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-lg">
-                            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold mb-1">
+                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-lg">
+                            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold mb-1">
                                 <ShieldCheck className="h-4 w-4" />
-                                <span className="text-xs uppercase tracking-wider">Binding Offer</span>
+                                <span className="text-xs uppercase tracking-wider">Expression of Interest</span>
                             </div>
-                            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-tight">
-                                By submitting, you agree to purchase this item if the seller accepts your offer within 48 hours.
+                            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 leading-tight">
+                                By submitting, you are notifying the seller of your interest at this price. This is not a binding purchase.
                             </p>
                         </div>
                     )}
