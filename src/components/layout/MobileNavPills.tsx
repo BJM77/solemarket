@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, ShoppingBag, CreditCard, Flame, Star, History } from 'lucide-react';
+import { Home, ShoppingBag, CreditCard, Flame, Star, History, Search } from 'lucide-react';
 
 interface MobileNavPillsProps {
     onSearchClick?: () => void;
@@ -41,6 +41,13 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
 
     return (
         <div className="flex items-center justify-start gap-2 py-3 px-4 md:hidden overflow-x-auto no-scrollbar scroll-smooth">
+            <button
+                onClick={onSearchClick}
+                className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 border-2 whitespace-nowrap bg-background text-foreground border-muted-foreground/20 active:scale-95 shrink-0"
+            >
+                <Search className="h-3.5 w-3.5 text-primary" />
+                Find It Here
+            </button>
             {navItems.map((item) => {
                 // For subcategories, we check if the current URL contains the subcategory name
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.includes(encodeURIComponent(item.label)));

@@ -34,7 +34,8 @@ import {
     Clock,
     Gavel,
     ExternalLink,
-    Mail
+    Mail,
+    DollarSign
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -833,6 +834,22 @@ export default function ProductDetailsModern({
                                                             {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
                                                             {isPhoneRevealed || (isCurrentlyHeld && heldByMe) ? "Phone Number Revealed" : "Contact via SMS/Call"}
                                                         </Button>
+
+                                                        {(product.isNegotiable || product.isUntimed) && (
+                                                            <OfferModal
+                                                                product={product}
+                                                                user={user}
+                                                                trigger={
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-indigo-600/20 hover:bg-indigo-50 text-indigo-700 gap-2"
+                                                                    >
+                                                                        <DollarSign className="h-5 w-5" />
+                                                                        Make an Offer
+                                                                    </Button>
+                                                                }
+                                                            />
+                                                        )}
 
                                                         {(isPhoneRevealed || (isCurrentlyHeld && heldByMe)) && (
                                                             <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
