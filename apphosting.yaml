@@ -14,15 +14,23 @@ runConfig:
 env:
   - variable: GOOGLE_GENAI_API_KEY
     secret: GOOGLE_GENAI_API_KEY
+    availability:
+      - RUNTIME
 
   - variable: SENDGRID_API_KEY
     secret: SENDGRID_API_KEY
+    availability:
+      - RUNTIME
 
   - variable: TELEGRAM_BOT_TOKEN
     secret: TELEGRAM_BOT_TOKEN
+    availability:
+      - RUNTIME
 
   - variable: TELEGRAM_CHAT_ID
     secret: TELEGRAM_CHAT_ID
+    availability:
+      - RUNTIME
 
   - variable: SUPER_ADMIN_EMAILS
     value: "bjm4ck13@gmail.com"
@@ -30,18 +38,34 @@ env:
   # Firebase Admin SDK (Secrets)
   - variable: FIREBASE_ADMIN_PRIVATE_KEY
     secret: FIREBASE_ADMIN_PRIVATE_KEY
+    availability:
+      - RUNTIME
+      
   - variable: FIREBASE_ADMIN_CLIENT_EMAIL
     secret: FIREBASE_ADMIN_CLIENT_EMAIL
+    availability:
+      - RUNTIME
+      
   - variable: FIREBASE_ADMIN_PROJECT_ID
     secret: FIREBASE_ADMIN_PROJECT_ID
+    availability:
+      - RUNTIME
 
   # Google Analytics 4 (Secrets)
   - variable: GA_PRIVATE_KEY
     secret: GA_PRIVATE_KEY
+    availability:
+      - RUNTIME
+      
   - variable: GA_CLIENT_EMAIL
     secret: GA_CLIENT_EMAIL
+    availability:
+      - RUNTIME
+      
   - variable: GA_PROPERTY_ID
     secret: GA_PROPERTY_ID
+    availability:
+      - RUNTIME
 
 
   # Public Config
