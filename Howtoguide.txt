@@ -118,7 +118,7 @@ including what they do and where to generate the required keys or JSON files.
 5. Telegram Bot API
 --------------------------------------------------------------------------------
 - Usage: Sending real-time admin alerts (e.g., price drops, high-value item listings).
-- Required Variables: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+- Required Variables (Optional): `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 - How to Register:
   1. Open Telegram and search for `@BotFather`.
   2. Send `/newbot`, follow the prompts to get your `TELEGRAM_BOT_TOKEN`.
