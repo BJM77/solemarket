@@ -222,22 +222,6 @@ export default function CompleteProfilePage() {
                                     
                                     <FormField
                                         control={form.control}
-                                        name="acceptsStripe"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 dark:border-white/10 p-3">
-                                                <FormControl>
-                                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                                                </FormControl>
-                                                <div className="space-y-1 leading-none">
-                                                    <FormLabel className="text-sm font-normal">Card Payments (Stripe)</FormLabel>
-                                                    <p className="text-[0.8rem] text-muted-foreground">Secure credit/debit processing.</p>
-                                                </div>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    
-                                    <FormField
-                                        control={form.control}
                                         name="acceptsPayID"
                                         render={({ field }) => (
                                             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 dark:border-white/10 p-3">

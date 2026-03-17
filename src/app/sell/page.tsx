@@ -41,12 +41,12 @@ export default function SellLandingPage() {
             <section className="relative overflow-hidden pt-16 pb-24 lg:pt-32 lg:pb-40 bg-gradient-to-br from-slate-50 to-white">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-blue-100 text-blue-700 mb-6">
+                        <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-orange-100 text-orange-700 mb-6">
                             <Clock className="h-4 w-4 mr-2" />
                             Launch Countdown: 14 Days
                         </div>
                         <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-slate-900">
-                            The Easiest Way to Sell <span className="text-blue-600">Shoes</span> & <span className="text-indigo-600">Collector Cards</span>
+                            The Easiest Way to Sell <span className="text-primary">Shoes</span> & <span className="text-primary/80">Collector Cards</span>
                         </h1>
                         <p className="text-xl md:text-2xl mb-10 text-slate-600 font-light leading-relaxed">
                             Benched.au is designed for the modern collector. List in seconds, reach thousands, and get paid securely. Australia&apos;s premier marketplace is almost here.
@@ -54,7 +54,7 @@ export default function SellLandingPage() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button
                                 size="lg"
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-blue-200"
+                                className="bg-primary hover:bg-orange-700 text-white font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-orange-200"
                                 asChild
                             >
                                 <Link href="/sign-up?accountType=seller">
@@ -74,8 +74,8 @@ export default function SellLandingPage() {
                 </div>
 
                 {/* Decorative Elements */}
-                <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/4 right-0 -translate-x-1/4 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/4 right-0 -translate-x-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
             </section>
 
             {/* Feature Highlights */}
@@ -89,7 +89,7 @@ export default function SellLandingPage() {
                     <div className="grid md:grid-cols-3 gap-8">
                         <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-blue-100 rounded-xl w-fit mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                                     <Zap className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">Lightning Fast Listings</h3>
@@ -101,7 +101,7 @@ export default function SellLandingPage() {
 
                         <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-indigo-100 rounded-xl w-fit mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                                     <Facebook className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">One-Click FB Sharing</h3>
@@ -113,7 +113,7 @@ export default function SellLandingPage() {
 
                         <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-green-100 rounded-xl w-fit mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                                     <Shield className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">DealSafe™ Protection</h3>
@@ -132,12 +132,12 @@ export default function SellLandingPage() {
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                                Designed Specifically for <span className="text-blue-400">Grails</span> and <span className="text-indigo-400">Heavy Hitters</span>
+                                Designed Specifically for <span className="text-primary">Grails</span> and <span className="text-orange-500">Heavy Hitters</span>
                             </h2>
                             <ul className="space-y-6">
                                 <li className="flex items-start gap-4">
-                                    <div className="mt-1 bg-blue-500/20 p-1 rounded-full">
-                                        <Check className="h-5 w-5 text-blue-400" />
+                                    <div className="mt-1 bg-primary/20 p-1 rounded-full">
+                                        <Check className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Sneaker Experts</span>
@@ -145,8 +145,8 @@ export default function SellLandingPage() {
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4">
-                                    <div className="mt-1 bg-blue-500/20 p-1 rounded-full">
-                                        <Check className="h-5 w-5 text-blue-400" />
+                                    <div className="mt-1 bg-primary/20 p-1 rounded-full">
+                                        <Check className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Card Collectors</span>
@@ -154,8 +154,8 @@ export default function SellLandingPage() {
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4">
-                                    <div className="mt-1 bg-blue-500/20 p-1 rounded-full">
-                                        <Check className="h-5 w-5 text-blue-400" />
+                                    <div className="mt-1 bg-primary/20 p-1 rounded-full">
+                                        <Check className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Secure Payments</span>
@@ -165,11 +165,11 @@ export default function SellLandingPage() {
                             </ul>
                         </div>
                         <div className="relative">
-                            <div className="aspect-square bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl opacity-20 absolute -inset-4 blur-2xl"></div>
+                            <div className="aspect-square bg-gradient-to-br from-primary to-orange-800 rounded-3xl opacity-20 absolute -inset-4 blur-2xl"></div>
                             <div className="relative bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold">B</div>
+                                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center font-bold">B</div>
                                         <div>
                                             <p className="font-bold">Benched Seller Dashboard</p>
                                             <p className="text-xs text-slate-400">Live Status: Active</p>
@@ -190,7 +190,7 @@ export default function SellLandingPage() {
                                             <p className="text-2xl font-bold">$0.00</p>
                                         </div>
                                     </div>
-                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4" disabled>
+                                    <Button className="w-full bg-primary hover:bg-orange-700 text-white mt-4" disabled>
                                         Inventory Launching Soon
                                     </Button>
                                 </div>
@@ -205,9 +205,9 @@ export default function SellLandingPage() {
                 <div className="container mx-auto px-4">
                     <div className="max-w-5xl mx-auto bg-white rounded-[2.5rem] shadow-premium overflow-hidden border border-slate-100">
                         <div className="grid lg:grid-cols-2">
-                            <div className="p-8 md:p-16 bg-blue-600 text-white">
+                            <div className="p-8 md:p-16 bg-primary text-white">
                                 <h2 className="text-4xl font-bold mb-6 leading-tight">Secure Your Seller Spot Early</h2>
-                                <p className="text-xl mb-8 text-blue-100">
+                                <p className="text-xl mb-8 text-orange-100">
                                     The first 100 sellers to register will receive:
                                 </p>
                                 <ul className="space-y-4 mb-10">

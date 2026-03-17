@@ -32,7 +32,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             Shop the lineup <span className="text-[10px] md:text-xs bg-slate-900 text-white px-2 py-1 rounded-sm ml-2">GO</span>
                         </Link>
                         <Link href="/sell" className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-5 bg-white dark:bg-card text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center text-sm md:text-base">
-                            Put Yours on the Bench
+                            Sell Your Shoes and Cards
                         </Link>
                     </div>
 

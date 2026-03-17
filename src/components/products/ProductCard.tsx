@@ -670,17 +670,15 @@ export default function ProductCard({
                         <Edit className="mr-2 h-4 w-4" /> Edit Listing
                       </Link>
                     </DropdownMenuItem>
-                    {isSuperAdmin && (
-                      <DropdownMenuItem asChild>
-                        <a
-                          href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Search className="mr-2 h-4 w-4" /> eBay Sold Items
-                        </a>
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Search className="mr-2 h-4 w-4" /> eBay Sold Items
+                      </a>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} className="text-red-600">
                       <Trash2 className="mr-2 h-4 w-4" /> Delete Listing
                     </DropdownMenuItem>

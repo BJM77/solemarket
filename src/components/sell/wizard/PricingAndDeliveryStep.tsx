@@ -92,8 +92,8 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                         render={({ field }) => (
                             <FormItem className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-primary font-bold">Offer PayID Escrow</FormLabel>
-                                    <FormDescription className="text-[10px]">Allow buyers to pay via Benched PayID Escrow. Funds held safely.</FormDescription>
+                                    <FormLabel className="text-primary font-bold">Accept PayID / Bank Transfer</FormLabel>
+                                    <FormDescription className="text-[10px]">Allow buyers to pay you directly via PayID or Bank Transfer.</FormDescription>
                                 </div>
                                 <FormControl>
                                     <Switch

@@ -348,7 +348,7 @@ function SignUpFormInner() {
                   Select at least one way you want to be paid by buyers.
                 </FormDescription>
                 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="acceptsStripe"
                   render={({ field }) => (
@@ -362,7 +362,7 @@ function SignUpFormInner() {
                       </div>
                     </FormItem>
                   )}
-                />
+                /> */}
                 
                 <FormField
                   control={form.control}

@@ -55,6 +55,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const { id, section, slug } = await params;
 
+  // Prevent dynamic route from capturing admin routes
+  if (section === 'admin') notFound();
+
   const product = await getProductById(id);
   if (!product) notFound();
 

@@ -15,7 +15,7 @@ import { isCardCategory, normalizeCategory } from '@/lib/constants/marketplace';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { addSubCategory } from '@/app/actions/admin-categories';
 import { useFirebase, useUser } from '@/firebase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DetailsStepProps {
@@ -51,9 +51,6 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                 form.setValue('subCategory', newSubName.trim());
                 setIsAddingSub(false);
                 setNewSubName('');
-                // Note: marketplace_options will update in UI via useDoc automatically if hooked correctly,
-                // otherwise user might need to wait for cache or refresh. 
-                // In many cases, adding it to the form value directly is enough for the current listing.
             }
         } catch (err: any) {
             toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -127,17 +124,8 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                             </FormItem>
                         )} />
 
-                        <FormField control={form.control} name="phoneNumber" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Contact Number <span className="text-red-500">*</span></FormLabel>
-                                <FormControl><Input placeholder="e.g. 0400 000 000" {...field} /></FormControl>
-                                <FormDescription className="text-[10px]">Visible only to buyers who click "Buy & Collect".</FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-
                         <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5">
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5 md:col-span-2">
                                 <div className="space-y-0.5">
                                     <FormLabel className="text-sm font-bold text-white">Enable Buy & Collect</FormLabel>
                                     <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>

@@ -707,31 +707,31 @@ export default function ProductDetailsModern({
                             </div>
 
                             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
-                                {/* Admin Controls (eBay Search / Delete) */}
-                                {isSuperAdmin && (
-                                    <div className="flex justify-end gap-2 mb-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 text-blue-600 hover:bg-blue-50 gap-1"
-                                            asChild
+                                {/* Controls (eBay Search / Admin Delete) */}
+                                <div className="flex justify-end gap-2 mb-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 text-blue-600 hover:bg-blue-50 gap-1"
+                                        asChild
+                                    >
+                                        <a
+                                            href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                         >
-                                            <a
-                                                href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <ExternalLink className="h-4 w-4" /> eBay Sold Items
-                                            </a>
-                                        </Button>
-                                        <EbaySearchModal
-                                            defaultQuery={getEbayQuery()}
-                                            trigger={
-                                                <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50 gap-1" title="Check eBay Prices (In-App)">
-                                                    <Search className="h-4 w-4" /> eBay Check
-                                                </Button>
-                                            }
-                                        />
+                                            <ExternalLink className="h-4 w-4" /> eBay Sold Items
+                                        </a>
+                                    </Button>
+                                    <EbaySearchModal
+                                        defaultQuery={getEbayQuery()}
+                                        trigger={
+                                            <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50 gap-1" title="Check eBay Prices (In-App)">
+                                                <Search className="h-4 w-4" /> eBay Check
+                                            </Button>
+                                        }
+                                    />
+                                    {isSuperAdmin && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1">
@@ -751,8 +751,8 @@ export default function ProductDetailsModern({
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
 
                                 {/* Desktop Product Header (Title/Price) */}
                                 <div className="hidden lg:block">
@@ -958,6 +958,16 @@ export default function ProductDetailsModern({
                                         <div className="space-y-3">
                                             <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
                                             <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                    <span className="text-gray-500 block text-xs mb-1">Category</span>
+                                                    <span className="font-bold">{product.category}</span>
+                                                </div>
+                                                {product.subCategory && (
+                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                        <span className="text-gray-500 block text-xs mb-1">Sub-Category</span>
+                                                        <span className="font-bold">{product.subCategory}</span>
+                                                    </div>
+                                                )}
                                                 {(product.brand || product.manufacturer) && (
                                                     <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
                                                         <span className="text-gray-500 block text-xs mb-1">Brand</span>
