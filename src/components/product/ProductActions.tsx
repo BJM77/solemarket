@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, ShoppingCart, DollarSign, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, DollarSign, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OfferModal } from '@/components/products/OfferModal';
 import { BiddingInterface } from '@/components/products/BiddingInterface';
