@@ -21,7 +21,6 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { quickSaveAndPublish } from '@/app/actions/admin-bulk';
-import { ARCameraOverlay } from '@/components/ar-camera-overlay';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MultiGenPage() {
@@ -223,7 +222,6 @@ export default function MultiGenPage() {
                     muted
                     className="w-full h-full object-cover"
                 />
-                <ARCameraOverlay guideType="general" />
 
                 {/* Captured Slots Overlay */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">

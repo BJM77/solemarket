@@ -60,16 +60,10 @@ export function BulkCardScanner() {
 
         try {
             const idToken = await user.getIdToken();
+            const { resizeAndCompressImage } = await import('@/lib/utils');
             
-            // Convert all files to base64
-            const base64Promises = selectedFiles.map(file => {
-                return new Promise<string>((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result as string);
-                    reader.readAsDataURL(file);
-                });
-            });
-
+            // Convert all files to base64 with compression for AI analysis
+            const base64Promises = selectedFiles.map(file => resizeAndCompressImage(file, 600, 0.6));
             const base64Images = await Promise.all(base64Promises);
 
             const result = await bulkSuggestCards({

@@ -41,30 +41,31 @@ export async function bulkSuggestCards(input: BulkSuggestCardsInput): Promise<{ 
 
 const bulkSuggestCardsPrompt = ai.definePrompt({
     name: 'bulkSuggestCardsPrompt',
-    model: 'googleai/gemini-1.5-flash',
+    model: 'googleai/gemini-flash-latest',
     input: { schema: bulkSuggestCardsInputSchema },
     output: { schema: bulkSuggestCardsOutputSchema },
     prompt: `You are an expert at identifying and valuing sports and collector cards. 
 Analyze the provided batch of images. Each image represents ONE card.
-For each image, provide the following details in a list:
+For each image, provide detailed listing information.
 
-1. **id:** The original index of the image in the provided list (e.g., "0", "1").
-2. **title:** A professional listing title (e.g., "2019 Panini Prizm Zion Williamson #248").
-3. **description:** A brief description of the card.
-4. **price:** Estimated market price in AUD (Australian Dollars).
-5. **subCategory:** The sport/type (e.g., 'Basketball Cards').
-6. **condition:** Estimated condition/grade (e.g., 'Raw', 'Near Mint', 'PSA 10').
-7. **brand:** The manufacturer (e.g., 'Panini', 'Topps', 'Upper Deck').
-8. **model:** The set name (e.g., 'Prizm', 'Optic', 'Chrome').
-9. **year:** Release year.
-10. **cardNumber:** The specific card number (e.g., #248).
-11. **gradingCompany:** PSA, BGS, SGC if visible/slabbed.
-12. **grade:** Numeric or descriptive grade.
-
-Images:
+Images for Analysis:
 {{#each photoDataUris}}
 - Image {{ @index }}: {{media url=this}}
 {{/each}}
+
+Based on the images, provide the following for EACH card in the 'cards' list:
+1. **id:** The original index of the image (e.g., "0", "1").
+2. **title:** A professional title (e.g., "2019 Panini Prizm Zion Williamson #248").
+3. **description:** A brief description of the card.
+4. **price:** Estimated market price in AUD (Australian Dollars). Return as a number.
+5. **subCategory:** The sport/type (e.g., 'Basketball Cards', 'Pokémon').
+6. **condition:** Estimated grade (e.g., 'Raw', 'Near Mint 7', 'PSA 10').
+7. **brand:** The manufacturer (e.g., 'Panini', 'Topps', 'Upper Deck').
+8. **model:** The set name (e.g., 'Prizm', 'Optic', 'Chrome').
+9. **year:** Release year as a number.
+10. **cardNumber:** The specific card number (e.g., #248).
+11. **gradingCompany:** PSA, BGS, SGC if visible/slabbed.
+12. **grade:** Numeric or descriptive grade.
 
 Ensure the 'id' field in your response matches the index of the image correctly.
 `,

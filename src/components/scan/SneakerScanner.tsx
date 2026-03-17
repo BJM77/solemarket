@@ -35,34 +35,31 @@ export function SneakerScanner() {
         setAnalysisResult(null);
 
         try {
-            // Convert to Base64 for AI action
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64Data = reader.result as string;
-                const idToken = await user.getIdToken();
+            // Convert to Base64 for AI action with compression
+            const { resizeAndCompressImage } = await import('@/lib/utils');
+            const base64Data = await resizeAndCompressImage(file, 800, 0.7);
+            const idToken = await user.getIdToken();
 
-                try {
-                    const suggestionsResponse = await suggestListingDetails({
-                        photoDataUris: [base64Data],
-                        category: 'Sneakers', // Hint for the AI
-                        idToken
-                    });
+            try {
+                const suggestionsResponse = await suggestListingDetails({
+                    photoDataUris: [base64Data],
+                    category: 'Sneakers', // Hint for the AI
+                    idToken
+                });
 
-                    if (suggestionsResponse.error) {
-                        throw new Error(suggestionsResponse.error);
-                    }
-
-                    setAnalysisResult(suggestionsResponse.data);
-                } catch (error: any) {
-                    console.error("AI Analysis failed:", error);
-                    toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
-                    setImageFile(null);
-                    setImagePreview(null);
-                } finally {
-                    setIsAnalyzing(false);
+                if (suggestionsResponse.error) {
+                    throw new Error(suggestionsResponse.error);
                 }
-            };
+
+                setAnalysisResult(suggestionsResponse.data);
+            } catch (error: any) {
+                console.error("AI Analysis failed:", error);
+                toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
+                setImageFile(null);
+                setImagePreview(null);
+            } finally {
+                setIsAnalyzing(false);
+            }
         } catch (e) {
             setIsAnalyzing(false);
         }

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2, RotateCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ARCameraOverlay } from '@/components/ar-camera-overlay';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -346,7 +345,6 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 <p className="text-white/60 text-sm">{error || "Please check your browser settings."}</p>
                             </div>
                         )}
-                        {hasCameraPermission && !isCameraLoading && <ARCameraOverlay guideType={captureMode === 'default' ? 'card' : captureMode} />}
 
                         <div className="absolute bottom-8 left-0 right-0 flex justify-center z-50">
                             <button
