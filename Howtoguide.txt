@@ -1,0 +1,173 @@
+================================================================================
+                        BENCHED.AU - SYSTEM HOW-TO GUIDE
+================================================================================
+
+1. OVERVIEW & ARCHITECTURE
+--------------------------------------------------------------------------------
+Benched.au is a secure, peer-to-peer marketplace designed for trading collectibles 
+such as sneakers and trading cards. The application is built on a modern React 
+stack using Next.js 15 (App Router) and Tailwind CSS for styling. It uses Firebase 
+as its primary backend (Database, Authentication, Storage) and integrates several 
+third-party APIs to handle AI analysis, emails, analytics, and market pricing.
+
+Recently, the platform has transitioned from processing on-site payments (via Stripe) 
+to a direct "Buy & Collect" / Peer-to-Peer communication model. Buyers and sellers 
+connect via the platform, but the actual transaction occurs offline or via direct 
+arrangement, increasing safety through phone/identity verification rather than 
+escrow payment holds.
+
+2. CORE SECTIONS & HOW THEY WORK
+--------------------------------------------------------------------------------
+A. Authentication & User Profiles
+- Framework: Firebase Auth
+- How it works: Users sign up via Email/Password or Google. Upon registration, a 
+  Firestore document is created in the `users` collection to store their profile 
+  data, including account type (buyer/seller), phone number, and location. Phone 
+  number verification is highly prioritized to ensure safe offline P2P trading.
+
+B. Buyer / Marketplace Experience
+- Search & Browse: Powered by Firestore queries and client-side filtering. Users 
+  can browse by categories (Sneakers, Cards) and apply filters (Brand, Size, 
+  Condition).
+- Product Details: Displays item images, price, condition, and seller reputation.
+- "Buy & Collect" Flow: Instead of a traditional shopping cart, buyers click 
+  "Message Seller" or "Contact via SMS/Call". This logs an "enquiry" in the system, 
+  places a temporary hold on the item (to prevent double-booking), and reveals the 
+  seller's contact information so the two parties can organize a meetup or shipment.
+
+C. Seller Experience (Dashboard)
+- Listing an Item: Sellers use the `src/app/sell/create` route to list items. They 
+  can upload images (stored in Firebase Storage), use the AI scanner to auto-fill 
+  details (brand, model, style code), and set their prices.
+- Enquiries Management: The Seller Dashboard (`/seller/dashboard`) allows sellers 
+  to view active enquiries. They can mark items as "Pending" while negotiating, or 
+  "Sold" to remove the listing once the offline transaction is complete. 
+- Analytics: Sellers can view basic stats like total views, active listings, and 
+  account limits.
+
+D. Admin Controls & Tools
+- URL: `/admin` (Restricted via Firebase custom claims / Super Admin IDs)
+- Moderation: Admins can approve/reject new listings to maintain marketplace quality.
+- System Management: Admins can view platform stats, manage user roles, and adjust 
+  site-wide settings (like categories, platform fees, SEO rules).
+- eBay Integration: Admins have access to tools that scrape/fetch eBay sold data to 
+  verify if sellers are pricing items fairly against current market trends.
+
+E. AI & Automation (Genkit / Google GenAI)
+- AI Kicks/Card Scanner: Users can upload a photo of a sneaker size tag or a trading 
+  card. The system sends the image to Google GenAI (Gemini) which extracts the 
+  Style Code, Brand, Card Name, Set, and condition, drastically speeding up the 
+  listing process.
+- Content Moderation: AI is used to flag inappropriate images or descriptions before 
+  they hit the public feed.
+
+================================================================================
+3. API INDEX & REGISTRATION GUIDE
+================================================================================
+The following is a list of all 3rd-party services and APIs utilized by the codebase, 
+including what they do and where to generate the required keys or JSON files.
+
+--------------------------------------------------------------------------------
+1. Firebase / Google Cloud
+--------------------------------------------------------------------------------
+- Usage: Database (Firestore), Auth, Image Storage, Hosting.
+- Required Variables: 
+  - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, etc.
+  - `FIREBASE_ADMIN_PRIVATE_KEY` / `FIREBASE_ADMIN_CLIENT_EMAIL`
+- How to Register:
+  1. Go to https://console.firebase.google.com/
+  2. Create a Project.
+  3. Go to Project Settings -> General. Scroll down to "Your apps" to get the 
+     client-side Web App config keys (`NEXT_PUBLIC_FIREBASE_*`).
+  4. Go to Project Settings -> Service Accounts. Click "Generate new private key". 
+     This downloads a JSON file containing the `FIREBASE_ADMIN_PRIVATE_KEY` and 
+     `FIREBASE_ADMIN_CLIENT_EMAIL`.
+
+--------------------------------------------------------------------------------
+2. Google GenAI (Gemini)
+--------------------------------------------------------------------------------
+- Usage: Image scanning, auto-filling product details, fraud detection.
+- Required Variable: `GOOGLE_GENAI_API_KEY`
+- How to Register:
+  1. Go to https://aistudio.google.com/app/apikey
+  2. Sign in with your Google account.
+  3. Click "Create API key" and copy the resulting key.
+
+--------------------------------------------------------------------------------
+3. SendGrid (Email Service)
+--------------------------------------------------------------------------------
+- Usage: Sending custom verification emails, enquiry alerts to sellers.
+- Required Variables: `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL`
+- How to Register:
+  1. Go to https://sendgrid.com/ and create an account.
+  2. Go to Settings -> API Keys -> Create API Key (Full Access).
+  3. You MUST verify a Sender Identity (Settings -> Sender Authentication) by 
+     verifying your domain (e.g., benched.au). Use this email for `SENDGRID_FROM_EMAIL`.
+
+--------------------------------------------------------------------------------
+4. Resend (Alternative Email Service)
+--------------------------------------------------------------------------------
+- Usage: Currently configured as an alternative to SendGrid for transactional emails.
+- Required Variable: `RESEND_API_KEY`
+- How to Register:
+  1. Go to https://resend.com/ and sign up.
+  2. Go to API Keys -> Create API Key.
+  3. Verify your domain in the "Domains" tab to ensure deliverability.
+
+--------------------------------------------------------------------------------
+5. Telegram Bot API
+--------------------------------------------------------------------------------
+- Usage: Sending real-time admin alerts (e.g., price drops, high-value item listings).
+- Required Variables: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+- How to Register:
+  1. Open Telegram and search for `@BotFather`.
+  2. Send `/newbot`, follow the prompts to get your `TELEGRAM_BOT_TOKEN`.
+  3. Add the bot to your desired admin group. Send a test message.
+  4. Visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` to find the 
+     `chat.id` (this is your `TELEGRAM_CHAT_ID`).
+
+--------------------------------------------------------------------------------
+6. eBay Developer Program
+--------------------------------------------------------------------------------
+- Usage: Fetching current market prices and "Sold" listings for price comparison.
+- Required Variables: `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `EBAY_ENV`
+- How to Register:
+  1. Go to https://developer.ebay.com/ and create an account.
+  2. Navigate to "Application Keys".
+  3. Generate keys for the "Production" environment.
+  4. Note down the "App ID" (Client ID) and "Cert ID" (Client Secret).
+
+--------------------------------------------------------------------------------
+7. Stripe (Payments)
+--------------------------------------------------------------------------------
+- Usage: Previously used for Escrow and Payments. Code is currently hidden/dormant, 
+  but the infrastructure remains if you pivot back to online processing.
+- Required Variables: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`
+- How to Register:
+  1. Go to https://dashboard.stripe.com/register
+  2. Go to Developers -> API keys.
+  3. Copy the Publishable key and Secret key.
+
+--------------------------------------------------------------------------------
+8. Google Analytics (GA4) & Data API
+--------------------------------------------------------------------------------
+- Usage: Tracking user events and pulling realtime metrics to the Admin dashboard.
+- Required Variables: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `GA_CLIENT_EMAIL`, `GA_PRIVATE_KEY`, `GA_PROPERTY_ID`
+- How to Register:
+  1. Set up a GA4 property at https://analytics.google.com/
+  2. Go to Admin -> Data Streams -> Web to get the `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+  3. To pull data into the Admin dashboard, you need a Google Cloud Service Account 
+     (similar to Firebase) with the "Google Analytics Data API" enabled. 
+  4. Grant that Service Account email "Viewer" access in your GA4 Property Access Management.
+
+--------------------------------------------------------------------------------
+9. Facebook Pixel & Graph API
+--------------------------------------------------------------------------------
+- Usage: Tracking ad conversions (`NEXT_PUBLIC_FB_PIXEL_ID`) and auto-posting new 
+  listings to a Facebook Page (`FACEBOOK_PAGE_ACCESS_TOKEN`, `FACEBOOK_PAGE_ID`).
+- How to Register:
+  1. Go to Meta Business Manager (https://business.facebook.com/).
+  2. Events Manager -> Data Sources to create a Pixel.
+  3. For auto-posting, go to https://developers.facebook.com/, create an App, and 
+     generate a Page Access Token with `pages_manage_posts` permissions.
+================================================================================

@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 // Initialize Firebase Admin
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.cert(require('./service-account.json')),
+        credential: admin.credential.cert(require('../service-account.json')),
         projectId: 'studio-3973035687-658c0'
     });
 }
