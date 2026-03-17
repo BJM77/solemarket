@@ -163,7 +163,17 @@ export default function SellerDashboard() {
     return query(collection(firestore, 'orders'), where('sellerId', '==', user.uid));
   }, [firestore, user?.uid]);
 
-  const { data: orders, isLoading: ordersLoading } = useCollection<any>(sellerOrdersQuery);
+  const guestEnquiriesQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'guest_enquiries'), where('sellerId', '==', user.uid));
+  }, [firestore, user?.uid]);
+
+  const { data: rawOrders, isLoading: ordersLoading } = useCollection<any>(sellerOrdersQuery);
+  const { data: guestEnquiries, isLoading: enquiriesLoading } = useCollection<any>(guestEnquiriesQuery);
+
+  const orders = useMemo(() => {
+    return [...(rawOrders || []), ...(guestEnquiries || [])];
+  }, [rawOrders, guestEnquiries]);
 
   const products = useMemo(() => {
     if (!sellerProducts && !userProducts) return [];
@@ -240,7 +250,7 @@ export default function SellerDashboard() {
     }
   }, [isUserLoading, user, router]);
 
-  if (isUserLoading || profileLoading || productsLoading || reviewsLoading || ordersLoading || !user) {
+  if (isUserLoading || profileLoading || productsLoading || reviewsLoading || ordersLoading || enquiriesLoading || !user) {
     return <DashboardSkeleton />;
   }
 

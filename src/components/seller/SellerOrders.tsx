@@ -47,28 +47,63 @@ export function SellerOrders({ limit }: { limit?: number }) {
     useEffect(() => {
         if (!user?.uid) return;
 
-        const q = query(
+        // Fetch Orders
+        const ordersQ = query(
             collection(db, 'orders'),
             where('sellerId', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            let fetchedOrders = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate() || new Date()
-            }));
+        // Fetch Guest Enquiries
+        const enquiriesQ = query(
+            collection(db, 'guest_enquiries'),
+            where('sellerId', '==', user.uid),
+            orderBy('createdAt', 'desc')
+        );
 
-            if (limit) {
-                fetchedOrders = fetchedOrders.slice(0, limit);
-            }
+        let ordersUnsubscribe: () => void;
+        let enquiriesUnsubscribe: () => void;
 
-            setOrders(fetchedOrders);
-            setLoading(false);
-        });
+        const syncData = () => {
+            getDocs(ordersQ).then(ordersSnap => {
+                const fetchedOrders = ordersSnap.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    type: 'order',
+                    createdAt: doc.data().createdAt?.toDate() || new Date()
+                }));
 
-        return () => unsubscribe();
+                getDocs(enquiriesQ).then(enquiriesSnap => {
+                    const fetchedEnquiries = enquiriesSnap.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        type: 'guest_enquiry',
+                        createdAt: doc.data().createdAt ? new Date(doc.data().createdAt as string) : new Date()
+                    }));
+
+                    let combined = [...fetchedOrders, ...fetchedEnquiries].sort((a, b) => 
+                        b.createdAt.getTime() - a.createdAt.getTime()
+                    );
+
+                    if (limit) {
+                        combined = combined.slice(0, limit);
+                    }
+
+                    setOrders(combined);
+                    setLoading(false);
+                });
+            });
+        };
+
+        // Real-time listener for orders
+        ordersUnsubscribe = onSnapshot(ordersQ, () => syncData());
+        // Real-time listener for enquiries
+        enquiriesUnsubscribe = onSnapshot(enquiriesQ, () => syncData());
+
+        return () => {
+            if (ordersUnsubscribe) ordersUnsubscribe();
+            if (enquiriesUnsubscribe) enquiriesUnsubscribe();
+        };
     }, [user?.uid, limit]);
 
     const handleUpdateStatus = (orderId: string, status: string, tracking?: { carrier: string, trackingNumber: string }) => {
@@ -204,7 +239,9 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                     <div className="flex items-start justify-between mb-6">
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-3">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Order ID</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                    {order.type === 'guest_enquiry' ? 'Enquiry ID' : 'Order ID'}
+                                                </p>
                                                 <Badge variant="outline" className="font-mono text-[10px] bg-slate-50 border-slate-200 text-slate-600 rounded-md">
                                                     #{order.id.slice(-8).toUpperCase()}
                                                 </Badge>
@@ -216,21 +253,32 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 </p>
                                             </div>
                                         </div>
-                                        <Badge
-                                            className={cn(
-                                                "px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-tighter border-none",
-                                                order.status === 'processing' ? "bg-amber-100 text-amber-700" :
+                                        <div className="flex flex-col items-end gap-2">
+                                            <Badge
+                                                className={cn(
+                                                    "px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-tighter border-none",
+                                                    order.type === 'guest_enquiry' ? "bg-indigo-100 text-indigo-700" :
+                                                    order.status === 'processing' ? "bg-amber-100 text-amber-700" :
                                                     order.status === 'shipped' ? "bg-blue-100 text-blue-700" :
-                                                        order.status === 'delivered' ? "bg-emerald-100 text-emerald-700" :
-                                                            "bg-slate-100 text-slate-700"
+                                                    order.status === 'delivered' ? "bg-emerald-100 text-emerald-700" :
+                                                    "bg-slate-100 text-slate-700"
+                                                )}
+                                            >
+                                                {order.type === 'guest_enquiry' ? 'Guest Enquiry' : order.status}
+                                            </Badge>
+                                            {order.type === 'guest_enquiry' && (
+                                                <p className="text-[10px] font-bold text-indigo-600 animate-pulse uppercase tracking-wider">New Transmission</p>
                                             )}
-                                        >
-                                            {order.status}
-                                        </Badge>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        {order.items.map((item: any) => (
+                                        {order.type === 'guest_enquiry' ? (
+                                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Message Transmission</p>
+                                                <p className="text-sm font-medium text-slate-700 italic">"{order.message}"</p>
+                                            </div>
+                                        ) : order.items?.map((item: any) => (
                                             <div key={item.id} className="flex items-center gap-4 group">
                                                 <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
                                                     <Image src={item.image} alt={item.title} fill className="object-cover" />
@@ -245,29 +293,40 @@ export function SellerOrders({ limit }: { limit?: number }) {
 
                                     <div className="mt-8 pt-6 border-t border-slate-50 flex flex-wrap gap-6 items-center">
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Buyer Instance</p>
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                                                {order.type === 'guest_enquiry' ? 'Enquirer Details' : 'Buyer Instance'}
+                                            </p>
                                             <div className="flex items-center gap-2">
                                                 <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold">
-                                                    {order.buyerName?.[0] || 'U'}
+                                                    {order.name?.[0] || order.buyerName?.[0] || 'U'}
                                                 </div>
-                                                <p className="text-xs font-bold text-slate-700">{order.buyerName}</p>
+                                                <p className="text-xs font-bold text-slate-700">{order.name || order.buyerName}</p>
+                                                {order.type === 'guest_enquiry' && (
+                                                    <span className="text-[10px] text-slate-400 font-medium">({order.email})</span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Delivery Logistics</p>
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Channel</p>
                                             <div className="flex items-center gap-2">
-                                                {order.shippingMethod === 'shipping' ? (
+                                                {order.type === 'guest_enquiry' ? (
+                                                    <MessageSquare className="h-3.5 w-3.5 text-indigo-600" />
+                                                ) : order.shippingMethod === 'shipping' ? (
                                                     <Truck className="h-3.5 w-3.5 text-slate-600" />
                                                 ) : (
                                                     <MapPin className="h-3.5 w-3.5 text-slate-600" />
                                                 )}
-                                                <p className="text-xs font-bold text-slate-700 capitalize">{order.shippingMethod}</p>
+                                                <p className="text-xs font-bold text-slate-700 capitalize">
+                                                    {order.type === 'guest_enquiry' ? 'Guest Enquiry' : order.shippingMethod}
+                                                </p>
                                             </div>
                                         </div>
-                                        <div className="space-y-1 ml-auto text-right">
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Profit Impact</p>
-                                            <p className="text-lg font-black text-slate-900">${formatPrice(order.totalAmount)}</p>
-                                        </div>
+                                        {order.totalAmount && (
+                                            <div className="space-y-1 ml-auto text-right">
+                                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Profit Impact</p>
+                                                <p className="text-lg font-black text-slate-900">${formatPrice(order.totalAmount)}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -275,90 +334,104 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                 <div className="w-full lg:w-72 bg-slate-50/50 border-l border-slate-100 p-6 flex flex-col gap-3">
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Operational Controls</p>
 
-                                    {order.status === 'processing' && (
-                                        <Dialog open={selectedOrder === order.id} onOpenChange={(o) => setSelectedOrder(o ? order.id : null)}>
-                                            <DialogTrigger asChild>
-                                                <Button className="w-full font-bold rounded-xl gap-2 bg-slate-900 hover:bg-black text-white py-6">
-                                                    <Truck className="h-4 w-4" />
-                                                    Initialize Shipment
+                                    {order.type === 'guest_enquiry' ? (
+                                        <Button
+                                            className="w-full font-bold rounded-xl gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-6"
+                                            asChild
+                                        >
+                                            <a href={`mailto:${order.email}?subject=Re: Enquiry for ${order.productTitle}`}>
+                                                <MessageSquare className="h-4 w-4" />
+                                                Reply via Email
+                                            </a>
+                                        </Button>
+                                    ) : (
+                                        <>
+                                            {order.status === 'processing' && (
+                                                <Dialog open={selectedOrder === order.id} onOpenChange={(o) => setSelectedOrder(o ? order.id : null)}>
+                                                    <DialogTrigger asChild>
+                                                        <Button className="w-full font-bold rounded-xl gap-2 bg-slate-900 hover:bg-black text-white py-6">
+                                                            <Truck className="h-4 w-4" />
+                                                            Initialize Shipment
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="rounded-3xl border-none shadow-2xl">
+                                                        <DialogHeader>
+                                                            <DialogTitle className="text-2xl font-black">Shipment Deployment</DialogTitle>
+                                                            <DialogDescription className="font-medium">
+                                                                Enter tracking parameters for Order #{order.id.slice(-8).toUpperCase()}.
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="space-y-6 py-4">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold uppercase text-slate-400">Carrier Authority</Label>
+                                                                <Input
+                                                                    placeholder="e.g. FedEx, UPS, Australia Post"
+                                                                    value={trackingCarrier}
+                                                                    onChange={(e) => setTrackingCarrier(e.target.value)}
+                                                                    className="rounded-xl border-slate-200 h-12 font-bold"
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold uppercase text-slate-400">Tracking Serial</Label>
+                                                                <Input
+                                                                    placeholder="Enter tracking number"
+                                                                    value={trackingNumber}
+                                                                    onChange={(e) => setTrackingNumber(e.target.value)}
+                                                                    className="rounded-xl border-slate-200 h-12 font-bold"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <DialogFooter className="gap-2 sm:gap-0">
+                                                            <Button variant="outline" className="rounded-xl font-bold h-12" onClick={() => setSelectedOrder(null)}>Abort</Button>
+                                                            <Button
+                                                                className="rounded-xl font-bold h-12 flex-1"
+                                                                onClick={() => handleUpdateStatus(order.id, 'shipped', { carrier: trackingCarrier, trackingNumber: trackingNumber })}
+                                                                disabled={isPending || !trackingCarrier || !trackingNumber}
+                                                            >
+                                                                {isPending ? <Loader2 className="animate-spin" /> : "Deploy Tracking"}
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            )}
+
+                                            {order.status === 'shipped' && (
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full font-bold rounded-xl gap-2 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-6"
+                                                    onClick={() => handleUpdateStatus(order.id, 'delivered')}
+                                                    disabled={isPending}
+                                                >
+                                                    <CheckCircle2 className="h-4 w-4" />
+                                                    Confirm Delivery
                                                 </Button>
-                                            </DialogTrigger>
-                                            <DialogContent className="rounded-3xl border-none shadow-2xl">
-                                                <DialogHeader>
-                                                    <DialogTitle className="text-2xl font-black">Shipment Deployment</DialogTitle>
-                                                    <DialogDescription className="font-medium">
-                                                        Enter tracking parameters for Order #{order.id.slice(-8).toUpperCase()}.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <div className="space-y-6 py-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold uppercase text-slate-400">Carrier Authority</Label>
-                                                        <Input
-                                                            placeholder="e.g. FedEx, UPS, Australia Post"
-                                                            value={trackingCarrier}
-                                                            onChange={(e) => setTrackingCarrier(e.target.value)}
-                                                            className="rounded-xl border-slate-200 h-12 font-bold"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold uppercase text-slate-400">Tracking Serial</Label>
-                                                        <Input
-                                                            placeholder="Enter tracking number"
-                                                            value={trackingNumber}
-                                                            onChange={(e) => setTrackingNumber(e.target.value)}
-                                                            className="rounded-xl border-slate-200 h-12 font-bold"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <DialogFooter className="gap-2 sm:gap-0">
-                                                    <Button variant="outline" className="rounded-xl font-bold h-12" onClick={() => setSelectedOrder(null)}>Abort</Button>
-                                                    <Button
-                                                        className="rounded-xl font-bold h-12 flex-1"
-                                                        onClick={() => handleUpdateStatus(order.id, 'shipped', { carrier: trackingCarrier, trackingNumber: trackingNumber })}
-                                                        disabled={isPending || !trackingCarrier || !trackingNumber}
-                                                    >
-                                                        {isPending ? <Loader2 className="animate-spin" /> : "Deploy Tracking"}
-                                                    </Button>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                    )}
+                                            )}
 
-                                    {order.status === 'shipped' && (
-                                        <Button
-                                            variant="outline"
-                                            className="w-full font-bold rounded-xl gap-2 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 py-6"
-                                            onClick={() => handleUpdateStatus(order.id, 'delivered')}
-                                            disabled={isPending}
-                                        >
-                                            <CheckCircle2 className="h-4 w-4" />
-                                            Confirm Delivery
-                                        </Button>
-                                    )}
+                                            <Button
+                                                variant="outline"
+                                                className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6"
+                                                onClick={() => handleStartChat(order)}
+                                            >
+                                                <MessageSquare className="h-4 w-4" />
+                                                Inquire Buyer
+                                            </Button>
 
-                                    <Button
-                                        variant="outline"
-                                        className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6"
-                                        onClick={() => handleStartChat(order)}
-                                    >
-                                        <MessageSquare className="h-4 w-4" />
-                                        Inquire Buyer
-                                    </Button>
+                                            <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-slate-900">
+                                                <Printer className="h-4 w-4" />
+                                                Print Index Card
+                                            </Button>
 
-                                    <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-slate-900">
-                                        <Printer className="h-4 w-4" />
-                                        Print Index Card
-                                    </Button>
-
-                                    {order.status === 'processing' && (
-                                        <Button
-                                            variant="ghost"
-                                            className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-rose-600 mt-auto opacity-50 hover:opacity-100"
-                                            onClick={() => handleUpdateStatus(order.id, 'cancelled')}
-                                            disabled={isPending}
-                                        >
-                                            Terminate Order
-                                        </Button>
+                                            {order.status === 'processing' && (
+                                                <Button
+                                                    variant="ghost"
+                                                    className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-rose-600 mt-auto opacity-50 hover:opacity-100"
+                                                    onClick={() => handleUpdateStatus(order.id, 'cancelled')}
+                                                    disabled={isPending}
+                                                >
+                                                    Terminate Order
+                                                </Button>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>
