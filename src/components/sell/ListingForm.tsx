@@ -26,6 +26,9 @@ import { BeforeUnload } from '@/hooks/use-before-unload';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { doc } from 'firebase/firestore';
 import { updateListing } from '@/app/actions/seller-actions';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { addSubCategory } from '@/app/actions/admin-categories';
+import { Plus } from 'lucide-react';
 import { MultibuyTier } from '@/types/multibuy';
 import { getMultibuyTemplates } from '@/app/actions/multibuy-actions';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
@@ -36,7 +39,8 @@ import {
     CATEGORY_SNEAKERS,
     CATEGORY_ACCESSORIES,
     CATEGORY_TRADING_CARDS,
-    isCardCategory
+    isCardCategory,
+    normalizeCategory
 } from '@/lib/constants/marketplace';
 
 const formSchema = z.object({
@@ -105,6 +109,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.imageUrls || []);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const { isSuperAdmin } = useUserPermissions();
+    const [isAddingSub, setIsAddingSub] = useState(false);
+    const [newSubName, setNewSubName] = useState('');
+    const [isSavingSub, setIsSavingSub] = useState(false);
 
     const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
     const { data: marketplaceOptions } = useDoc<any>(optionsRef);
@@ -155,7 +163,26 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         },
     });
 
-    const watchedCategory = form.watch('category');
+    const watchedCategory = normalizeCategory(form.watch('category'));
+
+    const handleAddNewSub = async () => {
+        if (!newSubName.trim() || !user) return;
+        setIsSavingSub(true);
+        try {
+            const idToken = await user.getIdToken();
+            const result = await addSubCategory(watchedCategory, newSubName.trim(), idToken);
+            if (result.success) {
+                toast({ title: "Sub-category added!" });
+                form.setValue('subCategory', newSubName.trim());
+                setIsAddingSub(false);
+                setNewSubName('');
+            }
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setIsSavingSub(false);
+        }
+    };
 
     // Determine type from category
     // Default to general if not matched
@@ -171,10 +198,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || DEFAULT_CATEGORIES;
     const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || DEFAULT_CONDITIONS;
     const SUB_CATEGORIES: Record<string, string[]> = {
-        [CATEGORY_SNEAKERS]: marketplaceOptions?.subCategories?.sneakers || DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS],
-        [CATEGORY_ACCESSORIES]: marketplaceOptions?.subCategories?.accessories || DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES],
-        [CATEGORY_TRADING_CARDS]: marketplaceOptions?.subCategories?.collector_cards || DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS],
-        'General': marketplaceOptions?.subCategories?.general || DEFAULT_SUB_CATEGORIES['General']
+        [CATEGORY_SNEAKERS]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_SNEAKERS] || [])])),
+        [CATEGORY_ACCESSORIES]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_ACCESSORIES] || [])])),
+        [CATEGORY_TRADING_CARDS]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_TRADING_CARDS] || [])])),
+        ['General']: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES['General'] || []), ...((marketplaceOptions?.subCategories as any)?.['General'] || [])]))
     };
 
     const imageFiles = form.watch('imageFiles');
@@ -465,33 +492,66 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                         <FormField control={form.control} name="subCategory" render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Sub-Category</FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="h-11">
-                                                            <SelectValue placeholder="Select one..." />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {(DEFAULT_SUB_CATEGORIES[watchedCategory] || []).map(s => {
-                                                            // Visual icon mapping for heat categories
-                                                            let Icon = undefined;
-                                                            if (s === 'Jordan') Icon = Flame;
-                                                            if (s === 'Kobe') Icon = Star;
-                                                            if (s === 'Limited') Icon = Sparkles;
-                                                            if (s === 'Vintage') Icon = History;
-                                                            if (s === 'Nike' || s === 'Adidas' || s === 'Yeezy') Icon = ShieldCheck;
+                                                <div className="space-y-2">
+                                                    <Select 
+                                                        onValueChange={(val) => {
+                                                            if (val === 'ADD_NEW') {
+                                                                setIsAddingSub(true);
+                                                            } else {
+                                                                field.onChange(val);
+                                                            }
+                                                        }} 
+                                                        value={field.value}
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger className="h-11">
+                                                                <SelectValue placeholder="Select one..." />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {(SUB_CATEGORIES[watchedCategory] || []).map(s => {
+                                                                // Visual icon mapping for heat categories
+                                                                let Icon = undefined;
+                                                                if (s === 'Jordan') Icon = Flame;
+                                                                if (s === 'Kobe') Icon = Star;
+                                                                if (s === 'Limited') Icon = Sparkles;
+                                                                if (s === 'Vintage') Icon = History;
+                                                                if (s === 'Nike' || s === 'Adidas' || s === 'Yeezy') Icon = ShieldCheck;
 
-                                                            return (
-                                                                <SelectItem key={s} value={s}>
+                                                                return (
+                                                                    <SelectItem key={s} value={s}>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {Icon && <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
+                                                                            <span>{s}</span>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                );
+                                                            })}
+                                                            {isSuperAdmin && (
+                                                                <SelectItem value="ADD_NEW" className="text-primary font-bold">
                                                                     <div className="flex items-center gap-2">
-                                                                        {Icon && <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" /* Accessibility: Decorative icon */ />}
-                                                                        <span>{s}</span>
+                                                                        <Plus className="h-4 w-4" /> Add New...
                                                                     </div>
                                                                 </SelectItem>
-                                                            );
-                                                        })}
-                                                    </SelectContent>
-                                                </Select>
+                                                            )}
+                                                        </SelectContent>
+                                                    </Select>
+
+                                                    {isAddingSub && (
+                                                        <div className="flex items-center gap-2 mt-2 animate-in fade-in slide-in-from-top-2">
+                                                            <Input 
+                                                                placeholder="New sub-category name" 
+                                                                value={newSubName} 
+                                                                onChange={(e) => setNewSubName(e.target.value)}
+                                                                className="h-9"
+                                                            />
+                                                            <Button size="sm" onClick={handleAddNewSub} disabled={isSavingSub}>
+                                                                {isSavingSub ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                                                            </Button>
+                                                            <Button size="sm" variant="ghost" className="text-white" onClick={() => setIsAddingSub(false)}>Cancel</Button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <FormMessage />
                                             </FormItem>
                                         )} />

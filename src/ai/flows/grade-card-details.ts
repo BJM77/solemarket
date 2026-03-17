@@ -19,7 +19,7 @@ export type { GradeCardDetailsOutput };
 
 const gradeCardDetailsPrompt = ai.definePrompt({
     name: 'gradeCardDetailsPrompt',
-    model: 'googleai/gemini-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     input: {
         schema: z.object({
             frontImage: z.string(),

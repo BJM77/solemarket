@@ -41,22 +41,25 @@ export type SuggestListingDetailsInput = z.infer<typeof suggestListingDetailsInp
 export const suggestListingDetailsOutputSchema = z.object({
   title: z
     .string()
+    .optional()
     .describe('A concise, descriptive, and SEO-friendly title for the listing (e.g., "Air Jordan 1 High OG Chicago Lost and Found").'),
   description: z
     .string()
+    .optional()
     .describe(
       'A concise, one-to-two-line description of the item, highlighting its key features and condition.'
     ),
   price: z
     .number()
+    .optional()
     .describe(
       'An estimated market price for the item in AUD, based on the provided images and analysis of similar items.'
     ),
-  category: z.string().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories'."),
-  subCategory: z.string().describe("The single best sub-category. For 'Sneakers': 'Men\'s Sneakers', 'Women\'s Sneakers', 'Youth (GS)', 'Infant & Toddler'. For 'Streetwear': 'T-Shirts', 'Hoodies & Sweatshirts', 'Outerwear', 'Bottoms'. For 'Accessories': 'Bags', 'Hats & Beanies', 'Socks', 'Sneaker Care'."),
-  condition: z.string().describe("The single best condition from this list: 'New with Box', 'New without Box', 'New with Defects', 'Used', 'Refurbished'."),
-  brand: z.string().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'New Balance')."),
-  model: z.string().optional().describe("The model name (e.g., 'Air Jordan 1', 'Yeezy Boost 350')."),
+  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'."),
+  subCategory: z.string().optional().describe("The single best sub-category based on the category context."),
+  condition: z.string().optional().describe("The single best condition description. For sneakers: 'New with Box', 'Used'. For cards: 'Mint 9', 'Near Mint 7', 'Raw'."),
+  brand: z.string().optional().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'Panini', 'Topps')."),
+  model: z.string().optional().describe("The model name or set name (e.g., 'Air Jordan 1', 'Prizm')."),
   styleCode: z.string().optional().describe("The unique style code (e.g., 'DZ5485-612'). Found on size tag."),
   colorway: z.string().optional().describe("The colorway name (e.g., 'Chicago', 'Zebra', 'Bred')."),
   size: z.string().optional().describe("The size of the item (e.g., '10.5', 'L', 'OS')."),

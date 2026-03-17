@@ -107,3 +107,38 @@ export async function deleteCategory(
         throw new Error(error.message || 'Failed to delete category');
     }
 }
+
+export async function addSubCategory(
+    categoryName: string,
+    subCategoryName: string,
+    idToken: string
+) {
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const role = decodedToken.role as string | undefined;
+
+        if (role !== 'superadmin') {
+            throw new Error('Unauthorized: Super Admin privileges required to add categories');
+        }
+
+        const settingsRef = firestoreDb.collection('settings').doc('marketplace_options');
+        const settingsDoc = await settingsRef.get();
+        const settingsData = settingsDoc.data() || {};
+        
+        const subCategories = settingsData.subCategories || {};
+        const currentList = subCategories[categoryName] || [];
+        
+        if (currentList.includes(subCategoryName)) {
+            return { success: true, message: 'Sub-category already exists' };
+        }
+
+        await settingsRef.update({
+            [`subCategories.${categoryName}`]: admin.firestore.FieldValue.arrayUnion(subCategoryName)
+        });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('[addSubCategory] Error:', error);
+        throw new Error(error.message || 'Failed to add sub-category');
+    }
+}

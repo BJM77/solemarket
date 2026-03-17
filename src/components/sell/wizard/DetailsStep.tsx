@@ -10,8 +10,13 @@ import { BrandRequestModal } from '../BrandRequestModal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck } from 'lucide-react';
-import { isCardCategory } from '@/lib/constants/marketplace';
+import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck, Plus } from 'lucide-react';
+import { isCardCategory, normalizeCategory } from '@/lib/constants/marketplace';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { addSubCategory } from '@/app/actions/admin-categories';
+import { useFirebase, useUser } from '@/firebase';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface DetailsStepProps {
     form: any;
@@ -24,8 +29,38 @@ interface DetailsStepProps {
 }
 
 export function DetailsStep({ form, selectedType, subCategories, conditionOptions, onAutoFill, isAnalyzing, imageFiles = [] }: DetailsStepProps) {
-    const category = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    const { isSuperAdmin } = useUserPermissions();
+    const { user } = useUser();
+    const { toast } = useToast();
+    const [isAddingSub, setIsAddingSub] = useState(false);
+    const [newSubName, setNewSubName] = useState('');
+    const [isSavingSub, setIsSavingSub] = useState(false);
+
+    const rawCategory = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    const category = normalizeCategory(rawCategory);
     const isTradingCard = isCardCategory(category);
+
+    const handleAddNewSub = async () => {
+        if (!newSubName.trim() || !user) return;
+        setIsSavingSub(true);
+        try {
+            const idToken = await user.getIdToken();
+            const result = await addSubCategory(category, newSubName.trim(), idToken);
+            if (result.success) {
+                toast({ title: "Sub-category added!" });
+                form.setValue('subCategory', newSubName.trim());
+                setIsAddingSub(false);
+                setNewSubName('');
+                // Note: marketplace_options will update in UI via useDoc automatically if hooked correctly,
+                // otherwise user might need to wait for cache or refresh. 
+                // In many cases, adding it to the form value directly is enough for the current listing.
+            }
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setIsSavingSub(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -39,6 +74,55 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                             <FormItem className="md:col-span-2">
                                 <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
                                 <FormControl><Input placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                        {/* Sub Category Selection */}
+                        <FormField control={form.control} name="subCategory" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Sub-Category</FormLabel>
+                                <div className="space-y-2">
+                                    <Select 
+                                        onValueChange={(val) => {
+                                            if (val === 'ADD_NEW') {
+                                                setIsAddingSub(true);
+                                            } else {
+                                                field.onChange(val);
+                                            }
+                                        }} 
+                                        value={field.value}
+                                    >
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Select sub-category" /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            {(subCategories[category] || []).map((s: string) => (
+                                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                                            ))}
+                                            {isSuperAdmin && (
+                                                <SelectItem value="ADD_NEW" className="text-primary font-bold">
+                                                    <div className="flex items-center gap-2">
+                                                        <Plus className="h-4 w-4" /> Add New Sub-Category...
+                                                    </div>
+                                                </SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    
+                                    {isAddingSub && (
+                                        <div className="flex items-center gap-2 mt-2 animate-in fade-in slide-in-from-top-2">
+                                            <Input 
+                                                placeholder="New sub-category name" 
+                                                value={newSubName} 
+                                                onChange={(e) => setNewSubName(e.target.value)}
+                                                className="h-9"
+                                            />
+                                            <Button size="sm" onClick={handleAddNewSub} disabled={isSavingSub}>
+                                                {isSavingSub ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                                            </Button>
+                                            <Button size="sm" variant="ghost" onClick={() => setIsAddingSub(false)}>Cancel</Button>
+                                        </div>
+                                    )}
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )} />

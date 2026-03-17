@@ -143,7 +143,7 @@ export default function MultiGenPage() {
 
             const result = suggestionsResponse.data;
             if (result) {
-                setTitle(result.title);
+                setTitle(result.title || '');
                 setAiData(result);
             }
         } catch (error) {

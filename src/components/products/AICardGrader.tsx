@@ -43,8 +43,11 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
     startTransition(async () => {
       try {
+        const { resizeAndCompressImage } = await import('@/lib/utils');
+        
+        // OPTIMIZATION: Resize to max 600px for AI analysis to keep payload under 1MB limit
         const dataUris = await Promise.all(
-          imageFiles.map(file => fileToDataUri(file))
+          imageFiles.map(file => resizeAndCompressImage(file, 600, 0.6))
         );
 
         const idToken = await user?.getIdToken();
@@ -52,6 +55,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
         const suggestionsResponse = await suggestListingDetails({
           photoDataUris: dataUris,
+          category: 'Collector Cards',
           idToken: idToken,
         });
 

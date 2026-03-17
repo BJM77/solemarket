@@ -41,7 +41,7 @@ export async function bulkSuggestCards(input: BulkSuggestCardsInput): Promise<{ 
 
 const bulkSuggestCardsPrompt = ai.definePrompt({
     name: 'bulkSuggestCardsPrompt',
-    model: 'googleai/gemini-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     input: { schema: bulkSuggestCardsInputSchema },
     output: { schema: bulkSuggestCardsOutputSchema },
     prompt: `You are an expert at identifying and valuing sports and collector cards. 

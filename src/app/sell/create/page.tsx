@@ -82,14 +82,26 @@ function CreateListingForm() {
   const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
   const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
-  // Derive subcategories from config
+  // Derive subcategories from config and database
   const SUB_CATEGORIES: Record<string, string[]> = useMemo(() => {
     const map: Record<string, string[]> = {};
+    
+    // 1. Load from static config
     MARKETPLACE_CATEGORIES.forEach(cat => {
       map[cat.name] = cat.subcategories?.map(sub => sub.name) || [];
     });
+
+    // 2. Merge from dynamic database options
+    if (marketplaceOptions?.subCategories) {
+      Object.entries(marketplaceOptions.subCategories).forEach(([catName, subs]) => {
+        const existing = map[catName] || [];
+        const dynamicSubs = subs as string[];
+        map[catName] = Array.from(new Set([...existing, ...dynamicSubs]));
+      });
+    }
+    
     return map;
-  }, []);
+  }, [marketplaceOptions]);
 
   const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];
 
