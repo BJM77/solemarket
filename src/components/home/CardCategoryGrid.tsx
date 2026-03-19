@@ -27,7 +27,7 @@ const CARD_CATEGORIES = [
     {
         name: 'Pokemon',
         icon: Zap,
-        href: '/cards?subCategory=Pokemon',
+        href: '/cards?subCategory=Pok%C3%A9mon',
         color: 'bg-yellow-50 dark:bg-yellow-950/20'
     },
     {

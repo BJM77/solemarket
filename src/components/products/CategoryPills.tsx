@@ -29,12 +29,12 @@ export function CategoryPills({ className }: CategoryPillsProps) {
 
     if (isCardsMode) {
         pills = [
-            { name: 'All Cards', icon: Library, href: `${basePath}${basePath.includes('admin') ? '?category=Collector Cards' : ''}` },
-            { name: 'Basketball', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Basketball%20Cards` },
-            { name: 'Pokémon', icon: Sparkles, href: `${basePath}?category=Collector Cards&subCategory=Pokémon` },
-            { name: 'Yu-Gi-Oh!', icon: Sparkles, href: `${basePath}?category=Collector Cards&subCategory=Yu-Gi-Oh!` },
-            { name: 'Rookies', icon: Library, href: `${basePath}?category=Collector Cards&subCategory=Rookies` },
-            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector Cards&sort=createdAt-desc` },
+            { name: 'All Cards', icon: Library, href: `${basePath}?category=Collector+Cards` },
+            { name: 'Basketball', icon: Library, href: `${basePath}?category=Collector+Cards&subCategory=Basketball+Cards` },
+            { name: 'Pokémon', icon: Sparkles, href: `${basePath}?category=Collector+Cards&subCategory=Pok%C3%A9mon` },
+            { name: 'Yu-Gi-Oh!', icon: Sparkles, href: `${basePath}?category=Collector+Cards&subCategory=Yu-Gi-Oh!` },
+            { name: 'Rookies', icon: Library, href: `${basePath}?category=Collector+Cards&subCategory=Rookies` },
+            { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Collector+Cards&sort=createdAt-desc` },
             { name: 'Sneakers →', icon: Footprints, href: basePath.includes('admin') ? `${basePath}?category=Sneakers` : `/browse` },
         ];
     } else {

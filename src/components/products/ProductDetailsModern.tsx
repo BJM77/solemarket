@@ -650,7 +650,7 @@ export default function ProductDetailsModern({
                 <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-6 overflow-x-auto whitespace-nowrap pb-2">
                     <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                     <span className="text-gray-300">/</span>
-                    <Link href={`/browse?category=${product.category}`} className="hover:text-primary transition-colors">
+                    <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors">
                         {product.category}
                     </Link>
                     {product.subCategory && (

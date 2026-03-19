@@ -34,7 +34,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
         navItems = [
             { label: 'Home', href: '/', icon: Home },
             { label: 'NBA', href: '/cards?subCategory=Basketball%20Cards', icon: Flame },
-            { label: 'Pokémon', href: '/cards?subCategory=Pokemon', icon: Star },
+            { label: 'Pokémon', href: '/cards?subCategory=Pok%C3%A9mon', icon: Star },
             { label: 'Rookies', href: '/cards?subCategory=Rookies', icon: History },
         ];
     }

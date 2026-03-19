@@ -73,7 +73,7 @@ export default async function ProductPage({ params }: Props) {
       <BreadcrumbSchema
         items={[
           { name: 'Home', item: '/' },
-          { name: product.category, item: `/browse?category=${encodeURIComponent(product.category)}` },
+          { name: product.category, item: product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}` },
           { name: product.title, item: `/${section}/${slug}/${id}` },
         ]}
       />
