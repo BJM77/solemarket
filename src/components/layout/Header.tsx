@@ -43,6 +43,13 @@ export default function Header() {
             )}
 
             {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
+            
+            {/* Mobile Search - ALWAYS VISIBLE */}
+            {isClient && (
+              <div className="flex-1 lg:hidden mx-2 max-w-[200px] xs:max-w-none">
+                <SearchBar className="h-10 group" inputClassName="h-10 text-xs" />
+              </div>
+            )}
           </div>
 
           <div className="hidden lg:flex items-center gap-8">

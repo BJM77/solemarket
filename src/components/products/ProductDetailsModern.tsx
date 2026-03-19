@@ -48,6 +48,7 @@ import type { Product, Review, UserProfile } from '@/lib/types';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewList from '@/components/reviews/ReviewList';
+import { ConditionGuide } from './ConditionGuide';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import { deleteProductByAdmin } from '@/app/actions/admin';
 import { recordProductView } from '@/app/actions/products';
@@ -949,6 +950,7 @@ export default function ProductDetailsModern({
                                                 <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
                                                     {product.condition}
                                                 </Badge>
+                                                <ConditionGuide />
                                             </div>
                                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line text-sm">
                                                 {product.description}

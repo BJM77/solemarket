@@ -406,17 +406,7 @@ export default function ProductCard({
 
   const getFormattedDate = formatRelativeTime;
   const getAspectRatio = (category: string) => {
-    switch (category) {
-      case 'Sneakers':
-        return 'aspect-[4/3]';
-      case 'Accessories':
-        return 'aspect-square';
-      case 'Collector Cards':
-      case 'Trading Cards':
-        return 'aspect-[2.5/3.5]';
-      default:
-        return 'aspect-square';
-    }
+    return 'aspect-square';
   };
 
   const imageAspectRatio = getAspectRatio(product.category);

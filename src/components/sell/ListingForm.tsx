@@ -43,6 +43,8 @@ import {
     normalizeCategory
 } from '@/lib/constants/marketplace';
 
+import { ConditionGuide } from '@/components/products/ConditionGuide';
+
 const formSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
@@ -557,7 +559,10 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                         )} />
                                         <FormField control={form.control} name="condition" render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Condition</FormLabel>
+                                                <div className="flex items-center justify-between">
+                                                    <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Condition</FormLabel>
+                                                    <ConditionGuide />
+                                                </div>
                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className="h-11">
