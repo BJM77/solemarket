@@ -11,8 +11,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Info, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
-import { Tabs, TabsContent, List, TabsTrigger } from "@/components/ui/tabs";
-import { TabsList } from '../ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
     return (
