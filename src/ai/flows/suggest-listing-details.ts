@@ -68,47 +68,29 @@ const suggestListingDetailsPrompt = ai.definePrompt({
     model: 'googleai/gemini-flash-latest',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
-    prompt: `You are an expert in valuing and listing authentic sneakers, streetwear, and trading cards. Analyze the provided information (images and/or title) to generate detailed listing metadata.
+    config: {
+        maxOutputTokens: 400,
+        temperature: 0.2,
+    },
+    prompt: `Act as a professional card and sneaker expert. Analyze the images and/or title to provide precise listing metadata.
+    
+{{#if title}}Title: {{title}}{{/if}}
+{{#if category}}Context: {{category}}{{/if}}
+{{#each photoDataUris}}{{media url=this}}{{/each}}
 
-{{#if title}}
-Provided Title: {{title}}
-{{/if}}
+Extract:
+1.  **Title**: Concise & SEO-friendly. (e.g. 'Nike Air Jordan 1 High Chicago' or '2019 Panini Prizm Zion Williamson #248')
+2.  **Description**: 1-2 lines on key features/condition.
+3.  **Price**: Est. market price in AUD (number).
+4.  **Category**: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear'.
+5.  **Sub-Category**: Sport (Cards) or Gender/Type (Sneakers).
+6.  **Condition**: 'New with Box', 'Used' (Sneakers) or Grade/Raw (Cards).
+7.  **Brand/Manufacturer**: 'Nike', 'Panini', etc.
+8.  **Model/Set**: 'Air Jordan 1', 'Prizm', etc.
+9.  **Year**: Release year (number).
+10. **Details**: Style Code (Sneakers), Card# / Grading Info (Cards).
 
-{{#if category}}
-Selected Category Context: {{category}}
-{{/if}}
-
-{{#if photoDataUris.length}}
-Images for Analysis:
-{{#each photoDataUris}}
-- {{media url=this}}
-{{/each}}
-{{else}}
-(No images provided. Base your analysis solely on the title if available.)
-{{/if}}
-
-Based on the images and/or title, provide the following details:
-1.  **Title:** A concise, descriptive, and SEO-friendly title. 
-    - Sneakers: Brand Model Colorway (e.g., 'Nike Air Jordan 1 High Chicago')
-    - Cards: Year Set Player Card# (e.g., '2019 Panini Prizm Zion Williamson #248')
-2.  **Description:** A professional one-to-two line description highlighting key features, set names, or condition notes.
-3.  **Price:** An estimated market price in AUD (Australian Dollars). Return as a number.
-4.  **Category:** Choose the most appropriate: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear'.
-5.  **Sub-Category:** 
-    - For Sneakers: 'Men\'s Sneakers', 'Women\'s Sneakers', etc.
-    - For Cards: The sport or type (e.g., 'Basketball Cards', 'Pokémon').
-6.  **Condition:** 
-    - Sneakers: 'New with Box', 'Used', etc.
-    - Cards: The estimated grade (e.g., 'Mint 9', 'Near Mint 7', 'Raw', 'PSA 10' if slabbed).
-7.  **Brand/Manufacturer:** e.g., 'Nike', 'Adidas', 'Panini', 'Topps', 'Upper Deck'.
-8.  **Model/Set:** The specific model (Sneakers) or Set Name (Cards, e.g., 'Prizm', 'Chrome').
-9.  **Style Code:** For sneakers only (e.g., 'DZ5485-612').
-10. **Colorway:** For sneakers only (e.g., 'Chicago', 'Zebra').
-11. **Size:** For sneakers only (e.g., 'US 10.5').
-12. **Year:** Release year as a number.
-13. **Grading Info:** If it's a graded card, identify the Grading Company (PSA, BGS, SGC) and the Grade.
-
-Return all applicable fields. If a field is unknown, omit it or leave it as null/empty string.
+Return only applicable fields.
 `,
 });
 

@@ -39,6 +39,7 @@ export default function MultiGenPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [title, setTitle] = useState('');
     const [aiData, setAiData] = useState<any>(null);
+    const [aiImage, setAiImage] = useState<string | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
     // Handle Authentication & Permissions
@@ -109,22 +110,30 @@ export default function MultiGenPage() {
             sourceY = (videoHeight - sourceHeight) / 2;
         }
 
+        // 1. High-Res version for final listing
         canvas.width = 1000;
         canvas.height = 1400;
-
         context.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, 1000, 1400);
+        const highResDataUri = canvas.toDataURL('image/jpeg', 0.8);
 
-        const dataUri = canvas.toDataURL('image/jpeg', 0.8);
-        const newImages = [...capturedImages, dataUri];
+        // 2. Low-Res version for AI analysis (Performance optimization)
+        canvas.width = 512;
+        canvas.height = 716;
+        context.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, 512, 716);
+        const lowResAiDataUri = canvas.toDataURL('image/jpeg', 0.6);
+
+        const newImages = [...capturedImages, highResDataUri];
         setCapturedImages(newImages);
+        setAiImage(lowResAiDataUri); // Store for manual re-fills
 
+        // Auto-trigger AI for first image
         if (newImages.length === 1 && !title) {
-            handleAiFill(dataUri);
+            handleAiFill(lowResAiDataUri);
         }
     };
 
     const handleAiFill = async (imageToAnalyze?: string) => {
-        const img = imageToAnalyze || capturedImages[0];
+        const img = imageToAnalyze || aiImage || capturedImages[0];
         if (!img || !user) return;
 
         setIsAnalyzing(true);
