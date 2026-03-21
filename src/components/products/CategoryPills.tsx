@@ -21,7 +21,19 @@ export function CategoryPills({ className }: CategoryPillsProps) {
     let pills = [];
 
     // Base path to ensure we don't redirect out of admin
-    const basePath = pathname || '/browse';
+    let basePath = pathname || '/browse';
+
+    // If we are on a detail page (product or specific card), we should point back to the main listing grid
+    // but preserve the admin context if we're in the admin dashboard.
+    const isDetailPath = (pathname?.includes('/product/') || (pathname?.includes('/cards/') && pathname !== '/cards'));
+    const isAdminPath = pathname?.includes('/admin/');
+
+    if (isDetailPath && !isAdminPath) {
+        basePath = isCardsMode ? '/cards' : '/browse';
+    } else if (isAdminPath) {
+        // In admin, we stay on the current admin page
+        basePath = pathname;
+    }
 
     // In admin mode, the isCardsMode flag is solely dependent on search params right now unless we check
     // However, if we're in /admin/products, we might want simple universal filters or both.
@@ -40,10 +52,10 @@ export function CategoryPills({ className }: CategoryPillsProps) {
     } else {
         pills = [
             { name: 'All Sneakers', icon: Footprints, href: `${basePath}${basePath.includes('admin') ? '?category=Sneakers' : ''}` },
-            { name: 'Jordan', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Jordan` },
-            { name: 'Nike', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Nike` },
-            { name: 'Adidas', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Adidas` },
-            { name: 'Yeezy', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Yeezy` },
+            { name: 'Jordan', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Jordan&brand=Jordan` },
+            { name: 'Nike', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Nike&brand=Nike` },
+            { name: 'Adidas', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Adidas&brand=Adidas` },
+            { name: 'Yeezy', icon: Footprints, href: `${basePath}?category=Sneakers&subCategory=Yeezy&brand=Yeezy` },
             { name: 'New Arrivals', icon: Sparkles, href: `${basePath}?category=Sneakers&sort=createdAt-desc` },
             { name: 'Cards →', icon: Library, href: basePath.includes('admin') ? `${basePath}?category=Collector Cards` : `/cards` },
         ];

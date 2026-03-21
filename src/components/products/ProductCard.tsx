@@ -768,12 +768,13 @@ export default function ProductCard({
               FEATURED
             </Badge>
           )}
-          {isAdmin && (product as any).adminWantedMatch && (
+          {/* WATCH MATCH removed per user request */}
+          {/* {isAdmin && (product as any).adminWantedMatch && (
             <Badge variant="default" className="inline-flex items-center gap-1 bg-indigo-600 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto border-2 border-white/20">
               <Tag className="h-3 w-3" />
               WATCH MATCH
             </Badge>
-          )}
+          )} */}
           {mounted && isNewArrival() && (
             <Badge variant="default" className="inline-flex items-center gap-1 bg-secondary text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
               <Sparkles className="h-3 w-3" />
@@ -799,10 +800,11 @@ export default function ProductCard({
               {isCardCategory(product.category) ? (product.grade || 'RAW') : (product.condition?.toUpperCase() || 'USED')}
             </Badge>
           )}
-          <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
+          {/* Watching count removed from image per user request */}
+          {/* <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             {product.watchCount || 0} Watching
-          </Badge>
+          </Badge> */}
           {hasViewed && (
             <Badge variant="secondary" className="inline-flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 bg-black/50 text-white rounded-full backdrop-blur-sm pointer-events-auto shadow-sm p-0">
               <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />

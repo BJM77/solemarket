@@ -724,14 +724,15 @@ export default function ProductDetailsModern({
                                             <ExternalLink className="h-4 w-4" /> eBay Sold Items
                                         </a>
                                     </Button>
-                                    <EbaySearchModal
+                                    {/* eBay Check hidden per user request */}
+                                    {/* <EbaySearchModal
                                         defaultQuery={getEbayQuery()}
                                         trigger={
                                             <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50 gap-1" title="Check eBay Prices (In-App)">
                                                 <Search className="h-4 w-4" /> eBay Check
                                             </Button>
                                         }
-                                    />
+                                    /> */}
                                     {isSuperAdmin && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>

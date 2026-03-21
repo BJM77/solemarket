@@ -289,8 +289,9 @@ function InfiniteProductGridInner({
     [searchParams]
   );
 
-  const handleFilterChange = useCallback((key: string, value: string | string[] | [number, number] | null) => {
-    const newQuery = createQueryString({ [key]: value, page: null });
+  const handleFilterChange = useCallback((keyOrChanges: string | Record<string, any>, value?: any) => {
+    const changes = typeof keyOrChanges === 'string' ? { [keyOrChanges]: value } : keyOrChanges;
+    const newQuery = createQueryString({ ...changes, page: null });
     router.push(`${pathname}?${newQuery}`, { scroll: false });
   }, [createQueryString, pathname, router]);
 
@@ -622,14 +623,22 @@ function InfiniteProductGridInner({
               ));
             }
 
-            // Handle simple values (q, subCategory, verifiedOnly)
+            // Handle simple values (q, subCategory, verifiedOnly, brand)
+            if (key === 'brand' && currentSearchParams.subCategory === value) return null;
+
             return (
               <Badge key={key} variant="secondary" className="pl-2 pr-1 py-1 gap-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10">
                 <span className="text-[10px] font-bold uppercase">
-                  {key === 'q' ? 'Search:' : key === 'subCategory' ? 'Type:' : key === 'manufacturer' ? 'Brand:' : ''} {String(value)}
+                  {key === 'q' ? 'Search:' : (key === 'brand' || key === 'manufacturer') ? 'Brand:' : key === 'subCategory' ? 'Type:' : ''} {String(value)}
                 </span>
                 <button
-                  onClick={() => handleFilterChange(key, null)}
+                  onClick={() => {
+                    if (key === 'subCategory' || key === 'brand') {
+                      handleFilterChange({ subCategory: null, brand: null });
+                    } else {
+                      handleFilterChange(key, null);
+                    }
+                  }}
                   className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
                 >
                   <X className="h-3 w-3" />

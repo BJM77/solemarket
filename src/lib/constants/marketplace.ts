@@ -22,7 +22,7 @@ export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
     'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Under Armour', 
     'Reebok', 'Puma', 'Converse', 'Other'
   ],
-  [CATEGORY_ACCESSORIES]: ['Watches', 'Bags', 'Hats', 'Jewelry', 'Other'],
+  [CATEGORY_ACCESSORIES]: ['Bags', 'Hats', 'Jewelry', 'Other'],
   [CATEGORY_TRADING_CARDS]: [
     'Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama',
     'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'

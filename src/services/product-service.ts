@@ -8,7 +8,7 @@ import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketpla
 const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
-  const { page = 1, sort = 'createdAt-desc', q, subCategory, conditions, priceRange, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
+  const { page = 1, sort = 'createdAt-desc', q, subCategory, brand, conditions, priceRange, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
   let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
@@ -32,6 +32,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // Firestore allows only ONE 'in' filter per query.
   // We prioritize: category > size > condition > sellers
   let inFilterUsed = false;
+  
+  // Normalize and ensure arrays for multi-select filters
+  const selectedConditions = Array.isArray(conditions) ? conditions : (conditions ? [conditions] : []);
+  const selectedSizes = Array.isArray(searchParams.sizes) ? searchParams.sizes : (searchParams.sizes ? [searchParams.sizes] : []);
+  const selectedSellers = Array.isArray(sellers) ? sellers : (sellers ? [sellers] : []);
+  const selectedGrading = Array.isArray(gradingCompanies) ? gradingCompanies : (gradingCompanies ? [gradingCompanies] : []);
+
   let filterConditionsInMemory: string[] | null = null;
   let filterSizesInMemory: string[] | null = null;
   let filterSellersInMemory: string[] | null = null;
@@ -62,53 +69,71 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     }
   }
 
+  let filterBrandInMemory: string | null = null;
+
   if (subCategory) {
     constraints.push(where('subCategory', '==', subCategory));
   }
 
-  if (conditions && conditions.length > 0) {
-    if (conditions.length === 1) {
-      constraints.push(where('condition', '==', conditions[0]));
-    } else if (!inFilterUsed) {
-      constraints.push(where('condition', 'in', conditions.slice(0, 10)));
-      inFilterUsed = true;
+  if (brand) {
+    // Optimization: If brand and subCategory are the same, don't add both to Firestore to avoid index issues
+    if (subCategory === brand) {
+      filterBrandInMemory = brand;
     } else {
-      filterConditionsInMemory = conditions;
+      constraints.push(where('brand', '==', brand));
     }
   }
 
-  if (searchParams.sizes && searchParams.sizes.length > 0) {
-    const sizes = searchParams.sizes;
-    if (sizes.length === 1) {
-      constraints.push(where('size', '==', sizes[0]));
-    } else if (!inFilterUsed) {
-      constraints.push(where('size', 'in', sizes.slice(0, 10)));
+  if (selectedConditions.length > 0) {
+    if (selectedConditions.length === 1 && !inFilterUsed) {
+      constraints.push(where('condition', '==', selectedConditions[0]));
+      filterConditionsInMemory = selectedConditions;
+    } else if (selectedConditions.length > 1 && !inFilterUsed) {
+      constraints.push(where('condition', 'in', selectedConditions.slice(0, 10)));
       inFilterUsed = true;
+      filterConditionsInMemory = selectedConditions;
     } else {
-      filterSizesInMemory = sizes;
+      filterConditionsInMemory = selectedConditions;
     }
   }
 
-  if (sellers && sellers.length > 0) {
-    if (sellers.length === 1) {
-      constraints.push(where('sellerId', '==', sellers[0]));
-    } else if (!inFilterUsed) {
-      constraints.push(where('sellerId', 'in', sellers.slice(0, 10)));
+  if (selectedSizes.length > 0) {
+    if (selectedSizes.length === 1 && !inFilterUsed) {
+      constraints.push(where('size', '==', selectedSizes[0]));
+      filterSizesInMemory = selectedSizes;
+    } else if (selectedSizes.length > 1 && !inFilterUsed) {
+      constraints.push(where('size', 'in', selectedSizes.slice(0, 10)));
       inFilterUsed = true;
+      filterSizesInMemory = selectedSizes;
     } else {
-      filterSellersInMemory = sellers;
+      filterSizesInMemory = selectedSizes;
+    }
+  }
+
+  if (selectedSellers.length > 0) {
+    if (selectedSellers.length === 1 && !inFilterUsed) {
+      constraints.push(where('sellerId', '==', selectedSellers[0]));
+      filterSellersInMemory = selectedSellers;
+    } else if (selectedSellers.length > 1 && !inFilterUsed) {
+      constraints.push(where('sellerId', 'in', selectedSellers.slice(0, 10)));
+      inFilterUsed = true;
+      filterSellersInMemory = selectedSellers;
+    } else {
+      filterSellersInMemory = selectedSellers;
     }
   }
 
   // Card Specific Filters
-  if (gradingCompanies && gradingCompanies.length > 0) {
-    if (gradingCompanies.length === 1) {
-      constraints.push(where('gradingCompany', '==', gradingCompanies[0]));
-    } else if (!inFilterUsed) {
-      constraints.push(where('gradingCompany', 'in', gradingCompanies.slice(0, 10)));
+  if (selectedGrading.length > 0) {
+    if (selectedGrading.length === 1 && !inFilterUsed) {
+      constraints.push(where('gradingCompany', '==', selectedGrading[0]));
+      filterGradingInMemory = selectedGrading;
+    } else if (selectedGrading.length > 1 && !inFilterUsed) {
+      constraints.push(where('gradingCompany', 'in', selectedGrading.slice(0, 10)));
       inFilterUsed = true;
+      filterGradingInMemory = selectedGrading;
     } else {
-      filterGradingInMemory = gradingCompanies;
+      filterGradingInMemory = selectedGrading;
     }
   }
 
@@ -271,13 +296,25 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       }
 
       // 4. Size Filter (in memory if multiple sizes and 'in' already used)
-      if (filterSizesInMemory) {
-        if (!p.size || !filterSizesInMemory.includes(p.size)) return false;
+      if (filterSizesInMemory && filterSizesInMemory.length > 0) {
+        if (!p.size) return false;
+        
+        // Normalize for comparison (e.g. "10" vs "US 10")
+        const normalizeSize = (s: string) => s.toUpperCase().startsWith('US ') ? s.toUpperCase() : `US ${s.toUpperCase()}`;
+        const normalizedItemSize = normalizeSize(p.size);
+        const normalizedFilterSizes = filterSizesInMemory.map(normalizeSize);
+        
+        if (!normalizedFilterSizes.includes(normalizedItemSize)) return false;
       }
 
       // 5. Seller Filter (in memory if multiple sellers and 'in' already used)
       if (filterSellersInMemory) {
         if (!p.sellerId || !filterSellersInMemory.includes(p.sellerId)) return false;
+      }
+
+      // 5b. Brand Filter (in memory if same as subCategory to save index)
+      if (filterBrandInMemory) {
+        if (!p.brand || p.brand.toLowerCase().trim() !== filterBrandInMemory.toLowerCase().trim()) return false;
       }
 
       // 6. Minimum Rating Filter (if present)

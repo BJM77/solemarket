@@ -8,7 +8,7 @@ import type { ProductSearchParams } from '@/lib/types';
 
 interface QuickFilterChipsProps {
     currentFilters: Partial<ProductSearchParams>;
-    onFilterChange: (key: string, value: any) => void;
+    onFilterChange: (keyOrChanges: string | Record<string, any>, value?: any) => void;
     targetCategory?: string;
     className?: string;
 }
@@ -40,8 +40,12 @@ export function QuickFilterChips({
     };
 
     const toggleBrand = (brand: string) => {
-        const isSelected = currentSubCategory === brand;
-        onFilterChange('subCategory', isSelected ? null : brand);
+        const isSelected = currentFilters.subCategory === brand || currentFilters.brand === brand;
+        if (isSelected) {
+            onFilterChange({ subCategory: null, brand: null });
+        } else {
+            onFilterChange({ subCategory: brand, brand: brand });
+        }
     };
 
     const togglePrice = (range: [number, number]) => {
@@ -56,7 +60,7 @@ export function QuickFilterChips({
 
                 {/* Brand Chips (Sneakers Only) */}
                 {isSneakers && QUICK_BRANDS.map(brand => {
-                    const isSelected = currentSubCategory === brand;
+                    const isSelected = currentSubCategory === brand || currentFilters.brand === brand;
                     return (
                         <button
                             key={brand}

@@ -173,6 +173,7 @@ export type ProductSearchParams = {
   q?: string;
   category?: string;
   subCategory?: string;
+  brand?: string;
   sellerId?: string;
   page?: number;
   limit?: number;

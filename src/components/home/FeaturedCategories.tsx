@@ -14,8 +14,7 @@ const getCategoryIcon = (name: string) => {
   const lowercaseName = name.toLowerCase();
   if (lowercaseName.includes('sneaker') || lowercaseName.includes('shoe') || lowercaseName.includes('jordan') || lowercaseName.includes('yeezy') || lowercaseName.includes('nike')) return <Footprints className="h-6 w-6" />;
   if (lowercaseName.includes('streetwear') || lowercaseName.includes('clothing') || lowercaseName.includes('hoodie') || lowercaseName.includes('shirt') || lowercaseName.includes('tee')) return <Shirt className="h-6 w-6" />;
-  if (lowercaseName.includes('accessory') || lowercaseName.includes('watch') || lowercaseName.includes('bag') || lowercaseName.includes('hat') || lowercaseName.includes('cap')) return <Watch className="h-6 w-6" />;
-  if (lowercaseName.includes('bag') || lowercaseName.includes('tot')) return <ShoppingBag className="h-6 w-6" />;
+  if (lowercaseName.includes('accessory') || lowercaseName.includes('bag') || lowercaseName.includes('hat') || lowercaseName.includes('cap')) return <ShoppingBag className="h-6 w-6" />;
   return <LayoutGrid className="h-6 w-6" />;
 };
 

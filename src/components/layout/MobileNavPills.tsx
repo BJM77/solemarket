@@ -26,7 +26,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
     if (isSneakerPage) {
         navItems = [
             { label: 'Home', href: '/', icon: Home },
-            { label: 'Jordan', href: '/browse?category=Sneakers&subCategory=Jordan', icon: Flame },
+            { label: 'Jordan', href: '/browse?category=Sneakers&subCategory=Jordan&brand=Jordan', icon: Flame },
             { label: 'Limited', href: '/browse?category=Sneakers&subCategory=Limited', icon: Star },
             { label: 'Vintage', href: '/browse?category=Sneakers&subCategory=Vintage', icon: History },
         ];

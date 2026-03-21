@@ -161,7 +161,10 @@ export async function createProductAction(
 
         // Search helpers & Normalization (Pillar 2/3)
         (finalData as any).title_lowercase = validData.title.toLowerCase();
-        (finalData as any).keywords = generateKeywords(validData.title);
+        const keywords = generateKeywords(validData.title);
+        if (validData.brand) keywords.push(...generateKeywords(validData.brand));
+        if (validData.subCategory) keywords.push(...generateKeywords(validData.subCategory));
+        (finalData as any).keywords = [...new Set(keywords)];
 
         await docRef.set(finalData);
         console.log('Product saved:', docRef.id);

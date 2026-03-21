@@ -46,7 +46,8 @@ export function ProductHeader({ product }: ProductHeaderProps) {
             </div>
             <span>{activeViewers} viewing right now</span>
           </div>
-          {product.watchCount ? (
+          {/* Watching count removed per user request */}
+          {/* {product.watchCount ? (
             <>
               <span className="text-gray-300">|</span>
               <div className="flex items-center gap-1">
@@ -54,7 +55,7 @@ export function ProductHeader({ product }: ProductHeaderProps) {
                 <span>{product.watchCount} watching</span>
               </div>
             </>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
 

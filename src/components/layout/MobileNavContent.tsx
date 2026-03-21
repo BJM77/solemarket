@@ -133,9 +133,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
                                     <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers')}>All Sneakers</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Jordan')}>Jordan</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Nike')}>Nike</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Yeezy')}>Yeezy</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Jordan&brand=Jordan')}>Jordan</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Nike&brand=Nike')}>Nike</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Yeezy&brand=Yeezy')}>Yeezy</Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>

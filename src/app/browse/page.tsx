@@ -54,6 +54,21 @@ export default async function BrowsePage({
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const subCategoryParam = typeof resolvedParams.subCategory === 'string' ? resolvedParams.subCategory : undefined;
+  const brandParam = typeof resolvedParams.brand === 'string' ? resolvedParams.brand : undefined;
+  const sizesParam = typeof resolvedParams.sizes === 'string' ? resolvedParams.sizes.split(',') : undefined;
+  const conditionsParam = typeof resolvedParams.conditions === 'string' ? resolvedParams.conditions.split(',') : undefined;
+  const verifiedOnlyParam = resolvedParams.verifiedOnly === 'true';
+  const sortParam = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined;
+  const manufacturerParam = typeof resolvedParams.manufacturer === 'string' ? resolvedParams.manufacturer : undefined;
+
+  // Price range handling
+  let priceRangeParam: [number, number] | undefined = undefined;
+  if (typeof resolvedParams.priceRange === 'string') {
+    const parts = resolvedParams.priceRange.split(',').map(Number);
+    if (parts.length === 2 && !parts.some(isNaN)) {
+      priceRangeParam = [parts[0], parts[1]] as [number, number];
+    }
+  }
 
   // Initial Server Fetch
   let initialProductsData;
@@ -64,7 +79,13 @@ export default async function BrowsePage({
       q: searchTerm,
       category: targetCategory,
       subCategory: subCategoryParam,
-      sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
+      brand: brandParam,
+      sizes: sizesParam,
+      conditions: conditionsParam,
+      verifiedOnly: verifiedOnlyParam,
+      priceRange: priceRangeParam,
+      manufacturer: manufacturerParam,
+      sort: sortParam,
       page: 1,
       limit: 24
     });
@@ -98,7 +119,14 @@ export default async function BrowsePage({
           initialFilterState={{
             q: searchTerm,
             category: targetCategory,
-            subCategory: subCategoryParam
+            subCategory: subCategoryParam,
+            brand: brandParam,
+            sizes: sizesParam,
+            conditions: conditionsParam,
+            verifiedOnly: verifiedOnlyParam,
+            priceRange: priceRangeParam,
+            manufacturer: manufacturerParam,
+            sort: sortParam
           }}
           initialData={initialProductsData} // Pass initial data
         />
