@@ -710,53 +710,6 @@ export default function ProductDetailsModern({
                             {/* The "Back Button" was moved up to the Header Row (Breadcrumbs) to align the top of the buy box with the image gallery */}
 
                             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
-                                {/* Controls (eBay Search / Admin Delete) */}
-                                <div className="flex justify-end gap-2 mb-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 text-blue-600 hover:bg-blue-50 gap-1"
-                                        asChild
-                                    >
-                                        <a
-                                            href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <ExternalLink className="h-4 w-4" /> eBay Sold Items
-                                        </a>
-                                    </Button>
-                                    {/* eBay Check hidden per user request */}
-                                    {/* <EbaySearchModal
-                                        defaultQuery={getEbayQuery()}
-                                        trigger={
-                                            <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50 gap-1" title="Check eBay Prices (In-App)">
-                                                <Search className="h-4 w-4" /> eBay Check
-                                            </Button>
-                                        }
-                                    /> */}
-                                    {isSuperAdmin && (
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1">
-                                                    <Trash2 className="h-4 w-4" /> Delete
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Delete this product?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    )}
-                                </div>
 
                                 {/* Desktop Product Header (Title/Price) */}
                                 <div className="hidden lg:block">
@@ -933,6 +886,45 @@ export default function ProductDetailsModern({
                                             </div>
                                         </div>
                                     )}
+
+                                {/* Controls (eBay Search / Admin Delete) */}
+                                <div className="flex justify-center w-full gap-2 mt-4 text-sm whitespace-nowrap overflow-x-auto pb-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 text-blue-600 hover:bg-blue-50 gap-1 font-bold"
+                                        asChild
+                                    >
+                                        <a
+                                            href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <ExternalLink className="h-4 w-4" /> eBay Sold Items
+                                        </a>
+                                    </Button>
+                                    {isSuperAdmin && (
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1 font-bold">
+                                                    <Trash2 className="h-4 w-4" /> Delete
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    )}
+                                </div>
 
                                     {/* Auction Interface if Reverse Bidding */}
                                     {product.isReverseBidding && (
