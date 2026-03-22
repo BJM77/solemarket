@@ -1021,15 +1021,9 @@ export default function ProductDetailsModern({
                                             </Avatar>
                                         </div>
                                         <div>
-                                            <div className="flex items-center gap-2 mb-0.5">
-                                                <Link href={`/seller/${seller.id}`} className="hover:underline">
-                                                    <h4 className="font-bold text-gray-900 dark:text-white">{seller.displayName}</h4>
-                                                </Link>
-                                                {product.multiCardTier === 'bronze' && <span className="bg-orange-100 text-orange-800 border border-orange-200 text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Bronze Deal</span>}
-                                                {product.multiCardTier === 'silver' && <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Silver Deal</span>}
-                                                {product.multiCardTier === 'gold' && <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Gold Deal</span>}
-                                                {product.multiCardTier === 'platinum' && <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Platinum Deal</span>}
-                                            </div>
+                                            <Link href={`/seller/${seller.id}`} className="hover:underline">
+                                                <h4 className="font-bold text-gray-900 dark:text-white">{seller.displayName}</h4>
+                                            </Link>
                                             <div className="flex items-center gap-1 text-sm text-yellow-500">
                                                 <Star className="h-4 w-4 fill-current" />
                                                 <span className="font-bold text-gray-700 dark:text-gray-200">

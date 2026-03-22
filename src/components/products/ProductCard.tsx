@@ -173,6 +173,30 @@ export default function ProductCard({
     }
   };
 
+  const DealTierBadge = ({ className }: { className?: string }) => {
+    if (!product.multiCardTier) return null;
+    
+    const tiers = {
+      bronze: { label: 'Bronze', classes: 'bg-orange-100 text-orange-800 border-orange-200' },
+      silver: { label: 'Silver', classes: 'bg-slate-200 text-slate-700 border-slate-300' },
+      gold: { label: 'Gold', classes: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+      platinum: { label: 'Platinum', classes: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
+    };
+    
+    const tier = tiers[product.multiCardTier as keyof typeof tiers];
+    if (!tier) return null;
+
+    return (
+      <span className={cn(
+        "text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0 border inline-block",
+        tier.classes,
+        className
+      )}>
+        {tier.label}
+      </span>
+    );
+  };
+
   const PriceDisplay = () => {
     if (isEditingPrice) {
       return (
@@ -529,9 +553,10 @@ export default function ProductCard({
                 />
               </div>
             )}
-            <span className="text-sm font-bold w-full text-right flex justify-end pointer-events-auto">
+            <div className="text-sm font-bold w-full text-right flex justify-end items-center gap-2 pointer-events-auto">
+              <DealTierBadge />
               <PriceDisplay />
-            </span>
+            </div>
             <Button
               size="sm"
               variant="outline"
@@ -705,7 +730,10 @@ export default function ProductCard({
           <div>
             <div className="flex items-center justify-between mb-1">
               <Badge variant="outline" className="text-xs pointer-events-auto">{product.category}</Badge>
-              <div className="font-bold text-lg pointer-events-auto"><PriceDisplay /></div>
+              <div className="font-bold text-lg pointer-events-auto flex items-center gap-2">
+                <DealTierBadge />
+                <PriceDisplay />
+              </div>
             </div>
             <h3 className="text-lg font-semibold text-foreground group-hover:text-primary leading-tight">
               {product.title}
@@ -954,17 +982,14 @@ export default function ProductCard({
           </Avatar>
           <span className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate max-w-[100px]">{product.sellerName || 'Benched'}</span>
           {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
-          {product.multiCardTier === 'bronze' && <span className="bg-orange-100 text-orange-800 border border-orange-200 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Bronze</span>}
-          {product.multiCardTier === 'silver' && <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Silver</span>}
-          {product.multiCardTier === 'gold' && <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Gold</span>}
-          {product.multiCardTier === 'platinum' && <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Platinum</span>}
         </div>
 
         <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">
           <div className="pointer-events-auto">
             <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
-            <div className="text-lg sm:text-2xl font-black text-[#0d121b] dark:text-white tracking-tight">
+            <div className="text-lg sm:text-2xl font-black text-[#0d121b] dark:text-white tracking-tight flex items-center gap-2">
               <PriceDisplay />
+              <DealTierBadge />
             </div>
           </div>
           <div className="flex gap-2 pointer-events-auto">

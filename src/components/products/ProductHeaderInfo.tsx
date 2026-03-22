@@ -53,10 +53,14 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className 
                 {product.title}
             </h1>
 
-            <div className="flex items-baseline gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-3xl md:text-4xl font-black text-primary">
                     ${formatPrice(product.price)}
                 </span>
+                {product.multiCardTier === 'bronze' && <span className="bg-orange-100 text-orange-800 border border-orange-200 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Bronze Deal</span>}
+                {product.multiCardTier === 'silver' && <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Silver Deal</span>}
+                {product.multiCardTier === 'gold' && <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Gold Deal</span>}
+                {product.multiCardTier === 'platinum' && <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Platinum Deal</span>}
                 {product.isNegotiable && (
                     <Badge variant="outline" className="text-primary border-primary">Negotiable</Badge>
                 )}
