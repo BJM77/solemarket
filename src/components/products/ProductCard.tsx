@@ -953,7 +953,11 @@ export default function ProductCard({
             <AvatarFallback className="text-[8px] sm:text-[10px] bg-gray-100 dark:bg-gray-800">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
           </Avatar>
           <span className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate max-w-[100px]">{product.sellerName || 'Benched'}</span>
-          {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500" />}
+          {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
+          {product.multiCardTier === 'bronze' && <span className="bg-orange-100 text-orange-800 border border-orange-200 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Bronze</span>}
+          {product.multiCardTier === 'silver' && <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Silver</span>}
+          {product.multiCardTier === 'gold' && <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Gold</span>}
+          {product.multiCardTier === 'platinum' && <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Platinum</span>}
         </div>
 
         <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">

@@ -28,6 +28,7 @@ export function QuickFilterChips({
 }: QuickFilterChipsProps) {
     const isSneakers = targetCategory === 'Sneakers';
     const currentSizes = (currentFilters.sizes as string[]) || [];
+    const currentTiers = (currentFilters.multiCardTiers as string[]) || [];
     const currentSubCategory = currentFilters.subCategory as string;
     const currentPriceRange = currentFilters.priceRange as [number, number];
 
@@ -37,6 +38,14 @@ export function QuickFilterChips({
             ? currentSizes.filter(s => s !== size)
             : [...currentSizes, size];
         onFilterChange('sizes', newSizes.length > 0 ? newSizes : null);
+    };
+
+    const toggleTier = (tier: string) => {
+        const isSelected = currentTiers.includes(tier);
+        const newTiers = isSelected
+            ? currentTiers.filter(t => t !== tier)
+            : [...currentTiers, tier];
+        onFilterChange('multiCardTiers', newTiers.length > 0 ? newTiers : null);
     };
 
     const toggleBrand = (brand: string) => {
@@ -114,6 +123,17 @@ export function QuickFilterChips({
                         </button>
                     );
                 })}
+
+                {/* Deal Tier Chips */}
+                {currentTiers.map(tier => (
+                    <button
+                        key={`tier-${tier}`}
+                        onClick={() => toggleTier(tier)}
+                        className="px-3 py-1 rounded-full text-xs font-bold transition-all border whitespace-nowrap tap-haptic-subtle bg-primary/10 border-primary text-primary flex items-center gap-1"
+                    >
+                        {tier.charAt(0).toUpperCase() + tier.slice(1)} Deal <X className="h-3 w-3 ml-1" />
+                    </button>
+                ))}
             </div>
         </div>
     );

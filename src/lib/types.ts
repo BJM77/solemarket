@@ -184,6 +184,7 @@ export type ProductSearchParams = {
   categories?: string[];
   sizes?: string[];
   sellers?: string[];
+  multiCardTiers?: string[];
   yearRange?: [number, number];
   verifiedOnly?: boolean;
   lastId?: string;

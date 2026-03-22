@@ -38,11 +38,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const selectedSizes = Array.isArray(searchParams.sizes) ? searchParams.sizes : (searchParams.sizes ? [searchParams.sizes] : []);
   const selectedSellers = Array.isArray(sellers) ? sellers : (sellers ? [sellers] : []);
   const selectedGrading = Array.isArray(gradingCompanies) ? gradingCompanies : (gradingCompanies ? [gradingCompanies] : []);
+  const selectedTiers = Array.isArray(searchParams.multiCardTiers) ? searchParams.multiCardTiers : (searchParams.multiCardTiers ? [searchParams.multiCardTiers] : []);
 
   let filterConditionsInMemory: string[] | null = null;
   let filterSizesInMemory: string[] | null = null;
   let filterSellersInMemory: string[] | null = null;
   let filterGradingInMemory: string[] | null = null;
+  let filterTiersInMemory: string[] | null = null;
 
   // Handle Multi-select Categories or Expand Single Category to Related
   if (categories && categories.length > 0) {
@@ -131,6 +133,18 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   if (manufacturer) {
     constraints.push(where('manufacturer', '==', manufacturer));
+  }
+
+  // Deal Tiers Filter
+  if (selectedTiers.length > 0) {
+    if (selectedTiers.length === 1) {
+      constraints.push(where('multiCardTier', '==', selectedTiers[0]));
+    } else if (!inFilterUsed && selectedTiers.length > 1) {
+      constraints.push(where('multiCardTier', 'in', selectedTiers.slice(0, 10)));
+      inFilterUsed = true;
+    } else {
+      filterTiersInMemory = selectedTiers;
+    }
   }
 
   // Verified Only Filter
@@ -319,7 +333,12 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
         if (!p.gradingCompany || !filterGradingInMemory.includes(p.gradingCompany)) return false;
       }
 
-      // 3. Public Release Timing (for non-business/non-admin)
+      // 8. Deal Tiers Filter (in memory)
+      if (filterTiersInMemory) {
+        if (!p.multiCardTier || !filterTiersInMemory.includes(p.multiCardTier)) return false;
+      }
+
+      // 9. Public Release Timing (for non-business/non-admin)
       if (!isBusinessOrHigher) {
         const releaseAt = p.publicReleaseAt as any;
         if (releaseAt) {

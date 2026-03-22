@@ -102,8 +102,16 @@ const CARD_SUB_CATEGORIES = [
     'Curry',
     'LeBron',
     'Rookies',
+    'Rookies',
     'Signed',
     'Other',
+];
+
+const DEAL_TIERS = [
+    { label: 'Bronze', value: 'bronze', iconUrl: '/badges/bronze.png' }, // Or text colors if no image
+    { label: 'Silver', value: 'silver', iconUrl: '/badges/silver.png' },
+    { label: 'Gold', value: 'gold', iconUrl: '/badges/gold.png' },
+    { label: 'Platinum', value: 'platinum', iconUrl: '/badges/platinum.png' },
 ];
 
 interface AdvancedFilterPanelProps {
@@ -176,6 +184,14 @@ export default function AdvancedFilterPanel({
             ? currentConditions.filter(c => c !== condition)
             : [...currentConditions, condition];
         handleLocalChange('conditions', newConditions.length > 0 ? newConditions : undefined);
+    };
+
+    const toggleTier = (tierValue: string) => {
+        const currentTiers = (localFilters.multiCardTiers as string[]) || [];
+        const newTiers = currentTiers.includes(tierValue)
+            ? currentTiers.filter(t => t !== tierValue)
+            : [...currentTiers, tierValue];
+        handleLocalChange('multiCardTiers', newTiers.length > 0 ? newTiers : undefined);
     };
 
     const toggleSize = (size: string) => {
@@ -446,6 +462,39 @@ export default function AdvancedFilterPanel({
                                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                                         >
                                             {condition}
+                                        </label>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Deal Tiers */}
+                    <div className="space-y-3">
+                        <Label className="text-base font-semibold">Multi-Listing Deals</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {DEAL_TIERS.map((tier) => {
+                                const isSelected = (localFilters.multiCardTiers as string[] || []).includes(tier.value);
+                                return (
+                                    <div key={tier.value} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`tier-${tier.value}`}
+                                            checked={isSelected}
+                                            onCheckedChange={() => toggleTier(tier.value)}
+                                        />
+                                        <label
+                                            htmlFor={`tier-${tier.value}`}
+                                            className={cn(
+                                                "text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1.5",
+                                                tier.value === 'bronze' && "text-orange-700",
+                                                tier.value === 'silver' && "text-slate-500",
+                                                tier.value === 'gold' && "text-yellow-600",
+                                                tier.value === 'platinum' && "text-indigo-600"
+                                            )}
+                                        >
+                                            {tier.label}
                                         </label>
                                     </div>
                                 );
