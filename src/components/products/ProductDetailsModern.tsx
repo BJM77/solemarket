@@ -647,20 +647,32 @@ export default function ProductDetailsModern({
             </Dialog>
 
             <div className="max-w-7xl mx-auto px-4 pt-6">
-                {/* Breadcrumbs */}
-                <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-6 overflow-x-auto whitespace-nowrap pb-2">
-                    <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                    <span className="text-gray-300">/</span>
-                    <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors">
-                        {product.category}
-                    </Link>
-                    {product.subCategory && (
-                        <>
-                            <span className="text-gray-300">/</span>
-                            <span className="text-gray-900 dark:text-gray-100">{product.subCategory}</span>
-                        </>
-                    )}
-                </nav>
+                {/* Header Row: Breadcrumbs & Back Button */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2 sm:gap-4">
+                    <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto pb-1 min-w-0">
+                        <Link href="/" className="hover:text-primary transition-colors pr-1">Home</Link>
+                        <span className="text-gray-300">/</span>
+                        <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors px-1">
+                            {product.category}
+                        </Link>
+                        {product.subCategory && (
+                            <>
+                                <span className="text-gray-300">/</span>
+                                <span className="text-gray-900 dark:text-gray-100 pl-1">{product.subCategory}</span>
+                            </>
+                        )}
+                    </nav>
+                    
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-500 hover:text-gray-900 dark:hover:text-white shrink-0 self-start sm:self-auto -ml-3 sm:ml-0"
+                        onClick={() => router.back()}
+                    >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Back to previous
+                    </Button>
+                </div>
 
                 <div className="mb-6">
                     <CategoryPills />
@@ -695,17 +707,7 @@ export default function ProductDetailsModern({
                     {/* Right Column: Sticky Buy Box */}
                     <div className="lg:col-span-5 relative">
                         <div className="sticky top-24 space-y-6">
-                            {/* Back Button */}
-                            <div className="flex justify-end mb-4">
-                                <Button
-                                    variant="ghost"
-                                    className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                                    onClick={() => router.back()}
-                                >
-                                    <ChevronLeft className="h-4 w-4 mr-1" />
-                                    Back to previous
-                                </Button>
-                            </div>
+                            {/* The "Back Button" was moved up to the Header Row (Breadcrumbs) to align the top of the buy box with the image gallery */}
 
                             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
                                 {/* Controls (eBay Search / Admin Delete) */}

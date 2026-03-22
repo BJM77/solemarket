@@ -762,25 +762,6 @@ export default function ProductCard({
         )}
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
-          {product.isPromoted && (
-            <Badge variant="default" className="inline-flex items-center gap-1 bg-orange-500 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
-              <Sparkles className="h-3 w-3" />
-              FEATURED
-            </Badge>
-          )}
-          {/* WATCH MATCH removed per user request */}
-          {/* {isAdmin && (product as any).adminWantedMatch && (
-            <Badge variant="default" className="inline-flex items-center gap-1 bg-indigo-600 text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto border-2 border-white/20">
-              <Tag className="h-3 w-3" />
-              WATCH MATCH
-            </Badge>
-          )} */}
-          {mounted && isNewArrival() && (
-            <Badge variant="default" className="inline-flex items-center gap-1 bg-secondary text-white font-black px-2 py-1 rounded-lg shadow-lg animate-in fade-in zoom-in pointer-events-auto">
-              <Sparkles className="h-3 w-3" />
-              FRESH OFF THE BENCH
-            </Badge>
-          )}
           {product.status === 'pending_approval' && (
             <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto">
               <Clock className="h-3 w-3" />
@@ -792,43 +773,9 @@ export default function ProductCard({
               CHECKED IN
             </Badge>
           )}
-          {product.condition && (
-            <Badge variant="secondary" className={cn(
-              "inline-flex items-center gap-1 font-black px-2 py-1 rounded-lg uppercase text-[10px] tracking-tighter backdrop-blur-md pointer-events-auto shadow-sm",
-              product.condition.includes('New') || product.grade?.includes('10') ? "bg-emerald-500/90 text-white" : "bg-black/60 text-white"
-            )}>
-              {isCardCategory(product.category) ? (product.grade || 'RAW') : (product.condition?.toUpperCase() || 'USED')}
-            </Badge>
-          )}
-          {/* Watching count removed from image per user request */}
-          {/* <Badge variant="secondary" className="inline-flex items-center gap-1 bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter backdrop-blur-sm pointer-events-auto shadow-md">
-            <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-            {product.watchCount || 0} Watching
-          </Badge> */}
           {hasViewed && (
             <Badge variant="secondary" className="inline-flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 bg-black/50 text-white rounded-full backdrop-blur-sm pointer-events-auto shadow-sm p-0">
               <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            </Badge>
-          )}
-          {product.multibuyEnabled && (
-            <Badge
-              variant="default"
-              className={cn(
-                "inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full uppercase tracking-tighter shadow-md pointer-events-auto",
-                /* Default / Fallback */
-                "bg-blue-600 hover:bg-blue-700 text-white",
-                /* Tier Specific Styles */
-                product.multiCardTier === 'bronze' && "bg-orange-600 hover:bg-orange-700 text-white",
-                product.multiCardTier === 'silver' && "bg-slate-500 hover:bg-slate-600 text-white",
-                product.multiCardTier === 'gold' && "bg-yellow-500 hover:bg-yellow-600 text-white",
-                product.multiCardTier === 'platinum' && "bg-white hover:bg-gray-50 text-black border border-black"
-              )}
-            >
-              <Package className={cn(
-                "h-2.5 w-2.5 sm:h-3 sm:w-3",
-                product.multiCardTier === 'platinum' ? "text-black" : "text-white"
-              )} />
-              MB
             </Badge>
           )}
         </div>
@@ -987,7 +934,6 @@ export default function ProductCard({
             {product.title}
           </h3>
           <div className="flex flex-col items-end gap-1 shrink-0">
-            {product.grade && <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0">{product.grade}</span>}
             {!isCardCategory(product.category) && product.size && (
               <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
                 US {product.size.replace('US ', '')}
@@ -1000,11 +946,6 @@ export default function ProductCard({
           {product.oldPrice && product.oldPrice > product.price && (
             <Badge variant="default" className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 animate-pulse">
               🔥 Price Drop
-            </Badge>
-          )}
-          {mounted && isNewArrival() && (
-            <Badge variant="outline" className="border-indigo-500 text-indigo-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0">
-              Just In
             </Badge>
           )}
           <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-gray-200 dark:border-gray-700 flex-shrink-0">
