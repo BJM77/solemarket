@@ -85,39 +85,33 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
 
   if (selectedConditions.length > 0) {
-    if (selectedConditions.length === 1 && !inFilterUsed) {
+    if (selectedConditions.length === 1) {
       constraints.push(where('condition', '==', selectedConditions[0]));
-      filterConditionsInMemory = selectedConditions;
-    } else if (selectedConditions.length > 1 && !inFilterUsed) {
+    } else if (!inFilterUsed && selectedConditions.length > 1) {
       constraints.push(where('condition', 'in', selectedConditions.slice(0, 10)));
       inFilterUsed = true;
-      filterConditionsInMemory = selectedConditions;
     } else {
       filterConditionsInMemory = selectedConditions;
     }
   }
 
   if (selectedSizes.length > 0) {
-    if (selectedSizes.length === 1 && !inFilterUsed) {
+    if (selectedSizes.length === 1) {
       constraints.push(where('size', '==', selectedSizes[0]));
-      filterSizesInMemory = selectedSizes;
-    } else if (selectedSizes.length > 1 && !inFilterUsed) {
+    } else if (!inFilterUsed && selectedSizes.length > 1) {
       constraints.push(where('size', 'in', selectedSizes.slice(0, 10)));
       inFilterUsed = true;
-      filterSizesInMemory = selectedSizes;
     } else {
       filterSizesInMemory = selectedSizes;
     }
   }
 
   if (selectedSellers.length > 0) {
-    if (selectedSellers.length === 1 && !inFilterUsed) {
+    if (selectedSellers.length === 1) {
       constraints.push(where('sellerId', '==', selectedSellers[0]));
-      filterSellersInMemory = selectedSellers;
-    } else if (selectedSellers.length > 1 && !inFilterUsed) {
+    } else if (!inFilterUsed && selectedSellers.length > 1) {
       constraints.push(where('sellerId', 'in', selectedSellers.slice(0, 10)));
       inFilterUsed = true;
-      filterSellersInMemory = selectedSellers;
     } else {
       filterSellersInMemory = selectedSellers;
     }
@@ -125,13 +119,11 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   // Card Specific Filters
   if (selectedGrading.length > 0) {
-    if (selectedGrading.length === 1 && !inFilterUsed) {
+    if (selectedGrading.length === 1) {
       constraints.push(where('gradingCompany', '==', selectedGrading[0]));
-      filterGradingInMemory = selectedGrading;
-    } else if (selectedGrading.length > 1 && !inFilterUsed) {
+    } else if (!inFilterUsed && selectedGrading.length > 1) {
       constraints.push(where('gradingCompany', 'in', selectedGrading.slice(0, 10)));
       inFilterUsed = true;
-      filterGradingInMemory = selectedGrading;
     } else {
       filterGradingInMemory = selectedGrading;
     }

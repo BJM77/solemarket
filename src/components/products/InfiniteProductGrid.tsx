@@ -396,10 +396,33 @@ function InfiniteProductGridInner({
     }
 
     if (products.length === 0 && !isLoading) {
+      const hasActiveFilters = Object.keys(currentSearchParams).some(key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentSearchParams[key as keyof ProductSearchParams]);
+      
       return (
-        <p className="col-span-full text-center text-muted-foreground py-12">
-          No products found matching your criteria.
-        </p>
+        <div className="col-span-full flex flex-col items-center justify-center text-center py-20 px-4 bg-muted/10 border-2 border-dashed rounded-2xl">
+          <div className="rounded-full bg-muted/50 p-6 mb-6">
+            <Search className="h-10 w-10 text-muted-foreground opacity-50" />
+          </div>
+          <h3 className="text-2xl font-black uppercase tracking-tight mb-2">No listings found</h3>
+          <p className="text-muted-foreground text-lg max-w-md mb-8">
+            {hasActiveFilters 
+              ? "We couldn't find any products matching your selected filters. Try adjusting or removing some filters to see more results."
+              : "There are currently no products available in this category."}
+          </p>
+          {hasActiveFilters && (
+            <Button 
+                variant="default" 
+                size="lg" 
+                className="font-bold text-sm uppercase tracking-wider"
+                onClick={() => {
+                  const newUrl = pathname + (currentSearchParams.category ? `?category=${currentSearchParams.category}` : '');
+                  router.push(newUrl, { scroll: false });
+                }}
+            >
+              Clear All Filters
+            </Button>
+          )}
+        </div>
       );
     }
 
@@ -601,23 +624,23 @@ function InfiniteProductGridInner({
       {/* Active Filters Display */}
       {Object.keys(currentSearchParams).some(key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentSearchParams[key as keyof ProductSearchParams]) && (
         <div className="flex flex-wrap items-center gap-2 mb-6 animate-in fade-in slide-in-from-top-1">
-          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-1">Active:</span>
+          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mr-2">Active:</span>
           {Object.entries(currentSearchParams).map(([key, value]) => {
             if (['view', 'sort', 'page', 'category', 'categories'].includes(key) || !value) return null;
 
             // Handle arrays (conditions, sizes, etc.)
             if (Array.isArray(value)) {
               return value.map((v) => (
-                <Badge key={`${key}-${v}`} variant="secondary" className="pl-2 pr-1 py-1 gap-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10">
-                  <span className="text-[10px] font-bold uppercase">{key === 'gradingCompanies' ? 'Grade:' : key === 'sizes' ? 'Size:' : ''} {String(v)}</span>
+                <Badge key={`${key}-${v}`} variant="secondary" className="px-3 py-1.5 gap-1.5 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm shadow-sm transition-all">
+                  <span className="font-bold uppercase tracking-tight">{key === 'gradingCompanies' ? 'Grade:' : key === 'sizes' ? 'Size:' : ''} {String(v)}</span>
                   <button
                     onClick={() => {
                       const newArr = (value as any[]).filter(x => x !== v);
                       handleFilterChange(key, newArr.length > 0 ? newArr : null);
                     }}
-                    className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                    className="hover:bg-primary/20 hover:text-destructive rounded-full p-1 transition-colors"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-4 w-4" />
                   </button>
                 </Badge>
               ));
@@ -627,8 +650,8 @@ function InfiniteProductGridInner({
             if (key === 'brand' && currentSearchParams.subCategory === value) return null;
 
             return (
-              <Badge key={key} variant="secondary" className="pl-2 pr-1 py-1 gap-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10">
-                <span className="text-[10px] font-bold uppercase">
+              <Badge key={key} variant="secondary" className="px-3 py-1.5 gap-1.5 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm shadow-sm transition-all">
+                <span className="font-bold uppercase tracking-tight">
                   {key === 'q' ? 'Search:' : (key === 'brand' || key === 'manufacturer') ? 'Brand:' : key === 'subCategory' ? 'Type:' : ''} {String(value)}
                 </span>
                 <button
@@ -639,9 +662,9 @@ function InfiniteProductGridInner({
                       handleFilterChange(key, null);
                     }
                   }}
-                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                  className="hover:bg-primary/20 hover:text-destructive rounded-full p-1 transition-colors"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4" />
                 </button>
               </Badge>
             );
@@ -654,7 +677,7 @@ function InfiniteProductGridInner({
               const newUrl = pathname + (currentSearchParams.category ? `?category=${currentSearchParams.category}` : '');
               router.push(newUrl, { scroll: false });
             }}
-            className="h-7 px-2 text-[10px] font-bold uppercase tracking-tight hover:text-destructive transition-colors"
+            className="h-9 px-3 text-xs sm:text-sm font-bold uppercase tracking-tight hover:text-destructive transition-colors ml-2"
           >
             Clear All
           </Button>
