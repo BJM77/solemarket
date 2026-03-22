@@ -131,7 +131,7 @@ export function QuickFilterChips({
                         onClick={() => toggleTier(tier)}
                         className="px-3 py-1 rounded-full text-xs font-bold transition-all border whitespace-nowrap tap-haptic-subtle bg-primary/10 border-primary text-primary flex items-center gap-1"
                     >
-                        {tier.charAt(0).toUpperCase() + tier.slice(1)} Deal <X className="h-3 w-3 ml-1" />
+                        {tier.charAt(0).toUpperCase() + tier.slice(1)} <X className="h-3 w-3 ml-1" />
                     </button>
                 ))}
             </div>

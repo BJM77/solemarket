@@ -177,10 +177,10 @@ export default function ProductCard({
     if (!product.multiCardTier) return null;
     
     const tiers = {
-      bronze: { label: 'Bronze', classes: 'bg-orange-100 text-orange-800 border-orange-200' },
-      silver: { label: 'Silver', classes: 'bg-slate-200 text-slate-700 border-slate-300' },
-      gold: { label: 'Gold', classes: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-      platinum: { label: 'Platinum', classes: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
+      bronze: { label: 'B', classes: 'bg-orange-100 text-orange-800 border-orange-200' },
+      silver: { label: 'S', classes: 'bg-slate-200 text-slate-700 border-slate-300' },
+      gold: { label: 'G', classes: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+      platinum: { label: 'P', classes: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
     };
     
     const tier = tiers[product.multiCardTier as keyof typeof tiers];
