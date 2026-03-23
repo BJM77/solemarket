@@ -164,6 +164,8 @@ export async function createProductAction(
         const keywords = generateKeywords(validData.title);
         if (validData.brand) keywords.push(...generateKeywords(validData.brand));
         if (validData.subCategory) keywords.push(...generateKeywords(validData.subCategory));
+        if (validData.category) keywords.push(...generateKeywords(validData.category));
+        if (validData.description) keywords.push(...generateKeywords(validData.description));
         (finalData as any).keywords = [...new Set(keywords)];
 
         await docRef.set(finalData);
@@ -383,23 +385,32 @@ export const getFeaturedProducts = unstable_cache(
     { revalidate: 1, tags: ['products-featured'] }
 );
 
-function generateKeywords(title: string): string[] {
-    const words = title.toLowerCase().split(/\s+/);
+function generateKeywords(text: string): string[] {
+    if (!text) return [];
+    
+    // Split into words, remove punctuation, and lowercase
+    const words = text.toLowerCase()
+        .replace(/[^\w\s]/g, ' ') // Replace punctuation with space
+        .split(/\s+/)
+        .filter(word => word.length >= 2); // Only words with 2+ chars
+
     const keywords: string[] = [];
 
-    // Generate all substrings for prefix search within words (expensive but effective for "Jord" matching "Jordan")
-    // For now, let's just save full words for 'array-contains' search
-    // Filter out short words? No, "MJ" is relevant.
-
     words.forEach(word => {
-        const cleanWord = word.replace(/[^a-z0-9]/g, '');
-        if (cleanWord.length > 0) {
-            keywords.push(cleanWord);
-        }
+        keywords.push(word);
+        
+        // Optional: Support simple prefix search within words if they are long
+        // if (word.length > 5) {
+        //     for (let i = 2; i < word.length; i++) {
+        //         keywords.push(word.substring(0, i));
+        //     }
+        // }
     });
 
-    // Also include the full title lowercase for prefix sorting
-    keywords.push(title.toLowerCase());
+    // Also include the full text lowercase if it's short (like a category name)
+    if (text.length < 50) {
+        keywords.push(text.toLowerCase().trim());
+    }
 
     return [...new Set(keywords)]; // Unique
 }

@@ -1,7 +1,7 @@
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
-import { collection, query, where, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, or, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
@@ -71,17 +71,22 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     }
   }
 
-  let filterBrandInMemory: string | null = null;
+  // Removed filterBrandInMemory as it's now handled by Firestore OR
 
-  if (subCategory) {
-    constraints.push(where('subCategory', '==', subCategory));
-  }
+  if (subCategory && brand && subCategory === brand) {
+    // If user is searching/filtering for a Top-level Brand like "Jordan", 
+    // allow matching on EITHER subCategory OR brand field for maximum inclusivity.
+    constraints.push(or(
+      where('subCategory', '==', subCategory),
+      where('brand', '==', brand)
+    ) as any);
+    // Firestore OR logic handles both subCategory and brand
+  } else {
+    if (subCategory) {
+      constraints.push(where('subCategory', '==', subCategory));
+    }
 
-  if (brand) {
-    // Optimization: If brand and subCategory are the same, don't add both to Firestore to avoid index issues
-    if (subCategory === brand) {
-      filterBrandInMemory = brand;
-    } else {
+    if (brand) {
       constraints.push(where('brand', '==', brand));
     }
   }
@@ -251,7 +256,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
 
   // Apply constraints
-  const finalConstraints = [...constraints, ...orderByConstraints];
+  const finalConstraints = [...constraints, ...orderByConstraints] as any[];
 
   let finalQuery: Query<DocumentData>;
 
@@ -318,10 +323,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
         if (!p.sellerId || !filterSellersInMemory.includes(p.sellerId)) return false;
       }
 
-      // 5b. Brand Filter (in memory if same as subCategory to save index)
-      if (filterBrandInMemory) {
-        if (!p.brand || p.brand.toLowerCase().trim() !== filterBrandInMemory.toLowerCase().trim()) return false;
-      }
+      // 5b. Brand Filter (handled by Firestore OR logic above)
 
       // 6. Minimum Rating Filter (if present)
       if (searchParams.minRating && p.sellerRating !== undefined) {
