@@ -1,7 +1,7 @@
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
-import { collection, query, where, or, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, or, and, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
@@ -256,21 +256,33 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
 
   // Apply constraints
-  const finalConstraints = [...constraints, ...orderByConstraints] as any[];
-
   let finalQuery: Query<DocumentData>;
+  
+  // If we have multiple filter constraints and any of them might be a composite filter (like our 'or' filter),
+  // we follow the Firestore recommendation to wrap them in an 'and()' for stability.
+  const hasOrFilter = constraints.some(c => c.toString().includes('or(') || (c as any)._type === 'or'); // Heuristic check or just always use and()
+  
+  const queryArgs: any[] = [];
+  if (constraints.length > 0) {
+    if (constraints.length > 1) {
+      queryArgs.push(and(...constraints));
+    } else {
+      queryArgs.push(constraints[0]);
+    }
+  }
+  queryArgs.push(...orderByConstraints);
 
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
     const lastDocSnap = await getDoc(lastDocRef);
 
     if (lastDocSnap.exists()) {
-      finalQuery = query(productsRef, ...finalConstraints, startAfter(lastDocSnap), limit(PAGE_SIZE));
+      finalQuery = query(productsRef, ...queryArgs, startAfter(lastDocSnap), limit(PAGE_SIZE));
     } else {
       return { products: [], hasMore: false };
     }
   } else {
-    finalQuery = query(productsRef, ...finalConstraints, limit(PAGE_SIZE));
+    finalQuery = query(productsRef, ...queryArgs, limit(PAGE_SIZE));
   }
 
   try {
