@@ -85,6 +85,7 @@ export async function getTopSellers(limitCount: number): Promise<Seller[]> {
                 rating: data.rating || (4.5 + Math.random() * 0.5),
                 totalSales: data.totalSales || Math.floor(Math.random() * 200) + 50,
                 avatarUrl: data.photoURL || data.avatarUrl || '',
+                shopSlug: data.shopSlug || '',
             } as Seller;
         });
 

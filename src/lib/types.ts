@@ -225,6 +225,7 @@ export interface Seller {
   avatarUrl: string;
   rating: number;
   totalSales: number;
+  shopSlug?: string;
 }
 
 export interface Review {
