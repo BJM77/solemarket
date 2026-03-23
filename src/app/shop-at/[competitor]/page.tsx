@@ -177,6 +177,18 @@ export default async function ConquestingPage({ params }: Props) {
           </p>
         </div>
       </section>
+      {/* SEO Footer Content */}
+      <section className="py-16 border-t border-border/50 bg-slate-50/50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-2xl font-black uppercase mb-6 tracking-tight">The Smartest Way to Shop at {competitor.name} in Australia</h2>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+                Love shopping at {competitor.name} but want to make your hobby more sustainable? Benched is the premier Australian marketplace designed to help you trade your way up. By selling your pre-loved sneakers and collector cards on our platform, you can fund your next big purchase at {competitor.name} without the burden of high seller fees found on other platforms.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+                Our local, peer-to-peer model ensures that Aussie collectors keep more of their hard-earned money. With DealSafe escrow protection and a community-first approach, Benched is the safest and fastest way to refresh your rotation in Melbourne, Sydney, Brisbane, and beyond.
+            </p>
+        </div>
+      </section>
     </div>
   );
 }

@@ -130,6 +130,15 @@ export default async function BrowsePage({
           }}
           initialData={initialProductsData} // Pass initial data
         />
+        <div className="container mx-auto px-4 mt-24 pt-16 border-t border-slate-100 dark:border-white/5 max-w-4xl">
+            <h2 className="text-3xl font-black uppercase mb-6 tracking-tight">The Benched Lineup: Australia&apos;s Premier Marketplace</h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                Explore the full lineup of authentic sneakers and collector cards on Benched. Our marketplace is designed specifically for the Australian hobby community, offering a secure peer-to-peer platform where buyers and sellers can trade with confidence. From deadstock grails and performance basketball shoes to PSA-graded trading cards, our selection is curated by local enthusiasts.
+            </p>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+                By eliminating seller fees and implementing our DealSafe escrow protection, Benched provides the most transparent way to upgrade your collection. Based in Perth and serving all of Australia, we pride ourselves on being the fastest and safest secondary market for the modern collector.
+            </p>
+        </div>
       </Suspense>
     </>
   );
