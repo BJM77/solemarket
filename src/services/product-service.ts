@@ -75,12 +75,13 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   if (subCategory && brand && subCategory === brand) {
     // If user is searching/filtering for a Top-level Brand like "Jordan", 
-    // allow matching on EITHER subCategory OR brand field for maximum inclusivity.
+    // allow matching on subCategory OR brand OR Keywords (Title words) for maximum inclusivity.
     constraints.push(or(
       where('subCategory', '==', subCategory),
-      where('brand', '==', brand)
-    ) as any);
-    // Firestore OR logic handles both subCategory and brand
+      where('brand', '==', brand),
+      where('keywords', 'array-contains', subCategory.toLowerCase())
+    ));
+    // Firestore OR logic handles multi-field inclusivity
   } else {
     if (subCategory) {
       constraints.push(where('subCategory', '==', subCategory));
