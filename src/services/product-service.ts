@@ -13,7 +13,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
   const productsRef = collection(db, 'products');
-  let constraints: QueryConstraint[] = [];
+  let constraints: any[] = [];
 
   // 1. Status Filter (Security & Visibility)
   if (userRole === 'admin' || userRole === 'superadmin') {
