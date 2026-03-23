@@ -12,12 +12,16 @@ export function MainNavLinks() {
 
   return (
     <nav className="flex items-center gap-6">
-      <Link href="/browse" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
+      <Link href="/shoes" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
         Shoes
       </Link>
 
       <Link href="/cards" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
         Cards
+      </Link>
+
+      <Link href="/browse" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
+        The Lineup
       </Link>
 
       {features.bidsy && (

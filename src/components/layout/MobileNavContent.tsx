@@ -29,7 +29,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
     const groupedCategories = useMemo(() => {
         const mainSections = {
-            'sneakers': { label: 'Sneakers', icon: Footprints, href: '/browse?category=Sneakers', items: [] as Category[] },
+            'sneakers': { label: 'Sneakers', icon: Footprints, href: '/shoes', items: [] as Category[] },
             'collector-cards': { label: 'Cards', icon: Gem, href: '/cards', items: [] as Category[] },
         } as Record<string, { label: string, icon: any, href: string, items: Category[] }>;
 
@@ -132,10 +132,10 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="grid grid-cols-2 gap-2 px-4 mt-2 mb-2">
-                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers')}>All Sneakers</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Jordan&brand=Jordan')}>Jordan</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Nike&brand=Nike')}>Nike</Button>
-                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/browse?category=Sneakers&subCategory=Yeezy&brand=Yeezy')}>Yeezy</Button>
+                                    <Button variant="secondary" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/shoes')}>All Sneakers</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/shoes?subCategory=Jordan&brand=Jordan')}>Jordan</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/shoes?subCategory=Nike&brand=Nike')}>Nike</Button>
+                                    <Button variant="outline" size="sm" className="justify-start h-10 font-medium" onClick={() => handleLinkClick('/shoes?subCategory=Yeezy&brand=Yeezy')}>Yeezy</Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>

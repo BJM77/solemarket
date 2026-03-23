@@ -10,67 +10,67 @@ const CATEGORIES = [
     {
         name: 'Jordan',
         logo: '/brand-logos/svg/jordan.svg',
-        href: '/browse?category=Sneakers&subCategory=Jordan&brand=Jordan',
+        href: '/shoes?subCategory=Jordan&brand=Jordan',
         color: 'bg-red-50/50 dark:bg-red-950/10'
     },
     {
         name: 'Nike',
         logo: '/brand-logos/svg/nike.svg',
-        href: '/browse?category=Sneakers&subCategory=Nike&brand=Nike',
+        href: '/shoes?subCategory=Nike&brand=Nike',
         color: 'bg-orange-50/50 dark:bg-orange-950/10'
     },
     {
         name: 'Adidas',
         logo: '/brand-logos/svg/adidas.svg',
-        href: '/browse?category=Sneakers&subCategory=Adidas&brand=Adidas',
+        href: '/shoes?subCategory=Adidas&brand=Adidas',
         color: 'bg-blue-50/50 dark:bg-blue-950/10'
     },
     {
         name: 'New Balance',
         logo: '/brand-logos/svg/new-balance.svg',
-        href: '/browse?category=Sneakers&subCategory=New%20Balance&brand=New%20Balance',
+        href: '/shoes?subCategory=New%20Balance&brand=New%20Balance',
         color: 'bg-green-50/50 dark:bg-green-950/10'
     },
     {
         name: 'Under Armour',
         logo: '/brand-logos/svg/under-armour.svg',
-        href: '/browse?category=Sneakers&subCategory=Under%20Armour&brand=Under%20Armour',
+        href: '/shoes?subCategory=Under%20Armour&brand=Under%20Armour',
         color: 'bg-slate-100/50 dark:bg-slate-800/10'
     },
     {
         name: 'Reebok',
         logo: '/brand-logos/svg/reebok.svg',
-        href: '/browse?category=Sneakers&subCategory=Reebok&brand=Reebok',
+        href: '/shoes?subCategory=Reebok&brand=Reebok',
         color: 'bg-blue-50/50 dark:bg-blue-950/10'
     },
     {
         name: 'Puma',
         logo: '/brand-logos/svg/puma.svg',
-        href: '/browse?category=Sneakers&subCategory=Puma&brand=Puma',
+        href: '/shoes?subCategory=Puma&brand=Puma',
         color: 'bg-yellow-50/50 dark:bg-yellow-950/10'
     },
     {
         name: 'Converse',
         logo: '/brand-logos/svg/converse.svg',
-        href: '/browse?category=Sneakers&subCategory=Converse&brand=Converse',
+        href: '/shoes?subCategory=Converse&brand=Converse',
         color: 'bg-zinc-100/50 dark:bg-zinc-800/10'
     },
     {
         name: 'Kobe',
         logo: '/brand-logos/svg/kobe.svg',
-        href: '/browse?category=Sneakers&subCategory=Kobe&brand=Kobe',
+        href: '/shoes?subCategory=Kobe&brand=Kobe',
         color: 'bg-purple-50/50 dark:bg-purple-950/10'
     },
     {
         name: 'LeBron',
         logo: '/brand-logos/svg/lebron.svg',
-        href: '/browse?category=Sneakers&subCategory=LeBron&brand=LeBron',
+        href: '/shoes?subCategory=LeBron&brand=LeBron',
         color: 'bg-gold-50/50 dark:bg-yellow-950/10'
     },
     {
         name: 'Curry',
         logo: '/brand-logos/svg/curry.svg',
-        href: '/browse?category=Sneakers&subCategory=Curry&brand=Curry',
+        href: '/shoes?subCategory=Curry&brand=Curry',
         color: 'bg-blue-50/50 dark:bg-blue-950/10'
     },
     {
