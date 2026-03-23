@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -270,6 +270,15 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </Button>
                         <Button variant="secondary" className="w-full font-bold text-primary" onClick={() => handleLinkClick('/multilisting-deals')}>
                             <LayoutGrid className="mr-2 h-4 w-4" /> Deals
+                        </Button>
+                    </div>
+                    
+                    <div className="px-4 mb-2">
+                        <Button variant="outline" className="w-full justify-start font-bold h-12 border-primary/20 text-primary hover:bg-primary/5" onClick={() => handleLinkClick('/top-stores')}>
+                            <div className="bg-primary/10 p-1.5 rounded-lg mr-3">
+                                <TrendingUp className="h-4 w-4" />
+                            </div>
+                            Top 10 Stores
                         </Button>
                     </div>
 

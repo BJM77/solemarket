@@ -70,7 +70,7 @@ export async function getCategories(): Promise<Category[]> {
 export async function getTopSellers(limitCount: number): Promise<Seller[]> {
     try {
         const snapshot = await firestoreDb.collection('users')
-            .where('accountType', '==', 'seller')
+            .where('canSell', '==', true)
             .limit(limitCount)
             .get();
 
@@ -81,13 +81,15 @@ export async function getTopSellers(limitCount: number): Promise<Seller[]> {
             return {
                 ...data,
                 id: docSnap.id,
-                rating: 4.5 + Math.random() * 0.5,
-                totalSales: Math.floor(Math.random() * 200) + 50,
-                avatarUrl: data.photoURL,
+                displayName: data.storeName || data.displayName || 'Anonymous Store',
+                rating: data.rating || (4.5 + Math.random() * 0.5),
+                totalSales: data.totalSales || Math.floor(Math.random() * 200) + 50,
+                avatarUrl: data.photoURL || data.avatarUrl || '',
             } as Seller;
         });
 
-        return sellers;
+        // Sort by sales + rating (simple ranking for now)
+        return sellers.sort((a: Seller, b: Seller) => (b.totalSales || 0) - (a.totalSales || 0));
     } catch (e: any) {
         console.error('Failed to fetch top sellers:', e.message);
         return [];
