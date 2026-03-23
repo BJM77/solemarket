@@ -94,6 +94,7 @@ export default async function ShoesBrowsePage({
         </div>
       }>
         <InfiniteProductGrid
+          key={categoryParam}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${categoryParam}` : 'All Sneakers'}
           pageDescription="Browse the best performance kicks from thousands of sellers."
           initialFilterState={{

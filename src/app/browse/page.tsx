@@ -114,6 +114,7 @@ export default async function BrowsePage({
         </div>
       }>
         <InfiniteProductGrid
+          key={targetCategory || 'all'}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : (targetCategory ? `All ${targetCategory}` : 'The Lineup')}
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{

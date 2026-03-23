@@ -76,6 +76,7 @@ export default async function CardsBrowsePage({
       </div>
     }>
       <InfiniteProductGrid
+        key={categoryParam}
         pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
         pageDescription="Browse the rarest cards from thousands of collectors."
         initialFilterState={{

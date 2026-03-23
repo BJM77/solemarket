@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Logo } from '../logo';
 import { MobileNav } from './mobile-nav';
 import HeaderActions from './HeaderActions';
@@ -18,7 +19,10 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const pathname = usePathname();
   const { isPinned } = useMobileNav();
+
+  const isMarketplacePage = pathname === '/browse' || pathname === '/shoes' || pathname === '/cards';
 
   useEffect(() => {
     setIsClient(true);
@@ -36,7 +40,7 @@ export default function Header() {
             </Link>
 
             {/* Mobile Nav Pills when pinned - replacing ticker */}
-            {isClient && isPinned && (
+            {isClient && isPinned && !isMarketplacePage && (
               <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
                 <MobileNavPills onSearchClick={() => setShowMobileSearch(!showMobileSearch)} />
               </div>
@@ -82,7 +86,7 @@ export default function Header() {
         Home Navigation Pills (Mobile Only)
         Replacing the scrolling ticker with discovery pills
       */}
-      {isClient && (
+      {isClient && !isMarketplacePage && (
         <div className={cn(
           "transition-all duration-300 md:hidden",
           isPinned ? "hidden" : "block"
