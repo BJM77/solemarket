@@ -14,8 +14,8 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Buy Performance Basketball Shoes & Sneakers | Benched Australia';
-  let description = 'Shop Australia\'s premier marketplace for performance basketball shoes and exclusive sneakers. Verified authentic, peer-to-peer, with zero selling fees.';
+  let title = 'Shop the Full Marketplace Lineup | Shoes & Cards | Benched Australia';
+  let description = 'Shop Australia\'s premier marketplace for performance basketball shoes, exclusive sneakers, and elite collector cards. Verified authentic, peer-to-peer, zero selling fees.';
 
   if (q && category) {
     title = `Buy ${q} in ${category} | Benched`;
@@ -72,7 +72,7 @@ export default async function BrowsePage({
 
   // Initial Server Fetch
   let initialProductsData;
-  const targetCategory = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Sneakers';
+  const targetCategory = typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined;
 
   try {
     initialProductsData = await getProducts({
@@ -114,7 +114,7 @@ export default async function BrowsePage({
         </div>
       }>
         <InfiniteProductGrid
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : 'All Sneakers'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : (targetCategory ? `All ${targetCategory}` : 'The Lineup')}
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{
             q: searchTerm,

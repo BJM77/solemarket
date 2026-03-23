@@ -358,12 +358,12 @@ function InfiniteProductGridInner({
     const category = currentSearchParams.category || initialFilterState.category;
     if (category === 'Collector Cards' || category === 'Trading Cards') return 'Cards';
     if (category === 'Sneakers') return 'Kicks';
-    return 'Items';
+    return 'Listings';
   }, [currentSearchParams.category, initialFilterState.category]);
 
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
-    if (category === 'Sneakers') return 'aspect-[4/3]';
+    if (category === 'Sneakers') return 'aspect-square';
     if (category === 'Collector Cards' || category === 'Trading Cards') return 'aspect-square';
     return 'aspect-square';
   }, [currentSearchParams.category, initialFilterState.category]);
