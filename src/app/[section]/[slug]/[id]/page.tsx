@@ -24,9 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = 'https://benched.au';
   
   // Facebook's Scraper often rejects direct Firebase Storage URLs due to encoded slashes, 
-  // security tokens, or complex query params. By using a first-party proxy that we've 
-  // whitelisted in robots.txt, we provide a clean, trusted URL that resolves directly.
-  const proxyUrl = `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`;
+  // security tokens, or complex query params. By using a top-level ID-based proxy, 
+  // we provide a clean, first-party URL that resolves server-side.
+  const proxyUrl = `${siteUrl}/og-image/${id}`;
 
   const ogImage = {
     url: proxyUrl,

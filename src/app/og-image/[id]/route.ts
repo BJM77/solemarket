@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProductById } from '@/lib/firebase/firestore';
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const url = request.nextUrl.searchParams.get('url');
-    if (!url) {
-      return new NextResponse('Missing url parameter', { status: 400 });
+    const { id } = await params;
+    if (!id) {
+      return new NextResponse('Missing product ID', { status: 400 });
     }
 
+    const product = await getProductById(id);
+    if (!product || !product.imageUrls || product.imageUrls.length === 0) {
+      return new NextResponse('Product or images not found', { status: 404 });
+    }
+
+    const imageUrl = product.imageUrls[0];
+
     // Fetch the image from Firebase Storage
-    const response = await fetch(url);
+    const response = await fetch(imageUrl);
     if (!response.ok) {
       console.error('OG Proxy failed to fetch from Firebase:', response.statusText);
       return new NextResponse('Failed to fetch upstream image', { status: response.status });
@@ -23,7 +34,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
-        'Access-Control-Allow-Origin': '*',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   } catch (error: any) {
