@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const primaryImage = product.imageUrls[0];
 
   return {
-    title: `${product.title} | ${product.category} | Benched`,
+    title: `${product.title} | ${product.category}`,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -33,15 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: canonicalUrl,
       type: 'article',
-      images: [
-        {
-          url: primaryImage,
-          secureUrl: primaryImage,
-          width: 1200,
-          height: 1200,
-          alt: `${product.title} product image`,
-        }
-      ],
+      images: [primaryImage],
     },
     twitter: {
       card: 'summary_large_image',
