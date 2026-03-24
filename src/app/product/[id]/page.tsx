@@ -25,6 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = slugify(product.title);
   const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
   const primaryImage = product.imageUrls[0];
+  const siteUrl = 'https://benched.au';
+  const proxyUrl = `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`;
 
   return {
     title: `${product.title} | ${product.category} | Benched`,
@@ -39,8 +41,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       images: [
         {
-          url: primaryImage,
-          secureUrl: primaryImage,
+          url: proxyUrl,
+          secureUrl: proxyUrl,
           width: 1200,
           height: 1200,
           alt: `${product.title} product image`,
@@ -51,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: product.title,
       description,
-      images: [primaryImage],
+      images: [proxyUrl],
     }
   };
 }

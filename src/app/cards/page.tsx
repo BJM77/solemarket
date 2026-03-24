@@ -85,6 +85,7 @@ export default async function CardsBrowsePage({
           subCategory: subCategoryParam
         }}
         initialData={initialProductsData} // Pass initial data
+        titleAsH1={true}
       />
     </Suspense>
   );

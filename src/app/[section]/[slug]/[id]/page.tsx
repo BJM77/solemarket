@@ -23,15 +23,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
   
-  // Facebook's Scraper explicitly strips any meta tag that includes a "&token=" parameter 
-  // to prevent accidental credential leaking. Since Firebase Storage allows public reads, 
-  // we can simply drop the token and append a dummy extension to satisfy Facebook's regex.
-  const secureFirebaseUrl = primaryImage.split('&token=')[0];
-  const facebookSafeUrl = `${secureFirebaseUrl}&ext=.jpg`;
+  // Facebook's Scraper often rejects direct Firebase Storage URLs due to encoded slashes, 
+  // security tokens, or complex query params. By using a first-party proxy that we've 
+  // whitelisted in robots.txt, we provide a clean, trusted URL that resolves directly.
+  const proxyUrl = `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`;
 
   const ogImage = {
-    url: facebookSafeUrl,
-    secureUrl: facebookSafeUrl,
+    url: proxyUrl,
+    secureUrl: proxyUrl,
     width: 1200,
     height: 1200,
     alt: `${product.title} - ${product.category} on Benched.au`,
@@ -55,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: product.title,
       description,
-      images: [primaryImage], // Twitter is fine with just the string
+      images: [proxyUrl],
     }
   };
 }

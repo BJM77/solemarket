@@ -109,6 +109,7 @@ export default async function ShoesBrowsePage({
             sort: sortParam
           }}
           initialData={initialProductsData}
+          titleAsH1={true}
         />
       </Suspense>
     </>

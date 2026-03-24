@@ -130,6 +130,7 @@ export default async function BrowsePage({
             sort: sortParam
           }}
           initialData={initialProductsData} // Pass initial data
+          titleAsH1={true}
         />
         <div className="container mx-auto px-4 mt-24 pt-16 border-t border-slate-100 dark:border-white/5 max-w-4xl">
             <h2 className="text-3xl font-black uppercase mb-6 tracking-tight">The Benched Lineup: Australia&apos;s Premier Marketplace</h2>

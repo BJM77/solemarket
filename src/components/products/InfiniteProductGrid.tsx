@@ -53,12 +53,14 @@ function InfiniteProductGridInner({
   pageDescription,
   initialFilterState = {},
   isAdmin = false,
+  titleAsH1 = false,
   initialData
 }: {
   pageTitle: string,
   pageDescription?: string,
   initialFilterState?: Partial<ProductSearchParams>,
   isAdmin?: boolean,
+  titleAsH1?: boolean,
   initialData?: any
 }) {
   const queryClient = useQueryClient();
@@ -532,7 +534,11 @@ function InfiniteProductGridInner({
     <div className="container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen">
       <header className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-8">
         <div className="w-full sm:w-auto">
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h1>
+          {titleAsH1 ? (
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h1>
+          ) : (
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h2>
+          )}
           <div className="flex items-center gap-2">
             <div className="h-1 w-12 bg-primary rounded-full" />
             <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.2em]">
