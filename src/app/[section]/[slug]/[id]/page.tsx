@@ -21,13 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
   const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
   const primaryImage = product.imageUrls[0];
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
+  const siteUrl = 'https://benched.au';
   
-  // Facebook notoriously drops complex Firebase Storage URLs with tokens. 
-  // We proxy the image through Next.js Image Optimization to provide a clean, absolute Benched.au URL.
-  const optimizedOgImage = primaryImage 
-    ? `${siteUrl}/_next/image?url=${encodeURIComponent(primaryImage)}&w=1200&q=75`
-    : `${siteUrl}/benchedlogo.png`;
+  // Facebook works best with absolute URLs and explicit dimensions.
+  // We use the raw Firebase URL but wrap it in an explicit object with mandatory metadata.
+  const ogImage = {
+    url: primaryImage,
+    secureUrl: primaryImage,
+    width: 1200,
+    height: 1200,
+    alt: `${product.title} - ${product.category} on Benched.au`,
+    type: 'image/jpeg',
+  };
 
   return {
     title: `${product.title} | ${product.category}`,
@@ -40,13 +45,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: canonicalUrl,
       type: 'article',
-      images: [optimizedOgImage],
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
       title: product.title,
       description,
-      images: [optimizedOgImage],
+      images: [primaryImage], // Twitter is fine with just the string
     }
   };
 }
