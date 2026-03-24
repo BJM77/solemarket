@@ -23,11 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
   
-  // Facebook works best with absolute URLs and explicit dimensions.
-  // We use the raw Firebase URL but wrap it in an explicit object with mandatory metadata.
+  // Facebook's Scraper explicitly strips any meta tag that includes a "&token=" parameter 
+  // to prevent accidental credential leaking. Since Firebase Storage allows public reads, 
+  // we can simply drop the token and append a dummy extension to satisfy Facebook's regex.
+  const secureFirebaseUrl = primaryImage.split('&token=')[0];
+  const facebookSafeUrl = `${secureFirebaseUrl}&ext=.jpg`;
+
   const ogImage = {
-    url: `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`,
-    secureUrl: `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`,
+    url: facebookSafeUrl,
+    secureUrl: facebookSafeUrl,
     width: 1200,
     height: 1200,
     alt: `${product.title} - ${product.category} on Benched.au`,
