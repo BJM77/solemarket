@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Facebook works best with absolute URLs and explicit dimensions.
   // We use the raw Firebase URL but wrap it in an explicit object with mandatory metadata.
   const ogImage = {
-    url: primaryImage,
-    secureUrl: primaryImage,
+    url: `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`,
+    secureUrl: `${siteUrl}/api/og-proxy?url=${encodeURIComponent(primaryImage)}`,
     width: 1200,
     height: 1200,
     alt: `${product.title} - ${product.category} on Benched.au`,
