@@ -19,6 +19,8 @@ interface ImageUploadStepProps {
     onRemoveImage: (index: number) => void;
     onAutoFill: () => Promise<void>;
     isAnalyzing: boolean;
+    isRetrying?: boolean;
+    analysisStage?: string;
     selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'collector-cards' | 'general';
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
@@ -32,6 +34,8 @@ export function ImageUploadStep({
     onRemoveImage,
     onAutoFill,
     isAnalyzing,
+    isRetrying,
+    analysisStage,
     selectedType,
     onGradeComplete,
     onApplySuggestions,
@@ -177,7 +181,7 @@ export function ImageUploadStep({
                             className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl h-11 px-6 font-black shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
                         >
                             {isAnalyzing ? (
-                                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analyzing...</>
+                                <><Loader2 className="h-4 w-4 animate-spin mr-2" />{analysisStage || "Analyzing..."}</>
                             ) : (
                                 <><Sparkles className="h-4 w-4 mr-2" />Auto-Fill All Details</>
                             )}

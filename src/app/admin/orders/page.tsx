@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getPendingEscrowOrders, markEscrowAsPaid } from '@/app/actions/admin-escrow';
+import { getPendingEscrowOrders, markEscrowAsPaid } from '@/app/actions/admin/admin-escrow';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

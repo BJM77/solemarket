@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
-import { createSetupIntentAction } from '@/app/actions/payments';
+import { createSetupIntentAction } from '@/app/actions/marketplace/payments';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';

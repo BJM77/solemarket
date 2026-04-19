@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Search, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
-import { searchEbaySoldListings } from '@/app/actions/ebay';
+import { searchEbaySoldListings } from '@/app/actions/system/ebay';
 import { formatPrice } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';

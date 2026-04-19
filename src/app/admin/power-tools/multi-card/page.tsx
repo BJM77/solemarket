@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
-import { quickSaveAndPublish } from '@/app/actions/admin-bulk';
+import { quickSaveAndPublish } from '@/app/actions/admin/admin-bulk';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MultiGenPage() {

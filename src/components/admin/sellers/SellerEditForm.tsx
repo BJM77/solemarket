@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AdminUser } from "@/app/actions/admin-users";
+import { AdminUser } from "@/app/actions/admin/admin-users";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
-import { updateUserRole, setUserOnStop, toggleUserBan } from "@/app/actions/admin-users";
+import { updateUserRole, setUserOnStop, toggleUserBan } from "@/app/actions/admin/admin-users";
 import { Loader2, Save, Ban, ShieldAlert, PlayCircle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 

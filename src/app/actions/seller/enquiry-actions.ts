@@ -3,7 +3,7 @@
 import { firestoreDb as db } from '@/lib/firebase/admin';
 import { revalidatePath } from 'next/cache';
 import { Product } from '@/lib/types';
-import { verifyActionCode } from './email-verification';
+import { verifyActionCode } from '../auth/email-verification';
 
 interface GuestEnquiryInput {
     sellerId: string;

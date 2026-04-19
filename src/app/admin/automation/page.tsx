@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getOrdersNeedingNudge, sendReceiptNudge } from '@/app/actions/nudge-actions';
+import { getOrdersNeedingNudge, sendReceiptNudge } from '@/app/actions/seller/nudge-actions';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

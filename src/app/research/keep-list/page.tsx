@@ -13,7 +13,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { Player } from '@/lib/research-types';
-import { getResearchPreferences, addPlayerToKeepList, removePlayerFromKeepList } from '@/app/actions/research';
+import { getResearchPreferences, addPlayerToKeepList, removePlayerFromKeepList } from '@/app/actions/system/research';
 
 export default function KeepListPage() {
     const [players, setPlayers] = useState<Player[]>([]);

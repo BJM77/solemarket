@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { getAdminStats, type AdminStats } from '@/app/actions/admin-stats';
+import { getAdminStats, type AdminStats } from '@/app/actions/admin/admin-stats';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [

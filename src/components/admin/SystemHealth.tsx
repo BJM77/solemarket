@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, Activity, ShieldCheck, Cpu } from 'lucide-react';
-import { getSystemStatus } from '@/app/actions/system';
+import { getSystemStatus } from '@/app/actions/system/system';
 import { useUser } from '@/firebase';
 
 export function SystemHealth() {

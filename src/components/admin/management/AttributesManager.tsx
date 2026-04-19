@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Tag } from 'lucide-react';
-import { addAttributeValue, removeAttributeValue } from '@/app/actions/admin-attributes';
+import { addAttributeValue, removeAttributeValue } from '@/app/actions/admin/admin-attributes';
 import { useUser } from '@/firebase';
 
 interface Attributes {

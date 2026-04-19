@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, Rocket, ShieldCheck, Landmark, Loader2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { connectStripeAction } from '@/app/actions/stripe';
+import { connectStripeAction } from '@/app/actions/marketplace/stripe';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export function StripeConnect({ stripeEnabled = false, stripeAccountId = '' }: { stripeEnabled?: boolean, stripeAccountId?: string }) {

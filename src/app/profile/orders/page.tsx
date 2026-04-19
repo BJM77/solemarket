@@ -28,8 +28,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { lodgeDispute } from '@/app/actions/disputes';
-import { confirmOrderReceipt } from '@/app/actions/order';
+import { lodgeDispute } from '@/app/actions/admin/disputes';
+import { confirmOrderReceipt } from '@/app/actions/marketplace/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export default function UserOrdersPage() {

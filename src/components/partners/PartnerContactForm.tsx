@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send } from "lucide-react";
-import { submitPartnerInquiryAction } from "@/app/actions/partners";
+import { submitPartnerInquiryAction } from "@/app/actions/system/partners";
 
 const formSchema = z.object({
     storeName: z.string().min(2, "Store name is required"),

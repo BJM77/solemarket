@@ -1,12 +1,12 @@
 'use server';
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { ensureActionAuth } from '@/lib/action-utils';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { sendSellerEnquiryEmail } from '@/lib/email';
 import { revalidateTag } from 'next/cache';
-import { verifyActionCode } from './email-verification';
+import { verifyActionCode } from '../auth/email-verification';
 
 
 export async function updateProductPrice(productId: string, newPrice: number, idToken: string) {
@@ -15,11 +15,7 @@ export async function updateProductPrice(productId: string, newPrice: number, id
     }
 
     try {
-        const decoded = await verifyIdToken(idToken);
-        const role = decoded.role;
-        if (role !== 'superadmin' && role !== 'admin') {
-            return { success: false, error: 'Unauthorized' };
-        }
+        await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
@@ -73,11 +69,7 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
     }
 
     try {
-        const decoded = await verifyIdToken(idToken);
-        const role = decoded.role;
-        if (role !== 'superadmin' && role !== 'admin') {
-            return { success: false, error: 'Unauthorized' };
-        }
+        await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const batch = firestoreDb.batch();
         productIds.forEach(id => {
@@ -100,43 +92,51 @@ export async function bulkUpdateProductPrice(productIds: string[], newPrice: num
     }
 }
 
-export async function holdProductAction(
+export async function internalHoldProduct(
     productId: string,
     userId: string,
     durationMinutes: number,
     reason: 'checkout' | 'negotiation' | 'enquiry'
 ) {
-    if (!productId || !userId) return { success: false, error: 'Invalid Input' };
+    const now = new Date();
+    const docRef = firestoreDb.collection('products').doc(productId);
+
+    return await firestoreDb.runTransaction(async (transaction: any) => {
+        const docSnap = await transaction.get(docRef);
+        if (!docSnap.exists) throw new Error('Product not found');
+        const data = docSnap.data();
+
+        const currentHoldExpiresAt = data.holdExpiresAt?.toDate();
+        const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
+
+        if (isCurrentlyHeld && data.heldBy !== userId) {
+            throw new Error('This item is currently reserved by another buyer.');
+        }
+
+        const holdExpiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
+        const updateData: any = {
+            heldBy: userId,
+            holdExpiresAt: Timestamp.fromDate(holdExpiresAt),
+            holdReason: reason,
+            updatedAt: FieldValue.serverTimestamp()
+        };
+
+        transaction.update(docRef, updateData);
+        return { success: true, expiresAt: holdExpiresAt };
+    });
+}
+
+export async function holdProductAction(
+    productId: string,
+    idToken: string,
+    durationMinutes: number,
+    reason: 'checkout' | 'negotiation' | 'enquiry'
+) {
+    if (!productId || !idToken) return { success: false, error: 'Invalid Input' };
 
     try {
-        const now = new Date();
-        const docRef = firestoreDb.collection('products').doc(productId);
-
-        const result = await firestoreDb.runTransaction(async (transaction: any) => {
-            const docSnap = await transaction.get(docRef);
-            if (!docSnap.exists) throw new Error('Product not found');
-            const data = docSnap.data();
-
-            const currentHoldExpiresAt = data.holdExpiresAt?.toDate();
-            const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
-
-            if (isCurrentlyHeld && data.heldBy !== userId) {
-                throw new Error('This item is currently reserved by another buyer.');
-            }
-
-            const holdExpiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
-            const updateData: any = {
-                heldBy: userId,
-                holdExpiresAt: Timestamp.fromDate(holdExpiresAt),
-                holdReason: reason,
-                updatedAt: FieldValue.serverTimestamp()
-            };
-
-            transaction.update(docRef, updateData);
-            return { success: true, expiresAt: holdExpiresAt };
-        });
-
-        return result;
+        const { uid: userId } = await ensureActionAuth(idToken);
+        return await internalHoldProduct(productId, userId, durationMinutes, reason);
     } catch (error: any) {
         console.error('Hold product error:', error);
         return { success: false, error: error.message };
@@ -147,7 +147,8 @@ export async function recordProductEnquiry(
     productId: string, 
     buyerUid?: string,
     guestEmail?: string,
-    verificationCode?: string
+    verificationCode?: string,
+    idToken?: string
 ) {
     if (!productId || (!buyerUid && !guestEmail)) return { success: false, error: 'Invalid Input' };
 
@@ -194,8 +195,10 @@ export async function recordProductEnquiry(
 
         if (!effectiveUid) return { success: false, error: 'Authorization error' };
 
-        // 3. Apply the 5-minute hold using the shared logic
-        const holdResult = await holdProductAction(productId, effectiveUid, 5, 'enquiry');
+        // 3. Apply the 5-minute hold using the shared logic (passing dummy token if guest, as it's already verified)
+        // Note: For guest paths, we might need a special bypass or just use the UID directly if internal.
+        // Let's refactor the internal hold logic to be reusable.
+        const holdResult = await internalHoldProduct(productId, effectiveUid, 5, 'enquiry');
         if (!holdResult.success) return holdResult;
 
         const updatedHoldCountMap = { ...holdCountMap, [effectiveUid!]: userHoldCount + 1 };
@@ -248,7 +251,7 @@ export async function updateEnquiryStatus(productId: string, newStatus: 'pending
     if (!productId || !idToken) return { success: false, error: 'Missing data' };
 
     try {
-        const decoded = await verifyIdToken(idToken);
+        const decoded = await ensureActionAuth(idToken);
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
         
@@ -257,7 +260,7 @@ export async function updateEnquiryStatus(productId: string, newStatus: 'pending
         const data = docSnap.data();
         // Ensure only the seller or admin can update status
         if (data?.sellerId !== decoded.uid && decoded.role !== 'admin' && decoded.role !== 'superadmin') {
-            return { success: false, error: 'Unauthorized' };
+            throw new Error('Forbidden: Unauthorized status update.');
         }
 
         let updateData: any = { 
@@ -285,12 +288,14 @@ export async function updateEnquiryStatus(productId: string, newStatus: 'pending
     }
 }
 
-export async function incrementProductContactCount(productId: string) {
-    if (!productId) {
-        return { success: false, error: 'Invalid Product ID' };
+export async function incrementProductContactCount(productId: string, idToken: string) {
+    if (!productId || !idToken) {
+        return { success: false, error: 'Invalid Input' };
     }
 
     try {
+        // Require at least a valid user token to prevent guest scraping/spamming
+        await ensureActionAuth(idToken);
         await firestoreDb.collection('products').doc(productId).update({
             contactCallCount: FieldValue.increment(1)
         });
@@ -305,7 +310,7 @@ export async function incrementProductContactCount(productId: string) {
 export async function deleteProductsAction(productIds: string[], idToken: string) {
     if (!productIds.length || !idToken) return { success: false, error: 'Missing data' };
     try {
-        const decoded = await verifyIdToken(idToken);
+        const decoded = await ensureActionAuth(idToken);
         const batch = firestoreDb.batch();
         
         const productsRef = firestoreDb.collection('products');
@@ -343,7 +348,7 @@ export async function deleteProductsAction(productIds: string[], idToken: string
 export async function activateProductAction(productId: string, idToken: string) {
     if (!productId || !idToken) return { success: false, error: 'Missing data' };
     try {
-        const decoded = await verifyIdToken(idToken);
+        const decoded = await ensureActionAuth(idToken);
         const docRef = firestoreDb.collection('products').doc(productId);
         const docSnap = await docRef.get();
         if (!docSnap.exists) return { success: false, error: 'Product not found' };

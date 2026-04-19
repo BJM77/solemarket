@@ -7,12 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { DollarSign } from 'lucide-react';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
+import { cn } from '@/lib/utils';
 
 interface PricingAndDeliveryStepProps {
     form: any;
+    suggestedFields?: string[];
+    onFieldChange?: (field: string) => void;
 }
 
-export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
+export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChange }: PricingAndDeliveryStepProps) {
+    const isPriceSuggested = suggestedFields.includes('price');
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
             <div className="text-center mb-6">
@@ -25,10 +30,25 @@ export function PricingAndDeliveryStep({ form }: PricingAndDeliveryStepProps) {
                 <CardContent className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="price" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Price (AUD) <span className="text-red-500">*</span></FormLabel>
+                            <div className="flex items-center justify-between">
+                                <FormLabel>Price (AUD) <span className="text-red-500">*</span></FormLabel>
+                                {isPriceSuggested && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary animate-pulse">
+                                        ✨ AI Value
+                                    </div>
+                                )}
+                            </div>
                             <div className="relative">
                                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                <FormControl><Input type="number" step="0.01" className="pl-9" {...field} /></FormControl>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        step="0.01" 
+                                        className={cn("pl-9", isPriceSuggested && "bg-primary/5 border-primary/30")} 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('price')}
+                                    />
+                                </FormControl>
                             </div>
                             <FormMessage />
                         </FormItem>

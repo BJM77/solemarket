@@ -79,7 +79,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
     const handleToggleFavorite = async (e: React.MouseEvent, cat: Category) => {
         e.stopPropagation();
-        const { toggleFavoriteCategory } = await import('@/app/actions/user-preferences');
+        const { toggleFavoriteCategory } = await import('@/app/actions/auth/user-preferences');
         const { getCurrentUserIdToken } = await import('@/lib/firebase/auth');
         const idToken = await getCurrentUserIdToken();
         if (idToken) {

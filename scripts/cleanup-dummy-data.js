@@ -11,6 +11,23 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 async function cleanupTestData() {
+    console.log('🔥 [Safety Check] Verifying environment...');
+    
+    // Safety check: Prevents running on production unless forced
+    const isForced = process.argv.includes('--force-prod');
+    const projectId = admin.app().options.projectId;
+    const isProductionProject = projectId?.includes('-prod');
+
+    if (isProductionProject && !isForced) {
+        console.error('❌ ERROR: Running on a production project without --force-prod');
+        console.error(`Current Project: ${projectId}`);
+        process.exit(1);
+    }
+
+    if (isForced) {
+        console.warn('⚠️  WARNING: Running in FORCE PRODUCTION mode.');
+    }
+
     console.log('Starting dummy data cleanup...');
     let deletedCount = 0;
 

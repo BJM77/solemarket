@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { useUser } from '@/firebase';
 import { useState } from 'react';
-import { deleteProductByAdmin } from '@/app/actions/admin';
+import { deleteProductByAdmin } from '@/app/actions/admin/admin';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';

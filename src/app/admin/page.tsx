@@ -8,11 +8,11 @@ import Link from 'next/link';
 import { AdminStatsGrid } from "@/components/admin/StatsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { getPlatformStats } from "@/app/actions/stats";
+import { getPlatformStats } from "@/app/actions/system/stats";
 import { useEffect, useState } from "react";
 import { useUser } from "@/firebase";
 import { SystemHealth } from "@/components/admin/SystemHealth";
-import { recalculatePlatformStats } from "@/app/actions/recalculate-stats";
+import { recalculatePlatformStats } from "@/app/actions/system/recalculate-stats";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 

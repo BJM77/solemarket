@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send, Mail } from "lucide-react";
-import { sendGuestEnquiry } from "@/app/actions/enquiry-actions";
-import { sendActionVerificationEmail } from "@/app/actions/email-verification";
+import { sendGuestEnquiry } from "@/app/actions/seller/enquiry-actions";
+import { sendActionVerificationEmail } from "@/app/actions/auth/email-verification";
 import { useEffect } from "react";
 import { trackEcommerceEvent } from "@/lib/analytics";
 

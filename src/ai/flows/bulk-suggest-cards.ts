@@ -9,6 +9,7 @@ import {
 } from './schemas';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { logAIUsage } from '@/services/ai-usage';
+import { withRetry } from '../utils/retry';
 
 /**
  * Bulk Suggestion Flow for up to 20 cards.
@@ -26,7 +27,12 @@ export async function bulkSuggestCards(input: BulkSuggestCardsInput): Promise<{ 
             return { error: `Authentication failed: ${authErr.message}` };
         }
 
-        const result = await bulkSuggestCardsFlow(input);
+        const result = await withRetry(async () => {
+            return await bulkSuggestCardsFlow(input);
+        }, {
+            maxRetries: 3,
+            onRetry: (err, attempt) => console.log(`[AI Retry] bulkSuggestCards attempt ${attempt} due to high demand...`)
+        });
 
         const decodedToken = await verifyIdToken(input.idToken);
         await logAIUsage('Bulk Card Suggestion', 'vision_analysis', decodedToken.uid);

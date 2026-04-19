@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { verifyStripeAccountAction } from '@/app/actions/stripe';
+import { verifyStripeAccountAction } from '@/app/actions/marketplace/stripe';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

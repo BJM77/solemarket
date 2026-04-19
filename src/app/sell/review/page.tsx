@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { Loader2, Package, Send, ArrowLeft, ShieldCheck, Check, Info, DollarSign } from 'lucide-react';
 import type { Product } from '@/lib/types';
-import { getDraftListing, publishListing } from '@/app/actions/sell';
+import { getDraftListing, publishListing } from '@/app/actions/seller/sell';
 import { useSearchParams } from 'next/navigation';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { formatPrice } from '@/lib/utils';

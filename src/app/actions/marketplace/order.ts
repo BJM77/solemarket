@@ -2,7 +2,7 @@
 'use server'
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { ensureActionAuth } from '@/lib/action-utils';
 import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from '@/lib/utils';
@@ -34,8 +34,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
     }
 
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const { uid: buyerId, email: buyerEmail, name: buyerName } = decodedToken;
+        const { uid: buyerId, email: buyerEmail, name: buyerName } = await ensureActionAuth(idToken);
 
         const results = await firestoreDb.runTransaction(async (t: any) => {
             const productRefs = items.map(item => firestoreDb.collection('products').doc(item.id));
@@ -213,7 +212,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
  */
 export async function updateOrderStatus(idToken: string, orderId: string, status: string, trackingInfo?: { carrier: string, trackingNumber: string }) {
     try {
-        const decodedToken = await verifyIdToken(idToken);
+        const decodedToken = await ensureActionAuth(idToken);
         const { uid: userId } = decodedToken;
 
         const orderRef = firestoreDb.collection('orders').doc(orderId);
@@ -227,7 +226,7 @@ export async function updateOrderStatus(idToken: string, orderId: string, status
         const isStaff = ['admin', 'superadmin'].includes(decodedToken.role);
 
         if (!isOwner && !isStaff) {
-            throw new Error("Unauthorized access.");
+            throw new Error("Forbidden: You do not have permission to update this order.");
         }
 
         const updates: any = {
@@ -253,7 +252,7 @@ export async function updateOrderStatus(idToken: string, orderId: string, status
  */
 export async function confirmOrderReceipt(idToken: string, orderId: string) {
     try {
-        const decodedToken = await verifyIdToken(idToken);
+        const decodedToken = await ensureActionAuth(idToken);
         const { uid: userId } = decodedToken;
 
         const orderRef = firestoreDb.collection('orders').doc(orderId);

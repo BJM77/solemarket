@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail } from 'lucide-react';
-import { contactWTBSeller } from '@/app/actions/wtb';
+import { contactWTBSeller } from '@/app/actions/marketplace/wtb';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { WantedListing } from '@/lib/types';
 import { useUser } from '@/firebase';

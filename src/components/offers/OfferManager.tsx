@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Product, Bid } from '@/lib/types';
-import { getSellerProductsWithOffers, acceptBidAction, rejectBidAction, resetOffersAction } from '@/app/actions/bidding';
+import { getSellerProductsWithOffers, acceptBidAction, rejectBidAction, resetOffersAction } from '@/app/actions/marketplace/bidding';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

@@ -9,7 +9,7 @@ import { Star, Loader, ArrowLeft, Gem, DollarSign } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useUser } from '@/firebase';
 import type { ScanHistoryItem } from '@/lib/research-types';
-import { getScanHistory } from '@/app/actions/research';
+import { getScanHistory } from '@/app/actions/system/research';
 import { useToast } from '@/hooks/use-toast';
 import { formatCardDetails } from '@/lib/card-logic';
 import { formatDistanceToNow } from 'date-fns';

@@ -1,24 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { AuthenticatedRequest, withAuth } from '@/lib/auth-wrapper';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { NextResponse } from 'next/server';
 
 /**
  * Admin API: Post to Official Facebook Page
  * This uses the Facebook Graph API to create a post on the Benched.au page wall.
  */
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const idToken = authHeader.split('Bearer ')[1];
-        const decodedToken = await verifyIdToken(idToken);
+        const decodedToken = request.user!;
         
         // Ensure user is superadmin
         const isSuperAdmin = SUPER_ADMIN_UIDS.includes(decodedToken.uid) || 
-                           (decodedToken.email && SUPER_ADMIN_EMAILS.includes(decodedToken.email));
+                           (decodedToken.email && SUPER_ADMIN_EMAILS.includes(decodedToken.email)) ||
+                           decodedToken.role === 'superadmin';
         
         const { productId, title, imageUrl, link } = await request.json();
 
@@ -78,4 +73,4 @@ export async function POST(request: NextRequest) {
         console.error('Facebook Posting Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
-}
+}, { requiredRole: ['user', 'seller', 'admin', 'superadmin'] });

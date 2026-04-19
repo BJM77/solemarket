@@ -5,7 +5,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
 import { revalidateTag } from 'next/cache';
 import { logActivity } from '@/services/activity-logs';
-import { rejectAllBidsForProduct } from './bidding';
+import { rejectAllBidsForProduct } from '../marketplace/bidding';
 
 // import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
 

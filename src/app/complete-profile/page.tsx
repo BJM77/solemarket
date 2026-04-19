@@ -22,7 +22,7 @@ import { Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { completeUserProfile } from '@/app/actions/auth-profile';
+import { completeUserProfile } from '@/app/actions/auth/auth-profile';
 
 const formSchema = z.object({
     accountType: z.enum(['buyer', 'seller'], {

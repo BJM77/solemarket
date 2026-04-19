@@ -33,7 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import { createCategory, updateCategory, deleteCategory as deleteCategoryAction } from '@/app/actions/admin-categories';
+import { createCategory, updateCategory, deleteCategory as deleteCategoryAction } from '@/app/actions/admin/admin-categories';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 

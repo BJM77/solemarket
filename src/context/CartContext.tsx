@@ -1,4 +1,17 @@
 "use client";
+/**
+ * CART PERSISTENCE STRATEGY:
+ * Currently, the cart is strictly persisted in `localStorage` for both guests and 
+ * signed-in users. This ensures zero-latency cart updates and works offline.
+ * 
+ * DESIGN DECISION (from Review #8):
+ * Using localStorage as the source of truth is fine for initial MVP. However, to 
+ * support true multi-device checkout (e.g. add on mobile, checkout on desktop),
+ * we will eventually need to sync this state to Firestore under the user's profile.
+ * 
+ * TODO: Add a background sync effect when a user is authenticated to push/pull
+ * cart items between localStorage and users/{uid}/profile/cart.
+ */
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';

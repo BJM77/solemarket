@@ -3,7 +3,7 @@
 import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from '@/lib/utils';
-import { checkForAdminWantedMatch } from './admin-wanted';
+import { checkForAdminWantedMatch } from '../admin/admin-wanted';
 
 export interface DraftListingData {
     sellerId: string;

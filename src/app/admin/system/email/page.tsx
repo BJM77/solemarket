@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { auth } from '@/lib/firebase/config';
-import { getEmailLogs, sendTestEmail } from '@/app/actions/email-admin';
+import { getEmailLogs, sendTestEmail } from '@/app/actions/admin/email-admin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

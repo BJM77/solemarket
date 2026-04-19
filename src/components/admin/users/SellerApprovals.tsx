@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Clock, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-import type { AdminUser } from '@/app/actions/admin-users';
+import type { AdminUser } from '@/app/actions/admin/admin-users';
 
 interface SellerApprovalsProps {
     users: AdminUser[];

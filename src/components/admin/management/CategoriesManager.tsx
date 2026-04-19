@@ -33,7 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import { createCategory, updateCategory, deleteCategory } from '@/app/actions/admin-categories';
+import { createCategory, updateCategory, deleteCategory } from '@/app/actions/admin/admin-categories';
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Category name is required.'),

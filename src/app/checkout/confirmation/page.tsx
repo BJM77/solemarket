@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/utils';
-import { lodgeDispute } from '@/app/actions/disputes';
+import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { useUser } from '@/firebase';
 
 import { trackEcommerceEvent } from '@/lib/analytics';

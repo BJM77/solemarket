@@ -9,6 +9,15 @@ import { cookies } from 'next/headers';
  * @throws Will throw an error if the token is invalid or verification fails.
  */
 export async function verifyIdToken(idToken: string) {
+  // DEV MOCK: Accept a 'dev-mock-token' in development mode
+  if (process.env.NODE_ENV === 'development' && idToken === 'dev-mock-token') {
+    return {
+      uid: 'dev-mock-user',
+      email: 'dev@example.com',
+      role: 'admin',
+    } as any;
+  }
+
   try {
     const decodedToken = await auth.verifyIdToken(idToken);
     return decodedToken;

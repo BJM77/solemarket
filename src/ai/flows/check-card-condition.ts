@@ -2,22 +2,27 @@
 
 import { ai } from '@/ai/genkit';
 import { cardConditionInputSchema, cardConditionOutputSchema, type CardConditionInput, type CardConditionOutput } from './schemas';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { logAIUsage } from '@/services/ai-usage';
+import { runAIWorkflow } from '../workflow-engine';
 
 /**
  * Assesses the condition of a collector card based on its images.
  * @param input An object containing data URIs for the front and back images of the card.
  * @returns {Promise<CardConditionOutput>} A promise that resolves to a detailed condition report.
  */
-export async function checkCardCondition(input: CardConditionInput): Promise<CardConditionOutput> {
-    const result = await cardConditionFlow(input);
-
-    // Log Usage
-    const decodedToken = await verifyIdToken(input.idToken);
-    await logAIUsage('Quick Card Scan', 'vision_analysis', decodedToken.uid);
-
-    return result;
+export async function checkCardCondition(input: CardConditionInput): Promise<any> {
+    return await runAIWorkflow<CardConditionOutput>(
+        input,
+        async (validatedInput) => {
+            const { output } = await cardConditionPrompt(validatedInput);
+            if (!output) throw new Error('Failed to get a response from the AI model.');
+            return output;
+        },
+        {
+            feature: 'card-condition-grader',
+            usageType: 'vision_analysis',
+            maxRetries: 2
+        }
+    );
 }
 
 const cardConditionPrompt = ai.definePrompt({
@@ -43,18 +48,3 @@ const cardConditionPrompt = ai.definePrompt({
     Do not invent details not visible in the images. Your assessment must be objective and based purely on visual evidence.
     `,
 });
-
-const cardConditionFlow = ai.defineFlow(
-    {
-        name: 'cardConditionFlow',
-        inputSchema: cardConditionInputSchema,
-        outputSchema: cardConditionOutputSchema,
-    },
-    async (input: CardConditionInput) => {
-        const { output } = await cardConditionPrompt(input);
-        if (!output) {
-            throw new Error('Failed to get a response from the AI model.');
-        }
-        return output;
-    }
-);

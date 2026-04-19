@@ -39,7 +39,7 @@ import { formatPrice, safeDate } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { markAsSold, deleteListing, updateListing, republishListing } from '@/app/actions/seller-actions';
+import { markAsSold, deleteListing, updateListing, republishListing } from '@/app/actions/seller/seller-actions';
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { ListingForm } from '@/components/sell/ListingForm';

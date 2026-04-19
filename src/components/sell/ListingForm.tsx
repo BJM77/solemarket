@@ -25,12 +25,12 @@ import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { doc } from 'firebase/firestore';
-import { updateListing } from '@/app/actions/seller-actions';
+import { updateListing } from '@/app/actions/seller/seller-actions';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
-import { addSubCategory } from '@/app/actions/admin-categories';
+import { addSubCategory } from '@/app/actions/admin/admin-categories';
 import { Plus } from 'lucide-react';
 import { MultibuyTier } from '@/types/multibuy';
-import { getMultibuyTemplates } from '@/app/actions/multibuy-actions';
+import { getMultibuyTemplates } from '@/app/actions/marketplace/multibuy-actions';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
 import {
     DEFAULT_CATEGORIES,
@@ -316,8 +316,29 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
 
             const suggestions = suggestionsResponse.data;
             if (suggestions) {
-                Object.entries(suggestions).forEach(([key, value]) => { if (value) form.setValue(key as any, value); });
-                toast({ title: '✨ AI Magic Applied!' });
+                console.log('✨ [AutoFill] Suggestions received:', suggestions);
+                
+                // Set values and force validation for each field
+                // Use a temporary object since multiple setValue calls can sometimes race or batch poorly
+                Object.entries(suggestions).forEach(([key, value]) => { 
+                    // Normalize key to lowercase to match schema if AI sent uppercase
+                    const formKey = key.toLowerCase();
+                    if (value !== undefined && value !== null && value !== '') { 
+                        console.log(`📝 Setting ${formKey} to:`, value);
+                        form.setValue(formKey as any, value, { 
+                            shouldDirty: true, 
+                            shouldValidate: true,
+                            shouldTouch: true 
+                        }); 
+                    } 
+                });
+                
+                // CRITICAL: Explicitly trigger re-validation of all fields to clear "required" errors
+                // This ensures the "Next" button logic sees the form as valid.
+                setTimeout(() => {
+                    form.trigger();
+                    toast({ title: '✨ AI Magic Applied!' });
+                }, 100);
             }
         } catch (error: any) {
             toast({ title: "Auto-Fill Failed", description: error.message, variant: "destructive" });

@@ -24,7 +24,7 @@ import { QuickView } from './QuickView';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin';
+import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin/admin';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +41,8 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice, getProductUrl, formatRelativeTime } from '@/lib/utils';
 
 import { ProductImageLightbox } from './ProductImageLightbox';
-import { updateProductPrice } from '@/app/actions/product-updates';
-import { toggleProductHold } from '@/app/actions/admin';
+import { updateProductPrice } from '@/app/actions/marketplace/product-updates';
+import { toggleProductHold } from '@/app/actions/admin/admin';
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
@@ -372,7 +372,7 @@ export default function ProductCard({
       const idToken = await getCurrentUserIdToken();
       if (!idToken) throw new Error("Authentication session expired.");
 
-      const { approveProductByAdmin } = await import('@/app/actions/admin');
+      const { approveProductByAdmin } = await import('@/app/actions/admin/admin');
       const result = await approveProductByAdmin(product.id, idToken);
 
       if (!result.success) throw new Error(result.error);

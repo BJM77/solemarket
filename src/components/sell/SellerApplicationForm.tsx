@@ -25,7 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { submitSellerApplication } from '@/app/actions/seller-application';
+import { submitSellerApplication } from '@/app/actions/seller/seller-application';
 
 const formSchema = z.object({
     listingQuantity: z.coerce.number().min(1, {

@@ -6,7 +6,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product, Bid } from '@/lib/types';
 import { sendNotification } from '@/services/notifications';
 import { revalidatePath } from 'next/cache';
-import { verifyActionCode } from './email-verification';
+import { verifyActionCode } from '../auth/email-verification';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function placeBidAction(

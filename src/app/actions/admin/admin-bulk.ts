@@ -2,38 +2,17 @@
 
 import { firestoreDb as db, auth as adminAuth, storageAdmin } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { ensureActionAuth } from '@/lib/action-utils';
 
 export async function quickSaveAndPublish(idToken: string, data: any, imageDataUris: string[] = []) {
     console.log('🚀 Starting quickSaveAndPublish', { imageDataCount: imageDataUris.length });
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const userId = decodedToken.uid;
-        console.log('✅ Token verified for user:', userId);
+        const { uid: userId } = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+        console.log('✅ Action authorized for admin:', userId);
 
-        // Fetch user data from both Auth and Firestore to be sure of permissions
-        const [user, userDoc] = await Promise.all([
-            adminAuth.getUser(userId),
-            db.collection('users').doc(userId).get()
-        ]);
-
+        // Fetch remaining user details for metadata
+        const userDoc = await db.collection('users').doc(userId).get();
         const userData = userDoc.data();
-        const role = userData?.role || user.customClaims?.role;
-        const isAdminInDb = userData?.isAdmin === true;
-
-        const isSuperAdmin = role === 'superadmin' ||
-            role === 'admin' ||
-            isAdminInDb ||
-            user.customClaims?.role === 'superadmin' ||
-            user.customClaims?.role === 'admin' ||
-            SUPER_ADMIN_UIDS.includes(userId);
-
-        console.log('👑 Admin status check:', { role, isAdminInDb, isSuperAdmin });
-
-        if (!isSuperAdmin) {
-            throw new Error('Unauthorized: Admin access required.');
-        }
 
         let imageUrls = data.imageUrls || [];
 

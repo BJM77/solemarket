@@ -55,9 +55,9 @@ export const suggestListingDetailsOutputSchema = z.object({
     .describe(
       'An estimated market price for the item in AUD, based on the provided images and analysis of similar items.'
     ),
-  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'."),
+  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'. MUST match these exact strings."),
   subCategory: z.string().optional().describe("The single best sub-category based on the category context."),
-  condition: z.string().optional().describe("The single best condition description. For sneakers: 'New with Box', 'Used'. For cards: 'Mint 9', 'Near Mint 7', 'Raw'."),
+  condition: z.string().optional().describe("The single best condition description from this list: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'."),
   brand: z.string().optional().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'Panini', 'Topps')."),
   model: z.string().optional().describe("The model name or set name (e.g., 'Air Jordan 1', 'Prizm')."),
   styleCode: z.string().optional().describe("The unique style code (e.g., 'DZ5485-612'). Found on size tag."),
@@ -68,6 +68,7 @@ export const suggestListingDetailsOutputSchema = z.object({
   grade: z.string().optional().describe("For cards: 10, 9.5, Near Mint, etc."),
   cardNumber: z.string().optional().describe("For cards: The card number (e.g., #123)."),
   manufacturer: z.string().optional().describe("For cards: Panini, Upper Deck, Topps, etc."),
+  suggestedFields: z.array(z.string()).optional().describe("A list of field keys that were successfully identified and filled by the AI model."),
 });
 export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
 

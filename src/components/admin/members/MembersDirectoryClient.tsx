@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search, Loader2, Users as UsersIcon, Clock } from "lucide-react";
-import { getAllUsers, type AdminUser } from '@/app/actions/admin-users';
+import { getAllUsers, type AdminUser } from '@/app/actions/admin/admin-users';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

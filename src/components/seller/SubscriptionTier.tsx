@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Zap, Shield, Crown, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { upgradePlanAction } from '@/app/actions/billing';
+import { upgradePlanAction } from '@/app/actions/marketplace/billing';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: string }) {

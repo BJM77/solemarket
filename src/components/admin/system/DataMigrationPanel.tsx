@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
-import { migrateProductStatus } from "@/app/actions/migration";
+import { migrateProductStatus } from "@/app/actions/system/migration";
 import { Loader2, RefreshCw } from "lucide-react";
 
 export function DataMigrationPanel() {

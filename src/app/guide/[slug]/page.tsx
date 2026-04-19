@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import GuidePageTemplate from '@/components/guides/GuidePageTemplate';
-import { getActiveProducts } from '@/app/actions/products';
+import { getActiveProducts } from '@/app/actions/marketplace/products';
 import path from 'path';
 import fs from 'fs/promises';
 import { Metadata } from 'next';

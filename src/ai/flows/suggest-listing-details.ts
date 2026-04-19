@@ -2,65 +2,41 @@
 
 import { ai } from '@/ai/genkit';
 import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema, type SuggestListingDetailsInput, type SuggestListingDetailsOutput } from './schemas';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { logAIUsage } from '@/services/ai-usage';
+import { runAIWorkflow } from '../workflow-engine';
 
-export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<{ data?: SuggestListingDetailsOutput; error?: string }> {
-    try {
-        console.log('🚀 [Server] suggestListingDetails called');
-        console.log('📊 [Server] Input images count:', input.photoDataUris?.length);
-        console.log('📊 [Server] Category context:', input.category);
-
-        if (!input.idToken) {
-            return { error: 'Authentication token is required.' };
-        }
-
-        let decodedToken;
-        try {
-            decodedToken = await verifyIdToken(input.idToken);
-        } catch (authErr: any) {
-            console.error('❌ [Server] verifyIdToken failed:', authErr);
-            return { error: `Authentication failed: ${authErr.message}` };
-        }
-
-        // Pre-process images: Convert URLs to Data URIs (Base64) only if necessary
-        if (input.photoDataUris && input.photoDataUris.length > 0) {
-            console.log('🔄 [Server] checking image formats...');
-            const processedImages = await Promise.all(input.photoDataUris.map(async (uri) => {
-                if (uri.startsWith('http')) {
-                    try {
-                        console.log(`🌐 [Server] Fetching remote image: ${uri.substring(0, 50)}...`);
+/**
+ * Main Vision flow for generating listing suggestions from photos.
+ */
+export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<any> {
+    return await runAIWorkflow<SuggestListingDetailsOutput>(
+        input,
+        async (validatedInput) => {
+            // Pre-process images: Convert URLs to Data URIs (Base64) only if necessary
+            if (validatedInput.photoDataUris && validatedInput.photoDataUris.length > 0) {
+                const processedImages = await Promise.all(validatedInput.photoDataUris.map(async (uri: string) => {
+                    if (uri.startsWith('http')) {
                         const response = await fetch(uri);
-                        if (!response.ok) {
-                            console.error(`❌ [Server] Failed to fetch image: ${response.status} ${response.statusText}`);
-                            throw new Error(`Failed to fetch image: ${response.statusText}`);
-                        }
+                        if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
                         const arrayBuffer = await response.arrayBuffer();
                         const base64String = Buffer.from(arrayBuffer).toString('base64');
                         const mimeType = response.headers.get('content-type') || 'image/jpeg';
                         return `data:${mimeType};base64,${base64String}`;
-                    } catch (fetchErr: any) {
-                        console.error('❌ [Server] Image fetch exception:', fetchErr.message);
-                        throw new Error(`AI was unable to access the image URL. Error: ${fetchErr.message}`);
                     }
-                }
-                return uri; // Already a data URI (compressed locally by client)
-            }));
+                    return uri;
+                }));
+                validatedInput.photoDataUris = processedImages;
+            }
 
-            input.photoDataUris = processedImages;
+            const { output } = await suggestListingDetailsPrompt(validatedInput);
+            if (!output) throw new Error("AI failed to return valid metadata.");
+            return output;
+        },
+        {
+            feature: 'listing-details-vision',
+            usageType: 'vision_analysis',
+            maxRetries: 3
         }
-
-        const result = await suggestListingDetailsFlow(input);
-
-        // Log Usage using the already verified token or decoded payload
-        await logAIUsage('Listing Suggestion', 'vision_analysis', decodedToken.uid);
-
-        return { data: result };
-
-    } catch (error: any) {
-        console.error('❌ [Server] suggestListingDetails failed:', error);
-        return { error: error.message || 'AI analysis service failed.' };
-    }
+    );
 }
 
 const suggestListingDetailsPrompt = ai.definePrompt({
@@ -79,32 +55,18 @@ const suggestListingDetailsPrompt = ai.definePrompt({
 {{#each photoDataUris}}{{media url=this}}{{/each}}
 
 Extract:
-1.  **Title**: Concise & SEO-friendly. (e.g. 'Nike Air Jordan 1 High Chicago' or '2019 Panini Prizm Zion Williamson #248')
+1.  **Title**: Concise & SEO-friendly.
 2.  **Description**: 1-2 lines on key features/condition.
 3.  **Price**: Est. market price in AUD (number).
-4.  **Category**: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear'.
+4.  **Category**: MUST be one of: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear'.
 5.  **Sub-Category**: Sport (Cards) or Gender/Type (Sneakers).
-6.  **Condition**: 'New with Box', 'Used' (Sneakers) or Grade/Raw (Cards).
+6.  **Condition**: MUST be one of: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'.
 7.  **Brand/Manufacturer**: 'Nike', 'Panini', etc.
 8.  **Model/Set**: 'Air Jordan 1', 'Prizm', etc.
 9.  **Year**: Release year (number).
 10. **Details**: Style Code (Sneakers), Card# / Grading Info (Cards).
 
 Return only applicable fields.
+Populate **suggestedFields** with the keys of all fields you have successfully identified (e.g. ["title", "brand", "price"]).
 `,
 });
-
-const suggestListingDetailsFlow = ai.defineFlow(
-    {
-        name: 'suggestListingDetailsFlow',
-        inputSchema: suggestListingDetailsInputSchema,
-        outputSchema: suggestListingDetailsOutputSchema,
-    },
-    async (input: SuggestListingDetailsInput) => {
-        const { output } = await suggestListingDetailsPrompt(input);
-        if (!output) {
-            throw new Error("AI failed to return valid metadata.");
-        }
-        return output;
-    }
-);

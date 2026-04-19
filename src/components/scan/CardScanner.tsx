@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CardCamera } from './CardCamera';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
+import { withRetry } from '@/ai/utils/retry';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -19,6 +20,7 @@ export function CardScanner() {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<any | null>(null);
 
     const handleCapture = async (file: File) => {
@@ -41,25 +43,34 @@ export function CardScanner() {
             const idToken = await user.getIdToken();
 
             try {
-                const suggestionsResponse = await suggestListingDetails({
-                    photoDataUris: [base64Data],
-                    category: 'Collector Cards', // Hint for the AI
-                    idToken
-                });
-
-                    if (suggestionsResponse.error) {
-                        throw new Error(suggestionsResponse.error);
+                const suggestionsResponse = await withRetry(
+                    async () => await suggestListingDetails({
+                        photoDataUris: [base64Data],
+                        category: 'Collector Cards', // Hint for the AI
+                        idToken
+                    }),
+                    {
+                        maxRetries: 3,
+                        onRetry: (_err: any, attempt: number) => {
+                            setIsRetrying(true);
+                            console.log(`[AI Retry] Card analysis attempt ${attempt}...`);
+                        }
                     }
+                );
 
-                    setAnalysisResult(suggestionsResponse.data);
-                } catch (error: any) {
-                    console.error("AI Analysis failed:", error);
-                    toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
-                    setImageFile(null);
-                    setImagePreview(null);
-                } finally {
-                    setIsAnalyzing(false);
-                }
+                if (suggestionsResponse.error) throw new Error(suggestionsResponse.error);
+
+                setAnalysisResult(suggestionsResponse.data);
+                setIsRetrying(false);
+            } catch (error: any) {
+                console.error("AI Analysis failed:", error);
+                toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
+                setImageFile(null);
+                setImagePreview(null);
+            } finally {
+                setIsAnalyzing(false);
+                setIsRetrying(false);
+            }
         } catch (e) {
             setIsAnalyzing(false);
         }
@@ -97,9 +108,12 @@ export function CardScanner() {
                             className="object-contain"
                         />
                         {isAnalyzing && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white text-center p-4">
                                 <Loader2 className="w-10 h-10 animate-spin mb-3 text-indigo-400" />
-                                <p className="font-medium animate-pulse">Analyzing Card...</p>
+                                <p className="font-medium animate-pulse">
+                                    {isRetrying ? "High Demand - Retrying..." : "Analyzing Card..."}
+                                </p>
+                                {isRetrying && <p className="text-xs text-slate-300 mt-2">AI service is busy, please stay on this screen.</p>}
                             </div>
                         )}
                         {!isAnalyzing && (
@@ -147,7 +161,7 @@ export function CardScanner() {
 
                                 <div className="pt-4 border-t flex gap-3">
                                     <Button
-                                        className="w-full h-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700"
+                                        className="w-full h-10 md:h-12 text-sm md:text-lg font-bold bg-indigo-600 hover:bg-indigo-700"
                                         onClick={handleCreateListing}
                                     >
                                         Create Listing <ArrowRight className="ml-2 h-4 w-4" />

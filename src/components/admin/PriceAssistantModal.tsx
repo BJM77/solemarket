@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, TrendingUp, ExternalLink, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useUser } from '@/firebase';
 import type { StructuredPricingResult } from '@/lib/gemini-parser';
-import { updateProductPrice } from '@/app/actions/admin-pricing';
+import { updateProductPrice } from '@/app/actions/admin/admin-pricing';
 
 interface PriceAssistantModalProps {
     isOpen: boolean;

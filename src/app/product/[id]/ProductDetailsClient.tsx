@@ -28,8 +28,8 @@ import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import ReviewList from '@/components/reviews/ReviewList';
-import { acceptBidAction } from '@/app/actions/bidding';
-import { deleteProductByAdmin } from '@/app/actions/admin';
+import { acceptBidAction } from '@/app/actions/marketplace/bidding';
+import { deleteProductByAdmin } from '@/app/actions/admin/admin';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import {
     AlertDialog,
@@ -46,7 +46,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { incrementProductContactCount } from '@/app/actions/product-updates';
+import { incrementProductContactCount } from '@/app/actions/marketplace/product-updates';
 import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
@@ -276,7 +276,10 @@ export default function ProductDetailsClient({
         }
         setIsPhoneRevealed(true);
         try {
-            await incrementProductContactCount(productId);
+            const idToken = await getCurrentUserIdToken();
+            if (idToken) {
+                await incrementProductContactCount(productId, idToken);
+            }
         } catch (e) {
             console.error("Failed to increment contact count", e);
         }

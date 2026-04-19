@@ -50,12 +50,12 @@ import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewList from '@/components/reviews/ReviewList';
 import { ConditionGuide } from './ConditionGuide';
 import ReviewForm from '@/components/reviews/ReviewForm';
-import { deleteProductByAdmin } from '@/app/actions/admin';
-import { recordProductView } from '@/app/actions/products';
+import { deleteProductByAdmin } from '@/app/actions/admin/admin';
+import { recordProductView } from '@/app/actions/marketplace/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
-import { incrementProductContactCount, recordProductEnquiry, holdProductAction } from '@/app/actions/product-updates';
+import { incrementProductContactCount, recordProductEnquiry, holdProductAction } from '@/app/actions/marketplace/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { sendActionVerificationEmail } from '@/app/actions/email-verification';
+import { sendActionVerificationEmail } from '@/app/actions/auth/email-verification';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -75,8 +75,8 @@ import { OfferModal } from '@/components/products/OfferModal';
 import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import { BiddingInterface } from '@/components/products/BiddingInterface';
-import { acceptBidAction } from '@/app/actions/bidding';
-import { getRecentViewCount } from '@/app/actions/products';
+import { acceptBidAction } from '@/app/actions/marketplace/bidding';
+import { getRecentViewCount } from '@/app/actions/marketplace/products';
 import { TrendingUp } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import {
@@ -383,24 +383,39 @@ export default function ProductDetailsModern({
     };
     const [isEnquiring, setIsEnquiring] = useState(false);
 
-    const handleRevealContact = () => {
+    const handleRevealContact = async () => {
         setIsSafetyModalOpen(false); // Auto-close safety modal
         if (!user) {
             setIsGuestVerificationOpen(true);
             return;
         }
 
-        // --- AUTHENTICATED USERS: Instant reveal for roles ---
-        const role = (user as any).role || 'buyer';
-        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role) || (user as any).emailVerified;
+        setIsEnquiring(true);
+        try {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Authentication required");
 
-        if (isExempt) {
-            setIsPhoneRevealed(true);
-            // Track contact revealed for registered users
-            trackEcommerceEvent.contactRevealed(product);
-        } else {
-            // Need to show "verify email" step in modal for new/unverified members
-            setIsGuestVerificationOpen(true);
+            // --- AUTHENTICATED USERS: Record enquiry and apply hold ---
+            const result = await recordProductEnquiry(productId, user.uid, undefined, undefined, idToken);
+            
+            if (result.success) {
+                setIsPhoneRevealed(true);
+                trackEcommerceEvent.contactRevealed(product);
+                toast({
+                    title: "Hold Active (5 Mins)",
+                    description: "You have a 5-minute window to contact the seller."
+                });
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: "Enquiry Failed",
+                description: error.message || "Failed to initiate enquiry."
+            });
+        } finally {
+            setIsEnquiring(false);
         }
     };
 

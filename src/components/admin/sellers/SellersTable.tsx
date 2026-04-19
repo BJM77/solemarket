@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { AdminUser } from "@/app/actions/admin-users";
-import { getSellersAndBusinessUsers } from "@/app/actions/admin-sellers";
+import { AdminUser } from "@/app/actions/admin/admin-users";
+import { getSellersAndBusinessUsers } from "@/app/actions/admin/admin-sellers";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
 import {
     Table,

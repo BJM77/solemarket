@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AdminUser } from "@/app/actions/admin-users";
+import { AdminUser } from "@/app/actions/admin/admin-users";
 import {
     Sheet,
     SheetContent,
@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SellerEditForm } from "./SellerEditForm";
 import { SellerProductsList } from "./SellerProductsList";
-import { getSellerProducts } from "@/app/actions/admin-sellers";
+import { getSellerProducts } from "@/app/actions/admin/admin-sellers";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/lib/types";

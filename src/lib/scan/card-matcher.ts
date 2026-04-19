@@ -1,4 +1,4 @@
-import { getResearchPreferences } from '@/app/actions/research';
+import { getResearchPreferences } from '@/app/actions/system/research';
 import type { Player } from '@/lib/research-types';
 
 export interface CardMatchResult {

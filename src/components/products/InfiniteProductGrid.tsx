@@ -22,7 +22,7 @@ import MontageGrid from './MontageGrid';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
-import { bulkUpdateProductPrice } from '@/app/actions/product-updates';
+import { bulkUpdateProductPrice } from '@/app/actions/marketplace/product-updates';
 import {
   Dialog,
   DialogContent,
@@ -41,7 +41,7 @@ import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
 import { QuickFilterChips } from './QuickFilterChips';
-import { exportAllProductsCSV } from '@/app/actions/export';
+import { exportAllProductsCSV } from '@/app/actions/admin/export';
 import { Download, Search } from 'lucide-react';
 import { AdUnit } from '@/components/ads/AdUnit';
 

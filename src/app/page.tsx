@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/products";
+import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";

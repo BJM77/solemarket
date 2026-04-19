@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 import { verifyIdToken } from "@/lib/firebase/auth-admin";
 import { SUPER_ADMIN_UIDS } from "@/lib/constants";
 import { logActivity } from "@/services/activity-logs";
-import { rejectAllBidsForProduct } from "./bidding";
+import { rejectAllBidsForProduct } from "../marketplace/bidding";
 
 /**
  * Helper to get the authenticated user's ID from the session cookie.

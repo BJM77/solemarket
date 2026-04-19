@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { uploadImages } from '@/lib/firebase/storage';
-import { bulkCreateProductsFromCSV } from '@/app/actions/bulk-products';
+import { bulkCreateProductsFromCSV } from '@/app/actions/marketplace/bulk-products';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Upload, FileText, CheckCircle, XCircle, Loader2, ListChecks, FileUp, ImageUp } from 'lucide-react';
 import { BeforeUnload } from '@/hooks/use-before-unload';

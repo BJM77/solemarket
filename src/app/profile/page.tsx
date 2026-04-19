@@ -15,7 +15,7 @@ import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CheckCircle2, ShoppingBag, AlertTriangle, MessageSquare, Loader2, Edit, Globe, ExternalLink, Image as ImageIcon, Check, X } from 'lucide-react';
-import { isSlugAvailable } from '@/app/actions/seller';
+import { isSlugAvailable } from '@/app/actions/seller/seller';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

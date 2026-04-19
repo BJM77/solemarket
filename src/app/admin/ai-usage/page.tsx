@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/firebase';
-import { getAIUsageStats, type AIUsageStats } from '@/app/actions/ai-stats';
+import { getAIUsageStats, type AIUsageStats } from '@/app/actions/system/ai-stats';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

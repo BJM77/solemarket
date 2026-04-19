@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/firebase';
-import { getActiveProducts } from '@/app/actions/products';
+import { getActiveProducts } from '@/app/actions/marketplace/products';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

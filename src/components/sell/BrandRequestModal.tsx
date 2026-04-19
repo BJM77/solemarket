@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { requestBrandAction } from '@/app/actions/brand-requests';
+import { requestBrandAction } from '@/app/actions/seller/brand-requests';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 export function BrandRequestModal() {

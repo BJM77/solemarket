@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { getAdminWantedCriteria, addAdminWantedCriterion, deleteAdminWantedCriterion, type AdminWantedCriterion } from '@/app/actions/admin-wanted';
+import { getAdminWantedCriteria, addAdminWantedCriterion, deleteAdminWantedCriterion, type AdminWantedCriterion } from '@/app/actions/admin/admin-wanted';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

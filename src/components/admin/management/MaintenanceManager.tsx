@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Search, AlertTriangle } from 'lucide-react';
-import { deleteProductByAdmin } from '@/app/actions/admin';
+import { deleteProductByAdmin } from '@/app/actions/admin/admin';
 import { getProducts } from '@/services/product-service';
 import { Product } from '@/lib/types';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';

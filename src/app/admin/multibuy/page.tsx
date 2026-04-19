@@ -16,7 +16,7 @@ import {
     updateMultibuyTemplate,
     deleteMultibuyTemplate,
     setDefaultTemplate,
-} from '@/app/actions/multibuy-actions';
+} from '@/app/actions/marketplace/multibuy-actions';
 import { MultibuyTemplate, MultibuyTier } from '@/types/multibuy';
 
 export default function MultibuyAdminPage() {

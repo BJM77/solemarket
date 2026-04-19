@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { authAdmin } from '@/lib/firebase/admin';
 import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { enforceDevOnly } from '@/lib/security';
 
 export async function POST(request: Request) {
+    // Critical Production Gate
+    const gateError = enforceDevOnly();
+    if (gateError) return gateError;
     try {
         const { idToken } = await request.json();
 

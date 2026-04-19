@@ -50,7 +50,7 @@ function DashboardSkeleton() {
   )
 }
 
-import { updateEnquiryStatus, deleteProductsAction, activateProductAction } from '@/app/actions/product-updates';
+import { updateEnquiryStatus, deleteProductsAction, activateProductAction } from '@/app/actions/marketplace/product-updates';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2 } from 'lucide-react';

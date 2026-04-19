@@ -130,7 +130,7 @@ export async function createProductAction(
         if (validData.imageUrls && validData.imageUrls.length > 0) {
             try {
                 console.log('Running AI Intelligence Pipeline for product:', validData.title);
-                const { analyzeProductImage } = await import('./ai-images');
+                const { analyzeProductImage } = await import('../system/ai-images');
                 const analysisPromises = validData.imageUrls.map(url =>
                     analyzeProductImage(url, validData.title)
                 );

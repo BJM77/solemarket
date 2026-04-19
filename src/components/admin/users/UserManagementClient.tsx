@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getAllUsers, updateUserRole, toggleUserBan, approveSeller, rejectSeller, setUserOnStop, issueWarning, type AdminUser, type ActionResponse } from '@/app/actions/admin-users';
+import { getAllUsers, updateUserRole, toggleUserBan, approveSeller, rejectSeller, setUserOnStop, issueWarning, type AdminUser, type ActionResponse } from '@/app/actions/admin/admin-users';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from '@/lib/types';

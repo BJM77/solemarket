@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { isQuickActionTokenValid } from '@/lib/security';
+import { nanoid } from 'nanoid';
 
 /**
  * Public API for Seller Quick Actions via Email
@@ -27,9 +29,9 @@ export async function GET(request: NextRequest) {
 
         const data = docSnap.data();
 
-        // Security: Validate the unique token
-        if (data?.quickActionToken !== token) {
-            return new NextResponse('Invalid or expired token', { status: 403 });
+        // Security: Validate the unique token and check for 7-day expiry
+        if (!isQuickActionTokenValid(data?.quickActionToken, token, data?.updatedAt)) {
+            return new NextResponse('Invalid or expired token. Please generate a new one from your dashboard.', { status: 403 });
         }
 
         let updateData: any = { 
@@ -45,7 +47,7 @@ export async function GET(request: NextRequest) {
             
             // Trigger review nudge if someone was holding/enquiring
             if (data.heldBy) {
-                const { triggerReviewNudge } = await import('@/app/actions/nudge-actions');
+                const { triggerReviewNudge } = await import('@/app/actions/seller/nudge-actions');
                 await triggerReviewNudge(productId, data.heldBy);
             }
         } else if (action === 'available') {
@@ -58,7 +60,11 @@ export async function GET(request: NextRequest) {
             message = 'The listing is now marked as PENDING. Other buyers will see it as Under Offer.';
         }
 
-        await docRef.update(updateData);
+        await docRef.update({
+            ...updateData,
+            // Invalidate/Rotate the token to ensure one-time use
+            quickActionToken: nanoid(32) 
+        });
 
         // Simple HTML response for the seller
         return new NextResponse(`

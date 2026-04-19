@@ -132,7 +132,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect Seller Routes
-  if (request.nextUrl.pathname.startsWith('/sell')) {
+  if (request.nextUrl.pathname.startsWith('/sell') || request.nextUrl.pathname.startsWith('/seller')) {
     if (!isAuth) {
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);

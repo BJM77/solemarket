@@ -1,16 +1,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { firestoreDb, auth } from '@/lib/firebase/admin';
+import { firestoreDb } from '@/lib/firebase/admin';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Product } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
 import { MARKETPLACE_CATEGORIES } from '@/config/categories';
+import { enforceDevOnly } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
     // 1. Critical Production Gate
-    if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Forbidden in production' }, { status: 403 });
-    }
+    const gateError = enforceDevOnly();
+    if (gateError) return gateError;
 
     try {
         const seedToken = process.env.ADMIN_SEED_TOKEN;

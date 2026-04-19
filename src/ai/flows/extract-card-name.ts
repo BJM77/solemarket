@@ -6,16 +6,17 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { logAIUsage } from '@/services/ai-usage';
+import { runAIWorkflow } from '../workflow-engine';
 import { keywordSearchSales } from '@/ai/tools/ebay-search';
 
 const ExtractCardNameInputSchema = z.object({
     cardImageDataUri: z
         .string()
         .describe(
-            "A photo of a trading card, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+            "A photo of a trading card, as a data URI."
         ),
-    userId: z.string().optional().describe('User ID for logging'),
+    idToken: z.string().optional().describe('Firebase ID Token for auth'),
+    userId: z.string().optional().describe('User ID legacy tracking'),
 });
 type ExtractCardNameInput = z.infer<typeof ExtractCardNameInputSchema>;
 
@@ -33,15 +34,43 @@ const ExtractCardNameOutputSchema = z.object({
 });
 export type ExtractCardNameOutput = z.infer<typeof ExtractCardNameOutputSchema>;
 
-export async function extractCardName(
-    input: ExtractCardNameInput
-): Promise<ExtractCardNameOutput> {
-    const result = await extractCardNameFlow(input);
+export async function extractCardName(input: ExtractCardNameInput): Promise<any> {
+    return await runAIWorkflow<ExtractCardNameOutput>(
+        input,
+        async (validatedInput) => {
+            const { output: details } = await prompt(validatedInput);
+            if (!details?.playerName) throw new Error("Gemini could not detect a player name.");
 
-    // Log Usage
-    await logAIUsage('Full Card Scan', 'vision_analysis', input.userId);
+            // Enhancement: Search eBay for pricing
+            try {
+                const query = [
+                    details.cardYear,
+                    details.cardBrand,
+                    details.playerName,
+                    details.cardColor,
+                    details.sport
+                ].filter(Boolean).join(' ');
 
-    return result;
+                const salesData = await keywordSearchSales({ query });
+                if (salesData) {
+                    details.salesData = {
+                        averagePrice: salesData.averagePrice,
+                        salesCount: salesData.salesCount,
+                        source: 'eBay Sold Listings'
+                    };
+                }
+            } catch (error) {
+                console.warn('Failed to fetch pricing data:', error);
+            }
+            return details;
+        },
+        {
+            feature: 'full-card-scan-extraction',
+            usageType: 'vision_analysis',
+            maxRetries: 3,
+            requireAuth: !!input.idToken
+        }
+    );
 }
 
 const prompt = ai.definePrompt({
@@ -61,47 +90,3 @@ Be precise and only return what you can clearly see on the card.
 
 Card Image: {{media url=cardImageDataUri}}`,
 });
-
-const extractCardNameFlow = ai.defineFlow(
-    {
-        name: 'extractCardNameFlow',
-        inputSchema: ExtractCardNameInputSchema,
-        outputSchema: ExtractCardNameOutputSchema,
-    },
-    async (input: ExtractCardNameInput) => {
-        if (!input.cardImageDataUri.startsWith('data:image/')) {
-            throw new Error('Invalid image format. Use JPEG or PNG.');
-        }
-        const { output: cardDetails } = await prompt(input);
-
-        if (!cardDetails?.playerName) {
-            throw new Error("Gemini could not detect a player name on the card.");
-        }
-
-        // Enhancement: Search eBay for pricing
-        try {
-            const query = [
-                cardDetails.cardYear,
-                cardDetails.cardBrand,
-                cardDetails.playerName,
-                cardDetails.cardColor,
-                cardDetails.sport
-            ].filter(Boolean).join(' ');
-
-            const salesData = await keywordSearchSales({ query });
-
-            if (salesData) {
-                cardDetails.salesData = {
-                    averagePrice: salesData.averagePrice,
-                    salesCount: salesData.salesCount,
-                    source: 'eBay Sold Listings'
-                };
-            }
-        } catch (error) {
-            console.warn('Failed to fetch pricing data:', error);
-            // Non-blocking error, return card details without price
-        }
-
-        return cardDetails;
-    }
-);

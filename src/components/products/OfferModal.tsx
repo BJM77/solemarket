@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ShieldCheck, Info } from 'lucide-react';
-import { placeBidAction } from '@/app/actions/bidding';
+import { placeBidAction } from '@/app/actions/marketplace/bidding';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/email-verification';
+import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/auth/email-verification';
 import { trackEcommerceEvent } from '@/lib/analytics';
 
 interface OfferModalProps {

@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 import { useActionState, useEffect, useRef } from 'react';
-import { subscribeToNewsletter, type NewsletterState } from '@/app/actions/newsletter';
+import { subscribeToNewsletter, type NewsletterState } from '@/app/actions/marketplace/newsletter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Loader2, Check } from 'lucide-react';

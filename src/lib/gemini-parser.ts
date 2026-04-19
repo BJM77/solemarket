@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { withRetry } from '@/ai/utils/retry';
 
 const apiKey = process.env.GOOGLE_AI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -53,13 +54,20 @@ export async function parseWithGemini(scrapeResult: any): Promise<StructuredPric
   `;
 
     try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let text = response.text().trim();
-
-        // Clean up markdown if AI included it
-        if (text.startsWith('```json')) text = text.replace(/```json|```/g, '');
-        else if (text.startsWith('```')) text = text.replace(/```/g, '');
+        const text = await withRetry(async () => {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            let rawText = response.text().trim();
+            
+            // Clean up markdown if AI included it
+            if (rawText.startsWith('```json')) rawText = rawText.replace(/```json|```/g, '');
+            else if (rawText.startsWith('```')) rawText = rawText.replace(/```/g, '');
+            
+            return rawText;
+        }, {
+            maxRetries: 2,
+            onRetry: (err) => console.warn('[GeminiParser] Retrying content generation due to error:', err.message)
+        });
 
         const parsed = JSON.parse(text);
         return Array.isArray(parsed) ? parsed : [];

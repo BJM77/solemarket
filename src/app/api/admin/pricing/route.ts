@@ -1,30 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { AuthenticatedRequest, withAuth } from '@/lib/auth-wrapper';
 import { scrapeEbayListings } from '@/lib/ebay-scraper';
 import { parseWithGemini } from '@/lib/gemini-parser';
-import { auth, firestoreDb } from '@/lib/firebase/admin';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const token = authHeader.split('Bearer ')[1];
-        try {
-            const decodedToken = await auth.verifyIdToken(token);
-
-            // Verification of role (SuperAdmin only)
-            const userDoc = await firestoreDb.collection('users').doc(decodedToken.uid).get();
-            const userData = userDoc.data();
-
-            if (userData?.role !== 'superadmin' && userData?.role !== 'admin') {
-                return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-            }
-        } catch (e) {
-            return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
-        }
-
         const { productId, title } = await request.json();
 
         if (!title) {
@@ -51,4 +31,4 @@ export async function POST(request: NextRequest) {
         console.error('Pricing API Error:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
-}
+}, { requiredRole: ['admin', 'superadmin'] });

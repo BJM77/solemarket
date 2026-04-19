@@ -9,7 +9,7 @@ import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import type { SafeUser } from './auth/use-user';
 import { app, auth as authInstance, db } from '@/lib/firebase/config';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { syncUserOnLogin } from '@/app/actions/auth';
+import { syncUserOnLogin } from '@/app/actions/auth/auth';
 
 /**
  * Creates a plain, serializable object from a Firebase User object.
@@ -88,6 +88,26 @@ export const FirebaseProvider: React.FC<{
 
     // Effect to subscribe to Firebase auth state changes
     useEffect(() => {
+      // DEV MOCK: Automatically sign in a mock user in development if not already signed in
+      if (process.env.NODE_ENV === 'development' && !authService) {
+        console.log('🧪 DEV MOCK: Injecting mock user for testing');
+        setUserAuthState({
+          user: {
+            uid: 'dev-mock-user',
+            email: 'dev@example.com',
+            displayName: 'Dev User',
+            photoURL: null,
+            emailVerified: true,
+            getIdTokenResult: async () => ({ claims: { role: 'admin' } } as any),
+            getIdToken: async () => 'dev-mock-token',
+          },
+          isUserLoading: false,
+          userError: null,
+          role: 'admin'
+        });
+        return;
+      }
+
       if (!authService) {
         setTimeout(() => {
           setUserAuthState({ user: null, isUserLoading: false, userError: null });

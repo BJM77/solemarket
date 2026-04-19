@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Save, Trash2, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, Save, Trash2, ArrowLeft, AlertCircle, CheckCircle2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { createBulkProductsAction } from '@/app/actions/products';
+import { createBulkProductsAction } from '@/app/actions/marketplace/products';
 import Image from 'next/image';
 
 interface BulkCard {
@@ -135,7 +136,7 @@ export function BulkEditClient() {
                 <Button 
                     variant="default" 
                     size="lg" 
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white h-14 px-10 font-black shadow-xl"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 md:h-14 px-4 md:px-10 text-sm md:text-base font-black shadow-xl"
                     onClick={handleSaveAll}
                     disabled={isSaving}
                 >
@@ -164,14 +165,17 @@ export function BulkEditClient() {
                         {cards.map((card, idx) => (
                             <TableRow key={card.id} className="hover:bg-indigo-50/30 transition-colors">
                                 <TableCell>
-                                    <div className="relative aspect-[2.5/3.5] w-20 rounded border overflow-hidden bg-white">
-                                        <Image
-                                            src={card.localPreview}
-                                            alt={card.title}
+                                    <Link href={card.localPreview || '#'} target="_blank" className="block relative h-16 w-16 group">
+                                        <Image 
+                                            src={card.localPreview || '/placeholder.png'} 
+                                            alt={card.title || 'Product Image'}
                                             fill
-                                            className="object-contain p-1"
+                                            className="object-cover rounded-md border border-white/10 group-hover:scale-110 transition-transform"
                                         />
-                                    </div>
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
+                                            <Eye className="h-4 w-4 text-white" />
+                                        </div>
+                                    </Link>
                                 </TableCell>
                                 <TableCell>
                                     <div className="space-y-1">

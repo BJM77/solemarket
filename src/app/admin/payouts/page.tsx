@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getPendingPayouts, markPayoutAsSettled } from '@/app/actions/admin-payouts';
+import { getPendingPayouts, markPayoutAsSettled } from '@/app/actions/admin/admin-payouts';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

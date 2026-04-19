@@ -13,7 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck, Plus } from 'lucide-react';
 import { isCardCategory, normalizeCategory } from '@/lib/constants/marketplace';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
-import { addSubCategory } from '@/app/actions/admin-categories';
+import { addSubCategory } from '@/app/actions/admin/admin-categories';
 import { useFirebase, useUser } from '@/firebase';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -25,10 +25,24 @@ interface DetailsStepProps {
     conditionOptions: string[];
     onAutoFill?: () => Promise<void>;
     isAnalyzing?: boolean;
+    analysisStage?: string;
+    suggestedFields?: string[];
+    onFieldChange?: (field: string) => void;
     imageFiles?: any[];
 }
 
-export function DetailsStep({ form, selectedType, subCategories, conditionOptions, onAutoFill, isAnalyzing, imageFiles = [] }: DetailsStepProps) {
+export function DetailsStep({ 
+    form, 
+    selectedType, 
+    subCategories, 
+    conditionOptions, 
+    onAutoFill, 
+    isAnalyzing, 
+    analysisStage,
+    suggestedFields = [],
+    onFieldChange,
+    imageFiles = [] 
+}: DetailsStepProps) {
     const { isSuperAdmin } = useUserPermissions();
     const { user } = useUser();
     const { toast } = useToast();
@@ -59,6 +73,16 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
         }
     };
 
+    const AISuggestionBadge = ({ fieldName }: { fieldName: string }) => {
+        if (!suggestedFields.includes(fieldName)) return null;
+        return (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary animate-in fade-in zoom-in duration-300">
+                <Sparkles className="h-2.5 w-2.5" />
+                <span>AI SUGGESTED</span>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6">
             <div className="pt-2 border-t border-white/10 my-4" />
@@ -69,8 +93,18 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="title" render={({ field }) => (
                             <FormItem className="md:col-span-2">
-                                <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
-                                <FormControl><Input placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} {...field} /></FormControl>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
+                                    <AISuggestionBadge fieldName="title" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('title')}
+                                        className={cn(suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]")}
+                                    />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )} />
@@ -78,10 +112,14 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                         {/* Sub Category Selection */}
                         <FormField control={form.control} name="subCategory" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Sub-Category</FormLabel>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Sub-Category</FormLabel>
+                                    <AISuggestionBadge fieldName="subCategory" />
+                                </div>
                                 <div className="space-y-2">
                                     <Select 
                                         onValueChange={(val) => {
+                                            onFieldChange?.('subCategory');
                                             if (val === 'ADD_NEW') {
                                                 setIsAddingSub(true);
                                             } else {
@@ -141,9 +179,22 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
 
                         <FormField control={form.control} name="condition" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Condition <span className="text-red-500">*</span></FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger></FormControl>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Condition <span className="text-red-500">*</span></FormLabel>
+                                    <AISuggestionBadge fieldName="condition" />
+                                </div>
+                                <Select 
+                                    onValueChange={(val) => {
+                                        onFieldChange?.('condition');
+                                        field.onChange(val);
+                                    }} 
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger className={cn(suggestedFields.includes('condition') && "bg-primary/5 border-primary/30")}>
+                                            <SelectValue placeholder="Select condition" />
+                                        </SelectTrigger>
+                                    </FormControl>
                                     <SelectContent>
                                         {conditionOptions.map((c: string) => (
                                             <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -214,8 +265,18 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={form.control} name="brand" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Manufacturer / Set <span className="text-red-500">*</span></FormLabel>
-                                    <FormControl><Input placeholder="e.g. Panini Prizm" {...field} /></FormControl>
+                                    <div className="flex items-center justify-between">
+                                        <FormLabel>Manufacturer / Set <span className="text-red-500">*</span></FormLabel>
+                                        <AISuggestionBadge fieldName="brand" />
+                                    </div>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder="e.g. Panini Prizm" 
+                                            {...field} 
+                                            onFocus={() => onFieldChange?.('brand')}
+                                            className={cn(suggestedFields.includes('brand') && "bg-primary/5 border-primary/30")}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -283,7 +344,20 @@ export function DetailsStep({ form, selectedType, subCategories, conditionOption
                             <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>
                         )} />
                         <FormField control={form.control} name="styleCode" render={({ field }) => (
-                            <FormItem><FormLabel>Style Code</FormLabel><FormControl><Input placeholder="e.g. DZ5485-612" {...field} /></FormControl></FormItem>
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Style Code</FormLabel>
+                                    <AISuggestionBadge fieldName="styleCode" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. DZ5485-612" 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('styleCode')}
+                                        className={cn(suggestedFields.includes('styleCode') && "bg-primary/5 border-primary/30")}
+                                    />
+                                </FormControl>
+                            </FormItem>
                         )} />
                         <FormField control={form.control} name="colorway" render={({ field }) => (
                             <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input placeholder="e.g. Varsity Red/Black/Sail" {...field} /></FormControl></FormItem>

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { UploadCloud, Image as ImageIcon, X, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { uploadMedia } from '@/lib/firebase/storage';
-import { createProductAction } from '@/app/actions/products';
+import { createProductAction } from '@/app/actions/marketplace/products';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 interface PendingUpload {

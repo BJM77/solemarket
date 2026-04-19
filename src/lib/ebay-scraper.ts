@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { withRetry } from '@/ai/utils/retry';
 
 interface ScrapeOptions {
     keyword: string;
@@ -53,24 +54,27 @@ export async function scrapeEbayListings(options: ScrapeOptions) {
                 'Upgrade-Insecure-Requests': '1',
             };
 
-            let response;
-
-            if (useProxies && proxies.length > 0) {
-                const proxy = proxies[page % proxies.length];
-                const agent = new HttpsProxyAgent(proxy!);
-
-                response = await axios.get(url, {
-                    headers,
-                    httpsAgent: agent,
-                    timeout: 15000,
-                    validateStatus: (status) => status === 200
-                });
-            } else {
-                response = await axios.get(url, {
-                    headers,
-                    timeout: 15000
-                });
-            }
+            const response = await withRetry(async () => {
+                if (useProxies && proxies.length > 0) {
+                    const proxy = proxies[page % proxies.length];
+                    const agent = new HttpsProxyAgent(proxy!);
+    
+                    return await axios.get(url, {
+                        headers,
+                        httpsAgent: agent,
+                        timeout: 15000,
+                        validateStatus: (status) => status === 200
+                    });
+                } else {
+                    return await axios.get(url, {
+                        headers,
+                        timeout: 15000
+                    });
+                }
+            }, {
+                maxRetries: 2,
+                onRetry: (err, attempt) => console.warn(`[Scraper] Retry attempt ${attempt} for page ${page} due to error: ${err.message}`)
+            });
 
             const $ = cheerio.load(response.data);
 

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getWTBListingById } from '@/app/actions/wtb';
+import { getWTBListingById } from '@/app/actions/marketplace/wtb';
 import { ContactWTBForm } from '@/components/wtb/ContactWTBForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

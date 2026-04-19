@@ -1,12 +1,14 @@
 'use server';
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { ensureActionAuth } from '@/lib/action-utils';
 import { startOfHour, startOfDay, startOfWeek, format, subDays } from 'date-fns';
 
 export interface AIUsageStats {
     totalUnits: number;
     totalCost: number;
+    avgVisionLatency: number;
+    avgVisionFieldsFound: number;
     hourly: { label: string; units: number; cost: number }[];
     daily: { label: string; units: number; cost: number }[];
     weekly: { label: string; units: number; cost: number }[];
@@ -14,14 +16,7 @@ export interface AIUsageStats {
 }
 
 export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
-    const decodedToken = await verifyIdToken(idToken);
-
-    // Authorization check
-    const userSnap = await firestoreDb.collection('users').doc(decodedToken.uid).get();
-    const userData = userSnap.data();
-    if (userData?.role !== 'superadmin') {
-        throw new Error('Unauthorized: Admin access required.');
-    }
+    await ensureActionAuth(idToken, 'superadmin');
 
     // Fetch logs from the last 30 days
     const thirtyDaysAgo = subDays(new Date(), 30);
@@ -38,6 +33,10 @@ export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
 
     let totalUnits = 0;
     let totalCost = 0;
+    let totalVisionLatency = 0;
+    let totalVisionFields = 0;
+    let visionLogCount = 0;
+
     const hourlyMap = new Map();
     const dailyMap = new Map();
     const weeklyMap = new Map();
@@ -56,6 +55,13 @@ export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
         featData.units += log.units;
         featData.cost += log.estimatedCost || 0;
         featureMap.set(feat, featData);
+
+        // Phase 5: Vision Telemetry
+        if (feat === 'listing-details-vision' && log.metadata) {
+            visionLogCount++;
+            totalVisionLatency += log.metadata.latency || 0;
+            totalVisionFields += log.metadata.fieldsFound || 0;
+        }
 
         // Hourly (last 24h)
         if (log.timestamp >= oneDayAgo) {
@@ -84,6 +90,8 @@ export async function getAIUsageStats(idToken: string): Promise<AIUsageStats> {
     return {
         totalUnits,
         totalCost,
+        avgVisionLatency: visionLogCount > 0 ? totalVisionLatency / visionLogCount : 0,
+        avgVisionFieldsFound: visionLogCount > 0 ? totalVisionFields / visionLogCount : 0,
         hourly: Array.from(hourlyMap.entries()).map(([label, data]) => ({ label, ...data })),
         daily: Array.from(dailyMap.entries()).map(([label, data]) => ({ label, ...data })).reverse(),
         weekly: Array.from(weeklyMap.entries()).map(([label, data]) => ({ label, ...data })).reverse(),

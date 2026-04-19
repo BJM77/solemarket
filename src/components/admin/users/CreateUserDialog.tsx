@@ -15,7 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Shield, Store, User, BadgeCheck, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/lib/types";
-import { createNewUser } from "@/app/actions/admin-users";
+import { createNewUser } from "@/app/actions/admin/admin-users";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
 
 const formSchema = z.object({

@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Info as InfoIcon, Clock, TrendingUp } from 'lucide-react';
 import { Bid, Product, SafeUser } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { placeBidAction } from '@/app/actions/bidding';
+import { placeBidAction } from '@/app/actions/marketplace/bidding';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/email-verification';
+import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/auth/email-verification';
 
 interface BiddingInterfaceProps {
     product: Product;

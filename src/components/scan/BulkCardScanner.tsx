@@ -20,6 +20,7 @@ export function BulkCardScanner() {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -63,7 +64,8 @@ export function BulkCardScanner() {
             const { resizeAndCompressImage } = await import('@/lib/utils');
             
             // Convert all files to base64 with compression for AI analysis
-            const base64Promises = selectedFiles.map(file => resizeAndCompressImage(file, 600, 0.6));
+            // Increased to 800px for better detail on close-ups
+            const base64Promises = selectedFiles.map(file => resizeAndCompressImage(file, 800, 0.7));
             const base64Images = await Promise.all(base64Promises);
 
             const result = await bulkSuggestCards({
@@ -78,10 +80,14 @@ export function BulkCardScanner() {
 
             // Store results in session storage for the bulk edit page
             if (result.data) {
+                console.log('✅ [BulkScan] AI returned results:', result.data.cards.length);
+                
                 // Attach real storage URLs to the result for display and saving
+                // Also FORCE unique IDs to prevent React key collisions if AI returns duplicates
                 const resultsWithImages = result.data.cards.map((card, idx) => ({
                     ...card,
-                    localPreview: uploadedUrls[idx] || previews[idx], // Fallback to local if upload failed for one
+                    id: `card-${idx}-${Date.now()}`, // Force unique ID
+                    localPreview: uploadedUrls[idx] || previews[idx],
                 }));
                 
                 sessionStorage.setItem('bulk_scan_results', JSON.stringify(resultsWithImages));
@@ -97,6 +103,7 @@ export function BulkCardScanner() {
             });
         } finally {
             setIsAnalyzing(false);
+            setIsRetrying(false);
         }
     };
 
@@ -184,7 +191,7 @@ export function BulkCardScanner() {
                             {isAnalyzing ? (
                                 <>
                                     <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                                    AI Analyzing Batch...
+                                    {isRetrying ? "Retrying (High Demand)..." : "AI Analyzing Batch..."}
                                 </>
                             ) : (
                                 <>

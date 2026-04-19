@@ -30,7 +30,7 @@ import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase/config';
-import { createWTBListing, updateWTBListing } from '@/app/actions/wtb';
+import { createWTBListing, updateWTBListing } from '@/app/actions/marketplace/wtb';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
 const wtbSchema = z.object({

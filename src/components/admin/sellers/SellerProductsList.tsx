@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Trash2, Eye, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
-import { deleteProductByAdmin, approveProductByAdmin } from "@/app/actions/admin";
+import { deleteProductByAdmin, approveProductByAdmin } from "@/app/actions/admin/admin";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 

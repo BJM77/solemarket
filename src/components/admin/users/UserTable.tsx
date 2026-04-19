@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, Shield, Store, BadgeCheck, Ban, Eye } from "lucide-react";
 import { format } from "date-fns";
-import type { AdminUser } from '@/app/actions/admin-users';
+import type { AdminUser } from '@/app/actions/admin/admin-users';
 import type { UserRole } from "@/lib/types";
 
 interface UserTableProps {

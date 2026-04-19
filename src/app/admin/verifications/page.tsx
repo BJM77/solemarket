@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useRouter } from 'next/navigation';
-import { approveVerificationRequest, getPendingVerificationRequests, rejectVerificationRequest } from '@/app/actions/verification';
+import { approveVerificationRequest, getPendingVerificationRequests, rejectVerificationRequest } from '@/app/actions/auth/verification';
 import { VerificationRequest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

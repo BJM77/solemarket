@@ -2,7 +2,7 @@ import { db } from '@/lib/firebase/config';
 import { collection, query, where, getDocs, limit, updateDoc, doc, increment, orderBy } from 'firebase/firestore';
 import { Advertisement } from '@/lib/types';
 
-import { trackAdImpressionAction, trackAdClickAction } from '@/app/actions/ad-tracking';
+import { trackAdImpressionAction, trackAdClickAction } from '@/app/actions/system/ad-tracking';
 
 export async function getActiveAd(placement: Advertisement['placement']): Promise<Advertisement | null> {
     try {

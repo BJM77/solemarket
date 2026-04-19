@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/firebase';
-import { getEnquiries, updateEnquiryStatus } from '@/app/actions/enquiries';
+import { getEnquiries, updateEnquiryStatus } from '@/app/actions/marketplace/enquiries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

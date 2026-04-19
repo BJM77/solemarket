@@ -1,6 +1,6 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { getSellerProfile } from '@/app/actions/seller';
+import { getSellerProfile } from '@/app/actions/seller/seller';
 import { SellerStorefrontHeader } from '@/components/shop/SellerStorefrontHeader';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { Metadata } from 'next';

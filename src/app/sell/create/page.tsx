@@ -10,14 +10,16 @@ import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { BeforeUnload } from '@/hooks/use-before-unload';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
-import { getDraftListing, saveDraftListing } from '@/app/actions/sell';
+import { getDraftListing, saveDraftListing } from '@/app/actions/seller/sell';
 import { doc } from 'firebase/firestore';
+import { withRetry } from '@/ai/utils/retry';
 import imageCompression from 'browser-image-compression';
 import { MARKETPLACE_CATEGORIES } from '@/config/categories';
+import { resizeAndCompressImage } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { ChevronLeft, ChevronRight, Eye, Loader2, Save } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Loader2, Save, Sparkles } from 'lucide-react';
 import { WizardProgress } from '@/components/sell/wizard/WizardProgress';
 import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
 import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
@@ -75,9 +77,12 @@ function CreateListingForm() {
   const { firestore } = useFirebase();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-
+  const [suggestedFields, setSuggestedFields] = useState<string[]>([]);
+  const [analysisStage, setAnalysisStage] = useState<string>('');
+  
   const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
   const { data: marketplaceOptions } = useDoc<any>(optionsRef);
 
@@ -134,6 +139,8 @@ function CreateListingForm() {
       acceptsPayId: true, // Smart Default for our preferred path
     },
   });
+
+  const isTradingCard = form.watch('category') === 'Collector Cards';
 
   const imageFiles = form.watch('imageFiles');
   const formValues = form.watch();
@@ -267,48 +274,93 @@ function CreateListingForm() {
     if (!currentFiles.length || !user || isAnalyzing) return;
     setIsAnalyzing(true);
     try {
+      // Use local base64 encoding instead of uploading to Storage.
+      // The temp-analysis storage path has auth-restricted read rules, so the
+      // server-side fetch() would fail with 403. Sending base64 directly is
+      // also ~10x faster as it skips the upload latency entirely.
       const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
-      let photoUrls: string[] = [];
+      let aiPhotoPayload: string[] = [];
       if (filesToProcess.length > 0) {
-        photoUrls = await uploadImages(filesToProcess, `temp-analysis/${user.uid}`);
+        aiPhotoPayload = await Promise.all(
+          filesToProcess.map(file => resizeAndCompressImage(file, 800, 0.7))
+        );
       }
-      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
-      const allUrls = [...existingUrls, ...photoUrls];
 
-      if (allUrls.length === 0) return;
+      // Also include existing URLs (already-uploaded product images)
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+      const allPayload = [...existingUrls, ...aiPhotoPayload];
+
+      if (allPayload.length === 0) return;
       const idToken = await user.getIdToken();
 
-      // Sanitize input
-      const input = JSON.parse(JSON.stringify({
-        photoDataUris: allUrls,
-        title: form.getValues('title') || undefined,
-        category: form.getValues('category'),
-        idToken
-      }));
+      setAnalysisStage('Optimizing photos...');
+      const suggestionsResponse = await withRetry(
+        async () => {
+          setAnalysisStage('Analyzing item details...');
+          return await suggestListingDetails({
+            photoDataUris: allPayload,
+            title: form.getValues('title') || undefined,
+            category: form.getValues('category'),
+            idToken
+          });
+        },
+        {
+          maxRetries: 3,
+          onRetry: (_err: any, attemptNum: number) => {
+            setIsRetrying(true);
+            setAnalysisStage(`High Demand... Retrying (Attempt ${attemptNum})`);
+          }
+        }
+      );
 
-      const suggestionsResponse = await suggestListingDetails(input);
+      setIsRetrying(false);
+
       if (suggestionsResponse.error) {
         throw new Error(suggestionsResponse.error);
       }
 
+      setAnalysisStage('Mapping suggestions...');
       const suggestions = suggestionsResponse.data;
       if (suggestions) {
+        // Track which fields were suggested for provenance markers
+        const newSuggestedFields = suggestions.suggestedFields || [];
+        setSuggestedFields(prev => [...new Set([...prev, ...newSuggestedFields])]);
+
         Object.entries(suggestions).forEach(([key, value]) => {
-          if (value && !form.getValues(key as any)) { // Only fill empty fields
-            form.setValue(key as any, value);
+          if (value && key !== 'suggestedFields') {
+            // Mapping refinements for cards
+            let finalValue = value;
+            if (isTradingCard) {
+                // If it's a card, we map AI 'model' (set name) into 'brand' if 'brand' is just 'Panini'
+                if (key === 'brand' && suggestions.model && !String(value).includes(suggestions.model)) {
+                    finalValue = `${value} ${suggestions.model}`;
+                }
+            }
+            
+            // Overwrite existing values to ensure "Auto-Fill ALL" works as expected
+            form.setValue(key as any, finalValue);
           }
         });
-        toast({ title: '✨ AI Magic Applied!', description: 'Details have been auto-filled.' });
+        setTimeout(() => {
+          form.trigger();
+          toast({ title: '✨ AI Magic Applied!', description: 'Details have been updated.' });
+        }, 100);
       }
     } catch (error: any) {
       console.error("Auto-fill error detailed:", error);
+      const isHighDemand = error.message?.includes('503') || error.message?.toLowerCase().includes('demand') || error.message?.toLowerCase().includes('busy');
+      
       toast({
-        title: "Auto-fill stalled",
-        description: "AI analysis failed. You can still fill details manually.",
+        title: isHighDemand ? "AI High Demand" : "Auto-fill stalled",
+        description: isHighDemand 
+            ? "The AI service is very busy. We tried to retry, but it's still overloaded. Please try again in 30 seconds." 
+            : "AI analysis failed. You can still fill details manually.",
         variant: "destructive"
       });
     } finally {
       setIsAnalyzing(false);
+      setIsRetrying(false);
+      setAnalysisStage('');
     }
   };
 
@@ -465,11 +517,18 @@ function CreateListingForm() {
                 onRemoveImage={removeImage}
                 onAutoFill={handleAutoFill}
                 isAnalyzing={isAnalyzing}
+                isRetrying={isRetrying}
+                analysisStage={analysisStage}
                 selectedType={selectedType || 'sneakers'}
                 onGradeComplete={(grade) => form.setValue('condition', grade)}
                 onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
                 form={form}
               />
+            </div>
+          )}
+
+          {currentStep === 1 && (
+            <div className="animate-in slide-in-from-right-4 duration-300">
               <DetailsStep
                 form={form}
                 selectedType={selectedType || 'sneakers'}
@@ -477,23 +536,30 @@ function CreateListingForm() {
                 conditionOptions={CONDITION_OPTIONS}
                 onAutoFill={handleAutoFill}
                 isAnalyzing={isAnalyzing}
+                analysisStage={analysisStage}
+                suggestedFields={suggestedFields}
+                onFieldChange={(field) => setSuggestedFields(prev => prev.filter(f => f !== field))}
                 imageFiles={imageFiles}
               />
             </div>
           )}
 
           {currentStep === 2 && (
-            <PricingAndDeliveryStep form={form} />
+            <PricingAndDeliveryStep 
+              form={form} 
+              suggestedFields={suggestedFields} 
+              onFieldChange={(field) => setSuggestedFields(prev => prev.filter(f => f !== field))}
+            />
           )}
         </main>
 
         {/* Floating Footer Navigation */}
-        <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-4 bg-card/90 backdrop-blur-md border-t border-white/10 z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
-          <div className="max-w-3xl mx-auto flex gap-4">
-            <Button variant="outline" size="lg" className="flex-1 rounded-xl h-14 bg-background text-white hover:bg-white/10 border-white/20" onClick={prevStep}>
+        <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-2 md:p-4 bg-card/90 backdrop-blur-md border-t border-white/10 z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
+          <div className="max-w-3xl mx-auto flex gap-2 md:gap-4">
+            <Button variant="outline" size="sm" className="flex-1 rounded-xl h-10 md:h-14 text-sm md:text-base bg-background text-white hover:bg-white/10 border-white/20" onClick={prevStep}>
               Back
             </Button>
-            <Button size="lg" className="flex-[2] font-bold text-lg rounded-xl h-14" onClick={nextStep} disabled={isSubmitting}>
+            <Button size="sm" className="flex-[2] font-bold text-sm md:text-lg rounded-xl h-10 md:h-14" onClick={nextStep} disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
               {currentStep === 2 ? (
                 <>
@@ -519,4 +585,3 @@ export default function CreateListingPage() {
     </Suspense>
   );
 }
-

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { searchEbaySoldListings } from '@/app/actions/ebay';
+import { searchEbaySoldListings } from '@/app/actions/system/ebay';
 import { EbaySearchResult } from '@/types/priget';
 
 export default function ResearchPage() {

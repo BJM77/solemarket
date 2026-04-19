@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
-import { quickSaveAndPublish } from '@/app/actions/admin-bulk';
+import { quickSaveAndPublish } from '@/app/actions/admin/admin-bulk';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MultiGenPage() {
@@ -39,6 +39,7 @@ export default function MultiGenPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [title, setTitle] = useState('');
     const [aiData, setAiData] = useState<any>(null);
+    const [analysisStage, setAnalysisStage] = useState('');
     const streamRef = useRef<MediaStream | null>(null);
 
     // Handle Authentication & Permissions
@@ -128,12 +129,16 @@ export default function MultiGenPage() {
         if (!img || !user) return;
 
         setIsAnalyzing(true);
+        setAnalysisStage('Analyzing...');
         try {
             const idToken = await user.getIdToken();
+            setAnalysisStage('Identifying item...');
             const suggestionsResponse = await suggestListingDetails({
                 photoDataUris: [img],
                 idToken
             });
+            
+            setAnalysisStage('Parsing details...');
 
             if (suggestionsResponse.error) {
                 toast({ title: "AI Error", description: suggestionsResponse.error, variant: "destructive" });
@@ -149,6 +154,7 @@ export default function MultiGenPage() {
             console.error("AI Fill error:", error);
         } finally {
             setIsAnalyzing(false);
+            setAnalysisStage('');
         }
     };
 
@@ -276,11 +282,15 @@ export default function MultiGenPage() {
                         onClick={() => handleAiFill()}
                         disabled={capturedImages.length === 0 || isAnalyzing}
                         className={cn(
-                            "absolute right-2 top-2 p-2 rounded-lg",
-                            isAnalyzing ? "text-emerald-500 animate-pulse" : "text-muted-foreground hover:text-emerald-500"
+                            "absolute right-2 top-2 p-2 rounded-lg flex items-center gap-2",
+                            isAnalyzing ? "text-emerald-500 animate-pulse bg-emerald-500/10 px-3" : "text-muted-foreground hover:text-emerald-500"
                         )}
                     >
-                        {isAnalyzing ? <Loader2 className="size-6 animate-spin" /> : <Sparkles className="size-6" />}
+                        {isAnalyzing ? (
+                            <><span className="text-[10px] font-bold uppercase tracking-tight">{analysisStage}</span><Loader2 className="size-5 animate-spin" /></>
+                        ) : (
+                            <Sparkles className="size-6" />
+                        )}
                     </button>
                 </div>
 

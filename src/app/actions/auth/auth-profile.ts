@@ -1,7 +1,7 @@
 'use server';
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { getUserIdFromSession } from './seller-actions'; // Reuse this robust token decrypter
+import { getUserIdFromSession } from '../seller/seller-actions'; // Reuse this robust token decrypter
 
 export async function completeUserProfile(data: {
     accountType: 'buyer' | 'seller';

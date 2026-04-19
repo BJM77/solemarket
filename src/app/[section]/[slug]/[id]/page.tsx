@@ -71,7 +71,7 @@ export default async function ProductPage({ params }: Props) {
   const initialReviews = await getReviewsForProduct(id);
 
   // Fetch SSR related products for SEO Link Juice
-  const { getSimilarProductsByCategory } = await import('@/app/actions/products');
+  const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
   const similarProducts = await getSimilarProductsByCategory(id, product.category, 6);
 
   return (

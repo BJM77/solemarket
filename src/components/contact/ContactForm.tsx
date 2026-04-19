@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { submitContactMessage } from '@/app/actions/contact-actions';
+import { submitContactMessage } from '@/app/actions/system/contact-actions';
 import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
