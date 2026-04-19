@@ -3,6 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, UserCheck, Banknote, PackageCheck, Lock, Handshake, CheckCircle2, Scale, ShoppingCart } from "lucide-react";
 import { DealSafeEnquiryDialog } from "./EnquiryDialog";
+import FAQSchema from "@/components/seo/FAQSchema";
+
+const dealSafeFaqs = [
+  {
+    question: "How does DealSafe protect buyers?",
+    answer: "Your money stays in our secure trust account. We only release it once the item is confirmed and ready to ship to you. Since we inspect the item first, the risk of 'item not as described' disputes is eliminated."
+  },
+  {
+    question: "How does DealSafe protect sellers?",
+    answer: "Know that the buyer has already paid before you even ship. We confirm the funds are secured in full. By using Benched as the intermediary, you are protected from fraudulent 'not received' or 'unauthorized' claims."
+  },
+  {
+    question: "What is DealSafe on Benched?",
+    answer: "DealSafe is Benched's premier escrow and secure payment service. We eliminate the risk of online trading by acting as a trusted third-party intermediary for your funds and high-value trades."
+  }
+];
 
 const buyerBenefits = [
     {
@@ -37,6 +53,7 @@ const sellerBenefits = [
 export default function DealSafePage() {
     return (
         <div className="bg-black min-h-screen text-white">
+            <FAQSchema questions={dealSafeFaqs} />
             <div className="container py-12 md:py-20">
                 <div className="max-w-4xl mx-auto text-center mb-16 px-4">
                     <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 px-6 py-1.5 text-sm uppercase tracking-widest font-bold">Exclusive Service</Badge>
