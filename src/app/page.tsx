@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getFeaturedProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
+import { getFeaturedProducts, getActiveProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -21,7 +21,26 @@ export const revalidate = 0;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Starting Lineup" />;
+  return <TrendingGrid products={products} title="Featured Grails" />;
+}
+
+async function NewArrivalsSection() {
+  const products = await getActiveProducts(12);
+  return <TrendingGrid products={products} title="Fresh Steals" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
+}
+
+function DemoAdvertisement() {
+  return (
+    <div className="w-full md:w-4/5 mx-auto bg-slate-900 text-white overflow-hidden relative group cursor-pointer block md:my-2 shadow-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="container mx-auto px-4 py-3 text-center relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-6">
+        <span className="bg-primary text-white text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider">Advertisement</span>
+        <p className="text-sm md:text-base font-semibold tracking-wide">
+          Limited Time Offer: Get <span className="text-primary font-black">50% OFF</span> authentication services with code <span className="border border-white/20 px-2 py-0.5 rounded bg-white/10 ml-1">BENCHED50</span>
+        </p>
+      </div>
+    </div>
+  );
 }
 
 function TrendingSkeleton() {
@@ -55,13 +74,17 @@ export default async function HomePage() {
 
   return (
     <main>
+      <DemoAdvertisement />
       <HeroModern listingCount={listingCount} />
-      <BrandLogos />
-      <CategoryGrid />
-      <CardCategoryGrid />
+      <Suspense fallback={<TrendingSkeleton />}>
+        <NewArrivalsSection />
+      </Suspense>
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />
       </Suspense>
+      <BrandLogos />
+      <CategoryGrid />
+      <CardCategoryGrid />
       <TrustBar />
       <section className="py-24 bg-slate-50 dark:bg-black/20">
         <div className="max-w-4xl mx-auto px-4 text-center">

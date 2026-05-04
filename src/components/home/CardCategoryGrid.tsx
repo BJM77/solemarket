@@ -77,8 +77,6 @@ const CARD_CATEGORIES = [
 export default function CardCategoryGrid() {
     return (
         <section className="bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden">
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 blur-[120px] rounded-full pointer-events-none"></div>
-
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-12 gap-3 md:gap-4">
                     <div>

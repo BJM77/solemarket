@@ -59,7 +59,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
                         className={cn(
                             "flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 border-2 whitespace-nowrap tap-haptic-subtle cursor-pointer shrink-0",
                             isActive
-                                ? "bg-primary text-black border-primary shadow-lg shadow-primary/20"
+                                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
                                 : "bg-background text-foreground border-muted-foreground/20 active:scale-95"
                         )}
                     >

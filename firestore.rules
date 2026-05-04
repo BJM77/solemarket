@@ -20,7 +20,8 @@ service cloud.firestore {
 
     // Users
     match /users/{userId} {
-      allow get: if resource == null || resource.data.accountType == 'seller' || resource.data.role == 'seller';
+      // Allow public read of individual user profiles for display (e.g. seller info)
+      allow get: if true;
       allow read, list: if isOwner(userId) || isAdmin() || (resource != null && (resource.data.accountType == 'seller' || resource.data.role == 'seller'));
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();

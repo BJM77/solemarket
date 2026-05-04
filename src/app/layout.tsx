@@ -114,8 +114,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${jakarta.variable} ${outfit.variable} dark`}>
-      <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background dark:bg-background" suppressHydrationWarning>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${jakarta.variable} ${outfit.variable}`}>
+      <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

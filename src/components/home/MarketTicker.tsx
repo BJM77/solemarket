@@ -45,8 +45,8 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
             <div className={cn(
                 "bg-zinc-900 text-white/80 overflow-hidden relative z-30 flex items-center justify-center gap-3",
                 compact
-                    ? "py-0 h-full w-full rounded-lg"
-                    : "py-1.5 border-y border-white/5 w-full md:w-4/5 mx-auto rounded-full my-2 shadow-sm"
+                    ? "py-0 h-full w-full"
+                    : "py-1.5 border-y border-white/5 w-full md:w-4/5 mx-auto my-2 shadow-sm"
             )}>
                 <RefreshCw className="h-3 w-3 animate-spin opacity-40" />
                 <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] opacity-40 animate-pulse">
@@ -69,10 +69,10 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
 
     return (
         <div className={cn(
-            "bg-primary text-black overflow-hidden relative z-30",
+            "bg-primary text-white overflow-hidden relative z-30",
             compact
-                ? "py-0 h-full w-full flex items-center rounded-lg shadow-inner"
-                : "py-1 md:py-1.5 border-y-2 border-primary/20 w-4/5 mx-auto rounded-full my-1 md:my-2 shadow-sm",
+                ? "py-0 h-full w-full flex items-center shadow-inner"
+                : "py-1 md:py-1.5 border-y-2 border-primary/20 w-4/5 mx-auto my-1 md:my-2 shadow-sm",
             !compact && isPinned ? "hidden md:block" : ""
         )}>
             <div className={cn(
@@ -86,7 +86,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
                         <Link
                             key={`${item.id}-${i}`}
                             href={url}
-                            className="flex items-center gap-2 md:gap-3 hover:text-black/70 transition-colors group"
+                            className="flex items-center gap-2 md:gap-3 hover:text-white/80 transition-colors group"
                         >
                             <span className="flex items-center gap-1 opacity-90">
                                 {TrendingUp && <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />}

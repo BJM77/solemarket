@@ -7,31 +7,31 @@
 
 @layer base {
   :root {
-    /* Base Colors - Default to Dark Theme as requested by USER */
-    --background: 24 10% 4%; /* Near black with a tiny hint of warmth #0b0a09 */
-    --foreground: 0 0% 96%;
+    /* Base Colors - Light Theme */
+    --background: 0 0% 100%;
+    --foreground: 24 10% 4%;
     
     /* Surface Colors */
-    --card: 24 12% 6%; /* Slightly lighter than background #110e0c */
-    --card-foreground: 0 0% 96%;
-    --popover: 24 12% 8%; /* Step above card #141210 */
-    --popover-foreground: 0 0% 96%;
+    --card: 0 0% 98%;
+    --card-foreground: 24 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 4%;
     
-    /* Brand Colors - Hype Inspired */
-    --primary: 25 90% 50%;  /* Exact #f26c0d */
-    --primary-foreground: 0 0% 0%; /* Black */
-    --secondary: 26 37% 15%;  /* Surface Highlight #342418 */
-    --secondary-foreground: 0 0% 96%;
+    /* Brand Colors */
+    --primary: 25 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 10% 90%;
+    --secondary-foreground: 24 10% 4%;
     
     /* Premium Neutrals */
-    --sneaker-cream: 24 15% 12%;
-    --sneaker-grey: 24 15% 15%;
+    --sneaker-cream: 36 33% 97%;
+    --sneaker-grey: 0 0% 96%;
     --deep-black: 0 0% 4%;
     
     /* Utility Colors */
-    --muted: 24 15% 12%; /* #221d19 */
-    --muted-foreground: 0 0% 65%;
-    --accent: 25 90% 50%; /* Exact #f26c0d */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 25 90% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -41,25 +41,52 @@
     --eco-green-foreground: 0 0% 100%;
     
     /* Borders & Inputs */
-    --border: 24 15% 15%; /* #2b2420 */
-    --input: 24 15% 15%; /* #2b2420 */
-    --ring: 25 90% 50%; /* Exact #f26c0d */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 25 90% 50%;
     --radius: 1rem;
     
     /* Shadows - Elevation System */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px rgb(242 108 13 / 0.5);
+    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark {
+    --background: 24 10% 4%;
+    --foreground: 0 0% 96%;
+    --card: 24 12% 6%;
+    --card-foreground: 0 0% 96%;
+    --popover: 24 12% 8%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 25 90% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 26 37% 15%;
+    --secondary-foreground: 0 0% 96%;
+    --sneaker-cream: 24 15% 12%;
+    --sneaker-grey: 24 15% 15%;
+    --deep-black: 0 0% 4%;
+    --muted: 24 15% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 25 90% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --eco-green: 147 50% 47%;
+    --eco-green-foreground: 0 0% 100%;
+    --border: 24 15% 15%;
+    --input: 24 15% 15%;
+    --ring: 25 90% 50%;
+    --radius: 1rem;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.7), 0 2px 4px -2px rgb(0 0 0 / 0.7);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.8), 0 4px 6px -4px rgb(0 0 0 / 0.8);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.9), 0 8px 10px -6px rgb(0 0 0 / 0.9);
     --shadow-glow: 0 0 20px rgb(242 108 13 / 0.5);
     --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  }
-
-  /* Keep .dark class for compatibility but it's now redundant as :root is dark */
-  .dark {
-    --background: 24 10% 4%;
-    --foreground: 0 0% 96%;
-    /* ... other variables already set in :root ... */
   }
 }
 
