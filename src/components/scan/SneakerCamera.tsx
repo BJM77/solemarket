@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Camera, Upload, AlertCircle, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import { Camera, Upload, AlertCircle, RefreshCcw, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { validateImageQuality } from '@/lib/image-validation';
@@ -11,31 +11,47 @@ interface SneakerCameraProps {
     isLoading?: boolean;
 }
 
+type ValidationStep = 'idle' | 'size' | 'resolution' | 'sharpness' | 'finalizing';
+
 export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [validationError, setValidationError] = useState<string | null>(null);
-    const [isValidating, setIsValidating] = useState(false);
+    const [currentStep, setCurrentStep] = useState<ValidationStep>('idle');
 
     const processFile = async (file: File) => {
-        setIsValidating(true);
         setValidationError(null);
+        
+        setCurrentStep('size');
+        if (file.size < 100 * 1024) {
+            setValidationError("Image size too small. Please move closer and retake.");
+            setCurrentStep('idle');
+            return;
+        }
 
+        setCurrentStep('resolution');
         try {
+            await new Promise(r => setTimeout(r, 400));
+            
+            setCurrentStep('sharpness');
             const result = await validateImageQuality(file, false);
             
             if (!result.isValid) {
-                setValidationError(result.error || "Image quality check failed.");
-                setIsValidating(false);
-                if (inputRef.current) inputRef.current.value = ''; // Reset input
+                setValidationError(result.error || "Quality check failed.");
+                setCurrentStep('idle');
+                if (inputRef.current) inputRef.current.value = '';
                 return;
             }
 
-            // Image passed validation
+            setCurrentStep('finalizing');
+            await new Promise(r => setTimeout(r, 300));
+            
             onCapture(file);
+            setCurrentStep('idle');
         } catch (e) {
             console.error("Validation error", e);
             onCapture(file);
+            setCurrentStep('idle');
         }
     };
 
@@ -53,34 +69,65 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
         }
     };
 
+    const isValidating = currentStep !== 'idle';
+
     if (validationError) {
         return (
-            <div className="w-full aspect-[4/3] max-w-md mx-auto border-2 border-red-500/20 bg-red-500/5 rounded-2xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                    <AlertCircle className="w-8 h-8 text-red-600" />
+            <div className="w-full aspect-[4/3] max-w-md mx-auto border-2 border-red-500/20 bg-red-500/5 rounded-[32px] flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 shadow-2xl">
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl relative border-2 border-red-50">
+                    <AlertCircle className="w-10 h-10 text-red-600" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-2">Quality Warning</h3>
-                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight uppercase">Quality Alert</h3>
+                <p className="text-slate-600 text-sm mb-8 leading-relaxed font-bold">
                     {validationError}
                 </p>
-                <div className="space-y-3 w-full">
+                <div className="space-y-4 w-full">
                     <Button 
                         onClick={() => {
                             setValidationError(null);
                             inputRef.current?.click();
                         }}
-                        className="w-full h-12 font-bold bg-slate-900 hover:bg-slate-800"
+                        className="w-full h-16 font-black text-xl bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-xl"
                     >
-                        <RefreshCcw className="w-4 h-4 mr-2" />
+                        <RefreshCcw className="w-6 h-6 mr-3" />
                         Retake Photo
                     </Button>
-                    <Button 
-                        variant="ghost" 
+                    <button 
                         onClick={() => setValidationError(null)}
-                        className="w-full"
+                        className="text-slate-400 text-xs font-black uppercase tracking-widest hover:text-slate-900 transition-colors"
                     >
-                        Cancel
-                    </Button>
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (isValidating) {
+        return (
+            <div className="w-full aspect-[4/3] max-w-md mx-auto border-2 border-primary/20 bg-slate-900 rounded-[32px] flex flex-col items-center justify-center p-8 text-white text-center shadow-2xl">
+                <div className="relative mb-10">
+                    <div className="w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center">
+                        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    </div>
+                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-primary animate-pulse" />
+                </div>
+                
+                <h3 className="text-xl font-black uppercase tracking-widest mb-8">AI Quality Check</h3>
+                
+                <div className="w-full space-y-4 text-left max-w-[220px]">
+                    <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'size' || currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
+                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-400" : "text-primary animate-pulse")} />
+                        <span className="text-sm font-black uppercase tracking-tight">Format Scan</span>
+                    </div>
+                    <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-400" : "text-primary animate-pulse")} />
+                        <span className="text-sm font-black uppercase tracking-tight">Resolution</span>
+                    </div>
+                    <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-400" : "text-primary animate-pulse")} />
+                        <span className="text-sm font-black uppercase tracking-tight">Blur Detection</span>
+                    </div>
                 </div>
             </div>
         );
@@ -89,9 +136,9 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
     return (
         <div
             className={cn(
-                "relative flex flex-col items-center justify-center w-full aspect-[4/3] max-w-md mx-auto border-2 border-dashed rounded-2xl transition-all overflow-hidden bg-slate-50",
-                isDragging ? "border-primary bg-primary/5" : "border-slate-200",
-                (isLoading || isValidating) && "opacity-50 pointer-events-none"
+                "relative flex flex-col items-center justify-center w-full aspect-[4/3] max-w-md mx-auto border-4 border-dashed rounded-[40px] transition-all overflow-hidden",
+                isDragging ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-50",
+                isLoading && "opacity-50 pointer-events-none"
             )}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
@@ -106,50 +153,44 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
                 onChange={handleFileChange}
             />
 
-            <div className="flex flex-col items-center gap-4 p-6 text-center w-full">
-                <div className="p-4 bg-white rounded-full shadow-md mb-2 relative">
-                    <Camera className="w-8 h-8 text-primary" />
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                        <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                    </div>
+            <div className="flex flex-col items-center gap-6 p-10 text-center w-full">
+                <div className="w-24 h-24 bg-white rounded-[32px] shadow-2xl flex items-center justify-center mb-2 border border-slate-100">
+                    <Camera className="w-12 h-12 text-primary" />
                 </div>
                 
                 <div>
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Scan Your Kicks</h3>
-                    <p className="text-sm text-slate-500 mt-2 font-medium">
-                        For perfect AI detection:
-                    </p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase italic">Scan Kicks</h3>
+                    <p className="text-sm text-slate-400 mt-4 font-black uppercase tracking-[0.2em]">Sneaker Authenticator</p>
                 </div>
 
-                <div className="w-full space-y-2 text-left bg-white/50 p-4 rounded-xl border border-slate-100">
-                    <div className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-primary font-bold">•</span>
-                        <span>Use bright, natural daylight</span>
+                <div className="w-full space-y-4 text-left bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-4 text-slate-700 font-black text-xs uppercase tracking-tight">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span>Bright Lighting Only</span>
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-primary font-bold">•</span>
-                        <span>Ensure the <strong>whole shoe</strong> is visible</span>
+                    <div className="flex items-center gap-4 text-slate-700 font-black text-xs uppercase tracking-tight">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span>Side Profile View</span>
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-primary font-bold">•</span>
-                        <span>Side profile works best</span>
+                    <div className="flex items-center gap-4 text-slate-700 font-black text-xs uppercase tracking-tight">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span>Fill the entire frame</span>
                     </div>
                 </div>
 
-                <div className="flex gap-3 w-full mt-2">
-                    <Button 
-                        onClick={() => inputRef.current?.click()} 
-                        className="flex-1 h-12 font-bold shadow-lg"
-                    >
-                        <Camera className="mr-2 h-4 w-4" />
-                        {isValidating ? "Checking..." : "Take Photo"}
-                    </Button>
-                </div>
+                <Button 
+                    onClick={() => inputRef.current?.click()} 
+                    className="w-full h-16 font-black text-xl rounded-2xl shadow-2xl shadow-primary/20"
+                >
+                    <Camera className="mr-3 h-6 w-6" />
+                    Open Camera
+                </Button>
+                
                 <button 
                     onClick={() => inputRef.current?.click()}
-                    className="text-xs text-slate-400 font-medium hover:text-slate-600 underline underline-offset-2"
+                    className="text-xs text-slate-400 font-black uppercase tracking-[0.15em] hover:text-primary transition-colors"
                 >
-                    Or select from gallery
+                    Photo Library
                 </button>
             </div>
         </div>
