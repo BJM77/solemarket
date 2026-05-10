@@ -31,7 +31,7 @@ async function NewArrivalsSection() {
 
 function DemoAdvertisement() {
   return (
-    <div className="w-full md:w-4/5 mx-auto bg-slate-900 text-white overflow-hidden relative group cursor-pointer block md:my-2 shadow-sm">
+    <div className="w-full bg-slate-900 text-white overflow-hidden relative group cursor-pointer block shadow-sm border-b border-white/5">
       <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="container mx-auto px-4 py-3 text-center relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-6">
         <span className="bg-primary text-white text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider">Advertisement</span>
