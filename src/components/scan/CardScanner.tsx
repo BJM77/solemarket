@@ -115,7 +115,7 @@ export function CardScanner() {
                 <CardCamera onCapture={handleCapture} isLoading={isAnalyzing} />
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="relative aspect-[2.5/3.5] w-full max-w-sm mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white shadow-2xl">
+                    <div className="relative aspect-[2.5/3.5] w-full max-w-sm mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white/10 shadow-2xl">
                         <Image
                             src={imagePreview}
                             alt="Card Scan Preview"
@@ -168,27 +168,27 @@ export function CardScanner() {
 
                     {!userConfirmed && !isAnalyzing && (
                         <div className="max-w-sm mx-auto space-y-4 animate-in slide-in-from-bottom-8 duration-500 pb-[env(safe-area-inset-bottom,1.5rem)]">
-                            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-white/5">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                        <CheckCircle2 className="w-6 h-6 text-indigo-600" />
+                                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                                        <CheckCircle2 className="w-6 h-6 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-slate-900 leading-none">Verify Photo</h4>
-                                        <p className="text-xs text-slate-500 mt-1 font-medium">Card should be centered and sharp</p>
+                                        <h4 className="font-black text-white leading-none">Verify Photo</h4>
+                                        <p className="text-xs text-muted-foreground mt-1 font-medium">Card should be centered and sharp</p>
                                     </div>
                                 </div>
                                 
                                 <div className="flex gap-3">
                                     <Button
                                         variant="outline"
-                                        className="flex-1 h-14 rounded-2xl border-2 font-bold text-slate-600 hover:bg-slate-50"
+                                        className="flex-1 h-14 rounded-2xl border-2 font-bold text-white hover:bg-white/5"
                                         onClick={resetScan}
                                     >
                                         Retake
                                     </Button>
                                     <Button
-                                        className="flex-[2] h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black text-lg shadow-lg shadow-indigo-200"
+                                        className="flex-[2] h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black text-lg shadow-lg shadow-indigo-500/10"
                                         onClick={handleAnalyze}
                                     >
                                         Analyze Card
@@ -200,30 +200,30 @@ export function CardScanner() {
 
                     {analysisResult && (
                         <div className="pb-[env(safe-area-inset-bottom,2rem)]">
-                            <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white">
+                            <Card className="border border-white/5 shadow-2xl rounded-[32px] overflow-hidden bg-card">
                             <div className="h-2 w-full bg-indigo-600"></div>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center gap-3 text-indigo-600">
+                                <div className="flex items-center gap-3 text-indigo-400">
                                     <Sparkles className="w-8 h-8" />
-                                    <span className="font-black text-2xl tracking-tight uppercase">Identified!</span>
+                                    <span className="font-black text-2xl tracking-tight uppercase text-white">Identified!</span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Player / Set</p>
-                                        <p className="font-bold text-slate-900 text-lg leading-tight">{analysisResult.title}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Player / Set</p>
+                                        <p className="font-black uppercase tracking-tight text-white text-lg leading-tight">{analysisResult.title}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Card Number</p>
-                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.cardNumber || '—'}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Card Number</p>
+                                        <p className="font-bold text-white text-lg">{analysisResult.cardNumber || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Condition</p>
-                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.grade || 'Raw'}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Condition</p>
+                                        <p className="font-bold text-white text-lg">{analysisResult.grade || 'Raw'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Market Value</p>
-                                        <p className="font-black text-green-600 text-2xl">${analysisResult.price}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Market Value</p>
+                                        <p className="font-black text-emerald-500 text-2xl">${analysisResult.price}</p>
                                     </div>
                                 </div>
 

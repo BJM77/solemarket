@@ -102,9 +102,9 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
 
   if (!user) {
     return (
-      <div className="border rounded-lg p-6 text-center bg-gray-50">
+      <div className="border border-white/10 rounded-2xl p-6 text-center bg-white/5">
         <p className="text-muted-foreground">
-          <Button variant="link" asChild><Link href={`/sign-in?redirect=/product/${productId}`}>Sign in</Link></Button> to leave a review.
+          <Button variant="link" asChild><Link href={`/sign-in?redirect=/product/${productId}`} className="text-primary font-black uppercase tracking-tighter">Sign in</Link></Button> to leave a review.
         </p>
       </div>
     );
@@ -112,15 +112,15 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
   
   if (hasReviewed) {
     return (
-        <div className="border rounded-lg p-6 text-center bg-green-50 text-green-800">
-            <p className="font-semibold">Thank you for your review!</p>
+        <div className="border border-emerald-500/20 rounded-2xl p-6 text-center bg-emerald-500/10 text-emerald-500">
+            <p className="font-black uppercase tracking-tight">Thank you for your review!</p>
         </div>
     )
   }
 
   return (
-    <div className="border rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
+    <div className="border border-white/5 bg-card rounded-2xl p-8">
+        <h3 className="text-lg font-black uppercase tracking-tight mb-4 text-white">Write a Review</h3>
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -138,7 +138,7 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
                             'h-8 w-8 cursor-pointer transition-colors',
                             (hoverRating >= star || field.value >= star)
                             ? 'text-yellow-400 fill-yellow-400'
-                            : 'text-gray-300'
+                            : 'text-white/10'
                         )}
                         onMouseEnter={() => setHoverRating(star)}
                         onMouseLeave={() => setHoverRating(0)}

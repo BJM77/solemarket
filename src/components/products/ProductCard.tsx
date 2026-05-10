@@ -177,10 +177,10 @@ export default function ProductCard({
     if (!product.multiCardTier) return null;
     
     const tiers = {
-      bronze: { label: 'B', classes: 'bg-orange-100 text-orange-800 border-orange-200' },
-      silver: { label: 'S', classes: 'bg-slate-200 text-slate-700 border-slate-300' },
-      gold: { label: 'G', classes: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-      platinum: { label: 'P', classes: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
+      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
+      silver: { label: 'S', classes: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
+      gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' },
+      platinum: { label: 'P', classes: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' }
     };
     
     const tier = tiers[product.multiCardTier as keyof typeof tiers];
@@ -221,7 +221,7 @@ export default function ProductCard({
     if (product.isUntimed) {
       return (
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider">
+          <span className="text-sm font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-indigo-500/20">
             Make Offer
           </span>
           {(isAdmin || isSuperAdmin) && (
@@ -502,7 +502,7 @@ export default function ProductCard({
             {product.category}
           </span>
           {product.grade && (
-            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded flex-shrink-0">
+            <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded flex-shrink-0 border border-emerald-500/20">
               {product.grade}
             </span>
           )}

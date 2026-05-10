@@ -38,10 +38,10 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500 border-2 border-dashed rounded-lg">
-        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-lg font-semibold">No reviews yet</h3>
-        <p>Be the first to share your thoughts on this item.</p>
+      <div className="text-center py-16 text-muted-foreground border border-dashed border-white/10 rounded-[2rem] bg-white/5">
+        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-white/10" />
+        <h3 className="text-lg font-black uppercase tracking-tight text-white">No reviews yet</h3>
+        <p className="text-sm">Be the first to share your thoughts on this item.</p>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">{review.buyerName}</h4>
+                  <h4 className="font-black uppercase tracking-tight text-white">{review.buyerName}</h4>
                   <span className="text-xs text-muted-foreground">
                     {(() => {
                       if (!review.createdAt) return '';
@@ -82,7 +82,7 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-white/10'
                         }`}
                     />
                   ))}

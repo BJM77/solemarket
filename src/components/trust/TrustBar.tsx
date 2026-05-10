@@ -9,16 +9,16 @@ export default function TrustBar() {
                         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
                             <CheckCircle className="h-7 w-7" />
                         </div>
-                        <h3 className="font-bold text-lg mb-2">Verified Sellers</h3>
-                        <p className="text-gray-500 text-sm">We verify the identity of every seller to ensure a safe community.</p>
+                        <h3 className="font-black uppercase tracking-tight text-white mb-2">Verified Sellers</h3>
+                        <p className="text-muted-foreground text-sm">We verify the identity of every seller to ensure a safe community.</p>
                     </div>
 
-                    <div className="flex flex-col items-center text-center p-8 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <div className="flex flex-col items-center text-center p-8 bg-card rounded-3xl border border-white/5 shadow-sm">
                         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
                             <UserCheck className="h-7 w-7" />
                         </div>
-                        <h3 className="font-bold text-lg mb-2">Community Driven</h3>
-                        <p className="text-gray-500 text-sm">Join thousands of sneakerheads buying and selling daily in Australia.</p>
+                        <h3 className="font-black uppercase tracking-tight text-white mb-2">Community Driven</h3>
+                        <p className="text-muted-foreground text-sm">Join thousands of sneakerheads buying and selling daily in Australia.</p>
                     </div>
                 </div>
             </div>

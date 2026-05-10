@@ -89,7 +89,7 @@ export function SneakerScanner() {
                 <SneakerCamera onCapture={handleCapture} isLoading={isAnalyzing} />
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="relative aspect-video w-full max-w-lg mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white shadow-2xl">
+                    <div className="relative aspect-video w-full max-w-lg mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white/10 shadow-2xl">
                         <Image
                             src={imagePreview}
                             alt="Scan Preview"
@@ -134,15 +134,15 @@ export function SneakerScanner() {
 
                     {!userConfirmed && !isAnalyzing && (
                         <div className="max-w-md mx-auto space-y-4 pb-[env(safe-area-inset-bottom,1.5rem)]">
-                            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-white/5">
                                 <div className="flex items-center gap-3 mb-6 text-center justify-center">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />
-                                    <h4 className="font-black text-slate-900 text-lg uppercase tracking-tight">Looks Good?</h4>
+                                    <h4 className="font-black text-white text-lg uppercase tracking-tight">Looks Good?</h4>
                                 </div>
                                 <div className="flex gap-4">
                                     <Button
                                         variant="outline"
-                                        className="flex-1 h-16 rounded-2xl border-2 font-bold text-slate-600 hover:bg-slate-50"
+                                        className="flex-1 h-16 rounded-2xl border-2 font-bold text-white hover:bg-white/5"
                                         onClick={resetScan}
                                     >
                                         Retake
@@ -160,30 +160,30 @@ export function SneakerScanner() {
 
                     {analysisResult && (
                         <div className="pb-[env(safe-area-inset-bottom,2rem)]">
-                            <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white max-w-md mx-auto">
+                            <Card className="border border-white/5 shadow-2xl rounded-[32px] overflow-hidden bg-card max-w-md mx-auto">
                             <div className="h-2 w-full bg-primary"></div>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center gap-3 text-primary">
                                     <Sparkles className="w-8 h-8" />
-                                    <span className="font-black text-2xl tracking-tight uppercase">Match Found!</span>
+                                    <span className="font-black text-2xl tracking-tight uppercase text-white">Match Found!</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                <div className="grid grid-cols-2 gap-6 bg-white/5 p-6 rounded-3xl border border-white/5">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Model</p>
-                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.brand} {analysisResult.model}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Model</p>
+                                        <p className="font-black uppercase tracking-tight text-white text-lg">{analysisResult.brand} {analysisResult.model}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Style Code</p>
-                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.styleCode || '—'}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Style Code</p>
+                                        <p className="font-bold text-white text-lg">{analysisResult.styleCode || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Colorway</p>
-                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.colorway || '—'}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Colorway</p>
+                                        <p className="font-bold text-white text-lg">{analysisResult.colorway || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Est. Value</p>
-                                        <p className="font-black text-green-600 text-2xl">${analysisResult.price}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Est. Value</p>
+                                        <p className="font-black text-emerald-500 text-2xl">${analysisResult.price}</p>
                                     </div>
                                 </div>
 

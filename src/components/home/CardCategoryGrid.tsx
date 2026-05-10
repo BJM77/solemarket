@@ -80,8 +80,8 @@ export default function CardCategoryGrid() {
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-12 gap-3 md:gap-4">
                     <div>
-                        <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">The Card Room</h2>
-                        <p className="text-xs md:text-lg text-slate-500 dark:text-slate-400 mt-1 md:mt-2 font-medium">Rare wax, graded singles, and the newest sets.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic">The Card Room</h2>
+                        <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">Rare wax, graded singles, and the newest sets.</p>
                     </div>
                     <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 items-center transition-all bg-indigo-500/10 px-6 py-3 rounded-full hover:bg-indigo-500/20">
                         View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -97,7 +97,7 @@ export default function CardCategoryGrid() {
                                 href={cat.href}
                                 className="group block"
                             >
-                                <div className="relative h-full bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
+                                <div className="relative h-full bg-card border border-white/5 rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                     <div className={cn(
@@ -112,10 +112,10 @@ export default function CardCategoryGrid() {
                                                 sizes="(max-width: 768px) 48px, 96px"
                                             />
                                         ) : (IconComponent && typeof IconComponent === 'function') ? (
-                                            <IconComponent className="h-6 w-6 md:h-10 md:w-10 text-slate-700 dark:text-slate-300" />
+                                            <IconComponent className="h-6 w-6 md:h-10 md:w-10 text-muted-foreground" />
                                         ) : null}
                                     </div>
-                                    <span className="font-black text-slate-900 dark:text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
+                                    <span className="font-black text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
                                         {cat.name}
                                     </span>
                                 </div>
