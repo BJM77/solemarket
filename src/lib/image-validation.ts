@@ -1,6 +1,8 @@
 export interface ImageValidationResult {
   isValid: boolean;
+  isWarning?: boolean; // NEW: Allow proceeding with a warning
   error?: string;
+  warning?: string;
   width?: number;
   height?: number;
   sharpnessScore?: number;
@@ -10,24 +12,17 @@ export interface ImageValidationResult {
 
 const MIN_DIMENSION = 1080;
 const MIN_DIMENSION_MACRO = 1440;
-const SHARPNESS_THRESHOLD = 50; 
-const MIN_BRIGHTNESS = 40;  
-const MAX_BRIGHTNESS = 245; 
+const SHARPNESS_THRESHOLD = 40; // Lowered for conservative initial testing
+const MIN_BRIGHTNESS = 30;  
+const MAX_BRIGHTNESS = 250; 
 
-// Card aspect ratio is roughly 2.5/3.5 = 0.71 (portrait)
 const CARD_ASPECT_RATIO = 0.71;
-const ASPECT_TOLERANCE = 0.25;
 
-/**
- * Validates image quality: Size, Resolution, Sharpness, Brightness, and Framing.
- */
 export async function validateImageQuality(file: File, requireMacro: boolean = false): Promise<ImageValidationResult> {
   return new Promise((resolve) => {
-    // 1. Format/HEIC Check
     const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
     
-    // 2. Basic File Size Check
-    if (file.size < 100 * 1024) {
+    if (file.size < 80 * 1024) { // Slightly lowered size threshold
       return resolve({
         isValid: false,
         error: "Image size is too small. Please move closer and retake."
@@ -39,9 +34,7 @@ export async function validateImageQuality(file: File, requireMacro: boolean = f
     const cleanup = () => {
       try {
         URL.revokeObjectURL(objectUrl);
-      } catch (e) {
-        console.error("Failed to revoke object URL", e);
-      }
+      } catch (e) {}
     };
 
     img.onload = () => {
@@ -53,59 +46,46 @@ export async function validateImageQuality(file: File, requireMacro: boolean = f
       const aspectRatio = width / height;
       const threshold = requireMacro ? MIN_DIMENSION_MACRO : MIN_DIMENSION;
 
-      // 3. Resolution Check
       if (shortestSide < threshold) {
         return resolve({
           isValid: false,
-          error: `Resolution too low (${width}x${height}). ${requireMacro ? 'Macro mode requires higher detail.' : 'Please get closer and tap to focus.'}`,
+          error: `Resolution too low (${width}x${height}). ${requireMacro ? 'Macro mode requires higher detail.' : 'Please get closer.'}`,
         });
       }
 
-      // 4. Aspect Ratio Sanity Check (for Cards)
       if (requireMacro) {
         const diff = Math.abs(aspectRatio - CARD_ASPECT_RATIO);
         const invDiff = Math.abs(aspectRatio - (1/CARD_ASPECT_RATIO));
-        
-        // If it's not even close to a rectangle (nearly square), warn
-        if (diff > 0.4 && invDiff > 0.4) {
+        if (diff > 0.5 && invDiff > 0.5) {
           return resolve({
             isValid: false,
-            error: "Unusual framing detected. Please ensure the card fills most of the photo in portrait or landscape mode.",
+            error: "Unusual framing. Please ensure the card fills the frame.",
             aspectRatio
           });
         }
       }
 
-      // 5. Sharpness and Brightness Check via Canvas
       try {
         const { sharpness, brightness } = analyzeImageCanvas(img);
+        
+        // Log scores for real-world calibration as requested
+        console.log(`[Image Quality] ${file.name} - Sharpness: ${sharpness}, Brightness: ${brightness}`);
+
+        // Initial Calibration Phase: Use warnings instead of hard blocks for blur/brightness
+        let warning: string | undefined;
 
         if (sharpness < SHARPNESS_THRESHOLD) {
-          return resolve({
-            isValid: false,
-            error: "Photo appears blurry. Please hold your phone steady and tap the screen to focus.",
-            sharpnessScore: sharpness
-          });
-        }
-
-        if (brightness < MIN_BRIGHTNESS) {
-          return resolve({
-            isValid: false,
-            error: "Photo is too dark. Please use better lighting or move closer to a window.",
-            brightnessScore: brightness
-          });
-        }
-
-        if (brightness > MAX_BRIGHTNESS) {
-          return resolve({
-            isValid: false,
-            error: "Photo is too bright (overexposed). Please avoid direct glare on the surface.",
-            brightnessScore: brightness
-          });
+          warning = "Photo might be blurry. Please ensure text is sharp.";
+        } else if (brightness < MIN_BRIGHTNESS) {
+          warning = "Photo looks a bit dark. Ensure details are visible.";
+        } else if (brightness > MAX_BRIGHTNESS) {
+          warning = "Photo looks very bright. Watch out for glare.";
         }
 
         resolve({
           isValid: true,
+          isWarning: !!warning,
+          warning,
           width,
           height,
           sharpnessScore: sharpness,
@@ -123,12 +103,12 @@ export async function validateImageQuality(file: File, requireMacro: boolean = f
       if (isHeic) {
         resolve({
           isValid: false,
-          error: "Your device is using HEIC format which this browser cannot read yet. Please change your camera settings to 'Most Compatible' or upload a JPEG."
+          error: "HEIC format detected. Please use JPEG or 'Most Compatible' camera settings."
         });
       } else {
         resolve({
           isValid: false,
-          error: "Could not read the image file. Please try taking the photo again."
+          error: "Could not read image file."
         });
       }
     };
@@ -137,15 +117,11 @@ export async function validateImageQuality(file: File, requireMacro: boolean = f
   });
 }
 
-/**
- * Uses Laplacian variance for blur detection and average pixel sampling for brightness.
- */
 function analyzeImageCanvas(img: HTMLImageElement): { sharpness: number, brightness: number } {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new Error("Could not get canvas context");
+  if (!ctx) throw new Error("Canvas fail");
 
-  // Sample center area
   const sampleSize = 512;
   canvas.width = sampleSize;
   canvas.height = sampleSize;
@@ -161,17 +137,13 @@ function analyzeImageCanvas(img: HTMLImageElement): { sharpness: number, brightn
   const grayscale = new Float32Array(sampleSize * sampleSize);
 
   for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+    const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
     grayscale[i / 4] = gray;
     brightnessSum += gray;
   }
 
   const avgBrightness = brightnessSum / (sampleSize * sampleSize);
 
-  // Laplacian Variance
   let laplacianSum = 0;
   let laplacianSqSum = 0;
   const count = (sampleSize - 2) * (sampleSize - 2);
@@ -188,8 +160,5 @@ function analyzeImageCanvas(img: HTMLImageElement): { sharpness: number, brightn
   const mean = laplacianSum / count;
   const variance = (laplacianSqSum / count) - (mean * mean);
 
-  return {
-    sharpness: Math.round(variance),
-    brightness: Math.round(avgBrightness)
-  };
+  return { sharpness: Math.round(variance), brightness: Math.round(avgBrightness) };
 }
