@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon, ShieldCheck, Play, Pause } from 'lucide-react';
@@ -48,9 +48,11 @@ export default function ProductImageGallery({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Combine media: Video (if exists) comes first
-  const media = videoUrl 
-    ? [{ type: 'video', url: videoUrl, thumbnail: videoThumbnailUrl || images[0] }, ...images.map(img => ({ type: 'image', url: img }))]
-    : images.map(img => ({ type: 'image', url: img }));
+  const media = useMemo<Array<{ type: 'video' | 'image', url: string, thumbnail?: string }>>(() => {
+    return videoUrl 
+      ? [{ type: 'video' as const, url: videoUrl, thumbnail: videoThumbnailUrl || images[0] }, ...images.map(img => ({ type: 'image' as const, url: img }))]
+      : images.map(img => ({ type: 'image' as const, url: img }));
+  }, [videoUrl, videoThumbnailUrl, images]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;

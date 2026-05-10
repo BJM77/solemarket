@@ -19,10 +19,10 @@ export async function rateLimit(
     const windowStart = now - (windowSeconds * 1000);
     const limitId = `${identifier}_${action}`;
     
-    const rateLimitRef = firestoreDb.collection('rate_limits').doc(limitId);
+    const rateLimitRef = firestoreDb.collection('rate_limits').doc(limitId) as admin.firestore.DocumentReference;
     
     try {
-        const result = await firestoreDb.runTransaction(async (transaction) => {
+        const result = await firestoreDb.runTransaction(async (transaction: admin.firestore.Transaction) => {
             const doc = await transaction.get(rateLimitRef);
             let timestamps: number[] = [];
             
