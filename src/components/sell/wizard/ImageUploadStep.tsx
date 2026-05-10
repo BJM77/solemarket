@@ -21,7 +21,7 @@ interface ImageUploadStepProps {
     isAnalyzing: boolean;
     isRetrying?: boolean;
     analysisStage?: string;
-    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'collector-cards' | 'general';
+    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'collector-cards' | 'general' | 'coins';
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
     form: any; // Passed for direct setValue if needed by sub-components
