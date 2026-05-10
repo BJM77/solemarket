@@ -44,6 +44,7 @@ export default function ConfirmationPage() {
 
         setIsSubmittingDispute(true);
         try {
+            const idToken = await user.getIdToken();
             const result = await lodgeDispute({
                 orderId: selectedOrderForDispute,
                 initiatorId: user.uid,
@@ -51,6 +52,7 @@ export default function ConfirmationPage() {
                 initiatorRole: 'buyer',
                 reason: disputeReason,
                 description: disputeDescription,
+                idToken,
             });
 
             if (result.success) {

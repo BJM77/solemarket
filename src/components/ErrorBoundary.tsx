@@ -27,7 +27,6 @@ export class ErrorBoundary extends React.Component<
         // Log to error tracking service (in production)
         if (typeof window !== 'undefined') {
             try {
-                // Will implement error logging service
                 fetch('/api/log-error', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -48,6 +47,10 @@ export class ErrorBoundary extends React.Component<
 
     render() {
         if (this.state.hasError) {
+            const isPermissionError = this.state.error?.message?.toLowerCase().includes('permission-denied') || 
+                                     this.state.error?.message?.toLowerCase().includes('insufficient permissions');
+            const isUnavailableError = this.state.error?.message?.toLowerCase().includes('unavailable');
+
             return (
                 <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
                     <div className="text-center max-w-md">
@@ -55,10 +58,14 @@ export class ErrorBoundary extends React.Component<
                             <AlertTriangle className="h-16 w-16 text-red-500" />
                         </div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            Oops! Something went wrong
+                            {isPermissionError ? "Access Denied" : isUnavailableError ? "Service Unavailable" : "Oops! Something went wrong"}
                         </h1>
                         <p className="text-gray-600 mb-6">
-                            We've encountered an unexpected error. Don't worry, our team has been notified and we're working to fix it.
+                            {isPermissionError 
+                                ? "You don't have permission to view this content. Please ensure you are signed in with the correct account."
+                                : isUnavailableError
+                                ? "Our services are temporarily unavailable. We are working to restore service as quickly as possible."
+                                : "We've encountered an unexpected error. Don't worry, our team has been notified and we're working to fix it."}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Button

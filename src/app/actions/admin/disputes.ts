@@ -1,9 +1,8 @@
 'use server';
 
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { firestoreDb, admin } from '@/lib/firebase/admin';
 import { Dispute } from '@/lib/types';
-import { sendNotification } from '@/services/notifications';
+import { ensureActionAuth } from '@/lib/action-utils';
 
 export async function lodgeDispute(data: {
     orderId: string;
@@ -13,28 +12,38 @@ export async function lodgeDispute(data: {
     reason: string;
     description: string;
     evidenceUrls?: string[];
+    idToken: string;
 }) {
     try {
-        const dispute: Omit<Dispute, 'id'> = {
-            ...data,
+        // 1. Verify Authentication
+        await ensureActionAuth(data.idToken);
+
+        const disputeData = {
+            orderId: data.orderId,
+            initiatorId: data.initiatorId,
+            initiatorName: data.initiatorName,
+            initiatorRole: data.initiatorRole,
+            reason: data.reason,
+            description: data.description,
+            evidenceUrls: data.evidenceUrls || [],
             status: 'open',
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
+            createdAt: admin.firestore.Timestamp.now(),
+            updatedAt: admin.firestore.Timestamp.now(),
         };
 
-        const docRef = await addDoc(collection(db, 'disputes'), dispute);
+        const docRef = await firestoreDb.collection('disputes').add(disputeData);
 
-        // Also update the order status if possible (optional but good)
-        // const orderRef = doc(db, 'orders', data.orderId);
-        // await updateDoc(orderRef, { status: 'disputed' });
-
-        // Notify Admins (logic would go here, maybe trigger a notification to super admins)
-        // sendNotification(...) 
-
-        return { success: true, id: docRef.id, message: 'Dispute lodged successfully. An admin will review it shortly.' };
+        return { 
+            success: true, 
+            id: docRef.id, 
+            message: 'Dispute lodged successfully. An admin will review it shortly.' 
+        };
     } catch (error: any) {
         console.error('Error lodging dispute:', error);
-        return { success: false, message: error.message || 'Failed to lodge dispute.' };
+        return { 
+            success: false, 
+            message: error.message || 'Failed to lodge dispute.' 
+        };
     }
 }
 

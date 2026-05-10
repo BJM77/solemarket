@@ -37,15 +37,17 @@ export function CardScanner() {
         setAnalysisResult(null);
 
         try {
-            // Convert to Base64 for AI action with compression
-            const { resizeAndCompressImage } = await import('@/lib/utils');
-            const base64Data = await resizeAndCompressImage(file, 800, 0.7);
+            // 1. Upload to Firebase Storage first (Storage-First Architecture)
+            // This prevents 500 errors from exceeding Next.js 1MB Server Action payload limit
+            const { uploadImages } = await import('@/lib/firebase/storage');
+            const [downloadUrl] = await uploadImages([file], 'temp-analysis/');
+
             const idToken = await user.getIdToken();
 
             try {
                 const suggestionsResponse = await withRetry(
                     async () => await suggestListingDetails({
-                        photoDataUris: [base64Data],
+                        photoDataUris: [downloadUrl],
                         category: 'Collector Cards', // Hint for the AI
                         idToken
                     }),

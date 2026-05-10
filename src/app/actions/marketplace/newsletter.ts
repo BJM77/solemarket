@@ -1,8 +1,7 @@
 'use server';
 
 import { z } from "zod";
-import { db } from "@/lib/firebase/config";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { firestoreDb, admin } from "@/lib/firebase/admin";
 
 const NewsletterSchema = z.object({
     email: z.string().email("Please enter a valid email address."),
@@ -30,9 +29,9 @@ export async function subscribeToNewsletter(
     }
 
     try {
-        await addDoc(collection(db, "newsletter_subscribers"), {
+        await firestoreDb.collection("newsletter_subscribers").add({
             email: validatedFields.data.email,
-            subscribedAt: Timestamp.now(),
+            subscribedAt: admin.firestore.Timestamp.now(),
             source: "footer_v1",
         });
 

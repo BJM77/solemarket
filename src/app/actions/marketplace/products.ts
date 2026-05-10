@@ -7,7 +7,6 @@ import { createUserProfile } from '@/lib/firebase/client-ops';
 import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
-
 import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from '@/lib/utils';
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
@@ -22,11 +21,32 @@ export async function createProductAction(
 ): Promise<CreateProductResult> {
     console.log('=== CREATE PRODUCT ACTION START ===');
     console.log('productData received keys:', Object.keys(productData));
-    // console.log('productData:', JSON.stringify(productData, null, 2)); // Careful with PII
 
     try {
         const decodedToken = await verifyIdToken(idToken);
         console.log('Token verified for UID:', decodedToken.uid);
+
+        // 1. Rate Limiting: 20 products per hour per user
+        const { rateLimit } = await import('@/lib/rate-limiter');
+        const limitResult = await rateLimit(decodedToken.uid, 'create-product', 20, 3600);
+        if (!limitResult.success) {
+            return { success: false, error: 'Too many listings created recently. Please wait before adding more.' };
+        }
+
+        // 2. Image Domain Validation
+        const allowedDomains = ['firebasestorage.googleapis.com', 'images.unsplash.com', 'storage.googleapis.com'];
+        if (productData.imageUrls) {
+            for (const url of productData.imageUrls) {
+                try {
+                    const urlObj = new URL(url);
+                    if (!allowedDomains.some(domain => urlObj.hostname.includes(domain))) {
+                        return { success: false, error: `Invalid image source: ${urlObj.hostname}` };
+                    }
+                } catch {
+                    return { success: false, error: 'Invalid image URL provided.' };
+                }
+            }
+        }
 
         const userRef = firestoreDb.collection('users').doc(decodedToken.uid);
         const userSnap = await userRef.get();
@@ -60,28 +80,23 @@ export async function createProductAction(
             sellerVerified = true;
         } else {
             console.error('User profile not found');
-            // Create a minimal profile for superadmin or fallback seller
             await createUserProfile(decodedToken.uid, {
                 email: decodedToken.email,
                 displayName: decodedToken.name || 'User',
                 role: isSuperAdmin ? 'superadmin' : 'seller',
                 canSell: true,
             });
-            // Set defaults for the newly created profile
             userRole = isSuperAdmin ? 'superadmin' : 'seller';
             canSell = true;
             sellerName = decodedToken.name || 'User';
             sellerAvatar = decodedToken.picture || '';
             sellerVerified = true;
-            // Continue processing without returning error
         }
 
-        // Check for permission to sell
         if (userRole !== 'superadmin' && userRole !== 'admin' && !canSell) {
             return { success: false, error: 'You do not have permission to list products.' };
         }
 
-        // Limit check for personal sellers
         if (userRole === 'seller') {
             const userProductsSnap = await firestoreDb.collection('products')
                 .where('sellerId', '==', decodedToken.uid)
@@ -95,7 +110,7 @@ export async function createProductAction(
         }
 
         const productsCollection = firestoreDb.collection("products");
-        const docRef = productsCollection.doc(); // Auto-generate ID
+        const docRef = productsCollection.doc();
 
         const validationResult = productFormSchema.safeParse(productData);
         if (!validationResult.success) {
@@ -107,26 +122,22 @@ export async function createProductAction(
 
         const finalData: Product = {
             ...validData,
-            description: validData.description || '', // Ensure string to match Product type
+            description: validData.description || '',
             id: docRef.id,
             sellerId: decodedToken.uid,
             sellerEmail: decodedToken.email || '',
             sellerName: sellerName,
             sellerAvatar: sellerAvatar,
             sellerVerified: sellerVerified,
-            // Admins create 'available' products, others are 'pending_approval'
             status: (userRole === 'admin' || userRole === 'superadmin') ? 'available' : 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
-
-            // Default visibility fields for sorting/indexing
             isFeatured: false,
             isPromoted: false,
             views: 0,
             uniqueViews: 0,
         };
 
-        // Pillar 1: AI Visual SEO & Moderation Pipeline
         if (validData.imageUrls && validData.imageUrls.length > 0) {
             try {
                 console.log('Running AI Intelligence Pipeline for product:', validData.title);
@@ -143,10 +154,9 @@ export async function createProductAction(
 
                 if (!finalData.isSafe) {
                     finalData.safetyReason = analysisResults.find(r => !r.isSafe)?.safetyReason;
-                    finalData.status = 'on_hold'; // Flag for manual review if unsafe
+                    finalData.status = 'on_hold';
                 }
 
-                // Merge detected attributes if not already provided
                 const firstResult = analysisResults[0];
                 if (firstResult.detectedAttributes) {
                     finalData.detectedAttributes = firstResult.detectedAttributes;
@@ -159,7 +169,6 @@ export async function createProductAction(
             }
         }
 
-        // Search helpers & Normalization (Pillar 2/3)
         (finalData as any).title_lowercase = validData.title.toLowerCase();
         const keywords = generateKeywords(validData.title);
         if (validData.brand) keywords.push(...generateKeywords(validData.brand));
@@ -203,7 +212,7 @@ export async function createBulkProductsAction(
                 sellerEmail: decodedToken.email || '',
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                status: 'available', // Bulk uploads from authenticated users are assumed live for this flow
+                status: 'available',
                 views: 0,
                 uniqueViews: 0,
             };
@@ -243,14 +252,12 @@ export async function recordProductView(productId: string, userId?: string) {
             const viewDoc = await transaction.get(viewRef);
 
             if (!viewDoc.exists) {
-                // New unique viewer
                 updates.uniqueViews = admin.firestore.FieldValue.increment(1);
                 transaction.set(viewRef, {
                     timestamp: admin.firestore.FieldValue.serverTimestamp(),
                     userId: userId
                 });
             } else {
-                // Update timestamp for returning user (optional, but good for "last seen")
                 transaction.update(viewRef, {
                     timestamp: admin.firestore.FieldValue.serverTimestamp()
                 });
@@ -261,10 +268,6 @@ export async function recordProductView(productId: string, userId?: string) {
     });
 }
 
-/**
- * Gets the number of unique views for a product in the last X hours
- * Uses the efficient Firestore count() query on the 'views' subcollection.
- */
 export async function getRecentViewCount(productId: string, hours: number = 24) {
     try {
         const threshold = new Date(Date.now() - hours * 60 * 60 * 1000);
@@ -287,8 +290,6 @@ export async function getRecentViewCount(productId: string, hours: number = 24) 
 export async function getAdjacentProducts(currentId: string, createdAt: any) {
     try {
         const productsRef = firestoreDb.collection('products');
-
-        // Parse createdAt
         let timestamp;
         if (createdAt && typeof createdAt.toDate === 'function') {
             timestamp = createdAt;
@@ -304,18 +305,12 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
             return { prevId: null, nextId: null };
         }
 
-        // We fetch multiple neighboring items and filter for 'available' status in memory
-        // to avoid requiring a composite index on (status, createdAt).
-        // This is much more robust for dynamic filtering.
-
-        // Previous (Newer items)
         const prevSnap = await productsRef
             .where('createdAt', '>', timestamp)
             .orderBy('createdAt', 'asc')
             .limit(5)
             .get();
 
-        // Next (Older items)
         const nextSnap = await productsRef
             .where('createdAt', '<', timestamp)
             .orderBy('createdAt', 'desc')
@@ -340,9 +335,7 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
 export const getFeaturedProducts = unstable_cache(
     async (limitCount: number = 8): Promise<Product[]> => {
         const { isFirebaseAdminReady } = await import('@/lib/firebase/admin');
-        console.log(`[getFeaturedProducts] Fetching (Admin Ready: ${isFirebaseAdminReady})...`);
         try {
-            // Try the optimal query first (requires composite index)
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
@@ -351,31 +344,24 @@ export const getFeaturedProducts = unstable_cache(
                     .get();
 
                 if (!snapshot.empty) {
-                    console.log(`[getFeaturedProducts] Found ${snapshot.size} products (Optimal)`);
                     return snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[];
-                } else {
-                    console.log(`[getFeaturedProducts] No documents in optimal snapshot.`);
                 }
             } catch (indexError: any) {
-                console.warn("Featured products optimal query failed (likely missing index), falling back to simple query.");
+                console.warn("Featured products optimal query failed, falling back.");
             }
 
-            // Fallback: simple query that doesn't need composite index
             const fallbackSnapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
                 .limit(limitCount)
                 .get();
 
-            const products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+            return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[];
-
-            console.log(`[getFeaturedProducts] Returning ${products.length} products (Fallback)`);
-            return products;
         } catch (error) {
             console.error("Error fetching featured products:", error);
             return [];
@@ -387,32 +373,14 @@ export const getFeaturedProducts = unstable_cache(
 
 function generateKeywords(text: string): string[] {
     if (!text) return [];
-    
-    // Split into words, remove punctuation, and lowercase
     const words = text.toLowerCase()
-        .replace(/[^\w\s]/g, ' ') // Replace punctuation with space
+        .replace(/[^\w\s]/g, ' ')
         .split(/\s+/)
-        .filter(word => word.length >= 2); // Only words with 2+ chars
-
+        .filter(word => word.length >= 2);
     const keywords: string[] = [];
-
-    words.forEach(word => {
-        keywords.push(word);
-        
-        // Optional: Support simple prefix search within words if they are long
-        // if (word.length > 5) {
-        //     for (let i = 2; i < word.length; i++) {
-        //         keywords.push(word.substring(0, i));
-        //     }
-        // }
-    });
-
-    // Also include the full text lowercase if it's short (like a category name)
-    if (text.length < 50) {
-        keywords.push(text.toLowerCase().trim());
-    }
-
-    return [...new Set(keywords)]; // Unique
+    words.forEach(word => keywords.push(word));
+    if (text.length < 50) keywords.push(text.toLowerCase().trim());
+    return [...new Set(keywords)];
 }
 
 const ACTIVE_CATEGORIES = [
@@ -437,7 +405,6 @@ export const getActiveProducts = unstable_cache(
                     ...doc.data(),
                 })) as Product[];
             } catch (indexError) {
-                console.warn("Active products optimal query failed (likely missing index), falling back.");
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
                     .limit(limitCount)
@@ -448,7 +415,7 @@ export const getActiveProducts = unstable_cache(
                 })) as Product[];
             }
         } catch (error) {
-            console.debug("Error fetching sneakers (Locally missing Admin service account expected):", error);
+            console.error("Error fetching active products:", error);
             return [];
         }
     },
@@ -463,8 +430,6 @@ export const getActiveListingCount = unstable_cache(
                 .where('status', '==', 'available')
                 .count()
                 .get();
-
-            console.log(`[getActiveListingCount] Count: ${snapshot.data().count}`);
             return snapshot.data().count;
         } catch (error: any) {
             console.error(`[getActiveListingCount] Error: ${error.message}`);
@@ -486,7 +451,7 @@ export const getSimilarProductsByCategory = unstable_cache(
                     .where('category', 'in', related)
                     .where('status', '==', 'available')
                     .orderBy('createdAt', 'desc')
-                    .limit(limitCount + 1) // Fetch +1 to filter out currentId locally
+                    .limit(limitCount + 1)
                     .get();
 
                 let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
@@ -494,10 +459,8 @@ export const getSimilarProductsByCategory = unstable_cache(
                     ...doc.data(),
                 })) as Product[];
 
-                // Filter out the current product and slice to the requested limit
                 return products.filter(p => p.id !== currentId).slice(0, limitCount);
             } catch (indexError) {
-                console.warn("Similar products optimal query failed (likely missing index), falling back to simple query.");
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('category', 'in', related)
                     .where('status', '==', 'available')

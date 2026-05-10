@@ -59,6 +59,12 @@ export const gradeCardDetailsSchema = z.object({
     // Overall Assessment
     strengths: z.array(z.string()).describe('List of card strengths'),
     weaknesses: z.array(z.string()).describe('List of card weaknesses/flaws'),
+    detectedIssues: z.array(z.object({
+        type: z.string().describe('Type of issue: whitening, scratch, chip, soft corner, crease, etc.'),
+        location: z.string().describe('Location of issue: top-left corner, bottom-edge, center-surface, etc.'),
+        severity: z.string().describe('Severity: minor, moderate, severe'),
+        description: z.string().describe('Brief description of the specific flaw.')
+    })).optional().describe('Specific identifiable flaws detected on the card.'),
     recommendations: z.string().describe('Grading recommendations and selling advice'),
     estimatedValue: z.object({
         min: z.number().describe('Minimum estimated value in AUD'),

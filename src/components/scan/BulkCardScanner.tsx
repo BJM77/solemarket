@@ -61,22 +61,18 @@ export function BulkCardScanner() {
 
         try {
             const idToken = await user.getIdToken();
-            const { resizeAndCompressImage } = await import('@/lib/utils');
             
-            // Convert all files to base64 with compression for AI analysis
-            // Increased to 800px for better detail on close-ups
-            const base64Promises = selectedFiles.map(file => resizeAndCompressImage(file, 800, 0.7));
-            const base64Images = await Promise.all(base64Promises);
+            // 1. Upload to Firebase Storage first (Storage-First Architecture)
+            // Essential for bulk scans as 20 base64 images will always exceed the 1MB limit.
+            console.log('📸 Uploading batch to Storage for analysis...');
+            const uploadedUrls = await uploadImages(selectedFiles, 'temp-analysis/');
 
             const result = await bulkSuggestCards({
-                photoDataUris: base64Images,
+                photoDataUris: uploadedUrls,
                 idToken
             });
 
             if (result.error) throw new Error(result.error);
-
-            // Upload the original files to Firebase Storage
-            const uploadedUrls = await uploadImages(selectedFiles, `products/${user.uid}`);
 
             // Store results in session storage for the bulk edit page
             if (result.data) {
@@ -84,7 +80,7 @@ export function BulkCardScanner() {
                 
                 // Attach real storage URLs to the result for display and saving
                 // Also FORCE unique IDs to prevent React key collisions if AI returns duplicates
-                const resultsWithImages = result.data.cards.map((card, idx) => ({
+                const resultsWithImages = result.data.cards.map((card: any, idx: number) => ({
                     ...card,
                     id: `card-${idx}-${Date.now()}`, // Force unique ID
                     localPreview: uploadedUrls[idx] || previews[idx],

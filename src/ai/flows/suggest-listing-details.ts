@@ -6,27 +6,15 @@ import { runAIWorkflow } from '../workflow-engine';
 
 /**
  * Main Vision flow for generating listing suggestions from photos.
+ * Transitioned to storage-first architecture: pass URLs whenever possible.
  */
 export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<any> {
     return await runAIWorkflow<SuggestListingDetailsOutput>(
         input,
         async (validatedInput) => {
-            // Pre-process images: Convert URLs to Data URIs (Base64) only if necessary
-            if (validatedInput.photoDataUris && validatedInput.photoDataUris.length > 0) {
-                const processedImages = await Promise.all(validatedInput.photoDataUris.map(async (uri: string) => {
-                    if (uri.startsWith('http')) {
-                        const response = await fetch(uri);
-                        if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
-                        const arrayBuffer = await response.arrayBuffer();
-                        const base64String = Buffer.from(arrayBuffer).toString('base64');
-                        const mimeType = response.headers.get('content-type') || 'image/jpeg';
-                        return `data:${mimeType};base64,${base64String}`;
-                    }
-                    return uri;
-                }));
-                validatedInput.photoDataUris = processedImages;
-            }
-
+            // Note: validatedInput.photoDataUris can contain either public URLs or Data URIs.
+            // We pass them directly to the prompt. Gemini handles public URLs efficiently.
+            
             const { output } = await suggestListingDetailsPrompt(validatedInput);
             if (!output) throw new Error("AI failed to return valid metadata.");
             return output;

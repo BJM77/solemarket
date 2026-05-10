@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
 import { getPerformance, FirebasePerformance } from "firebase/performance";
+import { getMessaging, Messaging, isSupported } from "firebase/messaging";
 import { connectAuthEmulator } from "firebase/auth";
 import { connectFirestoreEmulator } from "firebase/firestore";
 
@@ -65,12 +66,20 @@ if (!getApps().length) {
 // to prevent errors during server-side rendering or build steps.
 let auth: Auth;
 let storage: FirebaseStorage;
+let messaging: Messaging | undefined;
 let perf: FirebasePerformance | undefined;
 
 if (typeof window !== 'undefined') {
   try {
     auth = getAuth(app);
     storage = getStorage(app);
+
+    // FCM Initialization
+    isSupported().then(supported => {
+        if (supported) {
+            messaging = getMessaging(app);
+        }
+    });
 
     // Initialize performance monitoring on the client in production
     if (process.env.NODE_ENV === 'production') {
@@ -99,4 +108,4 @@ if (typeof window !== 'undefined') {
 }
 
 // @ts-ignore - auth and storage may be uninitialized on the server
-export { app, auth, db, storage, perf };
+export { app, auth, db, storage, messaging, perf };

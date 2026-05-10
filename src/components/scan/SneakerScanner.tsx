@@ -35,14 +35,15 @@ export function SneakerScanner() {
         setAnalysisResult(null);
 
         try {
-            // Convert to Base64 for AI action with compression
-            const { resizeAndCompressImage } = await import('@/lib/utils');
-            const base64Data = await resizeAndCompressImage(file, 800, 0.7);
+            // 1. Upload to Firebase Storage first (Storage-First Architecture)
+            const { uploadImages } = await import('@/lib/firebase/storage');
+            const [downloadUrl] = await uploadImages([file], 'temp-analysis/');
+
             const idToken = await user.getIdToken();
 
             try {
                 const suggestionsResponse = await suggestListingDetails({
-                    photoDataUris: [base64Data],
+                    photoDataUris: [downloadUrl],
                     category: 'Sneakers', // Hint for the AI
                     idToken
                 });

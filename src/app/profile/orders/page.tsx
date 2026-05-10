@@ -103,6 +103,7 @@ export default function UserOrdersPage() {
 
         setIsSubmittingDispute(true);
         try {
+            const idToken = await user.getIdToken();
             const result = await lodgeDispute({
                 orderId: selectedOrderForDispute,
                 initiatorId: user.uid,
@@ -110,6 +111,7 @@ export default function UserOrdersPage() {
                 initiatorRole: 'buyer',
                 reason: disputeReason,
                 description: disputeDescription,
+                idToken,
             });
 
             if (result.success) {

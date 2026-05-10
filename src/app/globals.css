@@ -134,6 +134,15 @@
 }
 
 @layer utilities {
+  /* Scrollbar hiding */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   /* Glassmorphism */
   .glass-card {
     @apply bg-white/40 dark:bg-black/40 backdrop-blur-2xl border border-white/20 dark:border-white/10;
@@ -142,6 +151,10 @@
   
   .glass-nav {
     @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border-b border-border/10 sticky top-0 z-50;
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
   }
   
   /* Gradients */

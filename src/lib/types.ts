@@ -84,6 +84,8 @@ export type Product = {
   sellerAvatar?: string;
   sellerVerified?: boolean;
   imageUrls: string[];
+  videoUrl?: string;
+  videoThumbnailUrl?: string;
   imageAltTexts?: string[]; // Pillar 1: AI Visual SEO
   aiIntelligence?: any[]; // Store full AI vision metadata
   qualityScore?: number; // Overall photo quality (1-10)
