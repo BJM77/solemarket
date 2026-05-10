@@ -23,7 +23,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     </h1>
 
                     <div className="text-sm md:text-xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p className="text-slate-900 dark:text-white">Buy and sell authentic sneakers and collector cards.</p>
+                        <p className="text-slate-900 dark:text-white">Buy and sell authentic sneakers, collector cards and rare coins.</p>
                         <p className="text-primary font-black">Zero selling fees. 100% verified.</p>
                     </div>
 
@@ -33,6 +33,9 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                         </Link>
                         <Link href="/cards" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 border border-slate-900 dark:border-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 text-center text-sm md:text-base">
                             Shop Cards
+                        </Link>
+                        <Link href="/coins" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(202,138,4,0.4)] text-center text-sm md:text-base">
+                            Shop Coins
                         </Link>
                     </div>
 

@@ -19,8 +19,9 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
     // Define nav items based on context
     let navItems = [
         { label: 'Home', href: '/', icon: Home },
-        { label: 'Sneakers', href: '/browse', icon: ShoppingBag },
+        { label: 'Sneakers', href: '/shoes', icon: ShoppingBag },
         { label: 'Cards', href: '/cards', icon: CreditCard },
+        { label: 'Coins', href: '/coins', icon: Star },
     ];
 
     if (isSneakerPage) {
@@ -36,6 +37,13 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
             { label: 'NBA', href: '/cards?subCategory=Basketball%20Cards', icon: Flame },
             { label: 'Pokémon', href: '/cards?subCategory=Pok%C3%A9mon', icon: Star },
             { label: 'Rookies', href: '/cards?subCategory=Rookies', icon: History },
+        ];
+    } else if (pathname === '/coins' || pathname.includes('category=Coins')) {
+        navItems = [
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Australian', href: '/coins?subCategory=Australian%20Coins', icon: Flame },
+            { label: 'Gold', href: '/coins?subCategory=Gold', icon: Star },
+            { label: 'World', href: '/coins?subCategory=World%20Coins', icon: History },
         ];
     }
 

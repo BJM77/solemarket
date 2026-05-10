@@ -22,7 +22,7 @@ export default function Header() {
   const pathname = usePathname();
   const { isPinned } = useMobileNav();
 
-  const isMarketplacePage = pathname === '/browse' || pathname === '/shoes' || pathname === '/cards';
+  const isMarketplacePage = pathname === '/browse' || pathname === '/shoes' || pathname === '/cards' || pathname === '/coins';
 
   useEffect(() => {
     setIsClient(true);

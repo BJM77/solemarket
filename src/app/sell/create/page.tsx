@@ -70,7 +70,7 @@ function CreateListingForm() {
   const editId = searchParams.get('edit');
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<'sneakers' | 'collector-cards' | null>(null);
+  const [selectedType, setSelectedType] = useState<'sneakers' | 'collector-cards' | 'coins' | null>(null);
 
   const { toast } = useToast();
   const { user } = useUser();
@@ -199,11 +199,11 @@ function CreateListingForm() {
     // 2. Load draft if editId exists
     if (!user || !editId) {
       // Recover persistent type if no editId, but DO NOT auto-advance. We want users to choose.
-      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | null;
+      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | 'coins' | null;
       if (storedType) {
         setSelectedType(storedType);
         // ensure category is set to avoid hidden validation failure if they don't change it
-        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : 'Collector Cards', { shouldValidate: true });
+        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : storedType === 'coins' ? 'Coins' : 'Collector Cards', { shouldValidate: true });
         // Removed setCurrentStep(1) here to force the category selection screen every time
       }
       return;
@@ -225,6 +225,7 @@ function CreateListingForm() {
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
+          else if (data.category === 'Coins') setSelectedType('coins');
           else if (data.category === 'Collector Cards') setSelectedType('collector-cards');
 
           setCurrentStep(1); // Jump to photos on draft load
@@ -240,10 +241,10 @@ function CreateListingForm() {
   }, [editId, user, form, toast, searchParams]);
 
   // Handle Type Selection
-  const handleTypeSelect = (type: 'sneakers' | 'collector-cards') => {
+  const handleTypeSelect = (type: 'sneakers' | 'collector-cards' | 'coins') => {
     setSelectedType(type);
     localStorage.setItem('preferredListingType', type);
-    form.setValue('category', type === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    form.setValue('category', type === 'sneakers' ? 'Sneakers' : type === 'coins' ? 'Coins' : 'Collector Cards');
     // AUTO-ADVANCE
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck, Plus } from 'lucide-react';
-import { isCardCategory, normalizeCategory } from '@/lib/constants/marketplace';
+import { isCardCategory, isCoinCategory, normalizeCategory } from '@/lib/constants/marketplace';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { addSubCategory } from '@/app/actions/admin/admin-categories';
 import { useFirebase, useUser } from '@/firebase';
@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DetailsStepProps {
     form: any;
-    selectedType: 'sneakers' | 'collector-cards';
+    selectedType: 'sneakers' | 'collector-cards' | 'coins';
     subCategories: Record<string, string[]>;
     conditionOptions: string[];
     onAutoFill?: () => Promise<void>;
@@ -50,9 +50,9 @@ export function DetailsStep({
     const [newSubName, setNewSubName] = useState('');
     const [isSavingSub, setIsSavingSub] = useState(false);
 
-    const rawCategory = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
+    const rawCategory = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards');
     const category = normalizeCategory(rawCategory);
-    const isTradingCard = isCardCategory(category);
+    const isTradingCard = isCardCategory(category) || isCoinCategory(category);
 
     const handleAddNewSub = async () => {
         if (!newSubName.trim() || !user) return;
@@ -99,7 +99,7 @@ export function DetailsStep({
                                 </div>
                                 <FormControl>
                                     <Input 
-                                        placeholder={isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} 
+                                        placeholder={isCoinCategory(category) ? "e.g. 1930 Australian Penny" : isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} 
                                         {...field} 
                                         onFocus={() => onFieldChange?.('title')}
                                         className={cn(suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]")}
@@ -271,7 +271,7 @@ export function DetailsStep({
                                     </div>
                                     <FormControl>
                                         <Input 
-                                            placeholder="e.g. Panini Prizm" 
+                                            placeholder={isCoinCategory(category) ? "e.g. Perth Mint" : "e.g. Panini Prizm"} 
                                             {...field} 
                                             onFocus={() => onFieldChange?.('brand')}
                                             className={cn(suggestedFields.includes('brand') && "bg-primary/5 border-primary/30")}
@@ -301,15 +301,15 @@ export function DetailsStep({
 
             {isTradingCard ? (
                 <Card className="border-0 shadow-md bg-card">
-                    <CardHeader><CardTitle>Trading Card Specs</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>{isCoinCategory(category) ? 'Coin & Banknote Specs' : 'Trading Card Specs'}</CardTitle></CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="gradingCompany" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Grading Company</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="PSA, BGS, SGC..." /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger><SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} /></SelectTrigger></FormControl>
                                     <SelectContent>
-                                        {['Raw', 'PSA', 'BGS', 'SGC', 'CGC', 'HGA', 'Other'].map((co) => (
+                                        {(isCoinCategory(category) ? ['Raw', 'PCGS', 'NGC', 'ANACS', 'ICG', 'Other'] : ['Raw', 'PSA', 'BGS', 'SGC', 'CGC', 'HGA', 'Other']).map((co) => (
                                             <SelectItem key={co} value={co}>{co}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -325,7 +325,7 @@ export function DetailsStep({
                         <FormField control={form.control} name="certNumber" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Certification #</FormLabel>
-                                <FormControl><Input placeholder="PSA Cert #" {...field} /></FormControl>
+                                <FormControl><Input placeholder={isCoinCategory(category) ? "PCGS/NGC Cert #" : "PSA Cert #"} {...field} /></FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="cardNumber" render={({ field }) => (
@@ -338,7 +338,7 @@ export function DetailsStep({
                 </Card>
             ) : (
                 <Card className="border-0 shadow-md bg-card">
-                    <CardHeader><CardTitle>Sneaker Specs</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>{selectedType === 'sneakers' ? 'Sneaker Specs' : 'Item Specs'}</CardTitle></CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="size" render={({ field }) => (
                             <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>

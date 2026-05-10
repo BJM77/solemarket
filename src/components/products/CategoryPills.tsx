@@ -19,12 +19,14 @@ export function CategoryPills({ className }: CategoryPillsProps) {
     // Determine the context based on paths or search params
     const isCardsContext = pathname?.includes('/cards') || currentCategory === 'Collector Cards' || currentCategory === 'Trading Cards';
     const isShoesContext = pathname?.includes('/shoes') || currentCategory === 'Sneakers';
+    const isCoinsContext = pathname?.includes('/coins') || currentCategory === 'Coins';
 
     // 1. Global Pills (Always first)
     const globalPills = [
         { name: 'All', href: '/browse' },
         { name: 'Shoes', href: '/shoes' },
         { name: 'Cards', href: '/cards' },
+        { name: 'Coins', href: '/coins' },
     ];
 
     // 2. Contextual Pills (Relevant to the page)
@@ -50,6 +52,14 @@ export function CategoryPills({ className }: CategoryPillsProps) {
             { name: 'Yeezy', href: `${basePath}?category=Sneakers&subCategory=Yeezy&brand=Yeezy` },
             { name: 'New Arrivals', href: `${basePath}?category=Sneakers&sort=createdAt-desc` },
         ];
+    } else if (isCoinsContext) {
+        contextualPills = [
+            { name: 'Australian', href: `${basePath}?category=Coins&subCategory=Australian+Coins` },
+            { name: 'World', href: `${basePath}?category=Coins&subCategory=World+Coins` },
+            { name: 'Gold & Silver', href: `${basePath}?category=Coins&subCategory=Gold` },
+            { name: 'Proof Sets', href: `${basePath}?category=Coins&subCategory=Proof+Sets` },
+            { name: 'New Arrivals', href: `${basePath}?category=Coins&sort=createdAt-desc` },
+        ];
     }
 
     const allPills = [...globalPills, ...contextualPills];
@@ -67,6 +77,8 @@ export function CategoryPills({ className }: CategoryPillsProps) {
                         isActive = pathname === '/shoes' || currentCategory === 'Sneakers';
                     } else if (cat.name === 'Cards') {
                         isActive = pathname === '/cards' || currentCategory === 'Collector Cards' || currentCategory === 'Trading Cards';
+                    } else if (cat.name === 'Coins') {
+                        isActive = pathname === '/coins' || currentCategory === 'Coins';
                     } else {
                         // Subcategory active logic
                         const sp = new URLSearchParams(cat.href.split('?')[1] || '');

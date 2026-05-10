@@ -27,6 +27,10 @@ export function MainNavLinks() {
         Cards
       </Link>
 
+      <Link href="/coins" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
+        Coins
+      </Link>
+
       <div className="flex items-center">
         <DropdownMenu>
           <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300 flex items-center gap-1 group")}>

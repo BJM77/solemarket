@@ -48,19 +48,8 @@ export function SmartImage({
 
     return (
         <div className={cn("relative w-full h-full overflow-hidden bg-muted/20", className)}>
-            {/* Premium Blurred Backdrop (only for non-square matches) */}
-            <div className="absolute inset-0 z-0">
-                <Image
-                    src={imageUrl}
-                    alt=""
-                    fill
-                    className="object-cover blur-2xl opacity-40 scale-125 saturate-150"
-                    priority={priority}
-                />
-            </div>
-
-            {/* Main Product Image (Protected with object-contain) */}
-            <div className="relative z-10 w-full h-full p-1 sm:p-2">
+            {/* Main Product Image */}
+            <div className="relative z-10 w-full h-full">
                 <Image
                     src={imageUrl}
                     alt={imageAlt}
@@ -68,7 +57,7 @@ export function SmartImage({
                     priority={priority}
                     sizes={sizes}
                     quality={quality}
-                    className="object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-md"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                     style={{ objectPosition }}
                     onError={() => setError(true)}
                 />

@@ -108,7 +108,7 @@ export function ImageUploadStep({
         onImagesChange(compressedFiles, newPreviews);
     };
 
-    const captureMode = ['cards', 'Collector Cards', 'trading-cards'].includes(selectedType) ? 'card' : 'general';
+    const captureMode = ['cards', 'Collector Cards', 'trading-cards', 'Coins', 'coins'].includes(selectedType) ? 'card' : 'general';
 
     // Target aspect ratio display string
     const getTargetRatio = () => {
@@ -116,6 +116,7 @@ export function ImageUploadStep({
             case 'sneakers': return '4:3';
             case 'streetwear': return '3:4';
             case 'accessories': return '1:1';
+            case 'coins': return '1:1';
             default: return '1:1';
         }
     };

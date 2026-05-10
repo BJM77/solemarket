@@ -5,8 +5,8 @@ import { GripVertical, Scan } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ListingTypeStepProps {
-    onSelect: (type: 'sneakers' | 'collector-cards') => void;
-    selectedType: 'sneakers' | 'collector-cards' | null;
+    onSelect: (type: 'sneakers' | 'collector-cards' | 'coins') => void;
+    selectedType: 'sneakers' | 'collector-cards' | 'coins' | null;
 }
 
 
@@ -18,7 +18,7 @@ export function ListingTypeStep({ onSelect, selectedType }: ListingTypeStepProps
                 <p className="text-slate-400">Select a category to customize your listing experience.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 <Card
                     className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
                         selectedType === 'sneakers'
@@ -27,7 +27,7 @@ export function ListingTypeStep({ onSelect, selectedType }: ListingTypeStepProps
                     }`}
                     onClick={() => onSelect('sneakers')}
                 >
-                    <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
                         <div className={`w-12 h-12 border-2 rounded bg-white/5 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
                         <div className="space-y-1">
                             <h3 className="text-xl font-bold text-white">Sneakers</h3>
@@ -44,13 +44,32 @@ export function ListingTypeStep({ onSelect, selectedType }: ListingTypeStepProps
                     }`}
                     onClick={() => onSelect('collector-cards')}
                 >
-                    <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
                         <div className="w-12 h-16 border-2 border-indigo-600 bg-white/5 rounded flex items-center justify-center group-hover:border-white transition-colors">
                             <Scan className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" />
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-xl font-bold text-white">Collector Cards</h3>
                             <p className="text-sm text-slate-400">NBA & Basketball sets.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card
+                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
+                        selectedType === 'coins'
+                            ? 'border-primary ring-2 ring-primary/20 bg-card'
+                            : 'border-white/10 hover:border-white/30 bg-card'
+                    }`}
+                    onClick={() => onSelect('coins')}
+                >
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 border-2 border-yellow-500 bg-white/5 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
+                            <GripVertical className="w-8 h-8 text-yellow-500 group-hover:text-white transition-colors rotate-90" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-xl font-bold text-white">Coins</h3>
+                            <p className="text-sm text-slate-400">Rare Coins & Banknotes.</p>
                         </div>
                     </CardContent>
                 </Card>

@@ -4,6 +4,7 @@ import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import CardCategoryGrid from "@/components/home/CardCategoryGrid";
+import CoinCategoryGrid from "@/components/home/CoinCategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import TrustBar from "@/components/trust/TrustBar";
 import { PlayerCollections } from "@/components/home/PlayerCollections";
@@ -85,6 +86,7 @@ export default async function HomePage() {
       <BrandLogos />
       <CategoryGrid />
       <CardCategoryGrid />
+      <CoinCategoryGrid />
       <TrustBar />
       <section className="py-24 bg-black border-t border-white/5">
         <div className="max-w-4xl mx-auto px-4 text-center">

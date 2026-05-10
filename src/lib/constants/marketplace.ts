@@ -6,13 +6,15 @@
 
 export const CATEGORY_TRADING_CARDS = 'Collector Cards';
 export const CATEGORY_SNEAKERS = 'Sneakers';
+export const CATEGORY_COINS = 'Coins';
 export const CATEGORY_ACCESSORIES = 'Accessories';
 export const CATEGORY_GENERAL = 'General';
 
 export const DEFAULT_CATEGORIES = [
   CATEGORY_SNEAKERS,
-  CATEGORY_ACCESSORIES,
   CATEGORY_TRADING_CARDS,
+  CATEGORY_COINS,
+  CATEGORY_ACCESSORIES,
   CATEGORY_GENERAL
 ];
 
@@ -26,6 +28,9 @@ export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
   [CATEGORY_TRADING_CARDS]: [
     'Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama',
     'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'
+  ],
+  [CATEGORY_COINS]: [
+    'Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'
   ],
   [CATEGORY_GENERAL]: ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
 };
@@ -52,6 +57,8 @@ export const CATEGORY_MAPPING: Record<string, string> = {
   'Shoes': CATEGORY_SNEAKERS,
   'shoes': CATEGORY_SNEAKERS,
   'sneakers': CATEGORY_SNEAKERS,
+  'Coins': CATEGORY_COINS,
+  'coins': CATEGORY_COINS,
 };
 
 /**
@@ -60,6 +67,7 @@ export const CATEGORY_MAPPING: Record<string, string> = {
 export const RELATED_CATEGORIES: Record<string, string[]> = {
   [CATEGORY_SNEAKERS]: ['Sneakers', 'Shoes', 'shoes', 'sneakers'],
   [CATEGORY_TRADING_CARDS]: ['Collector Cards', 'Trading Cards', 'Cards', 'collector-cards', 'trading-cards'],
+  [CATEGORY_COINS]: ['Coins', 'coins', 'Numismatics'],
 };
 
 /**
@@ -68,6 +76,14 @@ export const RELATED_CATEGORIES: Record<string, string[]> = {
 export function normalizeCategory(category?: string): string {
   if (!category) return CATEGORY_GENERAL;
   return CATEGORY_MAPPING[category] || category;
+}
+
+/**
+ * Checks if a category is a coin category.
+ */
+export function isCoinCategory(category?: string): boolean {
+  const normalized = normalizeCategory(category);
+  return normalized === CATEGORY_COINS;
 }
 
 /**
