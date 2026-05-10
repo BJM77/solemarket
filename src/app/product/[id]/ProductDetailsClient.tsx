@@ -304,7 +304,7 @@ export default function ProductDetailsClient({
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background text-foreground">
             <div className="container mx-auto px-4 py-8">
                 <div className="flex items-center justify-between mb-6">
                     <Button variant="ghost" onClick={() => router.back()} className="hover:bg-transparent hover:text-primary p-0 h-auto font-medium">
@@ -404,11 +404,11 @@ export default function ProductDetailsClient({
                                 <CardContent className="px-0 pt-0">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                                         <div className="space-y-4">
-                                            <h3 className="font-semibold text-lg border-b pb-2">Description</h3>
-                                            <p className="whitespace-pre-line text-gray-600">{product.description}</p>
+                                            <h3 className="font-black uppercase tracking-tight text-lg border-b border-white/5 pb-2 text-white">Description</h3>
+                                            <p className="whitespace-pre-line text-muted-foreground">{product.description}</p>
                                         </div>
                                         <div className="space-y-4">
-                                            <h3 className="font-semibold text-lg border-b pb-2">Specifications</h3>
+                                            <h3 className="font-black uppercase tracking-tight text-lg border-b border-white/5 pb-2 text-white">Specifications</h3>
                                             <dl className="grid grid-cols-2 gap-y-4 text-sm">
                                                 <dt className="text-muted-foreground">Category</dt>
                                                 <dd className="font-semibold">{product.category}</dd>
@@ -434,7 +434,7 @@ export default function ProductDetailsClient({
 
                 {relatedProducts.length > 0 && (
                     <div className="lg:col-span-2 mt-16">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Collectibles</h2>
+                        <h2 className="text-2xl font-black uppercase tracking-tighter text-white mb-6">Related Collectibles</h2>
                         {loadingRelated ? <ProductGridSkeleton count={4} /> : <ProductGrid products={relatedProducts} />}
                     </div>
                 )}

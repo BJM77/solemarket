@@ -38,7 +38,7 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         <Badge variant="outline" className="text-xs">
           {product.category} {product.subCategory && `> ${product.subCategory}`}
         </Badge>
-        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground bg-white dark:bg-card px-3 py-1.5 rounded-full border shadow-sm">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground bg-card px-3 py-1.5 rounded-full border border-white/5 shadow-sm">
           <div className="flex items-center gap-1.5 text-orange-600">
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -59,11 +59,11 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         </div>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.title}</h1>
+      <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-3">{product.title}</h1>
 
       <div className="flex items-center gap-3 mb-4">
         {!product.isUntimed && (
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-4xl font-black text-white tracking-tighter">
             ${formatPrice(product.price)}
           </div>
         )}
@@ -95,7 +95,7 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         )}
       </div>
 
-      <p className="text-gray-600 mt-4">{product.description}</p>
+      <p className="text-muted-foreground mt-4 leading-relaxed">{product.description}</p>
     </div>
   );
 }

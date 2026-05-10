@@ -36,7 +36,7 @@ function DemoAdvertisement() {
       <div className="container mx-auto px-4 py-3 text-center relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-6">
         <span className="bg-primary text-white text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider">Advertisement</span>
         <p className="text-sm md:text-base font-semibold tracking-wide">
-          Limited Time Offer: Get <span className="text-primary font-black">50% OFF</span> authentication services with code <span className="border border-white/20 px-2 py-0.5 rounded bg-white/10 ml-1">BENCHED50</span>
+          Limited Time Offer: Get <span className="text-primary font-black">50% OFF</span> authentication services with code <span className="border border-primary/20 px-2 py-0.5 rounded bg-primary/5 ml-1 text-primary">BENCHED50</span>
         </p>
       </div>
     </div>

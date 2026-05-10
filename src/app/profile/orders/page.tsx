@@ -205,16 +205,16 @@ export default function UserOrdersPage() {
                     <ShoppingBag className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-slate-900">My Purchases</h1>
-                    <p className="text-slate-500">Track and manage your collectible acquisitions.</p>
+                    <h1 className="text-3xl font-black tracking-tighter text-white uppercase">My Purchases</h1>
+                    <p className="text-muted-foreground">Track and manage your collectible acquisitions.</p>
                 </div>
             </div>
 
             {orders.length === 0 ? (
-                <div className="text-center py-24 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                    <Package className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-slate-900">No purchases yet</h3>
-                    <p className="text-slate-500 mb-6">Start your collection by browsing the marketplace.</p>
+                <div className="text-center py-24 bg-card rounded-[2.5rem] border border-white/5">
+                    <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+                    <h3 className="text-lg font-black uppercase tracking-tight text-white">No purchases yet</h3>
+                    <p className="text-muted-foreground mb-6">Start your collection by browsing the marketplace.</p>
                     <Button asChild>
                         <Link href="/">Browse Marketplace</Link>
                     </Button>
@@ -222,7 +222,7 @@ export default function UserOrdersPage() {
             ) : (
                 <div className="space-y-6">
                     {orders.map((order) => (
-                        <Card key={order.id} className="border-none shadow-premium rounded-2xl overflow-hidden bg-white">
+                        <Card key={order.id} className="border border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden bg-card">
                             <CardHeader className="bg-slate-900 text-white py-4 px-6 flex flex-row items-center justify-between">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
@@ -256,17 +256,17 @@ export default function UserOrdersPage() {
                                                 <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-bold text-slate-900 line-clamp-1">{item.title}</p>
-                                                <p className="text-xs text-slate-500">Qty: {item.quantity} · ${formatPrice(item.price)} ea</p>
+                                                <p className="font-black uppercase tracking-tight text-white line-clamp-1">{item.title}</p>
+                                                <p className="text-xs text-muted-foreground">Qty: {item.quantity} · ${formatPrice(item.price)} ea</p>
                                             </div>
-                                            <p className="font-black text-slate-900">${formatPrice(item.price * item.quantity)}</p>
+                                            <p className="font-black text-white">${formatPrice(item.price * item.quantity)}</p>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-50">
                                     <div className="space-y-1">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Seller</p>
-                                        <p className="text-sm font-bold text-slate-700">{order.sellerName || 'Private Seller'}</p>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Seller</p>
+                                        <p className="text-sm font-bold text-white">{order.sellerName || 'Private Seller'}</p>
                                     </div>
                                     <div className="space-y-1 text-right">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Total Amount</p>
@@ -274,7 +274,7 @@ export default function UserOrdersPage() {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-4 flex gap-2 flex-wrap">
+                            <CardFooter className="bg-white/5 p-4 flex gap-2 flex-wrap">
                                 <Button
                                     variant="outline"
                                     size="sm"

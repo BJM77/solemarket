@@ -141,8 +141,8 @@ export default function MultiListingDealsPage() {
     if (deals.length === 0) {
         return (
             <div className="container mx-auto px-4 py-16 text-center">
-                <h1 className="text-3xl font-bold mb-4">No Active Deals</h1>
-                <p className="text-gray-600">Check back soon for multi-listing bundle deals!</p>
+                <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-4">No Active Deals</h1>
+                <p className="text-muted-foreground">Check back soon for multi-listing bundle deals!</p>
             </div>
         );
     }
@@ -151,8 +151,8 @@ export default function MultiListingDealsPage() {
     const isComplete = isDealComplete();
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">Multi-Listing Bundle Deals</h1>
+        <div className="container mx-auto px-4 py-8 bg-background min-h-screen text-foreground">
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-8">Multi-Listing Bundle Deals</h1>
 
             {/* Deal Selector */}
             <div className="grid md:grid-cols-3 gap-4 mb-8">
@@ -163,15 +163,15 @@ export default function MultiListingDealsPage() {
                             setSelectedDeal(deal);
                             setDealCart(new Map());
                         }}
-                        className={`p-6 rounded-lg border-2 text-left transition ${selectedDeal?.id === deal.id
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                        className={`p-6 rounded-2xl border-2 text-left transition ${selectedDeal?.id === deal.id
+                            ? 'border-primary bg-primary/5'
+                            : 'border-white/5 bg-card hover:border-white/10'
                             }`}
                     >
-                        <h3 className="font-bold text-lg mb-2">{deal.name}</h3>
-                        <p className="text-sm text-gray-600 mb-3">{deal.description}</p>
-                        <div className="text-2xl font-bold text-green-600">${deal.price.toFixed(2)}</div>
-                        <div className="text-xs text-gray-500 mt-2">
+                        <h3 className="font-black uppercase tracking-tight text-lg mb-2 text-white">{deal.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-3">{deal.description}</p>
+                        <div className="text-2xl font-black text-emerald-500">${deal.price.toFixed(2)}</div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
                             {deal.requirements.platinum > 0 && `${deal.requirements.platinum} Platinum + `}
                             {deal.requirements.gold > 0 && `${deal.requirements.gold} Gold + `}
                             {deal.requirements.silver > 0 && `${deal.requirements.silver} Silver + `}
@@ -246,7 +246,7 @@ export default function MultiListingDealsPage() {
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {products.map(product => (
-                                <div key={product.id} className="bg-white rounded-lg shadow p-3 sm:p-4">
+                                <div key={product.id} className="bg-card rounded-2xl border border-white/5 p-3 sm:p-4">
                                     <div className="aspect-square relative mb-3">
                                         <img
                                             src={product.imageUrl || '/wtb-wanted-placeholder.png'}
@@ -259,15 +259,15 @@ export default function MultiListingDealsPage() {
                                             }}
                                         />
                                     </div>
-                                    <h3 className="font-semibold mb-2 text-sm sm:text-base line-clamp-2 h-10 sm:h-auto">{product.title}</h3>
+                                    <h3 className="font-black uppercase tracking-tight mb-2 text-xs sm:text-sm line-clamp-2 h-10 sm:h-auto text-white">{product.title}</h3>
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                        <span className="text-gray-500 line-through text-xs sm:text-sm">${product.price}</span>
+                                        <span className="text-muted-foreground line-through text-[10px] sm:text-xs">${product.price}</span>
                                         <button
                                             onClick={() => addToDeal(product)}
                                             disabled={dealCart.has(product.id)}
-                                            className={`w-full sm:w-auto px-3 py-1.5 rounded text-xs sm:text-sm font-medium ${dealCart.has(product.id)
-                                                ? 'bg-gray-300 text-gray-500'
-                                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            className={`w-full sm:w-auto px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black uppercase tracking-tight ${dealCart.has(product.id)
+                                                ? 'bg-white/10 text-muted-foreground'
+                                                : 'bg-primary text-white hover:bg-primary/80'
                                                 }`}
                                         >
                                             {dealCart.has(product.id) ? 'Added' : 'Add'}
@@ -279,11 +279,11 @@ export default function MultiListingDealsPage() {
                     </div>
 
                     {/* Mobile Bottom Bar for Bundle Progress */}
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                    <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/10 p-4 lg:hidden z-40">
                         <div className="container mx-auto flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Bundle Total</span>
-                                <span className="text-lg font-bold text-green-600">${selectedDeal.price.toFixed(2)}</span>
+                                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Bundle Total</span>
+                                <span className="text-lg font-black text-emerald-500">${selectedDeal.price.toFixed(2)}</span>
                             </div>
 
                             <Sheet>

@@ -48,19 +48,19 @@ export const metadata = {
 
 export default function CardDropsPage() {
     return (
-        <div className="container mx-auto py-12 px-4 min-h-screen">
-            <PageHeader
-                title="Card Release Calendar"
-                description="Upcoming wax and sets dropping soon. Don't miss out."
-            />
+                <div className="container mx-auto py-12 px-4 min-h-screen bg-background">
+                    <PageHeader
+                        title="Card Release Calendar"
+                        description="Upcoming wax and sets dropping soon. Don't miss out."
+                    />
 
-            <div className="mt-8 mb-8">
-                <AdUnit placement="drops_header" className="aspect-[4/1]" />
-            </div>
+                    <div className="mt-8 mb-8">
+                        <AdUnit placement="drops_header" className="aspect-[4/1]" />
+                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {UPCOMING_DROPS.map((drop) => (
-                    <Card key={drop.id} className="overflow-hidden group hover:shadow-xl transition-all border-none bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                        {UPCOMING_DROPS.map((drop) => (
+                            <Card key={drop.id} className="overflow-hidden group hover:shadow-xl transition-all border border-white/5 bg-card ring-1 ring-white/5">
                         <div className="aspect-square relative bg-muted/30 p-0 overflow-hidden">
                             <Image
                                 src={drop.image}

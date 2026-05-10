@@ -22,17 +22,17 @@ export default async function MarketTrendingPage() {
     })) as Product[];
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-background-dark/50 pb-20">
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+        <div className="min-h-screen bg-background pb-20">
+            <div className="bg-card border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-4 py-16">
                     <div className="flex flex-col items-center text-center">
-                        <div className="h-16 w-16 bg-orange-100 dark:bg-orange-950/50 rounded-2xl flex items-center justify-center mb-6">
-                            <Flame className="h-8 w-8 text-orange-600" />
+                        <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                            <Flame className="h-8 w-8 text-primary" />
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+                        <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase">
                             Market Trending
                         </h1>
-                        <p className="max-w-xl text-lg text-gray-600 dark:text-gray-400">
+                        <p className="max-w-xl text-lg text-muted-foreground">
                             Real-time insights into the most viewed and in-demand collectibles on Benched right now.
                         </p>
                     </div>
@@ -41,7 +41,7 @@ export default async function MarketTrendingPage() {
 
             <div className="max-w-7xl mx-auto px-4 mt-12">
                 <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-blue-100 dark:bg-blue-950/50 rounded-xl flex items-center justify-center text-blue-600">
                             <BarChart3 className="h-5 w-5" />
                         </div>
@@ -50,7 +50,7 @@ export default async function MarketTrendingPage() {
                             <p className="text-xl font-bold">+14% this week</p>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-green-100 dark:bg-green-950/50 rounded-xl flex items-center justify-center text-green-600">
                             <TrendingUp className="h-5 w-5" />
                         </div>
@@ -59,7 +59,7 @@ export default async function MarketTrendingPage() {
                             <p className="text-xl font-bold">1,240 online</p>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-purple-100 dark:bg-purple-950/50 rounded-xl flex items-center justify-center text-purple-600">
                             <Clock className="h-5 w-5" />
                         </div>
@@ -78,11 +78,11 @@ export default async function MarketTrendingPage() {
                             </div>
                             <ProductCard product={product} />
                             <div className="mt-2 flex items-center gap-2 px-2">
-                                <TrendingUp className="h-3 w-3 text-green-600" />
-                                <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                                <TrendingUp className="h-3 w-3 text-emerald-500" />
+                                <span className="text-[10px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full tracking-wider">
                                     High Demand
                                 </span>
-                                <span className="text-[10px] text-gray-400 font-medium ml-auto">
+                                <span className="text-[10px] text-muted-foreground font-bold ml-auto">
                                     {product.views || 0} views
                                 </span>
                             </div>

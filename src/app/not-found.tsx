@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 function NotFoundContent() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md text-center shadow-xl border-t-4 border-destructive">
         <CardHeader className="p-8">
           <div className="mx-auto bg-destructive/10 p-4 rounded-full w-fit">

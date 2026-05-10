@@ -15,7 +15,7 @@ export default async function SellersPage() {
     const sellers = await getSellersAction();
 
     return (
-        <div className="container py-12 min-h-screen bg-gray-50/50">
+        <div className="container py-12 min-h-screen bg-background">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline mb-2">Our Sellers</h1>
@@ -39,12 +39,12 @@ export default async function SellersPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {sellers.map((seller) => (
-                        <Card key={seller.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden border-orange-100/50">
-                            <CardHeader className="bg-gradient-to-r from-orange-50 to-white pb-6 pt-6">
+                        <Card key={seller.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden border-white/5 bg-card">
+                            <CardHeader className="bg-gradient-to-r from-white/5 to-transparent pb-6 pt-6 border-b border-white/5">
                                 <div className="flex items-center gap-4">
-                                    <Avatar className="h-16 w-16 border-2 border-white shadow-sm bg-white">
+                                    <Avatar className="h-16 w-16 border-2 border-white/10 shadow-sm bg-black">
                                         <AvatarImage src={seller.photoURL || ''} alt={seller.displayName || 'Seller'} />
-                                        <AvatarFallback className="text-lg font-bold text-orange-600 bg-orange-50">
+                                        <AvatarFallback className="text-lg font-bold text-primary bg-primary/10">
                                             {seller.displayName?.charAt(0) || 'S'}
                                         </AvatarFallback>
                                     </Avatar>
@@ -79,7 +79,7 @@ export default async function SellersPage() {
                             <CardContent className="pt-6">
                                 {/* Categories Section */}
                                 <div className="mb-6">
-                                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Available Categories</h4>
+                                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Available Categories</h4>
                                     <div className="flex flex-wrap gap-2">
                                         {seller.categories && seller.categories.length > 0 ? (
                                             seller.categories.slice(0, 5).map((category) => (
@@ -98,9 +98,9 @@ export default async function SellersPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <ShoppingBag className="w-4 h-4 mr-1.5 text-gray-400" />
+                                <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                        <ShoppingBag className="w-4 h-4 mr-1.5 text-muted-foreground/60" />
                                         <span>{seller.productCount}+ items</span>
                                     </div>
                                     <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">

@@ -18,8 +18,8 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card rounded-3xl border border-white/5 p-8 text-center space-y-6">
         <div className="bg-rose-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
           <AlertTriangle className="h-8 w-8 text-rose-600" />
         </div>

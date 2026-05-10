@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 
 export default function VaultPage() {
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-background min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-40">
@@ -100,7 +100,7 @@ export default function VaultPage() {
       </section>
 
       {/* Trust Stats */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-card border-b border-white/5">
         <div className="container py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
           <StatItem label="Australian Owned" value="100%" />
           <StatItem label="Secure Transactions" value="10k+" />
@@ -112,8 +112,8 @@ export default function VaultPage() {
       {/* How It Works - The Core Value */}
       <section className="py-20 container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">The "No-Stress" Transaction</h2>
-          <p className="text-lg text-slate-600">
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase">The "No-Stress" Transaction</h2>
+          <p className="text-lg text-muted-foreground">
             We've removed the trust barrier. You don't need to trust the stranger on the internet—you just need to trust Benched.
           </p>
         </div>
@@ -150,12 +150,12 @@ export default function VaultPage() {
       </section>
 
       {/* Buyer vs Seller Benefits */}
-      <section className="py-20 bg-slate-100">
+      <section className="py-20 bg-card">
         <div className="container max-w-5xl">
           <Tabs defaultValue="sellers" className="w-full">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-8">Why use the Vault?</h2>
-              <TabsList className="bg-white p-1 rounded-full border shadow-sm">
+              <h2 className="text-3xl font-black uppercase mb-8">Why use the Vault?</h2>
+              <TabsList className="bg-black p-1 rounded-full border border-white/10 shadow-sm">
                 <TabsTrigger value="sellers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all">For Sellers</TabsTrigger>
                 <TabsTrigger value="buyers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all">For Buyers</TabsTrigger>
               </TabsList>
@@ -248,21 +248,21 @@ function FeatureRow({ text }: { text: string }) {
 function StatItem({ label, value }: { label: string, value: string }) {
   return (
     <div className="text-center">
-      <div className="text-3xl md:text-4xl font-black text-slate-900 mb-1">{value}</div>
-      <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">{label}</div>
+      <div className="text-3xl md:text-4xl font-black text-white mb-1 tracking-tighter uppercase">{value}</div>
+      <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{label}</div>
     </div>
   )
 }
 
 function ProcessStep({ number, title, desc, icon }: { number: string, title: string, desc: string, icon: React.ReactNode }) {
   return (
-    <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col items-center text-center z-10 hover:-translate-y-1 transition-transform duration-300">
-      <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-200 shadow-sm">
+    <div className="relative bg-black p-6 rounded-2xl shadow-xl border border-white/5 flex flex-col items-center text-center z-10 hover:-translate-y-1 transition-transform duration-300">
+      <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10 shadow-sm">
         {icon}
       </div>
-      <div className="absolute top-4 right-4 text-4xl font-black text-slate-100 -z-10">{number}</div>
-      <h3 className="text-xl font-bold text-slate-900 mb-2">{title}</h3>
-      <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+      <div className="absolute top-4 right-4 text-4xl font-black text-white/5 -z-10">{number}</div>
+      <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
     </div>
   )
 }
@@ -270,12 +270,12 @@ function ProcessStep({ number, title, desc, icon }: { number: string, title: str
 function BenefitItem({ title, desc }: { title: string, desc: string }) {
   return (
     <div className="flex gap-4">
-      <div className="mt-1 bg-emerald-100 p-1.5 rounded-full h-fit w-fit">
-        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+      <div className="mt-1 bg-emerald-500/10 p-1.5 rounded-full h-fit w-fit">
+        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
       </div>
       <div>
-        <h4 className="font-bold text-lg text-slate-900">{title}</h4>
-        <p className="text-slate-600 leading-relaxed">{desc}</p>
+        <h4 className="font-black uppercase tracking-tight text-lg text-white">{title}</h4>
+        <p className="text-muted-foreground leading-relaxed">{desc}</p>
       </div>
     </div>
   )
@@ -283,9 +283,9 @@ function BenefitItem({ title, desc }: { title: string, desc: string }) {
 
 function FAQItem({ question, answer }: { question: string, answer: string }) {
   return (
-    <AccordionItem value={question} className="bg-white border border-slate-200 rounded-lg px-6 shadow-sm">
-      <AccordionTrigger className="text-lg font-semibold text-slate-800 hover:text-emerald-600 text-left">{question}</AccordionTrigger>
-      <AccordionContent className="text-slate-600 pb-6 leading-relaxed">
+    <AccordionItem value={question} className="bg-black/40 border border-white/5 rounded-2xl px-6 shadow-sm overflow-hidden mb-4">
+      <AccordionTrigger className="text-lg font-black uppercase tracking-tight text-white hover:text-emerald-400 text-left py-6">{question}</AccordionTrigger>
+      <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
         {answer}
       </AccordionContent>
     </AccordionItem>
