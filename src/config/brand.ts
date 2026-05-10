@@ -144,7 +144,7 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'The destination for performance basketball shoes, collector cards, and culture.'
+            'The destination for performance basketball shoes, collector cards, rare coins, and culture.'
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
@@ -182,16 +182,19 @@ export const brandConfig: BrandConfig = {
         siteName: getEnv('NEXT_PUBLIC_SITE_NAME', 'Benched'),
         defaultTitle: getEnv(
             'NEXT_PUBLIC_DEFAULT_TITLE',
-            'Benched | Best Performance Basketball Shoes & Collector Cards'
+            'Benched | Sneakers, Collector Cards & Rare Coins'
         ),
         defaultDescription: getEnv(
             'NEXT_PUBLIC_DEFAULT_DESCRIPTION',
-            'The premier marketplace for performance basketball shoes and collector cards. Your rotation, upgraded.'
+            'The premier Australian marketplace for authentic sneakers, collector cards, and rare coins. Your collection, upgraded.'
         ),
         keywords: [
             'basketball shoes Australia',
             'collector cards',
             'NBA cards',
+            'rare coins',
+            'numismatics',
+            'Australian coins',
             'basketball cards',
             'sneakers',
             'hoop shoes',
@@ -199,9 +202,11 @@ export const brandConfig: BrandConfig = {
             'Nike Basketball shoes',
             'Panini Prizm',
             'PSA Graded cards',
+            'PCGS Graded coins',
             'marketplace',
             'Australia',
             'buy sell sneakers',
+            'buy sell coins',
         ],
         twitterHandle: getEnv('NEXT_PUBLIC_TWITTER_HANDLE', '@benchedau'),
         facebookUrl: process.env.NEXT_PUBLIC_FACEBOOK_URL,

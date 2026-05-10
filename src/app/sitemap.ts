@@ -44,6 +44,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     '',
     '/browse',
+    '/shoes',
+    '/cards',
+    '/coins',
     '/sell',
     '/scan',
     '/drops',
@@ -88,12 +91,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let topicRoutes: MetadataRoute.Sitemap = [];
   try {
     const { SEO_TOPICS } = await import('@/config/seo-topics');
-    topicRoutes = SEO_TOPICS.map(topic => ({
-      url: `${baseUrl}/${topic.category === 'Collector Cards' ? 'cards' : 'shoes'}/${topic.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    }));
+    topicRoutes = SEO_TOPICS.map(topic => {
+      let pathPrefix = 'shoes';
+      if (topic.category === 'Collector Cards') pathPrefix = 'cards';
+      else if (topic.category === 'Coins') pathPrefix = 'coins';
+
+      return {
+        url: `${baseUrl}/${pathPrefix}/${topic.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.9,
+      };
+    });
   } catch (err) {
     console.error('Sitemap: Error loading SEO topics:', err);
   }

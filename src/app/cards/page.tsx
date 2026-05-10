@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export async function generateMetadata({
   searchParams,
@@ -65,29 +66,37 @@ export default async function CardsBrowsePage({
   }
 
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8">
-        <div className="h-12 w-64 bg-muted animate-pulse rounded-lg mb-8" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
-          ))}
-        </div>
-      </div>
-    }>
-      <InfiniteProductGrid
-        key={categoryParam}
-        pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
-        pageDescription="Browse the rarest cards from thousands of collectors."
-        initialFilterState={{
-          q: searchTerm,
-          category: categoryParam,
-          subCategory: subCategoryParam
-        }}
-        initialData={initialProductsData} // Pass initial data
-        titleAsH1={true}
+    <>
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', item: '/' },
+          { name: 'Cards', item: '/cards' },
+        ]}
       />
-    </Suspense>
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="h-12 w-64 bg-muted animate-pulse rounded-lg mb-8" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      }>
+        <InfiniteProductGrid
+          key={categoryParam}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
+          pageDescription="Browse the rarest cards from thousands of collectors."
+          initialFilterState={{
+            q: searchTerm,
+            category: categoryParam,
+            subCategory: subCategoryParam
+          }}
+          initialData={initialProductsData} // Pass initial data
+          titleAsH1={true}
+        />
+      </Suspense>
+    </>
   );
 }
 
