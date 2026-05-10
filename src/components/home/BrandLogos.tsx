@@ -17,7 +17,7 @@ const brands = [
 
 export default function BrandLogos() {
   return (
-    <section className="py-12 bg-background border-y border-border overflow-hidden">
+    <section className="py-12 bg-black border-y border-white/5 overflow-hidden">
       <div className="container mx-auto px-4 mb-10">
         <h2 className="text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
           Featuring Top Brands
@@ -27,8 +27,8 @@ export default function BrandLogos() {
       {/* Infinite Marquee Container */}
       <div className="relative w-full flex overflow-hidden group">
         {/* Gradient fades for smooth edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black to-transparent pointer-events-none" />
 
         {/* Scrolling Content - Duplicate the array for infinite effect */}
         <div className="flex animate-marquee group-hover:[animation-play-state:paused] items-center gap-16 md:gap-24 px-8 min-w-max" style={{ animationDuration: '30s' }}>

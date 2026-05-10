@@ -45,7 +45,7 @@ export function NewsletterSignup() {
 
     if (state.success) {
          return (
-            <div className="flex items-center gap-2 text-green-600 font-medium h-10 p-2 bg-green-50 rounded-lg border border-green-100">
+            <div className="flex items-center gap-2 text-emerald-500 font-medium h-10 p-2 bg-emerald-950/20 rounded-lg border border-emerald-500/20">
                 <Check className="h-4 w-4" />
                 <span className="text-sm">Subscribed!</span>
             </div>
@@ -56,7 +56,7 @@ export function NewsletterSignup() {
         <form ref={formRef} action={formAction} className="flex gap-2">
             <Input 
                 name="email" 
-                className="flex-1 rounded-lg border-[#e7ebf3] dark:border-white/10 bg-transparent text-sm" 
+                className="flex-1 rounded-lg border-white/10 bg-white/5 text-sm" 
                 placeholder="Email" 
                 type="email" 
                 required

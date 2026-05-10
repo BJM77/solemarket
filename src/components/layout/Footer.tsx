@@ -72,7 +72,7 @@ export default function Footer() {
           <NewsletterSignup />
         </div>
       </div>
-      <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-[#e7ebf3] dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
         <Link href="/log" className="cursor-default hover:text-slate-500 transition-colors">
           © {new Date().getFullYear()} {brandConfig.company.legalName}. All rights reserved.
         </Link>

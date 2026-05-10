@@ -778,7 +778,7 @@ export default function ProductCard({
   // Grid View (default) - new style
   return (
     <div className={cn(
-      "group relative flex flex-col bg-white dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift",
+      "group relative flex flex-col dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift",
       selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
     )} onClick={() => selectable && onToggleSelect?.()}>
       <div className={cn("bg-muted/30 relative overflow-hidden shrink-0", imageAspectRatio)}>

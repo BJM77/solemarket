@@ -37,12 +37,12 @@ export function SearchBar({
         type="search"
         placeholder="Find It Here"
         aria-label="Search items"
-        className={cn("w-full pl-10 bg-[#e7ebf3] dark:bg-white/5 border-transparent focus:bg-white dark:focus:bg-background-dark focus-within:border-primary/50", inputClassName)}
+        className={cn("w-full pl-10 bg-white/5 border-transparent focus:bg-background focus-within:border-primary/50 transition-all", inputClassName)}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-        <kbd className="hidden sm:inline-flex items-center gap-1 rounded border bg-white dark:bg-white/10 px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+        <kbd className="hidden sm:inline-flex items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           <span className="text-xs">⌘</span>K
         </kbd>
         <Button type="submit" aria-label="Submit search" className={cn("ml-2", !buttonClassName && "hidden", buttonClassName)}>Search</Button>

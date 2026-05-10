@@ -45,7 +45,7 @@ function DemoAdvertisement() {
 
 function TrendingSkeleton() {
   return (
-    <section className="py-20 bg-white dark:bg-gray-900">
+    <section className="py-20 bg-black">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -86,7 +86,7 @@ export default async function HomePage() {
       <CategoryGrid />
       <CardCategoryGrid />
       <TrustBar />
-      <section className="py-24 bg-slate-50 dark:bg-black/20">
+      <section className="py-24 bg-black border-t border-white/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-black uppercase mb-8 tracking-tighter">Your Trusted Australian Marketplace for Kicks & Cards</h2>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6">
