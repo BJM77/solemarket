@@ -133,7 +133,7 @@ export function SneakerScanner() {
                     </div>
 
                     {!userConfirmed && !isAnalyzing && (
-                        <div className="max-w-md mx-auto space-y-4">
+                        <div className="max-w-md mx-auto space-y-4 pb-[env(safe-area-inset-bottom,1.5rem)]">
                             <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
                                 <div className="flex items-center gap-3 mb-6 text-center justify-center">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />
@@ -159,7 +159,8 @@ export function SneakerScanner() {
                     )}
 
                     {analysisResult && (
-                        <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white max-w-md mx-auto">
+                        <div className="pb-[env(safe-area-inset-bottom,2rem)]">
+                            <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white max-w-md mx-auto">
                             <div className="h-2 w-full bg-primary"></div>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center gap-3 text-primary">
@@ -194,6 +195,7 @@ export function SneakerScanner() {
                                 </Button>
                             </CardContent>
                         </Card>
+                        </div>
                     )}
                 </div>
             )}

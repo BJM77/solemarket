@@ -167,7 +167,7 @@ export function CardScanner() {
                     </div>
 
                     {!userConfirmed && !isAnalyzing && (
-                        <div className="max-w-sm mx-auto space-y-4 animate-in slide-in-from-bottom-8 duration-500">
+                        <div className="max-w-sm mx-auto space-y-4 animate-in slide-in-from-bottom-8 duration-500 pb-[env(safe-area-inset-bottom,1.5rem)]">
                             <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
@@ -199,7 +199,8 @@ export function CardScanner() {
                     )}
 
                     {analysisResult && (
-                        <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white">
+                        <div className="pb-[env(safe-area-inset-bottom,2rem)]">
+                            <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white">
                             <div className="h-2 w-full bg-indigo-600"></div>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center gap-3 text-indigo-600">
@@ -234,6 +235,7 @@ export function CardScanner() {
                                 </Button>
                             </CardContent>
                         </Card>
+                        </div>
                     )}
                 </div>
             )}
