@@ -61,7 +61,6 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       inFilterUsed = true;
     }
   } else if (category) {
-    // Single category: check for related terms (e.g. Sneakers -> [Sneakers, Shoes])
     const related = RELATED_CATEGORIES[category];
     if (related && related.length > 1) {
       constraints.push(where('category', 'in', related));
@@ -263,15 +262,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // we follow the Firestore recommendation to wrap them in an 'and()' for stability.
   const hasOrFilter = constraints.some(c => c.toString().includes('or(') || (c as any)._type === 'or'); // Heuristic check or just always use and()
   
-  const queryArgs: any[] = [];
-  if (constraints.length > 0) {
-    if (constraints.length > 1) {
-      queryArgs.push(and(...constraints));
-    } else {
-      queryArgs.push(constraints[0]);
-    }
-  }
-  queryArgs.push(...orderByConstraints);
+  const queryArgs: any[] = [...constraints, ...orderByConstraints];
 
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);

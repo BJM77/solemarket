@@ -214,7 +214,7 @@ export default function AdvancedFilterPanel({
     };
 
     const activeFilterCount = Object.keys(currentFilters).filter(
-        key => !['view', 'sort', 'page'].includes(key) && currentFilters[key as keyof ProductSearchParams]
+        key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentFilters[key as keyof ProductSearchParams]
     ).length;
 
     const priceRange = (localFilters.priceRange as [number, number]) || [0, 10000];

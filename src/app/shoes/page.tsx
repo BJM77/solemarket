@@ -106,7 +106,8 @@ export default async function ShoesBrowsePage({
             conditions: conditionsParam,
             verifiedOnly: verifiedOnlyParam,
             manufacturer: manufacturerParam,
-            sort: sortParam
+            sort: sortParam,
+            status: 'available'
           }}
           initialData={initialProductsData}
           titleAsH1={true}

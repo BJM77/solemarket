@@ -90,7 +90,8 @@ export default async function CoinsBrowsePage({
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,
-            subCategory: subCategoryParam
+            subCategory: subCategoryParam,
+            status: 'available'
           }}
           initialData={initialProductsData} // Pass initial data
           titleAsH1={true}
