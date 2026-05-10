@@ -105,10 +105,10 @@ export function BulkCardScanner() {
 
     return (
         <div className="w-full max-w-4xl mx-auto space-y-6">
-            <Card className="border-dashed border-2 border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-900/10">
+            <Card className="border-dashed border-2 border-white/10 bg-card">
                 <CardContent className="p-10">
                     <div className="flex flex-col items-center justify-center text-center space-y-4">
-                        <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-full text-indigo-600">
+                        <div className="p-4 bg-white/5 rounded-full text-white">
                             <Upload className="w-10 h-10" />
                         </div>
                         <div>
@@ -126,7 +126,7 @@ export function BulkCardScanner() {
                         <Button 
                             variant="default" 
                             size="lg"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 px-8"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isAnalyzing}
                         >
@@ -140,7 +140,7 @@ export function BulkCardScanner() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h4 className="font-bold text-lg flex items-center gap-2">
-                            <ImageIcon className="w-5 h-5 text-indigo-600" />
+                            <ImageIcon className="w-5 h-5 text-white" />
                             Selected Cards ({previews.length}/20)
                         </h4>
                         <Button 
@@ -159,7 +159,7 @@ export function BulkCardScanner() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {previews.map((preview, idx) => (
-                            <div key={idx} className="relative group aspect-[2.5/3.5] rounded-lg overflow-hidden border bg-white dark:bg-gray-800">
+                            <div key={idx} className="relative group aspect-[2.5/3.5] rounded-lg overflow-hidden border border-white/10 bg-card">
                                 <Image
                                     src={preview}
                                     alt={`Card ${idx + 1}`}
@@ -180,7 +180,7 @@ export function BulkCardScanner() {
                         <Button
                             size="lg"
                             variant="default"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white w-full max-w-sm h-14 text-xl font-black shadow-xl"
+                            className="bg-primary hover:bg-primary/90 text-white w-full max-w-sm h-14 text-xl font-black shadow-xl"
                             onClick={handleBulkScan}
                             disabled={isAnalyzing}
                         >

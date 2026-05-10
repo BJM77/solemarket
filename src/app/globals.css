@@ -85,6 +85,7 @@
   
   html, body {
     @apply bg-background text-foreground overflow-x-hidden;
+    color-scheme: dark;
     font-feature-settings: "rlig" 1, "calt" 1;
     max-width: 100%;
     width: 100%;

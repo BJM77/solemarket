@@ -79,20 +79,20 @@ export default function VerificationForm() {
                     <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2 text-white">Account Verified!</h2>
-                <p className="text-gray-400 mb-6">Your email address has been verified. You can now buy and offer on all listings.</p>
-                <Button className="w-full bg-white text-black hover:bg-gray-200" onClick={() => router.push('/browse')}>Start Browsing</Button>
+                <p className="text-muted-foreground mb-6">Your email address has been verified. You can now buy and offer on all listings.</p>
+                <Button className="w-full font-black text-lg bg-white text-black hover:bg-gray-200" onClick={() => router.push('/browse')}>Start Browsing</Button>
             </div>
         );
     }
 
     return (
-        <Card className="w-full max-w-lg mx-auto shadow-2xl bg-[#0A0A0A] border-white/10 text-white">
+        <Card className="w-full max-w-lg mx-auto shadow-2xl bg-card border-white/10 text-white">
             <CardHeader className="text-center pb-2">
                 <div className="mx-auto w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-4">
                     <Mail className="w-8 h-8 text-indigo-400" />
                 </div>
                 <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-muted-foreground">
                     We've sent a verification link to <span className="text-white font-medium">{user.email}</span>
                 </CardDescription>
             </CardHeader>
@@ -115,7 +115,7 @@ export default function VerificationForm() {
                     
                     <Button 
                         variant="outline" 
-                        className="w-full border-white/10 hover:bg-white/5 h-12 text-gray-300"
+                        className="w-full border-white/10 hover:bg-white/5 h-12 text-white"
                         onClick={handleSendVerification}
                         disabled={isSending || cooldown > 0}
                     >
@@ -128,7 +128,7 @@ export default function VerificationForm() {
                     </Button>
                 </div>
 
-                <p className="text-center text-xs text-gray-500 px-8">
+                <p className="text-center text-xs text-muted-foreground px-8">
                     Didn't receive the email? Check your spam folder or try resending.
                 </p>
             </CardContent>

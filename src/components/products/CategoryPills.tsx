@@ -88,7 +88,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
                                 "flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all border",
                                 isActive
                                     ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-primary/5 hover:text-primary hover:border-primary/30",
+                                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10 hover:text-white",
                                 "active:scale-95 whitespace-nowrap"
                             )}
                         >

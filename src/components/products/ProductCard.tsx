@@ -976,9 +976,9 @@ export default function ProductCard({
               🔥 Price Drop
             </Badge>
           )}
-          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-white/5 flex-shrink-0">
             <AvatarImage src={product.sellerAvatar || ''} />
-            <AvatarFallback className="text-[8px] sm:text-[10px] bg-gray-100 dark:bg-gray-800">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
           </Avatar>
           <span className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate max-w-[100px]">{product.sellerName || 'Benched'}</span>
           {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
@@ -986,8 +986,8 @@ export default function ProductCard({
 
         <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">
           <div className="pointer-events-auto">
-            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">Price</p>
-            <div className="text-lg sm:text-2xl font-black text-[#0d121b] dark:text-white tracking-tight flex items-center gap-2">
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
+            <div className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
               <PriceDisplay />
               <DealTierBadge />
             </div>

@@ -88,21 +88,21 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
   }
 
   return (
-    <div className="w-full mx-auto border border-indigo-100 shadow-xl overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-50 to-white mb-6">
+    <div className="w-full mx-auto border border-white/10 shadow-xl overflow-hidden rounded-2xl bg-card mb-6">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="bg-indigo-600 p-2 rounded-lg">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-indigo-950">AI Grade & Suggest</h3>
+            <h3 className="text-lg font-black text-white">AI Grade & Suggest</h3>
             <p className="text-sm text-muted-foreground">Get AI-powered condition & listing suggestions.</p>
           </div>
         </div>
 
         <Button
           size="lg"
-          className="w-full h-12 text-md font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
+          className="w-full h-12 text-md font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/10 transition-all"
           onClick={handleGrade}
           disabled={isPending || imageFiles.length === 0}
         >
@@ -115,9 +115,9 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
         {result && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 mt-6">
-            <div className="space-y-4 bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <span className="text-slate-500 font-bold uppercase text-xs tracking-widest">AI Suggestions</span>
+            <div className="space-y-4 bg-white/5 rounded-2xl p-4 border border-white/5">
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <span className="text-muted-foreground font-bold uppercase text-xs tracking-widest">AI Suggestions</span>
                 <Button size="sm" onClick={applySuggestions} className="h-7 rounded-md">Apply All</Button>
               </div>
 
@@ -128,7 +128,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                 <AISuggestion label="Year" value={String(result.year)} />
               </div>
 
-              <div className="flex gap-2 text-xs text-slate-400 pt-2 items-center justify-center">
+              <div className="flex gap-2 text-xs text-muted-foreground pt-2 items-center justify-center">
                 <CheckCircle2 className="h-3 w-3" />
                 <span>AI Estimation • Review before publishing</span>
               </div>
@@ -143,9 +143,9 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 function AISuggestion({ label, value }: { label: string, value: string | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
-      <h5 className="text-xs font-black text-slate-400 uppercase">{label}</h5>
-      <p className="text-xs font-medium text-slate-800 leading-snug text-right">{value}</p>
+    <div className="flex justify-between items-center bg-background p-2 rounded-lg border border-white/5 shadow-sm">
+      <h5 className="text-xs font-black text-muted-foreground uppercase">{label}</h5>
+      <p className="text-xs font-medium text-white leading-snug text-right">{value}</p>
     </div>
   );
 }
