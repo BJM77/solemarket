@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { Loader2, ArrowRight, CheckCircle2, AlertCircle, Sparkles, ScanLine, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SneakerCamera } from './SneakerCamera';
@@ -20,56 +20,49 @@ export function SneakerScanner() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<any | null>(null);
+    const [userConfirmed, setUserConfirmed] = useState(false);
 
-    const handleCapture = async (file: File) => {
+    const handleCapture = (file: File) => {
         if (!user) {
             toast({ title: "Sign in required", description: "Please sign in to use the scanner.", variant: "destructive" });
             router.push('/sign-in?redirect=/scan');
             return;
         }
-
         setImageFile(file);
         const previewUrl = URL.createObjectURL(file);
         setImagePreview(previewUrl);
-        setIsAnalyzing(true);
+        setUserConfirmed(false);
         setAnalysisResult(null);
+    };
 
+    const handleAnalyze = async () => {
+        if (!imageFile || !user) return;
+        setUserConfirmed(true);
+        setIsAnalyzing(true);
         try {
-            // 1. Upload to Firebase Storage first (Storage-First Architecture)
             const { uploadImages } = await import('@/lib/firebase/storage');
-            const [downloadUrl] = await uploadImages([file], 'temp-analysis/');
-
+            const [downloadUrl] = await uploadImages([imageFile], 'temp-analysis/');
             const idToken = await user.getIdToken();
-
-            try {
-                const suggestionsResponse = await suggestListingDetails({
-                    photoDataUris: [downloadUrl],
-                    category: 'Sneakers', // Hint for the AI
-                    idToken
-                });
-
-                if (suggestionsResponse.error) {
-                    throw new Error(suggestionsResponse.error);
-                }
-
-                setAnalysisResult(suggestionsResponse.data);
-            } catch (error: any) {
-                console.error("AI Analysis failed:", error);
-                toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
-                setImageFile(null);
-                setImagePreview(null);
-            } finally {
-                setIsAnalyzing(false);
-            }
-        } catch (e) {
+            const suggestionsResponse = await suggestListingDetails({
+                photoDataUris: [downloadUrl],
+                category: 'Sneakers',
+                idToken
+            });
+            if (suggestionsResponse.error) throw new Error(suggestionsResponse.error);
+            setAnalysisResult(suggestionsResponse.data);
+        } catch (error: any) {
+            console.error("AI Analysis failed:", error);
+            toast({ title: "Scan Failed", description: error.message || "Could not analyze image.", variant: "destructive" });
+            setImageFile(null);
+            setImagePreview(null);
+            setUserConfirmed(false);
+        } finally {
             setIsAnalyzing(false);
         }
     };
 
     const handleCreateListing = () => {
         if (!analysisResult) return;
-
-        // Construct query params
         const params = new URLSearchParams();
         if (analysisResult.title) params.set('title', analysisResult.title);
         if (analysisResult.brand) params.set('brand', analysisResult.brand);
@@ -80,19 +73,14 @@ export function SneakerScanner() {
         if (analysisResult.condition) params.set('condition', analysisResult.condition);
         if (analysisResult.description) params.set('description', analysisResult.description);
         if (analysisResult.category) params.set('category', analysisResult.category);
-
-        // Pass the image via temporary local storage or re-upload flow?
-        // Since we can't pass File object via URL, we'll pass the analysis data.
-        // The user will re-upload the photo or we can upload it here and pass the URL.
-        // For speed, let's let the user re-select or we upload it now.
-        // Better UX: Upload now.
-
-        // Actually, upload is async and might take time. Let's redirect with data and ask user to add photo 
-        // OR pass the preview via Context if we were using a global state manager.
-        // Simplest: Redirect with text data, user adds photos in step 2. 
-        // "We found these details! Now just add your photos."
-
         router.push(`/sell/create?${params.toString()}`);
+    };
+
+    const resetScan = () => {
+        setImagePreview(null);
+        setImageFile(null);
+        setAnalysisResult(null);
+        setUserConfirmed(false);
     };
 
     return (
@@ -101,70 +89,109 @@ export function SneakerScanner() {
                 <SneakerCamera onCapture={handleCapture} isLoading={isAnalyzing} />
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/5 border">
+                    <div className="relative aspect-video w-full max-w-lg mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white shadow-2xl">
                         <Image
                             src={imagePreview}
                             alt="Scan Preview"
                             fill
                             className="object-contain"
                         />
-                        {isAnalyzing && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white">
-                                <Loader2 className="w-10 h-10 animate-spin mb-3 text-primary" />
-                                <p className="font-medium animate-pulse">Analyzing Sneaker...</p>
+                        
+                        {!userConfirmed && !isAnalyzing && (
+                            <div className="absolute inset-0 pointer-events-none p-6">
+                                <div className="w-full h-full border-2 border-primary/30 rounded-2xl relative">
+                                    <div className="absolute -top-1 -left-1 w-10 h-10 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
+                                    <div className="absolute -top-1 -right-1 w-10 h-10 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
+                                    <div className="absolute -bottom-1 -left-1 w-10 h-10 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
+                                    <div className="absolute -bottom-1 -right-1 w-10 h-10 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
+                                    
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="bg-slate-900/80 backdrop-blur-md text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 shadow-2xl flex items-center gap-2">
+                                            <ScanLine className="w-5 h-5 text-primary" />
+                                            Is the whole shoe visible?
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
+
+                        {isAnalyzing && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-xl text-white">
+                                <Loader2 className="w-16 h-16 animate-spin mb-4 text-primary" strokeWidth={3} />
+                                <p className="font-black text-xl tracking-tight uppercase">Analyzing Sneaker</p>
+                            </div>
+                        )}
+                        
                         {!isAnalyzing && (
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                className="absolute top-2 right-2"
-                                onClick={() => {
-                                    setImagePreview(null);
-                                    setImageFile(null);
-                                    setAnalysisResult(null);
-                                }}
+                            <button
+                                onClick={resetScan}
+                                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-all border border-white/20"
                             >
-                                Retake
-                            </Button>
+                                <X className="w-5 h-5" />
+                            </button>
                         )}
                     </div>
 
-                    {analysisResult && (
-                        <Card className="border-primary/20 shadow-lg">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="flex items-center gap-2 text-primary font-bold text-lg">
-                                    <Sparkles className="w-5 h-5" />
-                                    <span>Match Found!</span>
+                    {!userConfirmed && !isAnalyzing && (
+                        <div className="max-w-md mx-auto space-y-4">
+                            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+                                <div className="flex items-center gap-3 mb-6 text-center justify-center">
+                                    <CheckCircle2 className="w-6 h-6 text-primary" />
+                                    <h4 className="font-black text-slate-900 text-lg uppercase tracking-tight">Looks Good?</h4>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-xs text-muted-foreground uppercase font-bold">Model</p>
-                                        <p className="font-medium">{analysisResult.brand} {analysisResult.model}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-xs text-muted-foreground uppercase font-bold">Style Code</p>
-                                        <p className="font-medium">{analysisResult.styleCode || 'Not detected'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-xs text-muted-foreground uppercase font-bold">Colorway</p>
-                                        <p className="font-medium">{analysisResult.colorway || 'Unknown'}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-xs text-muted-foreground uppercase font-bold">Est. Price</p>
-                                        <p className="font-medium text-green-600">${analysisResult.price}</p>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t flex gap-3">
+                                <div className="flex gap-4">
                                     <Button
-                                        className="w-full h-12 text-lg font-bold"
-                                        onClick={handleCreateListing}
+                                        variant="outline"
+                                        className="flex-1 h-16 rounded-2xl border-2 font-bold text-slate-600 hover:bg-slate-50"
+                                        onClick={resetScan}
                                     >
-                                        Create Listing <ArrowRight className="ml-2 h-4 w-4" />
+                                        Retake
+                                    </Button>
+                                    <Button
+                                        className="flex-[2] h-16 rounded-2xl bg-primary hover:bg-primary/90 font-black text-xl shadow-lg"
+                                        onClick={handleAnalyze}
+                                    >
+                                        Analyze Now
                                     </Button>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {analysisResult && (
+                        <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white max-w-md mx-auto">
+                            <div className="h-2 w-full bg-primary"></div>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="flex items-center gap-3 text-primary">
+                                    <Sparkles className="w-8 h-8" />
+                                    <span className="font-black text-2xl tracking-tight uppercase">Match Found!</span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Model</p>
+                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.brand} {analysisResult.model}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Style Code</p>
+                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.styleCode || '—'}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Colorway</p>
+                                        <p className="font-bold text-slate-900 text-lg">{analysisResult.colorway || '—'}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Est. Value</p>
+                                        <p className="font-black text-green-600 text-2xl">${analysisResult.price}</p>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    className="w-full h-16 text-xl font-black rounded-2xl"
+                                    onClick={handleCreateListing}
+                                >
+                                    Create Listing <ArrowRight className="ml-2 h-6 w-6" />
+                                </Button>
                             </CardContent>
                         </Card>
                     )}
