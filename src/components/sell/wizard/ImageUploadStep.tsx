@@ -6,7 +6,7 @@ import { useRef, ChangeEvent, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, Trash2, Sparkles, Loader2, ImagePlus } from 'lucide-react';
+import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone } from 'lucide-react';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import imageCompression from 'browser-image-compression';
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +42,7 @@ export function ImageUploadStep({
     form
 }: ImageUploadStepProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const nativeCameraInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
     const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +131,7 @@ export function ImageUploadStep({
                     <CardDescription className="text-slate-400">Add up to 8 photos.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                         <div
                             onClick={() => fileInputRef.current?.click()}
                             className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
@@ -138,11 +139,22 @@ export function ImageUploadStep({
                             <div className="bg-primary/20 p-3 rounded-full group-hover:scale-110 transition-transform">
                                 <Upload className="h-6 w-6 text-primary" />
                             </div>
-                            <span className="text-xs font-medium mt-2 text-slate-400">Upload</span>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400">Upload</span>
                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                         </div>
-                        <div className="aspect-square">
+                        <div
+                            onClick={() => nativeCameraInputRef.current?.click()}
+                            className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                        >
+                            <div className="bg-indigo-500/20 p-3 rounded-full group-hover:scale-110 transition-transform">
+                                <Smartphone className="h-6 w-6 text-indigo-400" />
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400 text-center">Native<br className="sm:hidden" /> Camera</span>
+                            <input ref={nativeCameraInputRef} type="file" multiple accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
+                        </div>
+                        <div className="aspect-square relative">
                             <CameraCapture onCapture={processFiles} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
+                            <span className="absolute bottom-2 left-0 right-0 text-center text-[10px] sm:text-xs font-medium text-slate-400 pointer-events-none hidden group-hover:block">Web Camera</span>
                         </div>
                     </div>
 

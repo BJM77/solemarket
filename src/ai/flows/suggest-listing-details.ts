@@ -29,7 +29,7 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',
-    model: 'googleai/gemini-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
     config: {
@@ -46,7 +46,7 @@ Extract:
 1.  **Title**: Concise & SEO-friendly.
 2.  **Description**: 1-2 lines on key features/condition.
 3.  **Price**: Est. market price in AUD (number).
-4.  **Category**: MUST be one of: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear'.
+4.  **Category**: MUST be one of: 'Sneakers', 'Collector Cards', 'Accessories', 'Streetwear', 'Coins'.
 5.  **Sub-Category**: Sport (Cards) or Gender/Type (Sneakers).
 6.  **Condition**: MUST be one of: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'.
 7.  **Brand/Manufacturer**: 'Nike', 'Panini', etc.

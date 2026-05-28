@@ -78,14 +78,16 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         setError(null);
 
         try {
-            // Constraints with fallback support
+            // Constraints with fallback support, requesting max resolution and continuous focus
             const constraints: MediaStreamConstraints = {
                 video: {
                     deviceId: deviceId ? { exact: deviceId } : undefined,
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
+                    width: { ideal: 4096 }, // Maximize resolution
+                    height: { ideal: 2160 },
                     aspectRatio: { ideal: 16 / 9 },
-                    facingMode: deviceId ? undefined : 'environment' // Default to back camera
+                    facingMode: deviceId ? undefined : 'environment', // Default to back camera
+                    // @ts-ignore - advanced constraints are valid but not in all TS definitions
+                    advanced: [{ focusMode: "continuous" }]
                 }
             };
 
