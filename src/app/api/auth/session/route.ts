@@ -48,11 +48,10 @@ export async function POST(request: NextRequest) {
         // expiry: 5 days
         const expiresIn = 60 * 60 * 24 * 5 * 1000;
 
-        // Create the session cookie
         const sessionCookie = await authAdmin.createSessionCookie(idToken, { expiresIn });
 
         cookieStore.set("session", sessionCookie, {
-            maxAge: expiresIn,
+            maxAge: Math.floor(expiresIn / 1000), // Next.js maxAge takes seconds
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/",
