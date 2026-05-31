@@ -256,7 +256,7 @@ export default function AIPriceCheckPage() {
                                 key={product.id} 
                                 product={product} 
                                 idToken={idToken} 
-                                ref={el => rowRefs.current[product.id] = el}
+                                ref={el => { rowRefs.current[product.id] = el; }}
                             />
                         ))}
                         {(!products || products.length === 0) && (
