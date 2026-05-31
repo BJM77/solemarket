@@ -59,6 +59,7 @@ const formSchema = z.object({
   cardNumber: z.string().optional(),
   // Multibuy
   multibuyEnabled: z.boolean().default(false),
+  multiCardTier: z.string().optional(),
   multibuyTiers: z.array(z.object({
     minQuantity: z.coerce.number().min(2),
     discountPercent: z.coerce.number().min(1).max(100),
