@@ -67,7 +67,7 @@ Images for Analysis:
 - Image {{ @index }}: {{media url=this}}
 {{/each}}
 
-You must analyze all uploaded images (which may show the front, back, interior tags, or side of the item) and classify the item into one of the following exact categories: 'Sneakers', 'Collector Cards', 'Streetwear', 'Accessories'.
+You must analyze all uploaded images (which may show the front, back, interior tags, or side of the item) and classify the item into one of the following exact categories: 'Sneakers', 'Collector Cards', 'Coins', 'Streetwear', 'Accessories'.
 
 ### CRITICAL RULES FOR TRADING CARDS:
 A user's trading card listing must have high-fidelity details extracted from BOTH the front and back images.
@@ -79,6 +79,25 @@ A user's trading card listing must have high-fidelity details extracted from BOT
 6. Title Format: You MUST format the Title as: [Year] [Brand/Manufacturer] [Model/Set] [Player Name] #[Card Number] (e.g., "2023 Panini Prizm Bronny James #15").
 7. Manufacturer & Brand fields: Always set both brand and manufacturer to the brand/manufacturer name (e.g., "Panini") so the form maps it perfectly.
 8. Corners, Edges, Surface, Centering: Provide detailed evaluations and pinpoint any flaws in 'defects' with precise percentage (x,y) coordinates relative to the image frame (0-100).
+9. Sub-Category Choice: Select the most accurate sub-category from the list: 'Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama', 'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'.
+   - If it has Pokémon characters, select 'Pokémon'.
+   - If it has Yu-Gi-Oh! characters, select 'Yu-Gi-Oh!'.
+   - If it is signed/autographed, select 'Signed'.
+   - If it is a rookie card, select 'Rookies'.
+   - If it features Michael Jordan, Kobe Bryant, Stephen Curry, or Victor Wembanyama, select 'Jordan', 'Kobe', 'Curry', or 'Wembanyama'.
+   - Otherwise, select 'Basketball Cards' for basketball, 'Sports Cards' for other sports, or 'Trading Cards' for other TCG/non-sports cards.
+
+### CRITICAL RULES FOR COINS & BANKNOTES:
+1. Country & Mint Identification: Identify the country of origin and mint/manufacturer (e.g., 'Royal Australian Mint', 'Perth Mint', 'US Mint'). Set both the brand and manufacturer fields to the mint name (e.g. 'Perth Mint' or 'Royal Australian Mint').
+2. Title Format: You MUST format the Title as: [Year] [Country/Origin] [Denomination] [Mint Mark/Set Type/Key Date Details] (e.g., "1930 Australian Penny" or "2021 US Silver Eagle").
+3. Year: Extract the mint/release year exactly as a number (e.g., 1930, 2021).
+4. Sub-Category Choice: Select the most accurate sub-category from the list: 'Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'.
+   - If it is an Australian coin, select 'Australian Coins'.
+   - If it is a banknote/paper currency, select 'Banknotes'.
+   - If it has a visible/stated error, select 'Error Coins'.
+   - If it is a gold bullion or coin, select 'Gold'.
+   - If it is a silver bullion or coin, select 'Silver'.
+   - Otherwise, select 'World Coins' for international coins.
 
 ### CRITICAL RULES FOR SNEAKERS:
 1. Tag & Label Inspection: Carefully scan any size tags (usually located inside the tongue of the shoe, side lining, or underneath the insole) or barcode box labels.
@@ -92,21 +111,21 @@ A user's trading card listing must have high-fidelity details extracted from BOT
 - title: High-quality SEO Title.
 - description: 1-2 lines detailing the item, key attributes, and its visual condition.
 - price: Market estimate in AUD (number only, no characters).
-- category: EXACTLY one of: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'. MUST match these exact strings.
-- subCategory: e.g., 'Basketball Cards', 'Rookies' (Cards) or 'Jordan', 'Nike' (Sneakers) or 'Australian Coins' (Coins).
+- category: EXACTLY one of: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards', 'Coins'. MUST match these exact strings.
+- subCategory: The selected sub-category according to the choice rules above.
 - condition: EXACTLY one of: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'.
 - brand: The main brand/manufacturer/mint (e.g., 'Panini', 'Nike', 'Perth Mint').
-- model: Set name or model name (e.g., 'Prizm', 'Air Jordan 1').
+- model: Set name, model name, or denomination (e.g., 'Prizm', 'Air Jordan 1', 'Penny').
 - styleCode: Alphanumeric style code for sneakers.
 - colorway: Sneaker colorway name.
 - size: US sneaker size or card size.
 - year: Release/mint year as a number.
-- gradingCompany: e.g., 'PSA', 'BGS', 'SGC', 'Raw'.
+- gradingCompany: e.g., 'PSA', 'BGS', 'SGC', 'PCGS', 'NGC', 'Raw'.
 - grade: e.g., '10', 'MS65', 'Near Mint'.
 - certNumber: Graded barcode cert number (e.g., '48159263').
 - cardNumber: For trading cards: e.g., '#15'.
 - manufacturer: e.g., 'Panini', etc.
-- suggestedFields: List of fields successfully extracted (e.g., ["title", "brand", "year", "certNumber", "category"]).
+- suggestedFields: List of fields successfully extracted (e.g., ["title", "brand", "year", "certNumber", "category", "subCategory"]).
 - alternatives: If there are multiple possible distinct matches (e.g., similar parallels or variants) and the exact identity is ambiguous, populate this array with up to 3 alternative options, including their title, brand, model, year, and cardNumber.
 `
 });

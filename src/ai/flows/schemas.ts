@@ -55,7 +55,7 @@ export const suggestListingDetailsOutputSchema = z.object({
     .describe(
       'An estimated market price for the item in AUD, based on the provided images and analysis of similar items.'
     ),
-  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'. MUST match these exact strings."),
+  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards', 'Coins'. MUST match these exact strings."),
   subCategory: z.string().optional().describe("The single best sub-category based on the category context."),
   condition: z.string().optional().describe("The single best condition description from this list: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'."),
   brand: z.string().optional().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'Panini', 'Topps')."),

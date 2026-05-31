@@ -901,9 +901,9 @@ function CreateListingForm() {
           title: '',
           description: '',
           price: 0,
-          category: values.category || '',
-          subCategory: values.subCategory || '',
-          condition: values.condition || 'Used',
+          category: '',
+          subCategory: '',
+          condition: 'Used',
           quantity: 1,
           isReverseBidding: false,
           isNegotiable: true,
@@ -929,8 +929,17 @@ function CreateListingForm() {
           acceptsPayId: true,
         });
         setImagePreviews([]);
+        setImageFilesBase64([]); // Clear base64 cache
         setSuggestedFields([]);
         setAnalyzingFields({});
+        setFormHistory([]);
+        setPendingAlternatives([]);
+        setPendingAiData(null);
+        setPreviousTitle('');
+        setRetryHint('');
+        setAnalysisStage('');
+        setSelectedType(null); // Reset layout category choice
+        setCurrentStep(0); // Return to camera selection/type selection step
         if (editId) {
           router.replace('/sell/create'); // Remove edit param from URL
         }
