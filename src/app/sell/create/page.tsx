@@ -949,6 +949,10 @@ function CreateListingForm() {
   };
 
   const handleSaveDraftOnly = async () => {
+    if (!user) {
+      toast({ title: "Must be logged in", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const values = form.getValues();
