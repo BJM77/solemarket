@@ -31,6 +31,10 @@ export function MainNavLinks() {
         Coins
       </Link>
 
+      <Link href="/club-fundraising" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300")}>
+        Fundraising
+      </Link>
+
       <div className="flex items-center">
         <DropdownMenu>
           <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300 flex items-center gap-1 group")}>

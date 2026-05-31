@@ -283,6 +283,12 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     </div>
 
                     <div className="px-4 mb-2 space-y-2">
+                        <Button variant="outline" className="w-full justify-start font-bold h-12 border-primary/20 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => handleLinkClick('/club-fundraising')}>
+                            <div className="bg-green-100 text-green-700 p-1.5 rounded-lg mr-3">
+                                <Heart className="h-4 w-4" />
+                            </div>
+                            Club Fundraising
+                        </Button>
                         <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/drops')}>
                             <div className="bg-red-100 text-red-600 p-1.5 rounded-lg mr-3">
                                 <Zap className="h-4 w-4" />

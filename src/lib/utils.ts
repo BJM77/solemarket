@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { isCardCategory } from "./constants/marketplace"
+import { isCardCategory, isCoinCategory } from "./constants/marketplace"
 import { formatDistanceToNow } from "date-fns"
 
 
@@ -120,7 +120,12 @@ export function slugify(text: string): string {
 }
 
 export function getProductUrl(product: { id: string; title: string; category?: string }): string {
-  const section = isCardCategory(product.category) ? 'cards' : 'shoes';
+  let section = 'shoes';
+  if (isCardCategory(product.category)) {
+    section = 'cards';
+  } else if (isCoinCategory(product.category)) {
+    section = 'coins';
+  }
   const slug = slugify(product.title);
   return `/${section}/${slug}/${product.id}`;
 }
