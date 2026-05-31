@@ -7,7 +7,7 @@ import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from '@/lib/utils';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
-import { calculateItemTotal, calculateShipping, calculateTax } from '@/lib/pricing';
+import { calculateItemTotal, calculateShipping, calculateTax, calculateDutchAuctionPrice } from '@/lib/pricing';
 import { sendTelegramNotification } from '@/lib/telegram';
 
 interface CartItem {
@@ -91,9 +91,28 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };
                 }
 
+                let effectiveQuantity = item.quantity;
+                if (product.multibuyEnabled) {
+                    effectiveQuantity = items.filter((i, idx) => {
+                        const p = productDocs[idx].data() as Product;
+                        return p.multibuyEnabled && p.sellerId === product.sellerId && p.category === product.category && !i.dealId;
+                    }).reduce((sum, i) => sum + i.quantity, 0);
+                }
+
+                let basePrice = product.price;
+                if (product.isDutchAuction && product.dutchAuctionStartTime && product.dutchAuctionDropAmount && product.dutchAuctionIntervalHours && product.dutchAuctionFloorPrice !== undefined) {
+                    basePrice = calculateDutchAuctionPrice(
+                        product.price,
+                        product.dutchAuctionDropAmount,
+                        product.dutchAuctionIntervalHours,
+                        product.dutchAuctionFloorPrice,
+                        product.dutchAuctionStartTime
+                    );
+                }
+
                 const itemTotal = (item.dealId && item.bundlePrice !== undefined)
                     ? item.bundlePrice
-                    : calculateItemTotal(product.price, item.quantity, product.multibuyEnabled, product.multibuyTiers);
+                    : calculateItemTotal(basePrice, item.quantity, product.multibuyEnabled, product.multibuyTiers, effectiveQuantity);
 
                 sellerGroups[sellerId].items.push({
                     id: item.id,

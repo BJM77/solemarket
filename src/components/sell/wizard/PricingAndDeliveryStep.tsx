@@ -120,7 +120,7 @@ export function PricingAndDeliveryStep({
                             <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Reverse Bidding</FormLabel>
-                                    <FormDescription className="text-[10px]">Lowest bid wins (Dutch auction style).</FormDescription>
+                                    <FormDescription className="text-[10px]">Lowest bid wins.</FormDescription>
                                 </div>
                                 <FormControl>
                                     <Switch
@@ -131,6 +131,57 @@ export function PricingAndDeliveryStep({
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="isDutchAuction"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Time-Based Dutch Auction</FormLabel>
+                                    <FormDescription className="text-[10px]">Price drops automatically over time to create urgency.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+
+                    {form.watch('isDutchAuction') && (
+                        <div className="space-y-4 p-4 rounded-lg bg-black/20 border border-white/10 animate-in fade-in slide-in-from-top-2">
+                            <FormField control={form.control} name="dutchAuctionDropAmount" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Price Drop Amount ($)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" min="1" step="0.01" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="dutchAuctionIntervalHours" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Drop Interval (Hours)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" min="1" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="dutchAuctionFloorPrice" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Floor / Reserve Price ($)</FormLabel>
+                                    <FormDescription className="text-[10px]">The price will never drop below this amount.</FormDescription>
+                                    <FormControl>
+                                        <Input type="number" min="0" step="0.01" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    )}
                     <FormField
                         control={form.control}
                         name="acceptsPayId"

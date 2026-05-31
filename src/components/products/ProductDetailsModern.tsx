@@ -713,6 +713,7 @@ export default function ProductDetailsModern({
                                 product={product}
                                 seller={seller}
                                 recentViews={recentViews}
+                                user={user}
                             />
                         </div>
 
@@ -732,6 +733,7 @@ export default function ProductDetailsModern({
                                         product={product}
                                         seller={seller}
                                         recentViews={recentViews}
+                                        user={user}
                                     />
                                 </div>
 

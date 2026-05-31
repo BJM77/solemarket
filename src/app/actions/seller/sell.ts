@@ -22,6 +22,14 @@ export interface DraftListingData {
     imageUrls: string[];
     status: 'draft' | 'available';
     isDraft: boolean;
+    
+    // Dutch Auction
+    isDutchAuction?: boolean;
+    dutchAuctionDropAmount?: number;
+    dutchAuctionIntervalHours?: number;
+    dutchAuctionFloorPrice?: number;
+    dutchAuctionStartTime?: FieldValue;
+    
     createdAt: FieldValue;
     updatedAt: FieldValue;
     acceptsPayId?: boolean;
@@ -235,6 +243,10 @@ export async function publishListing(draftId: string, userId: string): Promise<v
             isFeatured: data?.isFeatured ?? false,
             isPromoted: data?.isPromoted ?? false,
         };
+
+        if (data.isDutchAuction) {
+            updateData.dutchAuctionStartTime = FieldValue.serverTimestamp();
+        }
 
         // Check for Super Admin Personal Wanted list matches
         const isMatch = await checkForAdminWantedMatch(data.title, data.category || 'Sneakers');

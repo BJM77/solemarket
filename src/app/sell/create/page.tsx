@@ -64,6 +64,12 @@ const formSchema = z.object({
     discountPercent: z.coerce.number().min(1).max(100),
   })).optional(),
   acceptsPayId: z.boolean().default(false),
+  // Gamified Dutch Auction
+  isDutchAuction: z.boolean().default(false),
+  dutchAuctionDropAmount: z.coerce.number().optional(),
+  dutchAuctionIntervalHours: z.coerce.number().optional(),
+  dutchAuctionFloorPrice: z.coerce.number().optional(),
+  dutchAuctionStartTime: z.any().optional(),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -162,6 +168,10 @@ function CreateListingForm() {
       multibuyEnabled: false,
       multibuyTiers: [],
       acceptsPayId: true,
+      isDutchAuction: false,
+      dutchAuctionDropAmount: 5,
+      dutchAuctionIntervalHours: 24,
+      dutchAuctionFloorPrice: 0,
     },
   });
 

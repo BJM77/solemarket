@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Store, TrendingUp } from "lucide-react";
+import { ChevronDown, Store, TrendingUp, ShieldCheck, BookOpen, Search, Gavel, LineChart } from "lucide-react";
 
 export function MainNavLinks() {
   const { user } = useUser();
@@ -44,44 +44,57 @@ export function MainNavLinks() {
                 Browse All
               </Link>
             </DropdownMenuItem>
+            
             <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
               <Link href="/top-stores" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
                 <TrendingUp className="h-4 w-4" />
                 Top 10 Stores
               </Link>
             </DropdownMenuItem>
+
+            {features.bidsy && (
+              <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+                <Link href="/bidsy" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                  <Gavel className="h-4 w-4" />
+                  Bidsy
+                </Link>
+              </DropdownMenuItem>
+            )}
+
+            {features.wtb && (
+              <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+                <Link href="/wtb" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                  <Search className="h-4 w-4" />
+                  Wanted
+                </Link>
+              </DropdownMenuItem>
+            )}
+
+            {user && (
+              <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+                <Link href="/research" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                  <LineChart className="h-4 w-4" />
+                  Research
+                </Link>
+              </DropdownMenuItem>
+            )}
+
+            <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+              <Link href="/guides" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                <BookOpen className="h-4 w-4" />
+                Guides
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+              <Link href="/dealsafe" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                <ShieldCheck className="h-4 w-4" />
+                DealSafe
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {features.bidsy && (
-        <Link href="/bidsy" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-          Bidsy
-        </Link>
-      )}
-
-      {features.wtb && (
-        <Link href="/wtb" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-          Wanted
-        </Link>
-      )}
-
-      {user && (
-        <>
-          <Link href="/research" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-            Research
-          </Link>
-        </>
-      )}
-
-      <Link href="/guides" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-        Guides
-      </Link>
-
-      <Link href="/dealsafe" className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300")}>
-        DealSafe
-      </Link>
-
     </nav>
   );
 }

@@ -30,19 +30,7 @@ async function NewArrivalsSection() {
   return <TrendingGrid products={products} title="Fresh Steals" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
 }
 
-function DemoAdvertisement() {
-  return (
-    <div className="w-full bg-slate-900 text-white overflow-hidden relative group cursor-pointer block shadow-sm border-b border-white/5">
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <div className="container mx-auto px-4 py-3 text-center relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-6">
-        <span className="bg-primary text-white text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider">Advertisement</span>
-        <p className="text-sm md:text-base font-semibold tracking-wide">
-          Limited Time Offer: Get <span className="text-primary font-black">50% OFF</span> authentication services with code <span className="border border-primary/20 px-2 py-0.5 rounded bg-primary/5 ml-1 text-primary">BENCHED50</span>
-        </p>
-      </div>
-    </div>
-  );
-}
+import TopBannerAd from "@/components/home/TopBannerAd";
 
 function TrendingSkeleton() {
   return (
@@ -75,7 +63,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <DemoAdvertisement />
+      <TopBannerAd />
       <HeroModern listingCount={listingCount} />
       <Suspense fallback={<TrendingSkeleton />}>
         <NewArrivalsSection />

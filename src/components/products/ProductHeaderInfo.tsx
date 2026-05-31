@@ -8,15 +8,20 @@ import Link from 'next/link';
 import { cn, formatPrice } from '@/lib/utils';
 import type { Product, UserProfile } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
+import { calculateDutchAuctionPrice } from '@/lib/pricing';
+import { Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ProductHeaderInfoProps {
     product: Product;
     seller: UserProfile | null;
     recentViews?: number;
     className?: string;
+    user?: any;
 }
 
-export function ProductHeaderInfo({ product, seller, recentViews = 0, className }: ProductHeaderInfoProps) {
+export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user }: ProductHeaderInfoProps) {
+    const router = useRouter();
     const getRelativeTime = (date: any) => {
         if (!date) return '';
         const d = date.toDate ? date.toDate() : new Date(date);
@@ -54,14 +59,41 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className 
             </h1>
 
             <div className="flex items-center gap-4 flex-wrap">
-                <span className="text-3xl md:text-4xl font-black text-primary">
-                    ${formatPrice(product.price)}
-                </span>
+                {product.isDutchAuction ? (
+                    user ? (
+                        <div className="flex flex-col">
+                            <span className="text-3xl md:text-4xl font-black text-indigo-600 dark:text-indigo-400">
+                                ${formatPrice(calculateDutchAuctionPrice(
+                                    product.price,
+                                    product.dutchAuctionDropAmount || 0,
+                                    product.dutchAuctionIntervalHours || 1,
+                                    product.dutchAuctionFloorPrice || 0,
+                                    product.dutchAuctionStartTime || product.createdAt
+                                ))}
+                            </span>
+                            <span className="text-xs text-indigo-600/70 dark:text-indigo-400/70 font-bold uppercase tracking-wider">
+                                Current Live Price (Dutch Auction)
+                            </span>
+                        </div>
+                    ) : (
+                        <Button 
+                            onClick={() => router.push(`/sign-in?redirect=/product/${product.id}`)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-indigo-600/20"
+                        >
+                            <Lock className="h-4 w-4 mr-2" /> Sign In to View Live Price
+                        </Button>
+                    )
+                ) : (
+                    <span className="text-3xl md:text-4xl font-black text-primary">
+                        ${formatPrice(product.price)}
+                    </span>
+                )}
+                
                 {product.multiCardTier === 'bronze' && <span className="bg-orange-100 text-orange-800 border border-orange-200 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Bronze</span>}
                 {product.multiCardTier === 'silver' && <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Silver</span>}
                 {product.multiCardTier === 'gold' && <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Gold</span>}
                 {product.multiCardTier === 'platinum' && <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter shadow-sm shrink-0">Platinum</span>}
-                {product.isNegotiable && (
+                {product.isNegotiable && !product.isDutchAuction && (
                     <Badge variant="outline" className="text-primary border-primary">Negotiable</Badge>
                 )}
             </div>

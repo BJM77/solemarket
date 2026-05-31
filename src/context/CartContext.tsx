@@ -15,7 +15,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { calculateItemTotal } from '@/lib/pricing';
+import { calculateItemTotal, calculateDutchAuctionPrice } from '@/lib/pricing';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -187,8 +187,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return total + item.bundlePrice;
     }
 
-    // Handle Multibuy Discounts
-    return total + calculateItemTotal(item.price, item.quantity, item.multibuyEnabled, item.multibuyTiers);
+    // Determine the base price (Dutch Auction or Regular)
+    let basePrice = item.price;
+    if (item.isDutchAuction && item.dutchAuctionStartTime && item.dutchAuctionDropAmount && item.dutchAuctionIntervalHours && item.dutchAuctionFloorPrice !== undefined) {
+      basePrice = calculateDutchAuctionPrice(
+        item.price,
+        item.dutchAuctionDropAmount,
+        item.dutchAuctionIntervalHours,
+        item.dutchAuctionFloorPrice,
+        item.dutchAuctionStartTime
+      );
+    }
+
+    // Grouped Multibuy Logic (restricted by category + seller)
+    let effectiveQuantity = item.quantity;
+    if (item.multibuyEnabled) {
+      effectiveQuantity = items
+        .filter(i => 
+          i.multibuyEnabled && 
+          i.sellerId === item.sellerId && 
+          i.category === item.category &&
+          !i.dealId
+        )
+        .reduce((sum, i) => sum + i.quantity, 0);
+    }
+
+    return total + calculateItemTotal(basePrice, item.quantity, item.multibuyEnabled, item.multibuyTiers, effectiveQuantity);
   }, 0);
   
   const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;

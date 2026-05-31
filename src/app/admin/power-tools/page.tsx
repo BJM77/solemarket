@@ -17,7 +17,9 @@ import {
     Package,
     Settings,
     Zap,
-    Brain
+    Brain,
+    Megaphone,
+    Sparkles
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
@@ -26,11 +28,25 @@ import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [
     {
+        title: 'AI Price Checker',
+        description: 'Automatically evaluate and correct marketplace listings using Gemini 2.0',
+        icon: Sparkles,
+        href: '/admin/ai-price-check',
+        color: 'bg-violet-500',
+    },
+    {
         title: 'AI Intelligence Console',
         description: 'Track AI usage, tokens, and estimated costs in real-time',
         icon: Brain,
         href: '/admin/ai-usage',
         color: 'bg-emerald-500',
+    },
+    {
+        title: 'Ads Management',
+        description: 'Configure and monitor onsite advertising placements and metrics',
+        icon: Megaphone,
+        href: '/admin/ads',
+        color: 'bg-pink-600',
     },
     {
         title: 'Bulk Image Lister',

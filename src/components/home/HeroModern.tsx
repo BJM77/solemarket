@@ -23,8 +23,8 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     </h1>
 
                     <div className="text-sm md:text-xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p className="text-slate-900 dark:text-white">Buy and sell authentic sneakers, collector cards and rare coins.</p>
-                        <p className="text-primary font-black">Zero selling fees. 100% verified.</p>
+                        <p className="text-slate-900 dark:text-white">Buy Footwear, Collector Cards and Australian Coins & Notes.</p>
+                        <p className="text-primary font-black">Metro Perth Collection or Express Freight Solutions Available</p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>

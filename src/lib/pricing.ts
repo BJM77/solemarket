@@ -3,14 +3,22 @@ import { MultibuyTier } from '@/types/multibuy';
 /**
  * Calculates the total price for a specific cart item, applying multibuy discounts if applicable.
  */
-export function calculateItemTotal(price: number, quantity: number, multibuyEnabled?: boolean, tiers?: MultibuyTier[]) {
-    if (!multibuyEnabled || !tiers || tiers.length === 0 || quantity < 2) {
+export function calculateItemTotal(
+    price: number, 
+    quantity: number, 
+    multibuyEnabled?: boolean, 
+    tiers?: MultibuyTier[],
+    tierQuantity?: number
+) {
+    const effectiveQtyForTier = tierQuantity ?? quantity;
+
+    if (!multibuyEnabled || !tiers || tiers.length === 0 || effectiveQtyForTier < 2) {
         return price * quantity;
     }
 
-    // Find applicable tier (highest quantity that's <= purchased quantity)
+    // Find applicable tier (highest quantity that's <= effective purchased quantity)
     const applicableTier = [...tiers]
-        .filter(tier => quantity >= tier.minQuantity)
+        .filter(tier => effectiveQtyForTier >= tier.minQuantity)
         .sort((a, b) => b.minQuantity - a.minQuantity)[0];
 
     if (!applicableTier) {
@@ -43,4 +51,39 @@ export function calculateTax(subtotal: number, taxRate: number, isInclusive: boo
         return subtotal - (subtotal / (1 + taxRate));
     }
     return subtotal * taxRate;
+}
+
+/**
+ * Calculates the current price of a Time-Based Dutch Auction.
+ * The price drops by `dropAmount` every `intervalHours`, down to a minimum of `floorPrice`.
+ */
+export function calculateDutchAuctionPrice(
+    startingPrice: number,
+    dropAmount: number,
+    intervalHours: number,
+    floorPrice: number,
+    startTime: any // Timestamp or Date
+): number {
+    if (!startTime || intervalHours <= 0 || dropAmount <= 0) {
+        return startingPrice;
+    }
+
+    // Handle Firestore Timestamp or standard Date
+    const start = startTime.toDate ? startTime.toDate() : new Date(startTime);
+    const now = new Date();
+    
+    // Time difference in milliseconds
+    const diffMs = now.getTime() - start.getTime();
+    
+    // If auction hasn't started yet
+    if (diffMs < 0) return startingPrice;
+    
+    // Calculate how many intervals have passed
+    const intervalsPassed = Math.floor(diffMs / (intervalHours * 60 * 60 * 1000));
+    
+    // Calculate potential current price
+    const currentPrice = startingPrice - (intervalsPassed * dropAmount);
+    
+    // Ensure it doesn't go below the floor price
+    return Math.max(currentPrice, floorPrice);
 }

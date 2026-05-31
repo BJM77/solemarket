@@ -147,6 +147,13 @@ export type Product = {
   autoRepricingEnabled?: boolean;
   autoAcceptPrice?: number; // Auto-accept offers equal to or above this price
   floorPrice?: number; // Auto-reject offers below this price
+  
+  // New Time-Based Dutch Auction Fields
+  isDutchAuction?: boolean;
+  dutchAuctionDropAmount?: number;
+  dutchAuctionIntervalHours?: number;
+  dutchAuctionFloorPrice?: number;
+  dutchAuctionStartTime?: Timestamp;
   minStockQuantity?: number;
   contactCallCount?: number; // Analytics for phone reveals
   watchCount?: number; // Total number of users watching this product
@@ -385,7 +392,7 @@ export interface Advertisement {
   advertiserName: string;
   linkUrl: string;
   imageUrl: string;
-  placement: 'home_hero_footer' | 'grid_interstitial' | 'drops_header';
+  placement: 'home_top_banner' | 'home_hero_footer' | 'grid_interstitial' | 'drops_header';
   status: 'active' | 'paused' | 'scheduled' | 'ended';
   startDate: Timestamp;
   endDate: Timestamp;

@@ -75,13 +75,18 @@ export function CartDrawer() {
                                                 {(() => {
                                                     if (!item.multibuyEnabled || !item.multibuyTiers?.length) return null;
 
+                                                    // Calculate grouped quantity for upsell
+                                                    const groupedQuantity = items
+                                                        .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !i.dealId)
+                                                        .reduce((sum, i) => sum + i.quantity, 0);
+
                                                     const nextTier = item.multibuyTiers
                                                         .sort((a, b) => a.minQuantity - b.minQuantity)
-                                                        .find(t => t.minQuantity > item.quantity);
+                                                        .find(t => t.minQuantity > groupedQuantity);
 
                                                     if (!nextTier) return null;
 
-                                                    const diff = nextTier.minQuantity - item.quantity;
+                                                    const diff = nextTier.minQuantity - groupedQuantity;
                                                     return (
                                                         <p className="text-xs font-medium text-blue-600 flex items-center gap-1 mt-1">
                                                             <Tag className="w-3 h-3" />
