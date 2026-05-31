@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -10,12 +9,12 @@ import { BrandRequestModal } from '../BrandRequestModal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck, Plus } from 'lucide-react';
+import { Loader2, Sparkles, Plus } from 'lucide-react';
 import { isCardCategory, isCoinCategory, normalizeCategory } from '@/lib/constants/marketplace';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { addSubCategory } from '@/app/actions/admin/admin-categories';
 import { useFirebase, useUser } from '@/firebase';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DetailsStepProps {
@@ -29,6 +28,7 @@ interface DetailsStepProps {
     suggestedFields?: string[];
     onFieldChange?: (field: string) => void;
     imageFiles?: any[];
+    analyzingFields?: Record<string, boolean>;
 }
 
 export function DetailsStep({ 
@@ -41,7 +41,8 @@ export function DetailsStep({
     analysisStage,
     suggestedFields = [],
     onFieldChange,
-    imageFiles = [] 
+    imageFiles = [],
+    analyzingFields = {}
 }: DetailsStepProps) {
     const { isSuperAdmin } = useUserPermissions();
     const { user } = useUser();
@@ -83,6 +84,16 @@ export function DetailsStep({
         );
     };
 
+    const AIAnalyzingIndicator = ({ fieldName }: { fieldName: string }) => {
+        if (!analyzingFields[fieldName]) return null;
+        return (
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 animate-pulse duration-1000">
+                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-indigo-400" />
+                <span>AI ANALYZING...</span>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6">
             <div className="pt-2 border-t border-white/10 my-4" />
@@ -93,16 +104,25 @@ export function DetailsStep({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="title" render={({ field }) => (
                             <FormItem className="md:col-span-2">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between h-5">
                                     <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
-                                    <AISuggestionBadge fieldName="title" />
+                                    <div className="flex items-center gap-2">
+                                        <AIAnalyzingIndicator fieldName="title" />
+                                        <AISuggestionBadge fieldName="title" />
+                                    </div>
                                 </div>
                                 <FormControl>
                                     <Input 
                                         placeholder={isCoinCategory(category) ? "e.g. 1930 Australian Penny" : isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} 
                                         {...field} 
-                                        onFocus={() => onFieldChange?.('title')}
-                                        className={cn(suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]")}
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('title');
+                                        }}
+                                        className={cn(
+                                            suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]",
+                                            analyzingFields['title'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -112,9 +132,12 @@ export function DetailsStep({
                         {/* Sub Category Selection */}
                         <FormField control={form.control} name="subCategory" render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between h-5">
                                     <FormLabel>Sub-Category</FormLabel>
-                                    <AISuggestionBadge fieldName="subCategory" />
+                                    <div className="flex items-center gap-2">
+                                        <AIAnalyzingIndicator fieldName="subCategory" />
+                                        <AISuggestionBadge fieldName="subCategory" />
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Select 
@@ -128,7 +151,14 @@ export function DetailsStep({
                                         }} 
                                         value={field.value}
                                     >
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select sub-category" /></SelectTrigger></FormControl>
+                                        <FormControl>
+                                            <SelectTrigger className={cn(
+                                                suggestedFields.includes('subCategory') && "bg-primary/5 border-primary/30",
+                                                analyzingFields['subCategory'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                            )}>
+                                                <SelectValue placeholder="Select sub-category" />
+                                            </SelectTrigger>
+                                        </FormControl>
                                         <SelectContent>
                                             {(subCategories[category] || []).map((s: string) => (
                                                 <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -179,9 +209,12 @@ export function DetailsStep({
 
                         <FormField control={form.control} name="condition" render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between h-5">
                                     <FormLabel>Condition <span className="text-red-500">*</span></FormLabel>
-                                    <AISuggestionBadge fieldName="condition" />
+                                    <div className="flex items-center gap-2">
+                                        <AIAnalyzingIndicator fieldName="condition" />
+                                        <AISuggestionBadge fieldName="condition" />
+                                    </div>
                                 </div>
                                 <Select 
                                     onValueChange={(val) => {
@@ -191,7 +224,10 @@ export function DetailsStep({
                                     value={field.value}
                                 >
                                     <FormControl>
-                                        <SelectTrigger className={cn(suggestedFields.includes('condition') && "bg-primary/5 border-primary/30")}>
+                                        <SelectTrigger className={cn(
+                                            suggestedFields.includes('condition') && "bg-primary/5 border-primary/30",
+                                            analyzingFields['condition'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                        )}>
                                             <SelectValue placeholder="Select condition" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -209,11 +245,17 @@ export function DetailsStep({
                     {!isTradingCard && (
                         <FormField control={form.control} name="brand" render={({ field }) => (
                             <FormItem className="space-y-4">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between h-5">
                                     <FormLabel className="text-base font-bold">Brand <span className="text-red-500">*</span></FormLabel>
-                                    <BrandRequestModal />
+                                    <div className="flex items-center gap-2">
+                                        <AIAnalyzingIndicator fieldName="brand" />
+                                        <BrandRequestModal />
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <div className={cn(
+                                    "grid grid-cols-2 sm:grid-cols-3 gap-2 p-1 rounded-xl transition-all duration-300",
+                                    analyzingFields['brand'] && "animate-pulse bg-indigo-500/5 border border-dashed border-indigo-500/30"
+                                )}>
                                     {['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Puma', 'Reebok', 'Under Armour', 'Converse', 'ANTA'].map((brand) => (
                                         <Button
                                             key={brand}
@@ -226,6 +268,7 @@ export function DetailsStep({
                                             onClick={() => {
                                                 field.onChange(brand);
                                                 form.setValue('hasOtherBrand', false);
+                                                onFieldChange?.('brand');
                                             }}
                                         >
                                             {brand}
@@ -241,6 +284,7 @@ export function DetailsStep({
                                         onClick={() => {
                                             form.setValue('hasOtherBrand', true);
                                             field.onChange('');
+                                            onFieldChange?.('brand');
                                         }}
                                     >
                                         Other
@@ -252,6 +296,10 @@ export function DetailsStep({
                                             placeholder="Enter brand name..."
                                             className="h-12 rounded-xl mt-2 animate-in fade-in slide-in-from-top-2"
                                             {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                onFieldChange?.('brand');
+                                            }}
                                             autoFocus
                                         />
                                     </FormControl>
@@ -265,16 +313,25 @@ export function DetailsStep({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={form.control} name="brand" render={({ field }) => (
                                 <FormItem>
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between h-5">
                                         <FormLabel>Manufacturer / Set <span className="text-red-500">*</span></FormLabel>
-                                        <AISuggestionBadge fieldName="brand" />
+                                        <div className="flex items-center gap-2">
+                                            <AIAnalyzingIndicator fieldName="brand" />
+                                            <AISuggestionBadge fieldName="brand" />
+                                        </div>
                                     </div>
                                     <FormControl>
                                         <Input 
                                             placeholder={isCoinCategory(category) ? "e.g. Perth Mint" : "e.g. Panini Prizm"} 
                                             {...field} 
-                                            onFocus={() => onFieldChange?.('brand')}
-                                            className={cn(suggestedFields.includes('brand') && "bg-primary/5 border-primary/30")}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                onFieldChange?.('brand');
+                                            }}
+                                            className={cn(
+                                                suggestedFields.includes('brand') && "bg-primary/5 border-primary/30",
+                                                analyzingFields['brand'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            )}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -282,8 +339,24 @@ export function DetailsStep({
                             )} />
                             <FormField control={form.control} name="year" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Year </FormLabel>
-                                    <FormControl><Input type="number" placeholder="2023" {...field} /></FormControl>
+                                    <div className="flex items-center justify-between h-5">
+                                        <FormLabel>Year </FormLabel>
+                                        <AIAnalyzingIndicator fieldName="year" />
+                                    </div>
+                                    <FormControl>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="2023" 
+                                            {...field} 
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                onFieldChange?.('year');
+                                            }}
+                                            className={cn(
+                                                analyzingFields['year'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            )}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -305,9 +378,24 @@ export function DetailsStep({
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="gradingCompany" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Grading Company</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} /></SelectTrigger></FormControl>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Grading Company</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="gradingCompany" />
+                                </div>
+                                <Select 
+                                    onValueChange={(val) => {
+                                        field.onChange(val);
+                                        onFieldChange?.('gradingCompany');
+                                    }} 
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger className={cn(
+                                            analyzingFields['gradingCompany'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                        )}>
+                                            <SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} />
+                                        </SelectTrigger>
+                                    </FormControl>
                                     <SelectContent>
                                         {(isCoinCategory(category) ? ['Raw', 'PCGS', 'NGC', 'ANACS', 'ICG', 'Other'] : ['Raw', 'PSA', 'BGS', 'SGC', 'CGC', 'HGA', 'Other']).map((co) => (
                                             <SelectItem key={co} value={co}>{co}</SelectItem>
@@ -318,20 +406,65 @@ export function DetailsStep({
                         )} />
                         <FormField control={form.control} name="grade" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Grade</FormLabel>
-                                <FormControl><Input placeholder="e.g. 10, 9.5" {...field} /></FormControl>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Grade</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="grade" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. 10, 9.5" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('grade');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['grade'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="certNumber" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Certification #</FormLabel>
-                                <FormControl><Input placeholder={isCoinCategory(category) ? "PCGS/NGC Cert #" : "PSA Cert #"} {...field} /></FormControl>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Certification #</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="certNumber" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder={isCoinCategory(category) ? "PCGS/NGC Cert #" : "PSA Cert #"} 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('certNumber');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['certNumber'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="cardNumber" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Card Number</FormLabel>
-                                <FormControl><Input placeholder="e.g. #123" {...field} /></FormControl>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Card Number</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="cardNumber" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. #123" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('cardNumber');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['cardNumber'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
                             </FormItem>
                         )} />
                     </CardContent>
@@ -341,29 +474,93 @@ export function DetailsStep({
                     <CardHeader><CardTitle>{selectedType === 'sneakers' ? 'Sneaker Specs' : 'Item Specs'}</CardTitle></CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="size" render={({ field }) => (
-                            <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>
+                            <FormItem>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Size (US)</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="size" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. 10.5" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('size');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['size'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
+                            </FormItem>
                         )} />
                         <FormField control={form.control} name="styleCode" render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between h-5">
                                     <FormLabel>Style Code</FormLabel>
-                                    <AISuggestionBadge fieldName="styleCode" />
+                                    <div className="flex items-center gap-2">
+                                        <AIAnalyzingIndicator fieldName="styleCode" />
+                                        <AISuggestionBadge fieldName="styleCode" />
+                                    </div>
                                 </div>
                                 <FormControl>
                                     <Input 
                                         placeholder="e.g. DZ5485-612" 
                                         {...field} 
-                                        onFocus={() => onFieldChange?.('styleCode')}
-                                        className={cn(suggestedFields.includes('styleCode') && "bg-primary/5 border-primary/30")}
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('styleCode');
+                                        }}
+                                        className={cn(
+                                            suggestedFields.includes('styleCode') && "bg-primary/5 border-primary/30",
+                                            analyzingFields['styleCode'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
                                     />
                                 </FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="colorway" render={({ field }) => (
-                            <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input placeholder="e.g. Varsity Red/Black/Sail" {...field} /></FormControl></FormItem>
+                            <FormItem>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Colorway</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="colorway" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. Varsity Red/Black/Sail" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('colorway');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['colorway'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
+                            </FormItem>
                         )} />
                         <FormField control={form.control} name="year" render={({ field }) => (
-                            <FormItem><FormLabel>Release Year</FormLabel><FormControl><Input type="number" placeholder="2015" {...field} /></FormControl></FormItem>
+                            <FormItem>
+                                <div className="flex items-center justify-between h-5">
+                                    <FormLabel>Release Year</FormLabel>
+                                    <AIAnalyzingIndicator fieldName="year" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        placeholder="2015" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('year');
+                                        }}
+                                        className={cn(
+                                            analyzingFields['year'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )}
+                                    />
+                                </FormControl>
+                            </FormItem>
                         )} />
                     </CardContent>
                 </Card>
@@ -371,3 +568,4 @@ export function DetailsStep({
         </div>
     );
 }
+

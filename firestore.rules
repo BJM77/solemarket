@@ -18,6 +18,15 @@ service cloud.firestore {
         (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin');
     }
 
+    function isValidProduct(productData) {
+      return productData.price >= 0 &&
+             productData.price <= 100000 &&
+             productData.title.size() > 0 &&
+             productData.title.size() <= 200 &&
+             productData.imageUrls.size() >= 1 &&
+             productData.imageUrls.size() <= 10;
+    }
+
     // Users
     match /users/{userId} {
       // Allow public read of individual user profiles for display (e.g. seller info)
@@ -47,16 +56,12 @@ service cloud.firestore {
       
       allow create: if isAuthenticated() && 
                      request.resource.data.sellerId == request.auth.uid &&
-                     request.resource.data.price >= 0 &&
-                     request.resource.data.price <= 100000 &&
-                     request.resource.data.title.size() > 0 &&
-                     request.resource.data.title.size() <= 200 &&
-                     request.resource.data.imageUrls.size() >= 1 &&
-                     request.resource.data.imageUrls.size() <= 10;
+                     isValidProduct(request.resource.data);
       
       allow update: if isAuthenticated() && 
                      (resource.data.sellerId == request.auth.uid || isAdmin()) &&
-                     (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['sellerId']));
+                     (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['sellerId'])) &&
+                     isValidProduct(request.resource.data);
 
       // Explicitly DENY permanent delete through client SDK for safety.
       // All deletions must be "soft deletes" performed via update.
@@ -78,8 +83,8 @@ service cloud.firestore {
     // Reviews
     match /reviews/{reviewId} {
       allow read: if true;
-      // Users must be authenticated to create reviews
-      allow create: if isAuthenticated(); 
+      // Reviews should be created via server action to verify order completion and prevent spam
+      allow create: if false; 
       allow update, delete: if isAdmin();
     }
     

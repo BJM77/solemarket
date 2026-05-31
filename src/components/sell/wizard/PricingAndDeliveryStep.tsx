@@ -8,14 +8,21 @@ import { Switch } from '@/components/ui/switch';
 import { DollarSign } from 'lucide-react';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
 import { cn } from '@/lib/utils';
+import { PricingCompsChart } from './PricingCompsChart';
 
 interface PricingAndDeliveryStepProps {
     form: any;
     suggestedFields?: string[];
     onFieldChange?: (field: string) => void;
+    analyzingFields?: Record<string, boolean>;
 }
 
-export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChange }: PricingAndDeliveryStepProps) {
+export function PricingAndDeliveryStep({ 
+    form, 
+    suggestedFields = [], 
+    onFieldChange,
+    analyzingFields = {}
+}: PricingAndDeliveryStepProps) {
     const isPriceSuggested = suggestedFields.includes('price');
 
     return (
@@ -29,14 +36,18 @@ export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChan
                 <CardHeader><CardTitle>Price & Quantity</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="price" render={({ field }) => (
-                        <FormItem>
-                            <div className="flex items-center justify-between">
+                        <FormItem className="col-span-2">
+                            <div className="flex items-center justify-between h-5">
                                 <FormLabel>Price (AUD) <span className="text-red-500">*</span></FormLabel>
-                                {isPriceSuggested && (
+                                {analyzingFields['price'] ? (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 animate-pulse">
+                                        AI Estimating...
+                                    </div>
+                                ) : isPriceSuggested ? (
                                     <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary animate-pulse">
                                         ✨ AI Value
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                             <div className="relative">
                                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -44,17 +55,30 @@ export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChan
                                     <Input 
                                         type="number" 
                                         step="0.01" 
-                                        className={cn("pl-9", isPriceSuggested && "bg-primary/5 border-primary/30")} 
+                                        className={cn(
+                                            "pl-9", 
+                                            isPriceSuggested && "bg-primary/5 border-primary/30",
+                                            analyzingFields['price'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                        )} 
                                         {...field} 
-                                        onFocus={() => onFieldChange?.('price')}
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            onFieldChange?.('price');
+                                        }}
                                     />
                                 </FormControl>
                             </div>
                             <FormMessage />
+                            
+                            {/* Real-time interactive pricing comps sparkline (Phase 2) */}
+                            {Number(form.watch('price')) > 0 && (
+                                <PricingCompsChart price={Number(form.watch('price'))} />
+                            )}
                         </FormItem>
                     )} />
+
                     <FormField control={form.control} name="quantity" render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-2 sm:col-span-1">
                             <FormLabel>Quantity <span className="text-red-500">*</span></FormLabel>
                             <FormControl><Input type="number" min="1" {...field} /></FormControl>
                             <FormMessage />
@@ -62,6 +86,7 @@ export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChan
                     )} />
                 </CardContent>
             </Card>
+
 
             <Card className="border-0 shadow-md bg-card">
                 <CardHeader>

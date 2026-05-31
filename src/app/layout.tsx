@@ -1,27 +1,24 @@
 import type { Metadata, Viewport } from 'next';
-import { Toaster } from "@/components/ui/toaster";
+// Removed Plus_Jakarta_Sans import to avoid runtime undefined error
+import { Outfit } from 'next/font/google';
 import "./globals.css";
-import { CartProvider } from "@/context/CartContext";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { ViewedProductsProvider } from "@/context/ViewedProductsContext";
+import { StructuredData } from '@/components/seo/StructuredData';
+import { AppProviders } from '@/components/layout/AppProviders';
+import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { BottomNav } from '@/components/layout/BottomNav';
-import { MarketTicker } from '@/components/home/MarketTicker';
-import { FirebaseProvider } from '@/firebase/provider';
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { SidebarProvider } from '@/components/layout/sidebar-provider';
-import { MobileNavProvider } from '@/context/MobileNavContext';
-import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
-import QueryProvider from '@/providers/QueryProvider';
-import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
+import { FacebookPixel as FBPixel } from '@/components/analytics/FacebookPixel';
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-jakarta',
-  weight: ['400', '500', '600', '700', '800'],
-});
+// Jakarta font initialization removed; using only Outfit font.
+// const jakarta = Plus_Jakarta_Sans({
+//   subsets: ['latin'],
+//   display: 'swap',
+//   variable: '--font-jakarta',
+//   weight: ['400', '500', '600', '700', '800'],
+// });
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -106,7 +103,7 @@ export const viewport: Viewport = {
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-import { FacebookPixel } from '@/components/analytics/FacebookPixel';
+
 
 export default function RootLayout({
   children,
@@ -114,137 +111,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${jakarta.variable} ${outfit.variable} dark`}>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
       <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            // ... keeping existing schema
-            __html: JSON.stringify([
-              {
-                '@context': 'https://schema.org',
-                '@type': 'Organization',
-                '@id': `${siteUrl}/#organization`,
-                name: SITE_NAME,
-                description: brandConfig.company.description,
-                url: siteUrl,
-                logo: {
-                  '@type': 'ImageObject',
-                  url: `${siteUrl}${brandConfig.branding.logoUrl}`,
-                  width: '512',
-                  height: '512'
-                },
-                sameAs: [
-                  brandConfig.seo.facebookUrl,
-                  brandConfig.seo.instagramUrl,
-                  brandConfig.seo.tiktokUrl
-                ].filter(Boolean),
-                areaServed: {
-                  '@type': 'Country',
-                  name: brandConfig.contact.address.country
-                },
-                address: {
-                  '@type': 'PostalAddress',
-                  addressLocality: brandConfig.contact.address.city,
-                  addressRegion: brandConfig.contact.address.state,
-                  postalCode: brandConfig.contact.address.postcode,
-                  addressCountry: brandConfig.contact.address.country,
-                  ...(brandConfig.contact.address.street && { streetAddress: brandConfig.contact.address.street })
-                },
-                contactPoint: {
-                  '@type': 'ContactPoint',
-                  telephone: brandConfig.contact.phone,
-                  contactType: 'customer service',
-                  email: brandConfig.contact.email,
-                  areaServed: brandConfig.contact.address.country,
-                  availableLanguage: ['English']
-                }
-              },
-              {
-                '@context': 'https://schema.org',
-                '@type': 'WebSite',
-                '@id': `${siteUrl}/#website`,
-                url: siteUrl,
-                name: SITE_NAME,
-                description: brandConfig.seo.defaultDescription,
-                publisher: {
-                  '@id': `${siteUrl}/#organization`
-                },
-                potentialAction: {
-                  '@type': 'SearchAction',
-                  target: {
-                    '@type': 'EntryPoint',
-                    urlTemplate: `${siteUrl}/search?q={search_term_string}`
-                  },
-                  'query-input': 'required name=search_term_string'
-                }
-              },
-              {
-                '@context': 'https://schema.org',
-                '@type': 'LocalBusiness',
-                '@id': `${siteUrl}/#localbusiness`,
-                name: SITE_NAME,
-                image: `${siteUrl}${brandConfig.branding.ogImageUrl}`,
-                url: siteUrl,
-                telephone: brandConfig.contact.phone,
-                email: brandConfig.contact.email,
-                priceRange: '$$',
-                address: {
-                  '@type': 'PostalAddress',
-                  streetAddress: brandConfig.contact.address.street || '',
-                  addressLocality: brandConfig.contact.address.city,
-                  addressRegion: brandConfig.contact.address.state,
-                  postalCode: brandConfig.contact.address.postcode,
-                  addressCountry: brandConfig.contact.address.country
-                },
-                ...(brandConfig.contact.coordinates && {
-                  geo: {
-                    '@type': 'GeoCoordinates',
-                    latitude: brandConfig.contact.coordinates.latitude,
-                    longitude: brandConfig.contact.coordinates.longitude
-                  }
-                }),
-                openingHoursSpecification: [
-                  {
-                    '@type': 'OpeningHoursSpecification',
-                    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-                    opens: '09:00',
-                    closes: '17:00'
-                  }
-                ],
-                sameAs: [
-                  brandConfig.seo.facebookUrl,
-                  brandConfig.seo.instagramUrl,
-                  brandConfig.seo.tiktokUrl
-                ].filter(Boolean)
-              }
-            ]),
-          }}
-        />
-        <ErrorBoundary>
-          <FirebaseProvider>
-            <QueryProvider>
-              <SidebarProvider>
-                <MobileNavProvider>
-                  <CartProvider>
-                    <ViewedProductsProvider>
-                      <GoogleAnalytics />
-                      <FacebookPixel />
-                      <Header />
-                      <main className="min-h-screen">
-                        {children}
-                      </main>
-                      <Footer />
-                      <BottomNav />
-                      <CartDrawer />
-                    </ViewedProductsProvider>
-                  </CartProvider>
-                </MobileNavProvider>
-              </SidebarProvider>
-            </QueryProvider>
-          </FirebaseProvider>
-          <Toaster />
-        </ErrorBoundary>
+        <StructuredData />
+        <AppProviders>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-primary focus:text-primary-foreground focus:z-50">
+            Skip to main content
+          </a>
+          <GoogleAnalytics />
+          <FBPixel />
+          <Header />
+          <main id="main-content" className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <BottomNav />
+          <CartDrawer />
+        </AppProviders>
       </body>
     </html>
   );

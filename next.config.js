@@ -36,7 +36,6 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     qualities: [25, 50, 75, 80, 90, 100],
     minimumCacheTTL: 60,
-    domains: ['images.unsplash.com', 'plus.unsplash.com'],
     remotePatterns: [
       {
         protocol: 'https',

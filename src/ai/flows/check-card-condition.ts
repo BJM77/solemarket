@@ -1,5 +1,7 @@
 'use server';
 
+
+import { AI_CONFIG } from '@/config/ai';
 import { ai } from '@/ai/genkit';
 import { cardConditionInputSchema, cardConditionOutputSchema, type CardConditionInput, type CardConditionOutput } from './schemas';
 import { runAIWorkflow } from '../workflow-engine';
@@ -13,7 +15,7 @@ export async function checkCardCondition(input: CardConditionInput): Promise<any
     return await runAIWorkflow<CardConditionOutput>(
         input,
         async (validatedInput) => {
-            const { output } = await cardConditionPrompt(validatedInput);
+            const { output } = await checkCardConditionPrompt(validatedInput);
             if (!output) throw new Error('Failed to get a response from the AI model.');
             return output;
         },
@@ -25,9 +27,9 @@ export async function checkCardCondition(input: CardConditionInput): Promise<any
     );
 }
 
-const cardConditionPrompt = ai.definePrompt({
-    name: 'cardConditionPrompt',
-    model: 'googleai/gemini-1.5-flash',
+const checkCardConditionPrompt = ai.definePrompt({
+    name: 'checkCardConditionPrompt',
+    model: AI_CONFIG.DEFAULT_VISION_MODEL,
     input: { schema: cardConditionInputSchema },
     output: { schema: cardConditionOutputSchema },
     prompt: `You are a professional trading card grader with expertise from a leading company like PSA or BGS.

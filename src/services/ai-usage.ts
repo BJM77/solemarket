@@ -1,6 +1,7 @@
-
 import { firestoreDb } from '@/lib/firebase/admin';
+import { AI_CONFIG } from '@/config/ai';
 import { admin } from '@/lib/firebase/admin';
+
 
 export type AIUsageType = 'vision_analysis' | 'text_generation' | 'moderation' | 'grading';
 
@@ -45,7 +46,7 @@ export async function logAIUsage(
             userId: userId || 'system',
             units,
             estimatedCost,
-            model: 'gemini-1.5-flash',
+            model: AI_CONFIG.DEFAULT_VISION_MODEL,
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
             status,
             latencyMs,

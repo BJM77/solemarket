@@ -64,11 +64,37 @@ export const suggestListingDetailsOutputSchema = z.object({
   colorway: z.string().optional().describe("The colorway name (e.g., 'Chicago', 'Zebra', 'Bred')."),
   size: z.string().optional().describe("The size of the item (e.g., '10.5', 'L', 'OS')."),
   year: z.number().optional().describe("The year the item was manufactured or released."),
-  gradingCompany: z.string().optional().describe("For cards: PSA, BGS, SGC, Raw."),
-  grade: z.string().optional().describe("For cards: 10, 9.5, Near Mint, etc."),
+  gradingCompany: z.string().optional().describe("For cards and coins: PSA, BGS, SGC, PCGS, NGC, Raw."),
+  grade: z.string().optional().describe("For cards and coins: 10, 9.5, MS65, Near Mint, etc."),
+  certNumber: z.string().optional().describe("For graded cards and coins: The certification number (e.g. 12345678) found on the slab/label."),
   cardNumber: z.string().optional().describe("For cards: The card number (e.g., #123)."),
   manufacturer: z.string().optional().describe("For cards: Panini, Upper Deck, Topps, etc."),
   suggestedFields: z.array(z.string()).optional().describe("A list of field keys that were successfully identified and filled by the AI model."),
+  
+  // Alternatives for disambiguation
+  alternatives: z.array(z.object({
+    title: z.string().optional(),
+    brand: z.string().optional(),
+    model: z.string().optional(),
+    year: z.number().optional(),
+    cardNumber: z.string().optional(),
+    description: z.string().optional(),
+  })).optional().describe("If there are multiple possible distinct matches (e.g., similar parallels or variants) and the exact identity is ambiguous, provide up to 3 alternative options here."),
+  
+  // Custom Visual Grading & Defect Mapping extension (Phase 2)
+  cornersGrade: z.string().optional().describe("A brief, one-sentence description of the card corners' condition (e.g., 'Sharp corners with minor whitening on back left')."),
+  edgesGrade: z.string().optional().describe("A brief, one-sentence description of the card edges' condition (e.g., 'Mostly clean edges with a tiny chip on the top')."),
+  surfaceGrade: z.string().optional().describe("A brief, one-sentence description of the card surface (e.g., 'Clean with a slight hairline scratch near center')."),
+  centeringGrade: z.string().optional().describe("An estimation of the centering as a ratio (e.g., '60/40 Front, 55/45 Back')."),
+  defects: z
+    .array(z.object({
+      x: z.number().min(0).max(100).describe("X-coordinate of the defect on a percentage scale from 0 to 100."),
+      y: z.number().min(0).max(100).describe("Y-coordinate of the defect on a percentage scale from 0 to 100."),
+      description: z.string().describe("Brief description of what this defect is (e.g., 'Corner whitening', 'Surface scratch', 'Edge chip')."),
+      imageIndex: z.number().describe("Index of the image this defect was found on (0 for first photo, 1 for second, etc.).")
+    }))
+    .optional()
+    .describe("List of visual defects found on the card images with their percentage coordinates."),
 });
 export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
 

@@ -160,3 +160,101 @@ export async function resizeAndCompressImage(file: File | Blob, maxWidth: number
     reader.onerror = reject;
   });
 }
+
+export interface ProcessedImageResult {
+  file: File;
+  base64ForAI: string;
+  previewUrl: string;
+}
+
+/**
+ * Perform single-pass canvas operations on an uploaded file to generate:
+ * 1. High-resolution compressed File for marketplace storage (max 1600px, 0.8 quality)
+ * 2. Low-resolution base64 JPEG URI for rapid Genkit vision analysis (max 800px, 0.6 quality)
+ * 3. Instant local blob URL for immediate preview rendering
+ */
+export async function processListingImage(
+  file: File,
+  highResMaxWidth: number = 1600,
+  highResQuality: number = 0.8,
+  aiMaxWidth: number = 800,
+  aiQuality: number = 0.6
+): Promise<ProcessedImageResult> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        // 1. Generate High-Res Compressed Blob for Storage
+        const canvasHigh = document.createElement('canvas');
+        let wHigh = img.width;
+        let hHigh = img.height;
+        if (wHigh > highResMaxWidth || hHigh > highResMaxWidth) {
+          if (wHigh > hHigh) {
+            hHigh = (highResMaxWidth / wHigh) * hHigh;
+            wHigh = highResMaxWidth;
+          } else {
+            wHigh = (highResMaxWidth / hHigh) * wHigh;
+            hHigh = highResMaxWidth;
+          }
+        }
+        canvasHigh.width = wHigh;
+        canvasHigh.height = hHigh;
+        const ctxHigh = canvasHigh.getContext('2d');
+        ctxHigh?.drawImage(img, 0, 0, wHigh, hHigh);
+
+        canvasHigh.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Failed to compress high-resolution image."));
+            return;
+          }
+
+          const compressedFile = new File([blob], file.name, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          });
+
+          // 2. Generate Low-Res Base64 Data URI for AI analysis
+          const canvasAI = document.createElement('canvas');
+          let wAI = img.width;
+          let hAI = img.height;
+          if (wAI > aiMaxWidth || hAI > aiMaxWidth) {
+            if (wAI > hAI) {
+              hAI = (aiMaxWidth / wAI) * hAI;
+              wAI = aiMaxWidth;
+            } else {
+              wAI = (aiMaxWidth / hAI) * wAI;
+              hAI = aiMaxWidth;
+            }
+          }
+          canvasAI.width = wAI;
+          canvasAI.height = hAI;
+          const ctxAI = canvasAI.getContext('2d');
+          ctxAI?.drawImage(img, 0, 0, wAI, hAI);
+
+          const base64ForAI = canvasAI.toDataURL('image/jpeg', aiQuality);
+          const previewUrl = URL.createObjectURL(compressedFile);
+
+          resolve({
+            file: compressedFile,
+            base64ForAI,
+            previewUrl
+          });
+        }, 'image/jpeg', highResQuality);
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+}
+
+/**
+ * Batch processes multiple files using the single-pass canvas compression pipeline in parallel.
+ */
+export async function processListingImages(files: File[]): Promise<ProcessedImageResult[]> {
+  return Promise.all(files.map(file => processListingImage(file)));
+}
+
+

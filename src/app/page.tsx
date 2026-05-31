@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   description: brandConfig.seo.defaultDescription,
 };
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Enable ISR with 60 second revalidation for fast homepage loading
+export const revalidate = 60;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);

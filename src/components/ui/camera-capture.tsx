@@ -14,11 +14,12 @@ interface CameraCaptureProps {
     onCapture: (files: File[]) => void;
     maxSizeMB?: number;
     captureMode?: 'card' | 'coin' | 'general' | 'default';
-    variant?: 'button' | 'hero';
+    variant?: 'button' | 'hero' | 'custom';
     maxFiles?: number;
+    children?: React.ReactNode;
 }
 
-export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'default', variant = 'button', maxFiles = 4 }: CameraCaptureProps) {
+export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'default', variant = 'button', maxFiles = 4, children }: CameraCaptureProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -197,9 +198,10 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         const videoWidth = video.videoWidth;
         const videoHeight = video.videoHeight;
 
-        // Auto-rotation fix: If taking a card photo in landscape (width > height), 
+        // Auto-rotation fix: If taking a card photo in landscape (width > height) on a mobile device, 
         // automatically rotate it 90deg clockwise to fit portrait card standards (5x7 aspect).
-        const shouldRotate = (captureMode === 'card' || captureMode === 'default') && videoWidth > videoHeight;
+        const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const shouldRotate = isMobile && (captureMode === 'card' || captureMode === 'default') && videoWidth > videoHeight;
 
         if (shouldRotate) {
             canvas.width = videoHeight;
@@ -296,6 +298,8 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                             </div>
                             <span className="text-xs font-medium mt-2 text-slate-500">Use Camera</span>
                         </div>
+                    ) : variant === 'custom' ? (
+                        children
                     ) : (
                         <Button variant="outline" className="gap-2">
                             <Camera className="w-4 h-4" /> Take Photo
