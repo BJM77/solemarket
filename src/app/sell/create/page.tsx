@@ -71,6 +71,8 @@ const formSchema = z.object({
   dutchAuctionIntervalHours: z.coerce.number().optional(),
   dutchAuctionFloorPrice: z.coerce.number().optional(),
   dutchAuctionStartTime: z.any().optional(),
+  imageAltTexts: z.array(z.string()).optional(),
+  seoDescription: z.string().optional(),
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;
@@ -173,6 +175,8 @@ function CreateListingForm() {
       dutchAuctionDropAmount: 5,
       dutchAuctionIntervalHours: 24,
       dutchAuctionFloorPrice: 0,
+      imageAltTexts: [],
+      seoDescription: '',
     },
   });
 

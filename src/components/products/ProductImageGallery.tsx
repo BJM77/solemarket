@@ -19,6 +19,7 @@ interface ProductImageGalleryProps {
   condition?: string;
   isAuthenticated?: boolean;
   category?: string;
+  imageAltTexts?: string[];
 }
 
 const conditionColors: Record<string, string> = {
@@ -38,7 +39,8 @@ export default function ProductImageGallery({
   isCard, 
   condition, 
   isAuthenticated, 
-  category 
+  category,
+  imageAltTexts = []
 }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
@@ -186,7 +188,7 @@ export default function ProductImageGallery({
                     >
                       <Image
                         src={item.url!}
-                        alt={`${title} - Media ${index + 1}`}
+                        alt={imageAltTexts[index] || `${title} - Media ${index + 1}`}
                         fill
                         className="object-contain"
                         style={index === selectedIndex ? zoomStyle : undefined}
@@ -278,7 +280,7 @@ export default function ProductImageGallery({
                 ) : (
                   <Image
                     src={item.url!}
-                    alt={`Thumbnail ${index + 1}`}
+                    alt={imageAltTexts[index] || `Thumbnail ${index + 1}`}
                     fill
                     className="object-cover"
                     sizes="80px"
@@ -308,7 +310,7 @@ export default function ProductImageGallery({
               ) : (
                 <Image
                   src={media[selectedIndex].url!}
-                  alt={`${title} - Fullscreen`}
+                  alt={imageAltTexts[selectedIndex] || `${title} - Fullscreen`}
                   fill
                   sizes="100vw"
                   className="object-contain"

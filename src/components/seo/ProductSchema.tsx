@@ -27,10 +27,12 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     description: product.description,
     sku: product.id,
     mpn: product.styleCode || product.id,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand || 'Benched',
-    },
+    ...((product.brand || product.manufacturer) && {
+      brand: {
+        '@type': 'Brand',
+        name: product.brand || product.manufacturer,
+      }
+    }),
     ...(reviews.length > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',

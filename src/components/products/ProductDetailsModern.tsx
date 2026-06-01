@@ -50,7 +50,7 @@ import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewList from '@/components/reviews/ReviewList';
 import { ConditionGuide } from './ConditionGuide';
 import ReviewForm from '@/components/reviews/ReviewForm';
-import { deleteProductByAdmin } from '@/app/actions/admin/admin';
+import { deleteProductByAdmin, updateProductCategoryByAdmin } from '@/app/actions/admin/admin';
 import { recordProductView } from '@/app/actions/marketplace/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { incrementProductContactCount, recordProductEnquiry, holdProductAction } from '@/app/actions/marketplace/product-updates';
@@ -91,6 +91,14 @@ import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { SizeChart } from '@/components/sneakers/SizeChart';
 import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
+
+const ADMIN_CATEGORIES = {
+    'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
+    'Collector Cards': ['Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama', 'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'],
+    'Coins': ['Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'],
+    'Streetwear': ['T-Shirts', 'Hoodies', 'Pants', 'Jackets', 'Caps', 'Other'],
+    'Accessories': ['Bags', 'Socks', 'Shoe Care', 'Other']
+};
 
 export default function ProductDetailsModern({
     productId,
@@ -478,6 +486,42 @@ export default function ProductDetailsModern({
         }
     };
 
+    const [isAdminCategoryOpen, setIsAdminCategoryOpen] = useState(false);
+    const [adminSelectedCategory, setAdminSelectedCategory] = useState(product?.category || initialProduct.category || 'Sneakers');
+    const [adminSelectedSubCategory, setAdminSelectedSubCategory] = useState(product?.subCategory || initialProduct.subCategory || '');
+    const [isSavingCategory, setIsSavingCategory] = useState(false);
+
+    const handleUpdateCategory = async () => {
+        setIsSavingCategory(true);
+        try {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) throw new Error("Authentication session expired.");
+            
+            const result = await updateProductCategoryByAdmin(
+                productId,
+                adminSelectedCategory,
+                adminSelectedSubCategory || undefined,
+                idToken
+            );
+            
+            if (result.success) {
+                toast({ title: "Category Updated", description: result.message });
+                setIsAdminCategoryOpen(false);
+                router.refresh();
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Failed to Update Category",
+                description: error.message || "An unexpected error occurred."
+            });
+        } finally {
+            setIsSavingCategory(false);
+        }
+    };
+
     const handleDelete = async (e: React.MouseEvent) => {
         e.preventDefault();
         if (!isSuperAdmin) return;
@@ -704,6 +748,7 @@ export default function ProductDetailsModern({
                                 isCard={product.category === 'Collector Cards'}
                                 category={product.category}
                                 condition={product.condition}
+                                imageAltTexts={product.imageAltTexts}
                             />
                         </div>
 
@@ -921,25 +966,101 @@ export default function ProductDetailsModern({
                                         </a>
                                     </Button>
                                     {isSuperAdmin && (
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1 font-bold">
-                                                    <Trash2 className="h-4 w-4" /> Delete
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Delete this product?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <>
+                                            <Dialog open={isAdminCategoryOpen} onOpenChange={setIsAdminCategoryOpen}>
+                                                <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-0 shadow-2xl rounded-3xl">
+                                                    <DialogHeader className="pt-4">
+                                                        <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white">Edit Product Category</DialogTitle>
+                                                        <DialogDescription className="text-slate-500 font-medium">
+                                                            Modify category and subcategory for this listing across the platform.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="space-y-4 py-4 text-left">
+                                                        <div className="space-y-2">
+                                                            <label className="text-sm font-bold ml-1 text-slate-700 dark:text-slate-300">Category</label>
+                                                            <select
+                                                                value={adminSelectedCategory}
+                                                                onChange={(e) => {
+                                                                    const newCat = e.target.value;
+                                                                    setAdminSelectedCategory(newCat);
+                                                                    // Reset subcategory to first available option or empty
+                                                                    const subOptions = (ADMIN_CATEGORIES as any)[newCat] || [];
+                                                                    setAdminSelectedSubCategory(subOptions[0] || '');
+                                                                }}
+                                                                className="w-full rounded-xl h-12 border border-slate-200 dark:border-slate-800 px-3 bg-white dark:bg-slate-800 font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                            >
+                                                                {Object.keys(ADMIN_CATEGORIES).map((cat) => (
+                                                                    <option key={cat} value={cat}>{cat}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="text-sm font-bold ml-1 text-slate-700 dark:text-slate-300">Sub-Category</label>
+                                                            <select
+                                                                value={adminSelectedSubCategory}
+                                                                onChange={(e) => setAdminSelectedSubCategory(e.target.value)}
+                                                                className="w-full rounded-xl h-12 border border-slate-200 dark:border-slate-800 px-3 bg-white dark:bg-slate-800 font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                            >
+                                                                <option value="">None / Other</option>
+                                                                {((ADMIN_CATEGORIES as any)[adminSelectedCategory] || []).map((sub: string) => (
+                                                                    <option key={sub} value={sub}>{sub}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <DialogFooter className="sm:justify-center gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => setIsAdminCategoryOpen(false)}
+                                                            className="flex-1 rounded-2xl h-12 font-bold"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                        <Button
+                                                            className="flex-1 rounded-2xl h-12 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold"
+                                                            onClick={handleUpdateCategory}
+                                                            disabled={isSavingCategory}
+                                                        >
+                                                            {isSavingCategory ? <Loader2 className="h-5 w-5 animate-spin" /> : "Save Changes"}
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 gap-1 font-bold"
+                                                onClick={() => {
+                                                    setAdminSelectedCategory(product?.category || initialProduct.category || 'Sneakers');
+                                                    setAdminSelectedSubCategory(product?.subCategory || initialProduct.subCategory || '');
+                                                    setIsAdminCategoryOpen(true);
+                                                }}
+                                            >
+                                                <Store className="h-4 w-4" /> Edit Category
+                                            </Button>
+
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1 font-bold">
+                                                        <Trash2 className="h-4 w-4" /> Delete
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </>
                                     )}
                                 </div>
 
@@ -964,65 +1085,110 @@ export default function ProductDetailsModern({
                                                 </Badge>
                                                 <ConditionGuide />
                                             </div>
-                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line text-sm">
-                                                {product.description}
-                                            </p>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                    <span className="text-gray-500 block text-xs mb-1">Category</span>
-                                                    <span className="font-bold">{product.category}</span>
+                                            <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
+                                                {product.seoDescription && (
+                                                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium pb-4 border-b border-dashed border-gray-100 dark:border-gray-800">
+                                                        <p className="whitespace-pre-line">{product.seoDescription}</p>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    {product.seoDescription && <span className="block text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-1">Seller Notes:</span>}
+                                                    <p className="whitespace-pre-line">
+                                                        {product.description}
+                                                    </p>
                                                 </div>
-                                                {product.subCategory && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                        <span className="text-gray-500 block text-xs mb-1">Sub-Category</span>
-                                                        <span className="font-bold">{product.subCategory}</span>
-                                                    </div>
-                                                )}
-                                                {(product.brand || product.manufacturer) && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                        <span className="text-gray-500 block text-xs mb-1">Brand</span>
-                                                        <span className="font-bold">{product.brand || product.manufacturer}</span>
-                                                    </div>
-                                                )}
-                                                {product.size && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
-                                                        <div>
-                                                            <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
-                                                            <span className="font-bold text-primary">{product.size}</span>
-                                                        </div>
-                                                        <SizeChart brand={product.brand?.toLowerCase()} />
-                                                    </div>
-                                                )}
-                                                {product.model && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                        <span className="text-gray-500 block text-xs mb-1">Model</span>
-                                                        <span className="font-bold truncate block" title={product.model}>{product.model}</span>
-                                                    </div>
-                                                )}
-                                                {product.styleCode && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                        <span className="text-gray-500 block text-xs mb-1">Style Code</span>
-                                                        <span className="font-bold">{product.styleCode}</span>
-                                                    </div>
-                                                )}
-                                                {product.colorway && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
-                                                        <span className="text-gray-500 block text-xs mb-1">Colorway</span>
-                                                        <span className="font-bold">{product.colorway}</span>
-                                                    </div>
-                                                )}
-                                                {product.year && (
-                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                        <span className="text-gray-500 block text-xs mb-1">Release Year</span>
-                                                        <span className="font-bold">{product.year}</span>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
+
+                                        {(() => {
+                                            const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
+                                                let basePath = '/browse';
+                                                if (cat === 'Sneakers') basePath = '/shoes';
+                                                else if (cat === 'Collector Cards') basePath = '/cards';
+                                                else if (cat === 'Coins') basePath = '/coins';
+
+                                                if (!value) return basePath;
+
+                                                const encodedValue = encodeURIComponent(value);
+                                                if (type === 'subcategory') return `${basePath}?subCategory=${encodedValue}`;
+                                                if (type === 'brand') return `${basePath}?brand=${encodedValue}`;
+                                                if (type === 'model') return `${basePath}?q=${encodedValue}`;
+                                                if (type === 'year') return `${basePath}?year=${encodedValue}`;
+                                                return basePath;
+                                            };
+
+                                            return (
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
+                                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                                        <Link href={getSiloRoute(product.category, 'category')} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                            <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Category</span>
+                                                            <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                {product.category}
+                                                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            </span>
+                                                        </Link>
+                                                        {product.subCategory && (
+                                                            <Link href={getSiloRoute(product.category, 'subcategory', product.subCategory)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Sub-Category</span>
+                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                    {product.subCategory}
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {(product.brand || product.manufacturer) && (
+                                                            <Link href={getSiloRoute(product.category, 'brand', product.brand || product.manufacturer)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Brand</span>
+                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                    {product.brand || product.manufacturer}
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {product.size && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
+                                                                <div>
+                                                                    <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
+                                                                    <span className="font-bold text-primary">{product.size}</span>
+                                                                </div>
+                                                                <SizeChart brand={product.brand?.toLowerCase()} />
+                                                            </div>
+                                                        )}
+                                                        {product.model && (
+                                                            <Link href={getSiloRoute(product.category, 'model', product.model)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Model</span>
+                                                                <span className="font-bold truncate flex items-center gap-1 text-slate-900 dark:text-slate-100" title={product.model}>
+                                                                    <span className="truncate">{product.model}</span>
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {product.styleCode && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                                <span className="text-gray-500 block text-xs mb-1">Style Code</span>
+                                                                <span className="font-bold">{product.styleCode}</span>
+                                                            </div>
+                                                        )}
+                                                        {product.colorway && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
+                                                                <span className="text-gray-500 block text-xs mb-1">Colorway</span>
+                                                                <span className="font-bold">{product.colorway}</span>
+                                                            </div>
+                                                        )}
+                                                        {product.year && (
+                                                            <Link href={getSiloRoute(product.category, 'year', product.year.toString())} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Release Year</span>
+                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                    {product.year}
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>

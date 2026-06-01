@@ -282,3 +282,61 @@ export async function toggleProductHold(
         return { success: false, error: error.message };
     }
 }
+
+/**
+ * An admin-only action to update a product's category and subcategory.
+ */
+export async function updateProductCategoryByAdmin(
+    productId: string,
+    category: string,
+    subCategory: string | undefined,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !category || !idToken) {
+        return { success: false, error: 'Product ID, category, and token are required.' };
+    }
+
+    try {
+        const decodedToken = await verifyIdToken(idToken);
+        const userRole = decodedToken.role;
+
+        if (userRole !== 'superadmin' && userRole !== 'admin') {
+            return {
+                success: false,
+                error: 'You do not have permission to perform this action.',
+            };
+        }
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const admin = require('firebase-admin');
+        const updates: any = {
+            category,
+            subCategory: subCategory || admin.firestore.FieldValue.delete(),
+            updatedAt: admin.firestore.Timestamp.now()
+        };
+
+        await productRef.update(updates);
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+
+        return {
+            success: true,
+            message: `Product category updated successfully to ${category}.`,
+        };
+    } catch (error: any) {
+        console.error('Admin Update Category Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred.',
+        };
+    }
+}
+

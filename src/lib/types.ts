@@ -87,6 +87,7 @@ export type Product = {
   videoUrl?: string;
   videoThumbnailUrl?: string;
   imageAltTexts?: string[]; // Pillar 1: AI Visual SEO
+  seoDescription?: string; // AI Rich SEO description
   aiIntelligence?: any[]; // Store full AI vision metadata
   qualityScore?: number; // Overall photo quality (1-10)
   isSafe?: boolean; // Content moderation flag

@@ -124,8 +124,9 @@ A user's trading card listing must have high-fidelity details extracted from BOT
 - grade: e.g., '10', 'MS65', 'Near Mint'.
 - certNumber: Graded barcode cert number (e.g., '48159263').
 - cardNumber: For trading cards: e.g., '#15'.
-- manufacturer: e.g., 'Panini', etc.
 - suggestedFields: List of fields successfully extracted (e.g., ["title", "brand", "year", "certNumber", "category", "subCategory"]).
+- imageAltTexts: An array of descriptive, SEO-friendly alt text strings for each provided photo in order (e.g., "Left profile view of Nike Air Jordan 1 Retro High Chicago 2015", "Close-up of the size label showing style code DZ5485-612"). Focus on perspective, visible features, colors, and key text.
+- seoDescription: A rich, two-paragraph SEO-optimized description (100-150 words total). The first paragraph should highlight the item's historical context, significance, set background, or manufacturer history. The second paragraph should describe its physical details, color coordination, visual appeal, and general collectibility or styling value.
 - alternatives: If there are multiple possible distinct matches (e.g., similar parallels or variants) and the exact identity is ambiguous, populate this array with up to 3 alternative options, including their title, brand, model, year, and cardNumber.
 `
 });

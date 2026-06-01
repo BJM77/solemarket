@@ -70,6 +70,8 @@ export const suggestListingDetailsOutputSchema = z.object({
   cardNumber: z.string().optional().describe("For cards: The card number (e.g., #123)."),
   manufacturer: z.string().optional().describe("For cards: Panini, Upper Deck, Topps, etc."),
   suggestedFields: z.array(z.string()).optional().describe("A list of field keys that were successfully identified and filled by the AI model."),
+  imageAltTexts: z.array(z.string()).optional().describe("A list of descriptive, SEO-friendly alternative text descriptions for each provided photo, in the same order."),
+  seoDescription: z.string().optional().describe("A rich, two-paragraph SEO-friendly description detailing the item's historical context, brand significance, set context, specs, and visual details."),
   
   // Alternatives for disambiguation
   alternatives: z.array(z.object({
