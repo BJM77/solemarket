@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Star, Mail, ShieldCheck, ShoppingBag, MessageSquare, Info } from 'lucide-react';
-import ProductGrid from '@/components/products/ProductGrid';
+import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import ReviewList from '@/components/reviews/ReviewList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -79,15 +79,7 @@ export default function SellerPage() {
   }, [firestore, sellerId]);
   const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery);
 
-  const productsQuery = useMemoFirebase(() => {
-    if (!firestore || !sellerId) return null;
-    return query(
-      collection(db, 'products'),
-      where('sellerId', '==', sellerId),
-      where('status', '==', 'available')
-    );
-  }, [firestore, sellerId]);
-  const { data: products, isLoading: loadingProducts } = useCollection<Product>(productsQuery);
+
 
 
   const averageRating = reviews && reviews.length > 0
@@ -146,7 +138,7 @@ export default function SellerPage() {
     }
   };
 
-  if (loadingSeller || loadingProducts) return <SellerProfileSkeleton />;
+  if (loadingSeller) return <SellerProfileSkeleton />;
 
   if (!seller) {
     return (
@@ -226,17 +218,16 @@ export default function SellerPage() {
           <div className="lg:col-span-3">
             <Tabs defaultValue="listings">
               <TabsList className="grid w-full grid-cols-2 max-w-sm">
-                <TabsTrigger value="listings"><ShoppingBag className="w-4 h-4 mr-2" />Listings ({products?.length || 0})</TabsTrigger>
+                <TabsTrigger value="listings"><ShoppingBag className="w-4 h-4 mr-2" />Listings</TabsTrigger>
                 <TabsTrigger value="reviews"><MessageSquare className="w-4 h-4 mr-2" />Reviews ({reviews?.length || 0})</TabsTrigger>
               </TabsList>
               <TabsContent value="listings" className="mt-8">
-                {products && products.length > 0 ? (
-                  <ProductGrid products={products} />
-                ) : (
-                  <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                    <p className="text-muted-foreground">This seller has no active listings.</p>
-                  </div>
-                )}
+                <InfiniteProductGrid 
+                  pageTitle="Store Listings"
+                  initialFilterState={{ sellers: [sellerId] }}
+                  hideTitle={true}
+                  containerClassName="w-full"
+                />
               </TabsContent>
               <TabsContent value="reviews" className="mt-8">
                 <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />

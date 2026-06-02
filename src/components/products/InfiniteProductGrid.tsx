@@ -54,14 +54,18 @@ function InfiniteProductGridInner({
   initialFilterState = {},
   isAdmin = false,
   titleAsH1 = false,
-  initialData
+  initialData,
+  hideTitle = false,
+  containerClassName = "container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen",
 }: {
   pageTitle: string,
   pageDescription?: string,
   initialFilterState?: Partial<ProductSearchParams>,
   isAdmin?: boolean,
   titleAsH1?: boolean,
-  initialData?: any
+  initialData?: any,
+  hideTitle?: boolean,
+  containerClassName?: string
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -531,21 +535,23 @@ function InfiniteProductGridInner({
   };
 
   return (
-    <div className="container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen">
+    <div className={containerClassName}>
       <header className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-8">
-        <div className="w-full sm:w-auto">
-          {titleAsH1 ? (
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h1>
-          ) : (
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h2>
-          )}
-          <div className="flex items-center gap-2">
-            <div className="h-1 w-12 bg-primary rounded-full" />
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.2em]">
-              {totalCount !== undefined ? `${totalCount} Available ${itemLabel}` : pageDescription}
-            </p>
+        {!hideTitle && (
+          <div className="w-full sm:w-auto">
+            {titleAsH1 ? (
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h1>
+            ) : (
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">{pageTitle}</h2>
+            )}
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-12 bg-primary rounded-full" />
+              <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                {totalCount !== undefined ? `${totalCount} Available ${itemLabel}` : pageDescription}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           {isClient && typeof Select !== 'undefined' && (
             <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
