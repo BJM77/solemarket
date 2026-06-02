@@ -117,8 +117,8 @@ export async function addSubCategory(
         const decodedToken = await verifyIdToken(idToken);
         const role = decodedToken.role as string | undefined;
 
-        if (role !== 'superadmin') {
-            throw new Error('Unauthorized: Super Admin privileges required to add categories');
+        if (role !== 'superadmin' && role !== 'admin') {
+            throw new Error('Unauthorized: Admin privileges required to add sub-categories');
         }
 
         const settingsRef = firestoreDb.collection('settings').doc('marketplace_options');
@@ -132,9 +132,11 @@ export async function addSubCategory(
             return { success: true, message: 'Sub-category already exists' };
         }
 
-        await settingsRef.update({
-            [`subCategories.${categoryName}`]: admin.firestore.FieldValue.arrayUnion(subCategoryName)
-        });
+        await settingsRef.set({
+            subCategories: {
+                [categoryName]: admin.firestore.FieldValue.arrayUnion(subCategoryName)
+            }
+        }, { merge: true });
 
         return { success: true };
     } catch (error: any) {
