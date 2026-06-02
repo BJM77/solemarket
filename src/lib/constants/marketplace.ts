@@ -20,17 +20,14 @@ export const DEFAULT_CATEGORIES = [
 
 export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
   [CATEGORY_SNEAKERS]: [
-    'Jordan', 'Kobe', 'LeBron', 'Curry', 'Limited', 'Vintage', 
-    'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Under Armour', 
-    'Reebok', 'Puma', 'Converse', 'Other'
+    'Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Arrivals'
   ],
   [CATEGORY_ACCESSORIES]: ['Bags', 'Hats', 'Jewelry', 'Other'],
   [CATEGORY_TRADING_CARDS]: [
-    'Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama',
-    'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'
+    'Basketball', 'Pokémon', 'Yu-Gi-Oh!', 'Rookies', 'New Arrivals'
   ],
   [CATEGORY_COINS]: [
-    'Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'
+    'Australian', 'World', 'Gold & Silver', 'Proof Sets', 'New Arrivals'
   ],
   [CATEGORY_GENERAL]: ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
 };

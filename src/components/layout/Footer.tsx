@@ -8,16 +8,16 @@ import { Logo } from '../logo';
 const footerLinks = {
   Marketplace: [
     { name: 'New Arrivals', href: '/browse?sort=newest' },
-    { name: 'Best Sellers', href: '/browse?sort=popular' },
-    { name: 'Sneakers', href: '/browse' },
-    { name: 'Collector Cards', href: '/cards' },
+    { name: 'Best Sellers', href: '/browse?sort=views-desc' },
+    { name: 'Sneakers', href: '/browse?category=Sneakers' },
+    { name: 'Collector Cards', href: '/browse?category=Collector+Cards' },
   ],
   Brands: [
-    { name: 'Nike', href: '/browse?category=Nike' },
-    { name: 'Jordan', href: '/browse?category=Jordan' },
-    { name: 'Adidas', href: '/browse?category=Adidas' },
-    { name: 'Under Armour', href: '/browse?category=Under-Armour' },
-    { name: 'Puma', href: '/browse?category=Puma' },
+    { name: 'Nike', href: '/browse?category=Sneakers&brand=Nike' },
+    { name: 'Jordan', href: '/browse?category=Sneakers&brand=Jordan' },
+    { name: 'Adidas', href: '/browse?category=Sneakers&brand=Adidas' },
+    { name: 'Under Armour', href: '/browse?category=Sneakers&brand=Under+Armour' },
+    { name: 'Puma', href: '/browse?category=Sneakers&brand=Puma' },
   ],
   Support: [
     { name: 'Buyer Guides', href: '/guides' },
@@ -26,7 +26,7 @@ const footerLinks = {
     { name: 'Help Center', href: '/help' },
   ],
   Company: [
-    { name: `About ${SITE_NAME}`, href: '/about' },
+    { name: `About Benched`, href: '/about' },
     { name: 'Careers', href: '/about' },
     { name: 'Terms', href: '/terms' },
     { name: 'Privacy', href: '/privacy' },
