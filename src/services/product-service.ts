@@ -189,22 +189,19 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   const [sortField, sortDirection] = effectiveSort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
   let orderByConstraints: QueryConstraint[] = [];
 
-  if (q) {
+    if (q) {
     // SCENARIO 1: TEXT SEARCH
     const qLower = q.toLowerCase().trim();
 
-    // STRATEGY: Use 'array-contains' on 'keywords' to find words ANYWHERE in the title.
-    // e.g. "Jordan" finds "Michael Jordan"
-    // LIMITATION: 'array-contains' requires exact match of the token. "Jord" won't find "Jordan".
-    // LIMITATION: One 'array-contains' clause per query.
-    // LIMITATION: Can't combine with other inequality filters easily in some cases.
-
     // If query is a single word, use array-contains on keywords
-    if (qLower.split(/\s+/).length === 1 && qLower.length > 2) {
-      constraints.push(where('keywords', 'array-contains', qLower));
-
-      // We don't strictly need to sort by title_lowercase, but it helps stability
-      // orderByConstraints.push(orderBy('title_lowercase', 'asc')); 
+    if (qLower.split(/\s+/).length === 1 && qLower.length >= 1) {
+      if (/^\d+$/.test(qLower) && !inFilterUsed) {
+        // For numbers like "50", also search for "50c", "50p", "50oz"
+        constraints.push(where('keywords', 'array-contains-any', [qLower, qLower + 'c', qLower + 'p', qLower + 'oz']));
+        inFilterUsed = true;
+      } else {
+        constraints.push(where('keywords', 'array-contains', qLower));
+      }
     } else {
       // Fallback to Prefix Search for multi-word or short queries
       // Prefix Search: title >= "batman" AND title <= "batman" + "\uf8ff"
