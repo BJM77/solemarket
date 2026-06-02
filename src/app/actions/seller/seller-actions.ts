@@ -210,10 +210,60 @@ export async function updateListing(idToken: string, productId: string, data: an
             return { success: false, error: 'You do not have permission to update this listing.' };
         }
 
-        await productRef.update({
+        const isPriceDropped = data.price !== undefined && Number(data.price) < Number(productData.price);
+
+        const updatePayload: any = {
             ...data,
             updatedAt: new Date(),
-        });
+        };
+
+        if (isPriceDropped) {
+            updatePayload.oldPrice = productData.price;
+        }
+
+        await productRef.update(updatePayload);
+
+        // Dispatch Price Drop Wishlist alerts in background if price is lowered
+        if (isPriceDropped) {
+            try {
+                const favoritesSnap = await firestoreDb.collectionGroup('favorites')
+                    .where('productId', '==', productId)
+                    .get();
+
+                if (!favoritesSnap.empty) {
+                    const batch = firestoreDb.batch();
+                    let batchCount = 0;
+
+                    for (const favDoc of favoritesSnap.docs) {
+                        const favUserRef = favDoc.ref.parent.parent;
+                        const favUserId = favUserRef?.id;
+
+                        if (favUserId && favUserId !== productData.sellerId) {
+                            const notificationRef = firestoreDb.collection('notifications').doc();
+                            batch.set(notificationRef, {
+                                recipientId: favUserId,
+                                type: 'wishlist_alert',
+                                title: '🔥 Price Drop Alert!',
+                                message: `Good news! "${productData.title}" has dropped from $${productData.price} to $${data.price}!`,
+                                link: `/product/${productId}`,
+                                read: false,
+                                createdAt: new Date()
+                            });
+                            batchCount++;
+                            if (batchCount >= 450) {
+                                await batch.commit();
+                                batchCount = 0;
+                            }
+                        }
+                    }
+                    if (batchCount > 0) {
+                        await batch.commit();
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to send price drop notifications:", err);
+            }
+        }
 
         // Enterprise Safety: Log the update activity
         await logActivity({

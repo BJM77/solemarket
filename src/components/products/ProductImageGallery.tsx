@@ -31,6 +31,8 @@ const conditionColors: Record<string, string> = {
   'Poor': 'bg-red-100 text-red-800 border-red-200',
 };
 
+const BLUR_DATA_URL = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2YxZjVmOSIvPjwvc3ZnPg==";
+
 export default function ProductImageGallery({ 
   images = [], 
   videoUrl,
@@ -193,6 +195,8 @@ export default function ProductImageGallery({
                         className="object-contain"
                         style={index === selectedIndex ? zoomStyle : undefined}
                         priority={index === 0}
+                        placeholder="blur"
+                        blurDataURL={BLUR_DATA_URL}
                         sizes="(max-width: 768px) 100vw, 800px"
                       />
                     </div>
@@ -283,6 +287,8 @@ export default function ProductImageGallery({
                     alt={imageAltTexts[index] || `Thumbnail ${index + 1}`}
                     fill
                     className="object-cover"
+                    placeholder="blur"
+                    blurDataURL={BLUR_DATA_URL}
                     sizes="80px"
                   />
                 )}
@@ -315,6 +321,8 @@ export default function ProductImageGallery({
                   sizes="100vw"
                   className="object-contain"
                   priority
+                  placeholder="blur"
+                  blurDataURL={BLUR_DATA_URL}
                 />
               )}
             </div>

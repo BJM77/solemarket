@@ -3,9 +3,10 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import { logActivity } from '@/services/activity-logs';
 import { rejectAllBidsForProduct } from '../marketplace/bidding';
+import { ensureActionAuth } from '@/lib/action-utils';
 
 // import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
 
@@ -35,15 +36,7 @@ export async function deleteProductByAdmin(
 
     try {
         // 1. Verify the user has the 'superadmin' or 'admin' role from the token's custom claims.
-        const decodedToken = await verifyIdToken(idToken);
-        const userRole = decodedToken.role;
-
-        if (userRole !== 'superadmin' && userRole !== 'admin') {
-            return {
-                success: false,
-                error: 'You do not have permission to perform this action.',
-            };
-        }
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
@@ -70,10 +63,10 @@ export async function deleteProductByAdmin(
             resourceId: productId,
             resourceType: 'product',
             performedBy: {
-                uid: decodedToken.uid,
-                email: decodedToken.email,
-                displayName: decodedToken.name,
-                role: decodedToken.role || 'admin'
+                uid: auth.uid,
+                email: auth.email,
+                displayName: auth.name,
+                role: auth.role || 'admin'
             },
             details: {
                 productTitle: product.title,
@@ -104,6 +97,12 @@ export async function deleteProductByAdmin(
         revalidateTag('active-listings-count');
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');
+        
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
 
         return {
             success: true,
@@ -131,15 +130,7 @@ export async function renewProductByAdmin(
     }
 
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const userRole = decodedToken.role;
-
-        if (userRole !== 'superadmin' && userRole !== 'admin') {
-            return {
-                success: false,
-                error: 'You do not have permission to perform this action.',
-            };
-        }
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
@@ -152,6 +143,12 @@ export async function renewProductByAdmin(
         await productRef.update({
             createdAt: admin.firestore.Timestamp.now()
         });
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
 
         return {
             success: true,
@@ -179,15 +176,7 @@ export async function approveProductByAdmin(
     }
 
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const userRole = decodedToken.role;
-
-        if (userRole !== 'superadmin' && userRole !== 'admin') {
-            return {
-                success: false,
-                error: 'You do not have permission to perform this action.',
-            };
-        }
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
@@ -209,6 +198,12 @@ export async function approveProductByAdmin(
         revalidateTag('active-listings-count');
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
 
         return {
             success: true,
@@ -235,12 +230,7 @@ export async function toggleProductHold(
     if (!productId || !idToken) return { success: false, error: 'Invalid input' };
 
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const userRole = decodedToken.role;
-
-        if (userRole !== 'superadmin' && userRole !== 'admin') {
-            return { success: false, error: 'Permission denied.' };
-        }
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const adminAuth = require('firebase-admin');
@@ -272,6 +262,12 @@ export async function toggleProductHold(
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');
 
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
         return {
             success: true,
             message: onHold ? "Product placed on hold and seller warned." : "Product released from hold.",
@@ -297,15 +293,7 @@ export async function updateProductCategoryByAdmin(
     }
 
     try {
-        const decodedToken = await verifyIdToken(idToken);
-        const userRole = decodedToken.role;
-
-        if (userRole !== 'superadmin' && userRole !== 'admin') {
-            return {
-                success: false,
-                error: 'You do not have permission to perform this action.',
-            };
-        }
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
 
         const productRef = firestoreDb.collection('products').doc(productId);
         const productSnap = await productRef.get();
@@ -326,6 +314,12 @@ export async function updateProductCategoryByAdmin(
         revalidateTag('active-listings-count');
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
 
         return {
             success: true,
