@@ -22,6 +22,24 @@ import { useUser } from '@/firebase';
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { useRef } from 'react';
 
+const getStepIndex = (status: string) => {
+    switch (status) {
+        case 'awaiting_payment': return 0;
+        case 'processing': return 1;
+        case 'shipped': return 2;
+        case 'delivered':
+        case 'completed': return 3;
+        default: return 0;
+    }
+};
+
+const steps = [
+    { label: 'Awaiting Payment', desc: 'Escrow pending PayID' },
+    { label: 'Payment Secured', desc: 'Locked in escrow' },
+    { label: 'Shipped', desc: 'Item is in transit' },
+    { label: 'Delivered', desc: 'Received & finalized' }
+];
+
 export default function ConfirmationPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [isDisputeOpen, setIsDisputeOpen] = useState(false);
@@ -170,6 +188,49 @@ export default function ConfirmationPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="p-6">
+                                {/* Escrow Progress Bar */}
+                                <div className="mb-8 bg-slate-950/40 p-4 md:p-6 rounded-2xl border border-white/5">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Escrow Status Tracker</p>
+                                    <div className="grid grid-cols-4 gap-2 relative">
+                                        {/* Connection line */}
+                                        <div className="absolute top-4 left-[12.5%] right-[12.5%] h-0.5 bg-white/10 z-0 hidden md:block" />
+                                        <div 
+                                            className="absolute top-4 left-[12.5%] h-0.5 bg-primary z-0 transition-all duration-500 hidden md:block" 
+                                            style={{ width: `${(getStepIndex(order.status) / 3) * 75}%` }}
+                                        />
+                                        
+                                        {steps.map((step, sIdx) => {
+                                            const currentIdx = getStepIndex(order.status);
+                                            const isCompleted = sIdx < currentIdx;
+                                            const isActive = sIdx === currentIdx;
+                                            
+                                            return (
+                                                <div key={sIdx} className="flex flex-col items-center text-center z-10 space-y-2">
+                                                    <div 
+                                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                                                            isCompleted 
+                                                                ? 'bg-primary text-white shadow-[0_0_12px_rgba(242,108,13,0.3)]' 
+                                                                : isActive 
+                                                                ? 'bg-[#020617] border-2 border-primary text-primary animate-pulse' 
+                                                                : 'bg-[#020617] border-2 border-white/10 text-slate-500'
+                                                        }`}
+                                                    >
+                                                        {sIdx + 1}
+                                                    </div>
+                                                    <div className="space-y-0.5">
+                                                        <p className={`text-[10px] md:text-xs font-bold transition-colors ${isActive ? 'text-primary' : isCompleted ? 'text-white' : 'text-slate-500'}`}>
+                                                            {step.label}
+                                                        </p>
+                                                        <p className="text-[8px] md:text-[10px] text-slate-500 hidden md:block">
+                                                            {step.desc}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
                                 <div className="space-y-4">
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4 group">

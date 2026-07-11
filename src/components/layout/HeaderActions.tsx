@@ -40,7 +40,7 @@ export default function HeaderActions() {
             )}
 
             {user && (
-                <div className="hidden md:flex">
+                <div>
                     <NotificationBell />
                 </div>
             )}

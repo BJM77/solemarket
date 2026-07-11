@@ -568,7 +568,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         </div>
 
                         {product.isReverseBidding && (
-                            <div className="space-y-4">
+                            <div id="bid-section" className="space-y-4 scroll-mt-24">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-lg">Bids</h3>
                                     <Badge variant="secondary">{product.bids?.length || 0} Bids</Badge>
@@ -663,6 +663,44 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 </CardContent>
                             </Card>
                         )}
+
+                        {/* Trust & Guarantee Card */}
+                        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-white/10 text-white shadow-xl overflow-hidden rounded-2xl">
+                            <CardContent className="p-6 space-y-4">
+                                <h3 className="font-black text-sm uppercase tracking-wider text-primary flex items-center gap-2">
+                                    <ShieldCheck className="h-5 w-5" /> Benched DealSafe Guarantee
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex gap-3 items-start">
+                                        <div className="bg-primary/10 p-2 rounded-lg mt-0.5">
+                                            <ShieldCheck className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-xs font-bold">Expert Authenticity Verification</p>
+                                            <p className="text-[10px] text-slate-400">All high-value items are processed and inspected by expert hobby grading partners before final dispatch.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 items-start">
+                                        <div className="bg-primary/10 p-2 rounded-lg mt-0.5">
+                                            <CreditCard className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-xs font-bold">Secure Escrow Hold</p>
+                                            <p className="text-[10px] text-slate-400">Your funds are held securely in the Benched escrow account and only released to the seller after you confirm delivery.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 items-start">
+                                        <div className="bg-primary/10 p-2 rounded-lg mt-0.5">
+                                            <CheckCircle className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-xs font-bold">Conflict Protocol Protection</p>
+                                            <p className="text-[10px] text-slate-400">Easy claim resolution. If the item doesn't arrive or is not as described, activate the dispute protocol for mediation.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
@@ -711,7 +749,34 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                 )}
             </div>
 
-
+            {/* Sticky Mobile Bottom Bar */}
+            {product && (!user || user.uid !== product.sellerId) && (
+                <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 border-t border-gray-200 p-4 shadow-lg md:hidden flex items-center justify-between gap-4 animate-in slide-in-from-bottom duration-300 pb-safe">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Price</span>
+                        <span className="text-xl font-bold text-gray-900">${formatPrice(product.price)}</span>
+                    </div>
+                    {product.isReverseBidding ? (
+                        <Button 
+                            className="flex-1 h-12 font-bold"
+                            onClick={() => {
+                                document.getElementById('bid-section')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        >
+                            Place Bid
+                        </Button>
+                    ) : (
+                        <Button 
+                            className="flex-1 h-12 font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                            onClick={handleStartConversation}
+                            disabled={!product.quantity || product.quantity === 0}
+                        >
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Message Seller
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

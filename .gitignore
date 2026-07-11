@@ -54,3 +54,7 @@ local/
 *.jpg
 marchsite.txt
 users.json
+
+# Temporary dump files
+sneak.txt
+sneakmain.txt

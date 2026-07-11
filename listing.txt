@@ -1,0 +1,2032 @@
+
+# Listing Pages Architecture & AI Integration
+
+The listing creation process in this application is designed as a multi-step, AI-first wizard that drastically reduces the manual effort required from users to list their items (Sneakers, Collector Cards, Coins, Streetwear, and Accessories) on the marketplace.
+
+## How the Listing Pages Work
+The main listing page (`src/app/sell/create/page.tsx`) serves as the orchestrator for the creation wizard. It uses React Hook Form and Zod for state management and validation. The flow is broken down into modular steps located in `src/components/sell/wizard/`:
+1. **Step 0: AI Picture Check (`ListingTypeStep.tsx`)** - The user's first interaction. They upload up to 5 photos of their item. Before even asking what the item is, the system routes these photos directly to the AI to extract data.
+2. **Step 1: Details (`DetailsStep.tsx`)** - The form automatically adapts to show fields relevant to the category identified by the AI (e.g., shoe size vs. card grading details).
+3. **Step 2 & 3: Uploads & Pricing (`ImageUploadStep.tsx`, `PricingAndDeliveryStep.tsx`)** - The user finalizes photos, sets the price (often pre-suggested by the AI), and handles shipping.
+
+## How the Code Integrates with AI
+When images are uploaded in Step 0, they are base64-encoded and dispatched via a server action to the Genkit AI workflow (`suggestListingDetails` in `src/ai/flows/suggest-listing-details.ts`). The AI analyzes the photos utilizing Google's `gemini-flash-latest` vision model. 
+Using structured outputs defined by strict Zod schemas (`src/ai/flows/schemas.ts`), the AI acts as an expert numismatist, grading expert, or sneaker specialist. It extracts the item's title, condition, category, brand, style code (for sneakers), grading certification number (for cards/coins), and estimates a fair market price. The server returns this structured JSON back to `page.tsx`, which automatically populates the form fields using `form.setValue`, allowing the user to simply verify the data and publish their listing with a single click.
+
+
+========================================================================
+FILE: src/app/sell/create/page.tsx
+========================================================================
+
+'use client';
+
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useToast } from "@/hooks/use-toast";
+import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { uploadImages } from '@/lib/firebase/storage';
+import { BeforeUnload } from '@/hooks/use-before-unload';
+import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
+import { getDraftListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { doc } from 'firebase/firestore';
+import { withRetry } from '@/ai/utils/retry';
+import imageCompression from 'browser-image-compression';
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
+import { resizeAndCompressImage } from '@/lib/utils';
+
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { ChevronLeft, ChevronRight, Eye, Loader2, Save, Sparkles } from 'lucide-react';
+import { WizardProgress } from '@/components/sell/wizard/WizardProgress';
+import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
+import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
+import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
+import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
+
+const formSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  price: z.coerce.number().min(0, 'Price must be 0 or more'),
+  category: z.string().min(1, 'Category is required'),
+  subCategory: z.string().optional(),
+  condition: z.string().min(1, 'Condition is required'),
+  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
+  isReverseBidding: z.boolean().default(false),
+  isNegotiable: z.boolean().default(false),
+  autoRepricingEnabled: z.boolean().default(false),
+  isVault: z.boolean().default(false),
+  allowLocalPickup: z.boolean().default(true),
+  imageFiles: z.array(z.any()).default([]),
+  // Benched Specs
+  brand: z.string().optional(),
+  model: z.string().optional(), // For internal use or future
+  size: z.string().optional(),
+  styleCode: z.string().optional(),
+  colorway: z.string().optional(),
+  color: z.string().optional(),
+  year: z.coerce.number().optional(),
+  material: z.string().optional(),
+  hasOtherBrand: z.boolean().default(false),
+  // Graded & Cards specs
+  gradingCompany: z.string().optional(),
+  grade: z.string().optional(),
+  certNumber: z.string().optional(),
+  cardNumber: z.string().optional(),
+  // Multibuy
+  multibuyEnabled: z.boolean().default(false),
+  multibuyTiers: z.array(z.object({
+    minQuantity: z.coerce.number().min(2),
+    discountPercent: z.coerce.number().min(1).max(100),
+  })).optional(),
+  acceptsPayId: z.boolean().default(false),
+});
+
+type ListingFormValues = z.infer<typeof formSchema>;
+
+const STEPS = ['Type', 'Item Description', 'Pricing'];
+
+// Main component that uses searchParams
+function CreateListingForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedType, setSelectedType] = useState<'sneakers' | 'collector-cards' | 'coins' | null>(null);
+
+  const { toast } = useToast();
+  const { user } = useUser();
+  const { firestore } = useFirebase();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [suggestedFields, setSuggestedFields] = useState<string[]>([]);
+  const [analysisStage, setAnalysisStage] = useState<string>('');
+  
+  const optionsRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'marketplace_options') : null, [firestore]);
+  const { data: marketplaceOptions } = useDoc<any>(optionsRef);
+
+  // Derive subcategories from config and database
+  const SUB_CATEGORIES: Record<string, string[]> = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    
+    // 1. Load from static config
+    MARKETPLACE_CATEGORIES.forEach(cat => {
+      map[cat.name] = cat.subcategories?.map(sub => sub.name) || [];
+    });
+
+    // 2. Merge from dynamic database options
+    if (marketplaceOptions?.subCategories) {
+      Object.entries(marketplaceOptions.subCategories).forEach(([catName, subs]) => {
+        const existing = map[catName] || [];
+        const dynamicSubs = subs as string[];
+        map[catName] = Array.from(new Set([...existing, ...dynamicSubs]));
+      });
+    }
+    
+    return map;
+  }, [marketplaceOptions]);
+
+  const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || ['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'];
+
+  const form = useForm<ListingFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      price: 0,
+      category: '',
+      subCategory: '',
+      condition: 'Used', // Smart Default
+      quantity: 1, // Smart Default
+      isReverseBidding: false,
+      isNegotiable: true, // Smart Default - users like offers
+      autoRepricingEnabled: false,
+      isVault: false,
+      allowLocalPickup: true,
+      imageFiles: [],
+      brand: '',
+      model: '',
+      size: '',
+      styleCode: '',
+      colorway: '',
+      color: '',
+      year: '' as any,
+      material: '',
+      hasOtherBrand: false,
+      gradingCompany: '',
+      grade: '',
+      certNumber: '',
+      cardNumber: '',
+      multibuyEnabled: false,
+      multibuyTiers: [],
+      acceptsPayId: true, // Smart Default for our preferred path
+    },
+  });
+
+  const isTradingCard = form.watch('category') === 'Collector Cards';
+
+  const imageFiles = form.watch('imageFiles');
+  const formValues = form.watch();
+
+  // Background Autosave
+  useEffect(() => {
+    if (!user || currentStep === 0 || isSubmitting) return;
+
+    const autosaveTimer = setTimeout(async () => {
+      const { imageFiles, ...rest } = form.getValues();
+
+      // Sanitize data: remove undefined values and ensure serializability
+      const draftData: any = JSON.parse(JSON.stringify({
+        ...rest,
+        imageUrls: imagePreviews.filter(p => !p.startsWith('blob:')),
+        status: 'draft',
+      }));
+
+      try {
+        await saveDraftListing(user.uid, draftData, editId || undefined);
+      } catch (e) {
+        console.warn("Autosave failed", e);
+      }
+    }, 5000); // Autosave 5 seconds after typing stops
+
+    return () => clearTimeout(autosaveTimer);
+  }, [formValues, user, currentStep, imagePreviews, editId, isSubmitting, form]);
+
+  // Initialize from persistence/URL
+  useEffect(() => {
+    // 1. Check URL for pre-fill data (from Scanner)
+    const title = searchParams.get('title');
+    if (title && !editId) {
+      // Pre-fill from URL
+      form.reset({
+        title: title || '',
+        category: searchParams.get('category') || 'Sneakers',
+        brand: searchParams.get('brand') || '',
+        model: searchParams.get('model') || '',
+        styleCode: searchParams.get('styleCode') || '',
+        colorway: searchParams.get('colorway') || '',
+        size: searchParams.get('size') || '',
+        condition: searchParams.get('condition') || 'Used',
+        description: searchParams.get('description') || '',
+        // Defaults
+        price: 0,
+        quantity: 1,
+        imageFiles: [],
+        acceptsPayId: true,
+      });
+      setSelectedType('sneakers');
+      setCurrentStep(1); // Jump to Photos
+      return;
+    }
+
+    // 2. Load draft if editId exists
+    if (!user || !editId) {
+      // Recover persistent type if no editId, but DO NOT auto-advance. We want users to choose.
+      const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | 'coins' | null;
+      if (storedType) {
+        setSelectedType(storedType);
+        // ensure category is set to avoid hidden validation failure if they don't change it
+        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : storedType === 'coins' ? 'Coins' : 'Collector Cards', { shouldValidate: true });
+        // Removed setCurrentStep(1) here to force the category selection screen every time
+      }
+      return;
+    }
+
+    const loadDraft = async () => {
+      setIsLoadingDraft(true);
+      try {
+        const data = await getDraftListing(editId, user.uid);
+        if (data) {
+          form.reset({
+            ...data,
+            imageFiles: data.imageUrls || [],
+            price: Number(data.price),
+            quantity: Number(data.quantity),
+            year: data.year ? Number(data.year) : undefined,
+          });
+          setImagePreviews(data.imageUrls || []);
+
+          // Infer type
+          if (data.category === 'Sneakers') setSelectedType('sneakers');
+          else if (data.category === 'Coins') setSelectedType('coins');
+          else if (data.category === 'Collector Cards') setSelectedType('collector-cards');
+
+          setCurrentStep(1); // Jump to photos on draft load
+        }
+      } catch (e) {
+        console.error(e);
+        toast({ title: "Error loading draft", variant: "destructive" });
+      } finally {
+        setIsLoadingDraft(false);
+      }
+    };
+    loadDraft();
+  }, [editId, user, form, toast, searchParams]);
+
+  // Handle Type Selection
+  const handleTypeSelect = (type: 'sneakers' | 'collector-cards' | 'coins') => {
+    setSelectedType(type);
+    localStorage.setItem('preferredListingType', type);
+    form.setValue('category', type === 'sneakers' ? 'Sneakers' : type === 'coins' ? 'Coins' : 'Collector Cards');
+    // AUTO-ADVANCE
+    setCurrentStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleImagesChange = (newFiles: File[], newPreviews: string[]) => {
+    const currentFiles = form.getValues('imageFiles');
+    const updatedFiles = [...currentFiles, ...newFiles];
+    form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
+    setImagePreviews(prev => [...prev, ...newPreviews]);
+
+    // PROACTIVE AI: Trigger analysis if we have enough images and fields are empty
+    if (updatedFiles.length >= 2 && !form.getValues('title')) {
+      handleAutoFill();
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const currentFiles = form.getValues('imageFiles');
+    const urlToRemove = imagePreviews[index];
+    form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
+  };
+
+  const handleAutoFill = async () => {
+    const currentFiles = form.getValues('imageFiles');
+    if (!currentFiles.length || !user || isAnalyzing) return;
+    setIsAnalyzing(true);
+    try {
+      // Use local base64 encoding instead of uploading to Storage.
+      // The temp-analysis storage path has auth-restricted read rules, so the
+      // server-side fetch() would fail with 403. Sending base64 directly is
+      // also ~10x faster as it skips the upload latency entirely.
+      const filesToProcess = currentFiles.slice(0, 3).filter((f: any) => f instanceof File || f instanceof Blob) as (File | Blob)[];
+      let aiPhotoPayload: string[] = [];
+      if (filesToProcess.length > 0) {
+        aiPhotoPayload = await Promise.all(
+          filesToProcess.map(file => resizeAndCompressImage(file, 800, 0.7))
+        );
+      }
+
+      // Also include existing URLs (already-uploaded product images)
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+      const allPayload = [...existingUrls, ...aiPhotoPayload];
+
+      if (allPayload.length === 0) return;
+      const idToken = await user.getIdToken();
+
+      setAnalysisStage('Optimizing photos...');
+      const suggestionsResponse = await withRetry(
+        async () => {
+          setAnalysisStage('Analyzing item details...');
+          return await suggestListingDetails({
+            photoDataUris: allPayload,
+            title: form.getValues('title') || undefined,
+            category: form.getValues('category'),
+            idToken
+          });
+        },
+        {
+          maxRetries: 3,
+          onRetry: (_err: any, attemptNum: number) => {
+            setIsRetrying(true);
+            setAnalysisStage(`High Demand... Retrying (Attempt ${attemptNum})`);
+          }
+        }
+      );
+
+      setIsRetrying(false);
+
+      if (suggestionsResponse.error) {
+        throw new Error(suggestionsResponse.error);
+      }
+
+      setAnalysisStage('Mapping suggestions...');
+      const suggestions = suggestionsResponse.data;
+      if (suggestions) {
+        // Track which fields were suggested for provenance markers
+        const newSuggestedFields = suggestions.suggestedFields || [];
+        setSuggestedFields(prev => [...new Set([...prev, ...newSuggestedFields])]);
+
+        // Auto-update selectedType state based on detected category
+        const detectedCategory = suggestions.category || form.getValues('category') || 'Sneakers';
+        const norm = detectedCategory.toLowerCase();
+        let finalType: 'sneakers' | 'collector-cards' | 'coins' | null = null;
+        if (norm.includes('card')) {
+          finalType = 'collector-cards';
+        } else if (norm.includes('coin')) {
+          finalType = 'coins';
+        } else if (norm.includes('sneaker') || norm.includes('shoe')) {
+          finalType = 'sneakers';
+        }
+
+        if (finalType) {
+          setSelectedType(finalType);
+          localStorage.setItem('preferredListingType', finalType);
+        } else {
+          setSelectedType(null);
+        }
+
+        const isCard = finalType === 'collector-cards' || norm.includes('card');
+
+        Object.entries(suggestions).forEach(([key, value]) => {
+          if (value && key !== 'suggestedFields') {
+            // Mapping refinements for cards
+            let finalValue = value;
+            if (isCard) {
+                // If it's a card, we map AI 'model' (set name) into 'brand' if 'brand' is just 'Panini'
+                if (key === 'brand' && suggestions.model && !String(value).includes(suggestions.model)) {
+                    finalValue = `${value} ${suggestions.model}`;
+                }
+                // Map manufacturer to brand if brand is not populated
+                if (key === 'manufacturer' && !suggestions.brand) {
+                    form.setValue('brand', value as string);
+                }
+            }
+            
+            // Overwrite existing values to ensure "Auto-Fill ALL" works as expected
+            form.setValue(key as any, finalValue);
+          }
+        });
+
+        // Ensure card manufacturer and brand fallback is perfect
+        if (isCard && suggestions.manufacturer && !form.getValues('brand')) {
+          form.setValue('brand', suggestions.manufacturer);
+        }
+
+        setTimeout(() => {
+          form.trigger();
+          toast({ title: '✨ AI Magic Applied!', description: 'Details have been updated.' });
+        }, 100);
+      }
+    } catch (error: any) {
+      console.error("Auto-fill error detailed:", error);
+      const isHighDemand = error.message?.includes('503') || error.message?.toLowerCase().includes('demand') || error.message?.toLowerCase().includes('busy');
+      
+      toast({
+        title: isHighDemand ? "AI High Demand" : "Auto-fill stalled",
+        description: isHighDemand 
+            ? "The AI service is very busy. We tried to retry, but it's still overloaded. Please try again in 30 seconds." 
+            : "AI analysis failed. You can still fill details manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+      setIsRetrying(false);
+      setAnalysisStage('');
+    }
+  };
+
+  const handleStep0AutoFill = async (files: File[]) => {
+    if (!files.length || !user || isAnalyzing) return;
+    setIsAnalyzing(true);
+    try {
+      // 1. Compress files and generate previews immediately
+      const compressedFiles: File[] = [];
+      const newPreviews: string[] = [];
+
+      const options = {
+        maxSizeMB: 5,
+        maxWidthOrHeight: 2560,
+        useWebWorker: true,
+      };
+
+      for (const file of files) {
+        try {
+          const compressed = await imageCompression(file, options);
+          const compressedFile = compressed instanceof File
+            ? compressed
+            : new File([compressed], file.name, { type: file.type, lastModified: Date.now() });
+          compressedFiles.push(compressedFile);
+          newPreviews.push(URL.createObjectURL(compressedFile));
+        } catch (err) {
+          console.error("Compression failed in step 0:", err);
+          compressedFiles.push(file);
+          newPreviews.push(URL.createObjectURL(file));
+        }
+      }
+
+      form.setValue('imageFiles', compressedFiles, { shouldValidate: true });
+      setImagePreviews(newPreviews);
+
+      // 2. Perform AI classification and detail extraction
+      setAnalysisStage('Optimizing photos...');
+      const filesToProcess = compressedFiles.slice(0, 3);
+      const aiPhotoPayload = await Promise.all(
+        filesToProcess.map(file => resizeAndCompressImage(file, 800, 0.7))
+      );
+
+      const idToken = await user.getIdToken();
+
+      setAnalysisStage('Classifying listing type...');
+      const suggestionsResponse = await withRetry(
+        async () => {
+          return await suggestListingDetails({
+            photoDataUris: aiPhotoPayload,
+            idToken
+          });
+        },
+        {
+          maxRetries: 3,
+          onRetry: (_err, attemptNum) => {
+            setIsRetrying(true);
+            setAnalysisStage(`High Demand... Retrying (Attempt ${attemptNum})`);
+          }
+        }
+      );
+
+      setIsRetrying(false);
+
+      if (suggestionsResponse.error) {
+        throw new Error(suggestionsResponse.error);
+      }
+
+      setAnalysisStage('Mapping details...');
+      const suggestions = suggestionsResponse.data;
+      if (suggestions) {
+        // Track which fields were suggested for provenance markers
+        const newSuggestedFields = suggestions.suggestedFields || [];
+        setSuggestedFields(newSuggestedFields);
+
+        // Classify category and set layout selectedType
+        const detectedCategory = suggestions.category || 'Sneakers';
+        const norm = detectedCategory.toLowerCase();
+        let finalType: 'sneakers' | 'collector-cards' | 'coins' | null = null;
+        if (norm.includes('card')) {
+          finalType = 'collector-cards';
+        } else if (norm.includes('coin')) {
+          finalType = 'coins';
+        } else if (norm.includes('sneaker') || norm.includes('shoe')) {
+          finalType = 'sneakers';
+        }
+
+        setSelectedType(finalType);
+        if (finalType) {
+          localStorage.setItem('preferredListingType', finalType);
+          form.setValue('category', finalType === 'sneakers' ? 'Sneakers' : finalType === 'coins' ? 'Coins' : 'Collector Cards');
+        } else {
+          form.setValue('category', detectedCategory);
+        }
+
+        const isCard = finalType === 'collector-cards' || norm.includes('card');
+
+        Object.entries(suggestions).forEach(([key, value]) => {
+          if (value && key !== 'suggestedFields') {
+            let finalValue = value;
+            if (isCard) {
+              if (key === 'brand' && suggestions.model && !String(value).includes(suggestions.model)) {
+                finalValue = `${value} ${suggestions.model}`;
+              }
+              if (key === 'manufacturer' && !suggestions.brand) {
+                form.setValue('brand', value);
+              }
+            }
+            form.setValue(key as any, finalValue);
+          }
+        });
+
+        if (isCard && suggestions.manufacturer && !form.getValues('brand')) {
+          form.setValue('brand', suggestions.manufacturer);
+        }
+
+        // Smart defaults
+        if (!form.getValues('quantity')) form.setValue('quantity', 1);
+        if (form.getValues('isNegotiable') === undefined) form.setValue('isNegotiable', true);
+
+        setTimeout(() => {
+          form.trigger();
+          toast({ title: '✨ AI Picture Check Complete!', description: `Detected ${detectedCategory}. All details filled.` });
+        }, 100);
+
+        // Transitions smoothly to Step 1
+        setCurrentStep(1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (error: any) {
+      console.error("Step 0 Auto-fill error:", error);
+      toast({
+        title: "AI Analysis stalled",
+        description: "We couldn't classify your item. Please select a category manually below.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+      setIsRetrying(false);
+      setAnalysisStage('');
+    }
+  };
+
+  const nextStep = async () => {
+    const fieldsToValidate: any[] = [];
+    if (currentStep === 1) { // Combined Photos & Details
+      if (imageFiles.length === 0) {
+        toast({
+          title: "Photos Required",
+          description: "Please upload at least one photo to proceed.",
+          variant: "destructive"
+        });
+        return;
+      }
+      fieldsToValidate.push('title', 'category', 'condition');
+      if (selectedType === 'sneakers') {
+        fieldsToValidate.push('brand');
+      }
+    } else if (currentStep === 2) { // Pricing step
+      fieldsToValidate.push('price', 'quantity');
+    }
+
+    if (fieldsToValidate.length > 0) {
+      const isValid = await form.trigger(fieldsToValidate);
+      if (!isValid) {
+        toast({
+          title: "Missing Information",
+          description: "Please check the highlighted fields.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      await handleSubmit();
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const isValid = await form.trigger();
+      if (!isValid) {
+        toast({ title: "Please check all fields", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+      if (!user) {
+        toast({ title: "You must be logged in", variant: "destructive" });
+        return;
+      }
+
+      const values = form.getValues();
+      const currentFiles = values.imageFiles;
+      const newFiles = currentFiles.filter(
+        (f: any) => f instanceof File || f instanceof Blob
+      ) as (File | Blob)[];
+      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+
+      let finalUrls = existingUrls;
+      if (newFiles.length > 0) {
+        const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
+        finalUrls = [...existingUrls, ...uploaded];
+      }
+
+      if (!finalUrls.length) {
+        toast({ title: "Upload failed", description: "Please re-select your images.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { imageFiles, ...rest } = values;
+      // Deep sanitize listing data for Server Action
+      const listingData = JSON.parse(JSON.stringify({
+        ...rest,
+        imageUrls: finalUrls,
+        category: values.category || 'Sneakers',
+        isVault: false,
+      }));
+
+      const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
+
+      toast({ title: "Success!", description: "Review your listing details." });
+      router.push(`/sell/review?draftId=${draftId}`);
+
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoadingDraft) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
+  if (currentStep === 0) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="max-w-4xl w-full">
+          <ListingTypeStep 
+            onSelect={handleTypeSelect} 
+            selectedType={selectedType}
+            onImagesSelect={handleStep0AutoFill}
+            isAnalyzing={isAnalyzing}
+            analysisStage={analysisStage}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
+      <div className="bg-background min-h-screen pb-32">
+        {/* Header */}
+        <div className="bg-card/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 shadow-sm">
+          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={prevStep}><ChevronLeft className="h-5 w-5" /></Button>
+              <h1 className="text-lg font-bold text-white">
+                {currentStep === 1 && 'Item Description'}
+                {currentStep === 2 && 'Price & Delivery'}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-400">Step {currentStep} of 2</span>
+            </div>
+          </div>
+          {/* Progress Bar */}
+          <div className="container mx-auto px-4 pb-0">
+            <div className="h-1 w-full bg-white/10">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(currentStep / 2) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <main className="container mx-auto px-4 py-8 pb-48 max-w-3xl">
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <ImageUploadStep
+                imageFiles={imageFiles}
+                imagePreviews={imagePreviews}
+                onImagesChange={handleImagesChange}
+                onRemoveImage={removeImage}
+                onAutoFill={handleAutoFill}
+                isAnalyzing={isAnalyzing}
+                isRetrying={isRetrying}
+                analysisStage={analysisStage}
+                selectedType={selectedType || 'sneakers'}
+                onGradeComplete={(grade) => form.setValue('condition', grade)}
+                onApplySuggestions={(res) => { Object.entries(res).forEach(([k, v]) => { if (v) form.setValue(k as any, v) }); }}
+                form={form}
+              />
+            </div>
+          )}
+
+          {currentStep === 1 && (
+            <div className="animate-in slide-in-from-right-4 duration-300">
+              <DetailsStep
+                form={form}
+                selectedType={selectedType || 'sneakers'}
+                subCategories={SUB_CATEGORIES}
+                conditionOptions={CONDITION_OPTIONS}
+                onAutoFill={handleAutoFill}
+                isAnalyzing={isAnalyzing}
+                analysisStage={analysisStage}
+                suggestedFields={suggestedFields}
+                onFieldChange={(field) => setSuggestedFields(prev => prev.filter(f => f !== field))}
+                imageFiles={imageFiles}
+              />
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <PricingAndDeliveryStep 
+              form={form} 
+              suggestedFields={suggestedFields} 
+              onFieldChange={(field) => setSuggestedFields(prev => prev.filter(f => f !== field))}
+            />
+          )}
+        </main>
+
+        {/* Floating Footer Navigation */}
+        <div className="fixed bottom-[80px] md:bottom-0 left-0 right-0 p-2 md:p-4 bg-card/90 backdrop-blur-md border-t border-white/10 z-50 safe-area-pb shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
+          <div className="max-w-3xl mx-auto flex gap-2 md:gap-4">
+            <Button variant="outline" size="sm" className="flex-1 rounded-xl h-10 md:h-14 text-sm md:text-base bg-background text-white hover:bg-white/10 border-white/20" onClick={prevStep}>
+              Back
+            </Button>
+            <Button size="sm" className="flex-[2] font-bold text-sm md:text-lg rounded-xl h-10 md:h-14" onClick={nextStep} disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              {currentStep === 2 ? (
+                <>
+                  <Eye className="mr-2 h-5 w-5" /> Review Listing
+                </>
+              ) : (
+                <>
+                  Next <ChevronRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Form>
+  );
+}
+
+export default function CreateListingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <CreateListingForm />
+    </Suspense>
+  );
+}
+
+
+========================================================================
+FILE: src/components/sell/wizard/ListingTypeStep.tsx
+========================================================================
+
+'use client';
+
+import { useRef, useState, DragEvent, ChangeEvent } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { GripVertical, Scan, Sparkles, Upload, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface ListingTypeStepProps {
+    onSelect: (type: 'sneakers' | 'collector-cards' | 'coins') => void;
+    selectedType: 'sneakers' | 'collector-cards' | 'coins' | null;
+    onImagesSelect: (files: File[]) => void;
+    isAnalyzing: boolean;
+    analysisStage: string;
+}
+
+export function ListingTypeStep({ 
+    onSelect, 
+    selectedType,
+    onImagesSelect,
+    isAnalyzing,
+    analysisStage
+}: ListingTypeStepProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            onImagesSelect(files);
+        }
+    };
+
+    const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+        if (files.length > 0) {
+            onImagesSelect(files);
+        }
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="text-center space-y-2">
+                <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                    Create a New Listing
+                </h1>
+                <p className="text-slate-400 max-w-md mx-auto text-sm sm:text-base">
+                    Let our AI automatically build your listing, or select a category below to list manually.
+                </p>
+            </div>
+
+            {/* AI Picture Check Hero Card */}
+            <Card 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => !isAnalyzing && fileInputRef.current?.click()}
+                className={cn(
+                    "relative overflow-hidden cursor-pointer transition-all duration-500 border-2 border-dashed bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-slate-950/60 shadow-2xl rounded-3xl group",
+                    isDragging ? "border-primary scale-[1.01] bg-primary/5 ring-4 ring-primary/10" : "border-indigo-500/30 hover:border-indigo-400/50 hover:scale-[1.01]",
+                    isAnalyzing && "pointer-events-none border-purple-500/50"
+                )}
+            >
+                {/* Glowing neon background elements */}
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700" />
+                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700" />
+
+                <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-6">
+                    <input 
+                        ref={fileInputRef} 
+                        type="file" 
+                        multiple 
+                        accept="image/*" 
+                        onChange={handleFileSelect} 
+                        className="hidden" 
+                        disabled={isAnalyzing}
+                    />
+
+                    {isAnalyzing ? (
+                        <div className="space-y-6 py-6 animate-pulse">
+                            <div className="relative flex justify-center">
+                                <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-ping w-20 h-20 mx-auto" />
+                                <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 p-5 rounded-full border border-white/20 shadow-2xl flex items-center justify-center">
+                                    <Loader2 className="h-10 w-10 text-white animate-spin" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-black text-white flex items-center justify-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-indigo-400 animate-pulse" /> AI Picture Check Active
+                                </h3>
+                                <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs animate-pulse">
+                                    {analysisStage || "Analyzing Photos..."}
+                                </p>
+                                <p className="text-slate-400 text-xs max-w-xs mx-auto">
+                                    Our vision models are identifying details, conditions, and catalog numbers.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-6 py-4">
+                            <div className="relative flex items-center justify-center">
+                                <div className="absolute inset-0 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all w-24 h-24" />
+                                <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl border border-white/20 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                                    <Sparkles className="h-10 w-10 text-white" />
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full shadow-lg border border-slate-900 animate-bounce">
+                                    <Upload className="h-4 w-4" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">
+                                    ✨ AI Picture Check (Recommended)
+                                </h3>
+                                <p className="text-slate-300 text-sm max-w-sm mx-auto font-medium">
+                                    Upload or drag-and-drop photos here. The AI will auto-detect the category and pre-fill details in seconds!
+                                </p>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] sm:text-xs font-bold text-indigo-300 uppercase tracking-wider">
+                                    Supports front & back card shots for max accuracy
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Manual Entry Divider */}
+            <div className="relative flex py-4 items-center max-w-md mx-auto">
+                <div className="flex-grow border-t border-white/10"></div>
+                <span className="flex-shrink mx-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Or List Manually</span>
+                <div className="flex-grow border-t border-white/10"></div>
+            </div>
+
+            {/* Manual Fallbacks */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <Card
+                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
+                        selectedType === 'sneakers'
+                            ? 'border-primary ring-2 ring-primary/20 bg-card'
+                            : 'border-white/10 hover:border-white/30 bg-card'
+                    }`}
+                    onClick={() => onSelect('sneakers')}
+                >
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
+                        <div className={`w-12 h-12 border-2 rounded bg-white/5 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
+                        <div className="space-y-1">
+                            <h3 className="text-lg font-bold text-white">Sneakers</h3>
+                            <p className="text-xs text-slate-400">Jordan, Yeezy, Nike, etc.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card
+                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
+                        selectedType === 'collector-cards'
+                            ? 'border-primary ring-2 ring-primary/20 bg-card'
+                            : 'border-white/10 hover:border-white/30 bg-card'
+                    }`}
+                    onClick={() => onSelect('collector-cards')}
+                >
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
+                        <div className="w-12 h-16 border-2 border-indigo-600 bg-white/5 rounded flex items-center justify-center group-hover:border-white transition-colors">
+                            <Scan className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-lg font-bold text-white">Collector Cards</h3>
+                            <p className="text-xs text-slate-400">NBA & Basketball sets.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card
+                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
+                        selectedType === 'coins'
+                            ? 'border-primary ring-2 ring-primary/20 bg-card'
+                            : 'border-white/10 hover:border-white/30 bg-card'
+                    }`}
+                    onClick={() => onSelect('coins')}
+                >
+                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 border-2 border-yellow-500 bg-white/5 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
+                            <GripVertical className="w-8 h-8 text-yellow-500 group-hover:text-white transition-colors rotate-90" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-lg font-bold text-white">Coins</h3>
+                            <p className="text-xs text-slate-400">Rare Coins & Banknotes.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+}
+
+
+========================================================================
+FILE: src/components/sell/wizard/DetailsStep.tsx
+========================================================================
+
+
+'use client';
+
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BrandRequestModal } from '../BrandRequestModal';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Sparkles, Flame, Star, History, Trophy, Zap, ShieldCheck, Plus } from 'lucide-react';
+import { isCardCategory, isCoinCategory, normalizeCategory } from '@/lib/constants/marketplace';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { addSubCategory } from '@/app/actions/admin/admin-categories';
+import { useFirebase, useUser } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+interface DetailsStepProps {
+    form: any;
+    selectedType: 'sneakers' | 'collector-cards' | 'coins';
+    subCategories: Record<string, string[]>;
+    conditionOptions: string[];
+    onAutoFill?: () => Promise<void>;
+    isAnalyzing?: boolean;
+    analysisStage?: string;
+    suggestedFields?: string[];
+    onFieldChange?: (field: string) => void;
+    imageFiles?: any[];
+}
+
+export function DetailsStep({ 
+    form, 
+    selectedType, 
+    subCategories, 
+    conditionOptions, 
+    onAutoFill, 
+    isAnalyzing, 
+    analysisStage,
+    suggestedFields = [],
+    onFieldChange,
+    imageFiles = [] 
+}: DetailsStepProps) {
+    const { isSuperAdmin } = useUserPermissions();
+    const { user } = useUser();
+    const { toast } = useToast();
+    const [isAddingSub, setIsAddingSub] = useState(false);
+    const [newSubName, setNewSubName] = useState('');
+    const [isSavingSub, setIsSavingSub] = useState(false);
+
+    const rawCategory = form.watch('category') || (selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards');
+    const category = normalizeCategory(rawCategory);
+    const isTradingCard = isCardCategory(category) || isCoinCategory(category);
+
+    const handleAddNewSub = async () => {
+        if (!newSubName.trim() || !user) return;
+        setIsSavingSub(true);
+        try {
+            const idToken = await user.getIdToken();
+            const result = await addSubCategory(category, newSubName.trim(), idToken);
+            if (result.success) {
+                toast({ title: "Sub-category added!" });
+                form.setValue('subCategory', newSubName.trim());
+                setIsAddingSub(false);
+                setNewSubName('');
+            }
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setIsSavingSub(false);
+        }
+    };
+
+    const AISuggestionBadge = ({ fieldName }: { fieldName: string }) => {
+        if (!suggestedFields.includes(fieldName)) return null;
+        return (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary animate-in fade-in zoom-in duration-300">
+                <Sparkles className="h-2.5 w-2.5" />
+                <span>AI SUGGESTED</span>
+            </div>
+        );
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="pt-2 border-t border-white/10 my-4" />
+
+            <Card className="border-0 shadow-md bg-card">
+                <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="title" render={({ field }) => (
+                            <FormItem className="md:col-span-2">
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
+                                    <AISuggestionBadge fieldName="title" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder={isCoinCategory(category) ? "e.g. 1930 Australian Penny" : isTradingCard ? "e.g. 2023 Panini Prizm Victor Wembanyama Rookie" : "e.g. Air Jordan 1 High OG Chicago"} 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('title')}
+                                        className={cn(suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]")}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                        {/* Sub Category Selection */}
+                        <FormField control={form.control} name="subCategory" render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Sub-Category</FormLabel>
+                                    <AISuggestionBadge fieldName="subCategory" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Select 
+                                        onValueChange={(val) => {
+                                            onFieldChange?.('subCategory');
+                                            if (val === 'ADD_NEW') {
+                                                setIsAddingSub(true);
+                                            } else {
+                                                field.onChange(val);
+                                            }
+                                        }} 
+                                        value={field.value}
+                                    >
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Select sub-category" /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            {(subCategories[category] || []).map((s: string) => (
+                                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                                            ))}
+                                            {isSuperAdmin && (
+                                                <SelectItem value="ADD_NEW" className="text-primary font-bold">
+                                                    <div className="flex items-center gap-2">
+                                                        <Plus className="h-4 w-4" /> Add New Sub-Category...
+                                                    </div>
+                                                </SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    
+                                    {isAddingSub && (
+                                        <div className="flex items-center gap-2 mt-2 animate-in fade-in slide-in-from-top-2">
+                                            <Input 
+                                                placeholder="New sub-category name" 
+                                                value={newSubName} 
+                                                onChange={(e) => setNewSubName(e.target.value)}
+                                                className="h-9"
+                                            />
+                                            <Button size="sm" onClick={handleAddNewSub} disabled={isSavingSub}>
+                                                {isSavingSub ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                                            </Button>
+                                            <Button size="sm" variant="ghost" onClick={() => setIsAddingSub(false)}>Cancel</Button>
+                                        </div>
+                                    )}
+                                </div>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5 md:col-span-2">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-sm font-bold text-white">Enable Buy & Collect</FormLabel>
+                                    <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="condition" render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Condition <span className="text-red-500">*</span></FormLabel>
+                                    <AISuggestionBadge fieldName="condition" />
+                                </div>
+                                <Select 
+                                    onValueChange={(val) => {
+                                        onFieldChange?.('condition');
+                                        field.onChange(val);
+                                    }} 
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger className={cn(suggestedFields.includes('condition') && "bg-primary/5 border-primary/30")}>
+                                            <SelectValue placeholder="Select condition" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {conditionOptions.map((c: string) => (
+                                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    </div>
+
+                    {!isTradingCard && (
+                        <FormField control={form.control} name="brand" render={({ field }) => (
+                            <FormItem className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <FormLabel className="text-base font-bold">Brand <span className="text-red-500">*</span></FormLabel>
+                                    <BrandRequestModal />
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Puma', 'Reebok', 'Under Armour', 'Converse', 'ANTA'].map((brand) => (
+                                        <Button
+                                            key={brand}
+                                            type="button"
+                                            variant={field.value === brand ? 'default' : 'outline'}
+                                            className={cn(
+                                                "h-12 font-bold uppercase tracking-tight rounded-xl transition-all",
+                                                field.value === brand ? "bg-primary shadow-md scale-[1.02]" : "hover:border-primary/50"
+                                            )}
+                                            onClick={() => {
+                                                field.onChange(brand);
+                                                form.setValue('hasOtherBrand', false);
+                                            }}
+                                        >
+                                            {brand}
+                                        </Button>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        variant={form.watch('hasOtherBrand') ? 'default' : 'outline'}
+                                        className={cn(
+                                            "h-12 font-bold uppercase tracking-tight rounded-xl transition-all",
+                                            form.watch('hasOtherBrand') ? "bg-primary shadow-md scale-[1.02]" : "hover:border-primary/50"
+                                        )}
+                                        onClick={() => {
+                                            form.setValue('hasOtherBrand', true);
+                                            field.onChange('');
+                                        }}
+                                    >
+                                        Other
+                                    </Button>
+                                </div>
+                                {form.watch('hasOtherBrand') && (
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Enter brand name..."
+                                            className="h-12 rounded-xl mt-2 animate-in fade-in slide-in-from-top-2"
+                                            {...field}
+                                            autoFocus
+                                        />
+                                    </FormControl>
+                                )}
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    )}
+
+                    {isTradingCard && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="brand" render={({ field }) => (
+                                <FormItem>
+                                    <div className="flex items-center justify-between">
+                                        <FormLabel>Manufacturer / Set <span className="text-red-500">*</span></FormLabel>
+                                        <AISuggestionBadge fieldName="brand" />
+                                    </div>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder={isCoinCategory(category) ? "e.g. Perth Mint" : "e.g. Panini Prizm"} 
+                                            {...field} 
+                                            onFocus={() => onFieldChange?.('brand')}
+                                            className={cn(suggestedFields.includes('brand') && "bg-primary/5 border-primary/30")}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="year" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Year </FormLabel>
+                                    <FormControl><Input type="number" placeholder="2023" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    )}
+
+                    <FormField control={form.control} name="description" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl><Textarea rows={4} placeholder="Describe any flaws, history, or unique features..." {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                </CardContent>
+            </Card>
+
+            {isTradingCard ? (
+                <Card className="border-0 shadow-md bg-card">
+                    <CardHeader><CardTitle>{isCoinCategory(category) ? 'Coin & Banknote Specs' : 'Trading Card Specs'}</CardTitle></CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="gradingCompany" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Grading Company</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {(isCoinCategory(category) ? ['Raw', 'PCGS', 'NGC', 'ANACS', 'ICG', 'Other'] : ['Raw', 'PSA', 'BGS', 'SGC', 'CGC', 'HGA', 'Other']).map((co) => (
+                                            <SelectItem key={co} value={co}>{co}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="grade" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Grade</FormLabel>
+                                <FormControl><Input placeholder="e.g. 10, 9.5" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="certNumber" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Certification #</FormLabel>
+                                <FormControl><Input placeholder={isCoinCategory(category) ? "PCGS/NGC Cert #" : "PSA Cert #"} {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="cardNumber" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Card Number</FormLabel>
+                                <FormControl><Input placeholder="e.g. #123" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card className="border-0 shadow-md bg-card">
+                    <CardHeader><CardTitle>{selectedType === 'sneakers' ? 'Sneaker Specs' : 'Item Specs'}</CardTitle></CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="size" render={({ field }) => (
+                            <FormItem><FormLabel>Size (US)</FormLabel><FormControl><Input placeholder="e.g. 10.5" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="styleCode" render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Style Code</FormLabel>
+                                    <AISuggestionBadge fieldName="styleCode" />
+                                </div>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="e.g. DZ5485-612" 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('styleCode')}
+                                        className={cn(suggestedFields.includes('styleCode') && "bg-primary/5 border-primary/30")}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="colorway" render={({ field }) => (
+                            <FormItem><FormLabel>Colorway</FormLabel><FormControl><Input placeholder="e.g. Varsity Red/Black/Sail" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="year" render={({ field }) => (
+                            <FormItem><FormLabel>Release Year</FormLabel><FormControl><Input type="number" placeholder="2015" {...field} /></FormControl></FormItem>
+                        )} />
+                    </CardContent>
+                </Card>
+            )}
+        </div>
+    );
+}
+
+
+========================================================================
+FILE: src/components/sell/wizard/PricingAndDeliveryStep.tsx
+========================================================================
+
+
+'use client';
+
+import { Input } from '@/components/ui/input';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { DollarSign } from 'lucide-react';
+import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
+import { cn } from '@/lib/utils';
+
+interface PricingAndDeliveryStepProps {
+    form: any;
+    suggestedFields?: string[];
+    onFieldChange?: (field: string) => void;
+}
+
+export function PricingAndDeliveryStep({ form, suggestedFields = [], onFieldChange }: PricingAndDeliveryStepProps) {
+    const isPriceSuggested = suggestedFields.includes('price');
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+            <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold">Price & Delivery</h2>
+                <p className="text-muted-foreground">Set your price and selling options.</p>
+            </div>
+
+            <Card className="border-0 shadow-md bg-card">
+                <CardHeader><CardTitle>Price & Quantity</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="price" render={({ field }) => (
+                        <FormItem>
+                            <div className="flex items-center justify-between">
+                                <FormLabel>Price (AUD) <span className="text-red-500">*</span></FormLabel>
+                                {isPriceSuggested && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary animate-pulse">
+                                        ✨ AI Value
+                                    </div>
+                                )}
+                            </div>
+                            <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        step="0.01" 
+                                        className={cn("pl-9", isPriceSuggested && "bg-primary/5 border-primary/30")} 
+                                        {...field} 
+                                        onFocus={() => onFieldChange?.('price')}
+                                    />
+                                </FormControl>
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="quantity" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Quantity <span className="text-red-500">*</span></FormLabel>
+                            <FormControl><Input type="number" min="1" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md bg-card">
+                <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                        <DollarSign className="h-5 w-5" /> Selling Options
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="isNegotiable"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Allow Offers</FormLabel>
+                                    <FormDescription className="text-[10px]">Buyers can make binding offers on this item.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="isReverseBidding"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Reverse Bidding</FormLabel>
+                                    <FormDescription className="text-[10px]">Lowest bid wins (Dutch auction style).</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="acceptsPayId"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-primary font-bold">Accept PayID / Bank Transfer</FormLabel>
+                                    <FormDescription className="text-[10px]">Allow buyers to pay you directly via PayID or Bank Transfer.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        className="data-[state=checked]:bg-primary"
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <MultibuyConfig form={form} />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+
+========================================================================
+FILE: src/components/sell/wizard/ImageUploadStep.tsx
+========================================================================
+
+
+
+'use client';
+
+import { useRef, ChangeEvent, useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone } from 'lucide-react';
+import { CameraCapture } from '@/components/ui/camera-capture';
+import imageCompression from 'browser-image-compression';
+import { useToast } from "@/hooks/use-toast";
+import AICardGrader from '@/components/products/AICardGrader';
+
+interface ImageUploadStepProps {
+    imageFiles: any[];
+    imagePreviews: string[];
+    onImagesChange: (files: File[], previews: string[]) => void;
+    onRemoveImage: (index: number) => void;
+    onAutoFill: () => Promise<void>;
+    isAnalyzing: boolean;
+    isRetrying?: boolean;
+    analysisStage?: string;
+    selectedType: 'sneakers' | 'streetwear' | 'accessories' | 'collector-cards' | 'general' | 'coins';
+    onGradeComplete?: (grade: string) => void;
+    onApplySuggestions?: (res: any) => void;
+    form: any; // Passed for direct setValue if needed by sub-components
+}
+
+export function ImageUploadStep({
+    imageFiles,
+    imagePreviews,
+    onImagesChange,
+    onRemoveImage,
+    onAutoFill,
+    isAnalyzing,
+    isRetrying,
+    analysisStage,
+    selectedType,
+    onGradeComplete,
+    onApplySuggestions,
+    form
+}: ImageUploadStepProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const nativeCameraInputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
+
+    const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        await processFiles(files);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const processFiles = async (newFiles: File[]) => {
+        if (imageFiles.length + newFiles.length > 8) { // Increased limit for sneakers (angles)
+            toast({ title: "Maximum 8 images allowed.", variant: "destructive" });
+            return;
+        }
+
+        const compressedFiles: File[] = [];
+        const newPreviews: string[] = [];
+
+        const options = {
+            maxSizeMB: 5,
+            maxWidthOrHeight: 2560, // Increased resolution for better quality
+            useWebWorker: true,
+        };
+
+        let currentTotalSize = imageFiles.reduce((acc, file) => acc + (file.size || 0), 0);
+        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
+
+        for (const file of newFiles) {
+            // Check individual file size limit (5MB) before compression if desired, 
+            // but the user's request is to reduce the size of the pictures to 5MB.
+            // Compression will handle this.
+
+            try {
+                const compressed = await imageCompression(file, options);
+
+                if (currentTotalSize + compressed.size > MAX_TOTAL_SIZE) {
+                    toast({
+                        title: "Total listing size exceeded.",
+                        description: "Maximum 20MB allowed for all photos in a listing.",
+                        variant: "destructive"
+                    });
+                    break;
+                }
+
+                // Ensure we always store a File (not Blob) so instanceof File works later
+                const compressedFile = compressed instanceof File
+                    ? compressed
+                    : new File([compressed], file.name, { type: file.type, lastModified: Date.now() });
+
+                compressedFiles.push(compressedFile);
+                newPreviews.push(URL.createObjectURL(compressedFile));
+                currentTotalSize += compressedFile.size;
+            } catch (error) {
+                console.error('Image compression failed:', error);
+                if (currentTotalSize + file.size > MAX_TOTAL_SIZE) {
+                    toast({ title: "Total listing size exceeded.", variant: "destructive" });
+                    break;
+                }
+                compressedFiles.push(file);
+                newPreviews.push(URL.createObjectURL(file));
+                currentTotalSize += file.size;
+            }
+        }
+
+        onImagesChange(compressedFiles, newPreviews);
+    };
+
+    const captureMode = ['cards', 'Collector Cards', 'trading-cards', 'Coins', 'coins'].includes(selectedType) ? 'card' : 'general';
+
+    // Target aspect ratio display string
+    const getTargetRatio = () => {
+        switch (selectedType) {
+            case 'sneakers': return '4:3';
+            case 'streetwear': return '3:4';
+            case 'accessories': return '1:1';
+            case 'coins': return '1:1';
+            default: return '1:1';
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+
+            <Card className="border-0 shadow-md bg-card">
+                <CardHeader className="bg-white/5 border-b border-white/10 text-white p-5 rounded-t-xl">
+                    <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Gallery</CardTitle>
+                    <CardDescription className="text-slate-400">Add up to 8 photos.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                    <div className="grid grid-cols-3 gap-3">
+                        <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                        >
+                            <div className="bg-primary/20 p-3 rounded-full group-hover:scale-110 transition-transform">
+                                <Upload className="h-6 w-6 text-primary" />
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400">Upload</span>
+                            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
+                        </div>
+                        <div
+                            onClick={() => nativeCameraInputRef.current?.click()}
+                            className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                        >
+                            <div className="bg-indigo-500/20 p-3 rounded-full group-hover:scale-110 transition-transform">
+                                <Smartphone className="h-6 w-6 text-indigo-400" />
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400 text-center">Native<br className="sm:hidden" /> Camera</span>
+                            <input ref={nativeCameraInputRef} type="file" multiple accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
+                        </div>
+                        <div className="aspect-square relative">
+                            <CameraCapture onCapture={processFiles} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
+                            <span className="absolute bottom-2 left-0 right-0 text-center text-[10px] sm:text-xs font-medium text-slate-400 pointer-events-none hidden group-hover:block">Web Camera</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
+                        {imagePreviews.map((p, i) => (
+                            <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-white/10 group">
+                                <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
+                                <button
+                                    onClick={() => onRemoveImage(i)}
+                                    className="absolute top-1 right-1 bg-red-500/80 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    type="button"
+                                >
+                                    <Trash2 className="h-3 w-3" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+
+                </CardContent>
+            </Card>
+
+            {imageFiles.length > 0 && onAutoFill && (
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/20 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                        <div className="space-y-1">
+                            <h4 className="font-bold text-primary flex items-center justify-center sm:justify-start gap-2">
+                                <Sparkles className="h-4 w-4" /> AI Magic Available
+                            </h4>
+                            <p className="text-xs text-muted-foreground font-medium">
+                                AI analyzes your first 3 photos (max 5) to auto-fill details.
+                            </p>
+                        </div>
+                        <Button
+                            onClick={(e) => { e.preventDefault(); onAutoFill(); }}
+                            disabled={isAnalyzing}
+                            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl h-11 px-6 font-black shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
+                        >
+                            {isAnalyzing ? (
+                                <><Loader2 className="h-4 w-4 animate-spin mr-2" />{analysisStage || "Analyzing..."}</>
+                            ) : (
+                                <><Sparkles className="h-4 w-4 mr-2" />Auto-Fill All Details</>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {selectedType === 'collector-cards' && (
+                <AICardGrader
+                    imageFiles={imageFiles.filter(f => f instanceof File || f instanceof Blob)}
+                    onGradeComplete={onGradeComplete}
+                    onApplySuggestions={onApplySuggestions!}
+                />
+            )}
+        </div>
+    );
+}
+
+
+========================================================================
+FILE: src/components/sell/wizard/WizardProgress.tsx
+========================================================================
+
+
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
+
+interface WizardProgressProps {
+    currentStep: number;
+    totalSteps: number;
+    stepLabels: string[];
+}
+
+export function WizardProgress({ currentStep, totalSteps, stepLabels }: WizardProgressProps) {
+    return (
+        <div className="w-full">
+            <div className="relative">
+                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-white/10">
+                    <div
+                        style={{ width: `${((currentStep) / (totalSteps - 1)) * 100}%` }}
+                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary transition-all duration-500 ease-in-out"
+                    />
+                </div>
+
+                <div className="flex justify-between text-xs sm:text-sm font-medium text-white/50">
+                    {stepLabels.map((label, index) => {
+                        const isActive = index === currentStep;
+                        const isCompleted = index < currentStep;
+
+                        return (
+                            <div
+                                key={index}
+                                className={cn(
+                                    "flex items-center gap-1 transition-colors duration-300",
+                                    isActive && "text-primary font-bold",
+                                    isCompleted && "text-green-600"
+                                )}
+                            >
+                                {isCompleted ? (
+                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                ) : (
+                                    <span className={cn("w-3 h-3 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center text-[10px]", isActive ? "border-primary bg-primary text-white" : "border-white/20 bg-white/5 text-white")}>
+                                        {index + 1}
+                                    </span>
+                                )}
+                                <span className={cn("hidden sm:inline", isActive && "inline")}>{label}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
+========================================================================
+FILE: src/ai/flows/suggest-listing-details.ts
+========================================================================
+
+'use server';
+
+import { ai } from '@/ai/genkit';
+import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema, type SuggestListingDetailsInput, type SuggestListingDetailsOutput } from './schemas';
+import { runAIWorkflow } from '../workflow-engine';
+import { AI_CONFIG } from '@/config/ai';
+
+/**
+ * Main Vision flow for generating listing suggestions from photos.
+ * Transitioned to storage-first architecture: pass URLs whenever possible.
+ */
+export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<any> {
+    return await runAIWorkflow<SuggestListingDetailsOutput>(
+        input,
+        async (validatedInput) => {
+            // Note: validatedInput.photoDataUris can contain either public URLs or Data URIs.
+            // We pass them directly to the prompt. Gemini handles public URLs efficiently.
+            
+            const { output } = await suggestListingDetailsPrompt(validatedInput);
+            if (!output) throw new Error("AI failed to return valid metadata.");
+            return output;
+        },
+        {
+            feature: 'listing-details-suggester',
+            usageType: 'vision_analysis',
+            maxRetries: 2
+        }
+    );
+}
+
+const suggestListingDetailsPrompt = ai.definePrompt({
+    name: 'suggestListingDetailsPrompt',
+    model: AI_CONFIG.DEFAULT_VISION_MODEL,
+    input: { schema: suggestListingDetailsInputSchema },
+    output: { schema: suggestListingDetailsOutputSchema },
+    config: {
+        maxOutputTokens: 2000,
+        temperature: 0.1,
+    },
+    prompt: `Act as a world-class grading expert, numismatist, and sneaker specialist. Analyze the provided images or title text to output extremely precise marketplace listing metadata.
+
+{{#if title}}Title Context: {{title}}{{/if}}
+{{#if category}}Category Context: {{category}}{{/if}}
+{{#each photoDataUris}}{{media url=this}}{{/each}}
+
+You must analyze all uploaded images (which may show the front, back, interior tags, or side of the item) and classify the item into one of the following exact categories: 'Sneakers', 'Collector Cards', 'Coins', 'Streetwear', 'Accessories'.
+
+### CRITICAL RULES FOR TRADING CARDS:
+A user's trading card listing must have high-fidelity details extracted from BOTH the front and back images.
+1.  **Player Name**: Search the front and back images carefully. The player name is printed on both sides. Identify it exactly (e.g., "Bronny James", "Victor Wembanyama", "Michael Jordan").
+2.  **Brand/Manufacturer**: Common card brands are "Panini", "Topps", "Upper Deck", "Bowman", "Fleer", "SkyBox". This is usually visible as a logo on the front or in copyright text on the back.
+3.  **Model/Set**: Identify the specific set name (e.g., "Prizm", "Donruss", "Optic", "Select", "Bowman Chrome", "Topps Chrome").
+4.  **Card Number**: Look on the back/rear of the card, usually in one of the corners or next to the stats table (e.g., "#12", "No. US15", "Card No. 24"). Return this value exactly including the '#' symbol if found, e.g., "#123".
+5.  **Year**: Look on the back/rear of the card in the tiny copyright/licensing text at the bottom. Identify the release/copyright year (e.g., 2023, 2019).
+6.  **Title Format**: You MUST format the Title as: \`[Year] [Brand/Manufacturer] [Model/Set] [Player Name] #[Card Number]\` (e.g., "2023 Panini Prizm Bronny James #15").
+7.  **Manufacturer & Brand fields**: Always set both \`brand\` and \`manufacturer\` to the brand/manufacturer name (e.g., "Panini") so the form maps it perfectly.
+
+### CRITICAL RULES FOR SNEAKERS:
+1.  **Tag & Label Inspection**: Carefully scan any size tags (usually located inside the tongue of the shoe, side lining, or underneath the insole) or barcode box labels.
+2.  **Style Code**: Locate the unique style/art alphanumeric code (e.g., "DZ5485-612", "CP9654", "BB550WT1"). This is the single most important identifier for shoes. 
+3.  **Size**: Extract the US size (e.g., "10.5", "11", "9") from the size tag inside the shoe or the box label.
+4.  **Brand & Model**: Identify the Brand (e.g., "Nike", "Adidas", "Jordan", "Yeezy", "New Balance") and Model (e.g., "Air Jordan 1 High OG", "Yeezy Boost 350 V2", "Dunk Low").
+5.  **Colorway**: Determine the exact name of the colorway (e.g., "Chicago Lost and Found", "Zebra", "Panda", "Bred").
+6.  **Title Format**: You MUST format the Title as: \`[Brand] [Model] [Colorway]\` (e.g., "Jordan 1 Retro High OG Chicago Lost and Found").
+
+### CRITICAL RULES FOR COINS:
+1.  **Slab Label Inspection (Graded Coins)**: Graded coins are usually encased in plastic holders (slabs) from PCGS or NGC. Carefully read the text label inside the slab.
+2.  **Grading Company**: Extract the slab issuer (e.g., "PCGS", "NGC", "ANACS"). Set \`gradingCompany\` to this value. If no slab is present, set to "Raw".
+3.  **Grade**: Extract the grade text (e.g., "MS65", "MS70", "AU58", "VF30", "PF69 Ultra Cameo"). Set \`grade\` to this value.
+4.  **Certification Number**: Extract the unique certification number (e.g., "48159263", "1234567-001") which is usually printed near the barcode. Set \`certNumber\` to this value.
+5.  **Year, Denomination & Country**: Extract the minting year (e.g., "1930"), denomination (e.g., "Penny", "Florin", "Sovereign", "One Dollar", "50c"), and country of origin (e.g., "Australia", "USA", "Great Britain").
+6.  **Mint Mark**: Look for a tiny mint mark letter (e.g., "S", "D", "M", "H", "P") typically near the date or under the coat of arms.
+7.  **Title Format**: Format the Title as: \`[Year] [Country] [Denomination] [Key Variety/Details if applicable]\` (e.g., "1930 Australian Penny Key Date", "1927 Australian Florin Canberra Commemorative").
+8.  **Brand**: Set the \`brand\` field to the minting body (e.g., "Perth Mint", "Royal Australian Mint", "US Mint") or grading company if it's graded.
+
+### FORM FIELDS TO POPULATE:
+- **title**: High-quality SEO Title.
+- **description**: 1-2 lines detailing the item, key attributes, and its visual condition.
+- **price**: Market estimate in AUD (number only, no characters).
+- **category**: EXACTLY one of: 'Sneakers', 'Collector Cards', 'Coins', 'Streetwear', 'Accessories'.
+- **subCategory**: e.g., 'Basketball Cards', 'Rookies' (Cards) or 'Jordan', 'Nike' (Sneakers) or 'Australian Coins' (Coins).
+- **condition**: EXACTLY one of: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'.
+- **brand**: The main brand/manufacturer/mint (e.g., 'Panini', 'Nike', 'Perth Mint').
+- **model**: Set name or model name (e.g., 'Prizm', 'Air Jordan 1', 'Canberra Florin').
+- **styleCode**: Alphanumeric style code for sneakers.
+- **colorway**: Sneaker colorway name.
+- **size**: US sneaker size or card size.
+- **year**: Release/mint year as a number.
+- **gradingCompany**: e.g., 'PSA', 'BGS', 'SGC', 'PCGS', 'NGC', 'Raw'.
+- **grade**: e.g., '10', 'MS65', 'Near Mint'.
+- **certNumber**: Graded barcode cert number (e.g., '48159263').
+- **cardNumber**: For trading cards: e.g., '#15'.
+- **manufacturer**: e.g., 'Panini', 'PCGS', etc.
+- **suggestedFields**: List of fields successfully extracted (e.g., ["title", "brand", "year", "certNumber", "category"]).
+`,
+});
+
+
+========================================================================
+FILE: src/ai/flows/schemas.ts
+========================================================================
+
+
+/**
+ * @fileoverview This file centralizes all Zod schemas for AI flows.
+ * This prevents schema duplication and ensures consistency across the application.
+ */
+
+import { z } from 'zod';
+
+// Schema for src/ai/flows/check-card-condition.ts
+export const cardConditionInputSchema = z.object({
+  frontImageUri: z.string().describe("Image URL or Data URI of the front of the card."),
+  backImageUri: z.string().describe("Image URL or Data URI of the back of the card."),
+  idToken: z.string().describe('The Firebase ID token of the user.'),
+});
+export type CardConditionInput = z.infer<typeof cardConditionInputSchema>;
+
+export const cardConditionOutputSchema = z.object({
+  overallGrade: z.string().describe("The overall assessment of the card's grade as a string, including a number from 1-10 and a descriptive title (e.g., 'Mint 9', 'Near Mint 7', 'Poor 1')."),
+  corners: z.string().describe("A brief, one-sentence description of the corners' condition (e.g., 'Sharp with minor whitening on the back-left corner.')."),
+  edges: z.string().describe("A brief, one-sentence description of the edges' condition (e.g., 'Clean with one minor chip on the top edge.')."),
+  surface: z.string().describe("A brief, one-sentence description of the card's surface, noting any scratches, print lines, or dimples."),
+  centering: z.string().describe("An estimation of the centering as a ratio (e.g., '60/40 Front, 55/45 Back')."),
+  isImageQualitySufficient: z.boolean().describe("A boolean indicating if the images were clear enough for a confident assessment."),
+  qualityFeedback: z.string().optional().describe("If image quality is insufficient, provide a brief suggestion for improvement (e.g., 'Images are too blurry. Please provide higher resolution photos.'). Leave empty if quality is sufficient."),
+});
+export type CardConditionOutput = z.infer<typeof cardConditionOutputSchema>;
+
+
+// Schema for src/ai/flows/suggest-listing-details.ts
+export const suggestListingDetailsInputSchema = z.object({
+  photoDataUris: z
+    .array(z.string().describe("Image URL or Data URI"))
+    .max(5, 'A maximum of 5 images are allowed.')
+    .default([]),
+  title: z.string().optional().describe("User-provided title to help generate details if images are missing."),
+  category: z.string().optional().describe("User-selected category context."),
+  idToken: z.string().describe('The Firebase ID token of the user.'),
+});
+export type SuggestListingDetailsInput = z.infer<typeof suggestListingDetailsInputSchema>;
+
+export const suggestListingDetailsOutputSchema = z.object({
+  title: z
+    .string()
+    .optional()
+    .describe('A concise, descriptive, and SEO-friendly title for the listing (e.g., "Air Jordan 1 High OG Chicago Lost and Found").'),
+  description: z
+    .string()
+    .optional()
+    .describe(
+      'A concise, one-to-two-line description of the item, highlighting its key features and condition.'
+    ),
+  price: z
+    .number()
+    .optional()
+    .describe(
+      'An estimated market price for the item in AUD, based on the provided images and analysis of similar items.'
+    ),
+  category: z.string().optional().describe("The single best category from this list: 'Sneakers', 'Streetwear', 'Accessories', 'Collector Cards'. MUST match these exact strings."),
+  subCategory: z.string().optional().describe("The single best sub-category based on the category context."),
+  condition: z.string().optional().describe("The single best condition description from this list: 'New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'."),
+  brand: z.string().optional().describe("The brand of the item (e.g., 'Nike', 'Adidas', 'Supreme', 'Panini', 'Topps')."),
+  model: z.string().optional().describe("The model name or set name (e.g., 'Air Jordan 1', 'Prizm')."),
+  styleCode: z.string().optional().describe("The unique style code (e.g., 'DZ5485-612'). Found on size tag."),
+  colorway: z.string().optional().describe("The colorway name (e.g., 'Chicago', 'Zebra', 'Bred')."),
+  size: z.string().optional().describe("The size of the item (e.g., '10.5', 'L', 'OS')."),
+  year: z.number().optional().describe("The year the item was manufactured or released."),
+  gradingCompany: z.string().optional().describe("For cards and coins: PSA, BGS, SGC, PCGS, NGC, Raw."),
+  grade: z.string().optional().describe("For cards and coins: 10, 9.5, MS65, Near Mint, etc."),
+  certNumber: z.string().optional().describe("For graded cards and coins: The certification number (e.g. 12345678) found on the slab/label."),
+  cardNumber: z.string().optional().describe("For cards: The card number (e.g., #123)."),
+  manufacturer: z.string().optional().describe("For cards: Panini, Upper Deck, Topps, etc."),
+  suggestedFields: z.array(z.string()).optional().describe("A list of field keys that were successfully identified and filled by the AI model."),
+});
+export type SuggestListingDetailsOutput = z.infer<typeof suggestListingDetailsOutputSchema>;
+
+
+// Schema for src/ai/flows/bulk-suggest-cards.ts
+export const bulkSuggestCardsInputSchema = z.object({
+  photoDataUris: z
+    .array(z.string().describe("Image URL or Data URI"))
+    .max(20, 'A maximum of 20 images are allowed.')
+    .default([]),
+  idToken: z.string().describe('The Firebase ID token of the user.'),
+});
+export type BulkSuggestCardsInput = z.infer<typeof bulkSuggestCardsInputSchema>;
+
+export const bulkSuggestCardsOutputSchema = z.object({
+  cards: z.array(z.object({
+    id: z.string().describe("Original index of the image provided."),
+    title: z.string().optional().describe('Card Name/Player/Set/Year (e.g., "2019 Panini Prizm Zion Williamson #248").'),
+    description: z.string().optional().describe("Brief description of the card."),
+    price: z.number().optional().describe('Estimated market price in AUD.'),
+    category: z.string().default('Collector Cards'),
+    subCategory: z.string().optional().describe("Sport or type (e.g., 'Basketball Cards')."),
+    condition: z.string().optional().describe("Estimated condition or grade (e.g., 'Raw', 'Near Mint')."),
+    brand: z.string().optional().describe("Manufacturer (e.g., 'Panini', 'Topps')."),
+    model: z.string().optional().describe("Set name (e.g., 'Prizm', 'Chrome')."),
+    year: z.number().optional().describe("Release year."),
+    cardNumber: z.string().optional().describe("Card number (e.g., #248)."),
+    gradingCompany: z.string().optional().describe("PSA, BGS, etc."),
+    grade: z.string().optional().describe("10, 9, etc."),
+  })).describe("The list of detected cards corresponding to the provided images.")
+});
+export type BulkSuggestCardsOutput = z.infer<typeof bulkSuggestCardsOutputSchema>;
+
+
+// Schema for src/ai/flows/process-donation.ts
+export const processDonationInputSchema = z.object({
+  donationId: z.string().describe('The ID of the donation document in Firestore.'),
+  fullName: z.string(),
+  email: z.string(),
+  donationType: z.string(),
+  description: z.string(),
+  quantity: z.string(),
+  idToken: z.string().describe('The Firebase ID token of the user.'),
+});
+export type ProcessDonationInput = z.infer<typeof processDonationInputSchema>;
+
+export const processDonationOutputSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+});
+export type ProcessDonationOutput = z.infer<typeof processDonationOutputSchema>;
+
+

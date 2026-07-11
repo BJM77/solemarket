@@ -11,7 +11,8 @@ import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library, X } from 'lucide-react';
+import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library, X, SlidersHorizontal } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { PageHeader } from '../layout/PageHeader';
 import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
@@ -178,6 +179,7 @@ function InfiniteProductGridInner({
   // Price Assistant State
   const [assistantProduct, setAssistantProduct] = useState<{ id: string, title: string, price: number } | null>(null);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   // Use a ref for the observer to avoid recreating it
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -608,15 +610,52 @@ function InfiniteProductGridInner({
             </div>
 
             {isClient && (
-              <AdvancedFilterPanel
-                targetCategory={currentSearchParams.category || initialFilterState.category}
-                currentFilters={currentSearchParams}
-                onFilterChange={(newFilters) => {
-                  const newQuery = createQueryString(newFilters);
-                  router.push(`${pathname}?${newQuery}`, { scroll: false });
-                }}
-                onClearFilters={() => router.push(pathname, { scroll: false })}
-              />
+              <>
+                {/* Desktop View: Inline */}
+                <div className="hidden md:block">
+                  <AdvancedFilterPanel
+                    targetCategory={currentSearchParams.category || initialFilterState.category}
+                    currentFilters={currentSearchParams}
+                    onFilterChange={(newFilters) => {
+                      const newQuery = createQueryString(newFilters);
+                      router.push(`${pathname}?${newQuery}`, { scroll: false });
+                    }}
+                    onClearFilters={() => router.push(pathname, { scroll: false })}
+                  />
+                </div>
+
+                {/* Mobile View: Collapsible Sheet */}
+                <div className="md:hidden">
+                  <Sheet open={isFilterDrawerOpen} onOpenChange={setIsFilterDrawerOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" className="flex items-center gap-2 h-9 px-3 border-white/10 hover:bg-white/5 text-white">
+                        <SlidersHorizontal className="h-4 w-4 text-primary" />
+                        <span>Filters</span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[85vh] bg-[#020617] border-white/10 p-6 flex flex-col rounded-t-3xl">
+                      <SheetHeader className="pb-4 border-b border-white/5">
+                        <SheetTitle className="text-white font-black uppercase text-lg">Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="flex-1 overflow-y-auto pt-4 pb-12">
+                        <AdvancedFilterPanel
+                          targetCategory={currentSearchParams.category || initialFilterState.category}
+                          currentFilters={currentSearchParams}
+                          onFilterChange={(newFilters) => {
+                            const newQuery = createQueryString(newFilters);
+                            router.push(`${pathname}?${newQuery}`, { scroll: false });
+                            setIsFilterDrawerOpen(false);
+                          }}
+                          onClearFilters={() => {
+                            router.push(pathname, { scroll: false });
+                            setIsFilterDrawerOpen(false);
+                          }}
+                        />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </>
             )}
           </div>
         </div>
