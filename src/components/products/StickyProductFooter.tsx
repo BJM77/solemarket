@@ -23,7 +23,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     if (product.isDraft) return null;
 
     // Logic from ProductDetailsClient
-    const handleAddToCart = () => {
+    const handleBuyNow = () => {
         if (!user) {
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
@@ -47,8 +47,9 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
         addItem(product, 1);
         toast({
             title: "Added to Cart!",
-            description: `${product.title} is now in your cart.`,
+            description: `${product.title} is now in your cart. Redirecting to checkout...`,
         });
+        router.push('/checkout');
     };
 
     // If seller is viewing their own item, or if it's reverse bidding, hide standard buy buttons
@@ -82,7 +83,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                         <Button
                             size="lg"
                             className="flex-1 font-bold h-12"
-                            onClick={handleAddToCart}
+                            onClick={handleBuyNow}
                         >
                             <ShoppingCart className="h-5 w-5 mr-2" />
                             Buy

@@ -190,7 +190,18 @@ export default function CheckoutPage() {
           Back
         </Button>
 
-        <h1 className="text-3xl font-black mb-8 tracking-tight uppercase">Checkout</h1>
+        <h1 className="text-3xl font-black mb-4 tracking-tight uppercase">Checkout</h1>
+
+        {/* Escrow Trust Banner */}
+        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-300">
+          <Shield className="h-6 w-6 text-emerald-400 shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">PayID Escrow Protection Active</h3>
+            <p className="text-xs text-emerald-400/80 leading-relaxed mt-1">
+              Your purchase is 100% protected. Payments are held securely by Benched's escrow system. The seller is only paid after the item has been delivered and you have verified the condition of the card.
+            </p>
+          </div>
+        </div>
 
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">

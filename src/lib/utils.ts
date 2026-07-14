@@ -180,8 +180,8 @@ export interface ProcessedImageResult {
  */
 export async function processListingImage(
   file: File,
-  highResMaxWidth: number = 1600,
-  highResQuality: number = 0.8,
+  highResMaxWidth: number = 1200,
+  highResQuality: number = 0.75,
   aiMaxWidth: number = 800,
   aiQuality: number = 0.6
 ): Promise<ProcessedImageResult> {

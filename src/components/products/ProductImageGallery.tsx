@@ -47,9 +47,15 @@ export default function ProductImageGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullZoom, setIsFullZoom] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Reset full zoom when slide changes or fullscreen closes
+  useEffect(() => {
+    setIsFullZoom(false);
+  }, [selectedIndex, isFullscreen]);
 
   // Combine media: Video (if exists) comes first
   const media = useMemo<Array<{ type: 'video' | 'image', url: string, thumbnail?: string }>>(() => {
@@ -304,8 +310,14 @@ export default function ProductImageGallery({
           <DialogTitle className="sr-only">Full-screen view of {title}</DialogTitle>
           <DialogDescription className="sr-only">Viewing media {selectedIndex + 1} of {media.length}.</DialogDescription>
 
-          <div className="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden touch-none">
-            <div className="relative w-full h-full">
+          <div className="relative flex-1 w-full h-full flex items-center justify-center overflow-auto">
+            <div 
+              className={cn(
+                "relative transition-all duration-300", 
+                media[selectedIndex]?.type !== 'video' && (isFullZoom ? "w-[200vw] h-[200vh] cursor-zoom-out" : "w-full h-full cursor-zoom-in")
+              )}
+              onClick={() => media[selectedIndex]?.type !== 'video' && setIsFullZoom(!isFullZoom)}
+            >
               {media[selectedIndex]?.type === 'video' ? (
                 <video
                   src={media[selectedIndex].url}
@@ -318,7 +330,7 @@ export default function ProductImageGallery({
                   src={media[selectedIndex].url!}
                   alt={imageAltTexts[selectedIndex] || `${title} - Fullscreen`}
                   fill
-                  sizes="100vw"
+                  sizes={isFullZoom ? "200vw" : "100vw"}
                   className="object-contain"
                   priority
                   placeholder="blur"

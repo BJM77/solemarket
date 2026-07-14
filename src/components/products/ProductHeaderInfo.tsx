@@ -54,8 +54,20 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                 )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white flex items-center gap-2.5 flex-wrap">
                 {product.title}
+                {product.condition && (
+                    <Badge variant="outline" className={cn(
+                        "text-xs font-bold uppercase tracking-wider px-2.5 py-1 shrink-0",
+                        product.condition.toLowerCase().includes('mint') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        product.condition.toLowerCase().includes('excellent') ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                        product.condition.toLowerCase().includes('good') || product.condition.toLowerCase().includes('played') ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                        product.condition.toLowerCase().includes('fair') || product.condition.toLowerCase().includes('poor') || product.condition.toLowerCase().includes('damaged') ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                        'bg-indigo-50 text-indigo-700 border-indigo-200'
+                    )}>
+                        {product.condition}
+                    </Badge>
+                )}
             </h1>
 
             <div className="flex items-center gap-4 flex-wrap">

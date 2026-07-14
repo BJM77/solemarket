@@ -95,7 +95,13 @@ function ConversationList({
         ) : (
           conversations.map((convo) => {
             const otherParticipantId = convo.participantIds.find(id => id !== user?.uid)!;
+            const isOtherParticipantSeller = convo.participantIds[1] === otherParticipantId;
             const otherParticipant = convo.participants[otherParticipantId];
+            
+            const displayParticipant = isOtherParticipantSeller ? {
+              displayName: "Seller",
+              photoURL: ""
+            } : otherParticipant;
             return (
               <Link href={`/messages/${convo.id}`} key={convo.id}>
                 <div
@@ -105,12 +111,12 @@ function ConversationList({
                   )}
                 >
                   <Avatar>
-                    <AvatarImage src={otherParticipant?.photoURL} />
-                    <AvatarFallback>{otherParticipant?.displayName?.[0]}</AvatarFallback>
+                    <AvatarImage src={displayParticipant?.photoURL} />
+                    <AvatarFallback>{displayParticipant?.displayName?.[0] || 'S'}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold truncate">{otherParticipant?.displayName}</h3>
+                      <h3 className="font-semibold truncate">{displayParticipant?.displayName}</h3>
                       <span className="text-xs text-gray-400 flex-shrink-0">
                         {convo.lastMessage.timestamp && formatDistanceToNow(convo.lastMessage.timestamp.toDate(), { addSuffix: true })}
                       </span>
@@ -187,9 +193,16 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     const messageText = newMessage;
     setNewMessage('');
 
+    // Redact phone numbers and emails
+    let redactedText = messageText.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL REMOVED]');
+    redactedText = redactedText.replace(/(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi, function(match) {
+        if (match.replace(/\D/g, '').length >= 10) return '[PHONE NUMBER REMOVED]';
+        return match;
+    });
+
     const messageData = {
       senderId: user.uid,
-      text: messageText,
+      text: redactedText,
       timestamp: serverTimestamp(),
     };
 
@@ -199,7 +212,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     const convoRef = doc(db, 'conversations', conversationId);
     await updateDoc(convoRef, {
       lastMessage: {
-        text: messageText,
+        text: redactedText,
         senderId: user.uid,
         timestamp: serverTimestamp(),
       }
@@ -216,7 +229,13 @@ function ConversationView({ conversationId }: { conversationId: string }) {
   }
 
   const otherParticipantId = conversation.participantIds.find(id => id !== user?.uid)!;
+  const isOtherParticipantSeller = conversation.participantIds[1] === otherParticipantId;
   const otherParticipant = conversation.participants[otherParticipantId];
+  
+  const displayParticipant = isOtherParticipantSeller ? {
+    displayName: "Seller",
+    photoURL: ""
+  } : otherParticipant;
 
   return (
     <div className="flex-1 flex flex-col h-full">
@@ -226,11 +245,11 @@ function ConversationView({ conversationId }: { conversationId: string }) {
           <ArrowLeft />
         </Button>
         <Avatar>
-          <AvatarImage src={otherParticipant.photoURL} />
-          <AvatarFallback>{otherParticipant.displayName[0]}</AvatarFallback>
+          <AvatarImage src={displayParticipant.photoURL} />
+          <AvatarFallback>{displayParticipant.displayName[0]}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-semibold">{otherParticipant.displayName}</h3>
+          <h3 className="font-semibold">{displayParticipant.displayName}</h3>
         </div>
       </div>
 

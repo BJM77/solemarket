@@ -301,20 +301,15 @@ export default function ProductDetailsModern({
     };
 
     const handleStartConversation = async () => {
-        if (!user || !product || !seller) {
-            if (!user && product && seller) {
+        if (!user || !product) {
+            if (!user && product) {
                 // Open guest message dialog instead of forcing sign-in
                 setIsGuestMessageOpen(true);
             }
             return;
         }
 
-        // Check if user is seller/buyer and bypass verification (though message is usually direct)
-        // For messaging, it's currently restricted to registered users in handleStartConversation, 
-        // but let's see if we want to allow guests here too. 
-        // The user said: "allow sellers to bypass... Also buyers that register... use email for non members"
-        
-        if (user.uid === seller.id) {
+        if (user.uid === product.sellerId) {
             toast({ title: "You can't message yourself.", variant: 'destructive' });
             return;
         }
@@ -329,7 +324,7 @@ export default function ProductDetailsModern({
 
         querySnapshot.forEach(doc => {
             const data = doc.data();
-            if (data.participantIds.includes(seller.id) && data.productContext?.id === product.id) {
+            if (data.participantIds.includes(product.sellerId) && data.productContext?.id === product.id) {
                 existingConversation = { id: doc.id, ...data };
             }
         });
@@ -338,34 +333,61 @@ export default function ProductDetailsModern({
             router.push(`/messages/${existingConversation.id}`);
         } else {
             const newConversationRef = await addDoc(collection(db, 'conversations'), {
-                participantIds: [user.uid, seller.id],
+                participantIds: [user.uid, product.sellerId],
                 participants: {
                     [user.uid]: {
-                        displayName: user.displayName,
-                        photoURL: user.photoURL,
+                        displayName: user.displayName || 'Buyer',
+                        photoURL: user.photoURL || '',
                     },
-                    [seller.id]: {
-                        displayName: seller.displayName,
-                        photoURL: seller.photoURL,
+                    [product.sellerId]: {
+                        displayName: 'Seller',
+                        photoURL: '',
                     }
                 },
                 lastMessage: {
-                    text: `Inquiry about: ${product.title}`,
-                    senderId: user.uid,
+                    text: 'Conversation started',
                     timestamp: serverTimestamp(),
+                    senderId: 'system',
                 },
                 productContext: {
                     id: product.id,
                     title: product.title,
-                    imageUrl: product.imageUrls[0],
-                },
-                createdAt: serverTimestamp(),
+                    imageUrl: product.imageUrls?.[0] || '',
+                }
             });
             router.push(`/messages/${newConversationRef.id}`);
         }
     };
 
-    // handleAddToCart removed: Switching to direct communication model.
+    const handleBuyNow = () => {
+        if (!product) return;
+        if (!user) {
+            router.push(`/sign-in?redirect=/product/${product.id}`);
+            return;
+        }
+
+        // Allow staff/admins AND established buyers/sellers to bypass
+        const role = (user as any).role;
+        const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
+        const emailVerified = (user as any).emailVerified;
+
+        if (!isExempt && !emailVerified) {
+            toast({
+                title: "Email Verification Required",
+                description: "Please verify your email address to buy items.",
+                variant: "destructive"
+            });
+            router.push('/verify');
+            return;
+        }
+
+        addItem(product, 1);
+        toast({
+            title: "Added to Cart!",
+            description: `${product.title} is now in your cart. Redirecting to checkout...`,
+        });
+        router.push('/checkout');
+    };
 
     const handleAcceptBid = async (bidId: string) => {
         try {
@@ -839,21 +861,31 @@ export default function ProductDetailsModern({
                                                     <div className="space-y-3">
                                                         <Button
                                                             className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-indigo-600/25 bg-indigo-600 hover:bg-indigo-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                            onClick={handleBuyNow}
+                                                        >
+                                                            <ShoppingCart className="h-5 w-5" />
+                                                            Buy Now
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
                                                             onClick={handleStartConversation}
                                                         >
                                                             <MessageSquare className="h-5 w-5" />
                                                             Message Seller
                                                         </Button>
-                                                        
-                                                        <Button
-                                                            variant="outline"
-                                                            className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
-                                                            onClick={() => setIsSafetyModalOpen(true)}
-                                                            disabled={isEnquiring || isPhoneRevealed || (isCurrentlyHeld && !heldByMe)}
-                                                        >
-                                                            {isEnquiring ? <Loader2 className="h-5 w-5 animate-spin" /> : <Phone className="h-5 w-5" />}
-                                                            {isPhoneRevealed || (isCurrentlyHeld && heldByMe) ? "Phone Number Revealed" : "Contact via SMS/Call"}
-                                                        </Button>
+
+                                                        <div className="flex items-start gap-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4 rounded-2xl text-left mt-2">
+                                                            <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                                                            <div>
+                                                                <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">PayID Escrow Protection Active</p>
+                                                                <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 leading-relaxed mt-0.5">
+                                                                    Your payment is held securely in escrow. Funds are only released to the seller once you receive and verify the item's condition.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
 
                                                         {(product.isNegotiable || product.isUntimed) && (
                                                             <OfferModal
@@ -1193,56 +1225,7 @@ export default function ProductDetailsModern({
                                 </div>
                             </div>
 
-                            {/* Seller Card */}
-                            {seller && (
-                                <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20">
-                                            <Avatar className="w-full h-full">
-                                                <AvatarImage src={seller.photoURL || ''} className="object-cover" />
-                                                <AvatarFallback>{seller.displayName?.[0]}</AvatarFallback>
-                                            </Avatar>
-                                        </div>
-                                        <div>
-                                            <Link href={`/seller/${seller.id}`} className="hover:underline">
-                                                <h4 className="font-bold text-gray-900 dark:text-white">{seller.displayName}</h4>
-                                            </Link>
-                                            <div className="flex items-center gap-1 text-sm text-yellow-500">
-                                                <Star className="h-4 w-4 fill-current" />
-                                                <span className="font-bold text-gray-700 dark:text-gray-200">
-                                                    {typeof seller.rating === 'number' ? seller.rating.toFixed(1) : '5.0'}
-                                                </span>
-                                                <span className="text-xs text-gray-400">({seller.totalSales || 0} sales)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button size="default" variant="outline" className="rounded-xl h-10 font-bold" asChild>
-                                            <Link href={`/shop/${(seller as any).shopSlug || seller.id}`}>
-                                                <Store className="h-4 w-4 mr-2" />
-                                                View Shop
-                                            </Link>
-                                        </Button>
-                                        <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={handleStartConversation}>
-                                            <MessageSquare className="h-5 w-5 text-gray-600" />
-                                        </Button>
-                                        {seller.phoneNumber && (
-                                            <Button
-                                                size="icon"
-                                                variant="secondary"
-                                                className={cn(
-                                                    "rounded-xl h-10 transition-all duration-300",
-                                                    isPhoneRevealed ? "w-auto px-4 gap-2" : "w-10"
-                                                )}
-                                                onClick={handleRevealContact}
-                                            >
-                                                <Phone className="h-5 w-5 text-gray-600 shrink-0" />
-                                                {isPhoneRevealed && <span className="font-bold text-gray-800 dark:text-gray-200">{seller.phoneNumber}</span>}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+
 
                             </div>
                         </div>
