@@ -35,7 +35,7 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-export const revalidate = 86400; // Cache sitemap for 24 hours
+export const revalidate = 3600; // Cache sitemap for 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';

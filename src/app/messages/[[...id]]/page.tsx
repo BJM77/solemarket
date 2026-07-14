@@ -195,8 +195,8 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
     // Redact phone numbers and emails
     let redactedText = messageText.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL REMOVED]');
-    redactedText = redactedText.replace(/(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi, function(match) {
-        if (match.replace(/\D/g, '').length >= 10) return '[PHONE NUMBER REMOVED]';
+    redactedText = redactedText.replace(/(?:\+?[\d\s\-.\(\)]){8,20}/g, function(match) {
+        if (match.replace(/\D/g, '').length >= 8) return '[PHONE NUMBER REMOVED]';
         return match;
     });
 

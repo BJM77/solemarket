@@ -6,11 +6,18 @@ export default function robots(): MetadataRoute.Robots {
   // NOTE: Standard robots.txt doesn't support 'Content-Signal' yet.
   // To avoid Lighthouse errors, we stick to standard directives.
   return {
-    rules: {
-      userAgent: '*',
-      allow: ['/', '/api/og-proxy'],
-      disallow: ['/admin/', '/profile/', '/api/'],
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: ['/', '/api/og-proxy'],
+        disallow: ['/admin/', '/profile/', '/api/'],
+      },
+      {
+        userAgent: ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Applebot-Extended', 'Google-Extended', 'cohere-ai'],
+        allow: ['/'],
+        disallow: ['/admin/', '/profile/', '/api/'],
+      }
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

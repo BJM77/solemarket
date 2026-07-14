@@ -43,6 +43,12 @@ const absoluteOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogIm
 
 export const metadata: Metadata = {
   metadataBase,
+  applicationName: SITE_NAME,
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: 'default',
+  },
   alternates: {
     canonical: './',
     languages: {
@@ -102,8 +108,7 @@ export const viewport: Viewport = {
 };
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-
-
+import { PwaRegister } from '@/components/layout/PwaRegister';
 
 export default function RootLayout({
   children,
@@ -113,6 +118,7 @@ export default function RootLayout({
   return (
     <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
       <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
+        <PwaRegister />
         <StructuredData />
         <AppProviders>
           <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-primary focus:text-primary-foreground focus:z-50">

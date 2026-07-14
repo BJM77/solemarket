@@ -47,10 +47,14 @@ export default function ProductImageGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isFullZoom, setIsFullZoom] = useState(false);
-  const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center', transform: 'scale(1)' });
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [magnifierPos, setMagnifierPos] = useState({ x: 0, y: 0 });
+  const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
+  const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullZoom, setIsFullZoom] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isTouch = useRef(false);
 
   // Reset full zoom when slide changes or fullscreen closes
   useEffect(() => {
@@ -121,19 +125,28 @@ export default function ProductImageGallery({
     setSelectedIndex(index);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (media[selectedIndex]?.type === 'video') return;
+    isTouch.current = e.pointerType === 'touch';
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setZoomStyle({
-      transformOrigin: `${x}% ${y}%`,
-      transform: 'scale(2.0)',
-    });
+    const x = e.clientX - left;
+    const y = e.clientY - top;
+    const px = (x / width) * 100;
+    const py = (y / height) * 100;
+
+    setMagnifierPos({ x, y });
+    setZoomCoords({ x: px, y: py });
+    setImgSize({ width, height });
   };
 
-  const handleMouseLeave = () => {
-    setZoomStyle({ transformOrigin: 'center', transform: 'scale(1)' });
+  const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (media[selectedIndex]?.type === 'video') return;
+    setShowMagnifier(true);
+    handlePointerMove(e);
+  };
+
+  const handlePointerLeave = () => {
+    setShowMagnifier(false);
   };
 
   if (!media || media.length === 0) {
@@ -189,9 +202,10 @@ export default function ProductImageGallery({
                     </div>
                   ) : (
                     <div
-                      className="relative w-full h-full cursor-zoom-in"
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={handleMouseLeave}
+                      className="relative w-full h-full overflow-hidden cursor-crosshair touch-none"
+                      onPointerMove={handlePointerMove}
+                      onPointerEnter={handlePointerEnter}
+                      onPointerLeave={handlePointerLeave}
                       onClick={() => setIsFullscreen(true)}
                     >
                       <Image
@@ -199,12 +213,26 @@ export default function ProductImageGallery({
                         alt={imageAltTexts[index] || `${title} - Media ${index + 1}`}
                         fill
                         className="object-contain"
-                        style={index === selectedIndex ? zoomStyle : undefined}
                         priority={index === 0}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
                         sizes="(max-width: 768px) 100vw, 800px"
                       />
+                      {showMagnifier && index === selectedIndex && (
+                        <div
+                          className="absolute pointer-events-none rounded-full border-2 border-white/50 bg-no-repeat shadow-[0_0_20px_rgba(0,0,0,0.5)] z-30"
+                          style={{
+                            width: '180px',
+                            height: '180px',
+                            // Offset vertical position on touch devices to avoid finger obstruction
+                            top: `${magnifierPos.y - (isTouch.current ? 140 : 90)}px`,
+                            left: `${magnifierPos.x - 90}px`,
+                            backgroundImage: `url(${item.url})`,
+                            backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`,
+                            backgroundSize: `${imgSize.width * 2.2}px ${imgSize.height * 2.2}px`,
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

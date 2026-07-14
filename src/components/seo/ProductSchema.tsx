@@ -1,4 +1,5 @@
 import type { Product, Review } from '@/lib/types'
+import { getProductUrl } from '@/lib/utils'
 
 type Props = {
   product: Product
@@ -47,7 +48,7 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
       itemCondition: getConditionSchema(product.condition),
       availability: (product.status === 'available' || product.status === 'on_hold') ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `${siteUrl}/product/${product.id}`,
+      url: `${siteUrl}${getProductUrl(product)}`,
       seller: {
         '@type': 'Organization',
         name: 'Benched Australia',

@@ -91,6 +91,7 @@ import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { SizeChart } from '@/components/sneakers/SizeChart';
 import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
+import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 
 const ADMIN_CATEGORIES = {
     'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
@@ -301,61 +302,66 @@ export default function ProductDetailsModern({
     };
 
     const handleStartConversation = async () => {
-        if (!user || !product) {
-            if (!user && product) {
-                // Open guest message dialog instead of forcing sign-in
-                setIsGuestMessageOpen(true);
+        try {
+            if (!user || !product) {
+                if (!user && product) {
+                    // Open guest message dialog instead of forcing sign-in
+                    setIsGuestMessageOpen(true);
+                }
+                return;
             }
-            return;
-        }
 
-        if (user.uid === product.sellerId) {
-            toast({ title: "You can't message yourself.", variant: 'destructive' });
-            return;
-        }
-
-        const conversationQuery = query(
-            collection(db, 'conversations'),
-            where('participantIds', 'array-contains', user.uid)
-        );
-
-        const querySnapshot = await getDocs(conversationQuery);
-        let existingConversation: any = null;
-
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.participantIds.includes(product.sellerId) && data.productContext?.id === product.id) {
-                existingConversation = { id: doc.id, ...data };
+            if (user.uid === product.sellerId) {
+                toast({ title: "You can't message yourself.", variant: 'destructive' });
+                return;
             }
-        });
 
-        if (existingConversation) {
-            router.push(`/messages/${existingConversation.id}`);
-        } else {
-            const newConversationRef = await addDoc(collection(db, 'conversations'), {
-                participantIds: [user.uid, product.sellerId],
-                participants: {
-                    [user.uid]: {
-                        displayName: user.displayName || 'Buyer',
-                        photoURL: user.photoURL || '',
-                    },
-                    [product.sellerId]: {
-                        displayName: 'Seller',
-                        photoURL: '',
-                    }
-                },
-                lastMessage: {
-                    text: 'Conversation started',
-                    timestamp: serverTimestamp(),
-                    senderId: 'system',
-                },
-                productContext: {
-                    id: product.id,
-                    title: product.title,
-                    imageUrl: product.imageUrls?.[0] || '',
+            const conversationQuery = query(
+                collection(db, 'conversations'),
+                where('participantIds', 'array-contains', user.uid)
+            );
+
+            const querySnapshot = await getDocs(conversationQuery);
+            let existingConversation: any = null;
+
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.participantIds.includes(product.sellerId) && data.productContext?.id === product.id) {
+                    existingConversation = { id: doc.id, ...data };
                 }
             });
-            router.push(`/messages/${newConversationRef.id}`);
+
+            if (existingConversation) {
+                router.push(`/messages/${existingConversation.id}`);
+            } else {
+                const newConversationRef = await addDoc(collection(db, 'conversations'), {
+                    participantIds: [user.uid, product.sellerId],
+                    participants: {
+                        [user.uid]: {
+                            displayName: user.displayName || 'Buyer',
+                            photoURL: user.photoURL || '',
+                        },
+                        [product.sellerId]: {
+                            displayName: 'Seller',
+                            photoURL: '',
+                        }
+                    },
+                    lastMessage: {
+                        text: 'Conversation started',
+                        timestamp: serverTimestamp(),
+                        senderId: 'system',
+                    },
+                    productContext: {
+                        id: product.id,
+                        title: product.title,
+                        imageUrl: product.imageUrls?.[0] || '',
+                    }
+                });
+                router.push(`/messages/${newConversationRef.id}`);
+            }
+        } catch (error: any) {
+            console.error("Error starting conversation:", error);
+            toast({ title: "Could not start conversation", description: error.message || "An unexpected error occurred", variant: "destructive" });
         }
     };
 
@@ -903,6 +909,21 @@ export default function ProductDetailsModern({
                                                             />
                                                         )}
 
+                                                        <Button
+                                                            variant="secondary"
+                                                            className="w-full h-14 text-lg font-bold rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                            asChild
+                                                        >
+                                                            <a
+                                                                href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                <ExternalLink className="h-5 w-5" />
+                                                                See Comps (eBay)
+                                                            </a>
+                                                        </Button>
+
                                                         {(isPhoneRevealed || (isCurrentlyHeld && heldByMe)) && (
                                                             <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
                                                                 <p className="text-indigo-900 dark:text-indigo-100 font-bold text-sm mb-1 flex justify-between items-center">
@@ -1285,6 +1306,8 @@ export default function ProductDetailsModern({
                     productTitle={product.title}
                 />
             )}
+
+            {product && <StickyProductFooter product={product} user={isUserLoading ? null : user as any} />}
         </main>
     );
 }

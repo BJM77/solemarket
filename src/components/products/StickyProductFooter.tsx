@@ -10,6 +10,8 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
+import { useState, useEffect } from 'react';
+
 interface StickyProductFooterProps {
     product: Product;
     user: UserProfile | null;
@@ -19,6 +21,19 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     const router = useRouter();
     const { toast } = useToast();
     const { addItem } = useCart();
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // Show sticky footer when scrolled past 400px (approximate height of image + title)
+            setIsVisible(window.scrollY > 400);
+        };
+        
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll(); // Initial check
+        
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     if (product.isDraft) return null;
 
@@ -65,7 +80,10 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     }
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 p-4 lg:hidden safe-area-pb">
+        <div className={cn(
+            "fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 p-4 lg:hidden safe-area-pb transition-transform duration-300",
+            isVisible ? "translate-y-0" : "translate-y-full"
+        )}>
             <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
                 <div className="flex flex-col">
                     {!product.isUntimed && (
@@ -86,7 +104,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                             onClick={handleBuyNow}
                         >
                             <ShoppingCart className="h-5 w-5 mr-2" />
-                            Buy
+                            Buy Now
                         </Button>
                     )}
 

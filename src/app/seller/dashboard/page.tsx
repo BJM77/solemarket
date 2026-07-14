@@ -513,7 +513,9 @@ export default function SellerDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map(product => (
+                      {products.map(product => {
+                        const isStale = product.createdAt && (new Date().getTime() - (product.createdAt instanceof Timestamp ? product.createdAt.toMillis() : new Date(product.createdAt as any).getTime())) > 14 * 24 * 60 * 60 * 1000;
+                        return (
                         <TableRow key={product.id} className={cn(
                           "hover:bg-white/5 transition-colors border-white/5",
                           selectedProducts.includes(product.id) && "bg-primary/5"
@@ -535,9 +537,20 @@ export default function SellerDashboard() {
                           </TableCell>
                           <TableCell className="font-bold text-white">{formatPrice(product.price)}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                              <Eye className="h-3 w-3" />
-                              {(product as any).views || 0} views
+                            <div className="flex flex-col gap-1.5">
+                              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                                <Eye className="h-3 w-3" />
+                                {(product as any).views || 0} views
+                                {((product as any).views || 0) > 50 && (
+                                  <Badge variant="outline" className="ml-1 bg-orange-500/10 text-orange-500 border-orange-500/20 text-[8px] font-black px-1.5 py-0 uppercase tracking-widest flex-shrink-0">
+                                    🔥 Hot
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-600 font-medium uppercase tracking-widest flex items-center gap-1">
+                                <TrendingUp className="h-3 w-3" />
+                                {((((product as any).contactCallCount || 0) + ((product as any).watchCount || 0)) / Math.max((product as any).views || 1, 1) * 100).toFixed(1)}% Conv. Rate
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -587,9 +600,16 @@ export default function SellerDashboard() {
                                   </Button>
                                 </div>
                               ) : (
-                                <Button variant="ghost" size="sm" className="font-bold rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all" asChild>
-                                  <Link href={`/product/${product.id}`}>Inspect</Link>
-                                </Button>
+                                <>
+                                  {isStale && product.status !== 'draft' && (
+                                    <Button variant="outline" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-orange-500 border-orange-500/20 bg-orange-500/10 hover:bg-orange-500/20 transition-all" asChild>
+                                      <Link href={`/sell/create?edit=${product.id}`}>Drop Price</Link>
+                                    </Button>
+                                  )}
+                                  <Button variant="ghost" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all" asChild>
+                                    <Link href={`/product/${product.id}`}>Inspect</Link>
+                                  </Button>
+                                </>
                               )}
                               {product.status === 'draft' && (
                                 <Button 
@@ -606,7 +626,7 @@ export default function SellerDashboard() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )})}
                     </TableBody>
                   </Table>
                 ) : (

@@ -95,13 +95,19 @@ export function GuestMessageDialog({ isOpen, onClose, sellerId, productId, produ
         setIsLoading(true);
 
         try {
+            let redactedText = message.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL REMOVED]');
+            redactedText = redactedText.replace(/(?:\+?[\d\s\-.\(\)]){8,20}/g, function(match) {
+                if (match.replace(/\D/g, '').length >= 8) return '[PHONE NUMBER REMOVED]';
+                return match;
+            });
+
             const result = await sendGuestEnquiry({
                 sellerId,
                 productId,
                 productTitle,
                 name,
                 email,
-                message,
+                message: redactedText,
                 verificationCode
             });
 

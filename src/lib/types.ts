@@ -176,6 +176,7 @@ export type Product = {
   heldBy?: string;
   holdExpiresAt?: Timestamp;
   sellerRating?: number;
+  marketValue?: number; // Fetched from eBay comps or AI
 };
 
 export type ProductSearchParams = {

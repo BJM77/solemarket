@@ -197,6 +197,28 @@ export default function ProductCard({
     );
   };
 
+  const DealIndicator = ({ className }: { className?: string }) => {
+    if (!product.marketValue || product.isUntimed) return null;
+    const diff = product.marketValue - product.price;
+    const percentDiff = Math.round((Math.abs(diff) / product.marketValue) * 100);
+    
+    if (percentDiff < 5) return null;
+
+    if (diff > 0) {
+      return (
+        <Badge variant="outline" className={cn("bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+          Great Deal
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge variant="outline" className={cn("bg-red-500/10 text-red-400 border-red-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+          +{percentDiff}% Mkt
+        </Badge>
+      );
+    }
+  };
+
   const PriceDisplay = () => {
     if (isEditingPrice) {
       return (
@@ -555,6 +577,7 @@ export default function ProductCard({
             )}
             <div className="text-sm font-bold w-full text-right flex justify-end items-center gap-2 pointer-events-auto">
               <DealTierBadge />
+              <DealIndicator />
               <PriceDisplay />
             </div>
             <Button
@@ -732,6 +755,7 @@ export default function ProductCard({
               <Badge variant="outline" className="text-xs pointer-events-auto">{product.category}</Badge>
               <div className="font-bold text-lg pointer-events-auto flex items-center gap-2">
                 <DealTierBadge />
+                <DealIndicator />
                 <PriceDisplay />
               </div>
             </div>
@@ -990,6 +1014,7 @@ export default function ProductCard({
             <div className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
               <PriceDisplay />
               <DealTierBadge />
+              <DealIndicator />
             </div>
           </div>
           <div className="flex gap-2 pointer-events-auto">
