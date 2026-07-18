@@ -616,18 +616,17 @@ export default function ProductCard({
                 <SmartImage
                   product={product}
                   imageIndex={0}
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
                   priority={priority}
                   quality={50}
                 />
               </Link>
               <Button
                 variant="ghost"
-                size="icon"
-                className="absolute top-2 left-2 z-20 text-white bg-black/40 hover:bg-black/60 hidden group-hover/image:flex"
+                className="absolute top-2 left-2 z-20 text-white bg-black/40 hover:bg-black/60 hidden group-hover/image:flex h-6 w-6 p-0 items-center justify-center rounded-md"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLightboxOpen(true); }}
               >
-                <Maximize2 className="h-4 w-4" />
+                <Maximize2 className="h-[11px] w-[11px]" />
               </Button>
             </div>
           ) : null}
@@ -960,7 +959,7 @@ export default function ProductCard({
             <SmartImage
               product={product}
               imageIndex={0}
-              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
               priority={priority}
               quality={50}
             />

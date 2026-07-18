@@ -28,7 +28,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
-                        <Link href="/browse" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
+                        <Link href="/shoes" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
                             Shop Sneakers
                         </Link>
                         <Link href="/cards" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 border border-slate-900 dark:border-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 text-center text-sm md:text-base">

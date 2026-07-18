@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -35,7 +36,8 @@ import {
     Gavel,
     ExternalLink,
     Mail,
-    DollarSign
+    DollarSign,
+    Tag
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -131,6 +133,8 @@ export default function ProductDetailsModern({
     const [guestCode, setGuestCode] = useState('');
     const [verifyingGuest, setVerifyingGuest] = useState(false);
     const [recentViews, setRecentViews] = useState<number>(0);
+    const [sellerMultibuyProducts, setSellerMultibuyProducts] = useState<Product[]>([]);
+    const [loadingSellerMultibuy, setLoadingSellerMultibuy] = useState(false);
 
     // Initial load of guest data
     useEffect(() => {
@@ -159,6 +163,38 @@ export default function ProductDetailsModern({
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
         initialData: initialProduct,
     });
+
+    useEffect(() => {
+        if (!product?.sellerId || !product?.multibuyEnabled) {
+            setSellerMultibuyProducts([]);
+            return;
+        }
+
+        const fetchSellerMultibuy = async () => {
+            setLoadingSellerMultibuy(true);
+            try {
+                const q = query(
+                    collection(db, 'products'),
+                    where('sellerId', '==', product.sellerId),
+                    where('category', '==', product.category),
+                    where('multibuyEnabled', '==', true),
+                    where('status', '==', 'available'),
+                    limit(6)
+                );
+                const querySnapshot = await getDocs(q);
+                const productsData = querySnapshot.docs
+                    .filter(doc => doc.id !== productId)
+                    .map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
+                setSellerMultibuyProducts(productsData);
+            } catch (error) {
+                console.error("Error fetching seller multibuy products:", error);
+            } finally {
+                setLoadingSellerMultibuy(false);
+            }
+        };
+
+        fetchSellerMultibuy();
+    }, [product?.sellerId, product?.category, productId, product?.multibuyEnabled]);
 
     const sellerRef = useMemoFirebase(() => product?.sellerId ? doc(db, 'users', product.sellerId) : null, [product?.sellerId]);
     const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller ?? undefined });
@@ -900,7 +936,7 @@ export default function ProductDetailsModern({
                                                                 trigger={
                                                                     <Button
                                                                         variant="outline"
-                                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-indigo-600/20 hover:bg-indigo-50 text-indigo-700 gap-2"
+                                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
                                                                     >
                                                                         <DollarSign className="h-5 w-5" />
                                                                         Make an Offer
@@ -1266,6 +1302,85 @@ export default function ProductDetailsModern({
                         </div>
                     </div>
                 </div>
+
+            {/* Seller Multibuy Mix & Match Section */}
+            {product.multibuyEnabled && sellerMultibuyProducts.length > 0 && (
+                <section className="max-w-7xl mx-auto px-4 mt-12 mb-8 animate-in fade-in duration-300">
+                    <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4 mb-6">
+                        <div>
+                            <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-white flex items-center gap-2">
+                                <Tag className="h-5 w-5 text-indigo-500 fill-indigo-500/10" />
+                                Mix & Match Multibuy Deals
+                            </h2>
+                            <p className="text-xs font-semibold text-slate-500 mt-1">
+                                Add more items from <b>{product.sellerName || 'this seller'}</b>'s eligible collection to save!
+                            </p>
+                        </div>
+                        {product.multiCardTier && (
+                            <span className={cn(
+                                "text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border self-start sm:self-auto",
+                                product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
+                                product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-slate-400 border-slate-500/20' :
+                                product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
+                                'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                            )}>
+                                Eligible Tier: {product.multiCardTier}
+                            </span>
+                        )}
+                    </div>
+                    {loadingSellerMultibuy ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="aspect-square bg-slate-100 dark:bg-slate-900 rounded-2xl animate-pulse" />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            {sellerMultibuyProducts.map((item) => (
+                                <div 
+                                    key={item.id} 
+                                    className="group relative bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between hover:shadow-md transition-all duration-300"
+                                >
+                                    <Link href={`/product/${item.id}`} className="block aspect-square relative rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950">
+                                        <Image
+                                            src={item.imageUrls[0]}
+                                            alt={item.title}
+                                            fill
+                                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 15vw"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                    </Link>
+                                    <div className="mt-2.5 space-y-1 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 group-hover:text-primary transition-colors leading-tight">
+                                                {item.title}
+                                            </h4>
+                                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400 mt-0.5">
+                                                ${formatPrice(item.price)}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                addItem(item, 1);
+                                                toast({
+                                                    title: "Added to Cart",
+                                                    description: `${item.title} is ready for multibuy!`,
+                                                });
+                                            }}
+                                            className="w-full h-8 text-[10px] font-bold tracking-wider uppercase bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 rounded-xl mt-2.5"
+                                        >
+                                            + Add to Cart
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
 
             {/* Related Items (Server Side Rendered for SEO) */}
             {initialRelatedProducts && initialRelatedProducts.length > 0 && (

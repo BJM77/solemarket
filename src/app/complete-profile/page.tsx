@@ -274,7 +274,7 @@ export default function CompleteProfilePage() {
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
                                         <FormLabel className="text-sm font-normal">
-                                            I agree to the <Link href="/conditions" className="text-primary hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+                                            I agree to the <Link href="/terms" className="text-primary hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
                                         </FormLabel>
                                         <FormMessage />
                                     </div>

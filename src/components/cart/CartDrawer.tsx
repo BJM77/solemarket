@@ -17,13 +17,30 @@ import { Trash2, Plus, Minus, ShoppingBag, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/utils';
+import { calculateDutchAuctionPrice } from '@/lib/pricing';
 
 export function CartDrawer() {
-    const { items, removeItem, updateQuantity, cartTotal, itemCount, isCartOpen, setIsCartOpen } = useCart();
+    const { items, removeItem, updateQuantity, cartSubtotal, cartTotal, itemCount, isCartOpen, setIsCartOpen } = useCart();
 
     const handleCheckout = () => {
         setIsCartOpen(false);
     };
+
+    const originalSubtotal = items.reduce((total, item) => {
+        let basePrice = item.price;
+        if (item.isDutchAuction && item.dutchAuctionStartTime && item.dutchAuctionDropAmount && item.dutchAuctionIntervalHours && item.dutchAuctionFloorPrice !== undefined) {
+            basePrice = calculateDutchAuctionPrice(
+                item.price,
+                item.dutchAuctionDropAmount,
+                item.dutchAuctionIntervalHours,
+                item.dutchAuctionFloorPrice,
+                item.dutchAuctionStartTime
+            );
+        }
+        return total + (basePrice * item.quantity);
+    }, 0);
+
+    const multibuySavings = originalSubtotal - cartSubtotal;
 
     return (
         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
@@ -68,30 +85,61 @@ export function CartDrawer() {
                                         <div className="flex-1 flex flex-col justify-between py-1">
                                             <div>
                                                 <h4 className="font-semibold line-clamp-2 leading-tight">{item.title}</h4>
-                                                <p className="text-sm font-bold text-primary mt-1">
-                                                    ${formatPrice(item.price)}
+                                                <p className="text-sm font-bold text-primary mt-1 flex items-baseline gap-1.5">
+                                                    {(() => {
+                                                        const groupedQuantity = items
+                                                            .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !i.dealId)
+                                                            .reduce((sum, i) => sum + i.quantity, 0);
+
+                                                        const applicableTier = item.multibuyEnabled && item.multibuyTiers
+                                                            ? [...item.multibuyTiers]
+                                                                .filter(t => groupedQuantity >= t.minQuantity)
+                                                                .sort((a, b) => b.minQuantity - a.minQuantity)[0]
+                                                            : null;
+
+                                                        if (applicableTier) {
+                                                            const discountedPrice = item.price * (1 - applicableTier.discountPercent / 100);
+                                                            return (
+                                                                <>
+                                                                    <span className="text-indigo-600 dark:text-indigo-400">${formatPrice(discountedPrice)}</span>
+                                                                    <span className="text-xs text-muted-foreground line-through font-normal">${formatPrice(item.price)}</span>
+                                                                </>
+                                                            );
+                                                        }
+                                                        return <span>${formatPrice(item.price)}</span>;
+                                                    })()}
                                                 </p>
-                                                {/* Upsell Message */}
+                                                {/* Multibuy Info/Upsell Message */}
                                                 {(() => {
                                                     if (!item.multibuyEnabled || !item.multibuyTiers?.length) return null;
 
-                                                    // Calculate grouped quantity for upsell
                                                     const groupedQuantity = items
                                                         .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !i.dealId)
                                                         .reduce((sum, i) => sum + i.quantity, 0);
+
+                                                    const applicableTier = [...item.multibuyTiers]
+                                                        .filter(t => groupedQuantity >= t.minQuantity)
+                                                        .sort((a, b) => b.minQuantity - a.minQuantity)[0];
 
                                                     const nextTier = item.multibuyTiers
                                                         .sort((a, b) => a.minQuantity - b.minQuantity)
                                                         .find(t => t.minQuantity > groupedQuantity);
 
-                                                    if (!nextTier) return null;
-
-                                                    const diff = nextTier.minQuantity - groupedQuantity;
                                                     return (
-                                                        <p className="text-xs font-medium text-blue-600 flex items-center gap-1 mt-1">
-                                                            <Tag className="w-3 h-3" />
-                                                            Add {diff} more for {nextTier.discountPercent}% off!
-                                                        </p>
+                                                        <div className="space-y-1 mt-1.5">
+                                                            {applicableTier && (
+                                                                <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                                                                    <Tag className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
+                                                                    {applicableTier.discountPercent}% Multibuy Saved
+                                                                </span>
+                                                            )}
+                                                            {nextTier && (
+                                                                <p className="text-[10px] font-semibold text-blue-600 flex items-center gap-1 mt-1">
+                                                                    <Tag className="w-3 h-3" />
+                                                                    Add {nextTier.minQuantity - groupedQuantity} more for {nextTier.discountPercent}% off!
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     );
                                                 })()}
                                             </div>
@@ -132,9 +180,23 @@ export function CartDrawer() {
 
                         <SheetFooter className="px-6 pb-6 pt-4 mt-auto border-t">
                             <div className="w-full space-y-4">
-                                <div className="flex justify-between text-lg font-semibold">
-                                    <span>Subtotal</span>
-                                    <span>${formatPrice(cartTotal)}</span>
+                                <div className="space-y-1.5">
+                                    {multibuySavings > 0 && (
+                                        <div className="flex justify-between text-sm text-slate-500">
+                                            <span>Subtotal</span>
+                                            <span className="line-through">${formatPrice(originalSubtotal)}</span>
+                                        </div>
+                                    )}
+                                    {multibuySavings > 0 && (
+                                        <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                                            <span>Multibuy Savings</span>
+                                            <span>-${formatPrice(multibuySavings)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between text-lg font-black">
+                                        <span>Total Subtotal</span>
+                                        <span className="text-primary">${formatPrice(cartSubtotal)}</span>
+                                    </div>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-center">
                                     Shipping and taxes will be calculated at checkout.

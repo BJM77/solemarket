@@ -258,7 +258,7 @@ export const brandConfig: BrandConfig = {
             enabled: getEnvBool('ENABLE_GOOGLE_MAPS', false),
         },
         analytics: {
-            googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID,
+            googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
             facebookPixelId: getEnv('NEXT_PUBLIC_FB_PIXEL_ID', '2233335404089795'),
         },
     },

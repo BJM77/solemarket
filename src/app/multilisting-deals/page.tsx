@@ -249,7 +249,7 @@ export default function MultiListingDealsPage() {
                                 <div key={product.id} className="bg-card rounded-2xl border border-white/5 p-3 sm:p-4">
                                     <div className="aspect-square relative mb-3">
                                         <img
-                                            src={product.imageUrl || '/wtb-wanted-placeholder.png'}
+                                            src={product.imageUrls?.[0] || product.imageUrl || '/wtb-wanted-placeholder.png'}
                                             alt={product.title}
                                             className="w-full h-full object-cover rounded"
                                             onError={(e) => {

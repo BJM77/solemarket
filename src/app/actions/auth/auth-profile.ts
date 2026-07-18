@@ -28,6 +28,7 @@ export async function completeUserProfile(data: {
 
         const updateData: any = {
             accountType: data.accountType,
+            role: data.accountType,
             phoneNumber: data.phoneNumber,
             location: data.location,
             agreedToTerms: true,
@@ -42,6 +43,10 @@ export async function completeUserProfile(data: {
         }
 
         await userRef.set(updateData, { merge: true });
+
+        // Set the custom claim for the role
+        const { auth } = await import('@/lib/firebase/admin');
+        await auth.setCustomUserClaims(uid, { role: data.accountType });
 
         return { success: true };
     } catch (error: any) {
