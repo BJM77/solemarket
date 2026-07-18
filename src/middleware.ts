@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { jwtVerify, decodeProtectedHeader, importX509 } from 'jose';
+import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
 
 // Cache keys in memory during Edge function execution
 let cachedPublicKeys: Record<string, string> | null = null;
@@ -111,7 +112,11 @@ export async function middleware(request: NextRequest) {
           const currentTime = Date.now() / 1000;
           if (payload.exp && payload.exp > currentTime) {
             isAuth = true;
-            userRole = (payload.role as string) || 'user';
+            const isSuper = payload.sub && (
+              SUPER_ADMIN_UIDS.includes(payload.sub) ||
+              (payload.email && SUPER_ADMIN_EMAILS.includes(payload.email as string))
+            );
+            userRole = isSuper ? 'superadmin' : ((payload.role as string) || 'user');
           }
         }
       }
