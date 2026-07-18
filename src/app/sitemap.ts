@@ -1,6 +1,5 @@
-
 import { MetadataRoute } from 'next';
-import { getCategories, getActiveProductIds, getActiveProductCount, getProductById, getActiveProducts } from '@/lib/firebase/firestore';
+import { getCategories, getActiveProductCount, getActiveProducts } from '@/lib/firebase/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getProductUrl } from '@/lib/utils';
@@ -37,11 +36,24 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
 
 export const revalidate = 3600; // Cache sitemap for 1 hour
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
+export async function generateSitemaps() {
+  try {
+    const totalCount = await getActiveProductCount();
+    const numberOfSitemaps = Math.ceil(totalCount / PRODUCT_SITEMAP_SIZE);
+    const count = Math.max(1, numberOfSitemaps);
+    return Array.from({ length: count }, (_, id) => ({ id }));
+  } catch (error) {
+    console.error('Error generating sitemaps list:', error);
+    return [{ id: 0 }];
+  }
+}
 
-  // 1. Static Routes
-  const staticRoutes: MetadataRoute.Sitemap = [
+export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
+  const startOffset = id * PRODUCT_SITEMAP_SIZE;
+
+  // 1. Static Routes (Only included on sitemap index 0)
+  const staticRoutes: MetadataRoute.Sitemap = id === 0 ? [
     '',
     '/browse',
     '/shoes',
@@ -66,66 +78,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: route === '' ? 1 : 0.8,
-  }));
+  })) : [];
 
-  // 2. Dynamic Categories
+  // 2. Dynamic Categories (Only included on sitemap index 0)
   let categoryRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const categories = await getCategories();
-    categoryRoutes = categories
-      .filter(category => category.slug)
-      .map((category) => ({
-        url: `${baseUrl}/${category.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      }));
-  } catch (err) {
-    console.error('Sitemap: Error fetching categories:', err);
+  if (id === 0) {
+    try {
+      const categories = await getCategories();
+      categoryRoutes = categories
+        .filter(category => category.slug)
+        .map((category) => ({
+          url: `${baseUrl}/${category.slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        }));
+    } catch (err) {
+      console.error('Sitemap: Error fetching categories:', err);
+    }
   }
 
-  // 3. Guide Routes
-  const guideRoutes = await getGuideRoutes(baseUrl);
+  // 3. Guide Routes (Only included on sitemap index 0)
+  const guideRoutes = id === 0 ? await getGuideRoutes(baseUrl) : [];
 
-  // 4. Topic Routes (Programmatic SEO)
+  // 4. Topic Routes (Only included on sitemap index 0)
   let topicRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const { SEO_TOPICS } = await import('@/config/seo-topics');
-    topicRoutes = SEO_TOPICS.map(topic => {
-      let pathPrefix = 'shoes';
-      if (topic.category === 'Collector Cards') pathPrefix = 'cards';
-      else if (topic.category === 'Coins') pathPrefix = 'coins';
+  if (id === 0) {
+    try {
+      const { SEO_TOPICS } = await import('@/config/seo-topics');
+      topicRoutes = SEO_TOPICS.map(topic => {
+        let pathPrefix = 'shoes';
+        if (topic.category === 'Collector Cards') pathPrefix = 'cards';
+        else if (topic.category === 'Coins') pathPrefix = 'coins';
 
-      return {
-        url: `${baseUrl}/${pathPrefix}/${topic.slug}`,
+        return {
+          url: `${baseUrl}/${pathPrefix}/${topic.slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.9,
+        };
+      });
+    } catch (err) {
+      console.error('Sitemap: Error loading SEO topics:', err);
+    }
+  }
+
+  // 5. Competitor Conquesting Routes (Only included on sitemap index 0)
+  let conquestingRoutes: MetadataRoute.Sitemap = [];
+  if (id === 0) {
+    try {
+      const competitors = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/content/conquesting/competitors.json'), 'utf-8'));
+      conquestingRoutes = Object.keys(competitors).map((slug) => ({
+        url: `${baseUrl}/shop-at/${slug}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
-        priority: 0.9,
-      };
-    });
-  } catch (err) {
-    console.error('Sitemap: Error loading SEO topics:', err);
+        priority: 0.8,
+      }));
+    } catch (err) {
+      console.error('Sitemap: Error loading conquesting routes:', err);
+    }
   }
 
-  // 5. Competitor Conquesting Routes
-  let conquestingRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const competitors = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/content/conquesting/competitors.json'), 'utf-8'));
-    conquestingRoutes = Object.keys(competitors).map((slug) => ({
-      url: `${baseUrl}/shop-at/${slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    }));
-  } catch (err) {
-    console.error('Sitemap: Error loading conquesting routes:', err);
-  }
-
-  // 6. Product Routes (All active products)
+  // 6. Product Routes (Included on all chunks relative to id offset)
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
-    // Get all active products (up to the limit)
-    const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE);
+    const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
     productRoutes = activeProducts.map(p => ({
       url: `${baseUrl}${getProductUrl(p)}`,
       lastModified: new Date(),
@@ -133,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
   } catch (err) {
-    console.error('Sitemap: Error fetching products:', err);
+    console.error(`Sitemap: Error fetching products for chunk ${id}:`, err);
   }
 
   return [

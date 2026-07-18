@@ -96,6 +96,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
                         <Link
                             key={cat.name}
                             href={cat.href}
+                            rel={cat.href.includes('?') ? 'nofollow' : undefined}
                             className={cn(
                                 "flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all border",
                                 isActive

@@ -8,6 +8,7 @@ import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import SEO from '@/components/SEO';
 import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import FAQSchema from '@/components/seo/FAQSchema';
 
 import { slugify } from '@/lib/utils';
 
@@ -72,9 +73,25 @@ export default async function ProductPage({ params }: Props) {
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
   const similarProducts = await getSimilarProductsByCategory(id, product.category, 6);
 
+  const faqQuestions = [
+    {
+      question: "Is this item authentic?",
+      answer: "Yes, Benched guarantees the authenticity of all items. High-value collectibles are processed through our secure vault and verified by expert hobby partners before final dispatch."
+    },
+    {
+      question: "How does Benched DealSafe escrow protection work?",
+      answer: "Your payment is held securely in escrow. Funds are only released to the seller once you receive the item and verify its condition."
+    },
+    {
+      question: "What are the shipping options in Australia?",
+      answer: "Benched handles insured nationwide shipping using Australia Post and local carrier networks. Pick-up is also available for local trades in Metro Perth."
+    }
+  ];
+
   return (
     <>
       <ProductSchema product={product} reviews={initialReviews} />
+      <FAQSchema questions={faqQuestions} />
       <BreadcrumbSchema
         items={[
           { name: 'Home', item: '/' },
