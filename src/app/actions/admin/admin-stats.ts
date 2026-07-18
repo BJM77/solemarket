@@ -15,9 +15,10 @@ export async function getAdminStats(): Promise<AdminStats> {
         const productsSnapshot = await firestoreDb.collection('products').count().get();
         const totalListings = productsSnapshot.data().count;
 
-        // 2. Active Sellers (Users with role 'seller' or just total users if roles undefined)
-        // For now, let's count all users
-        const sellersSnapshot = await firestoreDb.collection('users').count().get();
+        // 2. Active Sellers (Users with accountType 'seller')
+        const sellersSnapshot = await firestoreDb.collection('users')
+            .where('accountType', '==', 'seller')
+            .count().get();
         const activeSellers = sellersSnapshot.data().count;
 
         // 3. Total Revenue & Pending Orders
@@ -31,15 +32,15 @@ export async function getAdminStats(): Promise<AdminStats> {
 
             // If we have many orders, this should be an aggregation query instead
 
-            // Using logic: if we can, use aggregation for count at least
+            // Fetch revenue from global platform stats doc
+            const globalRef = firestoreDb.collection('platform_stats').doc('global');
+            const globalSnap = await globalRef.get();
+            if (globalSnap.exists) {
+                totalRevenue = globalSnap.data()?.totalRevenue || 0;
+            }
+
             const pendingSnapshot = await ordersRef.where('status', '==', 'pending').count().get();
             pendingOrders = pendingSnapshot.data().count;
-
-            // For revenue, we need to sum. Firestore doesn't support sum aggregation natively in all SDK versions yet,
-            // but recent Admin SDKs do. Let's try to be safe and just fetch fields if possible, or skip revenue for now
-            // to avoid reading all docs.
-            // Let's set revenue to 0 for MVP to avoid "Read all docs" cost spike
-            totalRevenue = 0;
 
         } catch (e) {
             console.warn("Could not fetch orders stats:", e);
