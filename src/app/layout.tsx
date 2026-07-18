@@ -117,7 +117,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
-      <body className="font-sans antialiased overflow-x-hidden min-h-screen bg-background" suppressHydrationWarning>
+      <body className="font-sans antialiased overflow-x-clip min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />
         <StructuredData />
         <AppProviders>

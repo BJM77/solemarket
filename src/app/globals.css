@@ -84,7 +84,8 @@
   }
   
   html, body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
+    overflow-x: clip;
     color-scheme: dark;
     font-feature-settings: "rlig" 1, "calt" 1;
     max-width: 100%;
