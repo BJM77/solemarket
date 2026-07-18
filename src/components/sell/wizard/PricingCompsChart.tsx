@@ -30,10 +30,10 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
   const points: CompPoint[] = [
     { day: '90d ago', val: Math.round(price * 0.88), desc: 'Raw comp sold on eBay', x: 40, y: 0 },
     { day: '65d ago', val: Math.round(price * 0.95), desc: 'Near Mint sold locally', x: 100, y: 0 },
-    { day: '45d ago', val: Math.round(price * 0.91), desc: 'Raw comp on solemarket', x: 170, y: 0 },
+    { day: '45d ago', val: Math.round(price * 0.91), desc: 'Raw comp on benched.au', x: 170, y: 0 },
     { day: '30d ago', val: Math.round(price * 1.05), desc: 'PSA 9 sold on eBay', x: 230, y: 0 },
     { day: '15d ago', val: Math.round(price * 0.98), desc: 'Near Mint on benched.au', x: 300, y: 0 },
-    { day: '2d ago', val: Math.round(price * 1.02), desc: 'PSA 9.5 sold on solemarket', x: 360, y: 0 },
+    { day: '2d ago', val: Math.round(price * 1.02), desc: 'PSA 9.5 sold on benched.au', x: 360, y: 0 },
   ];
 
   // Map values to coordinates in the SVG viewport (viewBox 0 0 400 120)
