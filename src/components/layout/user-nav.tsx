@@ -96,6 +96,12 @@ export function UserNav() {
                 <span className="font-medium">Admin Dashboard</span>
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/users') && "bg-accent text-accent-foreground")}>
+              <Link href="/admin/users" className="flex items-center">
+                <User className="mr-3 h-4 w-4 text-emerald-500" />
+                <span className="font-medium">User Management</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg", isActive('/admin/power-tools') && "bg-accent text-accent-foreground")}>
               <Link href="/admin/power-tools" className="flex items-center">
                 <Zap className="mr-3 h-4 w-4 text-amber-500" />
