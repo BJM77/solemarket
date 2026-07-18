@@ -44,6 +44,46 @@ export default function CheckoutPage() {
   const [zip, setZip] = useState(shippingAddress?.zip || '');
   const [phone, setPhone] = useState(shippingAddress?.phone || '');
 
+  // Promo Code State
+  const [promoCode, setPromoCode] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+
+  const displayTotal = Math.max(0, cartTotal - discountAmount);
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setIsValidatingPromo(true);
+    setPromoError(null);
+    try {
+      const { validateDiscountCode } = await import('@/app/actions/marketplace/discounts');
+      const res = await validateDiscountCode(promoCode, cartSubtotal);
+      if (res.success && res.discountAmount !== undefined) {
+        setDiscountAmount(res.discountAmount);
+        setAppliedPromo(promoCode.trim().toUpperCase());
+        toast({
+          title: 'Promo Applied!',
+          description: `Discount of $${res.discountAmount.toFixed(2)} has been applied to your cart.`,
+        });
+      } else {
+        setPromoError(res.error || 'Failed to apply promo.');
+      }
+    } catch (err) {
+      setPromoError('Error validating promo code.');
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setDiscountAmount(0);
+    setAppliedPromo(null);
+    setPromoCode('');
+    setPromoError(null);
+  };
+
   // Populate address inputs when context updates
   useEffect(() => {
     if (shippingAddress) {
@@ -149,6 +189,7 @@ export default function CheckoutPage() {
         } : undefined,
         paymentMethod,
         idempotencyKey: `ord_${user.uid}_${Date.now()}`,
+        discountCode: appliedPromo || undefined,
       };
 
       const result = await createOrderAction(cartItemsForAction, idToken, options);
@@ -425,10 +466,60 @@ export default function CheckoutPage() {
                   <span>Shipping</span>
                   <span className="text-white">{shippingMethod === 'pickup' ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
                 </div>
+
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-400 font-bold">
+                    <span>Discount ({appliedPromo})</span>
+                    <span>-${formatPrice(discountAmount)}</span>
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <Label htmlFor="promo-input" className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">
+                    Discount Promo Code
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="promo-input"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      disabled={!!appliedPromo || isValidatingPromo}
+                      placeholder="e.g. WELCOME10"
+                      className="bg-[#020617] border-white/10 text-xs h-9 uppercase"
+                    />
+                    {appliedPromo ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={handleRemovePromo}
+                        className="h-9 px-3 rounded-lg text-xs"
+                      >
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleApplyPromo}
+                        disabled={isValidatingPromo || !promoCode.trim()}
+                        className="h-9 px-4 rounded-lg text-xs font-bold"
+                      >
+                        {isValidatingPromo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
+                      </Button>
+                    )}
+                  </div>
+                  {promoError && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1.5">{promoError}</p>
+                  )}
+                  {appliedPromo && (
+                    <p className="text-[10px] text-emerald-400 font-bold mt-1.5">Promo code applied successfully!</p>
+                  )}
+                </div>
+
                 <Separator className="bg-white/5" />
                 <div className="flex justify-between font-black text-xl text-white">
                   <span>Total</span>
-                  <span className="text-primary">${formatPrice(cartTotal)}</span>
+                  <span className="text-primary">${formatPrice(displayTotal)}</span>
                 </div>
               </CardContent>
               <Separator className="bg-white/5" />

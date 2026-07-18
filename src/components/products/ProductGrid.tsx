@@ -38,8 +38,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
     <div
       className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 xl:gap-x-8 mt-8"
     >
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, index) => (
+        <ProductCard key={product.id} product={product} priority={index < 6} />
       ))}
     </div>
   );

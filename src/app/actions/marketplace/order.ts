@@ -27,6 +27,7 @@ interface OrderOptions {
     };
     paymentMethod?: 'Card' | 'PayID Escrow';
     idempotencyKey?: string;
+    discountCode?: string;
 }
 
 export async function createOrderAction(items: CartItem[], idToken: string, options?: OrderOptions) {
@@ -136,6 +137,25 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             const groupOrderId = `GRP-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
             const createdOrders = [];
 
+            const totalSubtotal = Object.values(sellerGroups).reduce((sum, g) => sum + g.subtotal, 0);
+
+            // Fetch and validate discount code inside transaction
+            let discountAmount = 0;
+            let discountInfo = null;
+            if (options?.discountCode) {
+                const { validateDiscountCode } = await import('./discounts');
+                const discountRes = await validateDiscountCode(options.discountCode, totalSubtotal);
+                if (discountRes.success && discountRes.discountAmount) {
+                    discountAmount = discountRes.discountAmount;
+                    discountInfo = discountRes.discountInfo;
+                    
+                    const discountRef = firestoreDb.collection('discounts').doc(options.discountCode.trim().toUpperCase());
+                    t.update(discountRef, {
+                        usedCount: FieldValue.increment(1)
+                    });
+                }
+            }
+
             for (const [sellerId, group] of Object.entries(sellerGroups)) {
                 const orderRef = firestoreDb.collection('orders').doc();
                 const sellerProfile = fetchedUsers[sellerId];
@@ -154,7 +174,9 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     ? calculateTax(group.subtotal, settings.standardTaxRate, true) 
                     : 0;
                 
-                const totalAmount = group.subtotal + shippingCost;
+                const sellerShare = totalSubtotal > 0 ? (group.subtotal / totalSubtotal) : 0;
+                const sellerDiscount = Number((discountAmount * sellerShare).toFixed(2));
+                const totalAmount = Math.max(0, group.subtotal + shippingCost - sellerDiscount);
                 const sellerPaypalLink = sellerProfile?.paypalMeLink || null;
                 const payIdReference = `BNCH-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
@@ -165,6 +187,8 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     subtotal: group.subtotal,
                     shippingCost,
                     taxAmount,
+                    discountAmount: sellerDiscount,
+                    discountCode: options?.discountCode || null,
                     buyerId,
                     buyerEmail,
                     buyerName: buyerName || buyerEmail,
