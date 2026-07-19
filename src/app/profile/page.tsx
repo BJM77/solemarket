@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useUser, useDoc, useFirebase } from '@/firebase';
+import { useUser, useDoc, useFirebase, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -58,7 +58,10 @@ export default function ProfileDetailsPage() {
   const [isPending, startTransition] = useTransition();
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
-  const firestoreQuery = user?.uid && firestore ? doc(firestore, 'users', user.uid) : null;
+  const firestoreQuery = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
   const { data: userDoc } = useDoc<any>(firestoreQuery);
 
   const form = useForm<ProfileFormValues>({
