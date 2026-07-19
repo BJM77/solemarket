@@ -15,7 +15,7 @@ import { getProductUrl } from '@/lib/utils';
 import Link from 'next/link';
 
 export interface ProductRowRef {
-    checkPrice: () => Promise<void>;
+    checkPrice: () => Promise<'success' | 'rate_limit' | 'error'>;
     status: 'pending' | 'updated' | 'left';
 }
 
@@ -25,7 +25,9 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
     const [status, setStatus] = useState<'pending' | 'updated' | 'left'>('pending');
     const [error, setError] = useState<string | null>(null);
 
-    const handleCheckPrice = async () => {
+    const handleCheckPrice = async (): Promise<'success' | 'rate_limit' | 'error'> => {
+        if (isLoading || recommendation || status !== 'pending') return 'success';
+        setIsLoading(true);
         setError(null);
         try {
             const result = await getAIRecommendedPrice(idToken, {
@@ -44,6 +46,7 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
             const rec = result.data;
             if (rec && typeof rec.recommendedPrice === 'number') {
                 setRecommendation(rec);
+                return 'success';
             } else {
                 throw new Error("AI returned invalid pricing format");
             }
@@ -52,10 +55,11 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
             const msg = err?.message || "";
             if (msg.includes("RESOURCE_EXHAUSTED") || msg.includes("429") || msg.includes("quota")) {
                 setError("Rate Limit Exceeded (Wait 15s)");
+                return 'rate_limit';
             } else {
                 setError("Failed to fetch recommendation");
+                return 'error';
             }
-            throw err;
         } finally {
             setIsLoading(false);
         }
@@ -180,18 +184,13 @@ export default function AIPriceCheckPage() {
             for (const product of products) {
                 const row = rowRefs.current[product.id];
                 if (row && row.status === 'pending') {
-                    try {
-                        await row.checkPrice();
-                    } catch (err: any) {
-                        const errMsg = err?.message || "";
-                        if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota")) {
-                            console.warn("Queue stopped: Gemini API rate limit hit.");
-                            alert("Gemini free-tier rate limit exceeded. Pausing automatic check queue.");
-                            break;
-                        }
+                    const checkResult = await row.checkPrice();
+                    if (checkResult === 'rate_limit') {
+                        alert("Gemini free-tier rate limit exceeded. Pausing automatic check queue.");
+                        break;
                     }
-                    // Sequential processing with a 2s delay to avoid free-tier rate limits
-                    await new Promise(res => setTimeout(res, 2000));
+                    // Sequential processing with a 2.5s delay to avoid free-tier rate limits
+                    await new Promise(res => setTimeout(res, 2500));
                 }
             }
         } finally {
