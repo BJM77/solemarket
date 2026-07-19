@@ -145,7 +145,6 @@ export default function AIPriceCheckPage() {
         if (!user) return null;
         return query(
             collection(db, 'products'),
-            where('sellerId', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
     }, [user]);
