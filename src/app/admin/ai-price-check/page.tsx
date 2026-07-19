@@ -23,10 +23,10 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
     const [isLoading, setIsLoading] = useState(false);
     const [recommendation, setRecommendation] = useState<PricingRecommendation | null>(null);
     const [status, setStatus] = useState<'pending' | 'updated' | 'left'>('pending');
+    const [error, setError] = useState<string | null>(null);
 
     const handleCheckPrice = async () => {
-        if (isLoading || recommendation || status !== 'pending') return;
-        setIsLoading(true);
+        setError(null);
         try {
             const result = await getAIRecommendedPrice(idToken, {
                 title: product.title,
@@ -47,10 +47,15 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
             } else {
                 throw new Error("AI returned invalid pricing format");
             }
-        } catch (error) {
-            console.error("Failed to check price:", error);
-            // Don't alert here to avoid spam, just throw for the queue
-            throw error;
+        } catch (err: any) {
+            console.error("Failed to check price:", err);
+            const msg = err?.message || "";
+            if (msg.includes("RESOURCE_EXHAUSTED") || msg.includes("429") || msg.includes("quota")) {
+                setError("Rate Limit Exceeded (Wait 15s)");
+            } else {
+                setError("Failed to fetch recommendation");
+            }
+            throw err;
         } finally {
             setIsLoading(false);
         }
@@ -122,8 +127,15 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
                             <Button size="sm" variant="outline" onClick={handleLeave} disabled={isLoading}>Leave</Button>
                         </div>
                     </div>
+                ) : error ? (
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-rose-500 font-bold">{error}</span>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs flex items-center gap-1 text-slate-400 hover:text-white" onClick={() => handleCheckPrice().catch(() => {})}>
+                            <RefreshCw className="h-3 w-3" /> Retry
+                        </Button>
+                    </div>
                 ) : (
-                    <Button size="sm" variant="secondary" onClick={() => handleCheckPrice().catch(() => alert("Failed to fetch recommendation."))} disabled={isLoading}>
+                    <Button size="sm" variant="secondary" onClick={() => handleCheckPrice().catch(() => {})} disabled={isLoading}>
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2 text-primary" />}
                         Check Price
                     </Button>
@@ -168,9 +180,18 @@ export default function AIPriceCheckPage() {
             for (const product of products) {
                 const row = rowRefs.current[product.id];
                 if (row && row.status === 'pending') {
-                    // Sequential processing with a 1.5s delay to avoid free-tier rate limits
-                    await row.checkPrice().catch(console.error);
-                    await new Promise(res => setTimeout(res, 1500));
+                    try {
+                        await row.checkPrice();
+                    } catch (err: any) {
+                        const errMsg = err?.message || "";
+                        if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota")) {
+                            console.warn("Queue stopped: Gemini API rate limit hit.");
+                            alert("Gemini free-tier rate limit exceeded. Pausing automatic check queue.");
+                            break;
+                        }
+                    }
+                    // Sequential processing with a 2s delay to avoid free-tier rate limits
+                    await new Promise(res => setTimeout(res, 2000));
                 }
             }
         } finally {
