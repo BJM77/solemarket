@@ -69,6 +69,13 @@ export default function ProfileDetailsPage() {
     defaultValues: {
       displayName: '',
       bio: '',
+      storeName: '',
+      storeDescription: '',
+      bannerUrl: '',
+      shopSlug: '',
+      bsb: '',
+      accountNumber: '',
+      accountName: '',
     },
     mode: 'onChange',
   });
