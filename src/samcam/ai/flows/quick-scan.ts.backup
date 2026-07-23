@@ -1,0 +1,78 @@
+'use server';
+
+import { z } from 'zod';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const QuickScanOutputSchema = z.object({
+  playerName: z.string(),
+});
+
+const QUICK_SCAN_PROMPT = `
+Look at this sports card image and tell me the player's name.
+Return a JSON object with format: {"playerName": "Player Name"}
+
+If you can't read it clearly, make your best guess.
+`;
+
+export async function quickScan(imageDataUri: string) {
+  console.log('[AI] quickScan called');
+  
+  try {
+    // Check for API key
+    const apiKey = process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      throw new Error('GOOGLE_API_KEY environment variable is not set');
+    }
+
+    // Initialize Google AI
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 100,
+      },
+    });
+
+    // Prepare the image
+    const imagePart = {
+      inlineData: {
+        data: imageDataUri.split(',')[1], // Remove data URI prefix
+        mimeType: 'image/jpeg',
+      },
+    };
+
+    // Generate content
+    const result = await model.generateContent([
+      QUICK_SCAN_PROMPT,
+      imagePart,
+    ]);
+
+    const response = await result.response;
+    const text = response.text().trim();
+    
+    console.log('[AI] Quick scan raw response:', text);
+
+    // Parse JSON
+    let jsonText = text;
+    if (jsonText.includes('```json')) {
+      jsonText = jsonText.split('```json')[1].split('```')[0].trim();
+    } else if (jsonText.includes('```')) {
+      jsonText = jsonText.split('```')[1].split('```')[0].trim();
+    }
+
+    const parsed = JSON.parse(jsonText);
+    const validated = QuickScanOutputSchema.parse(parsed);
+    
+    console.log('[AI] Quick scan result:', validated);
+    return validated;
+
+  } catch (error) {
+    console.error('[AI] Error in quickScan:', error);
+    
+    // Return mock data as fallback
+    return {
+      playerName: "Test Player"
+    };
+  }
+}

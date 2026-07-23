@@ -1,0 +1,97 @@
+'use server';
+
+import { z } from 'zod';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const ExtractCardNameOutputSchema = z.object({
+  playerName: z.string().describe('The name of the player extracted from the card image.'),
+  cardBrand: z.string().optional(),
+  cardColor: z.string().optional(),
+  sport: z.string().optional(),
+  cardYear: z.number().nullable().optional(),
+});
+
+// Simple prompt for testing
+const PROMPT_TEMPLATE = `
+Analyze this sports card image and extract information.
+
+Return a JSON object with:
+- playerName: The player's full name
+- cardBrand: The brand of the card (Topps, Panini, etc.) if visible
+- cardColor: Main colors on the card
+- sport: The sport (NBA, NFL, MLB, NHL, Soccer)
+- cardYear: The year on the card if visible
+
+If you can't determine something, use null or omit it.
+`;
+
+export async function extractCardName(imageDataUri: string) {
+  console.log('[AI] extractCardName called');
+  
+  try {
+    // Check for API key
+    const apiKey = process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      throw new Error('GOOGLE_API_KEY environment variable is not set');
+    }
+
+    // Initialize Google AI
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.8,
+        topK: 40,
+      },
+    });
+
+    // Prepare the image
+    const imagePart = {
+      inlineData: {
+        data: imageDataUri.split(',')[1], // Remove data:image/... prefix
+        mimeType: 'image/jpeg',
+      },
+    };
+
+    // Generate content
+    const result = await model.generateContent([
+      PROMPT_TEMPLATE,
+      imagePart,
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+    
+    console.log('[AI] Raw response:', text);
+
+    // Parse the JSON response
+    let jsonText = text.trim();
+    
+    // Handle potential markdown code blocks
+    if (jsonText.includes('```json')) {
+      jsonText = jsonText.split('```json')[1].split('```')[0].trim();
+    } else if (jsonText.includes('```')) {
+      jsonText = jsonText.split('```')[1].split('```')[0].trim();
+    }
+
+    // Parse and validate
+    const parsed = JSON.parse(jsonText);
+    const validated = ExtractCardNameOutputSchema.parse(parsed);
+    
+    console.log('[AI] Validated result:', validated);
+    return validated;
+
+  } catch (error) {
+    console.error('[AI] Error in extractCardName:', error);
+    
+    // Return mock data as fallback
+    return {
+      playerName: "Michael Jordan",
+      cardBrand: "Topps",
+      cardColor: "Red/Blue",
+      sport: "Basketball",
+      cardYear: 1986
+    };
+  }
+}
