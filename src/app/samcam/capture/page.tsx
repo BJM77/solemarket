@@ -214,7 +214,7 @@ export default function BenchedPhotoBooth() {
   return (
     <div className="h-screen bg-black text-white font-mono flex flex-col overflow-hidden">
       <header className="p-3 bg-zinc-900 border-b border-white/10 flex justify-between items-center z-20">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/')}><ArrowLeft className="w-5 h-5" /></Button>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/samcam')}><ArrowLeft className="w-5 h-5" /></Button>
         <div className="flex gap-3 items-center">
           <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-orange-500")}>
             {currentSide === 'FRONT' ? 'Capture Front' : 'Flip for Back'}

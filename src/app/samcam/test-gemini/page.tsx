@@ -41,10 +41,10 @@ export default function TestGeminiPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">
-               <Link href="/">CardScan Pro</Link>
+               <Link href="/samcam">CardScan Pro</Link>
             </h1>
             <nav className="flex gap-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
+              <Link href="/samcam" className="text-gray-600 hover:text-gray-900">Home</Link>
             </nav>
           </div>
         </div>

@@ -46,7 +46,7 @@ export default function EnterpriseDashboard() {
     <div className="min-h-screen bg-slate-50 font-mono">
       <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild><Link href="/"><ArrowLeft /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link href="/samcam"><ArrowLeft /></Link></Button>
           <div>
             <h1 className="text-xl font-black uppercase tracking-tighter">Enterprise Lab</h1>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Benched.au v4.5 "Golden Copy"</p>

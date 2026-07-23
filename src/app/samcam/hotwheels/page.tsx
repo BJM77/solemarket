@@ -31,13 +31,13 @@ export default function HotWheelsPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push('/samcam/login');
     }
   }, [user, authLoading, router]);
 
   const handleSignOut = async () => {
     await auth.signOut();
-    router.push('/login');
+    router.push('/samcam/login');
   };
 
   if (authLoading || !user) {
@@ -58,7 +58,7 @@ export default function HotWheelsPage() {
         <div className="flex items-center gap-1 sm:gap-2">
              <div className="hidden md:flex items-center gap-2">
                <Button variant="outline" asChild>
-                  <Link href="/">
+                  <Link href="/samcam">
                       <ScanLine className="w-4 h-4 mr-2" />
                       Card Scanner
                   </Link>
@@ -74,20 +74,20 @@ export default function HotWheelsPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                  <DropdownMenuItem asChild>
-                    <Link href="/"><ScanLine className="w-4 h-4 mr-2" />Card Scanner</Link>
+                    <Link href="/samcam"><ScanLine className="w-4 h-4 mr-2" />Card Scanner</Link>
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
-                  <Link href="/list"><List className="w-4 h-4 mr-2" />Keep List</Link>
+                  <Link href="/samcam/list"><List className="w-4 h-4 mr-2" />Keep List</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/rare"><Star className="w-4 h-4 mr-2" />My Rares</Link>
+                  <Link href="/samcam/rare"><Star className="w-4 h-4 mr-2" />My Rares</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/collection"><BookCopy className="w-4 h-4 mr-2" />My Collection</Link>
+                  <Link href="/samcam/collection"><BookCopy className="w-4 h-4 mr-2" />My Collection</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                   <Link href="/export"><Download className="w-4 h-4 mr-2" />Export Data</Link>
+                   <Link href="/samcam/export"><Download className="w-4 h-4 mr-2" />Export Data</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

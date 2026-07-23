@@ -72,7 +72,7 @@ export default function BenchedDashboard() {
              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Booth Connected</span>
           </div>
           <Button variant="ghost" size="icon" asChild>
-             <Link href="/settings"><Settings className="w-5 h-5" /></Link>
+             <Link href="/samcam/settings"><Settings className="w-5 h-5" /></Link>
           </Button>
           <div className="w-8 h-8 rounded-full bg-slate-100 border flex items-center justify-center text-slate-500">
             <UserIcon className="w-4 h-4" />
@@ -94,7 +94,7 @@ export default function BenchedDashboard() {
             <CardContent>
               <div className="text-3xl font-black font-headline uppercase mb-4">Launch Booth</div>
               <Button variant="secondary" className="w-full bg-white text-primary hover:bg-slate-100 font-black uppercase text-xs" asChild>
-                <Link href="/capture">
+                <Link href="/samcam/capture">
                   Open Scanner <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
@@ -112,7 +112,7 @@ export default function BenchedDashboard() {
               <div className="text-4xl font-black font-headline text-slate-800">{stats.pending}</div>
               <p className="text-[9px] text-muted-foreground mt-1 font-black uppercase tracking-widest">Items to verify</p>
               <Button variant="link" className="p-0 h-auto text-[10px] font-black uppercase mt-4 text-primary" asChild>
-                <Link href="/review">Open Workspace <ArrowRight className="ml-1 w-3 h-3" /></Link>
+                <Link href="/samcam/review">Open Workspace <ArrowRight className="ml-1 w-3 h-3" /></Link>
               </Button>
             </CardContent>
           </Card>
@@ -162,7 +162,7 @@ export default function BenchedDashboard() {
                 High-resolution raw capture with background cloud sync and ML Kit document identification.
               </p>
               <Button className="mt-8 px-10 font-black uppercase tracking-widest h-12" variant="default" asChild>
-                <Link href="/capture">
+                <Link href="/samcam/capture">
                   <PlusCircle className="mr-2 w-5 h-5" />
                   Begin Session
                 </Link>

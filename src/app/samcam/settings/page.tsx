@@ -80,7 +80,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
       <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">
-        <Button variant="outline" size="icon" onClick={() => router.push('/')}>
+        <Button variant="outline" size="icon" onClick={() => router.push('/samcam')}>
           <ArrowLeft className="w-6 h-6" />
           <span className="sr-only">Back</span>
         </Button>
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                   <div className="mt-2 text-sm">
                     <p className="text-red-500 font-medium">Not Logged In</p>
                     <p className="text-muted-foreground mt-1">You must be logged into the CardScan app via Firebase Auth to push listings to Benched.au.</p>
-                    <Button variant="link" className="px-0 mt-1 h-auto" onClick={() => router.push('/login')}>Go to Login Page</Button>
+                    <Button variant="link" className="px-0 mt-1 h-auto" onClick={() => router.push('/samcam/login')}>Go to Login Page</Button>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">Verifying Firebase session...</p>

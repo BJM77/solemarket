@@ -229,7 +229,7 @@ export default function CardDetailPage() {
           title: "Card Deleted",
           description: `"${card.name}" has been removed from your history.`,
         });
-        router.push("/");
+        router.push("/samcam");
       }
     }
   };
@@ -250,7 +250,7 @@ export default function CardDetailPage() {
         <p className="text-sm text-muted-foreground mb-4">
           The card you are looking for does not exist in your history.
         </p>
-        <Button onClick={() => router.push("/")}>
+        <Button onClick={() => router.push("/samcam")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Scanner
         </Button>
@@ -261,7 +261,7 @@ export default function CardDetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
        <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">
-        <Button variant="outline" size="icon" onClick={() => router.push('/')}>
+        <Button variant="outline" size="icon" onClick={() => router.push('/samcam')}>
             <ArrowLeft className="w-6 h-6" />
             <span className="sr-only">Back</span>
         </Button>

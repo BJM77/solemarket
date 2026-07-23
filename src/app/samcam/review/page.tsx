@@ -55,7 +55,7 @@ export default function ReviewQueue() {
     <div className="min-h-screen bg-slate-50">
       <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/')}>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -129,7 +129,7 @@ export default function ReviewQueue() {
                     <div className="text-[9px] font-black text-slate-300 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
-                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/review/${item.id}`)}>
+                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/samcam/review/${item.id}`)}>
                       Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
                     </Button>
                   </div>
@@ -144,7 +144,7 @@ export default function ReviewQueue() {
                </div>
                <h3 className="text-xl font-black uppercase tracking-tight">Queue Depleted</h3>
                <p className="text-xs text-muted-foreground font-medium mt-2">Active booth session required to populate workspace.</p>
-               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12" onClick={() => router.push('/capture')}>Open Booth</Button>
+               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12" onClick={() => router.push('/samcam/capture')}>Open Booth</Button>
             </div>
           )}
         </div>

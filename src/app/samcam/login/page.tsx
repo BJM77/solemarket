@@ -31,7 +31,7 @@ export default function LoginPage() {
         await createUserWithEmailAndPassword(auth, email, password);
         toast({ title: "Account created!", description: "You are now logged in." });
       }
-      router.push('/');
+      router.push('/samcam');
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -49,7 +49,7 @@ export default function LoginPage() {
     try {
       await signInWithPopup(auth, provider);
       toast({ title: "Welcome!", description: "Successfully logged in with Google." });
-      router.push('/');
+      router.push('/samcam');
     } catch (error: any) {
       toast({
         variant: "destructive",

@@ -57,7 +57,7 @@ export default function ReviewDetailPage() {
         updatedAt: Date.now()
       });
       toast({ title: "Card Verified", description: "Promoted to local inventory." });
-      router.push('/review');
+      router.push('/samcam/review');
     } catch (err) {
       toast({ variant: "destructive", title: "Save Failed" });
     } finally {
@@ -69,7 +69,7 @@ export default function ReviewDetailPage() {
     if (!item) return;
     if (confirm("Delete this capture? Original backups will be purged.")) {
       await deleteDoc(doc(db, "card_imports", item.id));
-      router.push('/review');
+      router.push('/samcam/review');
     }
   };
 
@@ -85,7 +85,7 @@ export default function ReviewDetailPage() {
     <div className="min-h-screen bg-slate-50 pb-20">
       <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/review')}>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam/review')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>

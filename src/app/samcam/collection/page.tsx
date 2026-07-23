@@ -60,7 +60,7 @@ export default function CollectionPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur-sm">
-        <Button variant="outline" size="icon" onClick={() => router.push('/')}>
+        <Button variant="outline" size="icon" onClick={() => router.push('/samcam')}>
             <ArrowLeft className="w-6 h-6" />
             <span className="sr-only">Back</span>
         </Button>
