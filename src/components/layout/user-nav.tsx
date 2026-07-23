@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { signOutUser } from '@/lib/firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -42,7 +41,6 @@ export function UserNav() {
   const isSuperAdmin = isClaimSuperAdmin || (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -70,7 +68,7 @@ export function UserNav() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full focus-visible:ring-offset-0 focus-visible:ring-0">
           <Avatar className="h-10 w-10 border border-border/50">

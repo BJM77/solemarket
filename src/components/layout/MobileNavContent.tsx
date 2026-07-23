@@ -192,6 +192,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
