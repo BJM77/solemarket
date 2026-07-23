@@ -11,7 +11,7 @@ export default function DebugPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/debug');
+      const response = await fetch('/samcam/api/debug');
       const data = await response.json();
       setResult(data);
     } catch (err) {

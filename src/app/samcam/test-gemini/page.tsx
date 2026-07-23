@@ -15,9 +15,9 @@ export default function TestGeminiPage() {
     setResult(null);
 
     try {
-      let endpoint = '/api/debug/google-ai';
+      let endpoint = '/samcam/api/debug/google-ai';
       if (testType === 'vision') {
-        endpoint = '/api/debug/google-ai-vision';
+        endpoint = '/samcam/api/debug/google-ai-vision';
       }
 
       const response = await fetch(endpoint);

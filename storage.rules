@@ -48,5 +48,10 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.uid == userId && isImage();
     }
 
+    // Raw uploads for card scanning
+    match /raw/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+
   }
 }

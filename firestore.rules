@@ -138,6 +138,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
     
+    // Card Imports for SamCam
+    match /card_imports/{importId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
     // Conversations and Messages
     match /conversations/{conversationId} {
       allow read: if isAuthenticated() && request.auth.uid in resource.data.participants;

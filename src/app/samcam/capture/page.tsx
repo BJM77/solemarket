@@ -115,7 +115,7 @@ export default function BenchedPhotoBooth() {
           await syncStorage.add(newUpload);
           setSyncQueue(prev => [...prev, newUpload]);
           
-          fetch('/api/identify', {
+          fetch('/samcam/api/identify', {
             method: 'POST',
             headers: { 'X-Benched-Token': INTERNAL_TOKEN, 'Content-Type': 'application/json' },
             body: JSON.stringify({ cardId: id, frontImage: b64 })
