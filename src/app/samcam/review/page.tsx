@@ -129,7 +129,7 @@ export default function ReviewQueue() {
                     <div className="text-[9px] font-black text-slate-300 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
-                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/samcam/review/${item.id}`)}>
+                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/review/${item.id}`)}>
                       Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
                     </Button>
                   </div>
@@ -152,3 +152,6 @@ export default function ReviewQueue() {
     </div>
   );
 }
+
+
+

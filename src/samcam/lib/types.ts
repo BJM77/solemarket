@@ -82,8 +82,11 @@ export type ScanHistoryItem = {
   quantity?: number;
   description?: string;
   salesData?: {
-    averagePrice?: number | string;
-    salesCount?: number;
+    averagePrice?: string | number;
+    salesCount?: string | number;
     source?: string;
   };
 };
+
+
+

@@ -170,14 +170,15 @@ export default function CameraScanner({
     try {
       const resizedImage = await resizeImage(imageDataUri);
       
-      const { playerName } = await quickScan(resizedImage);
+      const { playerName: rawPlayerName } = await quickScan(resizedImage);
+      const playerName = rawPlayerName || "Unknown Player";
        toast({
         title: "AI Debug",
         description: `Name read: ${playerName}`,
       });
       
       const bestMatch = stringSimilarity.findBestMatch(
-        normalize(playerName || ""),
+        normalize(playerName),
         playersToKeep.map(p => normalize(p.name))
       );
 
@@ -188,7 +189,7 @@ export default function CameraScanner({
 
 
       if (!preliminaryCheck) {
-        const result = { name: playerName || "Unknown", isKeeper: false };
+        const result = { name: playerName, isKeeper: false };
         setScanResult(result);
         setShowResult(true);
         onScanComplete({ ...result, imageDataUri: resizedImage, isPrizmRookie: false, cardYear: null });
@@ -343,3 +344,6 @@ export default function CameraScanner({
     </div>
   );
 }
+
+
+

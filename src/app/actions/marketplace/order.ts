@@ -48,6 +48,10 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
     try {
         const { uid: buyerId, email: buyerEmail, name: buyerName } = await ensureActionAuth(idToken);
 
+        if (buyerId.startsWith('guest_')) {
+            throw new Error('You must create an account to complete this purchase. Please sign up or log in.');
+        }
+
         const results = await firestoreDb.runTransaction(async (t: any) => {
             const productRefs = items.map(item => firestoreDb.collection('products').doc(item.id));
             const productDocs = await t.getAll(...productRefs);

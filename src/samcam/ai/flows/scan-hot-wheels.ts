@@ -96,3 +96,6 @@ Example response: {"carName": "Bone Shaker", "year": 2009}`;
     throw new Error(`AI Scan Failed: ${error.message}`);
   }
 }
+
+
+

@@ -14,6 +14,23 @@ export async function syncUserOnLogin(idToken: string) {
         const userRef = firestoreDb.collection('users').doc(uid);
         const userSnap = await userRef.get();
 
+        // Clear any guest holds associated with this email
+        if (email) {
+            const guestId = `guest_${email.replace(/\./g, '_')}`;
+            const heldProductsQuery = await firestoreDb.collection('products').where('heldBy', '==', guestId).get();
+            if (!heldProductsQuery.empty) {
+                const batch = firestoreDb.batch();
+                heldProductsQuery.docs.forEach((doc: any) => {
+                    batch.update(doc.ref, {
+                        heldBy: null,
+                        holdExpiresAt: null
+                    });
+                });
+                await batch.commit();
+                console.log(`[Auth Sync] Cleared ${heldProductsQuery.size} guest holds for ${email}`);
+            }
+        }
+
         // Identify super admin
         const isSuperAdminUser = SUPER_ADMIN_UIDS.includes(uid) || (email && SUPER_ADMIN_EMAILS.includes(email));
         const allowAutoElevate = process.env.ALLOW_AUTO_ADMIN_ELEVATION === 'true';

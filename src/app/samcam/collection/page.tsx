@@ -33,18 +33,18 @@ export default function CollectionPage() {
   }, []);
 
   const uniqueBrands = useMemo(() => {
-    const brands = new Set(collection.map(item => item.brand).filter(Boolean));
-    return ["all", ...Array.from(brands).sort()] as string[];
+    const brands = new Set(collection.map(item => item.brand).filter(Boolean) as string[]);
+    return ["all", ...Array.from(brands).sort()];
   }, [collection]);
   
   const uniqueColors = useMemo(() => {
-    const colors = new Set(collection.map(item => item.cardType).filter(Boolean));
-    return ["all", ...Array.from(colors).sort()] as string[];
+    const colors = new Set(collection.map(item => item.cardType).filter(Boolean) as string[]);
+    return ["all", ...Array.from(colors).sort()];
   }, [collection]);
   
   const uniqueSports = useMemo(() => {
-    const sports = new Set(collection.map(item => item.sport).filter(Boolean));
-    return ["all", ...Array.from(sports).sort()] as string[];
+    const sports = new Set(collection.map(item => item.sport).filter(Boolean) as string[]);
+    return ["all", ...Array.from(sports).sort()];
   }, [collection]);
 
   const filteredCollection = useMemo(() => {
@@ -179,3 +179,6 @@ export default function CollectionPage() {
     </div>
   );
 }
+
+
+

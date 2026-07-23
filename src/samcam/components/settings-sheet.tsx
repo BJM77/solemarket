@@ -55,7 +55,7 @@ export default function SettingsSheet({
               Manage the list of players you want the AI to keep.
             </p>
             <Button asChild>
-              <Link href="/samcam/list" onClick={() => setIsOpen(false)}>
+              <Link href="/list" onClick={() => setIsOpen(false)}>
                 <List className="mr-2 h-4 w-4" />
                 Go to Keep List Manager
               </Link>
@@ -69,3 +69,6 @@ export default function SettingsSheet({
     </Sheet>
   );
 }
+
+
+

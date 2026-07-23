@@ -176,7 +176,7 @@ export default function SettingsPage() {
                     <p className="text-red-500 font-medium">Connection Failed</p>
                     <p className="text-muted-foreground mt-1">{networkMessage}</p>
                     <div className="bg-background/80 p-3 rounded mt-3 border text-xs font-mono">
-                      {/* If it's a CORS issue, add this to Benched.au next.config.js / route.ts: */}
+                      If it's a CORS issue, add this to Benched.au next.config.js / route.ts:
                       <br/>
                       headers: {'{ "Access-Control-Allow-Origin": "*" }'}
                     </div>
@@ -193,3 +193,6 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+
+
