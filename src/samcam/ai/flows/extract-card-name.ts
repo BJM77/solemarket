@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { DeviceProfile } from '../../lib/device-detector';
 
 const ExtractCardNameOutputSchema = z.object({
   playerName: z.string().describe('The name of the player extracted from the card image.'),
@@ -14,7 +15,8 @@ const ExtractCardNameOutputSchema = z.object({
 export type ExtractCardNameOutput = z.infer<typeof ExtractCardNameOutputSchema>;
 
 export async function extractCardName(
-  imageDataUri: string
+  imageDataUri: string,
+  deviceProfile?: DeviceProfile
 ): Promise<ExtractCardNameOutput> {
   console.log('[AI] extractCardName called');
   
@@ -28,9 +30,14 @@ export async function extractCardName(
     console.log('[AI] Initializing Google Generative AI');
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Use gemini-1.5-flash which supports vision
+    // Choose model based on device characteristics
+    let modelName = 'gemini-1.5-flash';
+    if (deviceProfile?.isHighEnd) {
+      modelName = 'gemini-1.5-pro';
+    }
+
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: modelName,
       generationConfig: {
         temperature: 0.1,
         topP: 0.8,
