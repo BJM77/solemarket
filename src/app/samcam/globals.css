@@ -4,25 +4,39 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    /* Base Colors - Black Theme by Default */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    
+    /* Surface Colors */
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 100%;
+    
+    /* Brand Colors */
+    --primary: 25 90% 50%; /* Benched Orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Premium Neutrals */
+    --sneaker-cream: 0 0% 8%;
+    --sneaker-grey: 0 0% 12%;
+    --deep-black: 0 0% 0%;
+    
+    /* Utility Colors */
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 25 90% 50%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Borders & Inputs */
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 25 90% 50%;
     --radius: 0.75rem;
   }
 }
