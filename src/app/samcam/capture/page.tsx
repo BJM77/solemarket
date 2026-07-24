@@ -20,6 +20,7 @@ import {
   Settings,
   Thermometer,
   Zap,
+  ZapOff,
   Info,
   Clock,
   XCircle,
@@ -39,6 +40,7 @@ import SettingsSheet from "@/samcam/components/settings-sheet";
 import { useErrorLog } from "@/samcam/hooks/use-error-log";
 import { SyncStatusTracker, SyncStatus } from "@/samcam/components/sync-status-tracker";
 import { syncService } from "@/samcam/lib/sync-service";
+import { audioSynth } from "@/samcam/lib/audio-effects";
 
 const getCameraConstraints = (device: DeviceProfile) => {
   const constraints: MediaTrackConstraints = {
@@ -97,6 +99,9 @@ export default function BenchedPhotoBooth() {
   const [lastQuality, setLastQuality] = useState<QualityMetrics | null>(null);
   const [currentSide, setCurrentSide] = useState<'FRONT' | 'BACK'>('FRONT');
   const [tempCapture, setTempCapture] = useState<Blob | null>(null);
+  const [torchActive, setTorchActive] = useState(false);
+  const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
+  const videoTrackRef = useRef<MediaStreamTrack | null>(null);
   
   const [selectedDevice, setSelectedDevice] = useState<string>('auto');
   const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
@@ -140,12 +145,18 @@ export default function BenchedPhotoBooth() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
+        if (stream) {
+          videoTrackRef.current = stream.getVideoTracks()[0];
+        }
       } catch (err: any) {
         console.error("Camera access failed", err);
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: true });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
+          }
+          if (stream) {
+            videoTrackRef.current = stream.getVideoTracks()[0];
           }
         } catch (innerErr: any) {
           toast({ 
@@ -164,8 +175,27 @@ export default function BenchedPhotoBooth() {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      videoTrackRef.current = null;
     };
   }, [deviceProfile, toast]);
+
+  const toggleTorch = async () => {
+    try {
+      const track = videoTrackRef.current;
+      if (track && track.getCapabilities && (track.getCapabilities() as any).torch) {
+        const nextState = !torchActive;
+        await track.applyConstraints({
+          advanced: [{ torch: nextState }]
+        } as any);
+        setTorchActive(nextState);
+        audioSynth.playChime();
+      } else {
+        toast({ title: "Torch Not Supported", description: "Your device camera does not support browser-controlled torch light." });
+      }
+    } catch (e) {
+      console.error("Failed to toggle torch", e);
+    }
+  };
 
   // Background Queue Uploader with Stepper Status
   useEffect(() => {
@@ -197,6 +227,7 @@ export default function BenchedPhotoBooth() {
         );
 
         if (success) {
+          audioSynth.playChime();
           // Remove from queue
           setSyncQueue(prev => prev.filter(i => i.id !== activeItem.id));
           // Remove from sync statuses in UI after a success delay
@@ -246,6 +277,7 @@ export default function BenchedPhotoBooth() {
       setQualityHistory(prev => [...prev.slice(-9), q]);
 
       if (!q.isAcceptable) {
+        audioSynth.playBeep();
         setLabStatus(q.messages[0] || "ADJUST...");
         setTimeout(() => setLabStatus("READY"), 1500);
         setIsProcessing(false);
@@ -259,10 +291,17 @@ export default function BenchedPhotoBooth() {
           return;
         }
 
+        audioSynth.playShutter();
+        if (navigator.vibrate) navigator.vibrate(60);
+
+        // Track captured thumbnail in the session feed list
+        const objectUrl = URL.createObjectURL(blob);
+
         if (currentSide === 'FRONT') {
           setTempCapture(blob);
           setCurrentSide('BACK');
           setLabStatus("FLIP CARD");
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
           if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
           setIsProcessing(false);
         } else {
@@ -278,6 +317,7 @@ export default function BenchedPhotoBooth() {
 
           await syncStorage.add(newUpload);
           setSyncQueue(prev => [...prev, newUpload]);
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
 
           setTempCapture(null);
           setCurrentSide('FRONT');
@@ -367,6 +407,17 @@ export default function BenchedPhotoBooth() {
             title={showHUD ? "Hide HUD" : "Show HUD"}
           >
             {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
+          </button>
+
+          <button 
+            onClick={toggleTorch}
+            className={cn(
+              "p-2 rounded-lg transition",
+              torchActive ? "bg-primary text-white shadow-glow" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
+            )}
+            title={torchActive ? "Turn Flash Off" : "Turn Flash On"}
+          >
+            {torchActive ? <ZapOff className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
           </button>
 
           <button 
@@ -582,8 +633,24 @@ export default function BenchedPhotoBooth() {
         {/* Quality Alerts */}
         {lastQuality && <QualityAlerts quality={lastQuality} />}
 
-        {/* Camera Viewport Framing Overlay */}
-        <div className="w-72 md:w-80 aspect-[2.5/3.5] border-2 border-dashed border-white/30 rounded-2xl flex items-center justify-center bg-white/5 relative">
+        {/* Session Thumbnail strip on the left */}
+        {sessionThumbnails.length > 0 && (
+          <div className="absolute left-4 top-24 bottom-32 w-14 overflow-y-auto flex flex-col gap-2.5 scrollbar-none z-10">
+            {sessionThumbnails.map((url, i) => (
+              <div key={i} className="w-12 h-16 rounded-lg border border-white/20 bg-zinc-900 overflow-hidden relative shrink-0 shadow-md">
+                <img src={url} className="w-full h-full object-cover" alt="thumbnail" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Camera Viewport Framing Overlay with AR Pulsing Glow */}
+        <div className={cn(
+          "w-72 md:w-80 aspect-[2.5/3.5] border-2 rounded-2xl flex items-center justify-center relative transition-all duration-300 bg-white/[0.02]",
+          !lastQuality && "border-dashed border-white/30",
+          lastQuality && lastQuality.overallScore > 80 && "border-solid border-primary shadow-[0_0_25px_rgba(242,108,13,0.4)] animate-pulse",
+          lastQuality && lastQuality.overallScore <= 80 && "border-solid border-yellow-500 shadow-[0_0_25px_rgba(234,179,8,0.25)]"
+        )}>
           <div className="text-center px-4">
              <Badge className="bg-zinc-900/90 px-6 py-2 uppercase tracking-[0.3em] font-black text-[10px] border border-white/10 mb-4">{labStatus}</Badge>
              {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-orange-500 animate-bounce" />}

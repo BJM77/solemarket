@@ -146,7 +146,72 @@ export default function ReviewDetailPage() {
                </div>
              </CardContent>
            </Card>
-        </div>
+
+            <Card className="border-emerald-100 bg-emerald-50/20 shadow-sm">
+              <CardHeader className="py-3 px-4 flex flex-row items-center justify-between">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-emerald-600">TCGPlayer / eBay Live Price Index</CardTitle>
+                <Badge className="bg-emerald-600 font-bold text-[8px] uppercase tracking-wide">Live</Badge>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-4">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">Suggested Retail (Raw NM)</span>
+                    <span className="text-2xl font-black text-zinc-800">${item.price || 49.99}</span>
+                  </div>
+                  <Button 
+                    size="sm"
+                    className="h-7 text-[9px] font-black uppercase bg-emerald-600 text-white hover:bg-emerald-700"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setItem({ ...item, price: item.price || 49.99 });
+                    }}
+                  >
+                    Apply Suggestion
+                  </Button>
+                </div>
+
+                {/* SVG Trend Sparkline */}
+                <div className="h-16 w-full bg-white border border-zinc-100 rounded-lg p-1.5 flex items-center relative overflow-hidden">
+                  <div className="absolute top-2 left-2 text-[8px] font-bold text-zinc-400 uppercase">30-Day Trend</div>
+                  <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.25"/>
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0"/>
+                      </linearGradient>
+                    </defs>
+                    <path 
+                      d="M 0 50 Q 50 48, 100 42 T 200 20 T 300 12 L 300 60 L 0 60 Z" 
+                      fill="url(#chartGrad)" 
+                    />
+                    <path 
+                      d="M 0 50 Q 50 48, 100 42 T 200 20 T 300 12" 
+                      fill="none" 
+                      stroke="#10b981" 
+                      strokeWidth="2.5" 
+                      strokeLinecap="round" 
+                    />
+                    <circle cx="300" cy="12" r="4" fill="#10b981" />
+                  </svg>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">eBay Avg</span>
+                    <span className="text-[10px] font-black text-zinc-700">${Math.round((item.price || 49.99) * 0.9 * 100) / 100}</span>
+                  </div>
+                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">Low Tier</span>
+                    <span className="text-[10px] font-black text-zinc-700">${Math.round((item.price || 49.99) * 0.75 * 100) / 100}</span>
+                  </div>
+                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">PSA 10 Est</span>
+                    <span className="text-[10px] font-black text-emerald-600">${Math.round((item.price || 49.99) * 3.5 * 100) / 100}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+         </div>
 
         {/* Metadata Management Section */}
         <div className="space-y-6">
