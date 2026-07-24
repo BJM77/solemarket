@@ -67,6 +67,7 @@ export default function ReviewDetailPage() {
         status: 'available',
         category: 'trading-cards',
         condition: item.condition || 'Near Mint',
+        quantity: 1,
         createdAt: Date.now(),
         isDraft: false,
         specs: {
