@@ -53,12 +53,9 @@ export class SyncService {
       // Step 1: Authentication
       await this.updateStep(status, 'auth', 'processing', 'Verifying user session...', onStatusUpdate);
       
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
-        await this.updateStep(status, 'auth', 'processing', 'No user found, attempting anonymous auth...', onStatusUpdate);
-        const { signInAnonymously } = await import('firebase/auth');
-        const cred = await signInAnonymously(auth);
-        await this.updateStep(status, 'auth', 'success', `Authenticated as ${cred.user.uid}`, onStatusUpdate);
+        await this.updateStep(status, 'auth', 'success', 'Guest Session (Proceeding unauthenticated)', onStatusUpdate);
       } else {
         await this.updateStep(status, 'auth', 'success', `Authenticated as ${user.uid}`, onStatusUpdate);
       }

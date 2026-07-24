@@ -36,12 +36,12 @@ export default function ReviewQueue() {
     
     const q = query(
       collection(db, "card_imports"), 
-      where("userId", "==", user.uid),
       orderBy("createdAt", "desc")
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CardImport));
-      setImports(docs);
+      const filteredDocs = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous');
+      setImports(filteredDocs);
       setLoading(false);
     });
     return () => unsubscribe();

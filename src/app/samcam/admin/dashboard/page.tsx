@@ -24,12 +24,13 @@ export default function EnterpriseDashboard() {
 
     const q = query(
       collection(db, "card_imports"), 
-      where("userId", "==", user.uid),
       orderBy("createdAt", "desc"), 
       limit(50)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMetrics(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CardImport)));
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CardImport));
+      const filteredDocs = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous');
+      setMetrics(filteredDocs);
       setLoading(false);
     });
     return () => unsubscribe();

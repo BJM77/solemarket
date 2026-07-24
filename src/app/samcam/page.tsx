@@ -33,15 +33,15 @@ export default function BenchedDashboard() {
   useEffect(() => {
     if (!user) return;
     
-    // Live counts from Firestore for the current user
     const q = query(
       collection(db, "card_imports"), 
-      where("userId", "==", user.uid),
       orderBy("createdAt", "desc")
     );
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setStats(prev => ({ ...prev, pending: snapshot.size }));
+      const docs = snapshot.docs.map(doc => doc.data());
+      const filteredCount = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous').length;
+      setStats(prev => ({ ...prev, pending: filteredCount }));
     });
 
     return () => unsubscribe();

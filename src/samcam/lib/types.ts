@@ -27,6 +27,7 @@ export interface QualityMetricsReport {
 export interface CardImport {
   id: string;
   status: CardStatus;
+  userId?: string;
   
   frontImagePath: string;
   backImagePath: string;
