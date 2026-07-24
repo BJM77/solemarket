@@ -29,7 +29,8 @@ import {
   Tag,
   PlusCircle,
   LogOut,
-  CreditCard
+  CreditCard,
+  Camera
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
@@ -104,6 +105,12 @@ export function UserNav() {
               <Link href="/admin/power-tools" className="flex items-center">
                 <Zap className="mr-3 h-4 w-4 text-amber-500" />
                 <span className="font-medium">Power Tools</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/samcam') && "bg-accent text-primary")}>
+              <Link href="/samcam" className="flex items-center">
+                <Camera className="mr-3 h-4 w-4" />
+                <span className="font-medium">SamCam Studio</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />

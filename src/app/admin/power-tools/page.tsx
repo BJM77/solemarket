@@ -19,7 +19,8 @@ import {
     Zap,
     Brain,
     Megaphone,
-    Sparkles
+    Sparkles,
+    Camera
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
@@ -27,6 +28,13 @@ import { getAdminStats, type AdminStats } from '@/app/actions/admin/admin-stats'
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [
+    {
+        title: 'SamCam Studio',
+        description: 'Professional high-speed camera scanning, AI card identification, and verification workspace',
+        icon: Camera,
+        href: '/samcam',
+        color: 'bg-primary text-black',
+    },
     {
         title: 'AI Price Checker',
         description: 'Automatically evaluate and correct marketplace listings using Gemini 2.0',
