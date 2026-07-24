@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Loader2, XCircle, Clock } from 'lucide-react';
 import { cn } from '@/samcam/lib/utils';
 
@@ -29,6 +29,11 @@ interface SyncStatusTrackerProps {
 
 export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrackerProps) {
   const [expanded, setExpanded] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const isComplete = status.steps.every(s => s.status === 'success');
   const hasError = status.steps.some(s => s.status === 'error');
@@ -57,7 +62,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
             </div>
             <div className="text-[10px] text-zinc-400">
               {isComplete ? 'Complete' : hasError ? 'Failed' : isProcessing ? 'Processing...' : 'Pending'}
-              {status.startedAt && ` • ${new Date(status.startedAt).toLocaleTimeString()}`}
+              {mounted && status.startedAt && ` • ${new Date(status.startedAt).toLocaleTimeString()}`}
             </div>
           </div>
         </div>
@@ -115,7 +120,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                   <div className="font-medium text-xs text-white">
                     {step.label}
                   </div>
-                  {step.timestamp && (
+                   {mounted && step.timestamp && (
                     <div className="text-[8px] text-zinc-500 font-mono">
                       {new Date(step.timestamp).toLocaleTimeString()}
                     </div>
@@ -153,7 +158,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           )}
           
           {/* Completion Time */}
-          {status.completedAt && (
+          {mounted && status.completedAt && (
             <div className="text-[8px] text-zinc-500 text-right font-mono">
               Completed: {new Date(status.completedAt).toLocaleTimeString()}
             </div>
