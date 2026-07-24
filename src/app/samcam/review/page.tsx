@@ -109,20 +109,20 @@ export default function ReviewQueue() {
             onClick={() => setActiveTab('VERIFIED')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'VERIFIED' ? "border-emerald-500 text-emerald-600" : "border-transparent text-slate-400 hover:text-slate-600"
+              activeTab === 'VERIFIED' ? "border-green-500 text-green-600" : "border-transparent text-slate-400 hover:text-slate-600"
             )}
           >
-            Verified <span className="bg-emerald-100/80 text-emerald-700 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+            Verified <span className="bg-green-100 text-green-700 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('NEEDS_REVIEW')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'NEEDS_REVIEW' ? "border-amber-500 text-amber-600" : "border-transparent text-slate-400 hover:text-slate-600"
+              activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
             )}
           >
-            Incomplete <span className="bg-amber-100/80 text-amber-700 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+            Incomplete <span className="bg-orange-100 text-orange-700 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
           </button>
         </div>
 
@@ -134,8 +134,8 @@ export default function ReviewQueue() {
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                    <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2", 
-                      item.status === 'VERIFIED' ? "bg-emerald-500 text-white" : 
-                      item.status === 'NEEDS_REVIEW' ? "bg-amber-500 text-white" : 
+                      item.status === 'VERIFIED' ? "bg-green-500 text-white" : 
+                      item.status === 'NEEDS_REVIEW' ? "bg-primary text-white" : 
                       "bg-blue-500 text-white"
                    )}>
                      {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}

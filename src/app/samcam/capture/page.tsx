@@ -143,7 +143,7 @@ export default function BenchedPhotoBooth() {
       } catch (err: any) {
         console.error("Camera access failed", err);
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
           }
