@@ -28,6 +28,7 @@ export default function ReviewQueue() {
   const [imports, setImports] = useState<CardImport[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'ALL' | 'VERIFIED' | 'NEEDS_REVIEW'>('ALL');
   const router = useRouter();
 
   useEffect(() => {
@@ -46,10 +47,20 @@ export default function ReviewQueue() {
     return () => unsubscribe();
   }, [user]);
 
-  const filtered = imports.filter(i => 
-    i.cardName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    i.gradedCertNumber?.includes(searchTerm)
-  );
+  const allCount = imports.length;
+  const verifiedCount = imports.filter(i => i.status === 'VERIFIED').length;
+  const incompleteCount = imports.filter(i => i.status === 'NEEDS_REVIEW').length;
+
+  const filtered = imports.filter(i => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (i.cardName?.toLowerCase().includes(term) || false) ||
+      (i.setName?.toLowerCase().includes(term) || false) ||
+      (i.id?.toLowerCase().includes(term) || false);
+
+    if (activeTab === 'ALL') return matchesSearch;
+    return matchesSearch && i.status === activeTab;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -82,6 +93,39 @@ export default function ReviewQueue() {
           </Button>
         </div>
 
+        {/* Status filtering Tabs */}
+        <div className="flex border-b border-slate-200 mb-8 overflow-x-auto gap-6 text-[10px] font-black uppercase tracking-wider">
+          <button 
+            onClick={() => setActiveTab('ALL')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+            )}
+          >
+            All Items <span className="bg-slate-200/60 text-slate-600 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('VERIFIED')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'VERIFIED' ? "border-emerald-500 text-emerald-600" : "border-transparent text-slate-400 hover:text-slate-600"
+            )}
+          >
+            Verified <span className="bg-emerald-100/80 text-emerald-700 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('NEEDS_REVIEW')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'NEEDS_REVIEW' ? "border-amber-500 text-amber-600" : "border-transparent text-slate-400 hover:text-slate-600"
+            )}
+          >
+            Incomplete <span className="bg-amber-100/80 text-amber-700 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((item) => (
             <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-xl transition-all bg-white border-slate-200">
@@ -90,7 +134,9 @@ export default function ReviewQueue() {
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                    <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2", 
-                     item.status === 'VERIFIED' ? "bg-green-500" : "bg-blue-500"
+                      item.status === 'VERIFIED' ? "bg-emerald-500 text-white" : 
+                      item.status === 'NEEDS_REVIEW' ? "bg-amber-500 text-white" : 
+                      "bg-blue-500 text-white"
                    )}>
                      {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
                      {item.status}
@@ -129,7 +175,7 @@ export default function ReviewQueue() {
                     <div className="text-[9px] font-black text-slate-300 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
-                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/review/${item.id}`)}>
+                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-slate-900 text-white hover:bg-primary transition-colors" onClick={() => router.push(`/samcam/review/${item.id}`)}>
                       Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
                     </Button>
                   </div>

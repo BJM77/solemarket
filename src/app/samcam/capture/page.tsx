@@ -12,35 +12,33 @@ import {
   Loader2, 
   RefreshCw, 
   Layers, 
-  AlertTriangle, 
   Trash2, 
   Smartphone, 
   Contrast, 
   Eye, 
   EyeOff, 
   Settings,
-  Flame as GlareIcon, // Mapping Glare to Flame/Target
   Thermometer,
   Zap,
-  Info
+  Info,
+  Clock,
+  XCircle,
+  FileText
 } from "lucide-react";
 import { Button } from "@/samcam/components/ui/button";
 import { Badge } from "@/samcam/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/samcam/components/ui/sheet";
 import { Progress } from "@/samcam/components/ui/progress";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { db, storage, auth } from "@/samcam/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db, auth } from "@/samcam/lib/firebase";
 import { syncStorage, PendingUpload } from "@/samcam/lib/sync-storage";
 import { cn } from "@/samcam/lib/utils";
 import { analyzeImageQuality, QualityMetrics } from "@/samcam/lib/image-processing";
 import { detectDevice, getProfileForPreset, DeviceProfile } from "@/samcam/lib/device-detector";
-import { logPerformance } from "@/samcam/lib/performance-monitor";
 import SettingsSheet from "@/samcam/components/settings-sheet";
 import { useErrorLog } from "@/samcam/hooks/use-error-log";
-
-const INTERNAL_TOKEN = "benched_studio_v4_6_secure";
+import { SyncStatusTracker, SyncStatus } from "@/samcam/components/sync-status-tracker";
+import { syncService } from "@/samcam/lib/sync-service";
 
 const getCameraConstraints = (device: DeviceProfile) => {
   const constraints: MediaTrackConstraints = {
@@ -49,7 +47,6 @@ const getCameraConstraints = (device: DeviceProfile) => {
     height: { ideal: device.recommendedResolution.height },
   };
 
-  // Samsung softening filter optimization
   if (device.manufacturer === 'samsung') {
     return {
       ...constraints,
@@ -63,7 +60,6 @@ const getCameraConstraints = (device: DeviceProfile) => {
     };
   }
 
-  // Google Pixel Tensor optimizations
   if (device.manufacturer === 'google') {
     return {
       ...constraints,
@@ -78,7 +74,6 @@ const getCameraConstraints = (device: DeviceProfile) => {
     };
   }
 
-  // Apple iOS focus optimizations
   if (device.manufacturer === 'apple') {
     return {
       ...constraints,
@@ -98,12 +93,11 @@ export default function BenchedPhotoBooth() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [labStatus, setLabStatus] = useState("READY");
   const [syncQueue, setSyncQueue] = useState<PendingUpload[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
+  const [syncStatuses, setSyncStatuses] = useState<Map<string, SyncStatus>>(new Map());
   const [lastQuality, setLastQuality] = useState<QualityMetrics | null>(null);
   const [currentSide, setCurrentSide] = useState<'FRONT' | 'BACK'>('FRONT');
   const [tempCapture, setTempCapture] = useState<Blob | null>(null);
   
-  // Custom HUD and Profile States
   const [selectedDevice, setSelectedDevice] = useState<string>('auto');
   const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
     name: 'Generic Device',
@@ -148,7 +142,6 @@ export default function BenchedPhotoBooth() {
         }
       } catch (err: any) {
         console.error("Camera access failed", err);
-        // Fallback to simpler constraints
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
           if (videoRef.current) {
@@ -174,20 +167,71 @@ export default function BenchedPhotoBooth() {
     };
   }, [deviceProfile, toast]);
 
+  // Background Queue Uploader with Stepper Status
+  useEffect(() => {
+    let isProcessing = false;
+
+    const processQueue = async () => {
+      if (isProcessing || syncQueue.length === 0) return;
+      
+      const activeItem = syncQueue.find(i => i.status === 'PENDING' || i.status === 'ERROR');
+      if (!activeItem) return;
+      
+      // Check if already processing in the service
+      const existingStatus = syncService.getActiveSync(activeItem.id);
+      if (existingStatus) {
+        setSyncStatuses(prev => new Map(prev).set(activeItem.id, existingStatus));
+        return;
+      }
+
+      isProcessing = true;
+
+      try {
+        const success = await syncService.processUpload(
+          activeItem,
+          deviceProfile,
+          (status) => {
+            // Update UI with status update from worker
+            setSyncStatuses(prev => new Map(prev).set(activeItem.id, status));
+          }
+        );
+
+        if (success) {
+          // Remove from queue
+          setSyncQueue(prev => prev.filter(i => i.id !== activeItem.id));
+          // Remove from sync statuses in UI after a success delay
+          setTimeout(() => {
+            setSyncStatuses(prev => {
+              const next = new Map(prev);
+              next.delete(activeItem.id);
+              return next;
+            });
+          }, 6000);
+        } else {
+          // Update status to error in database queue
+          const updated = { ...activeItem, status: 'ERROR' as const, retries: activeItem.retries + 1 };
+          await syncStorage.update(updated);
+          setSyncQueue(prev => prev.map(i => i.id === activeItem.id ? updated : i));
+        }
+      } catch (error) {
+        console.error("[Queue] Processing error:", error);
+      } finally {
+        isProcessing = false;
+      }
+    };
+
+    const interval = setInterval(processQueue, 2000);
+    return () => clearInterval(interval);
+  }, [syncQueue, deviceProfile]);
+
   const capture = async () => {
     if (!videoRef.current || isProcessing) return;
     setIsProcessing(true);
     setLabStatus("LOCKING...");
 
-    const startTime = performance.now();
-
     try {
       const v = videoRef.current;
       const c = document.createElement('canvas');
-      
-      // Use profile-recommended target sizes
-      const targetW = deviceProfile.recommendedAspectRatio === '4:3' ? 1440 : 1920;
-      const targetH = 1080; // Baseline standard
       
       c.width = 800; 
       c.height = 1120;
@@ -199,7 +243,7 @@ export default function BenchedPhotoBooth() {
 
       const q = analyzeImageQuality(c);
       setLastQuality(q);
-      setQualityHistory(prev => [...prev.slice(-9), q]); // Keep last 10 elements
+      setQualityHistory(prev => [...prev.slice(-9), q]);
 
       if (!q.isAcceptable) {
         setLabStatus(q.messages[0] || "ADJUST...");
@@ -208,9 +252,6 @@ export default function BenchedPhotoBooth() {
         return;
       }
 
-      const captureTime = Math.round(performance.now() - startTime);
-      const b64 = c.toDataURL('image/jpeg', 0.75);
-      
       c.toBlob(async (blob) => {
         if (!blob) {
           setIsProcessing(false);
@@ -237,29 +278,6 @@ export default function BenchedPhotoBooth() {
 
           await syncStorage.add(newUpload);
           setSyncQueue(prev => [...prev, newUpload]);
-          
-          const uploadStart = performance.now();
-
-          fetch('/samcam/api/identify', {
-            method: 'POST',
-            headers: { 'X-Benched-Token': INTERNAL_TOKEN, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cardId: id, frontImage: b64, deviceProfile })
-          }).then(r => r.json()).then(res => {
-            const aiTime = Math.round(performance.now() - uploadStart);
-            if (db) {
-              updateDoc(doc(db, "card_imports", id), { ...res, status: 'VERIFIED' }).catch(console.error);
-            }
-            
-            // Log Performance Metric
-            logPerformance({
-              deviceName: deviceProfile.name,
-              captureTime,
-              uploadTime: Math.round(performance.now() - uploadStart),
-              aiProcessingTime: aiTime,
-              totalTime: Math.round(performance.now() - startTime),
-              fps: 30
-            });
-          }).catch(err => console.error("ID API Error", err));
 
           setTempCapture(null);
           setCurrentSide('FRONT');
@@ -281,7 +299,7 @@ export default function BenchedPhotoBooth() {
       await syncStorage.remove(item.id);
     }
     setSyncQueue([]);
-    setUploadProgress({});
+    setSyncStatuses(new Map());
     toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
   };
 
@@ -298,7 +316,6 @@ export default function BenchedPhotoBooth() {
     return "Keep card flat, centered, and aligned with grid lines.";
   };
 
-  // Real-Time Quality Alert Pills
   const QualityAlerts = ({ quality }: { quality: QualityMetrics }) => {
     const alerts = [];
     if (quality.brightnessScore < 50) {
@@ -364,35 +381,112 @@ export default function BenchedPhotoBooth() {
             <SheetTrigger asChild>
               <button className="flex items-center gap-2 bg-zinc-800 px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-all active:scale-95">
                 <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-orange-400 animate-pulse" : "text-zinc-600")} />
-                <span className="text-[10px] font-black">{syncQueue.length} SYNCING</span>
+                <span className="text-[10px] font-black">
+                  {syncQueue.filter(i => i.status === 'PENDING').length} PENDING
+                  {syncQueue.filter(i => i.status === 'ERROR').length > 0 && 
+                    ` • ${syncQueue.filter(i => i.status === 'ERROR').length} ERRORS`
+                  }
+                </span>
               </button>
             </SheetTrigger>
-            <SheetContent className="bg-zinc-950 text-white border-zinc-800 font-mono">
+            <SheetContent className="bg-zinc-950 text-white border-zinc-800 font-mono w-full sm:w-[450px] overflow-y-auto">
               <SheetHeader className="flex flex-row justify-between items-center pr-10">
                 <SheetTitle className="text-white uppercase font-black text-sm">System Monitor</SheetTitle>
-                <Button variant="destructive" size="sm" className="text-[8px] font-black uppercase px-2 h-7" onClick={purgeQueue}>
-                  <Trash2 className="w-3 h-3 mr-1" /> Purge Stuck
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-[8px] font-black uppercase px-2 h-7 border-zinc-700"
+                    onClick={() => {
+                      const logs = Array.from(syncStatuses.values()).map(s => ({
+                        id: s.id,
+                        steps: s.steps.map(step => ({
+                          label: step.label,
+                          status: step.status,
+                          detail: step.detail,
+                          timestamp: step.timestamp,
+                        })),
+                        error: s.error,
+                      }));
+                      navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
+                      toast({ title: "Logs Copied", description: "Diagnostics copied to clipboard." });
+                    }}
+                  >
+                    <FileText className="w-3 h-3 mr-1" /> Export Logs
+                  </Button>
+                  <Button variant="destructive" size="sm" className="text-[8px] font-black uppercase px-2 h-7" onClick={purgeQueue}>
+                    <Trash2 className="w-3 h-3 mr-1" /> Purge Queue
+                  </Button>
+                </div>
               </SheetHeader>
+              
               <div className="mt-6 space-y-4">
-                {syncQueue.length === 0 && (
-                   <div className="text-center py-10 opacity-30">
-                      <CheckCircle2 className="w-8 h-8 mx-auto mb-2" />
-                      <p className="text-[10px] font-black uppercase">Sync Complete</p>
-                   </div>
+                {syncStatuses.size === 0 && syncQueue.length === 0 && (
+                  <div className="text-center py-10 opacity-30">
+                    <CheckCircle2 className="w-8 h-8 mx-auto mb-2" />
+                    <p className="text-[10px] font-black uppercase">No Active Syncs</p>
+                    <p className="text-[8px] text-zinc-500 mt-1">Capture front/back of a card to begin</p>
+                  </div>
                 )}
-                {syncQueue.map(item => (
-                  <div key={item.id} className="p-3 bg-zinc-900 border border-white/5 rounded-xl">
-                    <div className="flex justify-between text-[8px] mb-2 text-zinc-500">
-                      <span className="truncate max-w-[150px]">ID: {item.id}</span>
-                      <span className={cn("font-black uppercase", item.status === 'ERROR' ? "text-red-400" : "text-blue-400")}>
-                        {item.status === 'ERROR' ? "ERROR" : `${Math.round(uploadProgress[item.id] || 0)}%`}
-                      </span>
+                
+                {/* Active Sync Statuses with stepper UI */}
+                {Array.from(syncStatuses.values()).map(status => (
+                  <SyncStatusTracker 
+                    key={status.id}
+                    status={status}
+                    onRetry={(id) => {
+                      const item = syncQueue.find(i => i.id === id);
+                      if (item) {
+                        syncStorage.update({ ...item, status: 'PENDING', retries: 0 });
+                        setSyncQueue(prev => prev.map(i => i.id === id ? { ...i, status: 'PENDING', retries: 0 } : i));
+                      }
+                    }}
+                    onCancel={(id) => {
+                      syncStorage.remove(id);
+                      setSyncQueue(prev => prev.filter(i => i.id !== id));
+                      setSyncStatuses(prev => {
+                        const next = new Map(prev);
+                        next.delete(id);
+                        return next;
+                      });
+                    }}
+                  />
+                ))}
+
+                {/* Queued items (pending processing) */}
+                {syncQueue.filter(i => i.status === 'PENDING' && !syncStatuses.has(i.id)).map(item => (
+                  <div key={item.id} className="bg-zinc-900 border border-white/5 rounded-xl p-4 flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-zinc-500" />
+                    <div>
+                      <div className="font-bold text-xs text-white">Queued: {item.id}</div>
+                      <div className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">Waiting for sync pipeline...</div>
                     </div>
-                    {item.status === 'ERROR' && item.error && (
-                      <p className="text-[7px] text-red-400 leading-tight mb-2 uppercase font-black">{item.error}</p>
-                    )}
-                    <Progress value={uploadProgress[item.id] || 0} className="h-1 bg-zinc-800" />
+                  </div>
+                ))}
+
+                {/* Queued Error Items */}
+                {syncQueue.filter(i => i.status === 'ERROR' && !syncStatuses.has(i.id)).map(item => (
+                  <div key={item.id} className="bg-red-950/20 border border-red-500/20 rounded-xl p-4 flex flex-col gap-2">
+                    <div className="flex items-start gap-3">
+                      <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                      <div className="flex-grow">
+                        <div className="font-bold text-xs text-red-400">Failed: {item.id}</div>
+                        <div className="text-[10px] font-mono text-red-300 mt-1 break-all">{item.error || "Unknown upload error."}</div>
+                        <div className="text-[8px] text-zinc-500 mt-1 uppercase font-black tracking-widest">
+                          Retries: {item.retries} • Created: {new Date(item.createdAt).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                      onClick={() => {
+                        syncStorage.update({ ...item, status: 'PENDING' });
+                        setSyncQueue(prev => prev.map(i => i.id === item.id ? { ...i, status: 'PENDING' } : i));
+                      }}
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" /> Retry Upload
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -461,7 +555,6 @@ export default function BenchedPhotoBooth() {
               <span className="font-black text-white">{lastQuality.colorTemperature}K</span>
             </div>
 
-            {/* Overall Rating Indicator */}
             <div className="mt-3 pt-3 border-t border-white/5">
               <div className="flex items-center justify-between mb-1 text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
                 <span>Quality Score</span>
