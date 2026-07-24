@@ -102,6 +102,19 @@ export default function BenchedPhotoBooth() {
   const [torchActive, setTorchActive] = useState(false);
   const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
   const videoTrackRef = useRef<MediaStreamTrack | null>(null);
+  const createdUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      createdUrlsRef.current.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.warn("Failed to revoke URL", url, e);
+        }
+      });
+    };
+  }, []);
   
   const [selectedDevice, setSelectedDevice] = useState<string>('auto');
   const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
@@ -179,10 +192,25 @@ export default function BenchedPhotoBooth() {
     };
   }, [deviceProfile, toast]);
 
+  const triggerVibrate = (pattern: number | number[]) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    } catch (e) {
+      console.warn("Haptic vibration blocked by environment", e);
+    }
+  };
+
   const toggleTorch = async () => {
     try {
       const track = videoTrackRef.current;
-      if (track && track.getCapabilities && (track.getCapabilities() as any).torch) {
+      if (!track) {
+        toast({ title: "Torch Not Ready", description: "Camera stream is initializing." });
+        return;
+      }
+      const capabilities = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
+      if (capabilities && (capabilities as any).torch) {
         const nextState = !torchActive;
         await track.applyConstraints({
           advanced: [{ torch: nextState }]
@@ -292,17 +320,18 @@ export default function BenchedPhotoBooth() {
         }
 
         audioSynth.playShutter();
-        if (navigator.vibrate) navigator.vibrate(60);
+        triggerVibrate(60);
 
         // Track captured thumbnail in the session feed list
         const objectUrl = URL.createObjectURL(blob);
+        createdUrlsRef.current.push(objectUrl);
 
         if (currentSide === 'FRONT') {
           setTempCapture(blob);
           setCurrentSide('BACK');
           setLabStatus("FLIP CARD");
           setSessionThumbnails(prev => [objectUrl, ...prev]);
-          if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+          triggerVibrate([30, 50, 30]);
           setIsProcessing(false);
         } else {
           const id = `card_${Date.now()}`;
