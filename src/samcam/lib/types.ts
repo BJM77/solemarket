@@ -44,6 +44,7 @@ export interface CardImport {
   year?: number;
   condition?: string;
   price?: number;
+  description?: string;
   
   identificationSource: IdentificationSource;
   identificationConfidence?: number;

@@ -62,6 +62,7 @@ export default function ReviewDetailPage() {
       await addDoc(collection(db, "products"), {
         title: item.cardName || 'Trading Card',
         price: item.price || 0,
+        description: item.description || '',
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user.uid,
         status: 'available',
@@ -106,30 +107,30 @@ export default function ReviewDetailPage() {
   };
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
+    <div className="h-screen flex items-center justify-center bg-black">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
 
-  if (!item) return <div>Capture not found.</div>;
+  if (!item) return <div className="h-screen flex items-center justify-center bg-black text-white">Capture not found.</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10 shadow-sm">
+    <div className="min-h-screen bg-black text-white pb-20">
+      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam/review')}>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-lg font-black uppercase font-headline tracking-tighter">Verification Workspace</h1>
-            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Client ID: {item.id.substring(0,8)}</p>
+            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-white">Verification Workspace</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Client ID: {item.id.substring(0,8)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="sm" className="text-destructive font-bold uppercase text-[10px]" onClick={handleDelete}>
+           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
              <Trash2 className="w-4 h-4 mr-1" /> Remove
            </Button>
-           <Button className="bg-primary text-white font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
+           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
              {saving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
              Confirm & Verify
            </Button>
@@ -139,59 +140,59 @@ export default function ReviewDetailPage() {
       <main className="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Visual Evidence Section */}
         <div className="space-y-6">
-           <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
              <History className="w-3.5 h-3.5" /> High-Resolution Evidence
            </h2>
            <div className="grid grid-cols-2 gap-4">
-              <Card className="overflow-hidden border-2 border-slate-200">
-                <div className="aspect-[2.5/3.5] relative bg-slate-200">
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900">
+                <div className="aspect-[2.5/3.5] relative bg-zinc-950">
                   <Image src={item.frontImagePath} alt="Front" fill className="object-cover" />
-                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase">Front</Badge>
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white">Front</Badge>
                 </div>
               </Card>
-              <Card className="overflow-hidden border-2 border-slate-200">
-                <div className="aspect-[2.5/3.5] relative bg-slate-200">
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900">
+                <div className="aspect-[2.5/3.5] relative bg-zinc-950">
                   <Image src={item.backImagePath} alt="Back" fill className="object-cover" />
-                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase">Back</Badge>
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white">Back</Badge>
                 </div>
               </Card>
            </div>
            
-           <Card className="bg-blue-50 border-blue-100">
+           <Card className="bg-blue-950/20 border-blue-500/20 text-white">
              <CardHeader className="py-3 px-4">
-               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-500">Capture QC Report</CardTitle>
+               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-400">Capture QC Report</CardTitle>
              </CardHeader>
              <CardContent className="px-4 pb-3">
                <div className="flex gap-6">
                   <div>
-                    <p className="text-[8px] font-bold text-blue-400 uppercase">Sharpness</p>
-                    <p className="text-sm font-black text-blue-700">{item.qualityReport?.front?.blurScore}px Edge</p>
+                    <p className="text-[8px] font-bold text-blue-500 uppercase">Sharpness</p>
+                    <p className="text-sm font-black text-blue-300">{item.qualityReport?.front?.blurScore}px Edge</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-bold text-blue-400 uppercase">Luminance</p>
-                    <p className="text-sm font-black text-blue-700">{item.qualityReport?.front?.brightnessScore} nits</p>
+                    <p className="text-[8px] font-bold text-blue-500 uppercase">Luminance</p>
+                    <p className="text-sm font-black text-blue-300">{item.qualityReport?.front?.brightnessScore} nits</p>
                   </div>
                   <div className="flex-grow flex justify-end items-center">
-                    <Badge className="bg-green-500 font-black text-[8px] uppercase">QC PASSED</Badge>
+                    <Badge className="bg-green-600 font-black text-[8px] uppercase border-none text-white">QC PASSED</Badge>
                   </div>
                </div>
              </CardContent>
            </Card>
 
-            <Card className="border-emerald-100 bg-emerald-50/20 shadow-sm">
+            <Card className="border-emerald-500/25 bg-emerald-950/10 shadow-sm text-white">
               <CardHeader className="py-3 px-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-emerald-600">TCGPlayer / eBay Live Price Index</CardTitle>
-                <Badge className="bg-emerald-600 font-bold text-[8px] uppercase tracking-wide">Live</Badge>
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-emerald-400">TCGPlayer / eBay Live Price Index</CardTitle>
+                <Badge className="bg-emerald-600 font-bold text-[8px] uppercase tracking-wide border-none text-white">Live</Badge>
               </CardHeader>
               <CardContent className="px-4 pb-4 space-y-4">
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">Suggested Retail (Raw NM)</span>
-                    <span className="text-2xl font-black text-zinc-800">${item.price || 49.99}</span>
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-wider block">Suggested Retail (Raw NM)</span>
+                    <span className="text-2xl font-black text-white">${item.price || 49.99}</span>
                   </div>
                   <Button 
                     size="sm"
-                    className="h-7 text-[9px] font-black uppercase bg-emerald-600 text-white hover:bg-emerald-700"
+                    className="h-7 text-[9px] font-black uppercase bg-emerald-600 text-white hover:bg-emerald-700 border-none"
                     onClick={(e) => {
                       e.preventDefault();
                       setItem({ ...item, price: item.price || 49.99 });
@@ -202,8 +203,8 @@ export default function ReviewDetailPage() {
                 </div>
 
                 {/* SVG Trend Sparkline */}
-                <div className="h-16 w-full bg-white border border-zinc-100 rounded-lg p-1.5 flex items-center relative overflow-hidden">
-                  <div className="absolute top-2 left-2 text-[8px] font-bold text-zinc-400 uppercase">30-Day Trend</div>
+                <div className="h-16 w-full bg-zinc-950 border border-white/5 rounded-lg p-1.5 flex items-center relative overflow-hidden">
+                  <div className="absolute top-2 left-2 text-[8px] font-bold text-zinc-500 uppercase">30-Day Trend</div>
                   <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -227,17 +228,17 @@ export default function ReviewDetailPage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
-                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">eBay Avg</span>
-                    <span className="text-[10px] font-black text-zinc-700">${Math.round((item.price || 49.99) * 0.9 * 100) / 100}</span>
+                  <div className="bg-zinc-950 border border-white/5 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-500 uppercase font-bold block">eBay Avg</span>
+                    <span className="text-[10px] font-black text-white">${Math.round((item.price || 49.99) * 0.9 * 100) / 100}</span>
                   </div>
-                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
-                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">Low Tier</span>
-                    <span className="text-[10px] font-black text-zinc-700">${Math.round((item.price || 49.99) * 0.75 * 100) / 100}</span>
+                  <div className="bg-zinc-950 border border-white/5 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-500 uppercase font-bold block">Low Tier</span>
+                    <span className="text-[10px] font-black text-white">${Math.round((item.price || 49.99) * 0.75 * 100) / 100}</span>
                   </div>
-                  <div className="bg-white/80 border border-zinc-100 rounded p-1.5">
-                    <span className="text-[7px] text-zinc-400 uppercase font-bold block">PSA 10 Est</span>
-                    <span className="text-[10px] font-black text-emerald-600">${Math.round((item.price || 49.99) * 3.5 * 100) / 100}</span>
+                  <div className="bg-zinc-950 border border-white/5 rounded p-1.5">
+                    <span className="text-[7px] text-zinc-500 uppercase font-bold block">PSA 10 Est</span>
+                    <span className="text-[10px] font-black text-emerald-400">${Math.round((item.price || 49.99) * 3.5 * 100) / 100}</span>
                   </div>
                 </div>
               </CardContent>
@@ -246,23 +247,23 @@ export default function ReviewDetailPage() {
 
         {/* Metadata Management Section */}
         <div className="space-y-6">
-           <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
              <BadgeCheck className="w-3.5 h-3.5" /> Structured Metadata
            </h2>
            
-           <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
+           <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
              <CardContent className="pt-6">
                 <form className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-dashed mb-6">
+                  <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 mb-6">
                     <div>
-                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">ID Source</p>
+                      <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">ID Source</p>
                       <p className="text-[10px] font-black uppercase text-primary flex items-center gap-1">
-                        <Gem className="w-3 h-3" /> {item.identificationSource} 
+                        <Gem className="w-3 h-3 text-primary" /> {item.identificationSource} 
                       </p>
                     </div>
                     <div className="text-right">
-                       <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Confidence</p>
-                       <Badge variant="outline" className={cn("text-[9px] font-black uppercase", (item.identificationConfidence || 0) > 0.9 ? "text-green-600 bg-green-50" : "text-yellow-600 bg-yellow-50")}>
+                       <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Confidence</p>
+                       <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", (item.identificationConfidence || 0) > 0.9 ? "text-green-400 bg-green-950/20" : "text-yellow-400 bg-yellow-950/20")}>
                          {Math.round((item.identificationConfidence || 0) * 100)}% Match
                        </Badge>
                     </div>
@@ -270,36 +271,36 @@ export default function ReviewDetailPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5 col-span-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Card / Player Name</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Card / Player Name</Label>
                       <Input 
                         value={item.cardName || ''} 
                         onChange={e => setItem({...item, cardName: e.target.value})}
-                        className="font-bold border-slate-200" 
+                        className="font-bold bg-zinc-950 border-white/10 text-white focus:ring-primary" 
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Set Name</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Set Name</Label>
                       <Input 
                         value={item.setName || ''} 
                         onChange={e => setItem({...item, setName: e.target.value})}
-                        className="font-medium border-slate-200" 
+                        className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Card # / Number</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Card # / Number</Label>
                       <Input 
                         value={item.cardNumber || ''} 
                         onChange={e => setItem({...item, cardNumber: e.target.value})}
-                        className="font-medium border-slate-200" 
+                        className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Category / Sport</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Category / Sport</Label>
                       <Select value={item.sport || 'Pokemon'} onValueChange={val => setItem({...item, sport: val})}>
-                        <SelectTrigger className="font-bold">
+                        <SelectTrigger className="font-bold bg-zinc-950 border-white/10 text-white">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
                           <SelectItem value="Pokemon">Pokemon</SelectItem>
                           <SelectItem value="NBA">NBA</SelectItem>
                           <SelectItem value="NFL">NFL</SelectItem>
@@ -309,25 +310,34 @@ export default function ReviewDetailPage() {
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Year</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Year</Label>
                       <Input 
                         type="number" 
                         value={item.year || ''} 
                         onChange={e => setItem({...item, year: parseInt(e.target.value)})}
-                        className="font-medium border-slate-200" 
+                        className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                      />
+                    </div>
+                    <div className="space-y-1.5 col-span-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
+                      <textarea
+                        value={item.description || ''}
+                        onChange={e => setItem({...item, description: e.target.value})}
+                        placeholder="Gemini is analyzing the card..."
+                        className="w-full min-h-[70px] rounded-lg border border-white/10 bg-zinc-950 p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-white placeholder-zinc-600"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100">
+                  <div className="pt-4 border-t border-white/5">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Condition Estimate</Label>
                         <Select value={item.condition || 'Near Mint'} onValueChange={val => setItem({...item, condition: val})}>
-                          <SelectTrigger className="border-primary/20 bg-primary/5 font-black uppercase text-[10px]">
+                          <SelectTrigger className="border-primary/20 bg-zinc-950 text-white font-black uppercase text-[10px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-zinc-900 border-white/10 text-white">
                             <SelectItem value="Mint">Gem Mint (10)</SelectItem>
                             <SelectItem value="Near Mint">Near Mint (NM)</SelectItem>
                             <SelectItem value="Lightly Played">Lightly Played (LP)</SelectItem>
@@ -342,7 +352,7 @@ export default function ReviewDetailPage() {
                           type="number" 
                           value={item.price || ''} 
                           onChange={e => setItem({...item, price: parseFloat(e.target.value)})}
-                          className="font-black border-primary/20 bg-primary/5" 
+                          className="font-black border-primary/20 bg-zinc-950 text-white focus:ring-primary" 
                         />
                       </div>
                     </div>
@@ -351,9 +361,9 @@ export default function ReviewDetailPage() {
              </CardContent>
            </Card>
 
-           <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <p className="text-[10px] text-yellow-800 leading-relaxed font-medium">
+           <div className="flex items-start gap-3 p-4 bg-yellow-950/20 border border-yellow-500/20 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <p className="text-[10px] text-yellow-200 leading-relaxed font-medium">
                 Verify that the identification source is confident. If you manually override data, the identification source will be logged as <strong>MANUAL</strong> to improve future AI training.
               </p>
            </div>
@@ -362,6 +372,5 @@ export default function ReviewDetailPage() {
     </div>
   );
 }
-
 
 

@@ -22,13 +22,14 @@ export async function POST(req: NextRequest) {
       } 
     });
 
-    const prompt = `Identify this trading card. Extract player name, set name, year, sport, and confidence. 
+    const prompt = `Identify this trading card. Extract player name, set name, year, sport, confidence, and generate a short, professional marketplace description (1-2 sentences) highlighting its key characteristics. 
     JSON Schema: {
       "cardName": string, 
       "setName": string, 
       "year": number, 
       "sport": string, 
-      "confidence": number
+      "confidence": number,
+      "description": string
     }`;
 
     const result = await model.generateContent([
