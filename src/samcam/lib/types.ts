@@ -34,6 +34,7 @@ export interface CardImport {
   
   gradedCertNumber?: string;
   gradingCompany?: 'PSA' | 'BGS' | 'CGC' | 'SGC';
+  grade?: string;
   ocrText?: string;
   
   cardName?: string;

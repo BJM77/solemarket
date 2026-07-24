@@ -24,8 +24,9 @@ import { Badge } from "@/samcam/components/ui/badge";
 import { useToast } from "@/samcam/hooks/use-toast";
 import { db } from "@/samcam/lib/firebase";
 import { cn } from "@/samcam/lib/utils";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, collection, addDoc } from "firebase/firestore";
 import { CardImport } from "@/samcam/lib/types";
+import { useAuth } from "@/app/samcam/auth-provider";
 
 export default function ReviewDetailPage() {
   const { id } = useParams();
@@ -34,6 +35,7 @@ export default function ReviewDetailPage() {
   const [saving, setSaveLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function loadItem() {
@@ -50,17 +52,45 @@ export default function ReviewDetailPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!item) return;
+    if (!user) {
+      toast({ variant: "destructive", title: "Authentication Required", description: "You must be signed in to verify and list cards." });
+      return;
+    }
     setSaveLoading(true);
     try {
+      // 1. Promote to Benched products database catalog
+      await addDoc(collection(db, "products"), {
+        title: item.cardName || 'Trading Card',
+        price: item.price || 0,
+        imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
+        sellerId: user.uid,
+        status: 'available',
+        category: 'trading-cards',
+        condition: item.condition || 'Near Mint',
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          gradingCompany: item.gradingCompany || '',
+          grade: item.grade || '',
+          certNumber: item.gradedCertNumber || '',
+          cardNumber: item.cardNumber || '',
+          year: item.year || '',
+          setName: item.setName || '',
+        }
+      });
+
+      // 2. Mark import queue status as VERIFIED
       await updateDoc(doc(db, "card_imports", item.id), {
         ...item,
         status: 'VERIFIED',
         updatedAt: Date.now()
       });
-      toast({ title: "Card Verified", description: "Promoted to local inventory." });
+
+      toast({ title: "Card Verified", description: "Promoted to local inventory and added to products on Benched.au!" });
       router.push('/samcam/review');
-    } catch (err) {
-      toast({ variant: "destructive", title: "Save Failed" });
+    } catch (err: any) {
+      console.error("Failed to promote card to products", err);
+      toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list product." });
     } finally {
       setSaveLoading(false);
     }
