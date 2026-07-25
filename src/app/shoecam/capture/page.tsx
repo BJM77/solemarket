@@ -370,7 +370,7 @@ export default function ShoePhotoBooth() {
       </header>
 
       <div className="flex-1 relative flex items-center justify-center bg-zinc-950">
-        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-65 grayscale" />
 
         {/* HUD Box Guidelines overlay */}
         {showHUD && (
