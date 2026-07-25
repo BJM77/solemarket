@@ -30,7 +30,8 @@ import {
   PlusCircle,
   LogOut,
   CreditCard,
-  Camera
+  Camera,
+  Coins
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -99,16 +100,22 @@ export function UserNav() {
                 <span className="font-medium">User Management</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg", isActive('/admin/power-tools') && "bg-accent text-accent-foreground")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/power-tools') && "bg-accent text-accent-foreground")}>
               <Link href="/admin/power-tools" className="flex items-center">
                 <Zap className="mr-3 h-4 w-4 text-amber-500" />
                 <span className="font-medium">Power Tools</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/samcam') && "bg-accent text-primary")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/samcam') && "bg-accent text-primary")}>
               <Link href="/samcam" className="flex items-center">
                 <Camera className="mr-3 h-4 w-4" />
                 <span className="font-medium">SamCam Studio</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/coincam') && "bg-accent text-primary")}>
+              <Link href="/coincam" className="flex items-center">
+                <Coins className="mr-3 h-4 w-4" />
+                <span className="font-medium">CoinCam Studio</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />
