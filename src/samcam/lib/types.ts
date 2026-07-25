@@ -13,6 +13,7 @@ export type CardStatus =
 export type IdentificationSource = 
   | 'DATABASE_MATCH' 
   | 'AI_FALLBACK' 
+  | 'AI_DEEP_SCAN'
   | 'MANUAL' 
   | 'GRADED_SLAB'
   | 'ERROR';

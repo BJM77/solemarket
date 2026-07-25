@@ -130,7 +130,7 @@ export default function ReviewDetailPage() {
           rarity: aiResult.rarity || prev.rarity,
           isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
           description: aiResult.description || prev.description,
-          identificationSource: 'AI Deep Scan',
+          identificationSource: 'AI_DEEP_SCAN',
         };
       });
       toast({ title: "AI Check Complete", description: "Successfully extracted additional card details." });

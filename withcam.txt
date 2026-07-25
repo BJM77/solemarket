@@ -32,6 +32,7 @@ src/ai/flows/auto-repricing.ts
 src/ai/flows/bulk-suggest-cards.ts
 src/ai/flows/check-card-condition.ts
 src/ai/flows/deep-scan-card.ts
+src/ai/flows/deep-scan-coin.ts
 src/ai/flows/detect-fraud.ts
 src/ai/flows/extract-card-name-samcam.ts
 src/ai/flows/extract-card-name.ts
@@ -193,6 +194,13 @@ src/app/category/[slug]/page.tsx
 src/app/checkout/confirmation/page.tsx
 src/app/checkout/page.tsx
 src/app/club-fundraising/page.tsx
+src/app/coincam/auth-provider.tsx
+src/app/coincam/capture/page.tsx
+src/app/coincam/layout.tsx
+src/app/coincam/page.tsx
+src/app/coincam/review/[id]/page.tsx
+src/app/coincam/review/page.tsx
+src/app/coincam/settings/page.tsx
 src/app/coins/page.tsx
 src/app/collector-cards/page.tsx
 src/app/complete-profile/page.tsx
@@ -315,6 +323,9 @@ src/app/wtb/layout.tsx
 src/app/wtb/page.tsx
 src/checkProducts.js
 src/checkProductsAdmin.js
+src/coincam/lib/sync-service.ts
+src/coincam/lib/sync-storage.ts
+src/coincam/lib/types.ts
 src/components/ErrorBoundary.tsx
 src/components/FirebaseErrorListener.tsx
 src/components/SEO.tsx
@@ -2522,6 +2533,81 @@ export async function deepScanCard(
   } catch (error: any) {
     console.error("[AI] Error in deepScanCard:", error);
     throw new Error(`AI Scan Failed: ${error.message}`);
+  }
+}
+
+
+========================================================================
+FILE: src/ai/flows/deep-scan-coin.ts
+========================================================================
+
+'use server';
+
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+const DeepScanCoinOutputSchema = z.object({
+  coinName: z.string().describe('The name of the coin or commemorative theme (e.g. Lunar Year Dragon, Kangaroo, Queen Elizabeth II).'),
+  setName: z.string().optional().describe('The series or set name if applicable (e.g. Australian Nuggets, Sovereign).'),
+  denomination: z.string().optional().describe('The denomination or face value (e.g. $1, 50c, Penny, Sovereign).'),
+  country: z.string().optional().describe('The country of origin / issue (e.g. Australia, USA, United Kingdom).'),
+  year: z.number().nullable().optional().describe('The year of minting printed on the coin, if visible.'),
+  mintMark: z.string().optional().describe('The mint mark if visible (e.g. S, D, P, CC).'),
+  composition: z.string().optional().describe('The metal composition if discernable (e.g. Silver, Gold, Copper).'),
+  rarity: z.string().optional().describe('The rarity or collector notes (e.g. Proof, Low Mintage).'),
+  isRare: z.boolean().optional().describe('Whether this coin is considered highly rare or a premium collector item.'),
+  description: z.string().optional().describe('A small engaging description of the coin for a marketplace listing.'),
+});
+
+export type DeepScanCoinOutput = z.infer<typeof DeepScanCoinOutputSchema>;
+
+export async function deepScanCoin(
+  imageUrlOrBase64: string,
+): Promise<DeepScanCoinOutput> {
+  console.log('[AI] deepScanCoin called');
+  
+  try {
+    let mimeType = 'image/jpeg';
+    let mediaUrl = imageUrlOrBase64;
+
+    if (!imageUrlOrBase64.startsWith('data:')) {
+      const response = await fetch(imageUrlOrBase64);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Data = buffer.toString('base64');
+      mimeType = response.headers.get('content-type') || 'image/jpeg';
+      mediaUrl = `data:${mimeType};base64,${base64Data}`;
+    }
+
+    const result = await ai.generate({
+      model: 'googleai/gemini-flash-latest',
+      prompt: [
+        { text: `You are a professional coin grading and numismatic expert. Analyze this coin image and extract details for the output schema.
+- coinName: The name or commemorative theme of the coin (required)
+- setName: The series or set name (e.g. Australian Nugget Series)
+- denomination: The face value or denomination (e.g. $1, 50c, Penny)
+- country: The issuing country (e.g. Australia, USA, Great Britain)
+- year: The mint year printed on the coin as a number. If no year is visible, return null
+- mintMark: The mint mark (e.g. S, D, P, CC) if visible
+- composition: The metal composition (Gold, Silver, Bronze, etc.)
+- rarity: Rarity/strike type notes (e.g. Proof, Specimen, Low Mintage)
+- isRare: Boolean, true if the coin is considered rare or highly collectible
+- description: A short, engaging sentence or paragraph describing the coin for a listing.` },
+        { media: { url: mediaUrl } }
+      ],
+      output: {
+        schema: DeepScanCoinOutputSchema
+      }
+    });
+
+    if (!result.output) {
+      throw new Error("No structured output returned from Gemini.");
+    }
+
+    return result.output;
+  } catch (error: any) {
+    console.error("[AI] Error in deepScanCoin:", error);
+    throw new Error(`AI Coin Scan Failed: ${error.message}`);
   }
 }
 
@@ -24216,6 +24302,1835 @@ export default function ClubFundraisingPage() {
 
 
 ========================================================================
+FILE: src/app/coincam/auth-provider.tsx
+========================================================================
+
+"use client";
+
+import { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from '@/samcam/lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  imports: any[];
+  setImports: React.Dispatch<React.SetStateAction<any[]>>;
+  importsLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  loading: true, 
+  imports: [], 
+  setImports: () => {}, 
+  importsLoading: true 
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [imports, setImports] = useState<any[]>([]);
+  const [importsLoading, setImportsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!auth) {
+      console.error("Firebase auth is not initialized. Check your environment variables.");
+      setLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setImports([]);
+      setImportsLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "coin_imports"), 
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      const filteredDocs = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous');
+      setImports(filteredDocs);
+      setImportsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  return (
+    <AuthContext.Provider value={{ user, loading, imports, setImports, importsLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
+
+
+========================================================================
+FILE: src/app/coincam/capture/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  ArrowLeft, 
+  Target, 
+  Sun, 
+  Gauge, 
+  Flame, 
+  CheckCircle2, 
+  Loader2, 
+  RefreshCw, 
+  Layers, 
+  Trash2, 
+  Smartphone, 
+  Contrast, 
+  Eye, 
+  EyeOff, 
+  Settings,
+  Thermometer,
+  Zap,
+  ZapOff,
+  Info,
+  Clock,
+  XCircle,
+  FileText
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/samcam/hooks/use-toast";
+import { auth } from "@/samcam/lib/firebase";
+import { syncStorage, PendingUpload } from "@/coincam/lib/sync-storage";
+import { cn } from "@/samcam/lib/utils";
+import { analyzeImageQuality, QualityMetrics } from "@/samcam/lib/image-processing";
+import { detectDevice, getProfileForPreset, DeviceProfile } from "@/samcam/lib/device-detector";
+import SettingsSheet from "@/samcam/components/settings-sheet";
+import { useErrorLog } from "@/samcam/hooks/use-error-log";
+import { SyncStatusTracker, SyncStatus } from "@/samcam/components/sync-status-tracker";
+import { syncService } from "@/coincam/lib/sync-service";
+import { audioSynth } from "@/samcam/lib/audio-effects";
+
+const getCameraConstraints = (device: DeviceProfile) => {
+  const constraints: MediaTrackConstraints = {
+    facingMode: 'environment',
+    width: { ideal: device.recommendedResolution.width },
+    height: { ideal: device.recommendedResolution.height },
+  };
+
+  if (device.manufacturer === 'samsung') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.samsung.android.camera.softening': 0.8 },
+      ],
+    };
+  }
+
+  if (device.manufacturer === 'google') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.google.android.camera.hdrplus': true },
+        { 'com.google.android.camera.ai_auto': true },
+      ],
+    };
+  }
+
+  if (device.manufacturer === 'apple') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'auto' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+      ],
+    };
+  }
+
+  return constraints;
+};
+
+export default function CoinPhotoBooth() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [labStatus, setLabStatus] = useState("READY");
+  const [syncQueue, setSyncQueue] = useState<PendingUpload[]>([]);
+  const [syncStatuses, setSyncStatuses] = useState<Map<string, SyncStatus>>(new Map());
+  const [lastQuality, setLastQuality] = useState<QualityMetrics | null>(null);
+  const [currentSide, setCurrentSide] = useState<'FRONT' | 'BACK'>('FRONT');
+  const [tempCapture, setTempCapture] = useState<Blob | null>(null);
+  const [torchActive, setTorchActive] = useState(false);
+  const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
+  const videoTrackRef = useRef<MediaStreamTrack | null>(null);
+  const createdUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      createdUrlsRef.current.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.warn("Failed to revoke URL", url, e);
+        }
+      });
+    };
+  }, []);
+  
+  const [selectedDevice, setSelectedDevice] = useState<string>('auto');
+  const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
+    name: 'Generic Device',
+    manufacturer: 'generic',
+    model: 'unknown',
+    isHighEnd: false,
+    hasMacroMode: false,
+    hasNightMode: false,
+    recommendedAspectRatio: '16:9',
+    recommendedResolution: { width: 1920, height: 1080 },
+    aiAcceleration: 'basic',
+  });
+  const [showHUD, setShowHUD] = useState(true);
+  const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [qualityHistory, setQualityHistory] = useState<QualityMetrics[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+  const errorLog = useErrorLog();
+
+  // Evaluate active device profile based on selection
+  useEffect(() => {
+    if (selectedDevice === 'auto') {
+      setDeviceProfile(detectDevice());
+    } else {
+      setDeviceProfile(getProfileForPreset(selectedDevice));
+    }
+  }, [selectedDevice]);
+
+  // Robust Camera Lifecycle driven by profile constraints
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+
+    const startCamera = async () => {
+      try {
+        const constraints = getCameraConstraints(deviceProfile);
+        stream = await navigator.mediaDevices.getUserMedia({ video: constraints as any });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        if (stream) {
+          videoTrackRef.current = stream.getVideoTracks()[0];
+        }
+      } catch (err: any) {
+        console.error("Camera access failed", err);
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+          if (stream) {
+            videoTrackRef.current = stream.getVideoTracks()[0];
+          }
+        } catch (innerErr: any) {
+          toast({ 
+            variant: "destructive", 
+            title: "Camera Error", 
+            description: innerErr.message || "Please enable camera permissions." 
+          });
+        }
+      }
+    };
+    
+    startCamera();
+    syncStorage.getAll().then(setSyncQueue);
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      videoTrackRef.current = null;
+    };
+  }, [deviceProfile, toast]);
+
+  const triggerVibrate = (pattern: number | number[]) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    } catch (e) {
+      console.warn("Haptic vibration blocked by environment", e);
+    }
+  };
+
+  const toggleTorch = async () => {
+    try {
+      const track = videoTrackRef.current;
+      if (!track) {
+        toast({ title: "Torch Not Ready", description: "Camera stream is initializing." });
+        return;
+      }
+      const capabilities = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
+      if (capabilities && (capabilities as any).torch) {
+        const nextState = !torchActive;
+        await track.applyConstraints({
+          advanced: [{ torch: nextState }]
+        } as any);
+        setTorchActive(nextState);
+        audioSynth.playChime();
+      } else {
+        toast({ title: "Torch Not Supported", description: "Your device camera does not support browser-controlled torch light." });
+      }
+    } catch (e) {
+      console.error("Failed to toggle torch", e);
+    }
+  };
+
+  // Background Queue Uploader with Stepper Status
+  useEffect(() => {
+    let isProcessing = false;
+
+    const processQueue = async () => {
+      if (isProcessing || syncQueue.length === 0) return;
+      
+      const activeItem = syncQueue.find(i => i.status === 'PENDING' || i.status === 'ERROR');
+      if (!activeItem) return;
+      
+      const existingStatus = syncService.getActiveSync(activeItem.id);
+      if (existingStatus) {
+        setSyncStatuses(prev => new Map(prev).set(activeItem.id, existingStatus));
+        return;
+      }
+
+      isProcessing = true;
+
+      try {
+        const success = await syncService.processUpload(
+          activeItem,
+          deviceProfile,
+          (status) => {
+            setSyncStatuses(prev => new Map(prev).set(activeItem.id, status));
+          }
+        );
+
+        if (success) {
+          audioSynth.playChime();
+          setSyncQueue(prev => prev.filter(i => i.id !== activeItem.id));
+          setTimeout(() => {
+            setSyncStatuses(prev => {
+              const next = new Map(prev);
+              next.delete(activeItem.id);
+              return next;
+            });
+          }, 6000);
+        } else {
+          const updated = { ...activeItem, status: 'ERROR' as const, retries: activeItem.retries + 1 };
+          await syncStorage.update(updated);
+          setSyncQueue(prev => prev.map(i => i.id === activeItem.id ? updated : i));
+        }
+      } catch (error) {
+        console.error("[Queue] Processing error:", error);
+      } finally {
+        isProcessing = false;
+      }
+    };
+
+    const interval = setInterval(processQueue, 2000);
+    return () => clearInterval(interval);
+  }, [syncQueue, deviceProfile]);
+
+  const capture = async () => {
+    if (!videoRef.current || isProcessing) return;
+    setIsProcessing(true);
+    setLabStatus("LOCKING...");
+
+    try {
+      const v = videoRef.current;
+      const c = document.createElement('canvas');
+      
+      c.width = 800; 
+      c.height = 800;
+      const ctx = c.getContext('2d', { alpha: false })!;
+      
+      const xOffset = (v.videoWidth - 800) / 2;
+      const yOffset = (v.videoHeight - 800) / 2;
+      ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
+
+      const q = analyzeImageQuality(c);
+      setLastQuality(q);
+      setQualityHistory(prev => [...prev.slice(-9), q]);
+
+      if (!q.isAcceptable) {
+        audioSynth.playBeep();
+        setLabStatus(q.messages[0] || "ADJUST...");
+        setTimeout(() => setLabStatus("READY"), 1500);
+        setIsProcessing(false);
+        return;
+      }
+
+      c.toBlob(async (blob) => {
+        if (!blob) {
+          setIsProcessing(false);
+          setLabStatus("READY");
+          return;
+        }
+
+        audioSynth.playShutter();
+        triggerVibrate(60);
+
+        const objectUrl = URL.createObjectURL(blob);
+        createdUrlsRef.current.push(objectUrl);
+
+        if (currentSide === 'FRONT') {
+          setTempCapture(blob);
+          setCurrentSide('BACK');
+          setLabStatus("FLIP COIN");
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+          triggerVibrate([30, 50, 30]);
+          setIsProcessing(false);
+        } else {
+          const id = `coin_${Date.now()}`;
+          const newUpload: PendingUpload = {
+            id,
+            frontBlob: tempCapture!,
+            backBlob: blob,
+            status: 'PENDING',
+            retries: 0,
+            createdAt: Date.now()
+          };
+
+          await syncStorage.add(newUpload);
+          setSyncQueue(prev => [...prev, newUpload]);
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+
+          setTempCapture(null);
+          setCurrentSide('FRONT');
+          setLabStatus("READY");
+          setIsProcessing(false);
+        }
+      }, 'image/jpeg', 0.75);
+
+    } catch (e) {
+      console.error("Capture Error", e);
+      setLabStatus("ERROR");
+      setTimeout(() => setLabStatus("READY"), 2000);
+      setIsProcessing(false);
+    }
+  };
+
+  const purgeQueue = async () => {
+    for (const item of syncQueue) {
+      await syncStorage.remove(item.id);
+    }
+    setSyncQueue([]);
+    setSyncStatuses(new Map());
+    toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
+  };
+
+  const getDeviceTips = (device: DeviceProfile) => {
+    if (device.manufacturer === 'samsung') {
+      return "For best results, tap to focus and hold steady to combat over-sharpening.";
+    }
+    if (device.manufacturer === 'google') {
+      return "Pixel Macro Mode is active. Move closer for pristine coin detail.";
+    }
+    if (device.manufacturer === 'apple') {
+      return "iOS macro capture active. Keep background dark to isolate coin edge.";
+    }
+    return "Keep coin flat, centered, and aligned with circle overlay.";
+  };
+
+  const QualityAlerts = ({ quality }: { quality: QualityMetrics }) => {
+    const alerts = [];
+    if (quality.brightnessScore < 50) {
+      alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-400 border-yellow-400/20" });
+    }
+    if (quality.blurScore < 10) {
+      alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-400 border-red-400/20" });
+    }
+    if (quality.glarePercentage > 15) {
+      alerts.push({ icon: <Target className="w-3.5 h-3.5" />, text: "Glare Detected", color: "text-red-500 border-red-500/20" });
+    }
+
+    if (alerts.length === 0) {
+      return (
+        <div className="absolute bottom-24 left-4 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-1.5 backdrop-blur-md">
+          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Ready to Capture
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="absolute bottom-24 left-4 flex flex-col gap-2">
+        {alerts.map((alert, i) => (
+          <div key={i} className={cn("bg-black/80 border rounded-full px-4 py-1.5 backdrop-blur-md flex items-center", alert.color)}>
+            <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              {alert.icon} {alert.text}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="h-screen bg-black text-white font-mono flex flex-col overflow-hidden">
+      <header className="p-3 bg-zinc-900 border-b border-white/10 flex justify-between items-center z-20">
+        <Button variant="ghost" size="icon" onClick={() => router.push('/coincam')}><ArrowLeft className="w-5 h-5" /></Button>
+        
+        <div className="flex gap-2 items-center">
+          <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-orange-500")}>
+            {currentSide === 'FRONT' ? 'Capture Front' : 'Flip for Back'}
+          </Badge>
+          
+          <button 
+            onClick={() => setShowHUD(prev => !prev)}
+            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+            title={showHUD ? "Hide HUD" : "Show HUD"}
+          >
+            {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
+          </button>
+
+          <button 
+            onClick={toggleTorch}
+            className={cn(
+              "p-2 rounded-lg transition",
+              torchActive ? "bg-primary text-white shadow-glow" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
+            )}
+            title={torchActive ? "Turn Flash Off" : "Turn Flash On"}
+          >
+            {torchActive ? <ZapOff className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+          </button>
+
+          <button 
+            onClick={() => setSettingsOpen(true)}
+            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+            title="Configure Presets"
+          >
+            <Settings className="w-4 h-4 text-zinc-400" />
+          </button>
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="flex items-center gap-2 bg-zinc-800 px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-all active:scale-95">
+                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-orange-400 animate-pulse" : "text-zinc-600")} />
+                <span className="text-[10px] font-black">
+                  {syncQueue.filter(i => i.status === 'PENDING').length} PENDING
+                  {syncQueue.filter(i => i.status === 'ERROR').length > 0 && 
+                    ` • ${syncQueue.filter(i => i.status === 'ERROR').length} ERRORS`
+                  }
+                </span>
+              </button>
+            </SheetTrigger>
+            <SheetContent className="bg-zinc-950 text-white border-zinc-800 font-mono w-full sm:w-[450px] overflow-y-auto">
+              <SheetHeader className="flex flex-row justify-between items-center pr-10">
+                <SheetTitle className="text-white uppercase font-black text-sm">System Monitor</SheetTitle>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-[8px] font-black uppercase px-2 h-7 border-zinc-700"
+                    onClick={() => {
+                      const logs = Array.from(syncStatuses.values()).map(s => ({
+                        id: s.id,
+                        steps: s.steps.map(step => ({
+                          label: step.label,
+                          status: step.status,
+                          detail: step.detail,
+                          timestamp: step.timestamp,
+                        })),
+                        error: s.error,
+                      }));
+                      navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
+                      toast({ title: "Logs Copied", description: "Diagnostics copied to clipboard." });
+                    }}
+                  >
+                    <FileText className="w-3 h-3 mr-1" /> Export Logs
+                  </Button>
+                  <Button variant="destructive" size="sm" className="text-[8px] font-black uppercase px-2 h-7" onClick={purgeQueue}>
+                    <Trash2 className="w-3 h-3 mr-1" /> Purge Queue
+                  </Button>
+                </div>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-4">
+                {syncStatuses.size === 0 && syncQueue.length === 0 && (
+                  <div className="text-center py-10 opacity-30">
+                    <CheckCircle2 className="w-8 h-8 mx-auto mb-2" />
+                    <p className="text-[10px] font-black uppercase">No Active Syncs</p>
+                    <p className="text-[8px] text-zinc-500 mt-1">Capture front/back of a coin to begin</p>
+                  </div>
+                )}
+                
+                {Array.from(syncStatuses.values()).map(status => (
+                  <SyncStatusTracker 
+                    key={status.id}
+                    status={status}
+                    onRetry={(id) => {
+                      const item = syncQueue.find(i => i.id === id);
+                      if (item) {
+                        syncStorage.update({ ...item, status: 'PENDING', retries: 0 });
+                        setSyncQueue(prev => prev.map(i => i.id === id ? { ...i, status: 'PENDING', retries: 0 } : i));
+                      }
+                    }}
+                    onCancel={(id) => {
+                      syncStorage.remove(id);
+                      setSyncQueue(prev => prev.filter(i => i.id !== id));
+                      setSyncStatuses(prev => {
+                        const next = new Map(prev);
+                        next.delete(id);
+                        return next;
+                      });
+                    }}
+                  />
+                ))}
+
+                {syncQueue.filter(i => i.status === 'PENDING' && !syncStatuses.has(i.id)).map(item => (
+                  <div key={item.id} className="bg-zinc-900 border border-white/5 rounded-xl p-4 flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-zinc-500" />
+                    <div>
+                      <div className="font-bold text-xs text-white">Queued: {item.id}</div>
+                      <div className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">Waiting for sync pipeline...</div>
+                    </div>
+                  </div>
+                ))}
+
+                {syncQueue.filter(i => i.status === 'ERROR' && !syncStatuses.has(i.id)).map(item => (
+                  <div key={item.id} className="bg-red-950/20 border border-red-500/20 rounded-xl p-4 flex flex-col gap-2">
+                    <div className="flex items-start gap-3">
+                      <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                      <div className="flex-grow">
+                        <div className="font-bold text-xs text-red-400">Failed: {item.id}</div>
+                        <div className="text-[10px] font-mono text-red-300 mt-1 break-all">{item.error || "Unknown upload error."}</div>
+                        <div className="text-[8px] text-zinc-500 mt-1 uppercase font-black tracking-widest">
+                          Retries: {item.retries} • Created: {new Date(item.createdAt).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                      onClick={() => {
+                        syncStorage.update({ ...item, status: 'PENDING' });
+                        setSyncQueue(prev => prev.map(i => i.id === item.id ? { ...i, status: 'PENDING' } : i));
+                      }}
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" /> Retry Upload
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </header>
+
+      <main className="flex-grow flex items-center justify-center relative">
+        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-65 grayscale" />
+        
+        {/* Advanced Quality HUD */}
+        {showHUD && lastQuality && (
+          <div className={cn(
+            "absolute bg-black/70 backdrop-blur-md p-4 rounded-xl border border-white/10 text-[9px] w-48 z-10 transition-all duration-300",
+            hudPosition === 'top-left' && "top-4 left-4",
+            hudPosition === 'top-right' && "top-4 right-4",
+            hudPosition === 'bottom-left' && "bottom-24 left-4",
+            hudPosition === 'bottom-right' && "bottom-24 right-4",
+          )}>
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-400" /> Device</span>
+              <span className="font-black text-blue-400 truncate max-w-[100px]">{deviceProfile.name}</span>
+            </div>
+            
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-400" /> Focus</span>
+              <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-400" : "text-red-400")}>
+                {lastQuality.blurScore}
+              </span>
+            </div>
+            
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
+              <span className={cn(
+                "font-black",
+                lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
+              )}>
+                {lastQuality.brightnessScore} LUX
+              </span>
+            </div>
+            
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-400" /> Glare</span>
+              <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-400" : "text-red-400")}>
+                {lastQuality.glarePercentage}%
+              </span>
+            </div>
+
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-400" /> Contrast</span>
+              <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-400" : "text-yellow-400")}>
+                {lastQuality.contrastScore}%
+              </span>
+            </div>
+
+            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Zap className="w-3 h-3 text-purple-400" /> Sharpness</span>
+              <span className={cn("font-black", lastQuality.sharpnessScore > 60 ? "text-green-400" : "text-yellow-400")}>
+                {lastQuality.sharpnessScore}%
+              </span>
+            </div>
+
+            <div className="flex justify-between pb-2">
+              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-orange-400" /> Temp</span>
+              <span className="font-black text-white">{lastQuality.colorTemperature}K</span>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-between mb-1 text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
+                <span>Quality Score</span>
+                <span className={cn(
+                  lastQuality.overallScore > 80 ? "text-green-400" :
+                  lastQuality.overallScore > 60 ? "text-yellow-400" : "text-red-400"
+                )}>
+                  {lastQuality.overallScore}%
+                </span>
+              </div>
+              <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full transition-all duration-500",
+                    lastQuality.overallScore > 80 ? "bg-green-500" :
+                    lastQuality.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
+                  )}
+                  style={{ width: `${lastQuality.overallScore}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quality Alerts */}
+        {lastQuality && <QualityAlerts quality={lastQuality} />}
+
+        {/* Session Thumbnail strip on the left */}
+        {sessionThumbnails.length > 0 && (
+          <div className="absolute left-4 top-24 bottom-32 w-14 overflow-y-auto flex flex-col gap-2.5 scrollbar-none z-10">
+            {sessionThumbnails.map((url, i) => (
+              <div key={i} className="w-12 h-12 rounded-full border border-white/20 bg-zinc-900 overflow-hidden relative shrink-0 shadow-md">
+                <img src={url} className="w-full h-full object-cover" alt="thumbnail" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Camera Viewport Framing Overlay - Coin Circle HUD */}
+        <div className={cn(
+          "w-72 h-72 md:w-80 md:h-80 border-2 rounded-full flex items-center justify-center relative transition-all duration-300 bg-white/[0.02]",
+          !lastQuality && "border-dashed border-white/30",
+          lastQuality && lastQuality.overallScore > 80 && "border-solid border-primary shadow-[0_0_25px_rgba(242,108,13,0.4)] animate-pulse",
+          lastQuality && lastQuality.overallScore <= 80 && "border-solid border-yellow-500 shadow-[0_0_25px_rgba(234,179,8,0.25)]"
+        )}>
+          <div className="text-center px-4">
+             <Badge className="bg-zinc-900/90 px-6 py-2 uppercase tracking-[0.3em] font-black text-[10px] border border-white/10 mb-4">{labStatus}</Badge>
+             {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-orange-500 animate-bounce" />}
+             
+             {/* Micro Tip Box */}
+             <div className="mt-4 p-2 bg-black/60 border border-white/5 rounded-lg text-[8px] font-bold uppercase tracking-wider text-zinc-400 flex gap-1.5 items-start text-left">
+               <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+               <span>{getDeviceTips(deviceProfile)}</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Quality Trend sparkline */}
+        {showHUD && qualityHistory.length > 0 && (
+          <div className="absolute bottom-32 right-4 bg-black/60 backdrop-blur-md p-2.5 rounded-xl border border-white/10 w-44">
+            <div className="flex items-center justify-between mb-1 text-[7px] font-bold text-zinc-400 uppercase tracking-widest">
+              <span>Trend</span>
+              <span>{qualityHistory.length}/10 runs</span>
+            </div>
+            <div className="flex items-end h-8 gap-0.5 pt-1">
+              {qualityHistory.map((q, i) => (
+                <div 
+                  key={i}
+                  className={cn(
+                    "flex-1 rounded-sm transition-all duration-300",
+                    q.overallScore > 80 ? "bg-green-500" :
+                    q.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
+                  )}
+                  style={{ height: `${q.overallScore}%` }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button 
+          onClick={capture} 
+          disabled={isProcessing} 
+          className="absolute bottom-8 w-20 h-20 bg-white rounded-full border-8 border-zinc-900 active:scale-90 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center justify-center transition-all disabled:opacity-50"
+        >
+          {isProcessing ? <Loader2 className="w-10 h-10 text-zinc-900 animate-spin" /> : <div className="w-8 h-8 rounded-full bg-zinc-900" />}
+        </button>
+      </main>
+
+      <SettingsSheet 
+        isOpen={settingsOpen}
+        setIsOpen={setSettingsOpen}
+        errorLog={errorLog}
+        selectedDevice={selectedDevice}
+        setSelectedDevice={setSelectedDevice}
+        showHUD={showHUD}
+        setShowHUD={setShowHUD}
+        hudPosition={hudPosition}
+        setHudPosition={setHudPosition}
+      />
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/coincam/layout.tsx
+========================================================================
+
+import type {Metadata} from 'next';
+import '../samcam/globals.css';
+import { Toaster } from "@/components/ui/toaster"
+import { AuthProvider } from './auth-provider';
+
+export const metadata: Metadata = {
+  title: 'Benched.au | CoinCam Capture & Marketplace',
+  description: 'The professional ecosystem for coin photography, identification, and sales.',
+};
+
+export default function CoinCamLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <AuthProvider>
+      {children}
+      <Toaster />
+    </AuthProvider>
+  );
+}
+
+
+========================================================================
+FILE: src/app/coincam/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { 
+  Camera, 
+  LayoutDashboard, 
+  History, 
+  Settings, 
+  ArrowRight,
+  PlusCircle,
+  Database,
+  CloudUpload,
+  Coins,
+  ScanBarcode,
+  Loader,
+  User as UserIcon
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "../samcam/auth-provider";
+import { useRouter } from "next/navigation";
+import { db } from "@/samcam/lib/firebase";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+
+export default function CoinCamDashboard() {
+  const { user, loading: authLoading } = useAuth();
+  const [stats, setStats] = useState({ pending: 0, inventory: 0, live: 0 });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const q = query(
+      collection(db, "coin_imports"), 
+      orderBy("createdAt", "desc")
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => doc.data());
+      const filteredCount = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous').length;
+      setStats(prev => ({ ...prev, pending: filteredCount }));
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-black text-white">
+      <header className="flex items-center justify-between p-4 border-b border-white/10 bg-zinc-900 sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <div className="bg-primary p-1.5 rounded-lg">
+            <Coins className="w-6 h-6 text-black" />
+          </div>
+          <h1 className="text-xl font-bold font-headline tracking-tight uppercase text-white">
+            COINCAM<span className="text-primary">.AU</span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex bg-zinc-800 rounded-full px-4 py-1.5 items-center gap-2 border border-white/5">
+             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Coin Booth Connected</span>
+          </div>
+          <Button variant="ghost" size="icon" asChild className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+             <Link href="/coincam/settings"><Settings className="w-5 h-5" /></Link>
+          </Button>
+          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-zinc-300">
+            <UserIcon className="w-4 h-4" />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+           <Card className="bg-primary text-black border-none shadow-glow overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Camera className="w-20 h-20" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest opacity-80 text-black">
+                Coin Studio
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black font-headline uppercase mb-4 text-black">Launch Booth</div>
+              <Button variant="secondary" className="w-full bg-black text-primary hover:bg-zinc-900 font-black uppercase text-xs border-none" asChild>
+                <Link href="/coincam/capture">
+                  Open Scanner <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <History className="w-4 h-4" />
+                Review Queue
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.pending}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Coins to verify</p>
+              <Button variant="link" className="p-0 h-auto text-[10px] font-black uppercase mt-4 text-primary" asChild>
+                <Link href="/coincam/review">Open Workspace <ArrowRight className="ml-1 w-3 h-3" /></Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <Database className="w-4 h-4" />
+                Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.inventory}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Verified Coins</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <CloudUpload className="w-4 h-4" />
+                Marketplace
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.live}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Live Coin Listings</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black font-headline flex items-center gap-2 uppercase tracking-tight text-white">
+                <LayoutDashboard className="w-5 h-5 text-primary" />
+                Capture Workflow
+              </h2>
+            </div>
+            
+            <Card className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-zinc-900 border-dashed border-2 border-white/10 text-white">
+              <div className="bg-zinc-800 p-6 rounded-full mb-4 ring-8 ring-zinc-800/40">
+                <ScanBarcode className="w-10 h-10 text-zinc-600" />
+              </div>
+              <h3 className="text-lg font-black uppercase tracking-tighter text-white">Ready for Coin Batch</h3>
+              <p className="text-xs text-zinc-400 max-w-xs mt-2 font-medium">
+                High-resolution raw capture with background cloud sync and Gemini vision identification.
+              </p>
+              <Button className="mt-8 px-10 font-black uppercase tracking-widest h-12 bg-primary text-black hover:bg-primary/95" variant="default" asChild>
+                <Link href="/coincam/capture">
+                  <PlusCircle className="mr-2 w-5 h-5" />
+                  Begin Session
+                </Link>
+              </Button>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <h2 className="text-xl font-black font-headline uppercase tracking-tight text-white">Cloud Link</h2>
+            <Card className="bg-zinc-900 border-white/10 text-white">
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Storage:</span>
+                  <span className="text-[10px] text-primary font-black uppercase">Firebase Active</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Auto-Shutter:</span>
+                  <Badge className="bg-yellow-500/10 text-yellow-600 border-none text-[8px] font-black uppercase">Active</Badge>
+                </div>
+                <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Matching:</span>
+                  <Badge variant="outline" className="bg-zinc-800 text-zinc-300 border-white/10 text-[8px] font-black uppercase tracking-widest">COIN-FIRST v1</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/coincam/review/[id]/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
+import { 
+  ArrowLeft, 
+  Trash2, 
+  Save, 
+  History, 
+  BadgeCheck, 
+  AlertCircle,
+  Loader2,
+  Gem
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/samcam/hooks/use-toast";
+import { db } from "@/samcam/lib/firebase";
+import { cn } from "@/samcam/lib/utils";
+import { doc, getDoc, updateDoc, deleteDoc, collection, addDoc } from "firebase/firestore";
+import { useAuth } from "../../auth-provider";
+import { CoinImport } from "@/coincam/lib/types";
+
+export default function CoinReviewDetailPage() {
+  const { id } = useParams();
+  const [item, setItem] = useState<CoinImport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaveLoading] = useState(false);
+  const [scanningAi, setScanningAi] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function loadItem() {
+      const docRef = doc(db, "coin_imports", id as string);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        setItem({ id: snap.id, ...snap.data() } as CoinImport);
+      }
+      setLoading(false);
+    }
+    loadItem();
+  }, [id]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!item) return;
+    if (!user) {
+      toast({ variant: "destructive", title: "Authentication Required", description: "You must be signed in to verify and list coins." });
+      return;
+    }
+    setSaveLoading(true);
+    try {
+      // 1. Promote to products database catalog under coin category
+      await addDoc(collection(db, "products"), {
+        title: item.coinName || 'Collectible Coin',
+        price: item.price || 0,
+        description: item.description || '',
+        imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
+        sellerId: user.uid,
+        status: 'available',
+        category: 'coins',
+        condition: item.composition || 'Circulated',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          coinName: item.coinName || '',
+          setName: item.setName || '',
+          denomination: item.denomination || '',
+          country: item.country || '',
+          year: item.year || '',
+          mintMark: item.mintMark || '',
+          composition: item.composition || '',
+          rarity: item.rarity || '',
+          isRare: item.isRare || false,
+        }
+      });
+
+      // 2. Mark import queue status as VERIFIED
+      await updateDoc(doc(db, "coin_imports", item.id), {
+        ...item,
+        status: 'VERIFIED',
+        updatedAt: Date.now()
+      });
+
+      toast({ title: "Coin Verified", description: "Promoted to products and listed on Benched.au marketplace!" });
+      router.push('/coincam/review');
+    } catch (err: any) {
+      console.error("Failed to promote coin to products", err);
+      toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list coin." });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!item) return;
+    if (confirm("Delete this coin capture? Original backups will be purged.")) {
+      await deleteDoc(doc(db, "coin_imports", item.id));
+      router.push('/coincam/review');
+    }
+  };
+
+  const handleAiCheck = async () => {
+    if (!item?.frontImagePath) return;
+    setScanningAi(true);
+    try {
+      const { deepScanCoin } = await import('@/ai/flows/deep-scan-coin');
+      const aiResult = await deepScanCoin(item.frontImagePath);
+      
+      setItem(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          coinName: aiResult.coinName || prev.coinName,
+          setName: aiResult.setName || prev.setName,
+          denomination: aiResult.denomination || prev.denomination,
+          country: aiResult.country || prev.country,
+          year: aiResult.year || prev.year,
+          mintMark: aiResult.mintMark || prev.mintMark,
+          composition: aiResult.composition || prev.composition,
+          rarity: aiResult.rarity || prev.rarity,
+          isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
+          description: aiResult.description || prev.description,
+          identificationSource: 'AI_DEEP_SCAN',
+        };
+      });
+      toast({ title: "AI Check Complete", description: "Successfully extracted additional coin details." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Check Failed", description: err.message || "Could not analyze the coin image." });
+    } finally {
+      setScanningAi(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+
+  if (!item) return <div className="h-screen flex items-center justify-center bg-black text-white">Coin capture not found.</div>;
+
+  return (
+    <div className="min-h-screen bg-black text-white pb-20">
+      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/coincam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-white">Verification Workspace</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Coin Client ID: {item.id.substring(0,8)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
+             <Trash2 className="w-4 h-4 mr-1" /> Remove
+           </Button>
+           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
+             {saving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
+             Confirm & Verify
+           </Button>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Visual Evidence Section */}
+        <div className="space-y-6">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+             <History className="w-3.5 h-3.5" /> High-Resolution Evidence
+           </h2>
+           <div className="grid grid-cols-2 gap-4">
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 rounded-full aspect-square">
+                <div className="w-full h-full relative bg-zinc-955">
+                  <Image src={item.frontImagePath} alt="Front" fill className="object-cover rounded-full" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white rounded-full px-2 py-0.5">Front</Badge>
+                </div>
+              </Card>
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 rounded-full aspect-square">
+                <div className="w-full h-full relative bg-zinc-955">
+                  <Image src={item.backImagePath} alt="Back" fill className="object-cover rounded-full" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white rounded-full px-2 py-0.5">Back</Badge>
+                </div>
+              </Card>
+           </div>
+           
+           <Card className="bg-blue-950/20 border-blue-500/20 text-white">
+             <CardHeader className="py-3 px-4">
+               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-400">Capture QC Report</CardTitle>
+             </CardHeader>
+             <CardContent className="px-4 pb-3">
+               <div className="flex gap-6">
+                  <div>
+                    <p className="text-[8px] font-bold text-blue-500 uppercase">Sharpness</p>
+                    <p className="text-sm font-black text-blue-300">{item.qualityReport?.front?.blurScore || 18}px Edge</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-bold text-blue-500 uppercase">Luminance</p>
+                    <p className="text-sm font-black text-blue-300">{item.qualityReport?.front?.brightnessScore || 112} nits</p>
+                  </div>
+                  <div className="flex-grow flex justify-end items-center">
+                    <Badge className="bg-green-600 font-black text-[8px] uppercase tracking-wider border-none text-white">QC PASSED</Badge>
+                  </div>
+               </div>
+             </CardContent>
+           </Card>
+
+             <Card className="border-emerald-500/25 bg-emerald-950/10 shadow-sm text-white">
+               <CardHeader className="py-3 px-4 flex flex-row items-center justify-between">
+                 <CardTitle className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Est. Coin Market Value</CardTitle>
+                 <Badge className="bg-emerald-600 font-bold text-[8px] uppercase tracking-wide border-none text-white">Live Index</Badge>
+               </CardHeader>
+               <CardContent className="px-4 pb-4 space-y-4">
+                 <div className="flex justify-between items-end">
+                   <div>
+                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-wider block">Estimated Book Value (Raw)</span>
+                     <span className="text-2xl font-black text-white">${item.price || 19.99}</span>
+                   </div>
+                   <Button 
+                     size="sm"
+                     className="h-7 text-[9px] font-black uppercase bg-emerald-600 text-white hover:bg-emerald-700 border-none"
+                     onClick={(e) => {
+                       e.preventDefault();
+                       setItem({ ...item, price: item.price || 19.99 });
+                     }}
+                   >
+                     Apply Value
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+          </div>
+
+        {/* Metadata Management Section */}
+        <div className="space-y-6">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center justify-between w-full">
+             <div className="flex items-center gap-2">
+               <BadgeCheck className="w-3.5 h-3.5" /> Structured Coin Details
+             </div>
+             <Button 
+               size="sm" 
+               variant="outline" 
+               onClick={(e) => { e.preventDefault(); handleAiCheck(); }} 
+               disabled={scanningAi}
+               className="h-7 text-[10px] font-black uppercase bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
+             >
+               {scanningAi ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Gem className="w-3 h-3 mr-1" />}
+               AI Check
+             </Button>
+           </h2>
+           
+           <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
+             <CardContent className="pt-6">
+                 <form className="space-y-4">
+                   <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 mb-6">
+                     <div>
+                       <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">ID Source</p>
+                       <p className="text-[10px] font-black uppercase text-primary flex items-center gap-1">
+                         <Gem className="w-3 h-3 text-primary" /> {item.identificationSource || 'PENDING'} 
+                       </p>
+                     </div>
+                     <div className="text-right">
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Confidence</p>
+                        <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", (item.identificationConfidence || 0) > 0.9 ? "text-green-400 bg-green-950/20" : "text-yellow-400 bg-yellow-950/20")}>
+                          {Math.round((item.identificationConfidence || 0) * 100)}% Match
+                        </Badge>
+                     </div>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-1.5 col-span-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Coin Name / Theme</Label>
+                       <Input 
+                         value={item.coinName || ''} 
+                         onChange={e => setItem({...item, coinName: e.target.value})}
+                         className="font-bold bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Series / Set</Label>
+                       <Input 
+                         value={item.setName || ''} 
+                         onChange={e => setItem({...item, setName: e.target.value})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Denomination</Label>
+                       <Input 
+                         value={item.denomination || ''} 
+                         onChange={e => setItem({...item, denomination: e.target.value})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Mint Year</Label>
+                       <Input 
+                         type="number" 
+                         value={item.year || ''} 
+                         onChange={e => setItem({...item, year: parseInt(e.target.value)})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Mint Mark</Label>
+                       <Input 
+                         value={item.mintMark || ''} 
+                         onChange={e => setItem({...item, mintMark: e.target.value})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                         placeholder="e.g. S, D, P, CC"
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Country of Origin</Label>
+                       <Input 
+                         value={item.country || ''} 
+                         onChange={e => setItem({...item, country: e.target.value})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                       />
+                     </div>
+                     <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Metal Composition</Label>
+                       <Input 
+                         value={item.composition || ''} 
+                         onChange={e => setItem({...item, composition: e.target.value})}
+                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                         placeholder="e.g. 90% Silver, Copper"
+                       />
+                     </div>
+                     
+                     <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
+                       <div className="space-y-0.5">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rare Coin Designation</Label>
+                         <p className="text-[8px] text-zinc-500 uppercase">Mark if this coin is considered a rare key date or high value</p>
+                       </div>
+                       <input 
+                         type="checkbox" 
+                         checked={item.isRare || false}
+                         onChange={e => setItem({...item, isRare: e.target.checked})}
+                         className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
+                       />
+                     </div>
+
+                     <div className="space-y-1.5 col-span-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
+                       <textarea
+                         value={item.description || ''}
+                         onChange={e => setItem({...item, description: e.target.value})}
+                         placeholder="Gemini is analyzing the coin..."
+                         className="w-full min-h-[70px] rounded-lg border border-white/10 bg-zinc-950 p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-white placeholder-zinc-600"
+                       />
+                     </div>
+                   </div>
+
+                   <div className="pt-4 border-t border-white/5">
+                     <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-1.5">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Strike / Condition</Label>
+                         <Select value={item.composition || 'Proof'} onValueChange={val => setItem({...item, composition: val})}>
+                           <SelectTrigger className="border-primary/20 bg-zinc-950 text-white font-black uppercase text-[10px]">
+                             <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                             <SelectItem value="Proof">Proof (PR)</SelectItem>
+                             <SelectItem value="Uncirculated">Uncirculated (UNC)</SelectItem>
+                             <SelectItem value="About Uncirculated">About Uncirculated (AU)</SelectItem>
+                             <SelectItem value="Extremely Fine">Extremely Fine (XF)</SelectItem>
+                             <SelectItem value="Very Fine">Very Fine (VF)</SelectItem>
+                             <SelectItem value="Fine">Fine (F)</SelectItem>
+                           </SelectContent>
+                         </Select>
+                       </div>
+                       <div className="space-y-1.5">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Est. Market Price ($)</Label>
+                         <Input 
+                           type="number" 
+                           value={item.price || ''} 
+                           onChange={e => setItem({...item, price: parseFloat(e.target.value)})}
+                           className="font-black border-primary/20 bg-zinc-950 text-white focus:ring-primary" 
+                         />
+                       </div>
+                     </div>
+                   </div>
+                 </form>
+              </CardContent>
+           </Card>
+
+           <div className="flex items-start gap-3 p-4 bg-yellow-950/20 border border-yellow-500/20 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <p className="text-[10px] text-yellow-200 leading-relaxed font-medium">
+                Verify that the coin identification source is confident. Override metadata manually if required to improve future catalog indexing.
+              </p>
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/coincam/review/page.tsx
+========================================================================
+
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  ArrowLeft, 
+  Search, 
+  ExternalLink, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle,
+  Filter,
+  Gem,
+  Database
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/samcam/lib/utils";
+import { useAuth } from "../auth-provider";
+import { CoinImport } from "@/coincam/lib/types";
+
+export default function CoinReviewQueue() {
+  const { imports, importsLoading: loading } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<'ALL' | 'VERIFIED' | 'NEEDS_REVIEW'>('ALL');
+  const router = useRouter();
+
+  const allCount = imports.length;
+  const verifiedCount = imports.filter(i => i.status === 'VERIFIED').length;
+  const incompleteCount = imports.filter(i => i.status === 'NEEDS_REVIEW').length;
+
+  const filtered = imports.filter(i => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (i.coinName?.toLowerCase().includes(term) || false) ||
+      (i.denomination?.toLowerCase().includes(term) || false) ||
+      (i.country?.toLowerCase().includes(term) || false) ||
+      (i.id?.toLowerCase().includes(term) || false);
+
+    if (activeTab === 'ALL') return matchesSearch;
+    return matchesSearch && i.status === activeTab;
+  });
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/coincam')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-black uppercase font-headline tracking-tighter">Review Queue</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Coin Verification Workspace</p>
+          </div>
+        </div>
+        <Badge className="bg-primary text-black font-black px-5 py-1 text-[10px] tracking-widest">{imports.length} COINS</Badge>
+      </header>
+
+      <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-grow">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Input 
+              placeholder="Search coins, denominations, or country..." 
+              className="pl-12 bg-zinc-900 h-12 font-medium border-white/10 shadow-sm text-white focus:ring-primary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button variant="outline" className="bg-zinc-900 border-white/10 text-white gap-2 font-black uppercase text-[10px] px-6 h-12 hover:bg-zinc-800">
+            <Filter className="w-4 h-4" /> Filters
+          </Button>
+        </div>
+
+        {/* Status filtering Tabs */}
+        <div className="flex border-b border-white/10 mb-8 overflow-x-auto gap-6 text-[10px] font-black uppercase tracking-wider">
+          <button 
+            onClick={() => setActiveTab('ALL')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            All Items <span className="bg-zinc-855 text-zinc-400 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('VERIFIED')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'VERIFIED' ? "border-green-500 text-green-400" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Verified <span className="bg-green-950/40 text-green-400 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('NEEDS_REVIEW')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Incomplete <span className="bg-orange-950/40 text-orange-400 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filtered.map((item: CoinImport) => (
+            <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-glow transition-all bg-zinc-900 border-white/10 text-white">
+               <div className="aspect-square relative bg-zinc-950 overflow-hidden rounded-t-xl">
+                 <img src={item.frontImagePath} className="w-full h-full object-cover transition-transform group-hover:scale-105 animate-fade-in" alt="front" />
+                 
+                 <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+                   <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2 border-none", 
+                      item.status === 'VERIFIED' ? "bg-green-600 text-white" : 
+                      item.status === 'NEEDS_REVIEW' ? "bg-primary text-black" : 
+                      "bg-blue-600 text-white"
+                   )}>
+                     {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
+                     {item.status}
+                   </Badge>
+                   {item.identificationSource && (
+                      <Badge variant="outline" className="bg-zinc-900/90 text-[8px] font-black uppercase gap-1 px-2 border-none text-zinc-300">
+                        {item.identificationSource === 'DATABASE_MATCH' ? <Database className="w-2.5 h-2.5 text-primary" /> : <Gem className="w-2.5 h-2.5 text-primary" />}
+                        {item.identificationSource}
+                      </Badge>
+                   )}
+                 </div>
+               </div>
+               <CardContent className="p-5">
+                  <div className="mb-4">
+                    <h3 className="font-black text-xs truncate uppercase tracking-tight text-white">
+                      {item.coinName || 'Pending Identification'}
+                    </h3>
+                    <p className="text-[10px] font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                      {item.denomination || 'No Denomination'} {item.year ? `• ${item.year}` : ''}
+                    </p>
+                  </div>
+                  
+                  {item.identificationConfidence && (
+                    <div className="flex flex-col gap-1 mb-4">
+                       <div className="flex justify-between items-center text-[8px] font-black uppercase text-zinc-500">
+                         <span>Match Confidence</span>
+                         <span>{Math.round(item.identificationConfidence * 100)}%</span>
+                       </div>
+                       <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                           <div className="h-full bg-primary" style={{ width: `${item.identificationConfidence * 100}%` }} />
+                       </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                    <div className="text-[9px] font-black text-zinc-650 uppercase">
+                      ID: {item.id.substring(0,8)}
+                    </div>
+                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-zinc-800 text-white hover:bg-primary hover:text-black transition-colors" onClick={() => router.push(`/coincam/review/${item.id}`)}>
+                      Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+               </CardContent>
+            </Card>
+          ))}
+
+          {filtered.length === 0 && !loading && (
+            <div className="col-span-full py-24 text-center">
+               <div className="bg-zinc-900 p-10 rounded-full inline-block mb-6 ring-8 ring-zinc-955">
+                 <AlertCircle className="w-16 h-16 text-zinc-600" />
+               </div>
+               <h3 className="text-xl font-black uppercase tracking-tight text-white">Queue Depleted</h3>
+               <p className="text-xs text-zinc-400 font-medium mt-2">Active booth session required to populate workspace.</p>
+               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12 bg-primary text-black hover:bg-primary/95" onClick={() => router.push('/coincam/capture')}>Open Booth</Button>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/coincam/settings/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, CheckCircle2, XCircle, RefreshCw, Server, ShieldCheck, FileKey2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '../auth-provider';
+
+type CheckStatus = 'pending' | 'success' | 'error';
+
+export default function SettingsPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  
+  const [envStatus, setEnvStatus] = useState<CheckStatus>('pending');
+  const [authStatus, setAuthStatus] = useState<CheckStatus>('pending');
+  const [networkStatus, setNetworkStatus] = useState<CheckStatus>('pending');
+  const [networkMessage, setNetworkMessage] = useState('');
+  
+  const [isChecking, setIsChecking] = useState(false);
+
+  const runDiagnostics = async () => {
+    setIsChecking(true);
+    setNetworkMessage('Pinging Benched API...');
+    
+    // 1. Check Environment Variables
+    const hasBenchedUrl = !!process.env.NEXT_PUBLIC_BENCHED_API_URL;
+    const hasFirebaseKey = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (hasBenchedUrl && hasFirebaseKey) {
+      setEnvStatus('success');
+    } else {
+      setEnvStatus('error');
+    }
+    
+    // 2. Check Auth Status
+    if (!authLoading) {
+      if (user) {
+        setAuthStatus('success');
+      } else {
+        setAuthStatus('error');
+      }
+    }
+    
+    // 3. Network / CORS Ping
+    const apiUrl = process.env.NEXT_PUBLIC_BENCHED_API_URL || "http://localhost:3000/api/listings";
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({})
+      });
+      
+      setNetworkStatus('success');
+      setNetworkMessage(`Successfully reached ${apiUrl}. Status: ${response.status}`);
+    } catch (error: any) {
+      if (error.name === 'TypeError') {
+         setNetworkStatus('error');
+         setNetworkMessage("Network Error: Benched API is unreachable. The server is either offline or blocked by CORS.");
+      } else {
+         setNetworkStatus('error');
+         setNetworkMessage(`Error: ${error.message}`);
+      }
+    }
+    
+    setIsChecking(false);
+  };
+
+  useEffect(() => {
+    if (!authLoading) {
+      runDiagnostics();
+    }
+  }, [authLoading, user]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">
+        <Button variant="outline" size="icon" onClick={() => router.push('/coincam')}>
+          <ArrowLeft className="w-6 h-6" />
+          <span className="sr-only">Back</span>
+        </Button>
+        <h1 className="text-2xl font-bold font-headline text-primary">Integration Status</h1>
+        <div className="w-10"></div>
+      </header>
+
+      <main className="max-w-3xl mx-auto p-4 md:p-8 mt-6">
+        <Card className="shadow-lg border-primary/20">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl mb-2">CoinCam Diagnostics</CardTitle>
+                <CardDescription>
+                  Verify that your CoinCam app is correctly configured to communicate with the Benched.au backend.
+                </CardDescription>
+              </div>
+              <Button onClick={runDiagnostics} disabled={isChecking || authLoading} variant="outline" size="sm">
+                <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} />
+                Re-test
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {envStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 envStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <FileKey2 className="w-4 h-4 text-primary" /> Environment Configuration
+                </h3>
+                {envStatus === 'success' ? (
+                  <p className="text-sm text-muted-foreground mt-1">All required API keys and endpoint URLs are present in `.env.local`.</p>
+                ) : envStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Missing Configuration</p>
+                    <p className="text-muted-foreground mt-1">Please ensure configuration variables are set in your environment.</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">Checking environment variables...</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {authStatus === 'pending' || authLoading ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 authStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" /> Firebase Authentication
+                </h3>
+                {authStatus === 'success' ? (
+                  <p className="text-sm text-muted-foreground mt-1">You are actively logged in. We can successfully generate a secure ID Token.</p>
+                ) : authStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Not Logged In</p>
+                    <p className="text-muted-foreground mt-1">You must be logged into CoinCam via Firebase Auth to push listings to Benched.au.</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">Verifying Firebase session...</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {networkStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 networkStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Server className="w-4 h-4 text-primary" /> API Reachability & CORS
+                </h3>
+                {networkStatus === 'success' ? (
+                   <div className="mt-2 text-sm">
+                    <p className="text-green-600 font-medium">Connection Successful</p>
+                    <p className="text-muted-foreground mt-1">{networkMessage}</p>
+                   </div>
+                ) : networkStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Connection Failed</p>
+                    <p className="text-muted-foreground mt-1">{networkMessage}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">{networkMessage || "Preparing to ping API..."}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
 FILE: src/app/coins/page.tsx
 ========================================================================
 
@@ -35276,7 +37191,7 @@ export default function ReviewDetailPage() {
           rarity: aiResult.rarity || prev.rarity,
           isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
           description: aiResult.description || prev.description,
-          identificationSource: 'AI Deep Scan',
+          identificationSource: 'AI_DEEP_SCAN',
         };
       });
       toast({ title: "AI Check Complete", description: "Successfully extracted additional card details." });
@@ -43316,6 +45231,362 @@ async function main() {
 }
 
 main().catch(console.error);
+
+
+========================================================================
+FILE: src/coincam/lib/sync-service.ts
+========================================================================
+
+import { SyncStatus } from '@/samcam/components/sync-status-tracker';
+import { db, storage, auth } from '@/samcam/lib/firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { PendingUpload } from './sync-storage';
+import { DeviceProfile } from '@/samcam/lib/device-detector';
+import { deepScanCoin } from '@/ai/flows/deep-scan-coin';
+
+export type SyncCallback = (status: SyncStatus) => void;
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      reject(new Error('FileReader is only available in browser environments'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+export class SyncService {
+  private activeSyncs: Map<string, { status: SyncStatus; uploadTasks: any[] }> = new Map();
+  
+  async processUpload(
+    upload: PendingUpload,
+    deviceProfile: DeviceProfile,
+    onStatusUpdate: SyncCallback
+  ): Promise<boolean> {
+    const id = upload.id;
+    
+    // Initialize status
+    const status: SyncStatus = {
+      id,
+      startedAt: new Date().toISOString(),
+      currentStep: 0,
+      steps: [
+        { id: 'auth', label: 'Authenticating...', status: 'pending' },
+        { id: 'upload_front', label: 'Uploading Front Image', status: 'pending' },
+        { id: 'upload_back', label: 'Uploading Back Image', status: 'pending' },
+        { id: 'ai_identify', label: 'AI Coin Identification', status: 'pending' },
+        { id: 'firestore', label: 'Saving to Database', status: 'pending' },
+        { id: 'complete', label: 'Finalizing Sync', status: 'pending' },
+      ]
+    };
+    
+    this.activeSyncs.set(id, { status, uploadTasks: [] });
+    onStatusUpdate(status);
+    
+    try {
+      // Step 1: Authentication
+      await this.updateStep(status, 'auth', 'processing', 'Verifying user session...', onStatusUpdate);
+      
+      const user = auth?.currentUser;
+      if (!user) {
+        await this.updateStep(status, 'auth', 'success', 'Guest Session (Proceeding unauthenticated)', onStatusUpdate);
+      } else {
+        await this.updateStep(status, 'auth', 'success', `Authenticated as ${user.uid}`, onStatusUpdate);
+      }
+      
+      // Step 2: Upload Front Image
+      await this.updateStep(status, 'upload_front', 'processing', 'Starting upload...', onStatusUpdate);
+      
+      const frontPath = `raw/coins/${id}_front.jpg`;
+      const frontRef = ref(storage, frontPath);
+      
+      await this.uploadWithProgress(
+        frontRef,
+        upload.frontBlob,
+        (progress) => {
+          const detail = `Uploading: ${Math.round(progress)}%`;
+          const step = status.steps.find(s => s.id === 'upload_front');
+          if (step) {
+            step.detail = detail;
+            onStatusUpdate({ ...status });
+          }
+        }
+      );
+      
+      const frontUrl = await getDownloadURL(frontRef);
+      await this.updateStep(status, 'upload_front', 'success', `Uploaded to Storage`, onStatusUpdate);
+      
+      // Step 3: Upload Back Image
+      let backUrl = "";
+      if (upload.backBlob) {
+        await this.updateStep(status, 'upload_back', 'processing', 'Starting back image upload...', onStatusUpdate);
+        
+        const backPath = `raw/coins/${id}_back.jpg`;
+        const backRef = ref(storage, backPath);
+        
+        await this.uploadWithProgress(
+          backRef,
+          upload.backBlob,
+          (progress) => {
+            const detail = `Uploading back: ${Math.round(progress)}%`;
+            const step = status.steps.find(s => s.id === 'upload_back');
+            if (step) {
+              step.detail = detail;
+              onStatusUpdate({ ...status });
+            }
+          }
+        );
+        
+        backUrl = await getDownloadURL(backRef);
+        await this.updateStep(status, 'upload_back', 'success', `Uploaded to Storage`, onStatusUpdate);
+      } else {
+        await this.updateStep(status, 'upload_back', 'success', 'No back image provided, skipping', onStatusUpdate);
+      }
+      
+      // Step 4: AI Identification
+      await this.updateStep(status, 'ai_identify', 'processing', 'Converting image and running AI...', onStatusUpdate);
+      
+      let aiResult = {};
+      try {
+        const frontImageBase64 = await blobToBase64(upload.frontBlob);
+        aiResult = await deepScanCoin(frontImageBase64);
+        await this.updateStep(status, 'ai_identify', 'success', 'Coin identified successfully!', onStatusUpdate);
+      } catch (aiErr: any) {
+        console.error('AI Identification error:', aiErr);
+        await this.updateStep(status, 'ai_identify', 'error', `AI Failed: ${aiErr.message}. Storing coin raw.`, onStatusUpdate);
+      }
+      
+      // Step 5: Save to Firestore
+      await this.updateStep(status, 'firestore', 'processing', 'Saving metadata and image URLs to Firestore...', onStatusUpdate);
+      
+      if (!db) {
+        throw new Error('Cloud Firestore database is not initialized');
+      }
+
+      const docRef = doc(db, 'coin_imports', id);
+      const resData = aiResult as any;
+      const isComplete = !!(
+        resData &&
+        resData.coinName &&
+        resData.denomination &&
+        resData.year
+      );
+      const finalStatus = isComplete ? 'VERIFIED' : 'NEEDS_REVIEW';
+
+      await setDoc(docRef, {
+        id,
+        userId: auth.currentUser?.uid || 'anonymous',
+        frontImagePath: frontUrl,
+        backImagePath: backUrl,
+        status: finalStatus,
+        createdAt: upload.createdAt,
+        serverTimestamp: serverTimestamp(),
+        ...aiResult
+      }, { merge: true });
+      
+      await this.updateStep(status, 'firestore', 'success', `Created coin import doc: ${id}`, onStatusUpdate);
+      
+      // Step 6: Complete
+      await this.updateStep(status, 'complete', 'processing', 'Cleaning up queue...', onStatusUpdate);
+      
+      // Remove from sync queue
+      const { syncStorage } = await import('./sync-storage');
+      await syncStorage.remove(id);
+      
+      status.completedAt = new Date().toISOString();
+      await this.updateStep(status, 'complete', 'success', 'Sync complete!', onStatusUpdate);
+      
+      this.activeSyncs.delete(id);
+      return true;
+      
+    } catch (error: any) {
+      console.error('[SyncService] Error:', error);
+      
+      // Mark current step as error
+      const currentStep = status.steps.find(s => s.status === 'processing');
+      if (currentStep) {
+        currentStep.status = 'error';
+        currentStep.detail = error.message || 'Unknown error';
+      }
+      
+      status.error = error.message || 'Sync failed';
+      onStatusUpdate({ ...status });
+      
+      this.activeSyncs.delete(id);
+      return false;
+    }
+  }
+  
+  private async updateStep(
+    status: SyncStatus,
+    stepId: string,
+    newStatus: 'idle' | 'pending' | 'processing' | 'success' | 'error',
+    detail: string,
+    onUpdate: SyncCallback
+  ) {
+    const step = status.steps.find(s => s.id === stepId);
+    if (step) {
+      step.status = newStatus;
+      step.detail = detail;
+      step.timestamp = new Date().toISOString();
+      onUpdate({ ...status });
+    }
+  }
+  
+  private uploadWithProgress(
+    storageRef: any,
+    blob: Blob,
+    onProgress: (progress: number) => void
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+      
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          onProgress(progress);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          resolve('uploaded');
+        }
+      );
+    });
+  }
+  
+  getActiveSyncs(): SyncStatus[] {
+    return Array.from(this.activeSyncs.values()).map(s => s.status);
+  }
+  
+  getActiveSync(id: string): SyncStatus | undefined {
+    return this.activeSyncs.get(id)?.status;
+  }
+}
+
+export const syncService = new SyncService();
+
+
+========================================================================
+FILE: src/coincam/lib/sync-storage.ts
+========================================================================
+
+import { openDB, IDBPDatabase } from 'idb';
+
+const DB_NAME = 'BenchedCoinSyncDB';
+const STORE_NAME = 'coinUploadQueue';
+
+export interface PendingUpload {
+  id: string;
+  frontBlob: Blob;
+  backBlob?: Blob;
+  status: 'PENDING' | 'UPLOADING' | 'ERROR';
+  error?: string;
+  retries: number;
+  createdAt: number;
+}
+
+let dbPromise: Promise<IDBPDatabase> | null = null;
+
+function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB(DB_NAME, 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      },
+    });
+  }
+  return dbPromise;
+}
+
+export const syncStorage = {
+  async add(item: PendingUpload) {
+    const db = await getDB();
+    await db.put(STORE_NAME, item);
+  },
+  async getAll(): Promise<PendingUpload[]> {
+    const db = await getDB();
+    return db.getAll(STORE_NAME);
+  },
+  async update(item: PendingUpload) {
+    const db = await getDB();
+    await db.put(STORE_NAME, item);
+  },
+  async remove(id: string) {
+    const db = await getDB();
+    await db.delete(STORE_NAME, id);
+  }
+};
+
+
+========================================================================
+FILE: src/coincam/lib/types.ts
+========================================================================
+
+export type CoinStatus = 
+  | 'CAPTURED' 
+  | 'PROCESSING' 
+  | 'NEEDS_REVIEW' 
+  | 'VERIFIED'
+  | 'READY_TO_EXPORT' 
+  | 'ERROR';
+
+export type IdentificationSource = 
+  | 'DATABASE_MATCH' 
+  | 'AI_FALLBACK' 
+  | 'AI_DEEP_SCAN'
+  | 'MANUAL' 
+  | 'ERROR';
+
+export interface QualityMetricsReport {
+  blurScore: number;
+  brightnessScore: number;
+  glarePercentage: number;
+  isAcceptable: boolean;
+}
+
+export interface CoinImport {
+  id: string;
+  status: CoinStatus;
+  userId?: string;
+  
+  frontImagePath: string;
+  backImagePath: string;
+  
+  coinName?: string;
+  setName?: string;
+  denomination?: string;
+  country?: string;
+  year?: number;
+  mintMark?: string;
+  composition?: string;
+  rarity?: string;
+  isRare?: boolean;
+  
+  price?: number;
+  description?: string;
+  
+  identificationSource: IdentificationSource;
+  identificationConfidence?: number;
+  
+  qualityReport?: {
+    front: QualityMetricsReport;
+    back: QualityMetricsReport;
+  };
+  
+  createdAt: number;
+  updatedAt: number;
+  serverTimestamp?: any;
+}
 
 
 ========================================================================
@@ -84636,6 +86907,7 @@ export type CardStatus =
 export type IdentificationSource = 
   | 'DATABASE_MATCH' 
   | 'AI_FALLBACK' 
+  | 'AI_DEEP_SCAN'
   | 'MANUAL' 
   | 'GRADED_SLAB'
   | 'ERROR';
