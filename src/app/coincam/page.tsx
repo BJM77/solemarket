@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "../samcam/auth-provider";
+import { useAuth } from "./auth-provider";
 import { useRouter } from "next/navigation";
 import { db } from "@/samcam/lib/firebase";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
