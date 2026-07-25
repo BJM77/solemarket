@@ -115,10 +115,16 @@ export class SyncService {
       let aiResult = {};
       try {
         const frontImageBase64 = await blobToBase64(upload.frontBlob);
+        const backImageBase64 = upload.backBlob ? await blobToBase64(upload.backBlob) : null;
         const res = await fetch('/samcam/api/identify', {
           method: 'POST',
           headers: { 'X-Benched-Token': INTERNAL_TOKEN, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cardId: id, frontImage: frontImageBase64, deviceProfile })
+          body: JSON.stringify({ 
+            cardId: id, 
+            frontImage: frontImageBase64, 
+            backImage: backImageBase64,
+            deviceProfile 
+          })
         });
         if (!res.ok) {
           throw new Error(`API returned HTTP ${res.status}`);
@@ -144,7 +150,8 @@ export class SyncService {
         resData.cardName &&
         resData.setName &&
         resData.sport &&
-        resData.year
+        resData.year &&
+        resData.cardNumber
       );
       const finalStatus = isComplete ? 'VERIFIED' : 'NEEDS_REVIEW';
 

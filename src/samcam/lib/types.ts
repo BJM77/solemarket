@@ -45,6 +45,9 @@ export interface CardImport {
   condition?: string;
   price?: number;
   description?: string;
+  pokemonCode?: string;
+  isRare?: boolean;
+  rarity?: string;
   
   identificationSource: IdentificationSource;
   identificationConfidence?: number;

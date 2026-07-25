@@ -78,6 +78,9 @@ export default function ReviewDetailPage() {
           cardNumber: item.cardNumber || '',
           year: item.year || '',
           setName: item.setName || '',
+          pokemonCode: item.pokemonCode || '',
+          isRare: item.isRare || false,
+          rarity: item.rarity || '',
         }
       });
 
@@ -318,6 +321,42 @@ export default function ReviewDetailPage() {
                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
                       />
                     </div>
+                    {item.sport === "Pokemon" && (
+                      <>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pokemon Code</Label>
+                          <Input 
+                            value={item.pokemonCode || ''} 
+                            onChange={e => setItem({...item, pokemonCode: e.target.value})}
+                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            placeholder="e.g. SV4a, 150/150"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rarity / Stars</Label>
+                          <Input 
+                            value={item.rarity || ''} 
+                            onChange={e => setItem({...item, rarity: e.target.value})}
+                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            placeholder="e.g. Rare, Secret Rare, **"
+                          />
+                        </div>
+                      </>
+                    )}
+                    
+                    <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
+                      <div className="space-y-0.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rare Designation</Label>
+                        <p className="text-[8px] text-zinc-500 uppercase">Mark if this card is considered rare or a collector item</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={item.isRare || false}
+                        onChange={e => setItem({...item, isRare: e.target.checked})}
+                        className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
+                      />
+                    </div>
+
                     <div className="space-y-1.5 col-span-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
                       <textarea

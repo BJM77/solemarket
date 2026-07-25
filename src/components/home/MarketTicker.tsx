@@ -86,7 +86,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
                         <Link
                             key={`${item.id}-${i}`}
                             href={url}
-                            className="flex items-center gap-2 md:gap-3 hover:text-white/80 transition-colors group"
+                            className="flex items-center gap-2 md:gap-3 text-white hover:text-white/80 transition-colors group"
                         >
                             <span className="flex items-center gap-1 opacity-90">
                                 {TrendingUp && <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />}
