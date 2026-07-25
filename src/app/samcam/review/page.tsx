@@ -11,27 +11,90 @@ import {
   AlertCircle,
   Filter,
   Gem,
-  Database
+  Database,
+  Trash2,
+  Send,
+  Edit2,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/samcam/lib/firebase";
-import { collection, query, orderBy, onSnapshot, where } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, where, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore";
 import { CardImport } from "@/samcam/lib/types";
 import { cn } from "@/samcam/lib/utils";
 import { useAuth } from "@/app/samcam/auth-provider";
+import { useToast } from "@/samcam/hooks/use-toast";
 
 export default function ReviewQueue() {
   const { user, imports, importsLoading: loading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<'ALL' | 'VERIFIED' | 'NEEDS_REVIEW'>('ALL');
+  const [actionId, setActionId] = useState<string | null>(null);
+  const { toast } = useToast();
   const router = useRouter();
 
   const allCount = imports.length;
   const verifiedCount = imports.filter(i => i.status === 'VERIFIED').length;
   const incompleteCount = imports.filter(i => i.status === 'NEEDS_REVIEW').length;
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this capture?")) return;
+    setActionId(id);
+    try {
+      await deleteDoc(doc(db, "card_imports", id));
+      toast({ title: "Card Deleted", description: "Capture queue item removed successfully." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Delete Failed", description: err.message || "Failed to delete card." });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleSubmit = async (item: CardImport) => {
+    setActionId(item.id);
+    try {
+      await addDoc(collection(db, "products"), {
+        title: item.cardName || 'Trading Card',
+        price: item.price || 0,
+        description: item.description || '',
+        imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
+        sellerId: user?.uid || 'anonymous',
+        status: 'available',
+        category: 'trading-cards',
+        condition: item.condition || 'Near Mint',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          gradingCompany: item.gradingCompany || '',
+          grade: item.grade || '',
+          certNumber: item.gradedCertNumber || '',
+          cardNumber: item.cardNumber || '',
+          year: item.year || '',
+          setName: item.setName || '',
+          pokemonCode: item.pokemonCode || '',
+          isRare: item.isRare || false,
+          rarity: item.rarity || '',
+        }
+      });
+
+      await updateDoc(doc(db, "card_imports", item.id), {
+        status: 'VERIFIED',
+        updatedAt: Date.now()
+      });
+
+      toast({ title: "Card Submitted", description: "Successfully promoted and listed on the marketplace!" });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Submit Failed", description: err.message || "Failed to submit card." });
+    } finally {
+      setActionId(null);
+    }
+  };
 
   const filtered = imports.filter(i => {
     const term = searchTerm.toLowerCase();
@@ -153,13 +216,39 @@ export default function ReviewQueue() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5 gap-2">
                     <div className="text-[9px] font-black text-zinc-650 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
-                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-zinc-800 text-white hover:bg-primary hover:text-black transition-colors" onClick={() => router.push(`/samcam/review/${item.id}`)}>
-                      Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-1.5">
+                      <Button 
+                        size="icon" 
+                        variant="destructive"
+                        className="h-8 w-8 hover:bg-red-600 bg-zinc-800 text-red-400 hover:text-white"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={actionId === item.id}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="outline"
+                        className="h-8 w-8 border-white/10 text-white hover:bg-zinc-800"
+                        onClick={() => router.push(`/samcam/review/${item.id}`)}
+                        disabled={actionId === item.id}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="h-8 text-[10px] font-black uppercase bg-primary text-black hover:bg-primary/90"
+                        onClick={() => handleSubmit(item)}
+                        disabled={actionId === item.id || item.status === 'VERIFIED'}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1" />}
+                        Submit
+                      </Button>
+                    </div>
                   </div>
                </CardContent>
             </Card>

@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
   Search, 
-  ExternalLink, 
   CheckCircle2, 
   Clock, 
   AlertCircle,
   Filter,
   Gem,
-  Database
+  Database,
+  Trash2,
+  Send,
+  Edit2,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,16 +23,77 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/samcam/lib/utils";
 import { useAuth } from "../auth-provider";
 import { CoinImport } from "@/coincam/lib/types";
+import { db } from "@/samcam/lib/firebase";
+import { collection, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore";
+import { useToast } from "@/samcam/hooks/use-toast";
 
 export default function CoinReviewQueue() {
-  const { imports, importsLoading: loading } = useAuth();
+  const { user, imports, importsLoading: loading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<'ALL' | 'VERIFIED' | 'NEEDS_REVIEW'>('ALL');
+  const [actionId, setActionId] = useState<string | null>(null);
+  const { toast } = useToast();
   const router = useRouter();
 
   const allCount = imports.length;
   const verifiedCount = imports.filter(i => i.status === 'VERIFIED').length;
   const incompleteCount = imports.filter(i => i.status === 'NEEDS_REVIEW').length;
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this coin capture?")) return;
+    setActionId(id);
+    try {
+      await deleteDoc(doc(db, "coin_imports", id));
+      toast({ title: "Coin Deleted", description: "Coin capture queue item removed successfully." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Delete Failed", description: err.message || "Failed to delete coin." });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleSubmit = async (item: CoinImport) => {
+    setActionId(item.id);
+    try {
+      await addDoc(collection(db, "products"), {
+        title: item.coinName || 'Collectible Coin',
+        price: item.price || 0,
+        description: item.description || '',
+        imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
+        sellerId: user?.uid || 'anonymous',
+        status: 'available',
+        category: 'coins',
+        condition: item.composition || 'Circulated',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          coinName: item.coinName || '',
+          setName: item.setName || '',
+          denomination: item.denomination || '',
+          country: item.country || '',
+          year: item.year || '',
+          mintMark: item.mintMark || '',
+          composition: item.composition || '',
+          rarity: item.rarity || '',
+          isRare: item.isRare || false,
+        }
+      });
+
+      await updateDoc(doc(db, "coin_imports", item.id), {
+        status: 'VERIFIED',
+        updatedAt: Date.now()
+      });
+
+      toast({ title: "Coin Submitted", description: "Successfully promoted and listed on the marketplace!" });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Submit Failed", description: err.message || "Failed to submit coin." });
+    } finally {
+      setActionId(null);
+    }
+  };
 
   const filtered = imports.filter(i => {
     const term = searchTerm.toLowerCase();
@@ -83,7 +147,7 @@ export default function CoinReviewQueue() {
               activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
             )}
           >
-            All Items <span className="bg-zinc-855 text-zinc-400 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
+            All Items <span className="bg-zinc-850 text-zinc-400 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
           </button>
           
           <button 
@@ -110,7 +174,7 @@ export default function CoinReviewQueue() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((item: CoinImport) => (
             <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-glow transition-all bg-zinc-900 border-white/10 text-white">
-               <div className="aspect-square relative bg-zinc-950 overflow-hidden rounded-t-xl">
+               <div className="aspect-square relative bg-zinc-955 overflow-hidden rounded-t-xl">
                  <img src={item.frontImagePath} className="w-full h-full object-cover transition-transform group-hover:scale-105 animate-fade-in" alt="front" />
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
@@ -152,13 +216,39 @@ export default function CoinReviewQueue() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5 gap-2">
                     <div className="text-[9px] font-black text-zinc-650 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
-                    <Button size="sm" className="h-8 text-[10px] font-black uppercase bg-zinc-800 text-white hover:bg-primary hover:text-black transition-colors" onClick={() => router.push(`/coincam/review/${item.id}`)}>
-                      Verify <ExternalLink className="ml-2 w-3.5 h-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-1.5">
+                      <Button 
+                        size="icon" 
+                        variant="destructive"
+                        className="h-8 w-8 hover:bg-red-600 bg-zinc-800 text-red-400 hover:text-white"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={actionId === item.id}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="outline"
+                        className="h-8 w-8 border-white/10 text-white hover:bg-zinc-800"
+                        onClick={() => router.push(`/coincam/review/${item.id}`)}
+                        disabled={actionId === item.id}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="h-8 text-[10px] font-black uppercase bg-primary text-black hover:bg-primary/90"
+                        onClick={() => handleSubmit(item)}
+                        disabled={actionId === item.id || item.status === 'VERIFIED'}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1" />}
+                        Submit
+                      </Button>
+                    </div>
                   </div>
                </CardContent>
             </Card>
