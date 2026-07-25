@@ -1,5 +1,5 @@
 import type {Metadata} from 'next';
-import '../samcam/globals.css';
+import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from './auth-provider';
 

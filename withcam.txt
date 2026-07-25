@@ -196,6 +196,7 @@ src/app/checkout/page.tsx
 src/app/club-fundraising/page.tsx
 src/app/coincam/auth-provider.tsx
 src/app/coincam/capture/page.tsx
+src/app/coincam/globals.css
 src/app/coincam/layout.tsx
 src/app/coincam/page.tsx
 src/app/coincam/review/[id]/page.tsx
@@ -25115,11 +25116,38 @@ export default function CoinPhotoBooth() {
 
 
 ========================================================================
+FILE: src/app/coincam/globals.css
+========================================================================
+
+/* Unique CoinCam Styles */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+
+========================================================================
 FILE: src/app/coincam/layout.tsx
 ========================================================================
 
 import type {Metadata} from 'next';
-import '../samcam/globals.css';
+import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from './auth-provider';
 
