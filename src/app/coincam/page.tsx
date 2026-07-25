@@ -27,7 +27,12 @@ import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 export default function CoinCamDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({ pending: 0, inventory: 0, live: 0 });
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -46,7 +51,7 @@ export default function CoinCamDashboard() {
     return () => unsubscribe();
   }, [user]);
 
-  if (authLoading) {
+  if (!mounted || authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader className="h-8 w-8 animate-spin text-primary" />
