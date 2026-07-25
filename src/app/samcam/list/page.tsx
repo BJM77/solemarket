@@ -4,14 +4,14 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, PlusCircle, Search, Trash2, X, Download, Upload } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Input } from "@/samcam/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/samcam/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/samcam/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Player, defaultPlayers } from "@/samcam/lib/players";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { ScrollArea } from "@/samcam/components/ui/scroll-area";
-import { Label } from "@/samcam/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Label } from "@/components/ui/label";
 
 const sportCategories: Player['sport'][] = ["NBA", "NFL", "MLB", "NHL", "Soccer", "Pokemon", "WWE", "Uncategorized"];
 

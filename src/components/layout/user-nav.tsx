@@ -33,13 +33,11 @@ import {
   Camera
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
-import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
 
 export function UserNav() {
   const { user, isUserLoading } = useUser();
-  const { canSell, isSuperAdmin: isClaimSuperAdmin } = useUserPermissions();
-  const isSuperAdmin = isClaimSuperAdmin || (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+  const { canSell, isSuperAdmin } = useUserPermissions();
   const router = useRouter();
   const pathname = usePathname();
 

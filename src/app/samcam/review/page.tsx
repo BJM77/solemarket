@@ -13,10 +13,10 @@ import {
   Gem,
   Database
 } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Input } from "@/samcam/components/ui/input";
-import { Card, CardContent } from "@/samcam/components/ui/card";
-import { Badge } from "@/samcam/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { db } from "@/samcam/lib/firebase";
 import { collection, query, orderBy, onSnapshot, where } from "firebase/firestore";
 import { CardImport } from "@/samcam/lib/types";

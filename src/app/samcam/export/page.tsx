@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Download, FolderUp, FolderDown, Loader, Inbox } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/samcam/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScanHistoryItem } from "@/samcam/lib/types";
 import { useToast } from "@/samcam/hooks/use-toast";
 

@@ -8,18 +8,18 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from "@/samcam/components/ui/sheet";
-import { Button } from "@/samcam/components/ui/button";
-import { Label } from "@/samcam/components/ui/label";
-import { Separator } from "@/samcam/components/ui/separator";
-import { Switch } from "@/samcam/components/ui/switch";
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/samcam/components/ui/select";
+} from "@/components/ui/select";
 import Link from "next/link";
 import { List, Smartphone } from "lucide-react";
 import { LoggedError } from "@/samcam/hooks/use-error-log";

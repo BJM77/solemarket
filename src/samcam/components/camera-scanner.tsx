@@ -3,10 +3,10 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Loader, CameraOff, Sparkles, PlusCircle, Gem, Camera } from "lucide-react";
 import { cn } from "@/samcam/lib/utils";
-import { extractCardName } from "@/samcam/ai/flows/extract-card-name";
-import { quickScan } from "@/samcam/ai/flows/quick-scan";
+import { extractCardName } from "@/ai/flows/extract-card-name-samcam";
+import { quickScan } from "@/ai/flows/quick-scan-samcam";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { Button } from "@/samcam/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { verifyCard } from "@/samcam/lib/card-logic";
 import { Player } from "@/samcam/lib/players";
 import stringSimilarity from "string-similarity";

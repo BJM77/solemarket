@@ -5,8 +5,8 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { Loader, CameraOff, Sparkles, Gem, Camera } from "lucide-react";
 import { cn } from "@/samcam/lib/utils";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { Button } from "@/samcam/components/ui/button";
-import { scanHotWheels } from "@/samcam/ai/flows/scan-hot-wheels";
+import { Button } from "@/components/ui/button";
+import { scanHotWheels } from "@/ai/flows/scan-hot-wheels";
 import { treasureHunts, superTreasureHunts } from "@/samcam/lib/hotwheels-data";
 
 interface HotWheelsScannerProps {

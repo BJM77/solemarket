@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { DeviceProfile } from '../../lib/device-detector';
+import { DeviceProfile } from '@/samcam/lib/device-detector';
 
 const ExtractCardNameOutputSchema = z.object({
   playerName: z.string().describe('The name of the player extracted from the card image.'),

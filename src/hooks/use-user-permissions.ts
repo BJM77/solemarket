@@ -5,7 +5,6 @@ import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile } from '@/lib/types';
-import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 
 interface UserPermissions {
     isSuperAdmin: boolean;
@@ -17,7 +16,7 @@ interface UserPermissions {
 
 /**
  * A hook to get detailed permissions for the current user.
- * It checks the user's role and selling capabilities from their Firestore profile.
+ * It checks the user's role and selling capabilities from their custom claims and Firestore profile.
  * @returns {UserPermissions} An object with boolean flags for permissions and loading state.
  */
 export function useUserPermissions(): UserPermissions {
@@ -34,29 +33,26 @@ export function useUserPermissions(): UserPermissions {
 
     const isLoading = isAuthLoading || isProfileLoading;
 
-    const isSuperByUidOrEmail = user?.uid && (
-        SUPER_ADMIN_UIDS.includes(user.uid) ||
-        (user.email && SUPER_ADMIN_EMAILS.includes(user.email))
-    );
-
-    if (isLoading || !user || !userProfile) {
+    if (isAuthLoading || !user) {
         return {
-            isSuperAdmin: !!isSuperByUidOrEmail,
-            isAdmin: !!isSuperByUidOrEmail,
+            isSuperAdmin: false,
+            isAdmin: false,
             canSell: false,
             isLoading,
-            userProfile: userProfile || null,
+            userProfile: null,
         };
     }
 
-
-    const role = userProfile.role;
+    const role = user?.role || userProfile?.role;
+    const isSuperAdmin = role === 'superadmin';
+    const isAdmin = role === 'admin' || role === 'superadmin';
+    const canSell = role === 'superadmin' || role === 'admin' || userProfile?.canSell === true;
 
     return {
-        isSuperAdmin: role === 'superadmin' || !!isSuperByUidOrEmail,
-        isAdmin: role === 'admin' || role === 'superadmin' || !!isSuperByUidOrEmail,
-        canSell: userProfile.canSell === true || role === 'superadmin' || !!isSuperByUidOrEmail,
-        isLoading: false,
-        userProfile,
+        isSuperAdmin,
+        isAdmin,
+        canSell,
+        isLoading,
+        userProfile: userProfile || null,
     };
 }

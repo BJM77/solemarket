@@ -6,17 +6,17 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Loader, Boxes, Palette, Building, CheckCircle, XCircle, Shirt, Trash2, Star, Save, ArrowRight, TrendingUp, Gem } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { auth } from "@/samcam/lib/firebase";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/samcam/components/ui/card";
-import { Badge } from "@/samcam/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ScanHistoryItem } from "@/samcam/lib/types";
 import { cn } from "@/samcam/lib/utils";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { Textarea } from "@/samcam/components/ui/textarea";
-import { Label } from "@/samcam/components/ui/label";
-import { Input } from "@/samcam/components/ui/input";
-import { Switch } from "@/samcam/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { compressImage } from "@/samcam/lib/image-utils";
 import {
   Select,
@@ -24,7 +24,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/samcam/components/ui/select";
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,14 +35,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/samcam/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/samcam/components/ui/dialog"
+} from "@/components/ui/dialog"
 
 
 const THUMBNAILS_PER_PAGE = 12;

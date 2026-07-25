@@ -2,11 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import { ScrollArea } from "@/samcam/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ScanHistoryItem } from "@/samcam/lib/types";
 import { cn } from "@/samcam/lib/utils";
 import { XCircle, CheckCircle, Boxes, Trash2, PlusCircle } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 interface HistoryLogProps {
   history: ScanHistoryItem[];

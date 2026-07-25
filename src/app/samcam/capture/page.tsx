@@ -26,10 +26,10 @@ import {
   XCircle,
   FileText
 } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Badge } from "@/samcam/components/ui/badge";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/samcam/components/ui/sheet";
-import { Progress } from "@/samcam/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/samcam/hooks/use-toast";
 import { db, auth } from "@/samcam/lib/firebase";
 import { syncStorage, PendingUpload } from "@/samcam/lib/sync-storage";

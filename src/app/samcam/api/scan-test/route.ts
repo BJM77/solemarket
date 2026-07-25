@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { quickScan } from '@/samcam/ai/flows/quick-scan';
+import { quickScan } from '@/ai/flows/quick-scan-samcam';
 
 export async function POST(request: Request) {
   try {

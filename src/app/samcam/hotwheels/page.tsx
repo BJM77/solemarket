@@ -8,7 +8,7 @@ import { Settings, FileClock, Car, Loader, LogOut, Menu, BookCopy, Star, List, D
 import Link from "next/link";
 import HotWheelsScanner from "@/samcam/components/hotwheels-scanner";
 import SettingsSheet from "@/samcam/components/settings-sheet";
-import { Button } from "@/samcam/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "../auth-provider";
 import { auth } from "@/samcam/lib/firebase";
 import {
@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/samcam/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import dynamic from "next/dynamic";
 import { useErrorLog } from "@/samcam/hooks/use-error-log";
 

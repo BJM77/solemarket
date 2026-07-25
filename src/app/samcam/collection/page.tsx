@@ -6,13 +6,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, X, Palette, Building, Boxes, Shirt } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Input } from "@/samcam/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/samcam/components/ui/select";
-import { Card, CardContent } from "@/samcam/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScanHistoryItem } from "@/samcam/lib/types";
 import { cn } from "@/samcam/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/samcam/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function CollectionPage() {
   const [collection, setCollection] = useState<ScanHistoryItem[]>([]);

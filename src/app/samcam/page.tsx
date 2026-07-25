@@ -17,9 +17,9 @@ import {
   Loader,
   User as UserIcon
 } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/samcam/components/ui/card";
-import { Badge } from "@/samcam/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "./auth-provider";
 import { useRouter } from "next/navigation";
 import { db } from "@/samcam/lib/firebase";

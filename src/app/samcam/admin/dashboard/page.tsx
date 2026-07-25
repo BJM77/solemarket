@@ -5,9 +5,9 @@ import Link from "next/link";
 import { 
   ArrowLeft, LayoutDashboard, History, Activity, Database, Trophy, CheckCircle2, AlertCircle, Clock, Zap, Cpu, Gauge
 } from "lucide-react";
-import { Button } from "@/samcam/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/samcam/components/ui/card";
-import { Badge } from "@/samcam/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { db } from "@/samcam/lib/firebase";
 import { collection, query, orderBy, onSnapshot, limit, where } from "firebase/firestore";
 import { CardImport } from "@/samcam/lib/types";

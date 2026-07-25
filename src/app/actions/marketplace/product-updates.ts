@@ -100,6 +100,7 @@ export async function internalHoldProduct(
 ) {
     const now = new Date();
     const docRef = firestoreDb.collection('products').doc(productId);
+    const holdDocRef = docRef.collection('holds').doc(userId);
 
     return await firestoreDb.runTransaction(async (transaction: any) => {
         const docSnap = await transaction.get(docRef);
@@ -122,6 +123,19 @@ export async function internalHoldProduct(
         };
 
         transaction.update(docRef, updateData);
+
+        const holdSnap = await transaction.get(holdDocRef);
+        const currentCount = holdSnap.exists ? (holdSnap.data()?.holdCount || 0) : 0;
+
+        transaction.set(holdDocRef, {
+            userId: userId,
+            productId: productId,
+            expiresAt: Timestamp.fromDate(holdExpiresAt),
+            reason: reason,
+            holdCount: currentCount + 1,
+            updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+
         return { success: true, expiresAt: holdExpiresAt };
     });
 }
@@ -175,19 +189,20 @@ export async function recordProductEnquiry(
         
         const data = docSnap.data();
 
-        // 1. Check if user already has 2 active holds elsewhere
-        const activeHoldsSnap = await firestoreDb.collection('products')
-            .where('heldBy', '==', effectiveUid)
-            .where('holdExpiresAt', '>', Timestamp.fromDate(now))
+        // 1. Check if user already has 2 active holds elsewhere (using collectionGroup query on holds sub-collection)
+        const activeHoldsSnap = await firestoreDb.collectionGroup('holds')
+            .where('userId', '==', effectiveUid)
+            .where('expiresAt', '>', Timestamp.fromDate(now))
             .get();
         
         if (activeHoldsSnap.size >= 2) {
             return { success: false, error: 'You can only have 2 active "Buy & Collect" holds at once.' };
         }
 
-        // 2. Check how many times THIS user has held THIS item
-        const holdCountMap = data?.holdCountMap || {};
-        const userHoldCount = holdCountMap[effectiveUid] || 0;
+        // 2. Check how many times THIS user has held THIS item from the sub-collection doc
+        const userHoldDocRef = docRef.collection('holds').doc(effectiveUid);
+        const userHoldSnap = await userHoldDocRef.get();
+        const userHoldCount = userHoldSnap.exists ? (userHoldSnap.data()?.holdCount || 0) : 0;
 
         if (userHoldCount >= 3) {
             return { success: false, error: 'You have reached the maximum number of holds (3) for this specific item.' };
@@ -195,18 +210,14 @@ export async function recordProductEnquiry(
 
         if (!effectiveUid) return { success: false, error: 'Authorization error' };
 
-        // 3. Apply the 5-minute hold using the shared logic (passing dummy token if guest, as it's already verified)
-        // Note: For guest paths, we might need a special bypass or just use the UID directly if internal.
-        // Let's refactor the internal hold logic to be reusable.
+        // 3. Apply the 5-minute hold using the shared logic
         const holdResult = await internalHoldProduct(productId, effectiveUid, 5, 'enquiry');
         if (!holdResult.success) return holdResult;
 
-        const updatedHoldCountMap = { ...holdCountMap, [effectiveUid!]: userHoldCount + 1 };
         await docRef.update({
             contactCallCount: FieldValue.increment(1),
             enquiryStatus: 'enquired',
-            enquiryUpdatedAt: FieldValue.serverTimestamp(),
-            holdCountMap: updatedHoldCountMap
+            enquiryUpdatedAt: FieldValue.serverTimestamp()
         });
 
         // Generate a secure token for the seller email

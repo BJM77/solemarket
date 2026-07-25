@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, XCircle, RefreshCw, Server, ShieldCheck, FileKey2 } from 'lucide-react';
-import { Button } from '@/samcam/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/samcam/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useAuth } from '@/app/samcam/auth-provider';
 
 type CheckStatus = 'pending' | 'success' | 'error';
