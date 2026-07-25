@@ -148,6 +148,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Shoe Imports for ShoeCam
+    match /shoe_imports/{importId} {
+      allow read, write: if true;
+    }
+
     // Conversations and Messages
     match /conversations/{conversationId} {
       allow read: if isAuthenticated() && request.auth.uid in resource.data.participants;

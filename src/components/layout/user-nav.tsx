@@ -31,7 +31,8 @@ import {
   LogOut,
   CreditCard,
   Camera,
-  Coins
+  Coins,
+  Footprints
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -112,10 +113,16 @@ export function UserNav() {
                 <span className="font-medium">SamCam Studio</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/coincam') && "bg-accent text-primary")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/coincam') && "bg-accent text-primary")}>
               <Link href="/coincam" className="flex items-center">
                 <Coins className="mr-3 h-4 w-4" />
                 <span className="font-medium">CoinCam Studio</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/shoecam') && "bg-accent text-primary")}>
+              <Link href="/shoecam" className="flex items-center">
+                <Footprints className="mr-3 h-4 w-4" />
+                <span className="font-medium">ShoeCam Studio</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />

@@ -194,6 +194,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
@@ -381,8 +382,11 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/samcam')}>
                                             <Camera className="mr-3 h-4 w-4" /> SamCam Studio
                                         </Button>
-                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/coincam')}>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/coincam')}>
                                             <Coins className="mr-3 h-4 w-4" /> CoinCam Studio
+                                        </Button>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/shoecam')}>
+                                            <Footprints className="mr-3 h-4 w-4" /> ShoeCam Studio
                                         </Button>
                                     </>
                                 ) : null}

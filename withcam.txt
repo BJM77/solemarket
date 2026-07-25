@@ -33,6 +33,7 @@ src/ai/flows/bulk-suggest-cards.ts
 src/ai/flows/check-card-condition.ts
 src/ai/flows/deep-scan-card.ts
 src/ai/flows/deep-scan-coin.ts
+src/ai/flows/deep-scan-shoe.ts
 src/ai/flows/detect-fraud.ts
 src/ai/flows/extract-card-name-samcam.ts
 src/ai/flows/extract-card-name.ts
@@ -302,6 +303,14 @@ src/app/seller/analytics/page.tsx
 src/app/seller/dashboard/page.tsx
 src/app/seller/onboarding/return/page.tsx
 src/app/sellers/page.tsx
+src/app/shoecam/auth-provider.tsx
+src/app/shoecam/capture/page.tsx
+src/app/shoecam/globals.css
+src/app/shoecam/layout.tsx
+src/app/shoecam/page.tsx
+src/app/shoecam/review/[id]/page.tsx
+src/app/shoecam/review/page.tsx
+src/app/shoecam/settings/page.tsx
 src/app/shoes/[slug]/page.tsx
 src/app/shoes/page.tsx
 src/app/shop/[id]/page.tsx
@@ -618,6 +627,9 @@ src/services/logger.ts
 src/services/notifications.ts
 src/services/product-service.ts
 src/services/settings-service.ts
+src/shoecam/lib/sync-service.ts
+src/shoecam/lib/sync-storage.ts
+src/shoecam/lib/types.ts
 src/test/setup.ts
 src/types/deals.ts
 src/types/declarations.d.ts
@@ -2609,6 +2621,76 @@ export async function deepScanCoin(
   } catch (error: any) {
     console.error("[AI] Error in deepScanCoin:", error);
     throw new Error(`AI Coin Scan Failed: ${error.message}`);
+  }
+}
+
+
+========================================================================
+FILE: src/ai/flows/deep-scan-shoe.ts
+========================================================================
+
+'use server';
+
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+const DeepScanShoeOutputSchema = z.object({
+  brand: z.string().describe('The brand of the shoe (e.g. Nike, Jordan, Adidas, New Balance, Asics).'),
+  model: z.string().describe('The specific model name of the shoe (e.g. Air Jordan 1 Retro High, Yeezy Boost 350 V2).'),
+  styleCode: z.string().describe('The product style code / SKU (e.g. 555088-061, BB550WT1, GY3438) found on the label.'),
+  sizeUs: z.string().describe('The US size of the shoe (e.g. 10.5, 9, 12W) printed on the label.'),
+  colorway: z.string().optional().describe('The official colorway name (e.g. Bred, Wave Runner, Panda, UNC) or description.'),
+  condition: z.string().optional().describe('Condition estimate if discernible, otherwise standard description.'),
+  price: z.number().nullable().optional().describe('The estimated retail or resale market price in USD, if discernible.'),
+  description: z.string().optional().describe('A detailed and engaging product listing description highlighting the sneaker design, history, and specifications.'),
+});
+
+export type DeepScanShoeOutput = z.infer<typeof DeepScanShoeOutputSchema>;
+
+export async function deepScanShoe(
+  imageUrlOrBase64: string,
+): Promise<DeepScanShoeOutput> {
+  console.log('[AI] deepScanShoe called');
+  
+  try {
+    let mimeType = 'image/jpeg';
+    let mediaUrl = imageUrlOrBase64;
+
+    if (!imageUrlOrBase64.startsWith('data:')) {
+      const response = await fetch(imageUrlOrBase64);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Data = buffer.toString('base64');
+      mimeType = response.headers.get('content-type') || 'image/jpeg';
+      mediaUrl = `data:${mimeType};base64,${base64Data}`;
+    }
+
+    const result = await ai.generate({
+      model: 'googleai/gemini-flash-latest',
+      prompt: [
+        { text: `You are a professional sneaker authenticator and sneakerhead expert. Analyze this sneaker label/tag image and extract the product details.
+- brand: The brand (e.g. Nike, Jordan, Adidas, New Balance, Yeezy)
+- model: The model name (e.g. Air Jordan 1 Retro High, Yeezy Boost 350 V2)
+- styleCode: The product SKU / style code printed on the label (e.g., 555088-061, BB550WT1)
+- sizeUs: The US shoe size printed on the label
+- colorway: The colorway if discernible
+- price: An estimated resale/retail market price in USD for this model
+- description: Write an engaging 2-3 sentence marketplace description for this shoe.` },
+        { media: { url: mediaUrl } }
+      ],
+      output: {
+        schema: DeepScanShoeOutputSchema
+      }
+    });
+
+    if (!result.output) {
+      throw new Error("No structured output returned from Gemini.");
+    }
+
+    return result.output;
+  } catch (error: any) {
+    console.error("[AI] Error in deepScanShoe:", error);
+    throw new Error(`AI Shoe Scan Failed: ${error.message}`);
   }
 }
 
@@ -43043,6 +43125,1653 @@ export default async function SellersPage() {
 
 
 ========================================================================
+FILE: src/app/shoecam/auth-provider.tsx
+========================================================================
+
+"use client";
+
+import { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from '@/samcam/lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  imports: any[];
+  setImports: React.Dispatch<React.SetStateAction<any[]>>;
+  importsLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  loading: true, 
+  imports: [], 
+  setImports: () => {}, 
+  importsLoading: true 
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [imports, setImports] = useState<any[]>([]);
+  const [importsLoading, setImportsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!auth) {
+      console.error("Firebase auth is not initialized. Check your environment variables.");
+      setLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setImports([]);
+      setImportsLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "shoe_imports"), 
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      const filteredDocs = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous');
+      setImports(filteredDocs);
+      setImportsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  return (
+    <AuthContext.Provider value={{ user, loading, imports, setImports, importsLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
+
+
+========================================================================
+FILE: src/app/shoecam/capture/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  ArrowLeft, 
+  Target, 
+  Sun, 
+  Gauge, 
+  CheckCircle2, 
+  Loader2, 
+  RefreshCw, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  Settings,
+  Zap,
+  ZapOff,
+  Clock,
+  XCircle,
+  FileText
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/samcam/hooks/use-toast";
+import { auth } from "@/samcam/lib/firebase";
+import { syncStorage, PendingUpload } from "@/shoecam/lib/sync-storage";
+import { cn } from "@/samcam/lib/utils";
+import { analyzeImageQuality, QualityMetrics } from "@/samcam/lib/image-processing";
+import { detectDevice, getProfileForPreset, DeviceProfile } from "@/samcam/lib/device-detector";
+import SettingsSheet from "@/samcam/components/settings-sheet";
+import { useErrorLog } from "@/samcam/hooks/use-error-log";
+import { SyncStatusTracker, SyncStatus } from "@/samcam/components/sync-status-tracker";
+import { syncService } from "@/shoecam/lib/sync-service";
+import { audioSynth } from "@/samcam/lib/audio-effects";
+
+const getCameraConstraints = (device: DeviceProfile) => {
+  const constraints: MediaTrackConstraints = {
+    facingMode: 'environment',
+    width: { ideal: device.recommendedResolution.width },
+    height: { ideal: device.recommendedResolution.height },
+  };
+  return constraints;
+};
+
+export default function ShoePhotoBooth() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [labStatus, setLabStatus] = useState("READY");
+  const [syncQueue, setSyncQueue] = useState<PendingUpload[]>([]);
+  const [syncStatuses, setSyncStatuses] = useState<Map<string, SyncStatus>>(new Map());
+  const [lastQuality, setLastQuality] = useState<QualityMetrics | null>(null);
+  
+  // 4 steps sequence
+  const [currentStep, setCurrentStep] = useState<'FRONT_45' | 'SIDE' | 'TOP' | 'LABEL'>('FRONT_45');
+  const [tempFront45, setTempFront45] = useState<Blob | null>(null);
+  const [tempSide, setTempSide] = useState<Blob | null>(null);
+  const [tempTop, setTempTop] = useState<Blob | null>(null);
+  
+  const [torchActive, setTorchActive] = useState(false);
+  const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
+  const videoTrackRef = useRef<MediaStreamTrack | null>(null);
+  const createdUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      const urls = createdUrlsRef.current;
+      urls.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.warn("Failed to revoke URL", url, e);
+        }
+      });
+    };
+  }, []);
+  
+  const [selectedDevice, setSelectedDevice] = useState<string>('auto');
+  const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
+    name: 'Generic Device',
+    manufacturer: 'generic',
+    model: 'unknown',
+    isHighEnd: false,
+    hasMacroMode: false,
+    hasNightMode: false,
+    recommendedAspectRatio: '16:9',
+    recommendedResolution: { width: 1920, height: 1080 },
+    aiAcceleration: 'basic',
+  });
+  const [showHUD, setShowHUD] = useState(true);
+  const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+  const errorLog = useErrorLog();
+
+  useEffect(() => {
+    if (selectedDevice === 'auto') {
+      setDeviceProfile(detectDevice());
+    } else {
+      setDeviceProfile(getProfileForPreset(selectedDevice));
+    }
+  }, [selectedDevice]);
+
+  useEffect(() => {
+    let activeStream: MediaStream | null = null;
+
+    async function startCamera() {
+      if (!videoRef.current) return;
+      try {
+        const constraints = getCameraConstraints(deviceProfile);
+        const stream = await navigator.mediaDevices.getUserMedia({ video: constraints });
+        videoRef.current.srcObject = stream;
+        activeStream = stream;
+        const track = stream.getVideoTracks()[0];
+        videoTrackRef.current = track;
+      } catch (err: any) {
+        console.error("Camera access failed:", err);
+        errorLog.addError("BOOTH_CAMERA_INIT_FAILED: " + err.message);
+        toast({
+          variant: "destructive",
+          title: "Camera Access Error",
+          description: "Could not open camera stream. Please check permissions."
+        });
+      }
+    }
+
+    startCamera();
+
+    return () => {
+      if (activeStream) {
+        activeStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [deviceProfile, toast]);
+
+  // Load existing Queue
+  useEffect(() => {
+    async function loadQueue() {
+      const items = await syncStorage.getAll();
+      setSyncQueue(items.sort((a, b) => b.createdAt - a.createdAt));
+    }
+    loadQueue();
+  }, []);
+
+  // Background Sync Runner Loop
+  useEffect(() => {
+    let syncInterval: NodeJS.Timeout;
+    
+    async function runSyncs() {
+      const pending = syncQueue.filter(q => q.status === 'PENDING' || q.status === 'ERROR');
+      if (pending.length === 0) return;
+
+      for (const item of pending) {
+        // Mark status as uploading
+        item.status = 'UPLOADING';
+        await syncStorage.update(item);
+        
+        const success = await syncService.processUpload(
+          item,
+          deviceProfile,
+          (status) => {
+            setSyncStatuses(prev => {
+              const next = new Map(prev);
+              next.set(item.id, status);
+              return next;
+            });
+          }
+        );
+
+        if (success) {
+          setSyncQueue(prev => prev.filter(q => q.id !== item.id));
+        } else {
+          item.status = 'ERROR';
+          item.retries += 1;
+          await syncStorage.update(item);
+          setSyncQueue(prev => prev.map(q => q.id === item.id ? { ...item } : q));
+        }
+      }
+    }
+
+    syncInterval = setInterval(runSyncs, 4000);
+    return () => clearInterval(syncInterval);
+  }, [syncQueue, deviceProfile]);
+
+  const toggleTorch = async () => {
+    if (!videoTrackRef.current) return;
+    try {
+      const capabilities = videoTrackRef.current.getCapabilities();
+      // @ts-ignore
+      if (capabilities.torch) {
+        const nextState = !torchActive;
+        // @ts-ignore
+        await videoTrackRef.current.applyConstraints({ advanced: [{ torch: nextState }] });
+        setTorchActive(nextState);
+      } else {
+        toast({ title: "Hardware Warning", description: "Flash/Torch control is not supported on this device's camera." });
+      }
+    } catch (e) {
+      console.warn("Torch configuration failed", e);
+    }
+  };
+
+  const triggerVibrate = (pattern: number | number[]) => {
+    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(pattern);
+    }
+  };
+
+  const capturePhoto = async () => {
+    if (isProcessing || !videoRef.current) return;
+    setIsProcessing(true);
+    setLabStatus("CHECKING...");
+
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      
+      // Keep aspect ratio 4:3 for sneaker crops
+      const cropWidth = 1024;
+      const cropHeight = 768;
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+
+      if (!ctx) throw new Error("Could not construct 2D context");
+
+      // Draw landscape center crop
+      const startX = (width - (height * (4/3))) / 2;
+      const sourceWidth = height * (4/3);
+      const sourceHeight = height;
+
+      ctx.drawImage(
+        video,
+        startX, 0, sourceWidth, sourceHeight,
+        0, 0, cropWidth, cropHeight
+      );
+
+      const q = analyzeImageQuality(canvas);
+      setLastQuality(q);
+
+      if (!q.isAcceptable) {
+        audioSynth.playBeep();
+        setLabStatus(q.messages[0] || "ADJUST...");
+        setTimeout(() => setLabStatus("READY"), 1500);
+        setIsProcessing(false);
+        return;
+      }
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setIsProcessing(false);
+          setLabStatus("READY");
+          return;
+        }
+
+        audioSynth.playShutter();
+        triggerVibrate(60);
+
+        const objectUrl = URL.createObjectURL(blob);
+        createdUrlsRef.current.push(objectUrl);
+
+        if (currentStep === 'FRONT_45') {
+          setTempFront45(blob);
+          setCurrentStep('SIDE');
+          setLabStatus("CAPTURE SIDE");
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+          triggerVibrate([30, 50, 30]);
+          setIsProcessing(false);
+        } else if (currentStep === 'SIDE') {
+          setTempSide(blob);
+          setCurrentStep('TOP');
+          setLabStatus("CAPTURE TOP");
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+          triggerVibrate([30, 50, 30]);
+          setIsProcessing(false);
+        } else if (currentStep === 'TOP') {
+          setTempTop(blob);
+          setCurrentStep('LABEL');
+          setLabStatus("CAPTURE LABEL");
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+          triggerVibrate([30, 50, 30]);
+          setIsProcessing(false);
+        } else {
+          const id = `shoe_${Date.now()}`;
+          const newUpload: PendingUpload = {
+            id,
+            front45Blob: tempFront45!,
+            sideBlob: tempSide!,
+            topBlob: tempTop!,
+            labelBlob: blob,
+            status: 'PENDING',
+            retries: 0,
+            createdAt: Date.now()
+          };
+
+          await syncStorage.add(newUpload);
+          setSyncQueue(prev => [...prev, newUpload]);
+          setSessionThumbnails(prev => [objectUrl, ...prev]);
+
+          setTempFront45(null);
+          setTempSide(null);
+          setTempTop(null);
+          setCurrentStep('FRONT_45');
+          setLabStatus("READY");
+          setIsProcessing(false);
+        }
+      }, 'image/jpeg', 0.8);
+
+    } catch (e) {
+      console.error("Capture Error", e);
+      setLabStatus("ERROR");
+      setTimeout(() => setLabStatus("READY"), 2000);
+      setIsProcessing(false);
+    }
+  };
+
+  const purgeQueue = async () => {
+    for (const item of syncQueue) {
+      await syncStorage.remove(item.id);
+    }
+    setSyncQueue([]);
+    setSyncStatuses(new Map());
+    toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
+  };
+
+  const getStepGuide = (step: typeof currentStep) => {
+    switch (step) {
+      case 'FRONT_45':
+        return "45° Angle: Place shoe facing diagonally. Toe towards bottom-left, heel towards top-left.";
+      case 'SIDE':
+        return "Side Profile: Align shoe side with horizontal guideline.";
+      case 'TOP':
+        return "Top-Down View: Position shoe vertically showing laces, tongue and toe box.";
+      case 'LABEL':
+        return "Tag/Label: Locate size tag inside shoe tongue or inner wall. Focus closely.";
+    }
+  };
+
+  return (
+    <div className="h-screen bg-black text-white font-mono flex flex-col overflow-hidden">
+      <header className="p-3 bg-zinc-900 border-b border-white/10 flex justify-between items-center z-20">
+        <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam')}><ArrowLeft className="w-5 h-5" /></Button>
+        
+        <div className="flex gap-2 items-center">
+          <Badge className={cn("text-[9px] font-black uppercase tracking-widest", 
+            currentStep === 'FRONT_45' ? "bg-primary text-black" : 
+            currentStep === 'SIDE' ? "bg-orange-500 text-white" :
+            currentStep === 'TOP' ? "bg-blue-500 text-white" :
+            "bg-purple-600 text-white"
+          )}>
+            Step: {currentStep}
+          </Badge>
+          
+          <button onClick={() => setShowHUD(prev => !prev)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition">
+            {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
+          </button>
+          <button onClick={toggleTorch} className={cn("p-2 rounded-lg transition", torchActive ? "bg-primary text-white" : "bg-zinc-800 text-zinc-400")}>
+            {torchActive ? <ZapOff className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+          </button>
+          <button onClick={() => setSettingsOpen(true)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition">
+            <Settings className="w-4 h-4 text-zinc-400" />
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 relative flex items-center justify-center bg-zinc-950">
+        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+
+        {/* HUD Box Guidelines overlay */}
+        {showHUD && (
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-6">
+            {currentStep === 'FRONT_45' && (
+              <div className="w-[85%] max-w-[400px] aspect-[4/3] border-2 border-dashed border-primary/60 rounded-xl relative">
+                {/* Diagonal orientation indicator */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-full h-0.5 bg-primary/20 rotate-12 absolute" />
+                  <span className="text-[9px] font-black text-primary bg-black/80 px-2 py-0.5 rounded uppercase tracking-wider">Toe facing Bottom-Left</span>
+                </div>
+              </div>
+            )}
+            {currentStep === 'SIDE' && (
+              <div className="w-[90%] max-w-[420px] aspect-[16/9] border-2 border-dashed border-orange-500/60 rounded-xl relative">
+                <div className="absolute inset-x-0 top-1/2 border-t border-orange-500/20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[9px] font-black text-orange-400 bg-black/80 px-2 py-0.5 rounded uppercase tracking-wider">Align Side Profile</span>
+                </div>
+              </div>
+            )}
+            {currentStep === 'TOP' && (
+              <div className="h-[80%] max-h-[380px] aspect-[9/16] border-2 border-dashed border-blue-500/60 rounded-xl relative">
+                <div className="absolute inset-y-0 left-1/2 border-l border-blue-500/20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[9px] font-black text-blue-400 bg-black/80 px-2 py-0.5 rounded uppercase tracking-wider rotate-90">Align Top-Down</span>
+                </div>
+              </div>
+            )}
+            {currentStep === 'LABEL' && (
+              <div className="w-36 h-36 border-2 border-dashed border-purple-500/60 rounded-lg relative flex items-center justify-center">
+                <Target className="w-6 h-6 text-purple-400 animate-pulse" />
+                <span className="absolute bottom-2 text-[8px] font-black text-purple-400 bg-black/80 px-1.5 py-0.5 rounded uppercase tracking-widest">Focus Size Tag</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step Info Message */}
+        <div className="absolute top-4 inset-x-4 bg-black/80 border border-white/10 rounded-lg p-2.5 backdrop-blur-sm pointer-events-none">
+          <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Guide</p>
+          <p className="text-xs font-semibold text-white mt-1 leading-relaxed">{getStepGuide(currentStep)}</p>
+        </div>
+
+        {/* Quality Alerts */}
+        {lastQuality && (
+          <div className="absolute bottom-24 left-4 flex flex-col gap-2">
+            {lastQuality.brightnessScore < 50 && (
+              <div className="bg-black/80 border border-yellow-400/20 rounded-full px-3 py-1 text-[9px] text-yellow-400 uppercase font-black flex items-center gap-1.5"><Sun className="w-3.5 h-3.5" /> Too Dark</div>
+            )}
+            {lastQuality.blurScore < 10 && (
+              <div className="bg-black/80 border border-red-400/20 rounded-full px-3 py-1 text-[9px] text-red-400 uppercase font-black flex items-center gap-1.5"><Gauge className="w-3.5 h-3.5" /> Blurry Focus</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Control Console */}
+      <footer className="p-4 bg-zinc-900 border-t border-white/10 flex items-center justify-between z-20">
+        {/* Sync Queues Modal */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="flex flex-col items-center justify-center text-zinc-400 hover:text-white transition relative">
+              <Clock className="w-5 h-5" />
+              <span className="text-[8px] font-bold uppercase mt-1">Queue</span>
+              {syncQueue.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-primary text-black font-black text-[8px] rounded-full h-4 w-4 flex items-center justify-center">
+                  {syncQueue.length}
+                </span>
+              )}
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[75vh] bg-zinc-950 border-t border-white/10 text-white font-mono p-4">
+            <SheetHeader className="flex flex-row justify-between items-center border-b border-white/5 pb-4 mb-4">
+              <div>
+                <SheetTitle className="text-white font-black uppercase text-sm tracking-tight">Sync Pipeline ({syncQueue.length} Active)</SheetTitle>
+              </div>
+              <div className="flex gap-2">
+                {syncQueue.length > 0 && (
+                  <Button variant="ghost" size="sm" className="text-red-400 text-[9px] font-black uppercase h-8 hover:bg-red-950/20" onClick={purgeQueue}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Purge
+                  </Button>
+                )}
+              </div>
+            </SheetHeader>
+
+            <div className="space-y-4 overflow-y-auto max-h-[50vh] pr-2 scrollbar-hide">
+              {syncQueue.map((item) => {
+                const active = syncStatuses.get(item.id);
+                return (
+                  <SyncStatusTracker key={item.id} status={active || {
+                    id: item.id,
+                    startedAt: new Date(item.createdAt).toISOString(),
+                    currentStep: 0,
+                    steps: []
+                  }} />
+                );
+              })}
+              {syncQueue.length === 0 && (
+                <div className="py-24 text-center text-zinc-500 text-xs">No pending uploads in the database queue. Ready for captures.</div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Shutter Capture Button */}
+        <div className="flex-1 flex justify-center">
+          <button 
+            onClick={capturePhoto} 
+            disabled={isProcessing}
+            className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition"
+          >
+            <div className={cn("w-12 h-12 rounded-full bg-primary flex items-center justify-center transition-all", isProcessing && "scale-75 opacity-50")}>
+              {isProcessing && <Loader2 className="w-6 h-6 animate-spin text-black" />}
+            </div>
+          </button>
+        </div>
+
+        {/* Captured Batch count / preview thumbnail */}
+        <div className="w-10 h-10 bg-zinc-950 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center relative">
+          {sessionThumbnails.length > 0 ? (
+            <img src={sessionThumbnails[0]} className="w-full h-full object-cover" alt="thumbnail" />
+          ) : (
+            <FileText className="w-4 h-4 text-zinc-600" />
+          )}
+          {sessionThumbnails.length > 0 && (
+            <span className="absolute bottom-0 right-0 bg-black/80 text-primary font-black text-[8px] px-1 rounded-tl">
+              {sessionThumbnails.length}
+            </span>
+          )}
+        </div>
+      </footer>
+
+      {/* SettingsPresets */}
+      <SettingsSheet 
+        isOpen={settingsOpen}
+        setIsOpen={setSettingsOpen}
+        errorLog={errorLog}
+        selectedDevice={selectedDevice}
+        setSelectedDevice={setSelectedDevice}
+      />
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/shoecam/globals.css
+========================================================================
+
+/* Unique ShoeCam Styles */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+
+========================================================================
+FILE: src/app/shoecam/layout.tsx
+========================================================================
+
+import type { Metadata } from 'next';
+import './globals.css';
+import { Toaster } from "@/components/ui/toaster"
+import { AuthProvider } from './auth-provider';
+
+export const metadata: Metadata = {
+  title: 'Benched.au | ShoeCam Capture & Marketplace',
+  description: 'The professional ecosystem for sneaker photography, identification, and sales.',
+};
+
+export default function ShoeCamLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <AuthProvider>
+      {children}
+      <Toaster />
+    </AuthProvider>
+  );
+}
+
+
+========================================================================
+FILE: src/app/shoecam/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/navigation";
+import { 
+  Camera, 
+  LayoutDashboard, 
+  History, 
+  Settings, 
+  ArrowRight,
+  PlusCircle,
+  Database,
+  CloudUpload,
+  Footprints,
+  ScanBarcode,
+  Loader,
+  User as UserIcon
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "./auth-provider";
+import { useRouter } from "next/navigation";
+import { db } from "@/samcam/lib/firebase";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+
+export default function ShoeCamDashboard() {
+  const { user, loading: authLoading } = useAuth();
+  const [stats, setStats] = useState({ pending: 0, inventory: 0, live: 0 });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const q = query(
+      collection(db, "shoe_imports"), 
+      orderBy("createdAt", "desc")
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => doc.data());
+      const filteredCount = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous').length;
+      setStats(prev => ({ ...prev, pending: filteredCount }));
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-black text-white">
+      <header className="flex items-center justify-between p-4 border-b border-white/10 bg-zinc-900 sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <div className="bg-primary p-1.5 rounded-lg">
+            <Footprints className="w-6 h-6 text-black" />
+          </div>
+          <h1 className="text-xl font-bold font-headline tracking-tight uppercase text-white">
+            SHOECAM<span className="text-primary">.AU</span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex bg-zinc-800 rounded-full px-4 py-1.5 items-center gap-2 border border-white/5">
+             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Shoe Booth Connected</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam/settings')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+             <Settings className="w-5 h-5" />
+          </Button>
+          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-zinc-300">
+            <UserIcon className="w-4 h-4" />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+           <Card className="bg-primary text-black border-none shadow-glow overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Camera className="w-20 h-20" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black flex items-center gap-2 uppercase tracking-widest opacity-80 text-black">
+                Shoe Studio
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black font-headline uppercase mb-4 text-black">Launch Booth</div>
+              <Button variant="secondary" className="w-full bg-black text-primary hover:bg-zinc-900 font-black uppercase text-xs border-none" onClick={() => router.push('/shoecam/capture')}>
+                Open Scanner <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <History className="w-4 h-4" />
+                Review Queue
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.pending}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Shoes to verify</p>
+              <Button variant="link" className="p-0 h-auto text-[10px] font-black uppercase mt-4 text-primary animate-pulse" onClick={() => router.push('/shoecam/review')}>
+                Open Workspace <ArrowRight className="ml-1 w-3 h-3" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <Database className="w-4 h-4" />
+                Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.inventory}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Verified Items</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-zinc-900 border-white/10 text-white shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black text-zinc-400 flex items-center gap-2 uppercase tracking-widest">
+                <CloudUpload className="w-4 h-4" />
+                Marketplace
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black font-headline text-white">{stats.live}</div>
+              <p className="text-[9px] text-zinc-500 mt-1 font-black uppercase tracking-widest">Live Listings</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black font-headline flex items-center gap-2 uppercase tracking-tight text-white">
+                <LayoutDashboard className="w-5 h-5 text-primary" />
+                Capture Workflow
+              </h2>
+            </div>
+            
+            <Card className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-zinc-900 border-dashed border-2 border-white/10 text-white">
+              <div className="bg-zinc-800 p-6 rounded-full mb-4 ring-8 ring-zinc-800/40">
+                <ScanBarcode className="w-10 h-10 text-zinc-600" />
+              </div>
+              <h3 className="text-lg font-black uppercase tracking-tighter text-white">Ready for Shoe Batch</h3>
+              <p className="text-xs text-zinc-400 max-w-xs mt-2 font-medium">
+                High-resolution raw capture of 4 angles (Front 45°, Side, Top, and Tag Label) with background cloud sync and Gemini auto-identification.
+              </p>
+              <Button className="mt-8 px-10 font-black uppercase tracking-widest h-12 bg-primary text-black hover:bg-primary/95" variant="default" onClick={() => router.push('/shoecam/capture')}>
+                <PlusCircle className="mr-2 w-5 h-5" />
+                Begin Session
+              </Button>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <h2 className="text-xl font-black font-headline uppercase tracking-tight text-white">Cloud Link</h2>
+            <Card className="bg-zinc-900 border-white/10 text-white">
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Storage:</span>
+                  <span className="text-[10px] text-primary font-black uppercase">Firebase Active</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Auto-Shutter:</span>
+                  <Badge className="bg-yellow-500/10 text-yellow-600 border-none text-[8px] font-black uppercase">Active</Badge>
+                </div>
+                <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Matching:</span>
+                  <Badge variant="outline" className="bg-zinc-800 text-zinc-300 border-white/10 text-[8px] font-black uppercase tracking-widest">TAG-SCAN v1</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/shoecam/review/[id]/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
+import { 
+  ArrowLeft, 
+  Trash2, 
+  Save, 
+  History, 
+  BadgeCheck, 
+  AlertCircle,
+  Loader2,
+  Gem
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/samcam/hooks/use-toast";
+import { db } from "@/samcam/lib/firebase";
+import { cn } from "@/samcam/lib/utils";
+import { doc, getDoc, updateDoc, deleteDoc, collection, addDoc } from "firebase/firestore";
+import { useAuth } from "../../auth-provider";
+import { ShoeImport } from "@/shoecam/lib/types";
+
+export default function ShoeReviewDetailPage() {
+  const { id } = useParams();
+  const [item, setItem] = useState<ShoeImport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaveLoading] = useState(false);
+  const [scanningAi, setScanningAi] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function loadItem() {
+      const docRef = doc(db, "shoe_imports", id as string);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        setItem({ id: snap.id, ...snap.data() } as ShoeImport);
+      }
+      setLoading(false);
+    }
+    loadItem();
+  }, [id]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!item) return;
+    if (!user) {
+      toast({ variant: "destructive", title: "Authentication Required", description: "You must be signed in to verify and list sneakers." });
+      return;
+    }
+    setSaveLoading(true);
+    try {
+      await addDoc(collection(db, "products"), {
+        title: `${item.brand} ${item.model}`.trim() || 'Collectible Sneakers',
+        price: item.price || 0,
+        description: item.description || '',
+        imageUrls: [item.front45ImagePath, item.sideImagePath, item.topImagePath, item.labelImagePath].filter(Boolean),
+        sellerId: user.uid,
+        status: 'available',
+        category: 'sneakers',
+        condition: item.condition || 'New',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          brand: item.brand || '',
+          model: item.model || '',
+          styleCode: item.styleCode || '',
+          sizeUs: item.sizeUs || '',
+          colorway: item.colorway || '',
+          condition: item.condition || '',
+        }
+      });
+
+      await updateDoc(doc(db, "shoe_imports", item.id), {
+        ...item,
+        status: 'VERIFIED',
+        updatedAt: Date.now()
+      });
+
+      toast({ title: "Sneaker Verified", description: "Listed on Benched.au marketplace!" });
+      router.push('/shoecam/review');
+    } catch (err: any) {
+      console.error("Failed to promote shoe to products", err);
+      toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list shoe." });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!item) return;
+    if (confirm("Delete this sneaker capture? Original backups will be purged.")) {
+      await deleteDoc(doc(db, "shoe_imports", item.id));
+      router.push('/shoecam/review');
+    }
+  };
+
+  const handleAiCheck = async () => {
+    if (!item?.labelImagePath) return;
+    setScanningAi(true);
+    try {
+      const { deepScanShoe } = await import('@/ai/flows/deep-scan-shoe');
+      const aiResult = await deepScanShoe(item.labelImagePath);
+      
+      setItem(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          brand: aiResult.brand || prev.brand,
+          model: aiResult.model || prev.model,
+          styleCode: aiResult.styleCode || prev.styleCode,
+          sizeUs: aiResult.sizeUs || prev.sizeUs,
+          colorway: aiResult.colorway || prev.colorway,
+          price: aiResult.price || prev.price,
+          description: aiResult.description || prev.description,
+          identificationSource: 'AI_DEEP_SCAN',
+        };
+      });
+      toast({ title: "AI Check Complete", description: "Successfully extracted additional tag details." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Check Failed", description: err.message || "Could not analyze the label image." });
+    } finally {
+      setScanningAi(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+
+  if (!item) return <div className="h-screen flex items-center justify-center bg-black text-white">Sneaker capture not found.</div>;
+
+  return (
+    <div className="min-h-screen bg-black text-white pb-20">
+      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-white">Verification Workspace</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Sneaker Client ID: {item.id.substring(0,8)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
+             <Trash2 className="w-4 h-4 mr-1" /> Remove
+           </Button>
+           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
+             {saving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
+             Confirm & Verify
+           </Button>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Visual Evidence Section */}
+        <div className="space-y-6">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+             <History className="w-3.5 h-3.5" /> High-Resolution Evidence
+           </h2>
+           <div className="grid grid-cols-2 gap-4">
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-zinc-950">
+                  <Image src={item.front45ImagePath} alt="Front 45" fill className="object-cover" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Front 45°</Badge>
+                </div>
+              </Card>
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-zinc-950">
+                  <Image src={item.sideImagePath} alt="Side View" fill className="object-cover" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Side View</Badge>
+                </div>
+              </Card>
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-zinc-950">
+                  <Image src={item.topImagePath} alt="Top View" fill className="object-cover" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Top View</Badge>
+                </div>
+              </Card>
+              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-zinc-950">
+                  <Image src={item.labelImagePath} alt="Size Tag" fill className="object-cover" />
+                  <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Inner Tag</Badge>
+                </div>
+              </Card>
+           </div>
+           
+           <Card className="bg-blue-950/20 border-blue-500/20 text-white">
+             <CardHeader className="py-3 px-4">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-400">Capture QC Report</CardTitle>
+             </CardHeader>
+             <CardContent className="px-4 pb-3">
+                <div className="flex gap-6">
+                   <div>
+                     <p className="text-[8px] font-bold text-blue-500 uppercase">Sharpness</p>
+                     <p className="text-sm font-black text-blue-300">Passed</p>
+                   </div>
+                   <div>
+                     <p className="text-[8px] font-bold text-blue-500 uppercase">Luminance</p>
+                     <p className="text-sm font-black text-blue-300">Optimal</p>
+                   </div>
+                   <div className="flex-grow flex justify-end items-center">
+                     <Badge className="bg-green-600 font-black text-[8px] uppercase tracking-wider border-none text-white">QC PASSED</Badge>
+                   </div>
+                </div>
+             </CardContent>
+           </Card>
+        </div>
+
+        {/* Metadata Management Section */}
+        <div className="space-y-6">
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center justify-between w-full">
+             <div className="flex items-center gap-2">
+               <BadgeCheck className="w-3.5 h-3.5" /> Structured Sneaker Details
+             </div>
+             <Button 
+               size="sm" 
+               variant="outline" 
+               onClick={(e) => { e.preventDefault(); handleAiCheck(); }} 
+               disabled={scanningAi || !item.labelImagePath}
+               className="h-7 text-[10px] font-black uppercase bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
+             >
+               {scanningAi ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Gem className="w-3 h-3 mr-1" />}
+               AI Check tag
+             </Button>
+           </h2>
+           
+           <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
+             <CardContent className="pt-6">
+                  <form className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 mb-6">
+                      <div>
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">ID Source</p>
+                        <p className="text-[10px] font-black uppercase text-primary flex items-center gap-1">
+                          <Gem className="w-3 h-3 text-primary" /> {item.identificationSource || 'PENDING'} 
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5 col-span-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Brand</Label>
+                        <Input 
+                          value={item.brand || ''} 
+                          onChange={e => setItem({...item, brand: e.target.value})}
+                          className="font-bold bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+                      <div className="space-y-1.5 col-span-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Model Name</Label>
+                        <Input 
+                          value={item.model || ''} 
+                          onChange={e => setItem({...item, model: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Style Code (SKU)</Label>
+                        <Input 
+                          value={item.styleCode || ''} 
+                          onChange={e => setItem({...item, styleCode: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Size US</Label>
+                        <Input 
+                          value={item.sizeUs || ''} 
+                          onChange={e => setItem({...item, sizeUs: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+                      <div className="space-y-1.5 col-span-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Colorway</Label>
+                        <Input 
+                          value={item.colorway || ''} 
+                          onChange={e => setItem({...item, colorway: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+
+                      <div className="space-y-1.5 col-span-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
+                        <textarea
+                          value={item.description || ''}
+                          onChange={e => setItem({...item, description: e.target.value})}
+                          placeholder="Gemini is analyzing the sneaker tag..."
+                          className="w-full min-h-[70px] rounded-lg border border-white/10 bg-zinc-950 p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-white placeholder-zinc-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/5">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Condition</Label>
+                          <Select value={item.condition || 'New'} onValueChange={val => setItem({...item, condition: val})}>
+                            <SelectTrigger className="border-primary/20 bg-zinc-950 text-white font-black uppercase text-[10px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                              <SelectItem value="New">Brand New / DS</SelectItem>
+                              <SelectItem value="Like New">VNDS / Like New</SelectItem>
+                              <SelectItem value="Lightly Worn">Lightly Worn</SelectItem>
+                              <SelectItem value="Worn">Worn</SelectItem>
+                              <SelectItem value="Beaters">Beaters</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Est. Price ($)</Label>
+                          <Input 
+                            type="number" 
+                            value={item.price || ''} 
+                            onChange={e => setItem({...item, price: parseFloat(e.target.value)})}
+                            className="font-black border-primary/20 bg-zinc-950 text-white focus:ring-primary" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+               </CardContent>
+            </Card>
+
+            <div className="flex items-start gap-3 p-4 bg-yellow-950/20 border border-yellow-500/20 rounded-xl">
+               <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+               <p className="text-[10px] text-yellow-200 leading-relaxed font-medium">
+                 Ensure the size tag information exactly matches the sneaker brand, model, size, and SKU to verify authenticity.
+               </p>
+            </div>
+         </div>
+       </main>
+     </div>
+   );
+}
+
+
+========================================================================
+FILE: src/app/shoecam/review/page.tsx
+========================================================================
+
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  ArrowLeft, 
+  Search, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle,
+  Filter,
+  Trash2,
+  Send,
+  Edit2,
+  Loader2,
+  Footprints
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/samcam/lib/utils";
+import { useAuth } from "../auth-provider";
+import { ShoeImport } from "@/shoecam/lib/types";
+import { db } from "@/samcam/lib/firebase";
+import { collection, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore";
+import { useToast } from "@/samcam/hooks/use-toast";
+
+export default function ShoeReviewQueue() {
+  const { user, imports, importsLoading: loading } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<'ALL' | 'VERIFIED' | 'NEEDS_REVIEW'>('ALL');
+  const [actionId, setActionId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const allCount = imports.length;
+  const verifiedCount = imports.filter(i => i.status === 'VERIFIED').length;
+  const incompleteCount = imports.filter(i => i.status === 'NEEDS_REVIEW').length;
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this shoe capture?")) return;
+    setActionId(id);
+    try {
+      await deleteDoc(doc(db, "shoe_imports", id));
+      toast({ title: "Shoe Deleted", description: "Shoe capture queue item removed successfully." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Delete Failed", description: err.message || "Failed to delete shoe." });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleSubmit = async (item: ShoeImport) => {
+    setActionId(item.id);
+    try {
+      await addDoc(collection(db, "products"), {
+        title: `${item.brand} ${item.model}`.trim() || 'Collectible Sneakers',
+        price: item.price || 0,
+        description: item.description || '',
+        imageUrls: [item.front45ImagePath, item.sideImagePath, item.topImagePath, item.labelImagePath].filter(Boolean),
+        sellerId: user?.uid || 'anonymous',
+        status: 'available',
+        category: 'sneakers',
+        condition: item.condition || 'New',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          brand: item.brand || '',
+          model: item.model || '',
+          styleCode: item.styleCode || '',
+          sizeUs: item.sizeUs || '',
+          colorway: item.colorway || '',
+          condition: item.condition || '',
+        }
+      });
+
+      await updateDoc(doc(db, "shoe_imports", item.id), {
+        status: 'VERIFIED',
+        updatedAt: Date.now()
+      });
+
+      toast({ title: "Shoe Submitted", description: "Successfully promoted and listed on the marketplace!" });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Submit Failed", description: err.message || "Failed to submit shoe." });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const filtered = imports.filter(i => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (i.brand?.toLowerCase().includes(term) || false) ||
+      (i.model?.toLowerCase().includes(term) || false) ||
+      (i.styleCode?.toLowerCase().includes(term) || false) ||
+      (i.id?.toLowerCase().includes(term) || false);
+
+    if (activeTab === 'ALL') return matchesSearch;
+    return matchesSearch && i.status === activeTab;
+  });
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-black uppercase font-headline tracking-tighter">Review Queue</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Sneaker Verification Workspace</p>
+          </div>
+        </div>
+        <Badge className="bg-primary text-black font-black px-5 py-1 text-[10px] tracking-widest">{imports.length} SHOES</Badge>
+      </header>
+
+      <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-grow">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Input 
+              placeholder="Search brand, model, SKU..." 
+              className="pl-12 bg-zinc-900 h-12 font-medium border-white/10 shadow-sm text-white focus:ring-primary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button variant="outline" className="bg-zinc-900 border-white/10 text-white gap-2 font-black uppercase text-[10px] px-6 h-12 hover:bg-zinc-800">
+            <Filter className="w-4 h-4" /> Filters
+          </Button>
+        </div>
+
+        {/* Status filtering Tabs */}
+        <div className="flex border-b border-white/10 mb-8 overflow-x-auto gap-6 text-[10px] font-black uppercase tracking-wider">
+          <button 
+            onClick={() => setActiveTab('ALL')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            All Items <span className="bg-zinc-800 text-zinc-400 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('VERIFIED')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'VERIFIED' ? "border-green-500 text-green-400" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Verified <span className="bg-green-950/40 text-green-400 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('NEEDS_REVIEW')}
+            className={cn(
+              "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
+              activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Incomplete <span className="bg-orange-950/40 text-orange-400 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filtered.map((item: ShoeImport) => (
+            <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-glow transition-all bg-zinc-900 border-white/10 text-white">
+               <div className="aspect-square relative bg-zinc-950 overflow-hidden rounded-t-xl">
+                 <img src={item.front45ImagePath} className="w-full h-full object-cover transition-transform group-hover:scale-105 animate-fade-in" alt="front 45" />
+                 
+                 <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+                   <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2 border-none", 
+                      item.status === 'VERIFIED' ? "bg-green-600 text-white" : 
+                      item.status === 'NEEDS_REVIEW' ? "bg-primary text-black" : 
+                      "bg-blue-600 text-white"
+                   )}>
+                     {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
+                     {item.status}
+                   </Badge>
+                 </div>
+               </div>
+               <CardContent className="p-5">
+                  <div className="mb-4">
+                    <h3 className="font-black text-xs truncate uppercase tracking-tight text-white">
+                      {item.brand ? `${item.brand} ${item.model}`.trim() : 'Pending Identification'}
+                    </h3>
+                    <p className="text-[10px] font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                      {item.styleCode || 'No SKU'} {item.sizeUs ? `• US ${item.sizeUs}` : ''}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5 gap-2">
+                    <div className="text-[9px] font-black text-zinc-650 uppercase">
+                      ID: {item.id.substring(0,8)}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Button 
+                        size="icon" 
+                        variant="destructive"
+                        className="h-8 w-8 hover:bg-red-600 bg-zinc-800 text-red-400 hover:text-white"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={actionId === item.id}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="outline"
+                        className="h-8 w-8 border-white/10 text-white hover:bg-zinc-800"
+                        onClick={() => router.push(`/shoecam/review/${item.id}`)}
+                        disabled={actionId === item.id}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="h-8 text-[10px] font-black uppercase bg-primary text-black hover:bg-primary/90"
+                        onClick={() => handleSubmit(item)}
+                        disabled={actionId === item.id || item.status === 'VERIFIED'}
+                      >
+                        {actionId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1" />}
+                        Submit
+                      </Button>
+                    </div>
+                  </div>
+               </CardContent>
+            </Card>
+          ))}
+
+          {filtered.length === 0 && !loading && (
+            <div className="col-span-full py-24 text-center">
+               <div className="bg-zinc-900 p-10 rounded-full inline-block mb-6 ring-8 ring-zinc-955">
+                 <Footprints className="w-16 h-16 text-zinc-600" />
+               </div>
+               <h3 className="text-xl font-black uppercase tracking-tight text-white">Queue Depleted</h3>
+               <p className="text-xs text-zinc-400 font-medium mt-2">Active booth session required to populate workspace.</p>
+               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12 bg-primary text-black hover:bg-primary/95" onClick={() => router.push('/shoecam/capture')}>Open Booth</Button>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
+FILE: src/app/shoecam/settings/page.tsx
+========================================================================
+
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, CheckCircle2, XCircle, RefreshCw, Server, ShieldCheck, FileKey2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '../auth-provider';
+
+type CheckStatus = 'pending' | 'success' | 'error';
+
+export default function SettingsPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  
+  const [envStatus, setEnvStatus] = useState<CheckStatus>('pending');
+  const [authStatus, setAuthStatus] = useState<CheckStatus>('pending');
+  const [networkStatus, setNetworkStatus] = useState<CheckStatus>('pending');
+  const [networkMessage, setNetworkMessage] = useState('');
+  
+  const [isChecking, setIsChecking] = useState(false);
+
+  const runDiagnostics = async () => {
+    setIsChecking(true);
+    setNetworkMessage('Pinging Benched API...');
+    
+    // 1. Check Environment Variables
+    const hasBenchedUrl = !!process.env.NEXT_PUBLIC_BENCHED_API_URL;
+    const hasFirebaseKey = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (hasBenchedUrl && hasFirebaseKey) {
+      setEnvStatus('success');
+    } else {
+      setEnvStatus('error');
+    }
+    
+    // 2. Check Auth Status
+    if (!authLoading) {
+      if (user) {
+        setAuthStatus('success');
+      } else {
+        setAuthStatus('error');
+      }
+    }
+    
+    // 3. Network / CORS Ping
+    const apiUrl = process.env.NEXT_PUBLIC_BENCHED_API_URL || "http://localhost:3000/api/listings";
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({})
+      });
+      
+      setNetworkStatus('success');
+      setNetworkMessage(`Successfully reached ${apiUrl}. Status: ${response.status}`);
+    } catch (error: any) {
+      if (error.name === 'TypeError') {
+         setNetworkStatus('error');
+         setNetworkMessage("Network Error: Benched API is unreachable. The server is either offline or blocked by CORS.");
+      } else {
+         setNetworkStatus('error');
+         setNetworkMessage(`Error: ${error.message}`);
+      }
+    }
+    
+    setIsChecking(false);
+  };
+
+  useEffect(() => {
+    if (!authLoading) {
+      runDiagnostics();
+    }
+  }, [authLoading, user]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">
+        <Button variant="outline" size="icon" onClick={() => router.push('/shoecam')}>
+          <ArrowLeft className="w-6 h-6" />
+          <span className="sr-only">Back</span>
+        </Button>
+        <h1 className="text-2xl font-bold font-headline text-primary">Integration Status</h1>
+        <div className="w-10"></div>
+      </header>
+
+      <main className="max-w-3xl mx-auto p-4 md:p-8 mt-6">
+        <Card className="shadow-lg border-primary/20">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl mb-2">ShoeCam Diagnostics</CardTitle>
+                <CardDescription>
+                  Verify that your ShoeCam app is correctly configured to communicate with the Benched.au backend.
+                </CardDescription>
+              </div>
+              <Button onClick={runDiagnostics} disabled={isChecking || authLoading} variant="outline" size="sm">
+                <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} />
+                Re-test
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {envStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 envStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <FileKey2 className="w-4 h-4 text-primary" /> Environment Configuration
+                </h3>
+                {envStatus === 'success' ? (
+                  <p className="text-sm text-muted-foreground mt-1">All required API keys and endpoint URLs are present in `.env.local`.</p>
+                ) : envStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Missing Configuration</p>
+                    <p className="text-muted-foreground mt-1">Please ensure configuration variables are set in your environment.</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">Checking environment variables...</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {authStatus === 'pending' || authLoading ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 authStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" /> Firebase Authentication
+                </h3>
+                {authStatus === 'success' ? (
+                  <p className="text-sm text-muted-foreground mt-1">You are actively logged in. We can successfully generate a secure ID Token.</p>
+                ) : authStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Not Logged In</p>
+                    <p className="text-muted-foreground mt-1">You must be logged into ShoeCam via Firebase Auth to push listings to Benched.au.</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">Verifying Firebase session...</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
+              <div className="mt-1">
+                {networkStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
+                 networkStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 <XCircle className="w-6 h-6 text-red-500" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Server className="w-4 h-4 text-primary" /> API Reachability & CORS
+                </h3>
+                {networkStatus === 'success' ? (
+                   <div className="mt-2 text-sm">
+                    <p className="text-green-600 font-medium">Connection Successful</p>
+                    <p className="text-muted-foreground mt-1">{networkMessage}</p>
+                   </div>
+                ) : networkStatus === 'error' ? (
+                  <div className="mt-2 text-sm">
+                    <p className="text-red-500 font-medium">Connection Failed</p>
+                    <p className="text-muted-foreground mt-1">{networkMessage}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">{networkMessage || "Preparing to ping API..."}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}
+
+
+========================================================================
 FILE: src/app/shoes/[slug]/page.tsx
 ========================================================================
 
@@ -54336,6 +56065,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
@@ -54523,8 +56253,11 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/samcam')}>
                                             <Camera className="mr-3 h-4 w-4" /> SamCam Studio
                                         </Button>
-                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/coincam')}>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/coincam')}>
                                             <Coins className="mr-3 h-4 w-4" /> CoinCam Studio
+                                        </Button>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/shoecam')}>
+                                            <Footprints className="mr-3 h-4 w-4" /> ShoeCam Studio
                                         </Button>
                                     </>
                                 ) : null}
@@ -55138,7 +56871,8 @@ import {
   LogOut,
   CreditCard,
   Camera,
-  Coins
+  Coins,
+  Footprints
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -55219,10 +56953,16 @@ export function UserNav() {
                 <span className="font-medium">SamCam Studio</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/coincam') && "bg-accent text-primary")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/coincam') && "bg-accent text-primary")}>
               <Link href="/coincam" className="flex items-center">
                 <Coins className="mr-3 h-4 w-4" />
                 <span className="font-medium">CoinCam Studio</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/shoecam') && "bg-accent text-primary")}>
+              <Link href="/shoecam" className="flex items-center">
+                <Footprints className="mr-3 h-4 w-4" />
+                <span className="font-medium">ShoeCam Studio</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />
@@ -88460,6 +90200,352 @@ export async function getSystemSettingsAdmin(): Promise<SystemSettings> {
         console.error('Error fetching system settings (Admin):', error);
         return DEFAULT_SETTINGS;
     }
+}
+
+
+========================================================================
+FILE: src/shoecam/lib/sync-service.ts
+========================================================================
+
+import { SyncStatus } from '@/samcam/components/sync-status-tracker';
+import { db, storage, auth } from '@/samcam/lib/firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { PendingUpload } from './sync-storage';
+import { DeviceProfile } from '@/samcam/lib/device-detector';
+import { deepScanShoe } from '@/ai/flows/deep-scan-shoe';
+
+export type SyncCallback = (status: SyncStatus) => void;
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      reject(new Error('FileReader is only available in browser environments'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+export class SyncService {
+  private activeSyncs: Map<string, { status: SyncStatus; uploadTasks: any[] }> = new Map();
+  
+  async processUpload(
+    upload: PendingUpload,
+    deviceProfile: DeviceProfile,
+    onStatusUpdate: SyncCallback
+  ): Promise<boolean> {
+    const id = upload.id;
+    
+    const status: SyncStatus = {
+      id,
+      startedAt: new Date().toISOString(),
+      currentStep: 0,
+      steps: [
+        { id: 'auth', label: 'Authenticating...', status: 'pending' },
+        { id: 'upload_front45', label: 'Uploading Front 45°', status: 'pending' },
+        { id: 'upload_side', label: 'Uploading Side View', status: 'pending' },
+        { id: 'upload_top', label: 'Uploading Top View', status: 'pending' },
+        { id: 'upload_label', label: 'Uploading Label Image', status: 'pending' },
+        { id: 'ai_identify', label: 'AI Shoe Identification', status: 'pending' },
+        { id: 'firestore', label: 'Saving to Database', status: 'pending' },
+        { id: 'complete', label: 'Finalizing Sync', status: 'pending' },
+      ]
+    };
+    
+    this.activeSyncs.set(id, { status, uploadTasks: [] });
+    onStatusUpdate(status);
+    
+    try {
+      // Step 1: Authentication
+      await this.updateStep(status, 'auth', 'processing', 'Verifying user session...', onStatusUpdate);
+      const user = auth?.currentUser;
+      if (!user) {
+        await this.updateStep(status, 'auth', 'success', 'Guest Session (Proceeding unauthenticated)', onStatusUpdate);
+      } else {
+        await this.updateStep(status, 'auth', 'success', `Authenticated as ${user.uid}`, onStatusUpdate);
+      }
+      
+      // Step 2: Upload Front 45 Image
+      await this.updateStep(status, 'upload_front45', 'processing', 'Uploading Front 45...', onStatusUpdate);
+      const front45Path = `raw/shoes/${id}_front45.jpg`;
+      const front45Ref = ref(storage, front45Path);
+      await this.uploadWithProgress(front45Ref, upload.front45Blob, (progress) => {
+        const step = status.steps.find(s => s.id === 'upload_front45');
+        if (step) { step.detail = `Uploading: ${Math.round(progress)}%`; onStatusUpdate({ ...status }); }
+      });
+      const front45Url = await getDownloadURL(front45Ref);
+      await this.updateStep(status, 'upload_front45', 'success', `Uploaded`, onStatusUpdate);
+      
+      // Step 3: Upload Side Image
+      await this.updateStep(status, 'upload_side', 'processing', 'Uploading Side View...', onStatusUpdate);
+      const sidePath = `raw/shoes/${id}_side.jpg`;
+      const sideRef = ref(storage, sidePath);
+      await this.uploadWithProgress(sideRef, upload.sideBlob, (progress) => {
+        const step = status.steps.find(s => s.id === 'upload_side');
+        if (step) { step.detail = `Uploading: ${Math.round(progress)}%`; onStatusUpdate({ ...status }); }
+      });
+      const sideUrl = await getDownloadURL(sideRef);
+      await this.updateStep(status, 'upload_side', 'success', `Uploaded`, onStatusUpdate);
+      
+      // Step 4: Upload Top Image
+      await this.updateStep(status, 'upload_top', 'processing', 'Uploading Top View...', onStatusUpdate);
+      const topPath = `raw/shoes/${id}_top.jpg`;
+      const topRef = ref(storage, topPath);
+      await this.uploadWithProgress(topRef, upload.topBlob, (progress) => {
+        const step = status.steps.find(s => s.id === 'upload_top');
+        if (step) { step.detail = `Uploading: ${Math.round(progress)}%`; onStatusUpdate({ ...status }); }
+      });
+      const topUrl = await getDownloadURL(topRef);
+      await this.updateStep(status, 'upload_top', 'success', `Uploaded`, onStatusUpdate);
+
+      // Step 5: Upload Label Image
+      await this.updateStep(status, 'upload_label', 'processing', 'Uploading Label...', onStatusUpdate);
+      const labelPath = `raw/shoes/${id}_label.jpg`;
+      const labelRef = ref(storage, labelPath);
+      await this.uploadWithProgress(labelRef, upload.labelBlob, (progress) => {
+        const step = status.steps.find(s => s.id === 'upload_label');
+        if (step) { step.detail = `Uploading: ${Math.round(progress)}%`; onStatusUpdate({ ...status }); }
+      });
+      const labelUrl = await getDownloadURL(labelRef);
+      await this.updateStep(status, 'upload_label', 'success', `Uploaded`, onStatusUpdate);
+      
+      // Step 6: AI Identification (Use inside tag/label image)
+      await this.updateStep(status, 'ai_identify', 'processing', 'Running AI Vision scan on tag...', onStatusUpdate);
+      let aiResult = {};
+      try {
+        const labelBase64 = await blobToBase64(upload.labelBlob);
+        aiResult = await deepScanShoe(labelBase64);
+        await this.updateStep(status, 'ai_identify', 'success', 'Shoe identified successfully!', onStatusUpdate);
+      } catch (aiErr: any) {
+        console.error('AI Identification error:', aiErr);
+        await this.updateStep(status, 'ai_identify', 'error', `AI Failed: ${aiErr.message}.`, onStatusUpdate);
+      }
+      
+      // Step 7: Save to Firestore
+      await this.updateStep(status, 'firestore', 'processing', 'Saving to Firestore...', onStatusUpdate);
+      if (!db) {
+        throw new Error('Cloud Firestore database is not initialized');
+      }
+
+      const docRef = doc(db, 'shoe_imports', id);
+      const resData = aiResult as any;
+      const isComplete = !!(
+        resData &&
+        resData.brand &&
+        resData.model &&
+        resData.styleCode
+      );
+      const finalStatus = isComplete ? 'VERIFIED' : 'NEEDS_REVIEW';
+
+      await setDoc(docRef, {
+        id,
+        userId: auth.currentUser?.uid || 'anonymous',
+        front45ImagePath: front45Url,
+        sideImagePath: sideUrl,
+        topImagePath: topUrl,
+        labelImagePath: labelUrl,
+        status: finalStatus,
+        createdAt: upload.createdAt,
+        serverTimestamp: serverTimestamp(),
+        ...aiResult
+      }, { merge: true });
+      
+      await this.updateStep(status, 'firestore', 'success', `Created import doc: ${id}`, onStatusUpdate);
+      
+      // Step 8: Complete
+      await this.updateStep(status, 'complete', 'processing', 'Cleaning up queue...', onStatusUpdate);
+      const { syncStorage } = await import('./sync-storage');
+      await syncStorage.remove(id);
+      status.completedAt = new Date().toISOString();
+      await this.updateStep(status, 'complete', 'success', 'Sync complete!', onStatusUpdate);
+      
+      this.activeSyncs.delete(id);
+      return true;
+      
+    } catch (error: any) {
+      console.error('[SyncService] Error:', error);
+      const currentStep = status.steps.find(s => s.status === 'processing');
+      if (currentStep) {
+        currentStep.status = 'error';
+        currentStep.detail = error.message || 'Unknown error';
+      }
+      status.error = error.message || 'Sync failed';
+      onStatusUpdate({ ...status });
+      this.activeSyncs.delete(id);
+      return false;
+    }
+  }
+  
+  private async updateStep(
+    status: SyncStatus,
+    stepId: string,
+    newStatus: 'idle' | 'pending' | 'processing' | 'success' | 'error',
+    detail: string,
+    onUpdate: SyncCallback
+  ) {
+    const step = status.steps.find(s => s.id === stepId);
+    if (step) {
+      step.status = newStatus;
+      step.detail = detail;
+      step.timestamp = new Date().toISOString();
+      onUpdate({ ...status });
+    }
+  }
+  
+  private uploadWithProgress(
+    storageRef: any,
+    blob: Blob,
+    onProgress: (progress: number) => void
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          onProgress(progress);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          resolve('uploaded');
+        }
+      );
+    });
+  }
+  
+  getActiveSyncs(): SyncStatus[] {
+    return Array.from(this.activeSyncs.values()).map(s => s.status);
+  }
+  
+  getActiveSync(id: string): SyncStatus | undefined {
+    return this.activeSyncs.get(id)?.status;
+  }
+}
+
+export const syncService = new SyncService();
+
+
+========================================================================
+FILE: src/shoecam/lib/sync-storage.ts
+========================================================================
+
+import { openDB, IDBPDatabase } from 'idb';
+
+const DB_NAME = 'BenchedShoeSyncDB';
+const STORE_NAME = 'shoeUploadQueue';
+
+export interface PendingUpload {
+  id: string;
+  front45Blob: Blob;
+  sideBlob: Blob;
+  topBlob: Blob;
+  labelBlob: Blob;
+  status: 'PENDING' | 'UPLOADING' | 'ERROR';
+  error?: string;
+  retries: number;
+  createdAt: number;
+}
+
+let dbPromise: Promise<IDBPDatabase> | null = null;
+
+function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB(DB_NAME, 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      },
+    });
+  }
+  return dbPromise;
+}
+
+export const syncStorage = {
+  async add(item: PendingUpload) {
+    const db = await getDB();
+    await db.put(STORE_NAME, item);
+  },
+  async getAll(): Promise<PendingUpload[]> {
+    const db = await getDB();
+    return db.getAll(STORE_NAME);
+  },
+  async update(item: PendingUpload) {
+    const db = await getDB();
+    await db.put(STORE_NAME, item);
+  },
+  async remove(id: string) {
+    const db = await getDB();
+    await db.delete(STORE_NAME, id);
+  }
+};
+
+
+========================================================================
+FILE: src/shoecam/lib/types.ts
+========================================================================
+
+export type ShoeStatus = 
+  | 'CAPTURED' 
+  | 'PROCESSING' 
+  | 'NEEDS_REVIEW' 
+  | 'VERIFIED'
+  | 'READY_TO_EXPORT' 
+  | 'ERROR';
+
+export type IdentificationSource = 
+  | 'DATABASE_MATCH' 
+  | 'AI_FALLBACK' 
+  | 'AI_DEEP_SCAN'
+  | 'MANUAL' 
+  | 'ERROR';
+
+export interface QualityMetricsReport {
+  blurScore: number;
+  brightnessScore: number;
+  glarePercentage: number;
+  isAcceptable: boolean;
+}
+
+export interface ShoeImport {
+  id: string;
+  status: ShoeStatus;
+  userId?: string;
+  
+  front45ImagePath: string;
+  sideImagePath: string;
+  topImagePath: string;
+  labelImagePath: string;
+  
+  brand?: string;
+  model?: string;
+  styleCode?: string;
+  sizeUs?: string;
+  colorway?: string;
+  condition?: string;
+  
+  price?: number;
+  description?: string;
+  
+  identificationSource: IdentificationSource;
+  identificationConfidence?: number;
+  
+  qualityReport?: {
+    front45: QualityMetricsReport;
+    side: QualityMetricsReport;
+    top: QualityMetricsReport;
+    label: QualityMetricsReport;
+  };
+  
+  createdAt: number;
+  updatedAt: number;
+  serverTimestamp?: any;
 }
 
 
