@@ -33,6 +33,7 @@ export default function ReviewDetailPage() {
   const [item, setItem] = useState<CardImport | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaveLoading] = useState(false);
+  const [scanningAi, setScanningAi] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -106,6 +107,38 @@ export default function ReviewDetailPage() {
     if (confirm("Delete this capture? Original backups will be purged.")) {
       await deleteDoc(doc(db, "card_imports", item.id));
       router.push('/samcam/review');
+    }
+  };
+
+  const handleAiCheck = async () => {
+    if (!item?.frontImagePath) return;
+    setScanningAi(true);
+    try {
+      const { deepScanCard } = await import('@/ai/flows/deep-scan-card');
+      const aiResult = await deepScanCard(item.frontImagePath);
+      
+      setItem(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          cardName: aiResult.cardName || prev.cardName,
+          setName: aiResult.setName || prev.setName,
+          cardNumber: aiResult.cardNumber || prev.cardNumber,
+          sport: aiResult.sport || prev.sport,
+          year: aiResult.year || prev.year,
+          pokemonCode: aiResult.pokemonCode || prev.pokemonCode,
+          rarity: aiResult.rarity || prev.rarity,
+          isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
+          description: aiResult.description || prev.description,
+          identificationSource: 'AI Deep Scan',
+        };
+      });
+      toast({ title: "AI Check Complete", description: "Successfully extracted additional card details." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Check Failed", description: err.message || "Could not analyze the card image." });
+    } finally {
+      setScanningAi(false);
     }
   };
 
@@ -250,8 +283,20 @@ export default function ReviewDetailPage() {
 
         {/* Metadata Management Section */}
         <div className="space-y-6">
-           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
-             <BadgeCheck className="w-3.5 h-3.5" /> Structured Metadata
+           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center justify-between w-full">
+             <div className="flex items-center gap-2">
+               <BadgeCheck className="w-3.5 h-3.5" /> Structured Metadata
+             </div>
+             <Button 
+               size="sm" 
+               variant="outline" 
+               onClick={(e) => { e.preventDefault(); handleAiCheck(); }} 
+               disabled={scanningAi}
+               className="h-7 text-[10px] font-black uppercase bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
+             >
+               {scanningAi ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Gem className="w-3 h-3 mr-1" />}
+               AI Check
+             </Button>
            </h2>
            
            <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
