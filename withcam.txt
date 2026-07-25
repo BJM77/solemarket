@@ -557,6 +557,7 @@ src/lib/date-utils.ts
 src/lib/ebay/auth.ts
 src/lib/ebay-scraper.ts
 src/lib/email.ts
+src/lib/error-handling.ts
 src/lib/features.ts
 src/lib/firebase/admin.ts
 src/lib/firebase/auth-admin.ts
@@ -22106,34 +22107,22 @@ export async function POST(request: Request) {
 FILE: src/app/api/log-error/route.ts
 ========================================================================
 
-import { NextResponse } from 'next/server';
-import { firestoreDb } from '@/lib/firebase/admin';
+import { NextRequest, NextResponse } from 'next/server';
+import { reportError } from '@/lib/error-handling';
 
-export async function POST(request: Request) {
-    try {
-        const logSecret = process.env.LOG_SECRET;
-        const incomingSecret = request.headers.get('x-log-secret');
-
-        if (!logSecret || incomingSecret !== logSecret) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const errorData = await request.json();
-
-        // Log to Firestore for later review
-        await firestoreDb.collection('errors').add({
-            ...errorData,
-            serverTimestamp: new Date(),
-        });
-
-        // In a real production app, you might also forward this to Sentry or another service
-        console.error('Client-side error logged:', errorData);
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Failed to log client-side error:', error);
-        return NextResponse.json({ success: false }, { status: 500 });
-    }
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    await reportError(body.message || 'Unknown Client Error', {
+      ...body.context,
+      clientTime: body.clientTime,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
+    });
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
 }
 
 
@@ -24761,7 +24750,7 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      const q = analyzeImageQuality(c);
+      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: 150, maxBrightness: 220, maxGlare: 5 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 
@@ -29451,16 +29440,26 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import { headers } from 'next/headers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PwaRegister } from '@/components/layout/PwaRegister';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') || undefined;
+
   return (
     <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
+      <head>
+        <link rel="preconnect" href="https://www.googleapis.com" />
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://js.stripe.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+      </head>
       <body className="font-sans antialiased overflow-x-clip min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />
         <StructuredData />
@@ -34870,7 +34869,7 @@ export default function BenchedPhotoBooth() {
       const yOffset = (v.videoHeight - 1120) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 1120, 0, 0, 800, 1120);
 
-      const q = analyzeImageQuality(c);
+      const q = analyzeImageQuality(c, { minBlur: 15, minBrightness: 80 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 
@@ -43458,7 +43457,7 @@ export default function ShoePhotoBooth() {
         0, 0, cropWidth, cropHeight
       );
 
-      const q = analyzeImageQuality(canvas);
+      const q = analyzeImageQuality(canvas, currentStep === 'LABEL' ? { minBlur: 20 } : undefined);
       setLastQuality(q);
 
       if (!q.isAcceptable) {
@@ -80233,6 +80232,46 @@ export async function sendSellerGhostNudgeEmail({
 
 
 ========================================================================
+FILE: src/lib/error-handling.ts
+========================================================================
+
+export async function reportError(error: Error | string, context: Record<string, any> = {}) {
+  const errorMessage = error instanceof Error ? error.message : error;
+  console.error(`[REPORTED ERROR] ${errorMessage}`, context);
+
+  // Client-side reporting delegating to API route
+  if (typeof window !== 'undefined') {
+    try {
+      await fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: errorMessage, context, clientTime: new Date().toISOString() }),
+      });
+    } catch (e) {
+      console.warn('Failed to send error to log API:', e);
+    }
+    return;
+  }
+
+  // Server-side reporting using Firebase Admin
+  try {
+    const { isFirebaseAdminReady, firestoreDb } = await import('@/lib/firebase/admin');
+    if (isFirebaseAdminReady && firestoreDb) {
+      const admin = await import('firebase-admin');
+      await firestoreDb.collection('system_errors').add({
+        message: errorMessage,
+        context,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        environment: process.env.NODE_ENV,
+      });
+    }
+  } catch (e) {
+    console.error('Failed to log server error to Firestore:', e);
+  }
+}
+
+
+========================================================================
 FILE: src/lib/features.ts
 ========================================================================
 
@@ -80250,19 +80289,19 @@ import { brandConfig } from '@/config/brand';
  */
 export const features = {
     // Marketplace Features
-    wtb: brandConfig.features.enableWTB,
-    bidsy: brandConfig.features.enableBidsy,
-    consignment: brandConfig.features.enableConsignment,
-    vault: brandConfig.features.enableVault,
+    get wtb() { return brandConfig.features.enableWTB; },
+    get bidsy() { return brandConfig.features.enableBidsy; },
+    get consignment() { return brandConfig.features.enableConsignment; },
+    get vault() { return brandConfig.features.enableVault; },
 
     // AI Features
-    aiGrading: brandConfig.features.enableAIGrading,
-    priceAssistant: brandConfig.features.enablePriceAssistant,
-    research: brandConfig.features.enableResearch,
+    get aiGrading() { return brandConfig.features.enableAIGrading; },
+    get priceAssistant() { return brandConfig.features.enablePriceAssistant; },
+    get research() { return brandConfig.features.enableResearch; },
 
     // Business Features
-    partnerProgram: brandConfig.features.enablePartnerProgram,
-} as const;
+    get partnerProgram() { return brandConfig.features.enablePartnerProgram; },
+};
 
 /**
  * Check if a feature is enabled
@@ -82055,6 +82094,7 @@ FILE: src/lib/rate-limiter.ts
 
 import { firestoreDb } from './firebase/admin';
 import * as admin from 'firebase-admin';
+import { reportError } from './error-handling';
 
 /**
  * Persistent rate limiter using Firestore
@@ -82107,10 +82147,11 @@ export async function rateLimit(
         });
         
         return result;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Rate limiter error:', error);
-        // Fallback to allowing the request if rate limiter fails (fail-open)
-        return { success: true, remaining: 1, reset: now + (windowSeconds * 1000) };
+        // Fail closed safely and report error to Firestore system log
+        await reportError(error, { identifier, action, limit, windowSeconds });
+        return { success: false, remaining: 0, reset: now + 60000 };
     }
 }
 
@@ -87203,7 +87244,15 @@ function estimateColorTemperature(r: number, g: number, b: number): number {
   return Math.round(6500 - (ratio * 3500));
 }
 
-export function analyzeImageQuality(canvas: HTMLCanvasElement): QualityMetrics {
+export interface QualityThresholds {
+  minBlur?: number;
+  minBrightness?: number;
+  maxBrightness?: number;
+  maxGlare?: number;
+  minContrast?: number;
+}
+
+export function analyzeImageQuality(canvas: HTMLCanvasElement, options?: QualityThresholds): QualityMetrics {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('Could not get canvas context');
 
@@ -87279,12 +87328,18 @@ export function analyzeImageQuality(canvas: HTMLCanvasElement): QualityMetrics {
     scores.sharpness * 0.25
   );
 
+  const minBlur = options?.minBlur ?? 10;
+  const minBrightness = options?.minBrightness ?? 50;
+  const maxBrightness = options?.maxBrightness ?? 200;
+  const maxGlare = options?.maxGlare ?? 15;
+  const minContrast = options?.minContrast ?? 30;
+
   const messages: string[] = [];
-  if (brightnessScore < 50) messages.push('TOO DARK');
-  if (brightnessScore > 200) messages.push('TOO BRIGHT');
-  if (glarePercentage > 15) messages.push('REDUCE GLARE');
-  if (blurScore < 10) messages.push('NOT IN FOCUS');
-  if (contrastScore < 30) messages.push('LOW CONTRAST');
+  if (brightnessScore < minBrightness) messages.push('TOO DARK');
+  if (brightnessScore > maxBrightness) messages.push('TOO BRIGHT');
+  if (glarePercentage > maxGlare) messages.push('REDUCE GLARE');
+  if (blurScore < minBlur) messages.push('NOT IN FOCUS');
+  if (contrastScore < minContrast) messages.push('LOW CONTRAST');
 
   return {
     blurScore: Math.round(blurScore),

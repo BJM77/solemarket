@@ -1,5 +1,6 @@
 import { firestoreDb } from './firebase/admin';
 import * as admin from 'firebase-admin';
+import { reportError } from './error-handling';
 
 /**
  * Persistent rate limiter using Firestore
@@ -52,9 +53,10 @@ export async function rateLimit(
         });
         
         return result;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Rate limiter error:', error);
-        // Fallback to allowing the request if rate limiter fails (fail-open)
-        return { success: true, remaining: 1, reset: now + (windowSeconds * 1000) };
+        // Fail closed safely and report error to Firestore system log
+        await reportError(error, { identifier, action, limit, windowSeconds });
+        return { success: false, remaining: 0, reset: now + 60000 };
     }
 }

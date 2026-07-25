@@ -241,7 +241,7 @@ export default function ShoePhotoBooth() {
         0, 0, cropWidth, cropHeight
       );
 
-      const q = analyzeImageQuality(canvas);
+      const q = analyzeImageQuality(canvas, currentStep === 'LABEL' ? { minBlur: 20 } : undefined);
       setLastQuality(q);
 
       if (!q.isAcceptable) {

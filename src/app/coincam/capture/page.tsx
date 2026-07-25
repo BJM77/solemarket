@@ -294,7 +294,7 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      const q = analyzeImageQuality(c);
+      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: 150, maxBrightness: 220, maxGlare: 5 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 

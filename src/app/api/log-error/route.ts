@@ -1,29 +1,17 @@
-import { NextResponse } from 'next/server';
-import { firestoreDb } from '@/lib/firebase/admin';
+import { NextRequest, NextResponse } from 'next/server';
+import { reportError } from '@/lib/error-handling';
 
-export async function POST(request: Request) {
-    try {
-        const logSecret = process.env.LOG_SECRET;
-        const incomingSecret = request.headers.get('x-log-secret');
-
-        if (!logSecret || incomingSecret !== logSecret) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const errorData = await request.json();
-
-        // Log to Firestore for later review
-        await firestoreDb.collection('errors').add({
-            ...errorData,
-            serverTimestamp: new Date(),
-        });
-
-        // In a real production app, you might also forward this to Sentry or another service
-        console.error('Client-side error logged:', errorData);
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Failed to log client-side error:', error);
-        return NextResponse.json({ success: false }, { status: 500 });
-    }
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    await reportError(body.message || 'Unknown Client Error', {
+      ...body.context,
+      clientTime: body.clientTime,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
+    });
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
 }

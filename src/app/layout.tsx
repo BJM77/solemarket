@@ -107,16 +107,26 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import { headers } from 'next/headers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PwaRegister } from '@/components/layout/PwaRegister';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') || undefined;
+
   return (
     <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
+      <head>
+        <link rel="preconnect" href="https://www.googleapis.com" />
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://js.stripe.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+      </head>
       <body className="font-sans antialiased overflow-x-clip min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />
         <StructuredData />

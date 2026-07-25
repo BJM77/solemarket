@@ -12,19 +12,19 @@ import { brandConfig } from '@/config/brand';
  */
 export const features = {
     // Marketplace Features
-    wtb: brandConfig.features.enableWTB,
-    bidsy: brandConfig.features.enableBidsy,
-    consignment: brandConfig.features.enableConsignment,
-    vault: brandConfig.features.enableVault,
+    get wtb() { return brandConfig.features.enableWTB; },
+    get bidsy() { return brandConfig.features.enableBidsy; },
+    get consignment() { return brandConfig.features.enableConsignment; },
+    get vault() { return brandConfig.features.enableVault; },
 
     // AI Features
-    aiGrading: brandConfig.features.enableAIGrading,
-    priceAssistant: brandConfig.features.enablePriceAssistant,
-    research: brandConfig.features.enableResearch,
+    get aiGrading() { return brandConfig.features.enableAIGrading; },
+    get priceAssistant() { return brandConfig.features.enablePriceAssistant; },
+    get research() { return brandConfig.features.enableResearch; },
 
     // Business Features
-    partnerProgram: brandConfig.features.enablePartnerProgram,
-} as const;
+    get partnerProgram() { return brandConfig.features.enablePartnerProgram; },
+};
 
 /**
  * Check if a feature is enabled

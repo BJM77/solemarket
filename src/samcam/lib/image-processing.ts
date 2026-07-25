@@ -97,7 +97,15 @@ function estimateColorTemperature(r: number, g: number, b: number): number {
   return Math.round(6500 - (ratio * 3500));
 }
 
-export function analyzeImageQuality(canvas: HTMLCanvasElement): QualityMetrics {
+export interface QualityThresholds {
+  minBlur?: number;
+  minBrightness?: number;
+  maxBrightness?: number;
+  maxGlare?: number;
+  minContrast?: number;
+}
+
+export function analyzeImageQuality(canvas: HTMLCanvasElement, options?: QualityThresholds): QualityMetrics {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('Could not get canvas context');
 
@@ -173,12 +181,18 @@ export function analyzeImageQuality(canvas: HTMLCanvasElement): QualityMetrics {
     scores.sharpness * 0.25
   );
 
+  const minBlur = options?.minBlur ?? 10;
+  const minBrightness = options?.minBrightness ?? 50;
+  const maxBrightness = options?.maxBrightness ?? 200;
+  const maxGlare = options?.maxGlare ?? 15;
+  const minContrast = options?.minContrast ?? 30;
+
   const messages: string[] = [];
-  if (brightnessScore < 50) messages.push('TOO DARK');
-  if (brightnessScore > 200) messages.push('TOO BRIGHT');
-  if (glarePercentage > 15) messages.push('REDUCE GLARE');
-  if (blurScore < 10) messages.push('NOT IN FOCUS');
-  if (contrastScore < 30) messages.push('LOW CONTRAST');
+  if (brightnessScore < minBrightness) messages.push('TOO DARK');
+  if (brightnessScore > maxBrightness) messages.push('TOO BRIGHT');
+  if (glarePercentage > maxGlare) messages.push('REDUCE GLARE');
+  if (blurScore < minBlur) messages.push('NOT IN FOCUS');
+  if (contrastScore < minContrast) messages.push('LOW CONTRAST');
 
   return {
     blurScore: Math.round(blurScore),
