@@ -1,0 +1,5 @@
+Contact: mailto:security@benched.au
+Expires: 2027-12-31T23:59:00.000Z
+Preferred-Languages: en
+Canonical: https://benched.au/.well-known/security.txt
+Policy: https://benched.au/privacy

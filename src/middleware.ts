@@ -55,6 +55,10 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('X-Content-Type-Options', 'nosniff');
   requestHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   requestHeaders.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
+  requestHeaders.set('X-XSS-Protection', '1; mode=block');
+  if (!isDev) {
+    requestHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
 
   // 1. Critical Bypass: Allow internal Next.js and all static files to pass through instantly.
   // This prevents MIME-type errors and ChunkLoadErrors during development.
@@ -76,6 +80,10 @@ export async function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  if (!isDev) {
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
 
   // 1.5. SEO Rules (Noindex parametric search pages to prevent crawl bloat)
   const searchParams = request.nextUrl.searchParams;
