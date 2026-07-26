@@ -79,7 +79,7 @@ export default function AdminSidebar() {
     const { user } = useUser();
     const { isSidebarOpen, setIsSidebarOpen, isHovered } = useSidebar();
 
-    // Track mobile stats to handle click-outside or close-on-navigate
+    // Track mobile status
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -89,13 +89,12 @@ export default function AdminSidebar() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Ensure sidebar is closed when on mobile initially.
+    // Auto-close sidebar on mobile whenever the page/pathname changes
     useEffect(() => {
         if (isMobile) {
             setIsSidebarOpen(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMobile, pathname]);
+    }, [pathname, isMobile, setIsSidebarOpen]);
 
     const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 
