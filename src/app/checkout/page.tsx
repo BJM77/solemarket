@@ -84,27 +84,6 @@ export default function CheckoutPage() {
     setPromoError(null);
   };
 
-  // Populate address inputs when context updates
-  useEffect(() => {
-    if (shippingAddress) {
-      setFullName(shippingAddress.fullName);
-      setStreet(shippingAddress.street);
-      setCity(shippingAddress.city);
-      setState(shippingAddress.state);
-      setZip(shippingAddress.zip);
-      setPhone(shippingAddress.phone || '');
-    }
-  }, [shippingAddress]);
-
-  if (isUserLoading) {
-    return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-slate-400">Loading your profile...</p>
-      </div>
-    );
-  }
-
   // Guest email state (when user is not signed in)
   const [guestEmail, setGuestEmail] = useState('');
 
@@ -124,6 +103,18 @@ export default function CheckoutPage() {
     const s = seconds % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
+
+  // Populate address inputs when context updates
+  useEffect(() => {
+    if (shippingAddress) {
+      setFullName(shippingAddress.fullName);
+      setStreet(shippingAddress.street);
+      setCity(shippingAddress.city);
+      setState(shippingAddress.state);
+      setZip(shippingAddress.zip);
+      setPhone(shippingAddress.phone || '');
+    }
+  }, [shippingAddress]);
 
   if (isUserLoading) {
     return (
