@@ -30,7 +30,7 @@ const Sidebar = React.forwardRef<
       }}
       className={cn(
         "flex flex-col border-r transition-all duration-300 ease-in-out bg-background z-40",
-        effectiveOpen ? "w-64" : "w-0 lg:w-20 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto border-none lg:border-r",
+        effectiveOpen ? "w-64 pointer-events-auto" : "w-0 lg:w-20 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto border-none lg:border-r",
         className
       )}
       {...props}
