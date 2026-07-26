@@ -10,8 +10,10 @@ const DeepScanShoeOutputSchema = z.object({
   sizeUs: z.string().describe('The US size of the shoe (e.g. 10.5, 9, 12W) printed on the label.'),
   colorway: z.string().optional().describe('The official colorway name (e.g. Bred, Wave Runner, Panda, UNC) or description.'),
   condition: z.string().optional().describe('Condition estimate if discernible, otherwise standard description.'),
-  price: z.number().nullable().optional().describe('The estimated retail or resale market price in USD, if discernible.'),
+  price: z.number().nullable().optional().describe('The estimated retail or resale market price in AUD, if discernible.'),
   description: z.string().optional().describe('A detailed and engaging product listing description highlighting the sneaker design, history, and specifications.'),
+  subCategory: z.string().optional().describe('The sub-category or model classification (e.g. Jordan, Running, Retro, Basketball).'),
+  year: z.number().nullable().optional().describe('The release year of the shoe if visible or known.'),
 });
 
 export type DeepScanShoeOutput = z.infer<typeof DeepScanShoeOutputSchema>;
@@ -42,9 +44,11 @@ export async function deepScanShoe(
 - model: The model name (e.g. Air Jordan 1 Retro High, Yeezy Boost 350 V2)
 - styleCode: The product SKU / style code printed on the label (e.g., 555088-061, BB550WT1)
 - sizeUs: The US shoe size printed on the label
-- colorway: The colorway if discernible
-- price: An estimated resale/retail market price in USD for this model
-- description: Write an engaging 2-3 sentence marketplace description for this shoe.` },
+- colorway: The colorway if discernible (e.g. Bred Toe, Wave Runner, Panda)
+- price: An estimated resale/retail market price in AUD for this model
+- description: Write an engaging 2-3 sentence marketplace description for this shoe.
+- subCategory: The sub-category (e.g. Jordan, Dunk, Yeezy, Running, Retro)
+- year: The release year as a number (e.g. 2018)` },
         { media: { url: mediaUrl } }
       ],
       output: {

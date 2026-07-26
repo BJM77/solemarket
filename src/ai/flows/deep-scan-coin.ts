@@ -13,7 +13,12 @@ const DeepScanCoinOutputSchema = z.object({
   composition: z.string().optional().describe('The metal composition if discernable (e.g. Silver, Gold, Copper).'),
   rarity: z.string().optional().describe('The rarity or collector notes (e.g. Proof, Low Mintage).'),
   isRare: z.boolean().optional().describe('Whether this coin is considered highly rare or a premium collector item.'),
-  description: z.string().optional().describe('A small engaging description of the coin for a marketplace listing.'),
+  description: z.string().optional().describe('A rich, engaging description of the coin commemorating its significance for a marketplace listing.'),
+  price: z.number().optional().describe('Estimated market value in AUD as a number (e.g. 15, 150).'),
+  condition: z.string().optional().describe('The strike condition / grade (e.g. "New", "Brilliant Uncirculated", "Proof", "Circulated").'),
+  subCategory: z.string().optional().describe('The sub-category (e.g. "Australian Coins", "World Coins", "Error Coins").'),
+  brand: z.string().optional().describe('The minting authority or brand (e.g. "Royal Australian Mint", "Perth Mint", "US Mint").'),
+  model: z.string().optional().describe('The model or denomination of the coin (e.g. "$2", "$1", "50c").'),
 });
 
 export type DeepScanCoinOutput = z.infer<typeof DeepScanCoinOutputSchema>;
@@ -39,7 +44,7 @@ export async function deepScanCoin(
     const result = await ai.generate({
       model: 'googleai/gemini-flash-latest',
       prompt: [
-        { text: `You are a professional coin grading and numismatic expert. Analyze this coin image and extract details for the output schema.
+        { text: `You are a professional coin grading and numismatic expert. Analyze this coin image and extract details for the output schema:
 - coinName: The name or commemorative theme of the coin (required)
 - setName: The series or set name (e.g. Australian Nugget Series)
 - denomination: The face value or denomination (e.g. $1, 50c, Penny)
@@ -49,7 +54,12 @@ export async function deepScanCoin(
 - composition: The metal composition (Gold, Silver, Bronze, etc.)
 - rarity: Rarity/strike type notes (e.g. Proof, Specimen, Low Mintage)
 - isRare: Boolean, true if the coin is considered rare or highly collectible
-- description: A short, engaging sentence or paragraph describing the coin for a listing.` },
+- description: A rich, engaging paragraph describing the coin and its historical/collectible context for a marketplace listing.
+- price: Estimate the market value of the coin in AUD as a number (e.g. 5, 15, 150).
+- condition: The strike condition / grade (e.g. "New", "Brilliant Uncirculated", "Proof", "Circulated").
+- subCategory: The sub-category (e.g. "Australian Coins", "World Coins", "Error Coins").
+- brand: The minting authority or brand (e.g. "Royal Australian Mint", "Perth Mint", "US Mint"). Set to "Royal Australian Mint" if it is an Australian coin.
+- model: The model or denomination of the coin (e.g. "$2", "$1", "50c").` },
         { media: { url: mediaUrl } }
       ],
       output: {

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -98,14 +99,9 @@ export default function ProductImageGallery({
   };
 
   const getAspectRatio = (cat?: string) => {
-    switch (cat) {
-      case 'Coins': return 'aspect-square';
-      case 'Memorabilia':
-      case 'Collectibles':
-      case 'General': return 'aspect-video';
-      case 'Collector Cards':
-      default: return 'aspect-[5/7]';
-    }
+    if (isCoinCategory(cat)) return 'aspect-square';
+    if (isCardCategory(cat)) return 'aspect-[5/7]';
+    return 'aspect-square';
   };
 
   const aspectRatio = getAspectRatio(category);

@@ -39,6 +39,8 @@ export interface ShoeImport {
   
   price?: number;
   description?: string;
+  subCategory?: string;
+  year?: number;
   
   identificationSource: IdentificationSource;
   identificationConfidence?: number;

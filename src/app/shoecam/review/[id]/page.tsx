@@ -64,8 +64,13 @@ export default function ShoeReviewDetailPage() {
         imageUrls: [item.front45ImagePath, item.sideImagePath, item.topImagePath, item.labelImagePath].filter(Boolean),
         sellerId: user.uid,
         status: 'available',
-        category: 'sneakers',
+        category: 'Sneakers',
+        brand: item.brand || '',
+        model: item.model || '',
         condition: item.condition || 'New',
+        year: item.year || null,
+        subCategory: item.subCategory || 'Jordan',
+        size: item.sizeUs || '',
         quantity: 1,
         createdAt: Date.now(),
         isDraft: false,
@@ -76,6 +81,8 @@ export default function ShoeReviewDetailPage() {
           sizeUs: item.sizeUs || '',
           colorway: item.colorway || '',
           condition: item.condition || '',
+          subCategory: item.subCategory || 'Jordan',
+          year: item.year || '',
         }
       });
 
@@ -121,6 +128,8 @@ export default function ShoeReviewDetailPage() {
           colorway: aiResult.colorway || prev.colorway,
           price: aiResult.price || prev.price,
           description: aiResult.description || prev.description,
+          subCategory: aiResult.subCategory || prev.subCategory,
+          year: aiResult.year || prev.year,
           identificationSource: 'AI_DEEP_SCAN',
         };
       });
@@ -288,6 +297,25 @@ export default function ShoeReviewDetailPage() {
                           value={item.colorway || ''} 
                           onChange={e => setItem({...item, colorway: e.target.value})}
                           className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sub-Category</Label>
+                        <Input 
+                          value={item.subCategory || ''} 
+                          onChange={e => setItem({...item, subCategory: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. Jordan"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Release Year</Label>
+                        <Input 
+                          type="number"
+                          value={item.year || ''} 
+                          onChange={e => setItem({...item, year: parseInt(e.target.value)})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. 2018"
                         />
                       </div>
 

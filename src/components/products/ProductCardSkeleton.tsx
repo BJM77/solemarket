@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ProductCardSkeleton({ aspectRatio = "aspect-[5/7]" }: { aspectRatio?: string }) {
+export default function ProductCardSkeleton({ aspectRatio = "aspect-square" }: { aspectRatio?: string }) {
   return (
     <Card className="overflow-hidden rounded-lg shadow-md h-full">
       <CardContent className="p-0">

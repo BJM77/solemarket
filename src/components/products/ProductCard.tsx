@@ -47,7 +47,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
 import { SmartImage } from './SmartImage';
-import { isCardCategory } from '@/lib/constants/marketplace';
+import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 
 
 
@@ -452,6 +452,9 @@ export default function ProductCard({
 
   const getFormattedDate = formatRelativeTime;
   const getAspectRatio = (category: string) => {
+    if (isCardCategory(category)) {
+      return 'aspect-[5/7]';
+    }
     return 'aspect-square';
   };
 

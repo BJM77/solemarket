@@ -40,6 +40,10 @@ export interface CoinImport {
   
   price?: number;
   description?: string;
+  condition?: string;
+  subCategory?: string;
+  brand?: string;
+  model?: string;
   
   identificationSource: IdentificationSource;
   identificationConfidence?: number;

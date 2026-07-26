@@ -65,8 +65,12 @@ export default function CoinReviewDetailPage() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user.uid,
         status: 'available',
-        category: 'coins',
-        condition: item.composition || 'Circulated',
+        category: 'Coins',
+        brand: item.brand || 'Royal Australian Mint',
+        model: item.model || item.denomination || '',
+        condition: item.condition || item.composition || 'New',
+        year: item.year || null,
+        subCategory: item.subCategory || 'Australian Coins',
         quantity: 1,
         createdAt: Date.now(),
         isDraft: false,
@@ -80,6 +84,10 @@ export default function CoinReviewDetailPage() {
           composition: item.composition || '',
           rarity: item.rarity || '',
           isRare: item.isRare || false,
+          brand: item.brand || 'Royal Australian Mint',
+          model: item.model || '',
+          subCategory: item.subCategory || 'Australian Coins',
+          condition: item.condition || '',
         }
       });
 
@@ -129,6 +137,11 @@ export default function CoinReviewDetailPage() {
           rarity: aiResult.rarity || prev.rarity,
           isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
           description: aiResult.description || prev.description,
+          price: aiResult.price || prev.price,
+          condition: aiResult.condition || prev.condition,
+          subCategory: aiResult.subCategory || prev.subCategory,
+          brand: aiResult.brand || prev.brand,
+          model: aiResult.model || prev.model,
           identificationSource: 'AI_DEEP_SCAN',
         };
       });
@@ -327,15 +340,51 @@ export default function CoinReviewDetailPage() {
                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
                        />
                      </div>
-                     <div className="space-y-1.5">
-                       <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Metal Composition</Label>
-                       <Input 
-                         value={item.composition || ''} 
-                         onChange={e => setItem({...item, composition: e.target.value})}
-                         className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
-                         placeholder="e.g. 90% Silver, Copper"
-                       />
-                     </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Metal Composition</Label>
+                        <Input 
+                          value={item.composition || ''} 
+                          onChange={e => setItem({...item, composition: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. 90% Silver, Copper"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Brand / Mint</Label>
+                        <Input 
+                          value={item.brand || ''} 
+                          onChange={e => setItem({...item, brand: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. Royal Australian Mint"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Model</Label>
+                        <Input 
+                          value={item.model || ''} 
+                          onChange={e => setItem({...item, model: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. $2"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sub-Category</Label>
+                        <Input 
+                          value={item.subCategory || ''} 
+                          onChange={e => setItem({...item, subCategory: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. Australian Coins"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Condition Guide</Label>
+                        <Input 
+                          value={item.condition || ''} 
+                          onChange={e => setItem({...item, condition: e.target.value})}
+                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          placeholder="e.g. Brilliant Uncirculated, New"
+                        />
+                      </div>
                      
                      <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
                        <div className="space-y-0.5">

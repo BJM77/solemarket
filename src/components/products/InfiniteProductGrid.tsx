@@ -372,7 +372,7 @@ function InfiniteProductGridInner({
   const skeletonAspectRatio = useMemo(() => {
     const category = currentSearchParams.category || initialFilterState.category;
     if (category === 'Sneakers') return 'aspect-square';
-    if (category === 'Collector Cards' || category === 'Trading Cards') return 'aspect-square';
+    if (category === 'Collector Cards' || category === 'Trading Cards') return 'aspect-[5/7]';
     return 'aspect-square';
   }, [currentSearchParams.category, initialFilterState.category]);
 

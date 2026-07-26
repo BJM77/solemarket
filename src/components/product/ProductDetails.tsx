@@ -49,6 +49,7 @@ import { Input } from '@/components/ui/input';
 import { Bid } from '@/lib/types';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
+import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 
 // Define types
 interface Seller extends UserProfile {
@@ -352,8 +353,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
         }
     };
 
-    const isCard = product.category === 'Collector Cards';
-    const isCoin = product.category === 'Coins';
+    const isCard = isCardCategory(product.category);
+    const isCoin = isCoinCategory(product.category);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -372,7 +373,9 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         <div
                             className={cn(
                                 'relative bg-gray-100 border overflow-hidden',
-                                isCoin ? 'aspect-square rounded-full' : 'aspect-square rounded-2xl'
+                                isCoin ? 'aspect-square rounded-full' :
+                                isCard ? 'aspect-[5/7] rounded-2xl' :
+                                'aspect-square rounded-2xl'
                             )}
                         >
                             <Image
