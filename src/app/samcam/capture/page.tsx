@@ -300,7 +300,7 @@ export default function BenchedPhotoBooth() {
       const yOffset = (v.videoHeight - 1120) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 1120, 0, 0, 800, 1120);
 
-      const q = analyzeImageQuality(c, { minBlur: 15, minBrightness: 80 });
+      const q = analyzeImageQuality(c, { minBlur: 15, minBrightness: 50 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 

@@ -67,7 +67,10 @@ export default function ReviewDetailPage() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user.uid,
         status: 'available',
-        category: 'trading-cards',
+        category: 'Collector Cards',
+        brand: item.manufacturer || 'Panini',
+        model: item.setName || '',
+        subCategory: item.subCategory || 'Sports Cards',
         condition: item.condition || 'Near Mint',
         quantity: 1,
         createdAt: Date.now(),
@@ -82,6 +85,8 @@ export default function ReviewDetailPage() {
           pokemonCode: item.pokemonCode || '',
           isRare: item.isRare || false,
           rarity: item.rarity || '',
+          brand: item.manufacturer || 'Panini',
+          subCategory: item.subCategory || 'Sports Cards',
         }
       });
 
