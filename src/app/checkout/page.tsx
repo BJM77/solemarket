@@ -105,21 +105,31 @@ export default function CheckoutPage() {
     );
   }
 
-  if (!user) {
+  // Guest email state (when user is not signed in)
+  const [guestEmail, setGuestEmail] = useState('');
+
+  // 10-Minute Cart Hold Reservation Timer (Option 4)
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [items.length]);
+
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  if (isUserLoading) {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center px-4">
-        <Card className="max-w-md w-full bg-[#0c1120] border-white/10 p-8 text-center space-y-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Shield className="h-8 w-8 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold">Authentication Required</h1>
-            <p className="text-slate-400">Please sign in or create an account to proceed to checkout.</p>
-          </div>
-          <Button className="w-full h-12 font-bold" onClick={() => router.push(`/sign-in?redirect=/checkout`)}>
-            Sign In
-          </Button>
-        </Card>
+      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-slate-400">Loading your profile...</p>
       </div>
     );
   }
@@ -146,6 +156,15 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user && !guestEmail) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter your email address to receive order updates.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (shippingMethod === 'shipping' && (!fullName || !street || !city || !state || !zip)) {
       toast({
         title: 'Missing Shipping Information',
@@ -158,7 +177,15 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      const idToken = await user.getIdToken();
+      let activeUser = user;
+      if (!activeUser) {
+        const { auth } = await import('@/lib/firebase/config');
+        const { signInAnonymously } = await import('firebase/auth');
+        const userCred = await signInAnonymously(auth);
+        activeUser = userCred.user;
+      }
+
+      const idToken = await activeUser.getIdToken();
       const cartItemsForAction = items.map((item) => ({
         id: item.id,
         quantity: item.quantity,
@@ -188,7 +215,7 @@ export default function CheckoutPage() {
           zip,
         } : undefined,
         paymentMethod,
-        idempotencyKey: `ord_${user.uid}_${Date.now()}`,
+        idempotencyKey: `ord_${activeUser.uid}_${Date.now()}`,
         discountCode: appliedPromo || undefined,
       };
 
@@ -231,7 +258,19 @@ export default function CheckoutPage() {
           Back
         </Button>
 
-        <h1 className="text-3xl font-black mb-4 tracking-tight uppercase">Checkout</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <h1 className="text-3xl font-black tracking-tight uppercase">Checkout</h1>
+
+          {/* Option 4: Inventory Hold Reservation Timer */}
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <span>Item held for:</span>
+            <span className="font-mono text-sm text-amber-300">{formatTimer(timeLeft)}</span>
+          </div>
+        </div>
 
         {/* Escrow Trust Banner */}
         <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-300">
@@ -292,6 +331,25 @@ export default function CheckoutPage() {
                     </div>
                   </Label>
                 </RadioGroup>
+
+                {!user && (
+                  <div className="space-y-4 pb-4 border-b border-white/5">
+                    <h3 className="font-bold text-white text-sm">Contact Information</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestEmail" className="text-xs font-semibold text-slate-400 uppercase">Email Address (for Order Confirmation & Tracking)</Label>
+                      <Input 
+                        id="guestEmail" 
+                        type="email"
+                        required 
+                        autoComplete="email"
+                        className="bg-[#020617] border-white/10" 
+                        placeholder="you@example.com"
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {shippingMethod === 'shipping' && (
                   <div className="space-y-4 pt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
