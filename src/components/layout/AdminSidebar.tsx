@@ -99,14 +99,15 @@ export default function AdminSidebar() {
     const effectiveOpen = isSidebarOpen || (isHovered && !isMobile);
 
     return (
-        <Sidebar>
+        <>
             {isMobile && isSidebarOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 z-[35] lg:hidden animate-in fade-in"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
-            <SidebarHeader className="p-6">
+            <Sidebar>
+                <SidebarHeader className="p-6">
                 <div className="flex items-center justify-between w-full">
                     {effectiveOpen ? (
                         <Link href="/admin" className="block transform transition-transform hover:scale-105">
@@ -248,6 +249,7 @@ export default function AdminSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
-        </Sidebar>
+            </Sidebar>
+        </>
     );
 }
