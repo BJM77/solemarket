@@ -17,7 +17,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                 <div className="max-w-4xl mx-auto text-center">
 
                     {/* H1 for SEO & Accessibility */}
-                    <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
                         AUSTRALIA'S PREMIER <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">MARKETPLACE.</span>
                     </h1>
