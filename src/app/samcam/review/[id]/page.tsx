@@ -157,23 +157,24 @@ export default function ReviewDetailPage() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+      <header className="flex flex-wrap items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm gap-2">
+        <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/samcam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
-            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-white">Verification Workspace</h1>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Client ID: {item.id.substring(0,8)}</p>
+          <div className="min-w-0">
+            <h1 className="text-sm md:text-lg font-black uppercase font-headline tracking-tighter text-white truncate">Verification</h1>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest truncate">ID: {item.id.substring(0,8)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
-             <Trash2 className="w-4 h-4 mr-1" /> Remove
+        <div className="flex items-center gap-2 shrink-0">
+           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px] px-2 md:px-3" onClick={handleDelete}>
+             <Trash2 className="w-4 h-4 md:mr-1" /> <span className="hidden md:inline">Remove</span>
            </Button>
-           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
-             {saving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
-             Confirm & Verify
+           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-3 md:px-6" onClick={handleUpdate} disabled={saving}>
+             {saving ? <Loader2 className="w-3 h-3 animate-spin md:mr-1" /> : <Save className="w-3 h-3 md:mr-1" />}
+             <span className="hidden md:inline">Confirm & Verify</span>
+             <span className="inline md:hidden">Submit</span>
            </Button>
         </div>
       </header>
@@ -445,6 +446,17 @@ export default function ReviewDetailPage() {
                         />
                       </div>
                     </div>
+                  </div>
+                  
+                  <div className="pt-6">
+                    <Button 
+                      className="w-full bg-primary text-black hover:bg-primary/90 font-black uppercase tracking-wider py-6"
+                      onClick={(e) => { e.preventDefault(); handleUpdate(); }}
+                      disabled={saving}
+                    >
+                      {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                      Submit to Bench
+                    </Button>
                   </div>
                 </form>
              </CardContent>

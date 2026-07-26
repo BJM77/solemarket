@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Store, TrendingUp, ShieldCheck, BookOpen, Search, Gavel, LineChart } from "lucide-react";
+import { ChevronDown, Store, TrendingUp, ShieldCheck, BookOpen, Search, Gavel, LineChart, LayoutGrid } from "lucide-react";
 
 export function MainNavLinks() {
   const { user } = useUser();
@@ -53,6 +53,13 @@ export function MainNavLinks() {
               <Link href="/top-stores" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
                 <TrendingUp className="h-4 w-4" />
                 Top 10 Stores
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
+              <Link href="/multilisting-deals" className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                <LayoutGrid className="h-4 w-4 text-emerald-500" />
+                Bundle Deals
               </Link>
             </DropdownMenuItem>
 

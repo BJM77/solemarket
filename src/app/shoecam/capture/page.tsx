@@ -63,8 +63,8 @@ export default function ShoePhotoBooth() {
   const createdUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    const urls = createdUrlsRef.current;
     return () => {
-      const urls = createdUrlsRef.current;
       urls.forEach(url => {
         try {
           URL.revokeObjectURL(url);
@@ -89,6 +89,7 @@ export default function ShoePhotoBooth() {
   });
   const [showHUD, setShowHUD] = useState(true);
   const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -134,7 +135,7 @@ export default function ShoePhotoBooth() {
         activeStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [deviceProfile, toast]);
+  }, [deviceProfile, toast, errorLog]);
 
   // Load existing Queue
   useEffect(() => {

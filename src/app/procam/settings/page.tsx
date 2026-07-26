@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, XCircle, RefreshCw, Server, ShieldCheck, FileKey2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ export default function SettingsPage() {
   
   const [isChecking, setIsChecking] = useState(false);
 
-  const runDiagnostics = async () => {
+  const runDiagnostics = useCallback(async () => {
     setIsChecking(true);
     setNetworkMessage('Pinging Benched API...');
     
@@ -66,13 +66,13 @@ export default function SettingsPage() {
     }
     
     setIsChecking(false);
-  };
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (!authLoading) {
       runDiagnostics();
     }
-  }, [authLoading, user]);
+  }, [authLoading, runDiagnostics]);
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">

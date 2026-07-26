@@ -210,6 +210,7 @@ export default function ProductImageGallery({
                         fill
                         className="object-contain"
                         priority={index === 0}
+                        fetchPriority={index === 0 ? "high" : "auto"}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
                         sizes="(max-width: 768px) 100vw, 800px"

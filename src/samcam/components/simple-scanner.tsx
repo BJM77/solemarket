@@ -122,9 +122,10 @@ export default function SimpleScanner() {
   useEffect(() => {
     startCamera();
     
+    const videoElement = videoRef.current;
     return () => {
-      if (videoRef.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
+      if (videoElement?.srcObject) {
+        const stream = videoElement.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
       }
     };

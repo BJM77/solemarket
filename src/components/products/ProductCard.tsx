@@ -804,10 +804,10 @@ export default function ProductCard({
   // Grid View (default) - new style
   return (
     <div className={cn(
-      "group relative flex flex-col dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift",
+      "group relative flex flex-col dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift max-w-full w-full",
       selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
     )} onClick={() => selectable && onToggleSelect?.()}>
-      <div className={cn("bg-muted/30 relative overflow-hidden shrink-0", imageAspectRatio)}>
+      <div className={cn("bg-muted/30 relative overflow-hidden shrink-0 w-full", imageAspectRatio)}>
 
         {selectable && (
           <div className="absolute top-3 left-3 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
@@ -817,13 +817,13 @@ export default function ProductCard({
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
           {product.status === 'pending_approval' && (
-            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto">
+            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
               <Clock className="h-3 w-3" />
               WAITING FOR MINUTES
             </Badge>
           )}
           {product.status === 'sold' && (
-            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase">
+            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
               CHECKED IN
             </Badge>
           )}
@@ -982,9 +982,9 @@ export default function ProductCard({
         </Link>
       )}
 
-      <div className="p-3 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none">
-        <div className="flex justify-between items-start mb-1 sm:mb-2">
-          <h3 className="text-sm sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2.5rem] sm:min-h-0">
+      <div className="p-2.5 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none min-w-0 overflow-hidden">
+        <div className="flex justify-between items-start mb-1 sm:mb-2 min-w-0">
+          <h3 className="text-xs sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2rem] sm:min-h-0 min-w-0 break-words">
             {product.title}
           </h3>
           <div className="flex flex-col items-end gap-1 shrink-0">
@@ -996,9 +996,9 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 mt-1 mb-2 pointer-events-auto px-0.5 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-1.5 mt-0.5 mb-1.5 pointer-events-auto px-0.5 overflow-x-auto scrollbar-hide min-w-0">
           {product.oldPrice && product.oldPrice > product.price && (
-            <Badge variant="default" className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 animate-pulse">
+            <Badge variant="default" className="bg-red-600 text-white text-[8px] font-black px-1 py-0.5 rounded uppercase flex-shrink-0 animate-pulse">
               🔥 Price Drop
             </Badge>
           )}
@@ -1006,42 +1006,42 @@ export default function ProductCard({
             <AvatarImage src={product.sellerAvatar || ''} />
             <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
           </Avatar>
-          <span className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate max-w-[100px]">{product.sellerName || 'Benched'}</span>
+          <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">{product.sellerName || 'Benched'}</span>
           {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
         </div>
 
-        <div className="flex items-end justify-between mt-2 sm:mt-4 flex-grow">
-          <div className="pointer-events-auto">
-            <p className="text-[10px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
-            <div className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+        <div className="flex flex-wrap items-end justify-between mt-1 sm:mt-4 gap-1 sm:gap-2 flex-grow min-w-0">
+          <div className="pointer-events-auto min-w-0 max-w-full">
+            <p className="text-[8px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
+            <div className="text-sm sm:text-2xl font-black text-white tracking-tight flex flex-wrap items-center gap-1">
               <PriceDisplay />
               <DealTierBadge />
               <DealIndicator />
             </div>
           </div>
-          <div className="flex gap-2 pointer-events-auto">
+          <div className="flex gap-1.5 pointer-events-auto shrink-0 mt-1 sm:mt-0">
             {product.status === 'pending_approval' && isSuperAdmin && (
               <Button
                 size="sm"
-                className="h-8 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95"
+                className="h-7 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95"
                 onClick={handleApprove}
                 disabled={isApproving}
               >
-                {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4 mr-1" />}
+                {isApproving ? <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" /> : <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />}
                 Approve
               </Button>
             )}
             {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                className="h-8 sm:h-10 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
+                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   router.push(getProductUrl(product));
                 }}
               >
-                <Eye className="h-4 w-4 mr-1" />
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 Details
               </Button>
             )}

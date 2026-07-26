@@ -105,6 +105,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 import { headers } from 'next/headers';
@@ -120,14 +122,14 @@ export default async function RootLayout({
   const nonce = headersList.get('x-nonce') || undefined;
 
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark`}>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark overflow-x-hidden max-w-full w-full`}>
       <head>
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://firestore.googleapis.com" />
         <link rel="preconnect" href="https://js.stripe.com" />
         <link rel="preconnect" href="https://connect.facebook.net" />
       </head>
-      <body className="font-sans antialiased overflow-x-clip min-h-screen bg-background" suppressHydrationWarning>
+      <body className="font-sans antialiased overflow-x-hidden max-w-full w-full min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />
         <StructuredData />
         <AppProviders>
@@ -137,7 +139,7 @@ export default async function RootLayout({
           <GoogleAnalytics />
           <FBPixel />
           <Header />
-          <main id="main-content" className="min-h-screen">
+          <main id="main-content" className="min-h-screen overflow-x-hidden max-w-full w-full">
             {children}
           </main>
           <Footer />

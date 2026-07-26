@@ -61,8 +61,8 @@ export default function ProPhotoBooth() {
   const createdUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    const urls = createdUrlsRef.current;
     return () => {
-      const urls = createdUrlsRef.current;
       urls.forEach(url => {
         try {
           URL.revokeObjectURL(url);
@@ -132,7 +132,7 @@ export default function ProPhotoBooth() {
         activeStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [deviceProfile, toast]);
+  }, [deviceProfile, toast, errorLog]);
 
   // Load existing Queue
   useEffect(() => {

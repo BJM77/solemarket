@@ -105,8 +105,9 @@ export default function BenchedPhotoBooth() {
   const createdUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    const urls = createdUrlsRef.current;
     return () => {
-      createdUrlsRef.current.forEach(url => {
+      urls.forEach(url => {
         try {
           URL.revokeObjectURL(url);
         } catch (e) {
@@ -130,6 +131,7 @@ export default function BenchedPhotoBooth() {
   });
   const [showHUD, setShowHUD] = useState(true);
   const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [qualityHistory, setQualityHistory] = useState<QualityMetrics[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -580,43 +582,54 @@ export default function BenchedPhotoBooth() {
         
         {/* Advanced Quality HUD */}
         {showHUD && lastQuality && (
-          <div className={cn(
-            "absolute bg-black/70 backdrop-blur-md p-4 rounded-xl border border-white/10 text-[9px] w-48 z-10 transition-all duration-300",
-            hudPosition === 'top-left' && "top-4 left-4",
-            hudPosition === 'top-right' && "top-4 right-4",
-            hudPosition === 'bottom-left' && "bottom-24 left-4",
-            hudPosition === 'bottom-right' && "bottom-24 right-4",
-          )}>
-            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
-              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-400" /> Device</span>
-              <span className="font-black text-blue-400 truncate max-w-[100px]">{deviceProfile.name}</span>
-            </div>
+          <div 
+            onClick={() => setIsHudCollapsed(!isHudCollapsed)}
+            className={cn(
+              "absolute bg-black/70 backdrop-blur-md p-4 rounded-xl border border-white/10 text-[9px] z-10 transition-all duration-300 cursor-pointer hover:bg-black/80 shadow-2xl",
+              hudPosition === 'top-left' && "top-4 left-4",
+              hudPosition === 'top-right' && "top-4 right-4",
+              hudPosition === 'bottom-left' && "bottom-24 left-4",
+              hudPosition === 'bottom-right' && "bottom-24 right-4",
+              isHudCollapsed ? "w-20" : "w-48"
+            )}>
             
-            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
-              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-400" /> Focus</span>
-              <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-400" : "text-red-400")}>
-                {lastQuality.blurScore}
-              </span>
-            </div>
-            
-            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
-              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
-              <span className={cn(
-                "font-black",
-                lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
-              )}>
-                {lastQuality.brightnessScore} LUX
-              </span>
-            </div>
-            
-            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
-              <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-400" /> Glare</span>
-              <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-400" : "text-red-400")}>
-                {lastQuality.glarePercentage}%
-              </span>
-            </div>
+            {isHudCollapsed ? (
+              <div className="flex flex-col items-center justify-center gap-1 opacity-80">
+                <Gauge className="w-5 h-5 text-emerald-400" />
+                <span className="font-bold text-[10px] tracking-widest uppercase text-white/90">HUD</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
+                  <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-400" /> Device</span>
+                  <span className="font-black text-blue-400 truncate max-w-[100px]">{deviceProfile.name}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
+                  <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-400" /> Focus</span>
+                  <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-400" : "text-red-400")}>
+                    {lastQuality.blurScore}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
+                  <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
+                  <span className={cn(
+                    "font-black",
+                    lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
+                  )}>
+                    {lastQuality.brightnessScore} LUX
+                  </span>
+                </div>
+                
+                <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
+                  <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-400" /> Glare</span>
+                  <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-400" : "text-red-400")}>
+                    {lastQuality.glarePercentage}%
+                  </span>
+                </div>
 
-            <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
+                <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
               <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-400" /> Contrast</span>
               <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-400" : "text-yellow-400")}>
                 {lastQuality.contrastScore}%
@@ -630,7 +643,7 @@ export default function BenchedPhotoBooth() {
               </span>
             </div>
 
-            <div className="flex justify-between pb-2">
+            <div className="flex justify-between pb-2 items-center">
               <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-orange-400" /> Temp</span>
               <span className="font-black text-white">{lastQuality.colorTemperature}K</span>
             </div>
@@ -656,6 +669,8 @@ export default function BenchedPhotoBooth() {
                 />
               </div>
             </div>
+              </>
+            )}
           </div>
         )}
 
