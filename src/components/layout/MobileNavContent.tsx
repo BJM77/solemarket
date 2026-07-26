@@ -33,7 +33,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
             'collector-cards': { label: 'Cards', icon: Gem, href: '/cards', items: [] as Category[] },
         } as Record<string, { label: string, icon: any, href: string, items: Category[] }>;
 
-        if (!categories) return mainSections;
+        if (!Array.isArray(categories)) return mainSections;
 
         // Sort categories by order (client-side to handle missing fields)
         const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -233,7 +233,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 <Skeleton className="h-4 w-3/4" />
                                 <Skeleton className="h-4 w-1/2" />
                             </div>
-                        ) : favoriteCategories && favoriteCategories.length > 0 ? (
+                        ) : Array.isArray(favoriteCategories) && favoriteCategories.length > 0 ? (
                             <div className="flex flex-col space-y-1">
                                 {favoriteCategories.map((fav: any) => (
                                     <Button
@@ -331,7 +331,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                                 View All {data.label}
                                             </Button>
                                             {data.items.map((cat) => {
-                                                const isFav = favoriteCategories?.some((f: any) => f.id === cat.id);
+                                                const isFav = Array.isArray(favoriteCategories) && favoriteCategories.some((f: any) => f.id === cat.id);
                                                 return (
                                                     <div key={cat.id} className="flex items-center group/item">
                                                         <Button

@@ -63,14 +63,14 @@ export default function BenchedDashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
       <header className="flex items-center justify-between p-4 border-b border-white/10 bg-zinc-900 sticky top-0 z-10">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <div className="bg-primary p-1.5 rounded-lg">
             <Trophy className="w-6 h-6 text-black" />
           </div>
           <h1 className="text-xl font-bold font-headline tracking-tight uppercase text-white">
             BENCHED<span className="text-primary">.AU</span>
           </h1>
-        </div>
+        </Link>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex bg-zinc-800 rounded-full px-4 py-1.5 items-center gap-2 border border-white/5">
              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
