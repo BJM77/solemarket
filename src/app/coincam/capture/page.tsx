@@ -294,7 +294,7 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: 150, maxBrightness: 220, maxGlare: 5 });
+      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: 50, maxBrightness: 220, maxGlare: 5 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 
@@ -593,7 +593,7 @@ export default function CoinPhotoBooth() {
               <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
               <span className={cn(
                 "font-black",
-                lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
+                lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 50 ? "text-red-400" : "text-green-400"
               )}>
                 {lastQuality.brightnessScore} LUX
               </span>
