@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, Coins
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, Coins, Layers
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -195,6 +195,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/procam')}>ProCam</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
@@ -385,8 +386,11 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/coincam')}>
                                             <Coins className="mr-3 h-4 w-4" /> CoinCam Studio
                                         </Button>
-                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/shoecam')}>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/shoecam')}>
                                             <Footprints className="mr-3 h-4 w-4" /> ShoeCam Studio
+                                        </Button>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/procam')}>
+                                            <Layers className="mr-3 h-4 w-4" /> ProCam Studio
                                         </Button>
                                     </>
                                 ) : null}
