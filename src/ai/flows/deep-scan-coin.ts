@@ -19,6 +19,8 @@ const DeepScanCoinOutputSchema = z.object({
   subCategory: z.string().optional().describe('The sub-category (e.g. "Australian Coins", "World Coins", "Error Coins").'),
   brand: z.string().optional().describe('The minting authority or brand (e.g. "Royal Australian Mint", "Perth Mint", "US Mint").'),
   model: z.string().optional().describe('The model or denomination of the coin (e.g. "$2", "$1", "50c").'),
+  isMultiCoin: z.boolean().optional().describe('True if the image contains multiple coins, a coin set, coin roll, or lot.'),
+  coinCount: z.number().optional().describe('Estimated count of coins in the image.'),
 });
 
 export type DeepScanCoinOutput = z.infer<typeof DeepScanCoinOutputSchema>;
@@ -57,9 +59,11 @@ export async function deepScanCoin(
 - description: A rich, engaging paragraph describing the coin and its historical/collectible context for a marketplace listing.
 - price: Estimate the market value of the coin in AUD as a number (e.g. 5, 15, 150).
 - condition: The strike condition / grade (e.g. "New", "Brilliant Uncirculated", "Proof", "Circulated").
-- subCategory: The sub-category (e.g. "Australian Coins", "World Coins", "Error Coins").
+- subCategory: The sub-category (e.g. "Australian Coins", "World Coins", "Error Coins", "Proof Sets").
 - brand: The minting authority or brand (e.g. "Royal Australian Mint", "Perth Mint", "US Mint"). Set to "Royal Australian Mint" if it is an Australian coin.
-- model: The model or denomination of the coin (e.g. "$2", "$1", "50c").` },
+- model: The model or denomination of the coin (e.g. "$2", "$1", "50c").
+- isMultiCoin: Boolean, set to true if the image contains multiple coins, a coin set, a coin roll, or a multi-coin presentation lot.
+- coinCount: Number of coins visible in the image (1 for single coin, >1 for sets/rolls/lots). If multiple coins are present, title coinName as a set or lot.` },
         { media: { url: mediaUrl } }
       ],
       output: {

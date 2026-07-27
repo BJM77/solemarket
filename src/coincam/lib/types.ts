@@ -44,6 +44,8 @@ export interface CoinImport {
   subCategory?: string;
   brand?: string;
   model?: string;
+  isMultiCoin?: boolean;
+  coinCount?: number;
   
   identificationSource: IdentificationSource;
   identificationConfidence?: number;

@@ -142,6 +142,8 @@ export default function CoinReviewDetailPage() {
           subCategory: aiResult.subCategory || prev.subCategory,
           brand: aiResult.brand || prev.brand,
           model: aiResult.model || prev.model,
+          isMultiCoin: aiResult.isMultiCoin !== undefined ? aiResult.isMultiCoin : prev.isMultiCoin,
+          coinCount: aiResult.coinCount || prev.coinCount,
           identificationSource: 'AI_DEEP_SCAN',
         };
       });
@@ -386,18 +388,44 @@ export default function CoinReviewDetailPage() {
                         />
                       </div>
                      
-                     <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
-                       <div className="space-y-0.5">
-                         <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rare Coin Designation</Label>
-                         <p className="text-[8px] text-zinc-500 uppercase">Mark if this coin is considered a rare key date or high value</p>
-                       </div>
-                       <input 
-                         type="checkbox" 
-                         checked={item.isRare || false}
-                         onChange={e => setItem({...item, isRare: e.target.checked})}
-                         className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
-                       />
-                     </div>
+                      <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
+                        <div className="space-y-0.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rare Coin Designation</Label>
+                          <p className="text-[8px] text-zinc-500 uppercase">Mark if this coin is considered a rare key date or high value</p>
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          checked={item.isRare || false}
+                          onChange={e => setItem({...item, isRare: e.target.checked})}
+                          className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
+                        <div className="space-y-0.5">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Multi-Coin Set / Lot / Roll</Label>
+                          <p className="text-[8px] text-zinc-500 uppercase">Check if this listing includes multiple coins in the same frame</p>
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          checked={item.isMultiCoin || false}
+                          onChange={e => setItem({...item, isMultiCoin: e.target.checked})}
+                          className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
+                        />
+                      </div>
+
+                      {item.isMultiCoin && (
+                        <div className="space-y-1.5 col-span-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Coin Count in Lot</Label>
+                          <Input 
+                            type="number" 
+                            value={item.coinCount || 2} 
+                            onChange={e => setItem({...item, coinCount: parseInt(e.target.value) || 1})}
+                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            placeholder="e.g. 2, 5, 20"
+                          />
+                        </div>
+                      )}
 
                      <div className="space-y-1.5 col-span-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
