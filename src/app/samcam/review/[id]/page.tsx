@@ -50,8 +50,8 @@ export default function ReviewDetailPage() {
     loadItem();
   }, [id]);
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdate = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!item) return;
     if (!user) {
       toast({ variant: "destructive", title: "Authentication Required", description: "You must be signed in to verify and list cards." });
