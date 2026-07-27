@@ -129,7 +129,8 @@ export default function CoinPhotoBooth() {
     aiAcceleration: 'basic',
   });
   const [showHUD, setShowHUD] = useState(true);
-  const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [hudPosition, setHudPosition] = useState<'top-left'|'top-right'|'bottom-left'|'bottom-right'>('top-left');
+  const [brightnessThreshold, setBrightnessThreshold] = useState<number>(30);
   const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [qualityHistory, setQualityHistory] = useState<QualityMetrics[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -296,7 +297,7 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: 50, maxBrightness: 220, maxGlare: 5 });
+      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: brightnessThreshold, maxBrightness: 220, maxGlare: 5 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
 
@@ -382,7 +383,7 @@ export default function CoinPhotoBooth() {
 
   const QualityAlerts = ({ quality }: { quality: QualityMetrics }) => {
     const alerts = [];
-    if (quality.brightnessScore < 50) {
+    if (quality.brightnessScore < brightnessThreshold) {
       alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-400 border-yellow-400/20" });
     }
     if (quality.blurScore < 10) {
@@ -739,6 +740,8 @@ export default function CoinPhotoBooth() {
         setShowHUD={setShowHUD}
         hudPosition={hudPosition}
         setHudPosition={setHudPosition}
+        brightnessThreshold={brightnessThreshold}
+        setBrightnessThreshold={setBrightnessThreshold}
       />
     </div>
   );
