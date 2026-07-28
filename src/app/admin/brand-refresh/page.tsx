@@ -37,6 +37,7 @@ export default function BrandRefreshPage() {
   const [formData, setFormData] = useState<SiteConfig>(config);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingSiteLogo, setIsUploadingSiteLogo] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,16 +80,35 @@ export default function BrandRefreshPage() {
 
     setIsUploadingLogo(true);
     try {
-      const storageRef = ref(storage, `brand/logo_${Date.now()}_${file.name}`);
+      const storageRef = ref(storage, `brand/secondary_${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
       handleBrandingChange('logoUrl', url);
-      toast({ title: 'Logo Uploaded', description: 'New brand logo saved successfully.' });
+      toast({ title: 'Image Uploaded', description: 'Secondary brand image saved successfully.' });
     } catch (err: any) {
       console.error('Logo upload error:', err);
-      toast({ variant: 'destructive', title: 'Upload Failed', description: err.message || 'Failed to upload logo.' });
+      toast({ variant: 'destructive', title: 'Upload Failed', description: err.message || 'Failed to upload image.' });
     } finally {
       setIsUploadingLogo(false);
+    }
+  };
+
+  const handleSiteLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !storage) return;
+
+    setIsUploadingSiteLogo(true);
+    try {
+      const storageRef = ref(storage, `brand/sitelogo_${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      handleBrandingChange('siteLogoUrl', url);
+      toast({ title: 'Logo Uploaded', description: 'Website Site Logo saved successfully.' });
+    } catch (err: any) {
+      console.error('Site logo upload error:', err);
+      toast({ variant: 'destructive', title: 'Upload Failed', description: err.message || 'Failed to upload logo.' });
+    } finally {
+      setIsUploadingSiteLogo(false);
     }
   };
 
@@ -321,28 +341,69 @@ export default function BrandRefreshPage() {
                 <ImageIcon className="w-5 h-5" /> Brand Logo Manager
               </CardTitle>
               <CardDescription className="text-zinc-400">
-                Upload a new logo image. It will roll out to the main header, mobile navigation, and footer globally.
+                Upload and configure the primary website logo and secondary branding assets.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8">
+              
+              {/* Site Header Logo */}
               <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-white/5">
                 <div className="w-32 h-32 bg-zinc-950 border border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
                   <Image
-                    src={formData.branding.logoUrl}
-                    alt="Brand Logo"
+                    src={formData.branding.siteLogoUrl || '/benchedlogo.png'}
+                    alt="Website Site Logo"
                     fill
                     className="object-contain p-2"
                   />
                 </div>
 
-                <div className="space-y-4 flex-grow">
+                <div className="space-y-4 flex-grow w-full">
                   <div className="space-y-1">
-                    <Label className="font-bold text-sm">Upload New Logo Image</Label>
-                    <p className="text-xs text-zinc-400">PNG, SVG, or WebP with transparent background recommended (Max 2MB).</p>
+                    <Label className="font-bold text-sm text-primary uppercase tracking-wider">Website Site Logo</Label>
+                    <p className="text-xs text-zinc-400">This is the main website logo displayed in the header, footer, and navigation. (Max 2MB).</p>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <label className="cursor-pointer bg-primary text-black font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition">
+                      {isUploadingSiteLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {isUploadingSiteLogo ? 'Uploading...' : 'Choose File'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSiteLogoUpload}
+                        disabled={isUploadingSiteLogo}
+                        className="hidden"
+                      />
+                    </label>
+                    <Input
+                      value={formData.branding.siteLogoUrl || ''}
+                      onChange={(e) => handleBrandingChange('siteLogoUrl', e.target.value)}
+                      placeholder="Or enter image URL (e.g. /benchedlogo.png)"
+                      className="bg-zinc-950 border-white/10 font-mono text-xs flex-grow"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Secondary Brand Image */}
+              <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-white/5">
+                <div className="w-32 h-32 bg-zinc-950 border border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
+                  <Image
+                    src={formData.branding.logoUrl || '/benched.png'}
+                    alt="Secondary Brand Image"
+                    fill
+                    className="object-contain p-2"
+                  />
+                </div>
+
+                <div className="space-y-4 flex-grow w-full">
+                  <div className="space-y-1">
+                    <Label className="font-bold text-sm text-zinc-300 uppercase tracking-wider">Secondary Brand Image</Label>
+                    <p className="text-xs text-zinc-400">Used for secondary branding contexts, court graphics, or generic brand placement. (Max 2MB).</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer bg-zinc-800 text-white font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-zinc-700 transition">
                       {isUploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                       {isUploadingLogo ? 'Uploading...' : 'Choose File'}
                       <input
@@ -354,14 +415,15 @@ export default function BrandRefreshPage() {
                       />
                     </label>
                     <Input
-                      value={formData.branding.logoUrl}
+                      value={formData.branding.logoUrl || ''}
                       onChange={(e) => handleBrandingChange('logoUrl', e.target.value)}
-                      placeholder="Or enter image URL"
+                      placeholder="Or enter image URL (e.g. /benched.png)"
                       className="bg-zinc-950 border-white/10 font-mono text-xs flex-grow"
                     />
                   </div>
                 </div>
               </div>
+
             </CardContent>
           </Card>
         </TabsContent>

@@ -40,7 +40,8 @@ export interface BrandingTheme {
   buttonTextColor: string;
   tickerBgColor: string;
   tickerTextColor: string;
-  logoUrl: string;
+  logoUrl: string;       // Secondary court brand image (/benched.png)
+  siteLogoUrl: string;   // Main header site logo (/benchedlogo.png)
   logoDarkUrl: string;
 }
 
@@ -59,7 +60,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     tickerBgColor: '#18181b',
     tickerTextColor: '#ffffff',
     logoUrl: '/benched.png',
-    logoDarkUrl: '/benched.png',
+    siteLogoUrl: '/benchedlogo.png',
+    logoDarkUrl: '/benchedlogo.png',
   },
   hero: {
     h1TitleLine1: "AUSTRALIA'S PREMIER",
