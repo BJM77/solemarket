@@ -37,10 +37,11 @@ export function SiteConfigProvider({ children }: { children: React.ReactNode }) 
       (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data() as SiteConfig;
-          setConfig({
+           setConfig({
             branding: { ...DEFAULT_SITE_CONFIG.branding, ...(data.branding || {}) },
             hero: { ...DEFAULT_SITE_CONFIG.hero, ...(data.hero || {}) },
             sections: data.sections || DEFAULT_SITE_CONFIG.sections,
+            menus: data.menus || DEFAULT_SITE_CONFIG.menus,
           });
         }
         setIsLoading(false);

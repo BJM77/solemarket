@@ -45,10 +45,26 @@ export interface BrandingTheme {
   logoDarkUrl: string;
 }
 
+export interface MenuItemSubItem {
+  label: string;
+  href: string;
+  iconName?: string;
+}
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  href: string;
+  enabled: boolean;
+  order: number;
+  subItems?: MenuItemSubItem[];
+}
+
 export interface SiteConfig {
   branding: BrandingTheme;
   hero: HeroConfig;
   sections: HomepageSectionConfig[];
+  menus: MenuItem[];
   updatedAt?: number;
 }
 
@@ -127,6 +143,24 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { id: 'v4', name: 'Silver', iconName: 'Circle', href: '/coins?subCategory=Silver' },
         { id: 'v5', name: 'Proof Sets', iconName: 'Box', href: '/coins?subCategory=Proof+Sets' },
         { id: 'v6', name: 'Bank Notes', iconName: 'Banknote', href: '/coins?subCategory=Banknotes' },
+      ]
+    }
+  ],
+  menus: [
+    { id: 'm1', label: 'Shoes', href: '/shoes', enabled: true, order: 1 },
+    { id: 'm2', label: 'Cards', href: '/cards', enabled: true, order: 2 },
+    { id: 'm3', label: 'Coins', href: '/coins', enabled: true, order: 3 },
+    { id: 'm4', label: 'Fundraising', href: '/club-fundraising', enabled: true, order: 4 },
+    { 
+      id: 'm5', 
+      label: 'The Lineup', 
+      href: '#', 
+      enabled: true, 
+      order: 5,
+      subItems: [
+        { label: 'Browse All', href: '/browse', iconName: 'Store' },
+        { label: 'Top 10 Stores', href: '/top-stores', iconName: 'TrendingUp' },
+        { label: 'Multi-Listing Deals', href: '/multilisting-deals', iconName: 'LayoutGrid' },
       ]
     }
   ]

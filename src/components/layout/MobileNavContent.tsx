@@ -12,16 +12,26 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, Coins, Layers
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, Coins, Layers, Link as LinkIcon
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
+import { cn } from '@/lib/utils';
 
 export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) {
     const { user } = useUser();
     const router = useRouter();
     const { isSuperAdmin, canSell, isLoading: isPermissionsLoading } = useUserPermissions();
+    const { config } = useSiteConfig();
+
+    const activeMenus = useMemo(() => {
+        if (!config?.menus) return [];
+        return [...config.menus]
+            .filter(m => m.enabled !== false)
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+    }, [config?.menus]);
 
     // 1. Fetch Categories Dynamically
     const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), orderBy('name')), []);
@@ -265,48 +275,77 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     </div>
                 )}
 
-                {/* Full Categories Accordion (Explore All) */}
+                {/* Dynamic Configured Navigation Menus */}
                 <div className="py-2 border-t border-dashed pt-4">
-                    <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Explore All</h3>
-                    <div className="grid grid-cols-2 gap-2 mb-2 px-4">
-                        <Button variant="default" className="w-full font-bold shadow-md shadow-primary/20" onClick={() => handleLinkClick('/browse')}>
-                            <Search className="mr-2 h-4 w-4" /> Browse All
-                        </Button>
-                        <Button variant="secondary" className="w-full font-bold text-primary" onClick={() => handleLinkClick('/multilisting-deals')}>
-                            <LayoutGrid className="mr-2 h-4 w-4" /> Deals
-                        </Button>
-                    </div>
+                    <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-3">Main Menu</h3>
                     
-                    <div className="px-4 mb-2">
-                        <Button variant="outline" className="w-full justify-start font-bold h-12 border-primary/20 text-primary hover:bg-primary/5" onClick={() => handleLinkClick('/top-stores')}>
-                            <div className="bg-primary/10 p-1.5 rounded-lg mr-3">
-                                <TrendingUp className="h-4 w-4" />
-                            </div>
-                            Top 10 Stores
-                        </Button>
+                    <div className="px-4 space-y-2 mb-4">
+                        {activeMenus.map((menu) => {
+                            if (menu.subItems && menu.subItems.length > 0) return null; // Render dropdowns in the accordion below
+                            
+                            const isFundraising = menu.label.toLowerCase().includes('fundraising');
+                            return (
+                                <Button
+                                    key={menu.id}
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full justify-start font-bold h-12 border-primary/20",
+                                        isFundraising ? "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20" : "text-primary hover:bg-primary/5"
+                                    )}
+                                    onClick={() => handleLinkClick(menu.href)}
+                                >
+                                    <div className={cn(
+                                        "p-1.5 rounded-lg mr-3",
+                                        isFundraising ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"
+                                    )}>
+                                        {menu.label.toLowerCase().includes('shoe') && <Footprints className="h-4 w-4" />}
+                                        {menu.label.toLowerCase().includes('card') && <Gem className="h-4 w-4" />}
+                                        {menu.label.toLowerCase().includes('coin') && <Coins className="h-4 w-4" />}
+                                        {isFundraising && <Heart className="h-4 w-4" />}
+                                        {!menu.label.toLowerCase().includes('shoe') && 
+                                         !menu.label.toLowerCase().includes('card') && 
+                                         !menu.label.toLowerCase().includes('coin') && 
+                                         !isFundraising && <LinkIcon className="h-4 w-4" />}
+                                    </div>
+                                    {menu.label}
+                                </Button>
+                            );
+                        })}
                     </div>
 
-                    <div className="px-4 mb-2 space-y-2">
-                        <Button variant="outline" className="w-full justify-start font-bold h-12 border-primary/20 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => handleLinkClick('/club-fundraising')}>
-                            <div className="bg-green-100 text-green-700 p-1.5 rounded-lg mr-3">
-                                <Heart className="h-4 w-4" />
-                            </div>
-                            Club Fundraising
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/drops')}>
-                            <div className="bg-red-100 text-red-600 p-1.5 rounded-lg mr-3">
-                                <Zap className="h-4 w-4" />
-                            </div>
-                            Kicks Calendar
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start font-bold h-12" onClick={() => handleLinkClick('/card-drops')}>
-                            <div className="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg mr-3">
-                                <Calendar className="h-4 w-4" />
-                            </div>
-                            Card Calendar
-                        </Button>
-                    </div>
+                    <Accordion type="multiple" className="w-full mb-4">
+                        {activeMenus.map((menu) => {
+                            if (!menu.subItems || menu.subItems.length === 0) return null;
+                            return (
+                                <AccordionItem key={menu.id} value={menu.id} className="border-b-0">
+                                    <AccordionTrigger className="text-sm font-bold px-4 py-2.5 hover:bg-primary/5 hover:text-primary transition-all rounded-xl hover:no-underline group">
+                                        <div className="flex items-center">
+                                            <Layers className="mr-3 h-4 w-4 text-primary" />
+                                            {menu.label}
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pb-2">
+                                        <div className="flex flex-col pl-8 space-y-1 mt-1">
+                                            {menu.subItems.map((sub, sIdx) => (
+                                                <Button
+                                                    key={sIdx}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="justify-start text-muted-foreground h-9 font-semibold text-xs hover:text-primary hover:bg-primary/5 rounded-lg"
+                                                    onClick={() => handleLinkClick(sub.href)}
+                                                >
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2" />
+                                                    {sub.label}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            );
+                        })}
+                    </Accordion>
 
+                    <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-4 mb-2">Explore Categories</h3>
                     <Accordion type="multiple" className="w-full">
                         {Object.entries(groupedCategories).map(([section, data]) => {
                             if (data.items.length === 0) return null;

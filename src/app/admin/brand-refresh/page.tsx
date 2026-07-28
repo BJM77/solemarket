@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
-import { SiteConfig, CategoryCardItem, HomepageSectionConfig, HeroButtonConfig } from '@/lib/types/site-config';
+import { SiteConfig, CategoryCardItem, HomepageSectionConfig, HeroButtonConfig, MenuItem, MenuItemSubItem } from '@/lib/types/site-config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -161,6 +161,86 @@ export default function BrandRefreshPage() {
     updateSection(secIndex, { items: updatedItems });
   };
 
+  const moveMenuItem = (index: number, direction: 'up' | 'down') => {
+    const newMenus = [...(formData.menus || [])];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newMenus.length) return;
+
+    const temp = newMenus[index];
+    newMenus[index] = newMenus[targetIndex];
+    newMenus[targetIndex] = temp;
+
+    const reordered = newMenus.map((menu, idx) => ({ ...menu, order: idx + 1 }));
+    const updated = { ...formData, menus: reordered };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const updateMenuItem = (index: number, updatedFields: Partial<MenuItem>) => {
+    const newMenus = [...(formData.menus || [])];
+    newMenus[index] = { ...newMenus[index], ...updatedFields };
+    const updated = { ...formData, menus: newMenus };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const addMenuItem = (label: string, href: string) => {
+    const currentMenus = formData.menus || [];
+    const newMenu: MenuItem = {
+      id: `menu_${Date.now()}`,
+      label,
+      href,
+      enabled: true,
+      order: currentMenus.length + 1,
+      subItems: []
+    };
+    const updated = { ...formData, menus: [...currentMenus, newMenu] };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const deleteMenuItem = (index: number) => {
+    const currentMenus = formData.menus || [];
+    const filtered = currentMenus.filter((_, idx) => idx !== index);
+    const reordered = filtered.map((menu, idx) => ({ ...menu, order: idx + 1 }));
+    const updated = { ...formData, menus: reordered };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const addMenuItemSubItem = (menuIndex: number) => {
+    const newMenus = [...(formData.menus || [])];
+    const menu = newMenus[menuIndex];
+    const newSubItem: MenuItemSubItem = {
+      label: 'New Sub-link',
+      href: '#'
+    };
+    menu.subItems = [...(menu.subItems || []), newSubItem];
+    const updated = { ...formData, menus: newMenus };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const deleteMenuItemSubItem = (menuIndex: number, subIndex: number) => {
+    const newMenus = [...(formData.menus || [])];
+    const menu = newMenus[menuIndex];
+    menu.subItems = (menu.subItems || []).filter((_, idx) => idx !== subIndex);
+    const updated = { ...formData, menus: newMenus };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
+  const updateMenuItemSubItem = (menuIndex: number, subIndex: number, field: keyof MenuItemSubItem, value: string) => {
+    const newMenus = [...(formData.menus || [])];
+    const menu = newMenus[menuIndex];
+    const subs = [...(menu.subItems || [])];
+    subs[subIndex] = { ...subs[subIndex], [field]: value };
+    menu.subItems = subs;
+    const updated = { ...formData, menus: newMenus };
+    setFormData(updated);
+    updatePreviewConfig(updated);
+  };
+
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
@@ -210,7 +290,7 @@ export default function BrandRefreshPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="theme" className="w-full">
-        <TabsList className="grid grid-cols-3 bg-zinc-900 border border-white/10 p-1 rounded-xl mb-8">
+        <TabsList className="grid grid-cols-4 bg-zinc-900 border border-white/10 p-1 rounded-xl mb-8">
           <TabsTrigger value="theme" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
             <Palette className="w-4 h-4 mr-2" /> Global Colors & Logo
           </TabsTrigger>
@@ -219,6 +299,9 @@ export default function BrandRefreshPage() {
           </TabsTrigger>
           <TabsTrigger value="sections" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
             <Layers className="w-4 h-4 mr-2" /> Homepage Sections (Lineup / Card / Vault)
+          </TabsTrigger>
+          <TabsTrigger value="menus" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
+            <LinkIcon className="w-4 h-4 mr-2" /> Navigation Menus
           </TabsTrigger>
         </TabsList>
 
@@ -694,7 +777,252 @@ export default function BrandRefreshPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* TAB 4: NAVIGATION MENU BUILDER */}
+        <TabsContent value="menus" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Quick Add Panel */}
+            <div className="space-y-6 lg:col-span-1">
+              <Card className="bg-zinc-900 border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-black uppercase text-primary flex items-center gap-2">
+                    <Plus className="w-5 h-5" /> Quick Add Pages
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Click to add standard system pages directly to your navigation menu.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    { label: 'Shoes', href: '/shoes' },
+                    { label: 'Cards', href: '/cards' },
+                    { label: 'Coins', href: '/coins' },
+                    { label: 'Fundraising', href: '/club-fundraising' },
+                    { label: 'Browse All', href: '/browse' },
+                    { label: 'Top 10 Stores', href: '/top-stores' },
+                    { label: 'Multi-Listing Deals', href: '/multilisting-deals' },
+                    { label: 'How It Works', href: '/how-it-works' },
+                  ].map((page) => (
+                    <Button
+                      key={page.href}
+                      variant="outline"
+                      onClick={() => addMenuItem(page.label, page.href)}
+                      className="w-full justify-start border-white/5 hover:border-primary/50 bg-black/50 hover:bg-primary/5 text-white font-bold uppercase tracking-wider text-xs py-5 rounded-xl"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-2 text-primary" />
+                      {page.label} <span className="ml-auto text-[10px] text-zinc-500 font-mono lowercase">{page.href}</span>
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Custom Link Form */}
+              <Card className="bg-zinc-900 border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-black uppercase text-primary flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5" /> Custom Menu Link
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Create a custom navigation link.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CustomLinkForm onAdd={addMenuItem} />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Menu Structure List */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="bg-zinc-900 border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
+                    <Layers className="w-5 h-5" /> Menu Layout Structure
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Drag, reorder, show/hide, delete, and add nested sub-items to your navigation links.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {(!formData.menus || formData.menus.length === 0) ? (
+                    <div className="text-center py-12 text-zinc-500 font-bold uppercase tracking-wider text-xs">
+                      No Menu Items Configured. Add some links to get started!
+                    </div>
+                  ) : (
+                    formData.menus.map((menu, mIdx) => (
+                      <div 
+                        key={menu.id || mIdx}
+                        className="bg-black/60 border border-white/10 rounded-2xl p-5 space-y-4 relative hover:border-white/20 transition shadow-lg"
+                      >
+                        {/* Top Action Bar */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-white/10">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => moveMenuItem(mIdx, 'up')}
+                                disabled={mIdx === 0}
+                                className="h-8 w-8 text-zinc-400 hover:text-white"
+                              >
+                                <MoveUp className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => moveMenuItem(mIdx, 'down')}
+                                disabled={mIdx === formData.menus.length - 1}
+                                className="h-8 w-8 text-zinc-400 hover:text-white"
+                              >
+                                <MoveDown className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <span className="text-zinc-500 font-black text-xs uppercase">Link #{mIdx + 1}:</span>
+                            <span className="font-black uppercase tracking-wider text-white text-sm">{menu.label || 'Unnamed Link'}</span>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-[10px] text-zinc-400 font-bold uppercase">Show in Menu</Label>
+                              <Switch
+                                checked={menu.enabled}
+                                onCheckedChange={(checked) => updateMenuItem(mIdx, { enabled: checked })}
+                              />
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => deleteMenuItem(mIdx)}
+                              className="h-8 w-8 text-zinc-500 hover:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Form Inputs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-bold uppercase text-zinc-300">Link Label</Label>
+                            <Input
+                              value={menu.label}
+                              onChange={(e) => updateMenuItem(mIdx, { label: e.target.value })}
+                              className="bg-zinc-950 border-white/10 font-bold"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-bold uppercase text-zinc-300">Link Path / URL</Label>
+                            <Input
+                              value={menu.href}
+                              onChange={(e) => updateMenuItem(mIdx, { href: e.target.value })}
+                              className="bg-zinc-950 border-white/10 font-mono text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Nested Dropdown Sub-links */}
+                        <div className="space-y-3 pt-3 border-t border-white/5 bg-zinc-950/40 p-4 rounded-xl">
+                          <div className="flex justify-between items-center">
+                            <Label className="font-bold text-xs uppercase tracking-wider text-zinc-400">
+                              Sub-Menu Dropdown Items ({menu.subItems?.length || 0})
+                            </Label>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => addMenuItemSubItem(mIdx)}
+                              className="h-7 text-[10px] border-primary/40 text-primary hover:bg-primary/10 px-3 font-bold uppercase tracking-wider"
+                            >
+                              <Plus className="w-3 h-3 mr-1" /> Add Dropdown Link
+                            </Button>
+                          </div>
+
+                          {menu.subItems && menu.subItems.length > 0 && (
+                            <div className="space-y-2">
+                              {menu.subItems.map((sub, sIdx) => (
+                                <div key={sIdx} className="flex gap-3 items-center bg-black/60 p-3 rounded-lg border border-white/5">
+                                  <div className="grid grid-cols-2 gap-3 flex-grow">
+                                    <Input
+                                      value={sub.label}
+                                      onChange={(e) => updateMenuItemSubItem(mIdx, sIdx, 'label', e.target.value)}
+                                      placeholder="Sub-Link Label"
+                                      className="bg-zinc-950 border-white/10 text-xs font-bold"
+                                    />
+                                    <Input
+                                      value={sub.href}
+                                      onChange={(e) => updateMenuItemSubItem(mIdx, sIdx, 'href', e.target.value)}
+                                      placeholder="Sub-Link Path (e.g. /browse)"
+                                      className="bg-zinc-950 border-white/10 text-xs font-mono"
+                                    />
+                                  </div>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => deleteMenuItemSubItem(mIdx, sIdx)}
+                                    className="h-8 w-8 text-zinc-500 hover:text-red-400 shrink-0"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function CustomLinkForm({ onAdd }: { onAdd: (label: string, href: string) => void }) {
+  const [label, setLabel] = useState('');
+  const [href, setHref] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!label || !href) return;
+    onAdd(label, href);
+    setLabel('');
+    setHref('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-1">
+        <Label className="text-xs font-bold uppercase text-zinc-300">Link Label</Label>
+        <Input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="e.g. Help Center"
+          required
+          className="bg-zinc-950 border-white/10 font-bold"
+        />
+      </div>
+      <div className="space-y-1">
+        <Label className="text-xs font-bold uppercase text-zinc-300">Target Path / URL</Label>
+        <Input
+          value={href}
+          onChange={(e) => setHref(e.target.value)}
+          placeholder="e.g. /help"
+          required
+          className="bg-zinc-950 border-white/10 font-mono text-xs"
+        />
+      </div>
+      <Button
+        type="submit"
+        className="w-full bg-primary text-black font-black uppercase text-xs rounded-xl py-5"
+      >
+        Add Link to Menu
+      </Button>
+    </form>
   );
 }
