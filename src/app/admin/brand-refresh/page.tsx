@@ -436,6 +436,7 @@ export default function BrandRefreshPage() {
                     src={formData.branding.siteLogoUrl || '/benchedlogo.png'}
                     alt="Website Site Logo"
                     fill
+                    sizes="(max-width: 768px) 100vw, 128px"
                     className="object-contain p-2"
                   />
                 </div>
@@ -475,6 +476,7 @@ export default function BrandRefreshPage() {
                     src={formData.branding.logoUrl || '/benched.png'}
                     alt="Secondary Brand Image"
                     fill
+                    sizes="(max-width: 768px) 100vw, 128px"
                     className="object-contain p-2"
                   />
                 </div>
