@@ -74,14 +74,26 @@ const CARD_CATEGORIES = [
     },
 ];
 
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
+
 export default function CardCategoryGrid() {
+    const { config } = useSiteConfig();
+    const section = config.sections.find((s) => s.type === 'card_room' || s.id === 'sec-card-room');
+
+    if (section && !section.enabled) return null;
+
+    const title = section?.title || 'The Card Room';
+    const subtitle = section?.subtitle || 'Rare wax, graded singles, and the newest sets.';
+    const categories = section?.items && section.items.length > 0 ? section.items : CARD_CATEGORIES;
+    const containerClasses = section?.customClasses || 'bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden';
+
     return (
-        <section className="bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden">
+        <section className={containerClasses}>
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-12 gap-3 md:gap-4">
                     <div>
-                        <h2 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic">The Card Room</h2>
-                        <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">Rare wax, graded singles, and the newest sets.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic">{title}</h2>
+                        <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
                     <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 items-center transition-all bg-indigo-500/10 px-6 py-3 rounded-full hover:bg-indigo-500/20">
                         View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -89,11 +101,11 @@ export default function CardCategoryGrid() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
-                    {CARD_CATEGORIES.map((cat) => {
-                        const IconComponent = cat.icon;
+                    {categories.map((cat, idx) => {
+                        const itemKey = ('id' in cat && cat.id) ? cat.id : `${cat.name}-${idx}`;
                         return (
                             <Link
-                                key={cat.name}
+                                key={itemKey}
                                 href={cat.href}
                                 className="group block"
                             >
@@ -102,6 +114,7 @@ export default function CardCategoryGrid() {
 
                                     <div className={cn(
                                         "relative w-12 h-12 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+                                        cat.color
                                     )}>
                                         {cat.logo ? (
                                             <Image
@@ -111,9 +124,9 @@ export default function CardCategoryGrid() {
                                                 className="object-contain p-2 dark:invert filter drop-shadow-sm"
                                                 sizes="(max-width: 768px) 48px, 96px"
                                             />
-                                        ) : (IconComponent && typeof IconComponent === 'function') ? (
-                                            <IconComponent className="h-6 w-6 md:h-10 md:w-10 text-muted-foreground" />
-                                        ) : null}
+                                        ) : (
+                                            <Sparkles className="h-6 w-6 md:h-10 md:w-10 text-muted-foreground" />
+                                        )}
                                     </div>
                                     <span className="font-black text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
                                         {cat.name}

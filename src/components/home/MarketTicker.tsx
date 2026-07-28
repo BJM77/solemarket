@@ -11,9 +11,13 @@ import type { Product } from '@/lib/types';
 import { getProductUrl } from '@/lib/utils';
 import { useMobileNav } from '@/context/MobileNavContext';
 
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
+
 export function MarketTicker({ compact = false }: { compact?: boolean }) {
     const [isClient, setIsClient] = useState(false);
     const { isPinned } = useMobileNav();
+    const { config } = useSiteConfig();
+    const { tickerBgColor, tickerTextColor } = config.branding;
 
     useEffect(() => {
         setIsClient(true);
@@ -68,13 +72,16 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
     const displayItems = items.length < 5 ? [...items, ...items, ...items, ...items] : [...items, ...items, ...items];
 
     return (
-        <div className={cn(
-            "bg-primary text-white overflow-hidden relative z-30",
-            compact
-                ? "py-0 h-full w-full flex items-center shadow-inner"
-                : "py-1 md:py-1.5 border-y-2 border-primary/20 w-full my-1 md:my-2 shadow-sm",
-            !compact && isPinned ? "hidden md:block" : ""
-        )}>
+        <div 
+            style={{ backgroundColor: tickerBgColor || undefined, color: tickerTextColor || undefined }}
+            className={cn(
+                "bg-primary text-white overflow-hidden relative z-30",
+                compact
+                    ? "py-0 h-full w-full flex items-center shadow-inner"
+                    : "py-1 md:py-1.5 border-y-2 border-primary/20 w-full my-1 md:my-2 shadow-sm",
+                !compact && isPinned ? "hidden md:block" : ""
+            )}
+        >
             <div className={cn(
                 "flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] items-center font-black tracking-widest uppercase",
                 compact ? "gap-4 text-[10px] sm:text-xs h-full" : "gap-4 md:gap-6 text-xs md:text-sm"

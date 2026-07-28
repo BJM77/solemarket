@@ -33,7 +33,8 @@ import {
   Camera,
   Coins,
   Footprints,
-  Layers
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -94,6 +95,12 @@ export function UserNav() {
               <Link href="/admin" className="flex items-center">
                 <Shield className="mr-3 h-4 w-4 text-primary" />
                 <span className="font-medium">Admin Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/brand-refresh') && "bg-accent text-accent-foreground")}>
+              <Link href="/admin/brand-refresh" className="flex items-center">
+                <Sparkles className="mr-3 h-4 w-4 text-primary" />
+                <span className="font-medium">Brand Refresh & Customizer</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/users') && "bg-accent text-accent-foreground")}>

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowRight, LayoutGrid, Footprints, Library } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
 
 const CATEGORIES = [
     {
@@ -82,13 +83,23 @@ const CATEGORIES = [
 ];
 
 export default function CategoryGrid() {
+    const { config } = useSiteConfig();
+    const section = config.sections.find((s) => s.type === 'lineup' || s.id === 'sec-lineup');
+    
+    if (section && !section.enabled) return null;
+
+    const title = section?.title || 'Shop the Lineup';
+    const subtitle = section?.subtitle || 'The deepest collection of basketball heritage and performance.';
+    const categories = section?.items && section.items.length > 0 ? section.items : CATEGORIES;
+    const containerClasses = section?.customClasses || 'bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden';
+
     return (
-        <section className="bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden">
+        <section className={containerClasses}>
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-12 gap-3 md:gap-4">
                     <div>
-                        <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">Shop the Lineup</h2>
-                        <p className="text-xs md:text-lg text-slate-500 dark:text-slate-400 mt-1 md:mt-2 font-medium">The deepest collection of basketball heritage and performance.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">{title}</h2>
+                        <p className="text-xs md:text-lg text-slate-500 dark:text-slate-400 mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
                     <Link href="/browse" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-primary hover:text-orange-400 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20">
                         View All Market <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -96,11 +107,11 @@ export default function CategoryGrid() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-6">
-                    {CATEGORIES.map((cat, idx) => {
-                        const IconComponent = cat.icon;
+                    {categories.map((cat, idx) => {
+                        const itemKey = ('id' in cat && cat.id) ? cat.id : `${cat.name}-${idx}`;
                         return (
                             <Link
-                                key={cat.name}
+                                key={itemKey}
                                 href={cat.href}
                                 className="group block"
                             >
@@ -109,6 +120,7 @@ export default function CategoryGrid() {
 
                                     <div className={cn(
                                         "relative w-12 h-12 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+                                        cat.color
                                     )}>
                                         {cat.logo ? (
                                             <Image
@@ -118,9 +130,9 @@ export default function CategoryGrid() {
                                                 className="object-contain p-2 dark:invert filter drop-shadow-sm"
                                                 sizes="(max-width: 768px) 48px, 96px"
                                             />
-                                        ) : (IconComponent && typeof IconComponent === 'function') ? (
-                                            <IconComponent className="h-6 w-6 md:h-10 md:w-10 text-slate-700 dark:text-slate-300" />
-                                        ) : null}
+                                        ) : (
+                                            <Footprints className="h-6 w-6 md:h-10 md:w-10 text-slate-700 dark:text-slate-300" />
+                                        )}
                                     </div>
                                     <span className="font-black text-slate-900 dark:text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
                                         {cat.name}

@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
 
 export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
     const [mounted, setMounted] = useState(false);
+    const { config } = useSiteConfig();
+    const hero = config.hero;
 
     useEffect(() => {
         setMounted(true);
@@ -18,25 +21,28 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
 
                     {/* H1 for SEO & Accessibility */}
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
-                        AUSTRALIA'S PREMIER <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">MARKETPLACE.</span>
+                        {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"} <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
+                            {hero.h1TitleLine2 || 'MARKETPLACE.'}
+                        </span>
                     </h1>
 
                     <div className="text-sm md:text-xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
-                        <p className="text-slate-900 dark:text-white">Buy Footwear, Collector Cards and Australian Coins & Notes.</p>
-                        <p className="text-primary font-black">Metro Perth Collection or Express Freight Solutions Available</p>
+                        <p className="text-slate-900 dark:text-white">{hero.subText1}</p>
+                        <p className="text-primary font-black">{hero.subText2}</p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
-                        <Link href="/shoes" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-primary hover:bg-orange-600 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base">
-                            Shop Sneakers
-                        </Link>
-                        <Link href="/cards" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 border border-slate-900 dark:border-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 text-center text-sm md:text-base">
-                            Shop Cards
-                        </Link>
-                        <Link href="/coins" className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(202,138,4,0.4)] text-center text-sm md:text-base">
-                            Shop Coins
-                        </Link>
+                        {hero.buttons && hero.buttons.map((btn) => (
+                            <Link 
+                                key={btn.id}
+                                href={btn.href} 
+                                style={{ backgroundColor: btn.bgColor, color: btn.textColor }}
+                                className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base"
+                            >
+                                {btn.label}
+                            </Link>
+                        ))}
                     </div>
 
                     {/* Metrics Section */}

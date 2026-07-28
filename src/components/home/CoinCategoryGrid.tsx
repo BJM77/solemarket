@@ -68,14 +68,26 @@ const COIN_CATEGORIES = [
     },
 ];
 
+import { useSiteConfig } from '@/providers/SiteConfigProvider';
+
 export default function CoinCategoryGrid() {
+    const { config } = useSiteConfig();
+    const section = config.sections.find((s) => s.type === 'vault' || s.id === 'sec-vault');
+
+    if (section && !section.enabled) return null;
+
+    const title = section?.title || 'The Vault';
+    const subtitle = section?.subtitle || 'Rare Australian pennies, gold bullion, and graded numismatics.';
+    const categories = section?.items && section.items.length > 0 ? section.items : COIN_CATEGORIES;
+    const containerClasses = section?.customClasses || 'bg-black py-16 lg:py-24 border-b border-white/5 relative overflow-hidden';
+
     return (
-        <section className="bg-black py-16 lg:py-24 border-b border-white/5 relative overflow-hidden">
+        <section className={containerClasses}>
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-12 gap-3 md:gap-4">
                     <div>
-                        <h2 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic">The Vault</h2>
-                        <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">Rare Australian pennies, gold bullion, and graded numismatics.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic">{title}</h2>
+                        <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
                     <Link href="/coins" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-yellow-500 items-center transition-all bg-yellow-500/10 px-6 py-3 rounded-full hover:bg-yellow-500/20">
                         View All Coins <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -83,11 +95,11 @@ export default function CoinCategoryGrid() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
-                    {COIN_CATEGORIES.map((cat) => {
-                        const IconComponent = cat.icon;
+                    {categories.map((cat, idx) => {
+                        const itemKey = ('id' in cat && cat.id) ? cat.id : `${cat.name}-${idx}`;
                         return (
                             <Link
-                                key={cat.name}
+                                key={itemKey}
                                 href={cat.href}
                                 className="group block"
                             >
@@ -97,7 +109,7 @@ export default function CoinCategoryGrid() {
                                     <div className={cn(
                                         "relative w-12 h-12 md:w-20 md:h-20 flex items-center justify-center rounded-full bg-black border border-white/5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
                                     )}>
-                                        <IconComponent className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
+                                        <Coins className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
                                     </div>
                                     <span className="font-black text-white text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
                                         {cat.name}

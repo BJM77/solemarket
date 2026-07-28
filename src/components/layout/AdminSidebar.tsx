@@ -33,7 +33,8 @@ import {
     DollarSign,
     BellRing,
     Tag,
-    Target
+    Target,
+    Palette
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -47,6 +48,7 @@ const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
     // { href: "/admin/orders", icon: ShieldCheck, label: "Escrow Ledger" },
     // { href: "/admin/payouts", icon: DollarSign, label: "Payout Ledger" },
+    { href: "/admin/brand-refresh", icon: Palette, label: "Brand Refresh" },
     { href: "/admin/products/approvals", icon: Gavel, label: "Approvals" },
     { href: "/admin/products/new", icon: Sparkles, label: "New Listings" },
     { href: "/admin/sellers", icon: Briefcase, label: "Sellers" },
