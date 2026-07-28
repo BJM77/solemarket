@@ -18,7 +18,8 @@ import {
   ZapOff,
   Clock,
   XCircle,
-  FileText
+  FileText,
+  ListChecks
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -321,6 +322,25 @@ export default function ProPhotoBooth() {
           )}>
             Step: {currentStep}
           </Badge>
+
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="hidden sm:flex bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] px-3 text-[10px] uppercase font-black tracking-widest gap-2 ml-2"
+            onClick={() => router.push('/procam/review')}
+          >
+            <ListChecks className="w-3.5 h-3.5" />
+            Review Queue
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="sm:hidden bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] w-[32px] ml-2"
+            onClick={() => router.push('/procam/review')}
+          >
+            <ListChecks className="w-3.5 h-3.5" />
+          </Button>
           
           <button onClick={() => setShowHUD(prev => !prev)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition">
             {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
