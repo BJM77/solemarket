@@ -150,13 +150,12 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     { id: 'm1', label: 'Shoes', href: '/shoes', enabled: true, order: 1 },
     { id: 'm2', label: 'Cards', href: '/cards', enabled: true, order: 2 },
     { id: 'm3', label: 'Coins', href: '/coins', enabled: true, order: 3 },
-    { id: 'm4', label: 'Fundraising', href: '/club-fundraising', enabled: true, order: 4 },
     { 
       id: 'm5', 
       label: 'The Lineup', 
       href: '#', 
       enabled: true, 
-      order: 5,
+      order: 4,
       subItems: [
         { label: 'Browse All', href: '/browse', iconName: 'Store' },
         { label: 'Top 10 Stores', href: '/top-stores', iconName: 'TrendingUp' },
