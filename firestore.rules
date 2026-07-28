@@ -114,8 +114,13 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
     }
 
-    // Settings
+    // Settings & Site Config
     match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /site_config/{configId} {
       allow read: if true;
       allow write: if isAdmin();
     }
