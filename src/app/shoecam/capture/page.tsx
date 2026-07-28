@@ -242,16 +242,9 @@ export default function ShoePhotoBooth() {
         0, 0, cropWidth, cropHeight
       );
 
+      // Run image analysis for records, but do not block capture
       const q = analyzeImageQuality(canvas, currentStep === 'LABEL' ? { minBlur: 20 } : undefined);
       setLastQuality(q);
-
-      if (!q.isAcceptable) {
-        audioSynth.playBeep();
-        setLabStatus(q.messages[0] || "ADJUST...");
-        setTimeout(() => setLabStatus("READY"), 1500);
-        setIsProcessing(false);
-        return;
-      }
 
       canvas.toBlob(async (blob) => {
         if (!blob) {

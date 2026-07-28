@@ -88,8 +88,9 @@ export default function ProReviewDetailPage() {
         updatedAt: Date.now()
       });
 
-      toast({ title: "Product Verified", description: "Listed on Benched.au marketplace!" });
+      toast({ title: "✓ Confirmed: Added to Benched", description: "Listed on Benched.au marketplace!" });
       router.push('/procam/review');
+      router.refresh();
     } catch (err: any) {
       console.error("Failed to promote product to products", err);
       toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list product." });

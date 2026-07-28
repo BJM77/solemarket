@@ -98,8 +98,9 @@ export default function CoinReviewDetailPage() {
         updatedAt: Date.now()
       });
 
-      toast({ title: "Coin Verified", description: "Promoted to products and listed on Benched.au marketplace!" });
+      toast({ title: "✓ Confirmed: Added to Benched", description: "Successfully promoted to products and listed on Benched.au marketplace!" });
       router.push('/coincam/review');
+      router.refresh();
     } catch (err: any) {
       console.error("Failed to promote coin to products", err);
       toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list coin." });

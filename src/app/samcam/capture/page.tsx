@@ -302,17 +302,10 @@ export default function BenchedPhotoBooth() {
       const yOffset = (v.videoHeight - 1120) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 1120, 0, 0, 800, 1120);
 
+      // Run image analysis for records, but do not block capture
       const q = analyzeImageQuality(c, { minBlur: 15, minBrightness: 50 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
-
-      if (!q.isAcceptable) {
-        audioSynth.playBeep();
-        setLabStatus(q.messages[0] || "ADJUST...");
-        setTimeout(() => setLabStatus("READY"), 1500);
-        setIsProcessing(false);
-        return;
-      }
 
       c.toBlob(async (blob) => {
         if (!blob) {

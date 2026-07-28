@@ -131,6 +131,7 @@ export default function CoinPhotoBooth() {
   const [showHUD, setShowHUD] = useState(true);
   const [hudPosition, setHudPosition] = useState<'top-left'|'top-right'|'bottom-left'|'bottom-right'>('top-left');
   const [brightnessThreshold, setBrightnessThreshold] = useState<number>(30);
+  const [focusThreshold, setFocusThreshold] = useState<number>(20);
   const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [qualityHistory, setQualityHistory] = useState<QualityMetrics[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -297,17 +298,10 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      const q = analyzeImageQuality(c, { minBlur: 25, minBrightness: brightnessThreshold, maxBrightness: 220, maxGlare: 5 });
+      // Run image analysis for HUD logs and sync records, but do not block capture
+      const q = analyzeImageQuality(c, { minBlur: focusThreshold, minBrightness: brightnessThreshold, maxBrightness: 220, maxGlare: 5 });
       setLastQuality(q);
       setQualityHistory(prev => [...prev.slice(-9), q]);
-
-      if (!q.isAcceptable) {
-        audioSynth.playBeep();
-        setLabStatus(q.messages[0] || "ADJUST...");
-        setTimeout(() => setLabStatus("READY"), 1500);
-        setIsProcessing(false);
-        return;
-      }
 
       c.toBlob(async (blob) => {
         if (!blob) {
@@ -386,7 +380,7 @@ export default function CoinPhotoBooth() {
     if (quality.brightnessScore < brightnessThreshold) {
       alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-400 border-yellow-400/20" });
     }
-    if (quality.blurScore < 10) {
+    if (quality.blurScore < focusThreshold) {
       alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-400 border-red-400/20" });
     }
     if (quality.glarePercentage > 15) {
@@ -742,6 +736,8 @@ export default function CoinPhotoBooth() {
         setHudPosition={setHudPosition}
         brightnessThreshold={brightnessThreshold}
         setBrightnessThreshold={setBrightnessThreshold}
+        focusThreshold={focusThreshold}
+        setFocusThreshold={setFocusThreshold}
       />
     </div>
   );

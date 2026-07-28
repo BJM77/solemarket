@@ -92,8 +92,9 @@ export default function ShoeReviewDetailPage() {
         updatedAt: Date.now()
       });
 
-      toast({ title: "Sneaker Verified", description: "Listed on Benched.au marketplace!" });
+      toast({ title: "✓ Confirmed: Added to Benched", description: "Listed on Benched.au marketplace!" });
       router.push('/shoecam/review');
+      router.refresh();
     } catch (err: any) {
       console.error("Failed to promote shoe to products", err);
       toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list shoe." });

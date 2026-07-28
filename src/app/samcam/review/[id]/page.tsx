@@ -97,8 +97,9 @@ export default function ReviewDetailPage() {
         updatedAt: Date.now()
       });
 
-      toast({ title: "Card Verified", description: "Promoted to local inventory and added to products on Benched.au!" });
+      toast({ title: "✓ Confirmed: Added to Benched", description: "Successfully promoted to local inventory and added to products on Benched.au!" });
       router.push('/samcam/review');
+      router.refresh();
     } catch (err: any) {
       console.error("Failed to promote card to products", err);
       toast({ variant: "destructive", title: "Save Failed", description: err.message || "Failed to list product." });

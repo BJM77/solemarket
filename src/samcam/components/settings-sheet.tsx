@@ -41,6 +41,8 @@ interface SettingsSheetProps {
   setHudPosition?: (pos: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right') => void;
   brightnessThreshold?: number;
   setBrightnessThreshold?: (val: number) => void;
+  focusThreshold?: number;
+  setFocusThreshold?: (val: number) => void;
 }
 
 export default function SettingsSheet({
@@ -55,6 +57,8 @@ export default function SettingsSheet({
   setHudPosition,
   brightnessThreshold,
   setBrightnessThreshold,
+  focusThreshold,
+  setFocusThreshold,
 }: SettingsSheetProps) {
   const [detectedProfile, setDetectedProfile] = useState<DeviceProfile | null>(null);
 
@@ -148,28 +152,6 @@ export default function SettingsSheet({
           )}
 
           {hasHUDConfig && <Separator />}
-
-          {/* Brightness Threshold Slider */}
-          {brightnessThreshold !== undefined && setBrightnessThreshold !== undefined && (
-            <div className="space-y-4">
-              <Label className="text-base font-semibold flex items-center justify-between">
-                <span>Minimum Brightness Threshold</span>
-                <span className="text-muted-foreground">{brightnessThreshold} LUX</span>
-              </Label>
-              <Slider
-                value={[brightnessThreshold]}
-                onValueChange={(vals) => setBrightnessThreshold(vals[0])}
-                min={0}
-                max={150}
-                step={5}
-                className="my-4"
-              />
-              <p className="text-xs text-muted-foreground">
-                Lower values allow darker images to be captured without the "Too Dark" warning. Set to 0 to disable.
-              </p>
-              <Separator />
-            </div>
-          )}
 
           <div className="space-y-4">
             <Label className="text-base font-semibold">Manage Keep List</Label>
