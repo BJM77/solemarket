@@ -58,6 +58,14 @@ export async function POST(request: NextRequest) {
             sameSite: "lax",
         });
 
+        // Trigger user sync (claims, holds, role) safely on the server side
+        try {
+            const { syncUserOnLogin } = await import('@/app/actions/auth/auth');
+            await syncUserOnLogin(idToken);
+        } catch (syncErr) {
+            console.warn('[Session API] User sync warning:', syncErr);
+        }
+
         return NextResponse.json({ status: "success" }, { status: 200 });
 
     } catch (error) {
