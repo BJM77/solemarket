@@ -62,7 +62,7 @@ export default function ShoeReviewQueue() {
         imageUrls: [item.front45ImagePath, item.sideImagePath, item.topImagePath, item.labelImagePath].filter(Boolean),
         sellerId: user?.uid || 'anonymous',
         status: 'available',
-        category: 'sneakers',
+        category: 'Sneakers',
         condition: item.condition || 'New',
         quantity: 1,
         createdAt: Date.now(),

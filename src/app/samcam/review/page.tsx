@@ -64,7 +64,7 @@ export default function ReviewQueue() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user?.uid || 'anonymous',
         status: 'available',
-        category: 'trading-cards',
+        category: 'Collector Cards',
         condition: item.condition || 'Near Mint',
         quantity: 1,
         createdAt: Date.now(),

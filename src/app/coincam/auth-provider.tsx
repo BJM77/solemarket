@@ -42,11 +42,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setImports([]);
-      setImportsLoading(false);
-      return;
-    }
 
     const q = query(
       collection(db, "coin_imports"), 
@@ -54,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
-      const filteredDocs = docs.filter(d => d.userId === user.uid || d.userId === 'anonymous');
+      const filteredDocs = docs.filter(d => d.userId === user?.uid || d.userId === 'anonymous');
       setImports(filteredDocs);
       setImportsLoading(false);
     });

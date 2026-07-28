@@ -63,7 +63,7 @@ export default function CoinReviewQueue() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user?.uid || 'anonymous',
         status: 'available',
-        category: 'coins',
+        category: 'Coins',
         condition: item.composition || 'Circulated',
         quantity: 1,
         createdAt: Date.now(),
