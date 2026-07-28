@@ -2,6 +2,7 @@
 
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { signOutUser } from '@/lib/firebase/auth';
@@ -34,7 +35,8 @@ import {
   Coins,
   Footprints,
   Layers,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
@@ -44,6 +46,45 @@ export function UserNav() {
   const { canSell, isSuperAdmin } = useUserPermissions();
   const router = useRouter();
   const pathname = usePathname();
+
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isPwaInstallable, setIsPwaInstallable] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.deferredPrompt) {
+        setDeferredPrompt(window.deferredPrompt);
+        setIsPwaInstallable(true);
+      }
+
+      const handlePwaInstallable = () => {
+        setDeferredPrompt(window.deferredPrompt);
+        setIsPwaInstallable(true);
+      };
+
+      window.addEventListener('pwa-installable', handlePwaInstallable);
+
+      window.addEventListener('appinstalled', () => {
+        setIsPwaInstallable(false);
+        setDeferredPrompt(null);
+        window.deferredPrompt = null;
+      });
+
+      return () => {
+        window.removeEventListener('pwa-installable', handlePwaInstallable);
+      };
+    }
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA: User install response: ${outcome}`);
+    setDeferredPrompt(null);
+    window.deferredPrompt = null;
+    setIsPwaInstallable(false);
+  };
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -196,6 +237,16 @@ export function UserNav() {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />
           </DropdownMenuGroup>
+        )}
+
+        {isPwaInstallable && (
+          <>
+            <DropdownMenuItem onClick={handleInstallApp} className="cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1">
+              <Download className="mr-3 h-4 w-4" />
+              <span className="font-bold">Install App</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-2" />
+          </>
         )}
 
         <DropdownMenuItem onClick={handleSignOut} className="focus:text-destructive cursor-pointer w-full py-2.5 rounded-lg text-muted-foreground focus:bg-destructive/5">

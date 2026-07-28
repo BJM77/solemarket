@@ -16,8 +16,6 @@ import { MarketTicker } from '../home/MarketTicker';
 import { MobileNavPills } from './MobileNavPills';
 import { cn } from '@/lib/utils';
 
-import { InstallAppButton } from './InstallAppButton';
-
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -66,7 +64,6 @@ export default function Header() {
             {/* Mobile search icon removed as requested */}
             {isClient && (
               <>
-                <InstallAppButton />
                 <Suspense fallback={<div className="h-10 w-24 bg-muted/20 rounded-md" />}>
                   <HeaderActions />
                 </Suspense>
