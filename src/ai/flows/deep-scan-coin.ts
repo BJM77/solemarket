@@ -25,33 +25,39 @@ const DeepScanCoinOutputSchema = z.object({
 
 export type DeepScanCoinOutput = z.infer<typeof DeepScanCoinOutputSchema>;
 
+async function prepareMediaUrl(urlOrBase64: string): Promise<string> {
+  if (urlOrBase64.startsWith('data:')) {
+    return urlOrBase64;
+  }
+  const response = await fetch(urlOrBase64);
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const base64Data = buffer.toString('base64');
+  const mimeType = response.headers.get('content-type') || 'image/jpeg';
+  return `data:${mimeType};base64,${base64Data}`;
+}
+
 export async function deepScanCoin(
   imageUrlOrBase64: string,
+  backImageUrlOrBase64?: string,
 ): Promise<DeepScanCoinOutput> {
   console.log('[AI] deepScanCoin called');
   
   try {
-    let mimeType = 'image/jpeg';
-    let mediaUrl = imageUrlOrBase64;
+    const frontUrl = await prepareMediaUrl(imageUrlOrBase64);
+    const mediaArray: any[] = [{ media: { url: frontUrl } }];
 
-    if (!imageUrlOrBase64.startsWith('data:')) {
-      const response = await fetch(imageUrlOrBase64);
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const base64Data = buffer.toString('base64');
-      mimeType = response.headers.get('content-type') || 'image/jpeg';
-      mediaUrl = `data:${mimeType};base64,${base64Data}`;
+    if (backImageUrlOrBase64) {
+      const backUrl = await prepareMediaUrl(backImageUrlOrBase64);
+      mediaArray.push({ media: { url: backUrl } });
     }
 
-    const result = await ai.generate({
-      model: 'googleai/gemini-flash-latest',
-      prompt: [
-        { text: `You are a professional coin grading and numismatic expert. Analyze this coin image and extract details for the output schema:
+    const promptText = `You are a professional coin grading and numismatic expert. Analyze the provided image(s) (Front/Obverse and optional Back/Reverse) of the coin and extract details for the output schema:
 - coinName: The name or commemorative theme of the coin (required)
 - setName: The series or set name (e.g. Australian Nugget Series)
 - denomination: The face value or denomination (e.g. $1, 50c, Penny)
 - country: The issuing country (e.g. Australia, USA, Great Britain)
-- year: The mint year printed on the coin as a number. If no year is visible, return null
+- year: The mint year printed on the coin as a number. Inspect BOTH sides carefully. If no year is visible, return null
 - mintMark: The mint mark (e.g. S, D, P, CC) if visible
 - composition: The metal composition (Gold, Silver, Bronze, etc.)
 - rarity: Rarity/strike type notes (e.g. Proof, Specimen, Low Mintage)
@@ -63,8 +69,13 @@ export async function deepScanCoin(
 - brand: The minting authority or brand (e.g. "Royal Australian Mint", "Perth Mint", "US Mint"). Set to "Royal Australian Mint" if it is an Australian coin.
 - model: The model or denomination of the coin (e.g. "$2", "$1", "50c").
 - isMultiCoin: Boolean, set to true if the image contains multiple coins, a coin set, a coin roll, or a multi-coin presentation lot.
-- coinCount: Number of coins visible in the image (1 for single coin, >1 for sets/rolls/lots). If multiple coins are present, title coinName as a set or lot.` },
-        { media: { url: mediaUrl } }
+- coinCount: Number of coins visible in the image (1 for single coin, >1 for sets/rolls/lots). If multiple coins are present, title coinName as a set or lot.`;
+
+    const result = await ai.generate({
+      model: 'googleai/gemini-2.0-flash',
+      prompt: [
+        { text: promptText },
+        ...mediaArray
       ],
       output: {
         schema: DeepScanCoinOutputSchema

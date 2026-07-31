@@ -8,6 +8,16 @@ import { deepScanShoe } from '@/ai/flows/deep-scan-shoe';
 
 export type SyncCallback = (status: SyncStatus) => void;
 
+export interface SyncResult {
+  success: boolean;
+  aiResult?: Record<string, any>;
+  front45Url?: string;
+  sideUrl?: string;
+  topUrl?: string;
+  labelUrl?: string;
+  docId?: string;
+}
+
 const blobToBase64 = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined') {
@@ -28,7 +38,7 @@ export class SyncService {
     upload: PendingUpload,
     deviceProfile: DeviceProfile,
     onStatusUpdate: SyncCallback
-  ): Promise<boolean> {
+  ): Promise<SyncResult> {
     const id = upload.id;
     
     const status: SyncStatus = {
@@ -155,7 +165,7 @@ export class SyncService {
       await this.updateStep(status, 'complete', 'success', 'Sync complete!', onStatusUpdate);
       
       this.activeSyncs.delete(id);
-      return true;
+      return { success: true, aiResult: aiResult as Record<string, any>, front45Url, sideUrl, topUrl, labelUrl, docId: id };
       
     } catch (error: any) {
       console.error('[SyncService] Error:', error);
@@ -167,7 +177,7 @@ export class SyncService {
       status.error = error.message || 'Sync failed';
       onStatusUpdate({ ...status });
       this.activeSyncs.delete(id);
-      return false;
+      return { success: false };
     }
   }
   

@@ -1,31 +1,33 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
   Target, 
   Sun, 
   Gauge, 
-  CheckCircle2, 
   Loader2, 
   RefreshCw, 
+  Layers, 
   Trash2, 
-  Eye, 
-  EyeOff, 
   Settings,
   Zap,
   ZapOff,
-  Clock,
-  XCircle,
-  FileText,
-  ListChecks
+  BadgeCheck,
+  Camera,
+  Send,
+  Gem,
+  Box
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/samcam/hooks/use-toast";
-import { auth } from "@/samcam/lib/firebase";
+import { db, auth } from "@/samcam/lib/firebase";
 import { syncStorage, PendingUpload } from "@/procam/lib/sync-storage";
 import { cn } from "@/samcam/lib/utils";
 import { analyzeImageQuality, QualityMetrics } from "@/samcam/lib/image-processing";
@@ -33,9 +35,30 @@ import { detectDevice, getProfileForPreset, DeviceProfile } from "@/samcam/lib/d
 import SettingsSheet from "@/samcam/components/settings-sheet";
 import { useErrorLog } from "@/samcam/hooks/use-error-log";
 import { SyncStatusTracker, SyncStatus } from "@/samcam/components/sync-status-tracker";
-import { syncService } from "@/procam/lib/sync-service";
+import { syncService, SyncResult } from "@/procam/lib/sync-service";
 import { audioSynth } from "@/samcam/lib/audio-effects";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { useAuth } from "@/app/procam/auth-provider";
 
+// ─── Types ────────────────────────────────────────────────────────────
+type BoothStep = 'CAPTURE' | 'REVIEW' | 'SUBMITTING';
+type ProSide = 'MAIN' | 'DETAIL';
+
+interface ReviewData {
+  docId: string;
+  mainUrl: string;
+  secondaryUrl: string;
+  title: string;
+  price: number | undefined;
+  description: string;
+  condition: string;
+  category: string;
+  brand: string;
+  model: string;
+  year: number | undefined;
+}
+
+// ─── Camera Constraints ──────────────────────────────────────────────
 const getCameraConstraints = (device: DeviceProfile) => {
   const constraints: MediaTrackConstraints = {
     facingMode: 'environment',
@@ -58,35 +81,6 @@ const getCameraConstraints = (device: DeviceProfile) => {
     };
   }
 
-  if (device.manufacturer === 'samsung') {
-    return {
-      ...constraints,
-      // @ts-ignore
-      advanced: [
-        { focusMode: 'continuous' },
-        { exposureMode: 'auto' },
-        { whiteBalanceMode: 'auto' },
-        { 'com.samsung.android.camera.softening': 0.5 },
-        { 'com.samsung.android.camera.macro': true },
-      ],
-    };
-  }
-
-  if (device.manufacturer === 'google') {
-    return {
-      ...constraints,
-      // @ts-ignore
-      advanced: [
-        { focusMode: 'continuous' },
-        { exposureMode: 'auto' },
-        { whiteBalanceMode: 'auto' },
-        { 'com.google.android.camera.hdrplus': true },
-        { 'com.google.android.camera.ai_auto': true },
-        { 'com.google.android.camera.macro': true },
-      ],
-    };
-  }
-
   return {
     ...constraints,
     // @ts-ignore
@@ -98,15 +92,21 @@ const getCameraConstraints = (device: DeviceProfile) => {
   };
 };
 
+// ─── Main Component ──────────────────────────────────────────────────
 export default function ProPhotoBooth() {
+  const [boothStep, setBoothStep] = useState<BoothStep>('CAPTURE');
+  const [reviewData, setReviewData] = useState<ReviewData | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [aiScanning, setAiScanning] = useState(false);
+  const [cameraCollapsed, setCameraCollapsed] = useState(false);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [labStatus, setLabStatus] = useState("READY");
   const [syncQueue, setSyncQueue] = useState<PendingUpload[]>([]);
   const [syncStatuses, setSyncStatuses] = useState<Map<string, SyncStatus>>(new Map());
   const [lastQuality, setLastQuality] = useState<QualityMetrics | null>(null);
+  const [currentSide, setCurrentSide] = useState<ProSide>('MAIN');
   
-  // 2 steps sequence
-  const [currentStep, setCurrentStep] = useState<'MAIN' | 'SECONDARY'>('MAIN');
   const [tempMain, setTempMain] = useState<Blob | null>(null);
   
   const [torchActive, setTorchActive] = useState(false);
@@ -115,39 +115,33 @@ export default function ProPhotoBooth() {
   const videoTrackRef = useRef<MediaStreamTrack | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
 
+  const [capturedImages, setCapturedImages] = useState<Record<string, string>>({});
+  const [activeUploadId, setActiveUploadId] = useState<string | null>(null);
+  const activeUploadRef = useRef<string | null>(null);
+
   useEffect(() => {
-    const urls = createdUrlsRef.current;
     return () => {
-      urls.forEach(url => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (e) {
-          console.warn("Failed to revoke URL", url, e);
-        }
+      createdUrlsRef.current.forEach(url => {
+        try { URL.revokeObjectURL(url); } catch (e) { }
       });
     };
   }, []);
   
   const [selectedDevice, setSelectedDevice] = useState<string>('auto');
-  const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>({
-    name: 'Generic Device',
-    manufacturer: 'generic',
-    model: 'unknown',
-    isHighEnd: false,
-    hasMacroMode: false,
-    hasNightMode: false,
-    recommendedAspectRatio: '16:9',
-    recommendedResolution: { width: 1920, height: 1080 },
-    aiAcceleration: 'basic',
-  });
+  const [deviceProfile, setDeviceProfile] = useState<DeviceProfile>(detectDevice());
   const [showHUD, setShowHUD] = useState(true);
   const [hudPosition, setHudPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-right');
+  const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [brightnessThreshold, setBrightnessThreshold] = useState(50);
+  const [focusThreshold, setFocusThreshold] = useState(50);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const reviewPanelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
   const errorLog = useErrorLog();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (selectedDevice === 'auto') {
@@ -158,190 +152,154 @@ export default function ProPhotoBooth() {
   }, [selectedDevice]);
 
   useEffect(() => {
-    let activeStream: MediaStream | null = null;
-
-    async function startCamera() {
-      if (!videoRef.current) return;
+    let stream: MediaStream | null = null;
+    const startCamera = async () => {
       try {
         const constraints = getCameraConstraints(deviceProfile);
-        const stream = await navigator.mediaDevices.getUserMedia({ video: constraints as any });
-        videoRef.current.srcObject = stream;
-        activeStream = stream;
-        const track = stream.getVideoTracks()[0];
-        videoTrackRef.current = track;
+        stream = await navigator.mediaDevices.getUserMedia({ video: constraints as any });
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        if (stream) videoTrackRef.current = stream.getVideoTracks()[0];
       } catch (err: any) {
-        console.error("Camera access failed:", err);
-        errorLog.addError("BOOTH_CAMERA_INIT_FAILED: " + err.message);
-        toast({
-          variant: "destructive",
-          title: "Camera Access Error",
-          description: "Could not open camera stream. Please check permissions."
-        });
+        toast({ variant: "destructive", title: "Camera Error", description: err.message });
       }
-    }
-
+    };
     startCamera();
-
+    syncStorage.getAll().then(setSyncQueue);
     return () => {
-      if (activeStream) {
-        activeStream.getTracks().forEach(track => track.stop());
-      }
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      videoTrackRef.current = null;
     };
-  }, [deviceProfile, toast, errorLog]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleFocus = () => {
-      setFocusState('locked');
-      setTimeout(() => setFocusState('idle'), 1000);
-    };
-
-    video.addEventListener('focus', handleFocus);
-    video.addEventListener('focusin', handleFocus);
-
-    return () => {
-      video.removeEventListener('focus', handleFocus);
-      video.removeEventListener('focusin', handleFocus);
-    };
-  }, []);
-
-  // Load existing Queue
-  useEffect(() => {
-    async function loadQueue() {
-      const items = await syncStorage.getAll();
-      setSyncQueue(items.sort((a, b) => b.createdAt - a.createdAt));
-    }
-    loadQueue();
-  }, []);
-
-  // Background Sync Runner Loop
-  useEffect(() => {
-    let syncInterval: NodeJS.Timeout;
-    
-    async function runSyncs() {
-      const pending = syncQueue.filter(q => q.status === 'PENDING' || q.status === 'ERROR');
-      if (pending.length === 0) return;
-
-      for (const item of pending) {
-        // Mark status as uploading
-        item.status = 'UPLOADING';
-        await syncStorage.update(item);
-        
-        const success = await syncService.processUpload(
-          item,
-          deviceProfile,
-          (status) => {
-            setSyncStatuses(prev => {
-              const next = new Map(prev);
-              next.set(item.id, status);
-              return next;
-            });
-          }
-        );
-
-        if (success) {
-          setSyncQueue(prev => prev.filter(q => q.id !== item.id));
-        } else {
-          item.status = 'ERROR';
-          item.retries += 1;
-          await syncStorage.update(item);
-          setSyncQueue(prev => prev.map(q => q.id === item.id ? { ...item } : q));
-        }
-      }
-    }
-
-    syncInterval = setInterval(runSyncs, 4000);
-    return () => clearInterval(syncInterval);
-  }, [syncQueue, deviceProfile]);
-
-  const toggleTorch = async () => {
-    if (!videoTrackRef.current) return;
-    try {
-      const capabilities = videoTrackRef.current.getCapabilities();
-      // @ts-ignore
-      if (capabilities.torch) {
-        const nextState = !torchActive;
-        // @ts-ignore
-        await videoTrackRef.current.applyConstraints({ advanced: [{ torch: nextState }] });
-        setTorchActive(nextState);
-      } else {
-        toast({ title: "Hardware Warning", description: "Flash/Torch control is not supported on this device's camera." });
-      }
-    } catch (e) {
-      console.warn("Torch configuration failed", e);
-    }
-  };
+  }, [deviceProfile, toast]);
 
   const triggerVibrate = (pattern: number | number[]) => {
-    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
-      window.navigator.vibrate(pattern);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(pattern);
+  };
+
+  const toggleTorch = async () => {
+    try {
+      const track = videoTrackRef.current;
+      if (!track) return;
+      const capabilities = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
+      if (capabilities && (capabilities as any).torch) {
+        const nextState = !torchActive;
+        await track.applyConstraints({ advanced: [{ torch: nextState }] } as any);
+        setTorchActive(nextState);
+        audioSynth.playChime();
+      }
+    } catch (e) {
+      console.error("Failed to toggle torch", e);
     }
   };
 
-  const capturePhoto = async () => {
-    if (isProcessing || !videoRef.current) return;
+  useEffect(() => {
+    let isQueueProcessing = false;
+    const processQueue = async () => {
+      if (isQueueProcessing || syncQueue.length === 0) return;
+      const activeItem = syncQueue.find(i => i.status === 'PENDING' || i.status === 'ERROR');
+      if (!activeItem) return;
+      
+      const existingStatus = syncService.getActiveSync(activeItem.id);
+      if (existingStatus) {
+        setSyncStatuses(prev => new Map(prev).set(activeItem.id, existingStatus));
+        return;
+      }
+
+      isQueueProcessing = true;
+      try {
+        const result: SyncResult = await syncService.processUpload(
+          activeItem, deviceProfile,
+          (status) => setSyncStatuses(prev => new Map(prev).set(activeItem.id, status))
+        );
+
+        if (result.success) {
+          audioSynth.playChime();
+          setSyncQueue(prev => prev.filter(i => i.id !== activeItem.id));
+          setTimeout(() => {
+            setSyncStatuses(prev => { const next = new Map(prev); next.delete(activeItem.id); return next; });
+          }, 6000);
+
+          if (activeUploadRef.current === activeItem.id && result.aiResult) {
+            const ai = result.aiResult;
+            setReviewData({
+              docId: result.docId || activeItem.id,
+              mainUrl: result.mainUrl || '',
+              secondaryUrl: result.secondaryUrl || '',
+              title: ai.title || '',
+              price: ai.price || undefined,
+              description: ai.description || '',
+              condition: ai.condition || 'Used',
+              category: ai.category || 'Other Stuff',
+              brand: ai.brand || '',
+              model: ai.model || '',
+              year: ai.year || undefined,
+            });
+            setBoothStep('REVIEW');
+            setAiScanning(false);
+            setTimeout(() => reviewPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+          }
+        } else {
+          const updated = { ...activeItem, status: 'ERROR' as const, retries: activeItem.retries + 1 };
+          await syncStorage.update(updated);
+          setSyncQueue(prev => prev.map(i => i.id === activeItem.id ? updated : i));
+          if (activeUploadRef.current === activeItem.id) {
+            setBoothStep('REVIEW');
+            setAiScanning(false);
+            toast({ variant: "destructive", title: "AI Identification Failed", description: "You can fill in the details manually or run AI Check again." });
+          }
+        }
+      } catch (error) {
+        console.error("[Queue] Processing error:", error);
+      } finally {
+        isQueueProcessing = false;
+      }
+    };
+    const interval = setInterval(processQueue, 2000);
+    return () => clearInterval(interval);
+  }, [syncQueue, deviceProfile, toast]);
+
+  const capture = async () => {
+    if (!videoRef.current || isProcessing) return;
     setIsProcessing(true);
-    setLabStatus("CHECKING...");
+    setLabStatus("LOCKING...");
 
     try {
-      const video = videoRef.current;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      const width = video.videoWidth;
-      const height = video.videoHeight;
+      const v = videoRef.current;
+      const c = document.createElement('canvas');
+      c.width = 1080; c.height = 1080;
+      const ctx = c.getContext('2d', { alpha: false })!;
       
-      const cropWidth = 1024;
-      const cropHeight = 768;
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
+      const minDim = Math.min(v.videoWidth, v.videoHeight);
+      const sx = (v.videoWidth - minDim) / 2;
+      const sy = (v.videoHeight - minDim) / 2;
+      ctx.drawImage(v, sx, sy, minDim, minDim, 0, 0, 1080, 1080);
 
-      if (!ctx) throw new Error("Could not construct 2D context");
-
-      // Draw landscape center crop
-      const startX = (width - (height * (4/3))) / 2;
-      const sourceWidth = height * (4/3);
-      const sourceHeight = height;
-
-      ctx.drawImage(
-        video,
-        startX, 0, sourceWidth, sourceHeight,
-        0, 0, cropWidth, cropHeight
-      );
-
-      // Run image analysis in the background, non-blocking
-      const imageData = ctx.getImageData(0, 0, cropWidth, cropHeight);
-      analyzeImageInBackground(imageData, canvas).then((q) => {
-        setLastQuality(q);
-      }).catch(err => console.warn('Background analysis failed:', err));
-
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          setIsProcessing(false);
-          setLabStatus("READY");
-          return;
-        }
-
+      c.toBlob(async (blob) => {
+        if (!blob) { setIsProcessing(false); setLabStatus("READY"); return; }
         audioSynth.playShutter();
         triggerVibrate(60);
 
         const objectUrl = URL.createObjectURL(blob);
         createdUrlsRef.current.push(objectUrl);
+        setCapturedImages(prev => ({ ...prev, [currentSide]: objectUrl }));
 
-        if (currentStep === 'MAIN') {
+        if (currentSide === 'MAIN') {
           setTempMain(blob);
-          setCurrentStep('SECONDARY');
+          setCurrentSide('DETAIL');
           setLabStatus("CAPTURE DETAIL");
-          setSessionThumbnails(prev => [objectUrl, ...prev]);
           triggerVibrate([30, 50, 30]);
           setIsProcessing(false);
         } else {
+          if (!tempMain) {
+            toast({ variant: "destructive", title: "Sequence Error", description: "Missing main view photo. Resetting." });
+            setTempMain(null);
+            setCurrentSide('MAIN');
+            setIsProcessing(false);
+            return;
+          }
           const id = `pro_${Date.now()}`;
           const newUpload: PendingUpload = {
             id,
-            mainBlob: tempMain!,
+            mainBlob: tempMain,
             secondaryBlob: blob,
             status: 'PENDING',
             retries: 0,
@@ -353,12 +311,17 @@ export default function ProPhotoBooth() {
           setSessionThumbnails(prev => [objectUrl, ...prev]);
 
           setTempMain(null);
-          setCurrentStep('MAIN');
-          setLabStatus("READY");
+          setCurrentSide('MAIN');
+          setLabStatus("ANALYZING");
+          
+          setActiveUploadId(id);
+          activeUploadRef.current = id;
+          setBoothStep('SUBMITTING');
+          setAiScanning(true);
+          setCameraCollapsed(true);
           setIsProcessing(false);
         }
-      }, 'image/jpeg', 0.8);
-
+      }, 'image/jpeg', 0.85);
     } catch (e) {
       console.error("Capture Error", e);
       setLabStatus("ERROR");
@@ -376,228 +339,283 @@ export default function ProPhotoBooth() {
     toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
   };
 
-  const analyzeImageInBackground = async (imageData: ImageData, canvas: HTMLCanvasElement) => {
-    return new Promise<QualityMetrics>((resolve) => {
-      const analyze = () => {
-        try {
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = canvas.height;
-          const tempCtx = tempCanvas.getContext('2d');
-          if (!tempCtx) throw new Error('Could not get context');
-          tempCtx.putImageData(imageData, 0, 0);
-          
-          const quality = analyzeImageQuality(tempCanvas, undefined);
-          resolve(quality);
-        } catch (err) {
-          console.warn('Background analysis failed:', err);
-          resolve({
-            blurScore: 20, brightnessScore: 120, glarePercentage: 5, contrastScore: 60, sharpnessScore: 70, colorTemperature: 6500, overallScore: 75, isAcceptable: true, messages: []
-          });
-        }
-      };
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(analyze, { timeout: 2000 });
-      } else {
-        setTimeout(analyze, 100);
-      }
-    });
-  };
-
-  const getStepGuide = (step: typeof currentStep) => {
-    switch (step) {
-      case 'MAIN':
-        return "Main View: Align the entire product in the center frame.";
-      case 'SECONDARY':
-        return "Detail View: Take a close-up picture of any unique details, serial number, tag, or label.";
+  const handleAiCheck = async () => {
+    if (!reviewData?.mainUrl || !reviewData?.secondaryUrl) {
+      toast({ title: "Missing Images", description: "Images not available for AI scan." });
+      return;
+    }
+    setAiScanning(true);
+    try {
+      const { deepScanPro } = await import('@/ai/flows/deep-scan-pro');
+      const aiResult = await deepScanPro(reviewData.mainUrl, reviewData.secondaryUrl);
+      
+      setReviewData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          title: aiResult.title || prev.title,
+          price: aiResult.price || prev.price,
+          description: aiResult.description || prev.description,
+          condition: aiResult.condition || prev.condition,
+          category: aiResult.category || prev.category,
+          brand: aiResult.brand || prev.brand,
+          model: aiResult.model || prev.model,
+          year: aiResult.year || prev.year,
+        };
+      });
+      toast({ title: "AI Check Complete", description: "Extracted additional product details." });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "AI Check Failed", description: err.message });
+    } finally {
+      setAiScanning(false);
     }
   };
 
-  return (
-    <div className="h-screen bg-black text-white font-mono flex flex-col overflow-hidden">
-      <header className="p-3 bg-zinc-900 border-b border-white/10 flex justify-between items-center z-20">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/procam')}><ArrowLeft className="w-5 h-5" /></Button>
-        
-        <div className="flex gap-2 items-center">
-          <Badge className={cn("text-[9px] font-black uppercase tracking-widest", 
-            currentStep === 'MAIN' ? "bg-primary text-black" : "bg-purple-600 text-white"
-          )}>
-            Step: {currentStep}
-          </Badge>
+  const handleSubmitToBench = async () => {
+    if (!reviewData) return;
+    if (!user) {
+      toast({ variant: "destructive", title: "Authentication Required", description: "You must be signed in to list products." });
+      return;
+    }
+    setSaving(true);
+    try {
+      await addDoc(collection(db, "products"), {
+        title: reviewData.title,
+        price: reviewData.price || 0,
+        description: reviewData.description || '',
+        imageUrls: [reviewData.mainUrl, reviewData.secondaryUrl].filter(Boolean),
+        sellerId: user.uid,
+        status: 'available',
+        category: reviewData.category || 'Other Stuff',
+        brand: reviewData.brand,
+        model: reviewData.model,
+        condition: reviewData.condition,
+        year: reviewData.year || null,
+        subCategory: 'Pro Listings',
+        quantity: 1,
+        createdAt: Date.now(),
+        isDraft: false,
+        specs: {
+          brand: reviewData.brand,
+          model: reviewData.model,
+          condition: reviewData.condition,
+        }
+      });
 
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="hidden sm:flex bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] px-3 text-[10px] uppercase font-black tracking-widest gap-2 ml-2"
-            onClick={() => router.push('/procam/review')}
-          >
-            <ListChecks className="w-3.5 h-3.5" />
-            Review Queue
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="sm:hidden bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] w-[32px] ml-2"
-            onClick={() => router.push('/procam/review')}
-          >
-            <ListChecks className="w-3.5 h-3.5" />
-          </Button>
-          
-          <button onClick={() => setShowHUD(prev => !prev)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition">
-            {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
-          </button>
-          <button onClick={toggleTorch} className={cn("p-2 rounded-lg transition", torchActive ? "bg-primary text-white" : "bg-zinc-800 text-zinc-400")}>
-            {torchActive ? <ZapOff className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
-          </button>
-          <button onClick={() => setSettingsOpen(true)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition">
-            <Settings className="w-4 h-4 text-zinc-400" />
-          </button>
+      await updateDoc(doc(db, "pro_imports", reviewData.docId), {
+        status: 'VERIFIED',
+        ...reviewData,
+        updatedAt: Date.now()
+      });
+
+      audioSynth.playChime();
+      toast({ title: "✓ Submitted to Bench", description: "Product is now live on the marketplace!" });
+      resetBooth();
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Submit Failed", description: err.message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSkipAndQueue = () => {
+    toast({ title: "Queued for Review", description: "Product saved to the review queue." });
+    resetBooth();
+  };
+
+  const resetBooth = () => {
+    setBoothStep('CAPTURE');
+    setReviewData(null);
+    setActiveUploadId(null);
+    activeUploadRef.current = null;
+    setCapturedImages({});
+    setCameraCollapsed(false);
+    setAiScanning(false);
+    setLabStatus("READY");
+    setCurrentSide('MAIN');
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white selection:bg-white/30">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/10 p-4 safe-top">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.push('/home')}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="font-bold text-lg flex items-center gap-2">
+                Procam <Badge variant="secondary" className="bg-white/10 text-[10px] px-1 py-0 h-4">PRO</Badge>
+              </h1>
+              <p className="text-xs text-white/50">{deviceProfile.name}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:block">
+              {Array.from(syncStatuses.values()).map(status => (
+                <SyncStatusTracker key={status.id} status={status} />
+              ))}
+            </div>
+            <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="bg-zinc-950 border-white/10 rounded-t-3xl max-h-[85vh] overflow-y-auto">
+                <SettingsSheet 
+                  isOpen={settingsOpen}
+                  setIsOpen={setSettingsOpen}
+                  errorLog={errorLog}
+                  selectedDevice={selectedDevice}
+                  setSelectedDevice={setSelectedDevice}
+                  showHUD={showHUD}
+                  setShowHUD={setShowHUD}
+                  hudPosition={hudPosition}
+                  setHudPosition={setHudPosition}
+                  brightnessThreshold={brightnessThreshold}
+                  setBrightnessThreshold={setBrightnessThreshold}
+                  focusThreshold={focusThreshold}
+                  setFocusThreshold={setFocusThreshold}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
-      <div className="flex-1 relative flex items-center justify-center bg-zinc-950">
-        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-65 grayscale" />
+      <main className="max-w-md mx-auto relative pb-32">
+        <div className={cn(
+          "transition-all duration-500 ease-in-out origin-top relative bg-zinc-900",
+          cameraCollapsed ? "h-[120px] overflow-hidden rounded-b-3xl opacity-50 scale-[0.98]" : "h-[800px]",
+        )}>
+          <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" />
+          
+          {!cameraCollapsed && showHUD && (
+            <>
+              {currentSide === 'MAIN' && <div className="absolute inset-8 border-2 border-dashed border-white/30 rounded-2xl pointer-events-none" />}
+              {currentSide === 'DETAIL' && <div className="absolute inset-x-8 top-1/4 bottom-1/4 border border-white/50 rounded-full pointer-events-none" />}
+              
+              <div className="absolute top-6 inset-x-0 flex justify-center gap-2 pointer-events-none z-20">
+                <Badge className="bg-black/50 text-white">
+                  {currentSide === 'MAIN' ? '1. MAIN VIEW' : '2. CLOSEUP DETAIL'}
+                </Badge>
+                {isProcessing && <Badge className="bg-yellow-500/80 text-white"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> {labStatus}</Badge>}
+              </div>
+            </>
+          )}
 
-        {showHUD && (
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 z-10">
-            {focusState === 'focusing' && (
-              <div className="absolute inset-0 border-2 border-yellow-400/50 rounded-2xl animate-pulse">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
-                  FOCUSING...
-                </div>
+          {!cameraCollapsed && (
+            <div className="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent">
+              <div className="flex items-center justify-between w-full max-w-[320px]">
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-white/5" onClick={toggleTorch}>
+                  {torchActive ? <Zap className="w-5 h-5 text-yellow-400" /> : <ZapOff className="w-5 h-5" />}
+                </Button>
+                <Button size="icon" disabled={isProcessing} onClick={capture} className="w-20 h-20 rounded-full border-4 border-white bg-white/20">
+                  <div className="absolute inset-2 bg-white rounded-full transition-transform active:scale-90" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl bg-white/5" onClick={() => router.push('/procam/review')}>
+                  <Layers className="w-5 h-5 text-white/70" />
+                </Button>
               </div>
-            )}
-            {focusState === 'locked' && (
-              <div className="absolute inset-0 border-2 border-green-400/50 rounded-2xl animate-in fade-in duration-300">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
-                  FOCUS LOCKED
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* HUD Box Guidelines overlay */}
-        {showHUD && (
-          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-6">
-            {currentStep === 'MAIN' && (
-              <div className="w-[85%] max-w-[400px] aspect-[4/3] border-2 border-dashed border-primary/60 rounded-xl relative flex items-center justify-center">
-                <span className="text-[9px] font-black text-primary bg-black/80 px-2 py-0.5 rounded uppercase tracking-wider">Align Product Center</span>
+          {cameraCollapsed && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer" onClick={resetBooth}>
+              <div className="flex flex-col items-center gap-2">
+                <Camera className="w-8 h-8 text-white/80" />
+                <span className="text-sm">Tap to Resume Camera</span>
               </div>
-            )}
-            {currentStep === 'SECONDARY' && (
-              <div className="w-48 h-48 border-2 border-dashed border-purple-500/60 rounded-lg relative flex items-center justify-center">
-                <Target className="w-6 h-6 text-purple-400 animate-pulse" />
-                <span className="absolute bottom-2 text-[8px] font-black text-purple-400 bg-black/80 px-1.5 py-0.5 rounded uppercase tracking-widest">Detail Close-Up</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step Info Message */}
-        <div className="absolute top-4 inset-x-4 bg-black/80 border border-white/10 rounded-lg p-2.5 backdrop-blur-sm pointer-events-none">
-          <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Guide</p>
-          <p className="text-xs font-semibold text-white mt-1 leading-relaxed">{getStepGuide(currentStep)}</p>
+            </div>
+          )}
         </div>
 
-        {/* Quality Alerts */}
-        {lastQuality && (
-          <div className="absolute bottom-24 left-4 flex flex-col gap-2">
-            {lastQuality.brightnessScore < 50 && (
-              <div className="bg-black/80 border border-yellow-400/20 rounded-full px-3 py-1 text-[9px] text-yellow-400 uppercase font-black flex items-center gap-1.5"><Sun className="w-3.5 h-3.5" /> Too Dark</div>
-            )}
-            {lastQuality.blurScore < 10 && (
-              <div className="bg-black/80 border border-red-400/20 rounded-full px-3 py-1 text-[9px] text-red-400 uppercase font-black flex items-center gap-1.5"><Gauge className="w-3.5 h-3.5" /> Blurry Focus</div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Control Console */}
-      <footer className="p-4 bg-zinc-900 border-t border-white/10 flex items-center justify-between z-20">
-        {/* Sync Queues Modal */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button className="flex flex-col items-center justify-center text-zinc-400 hover:text-white transition relative">
-              <Clock className="w-5 h-5" />
-              <span className="text-[8px] font-bold uppercase mt-1">Queue</span>
-              {syncQueue.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-primary text-black font-black text-[8px] rounded-full h-4 w-4 flex items-center justify-center">
-                  {syncQueue.length}
-                </span>
-              )}
-            </button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-[75vh] bg-zinc-950 border-t border-white/10 text-white font-mono p-4">
-            <SheetHeader className="flex flex-row justify-between items-center border-b border-white/5 pb-4 mb-4">
-              <div>
-                <SheetTitle className="text-white font-black uppercase text-sm tracking-tight">Sync Pipeline ({syncQueue.length} Active)</SheetTitle>
-              </div>
-              <div className="flex gap-2">
-                {syncQueue.length > 0 && (
-                  <Button variant="ghost" size="sm" className="text-red-400 text-[9px] font-black uppercase h-8 hover:bg-red-950/20" onClick={purgeQueue}>
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Purge
+        {boothStep !== 'CAPTURE' && (
+          <div ref={reviewPanelRef} className="p-4 space-y-6 animate-in slide-in-from-bottom-8 duration-500">
+            {aiScanning ? (
+              <Card className="bg-zinc-900 border-white/10 overflow-hidden shadow-2xl relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent animate-[shimmer_2s_infinite]" />
+                <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
+                  <Box className="w-8 h-8 text-blue-400 animate-pulse" />
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-bold">AI Product Check</h3>
+                    <p className="text-white/60">Identifying item details and generating description...</p>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    {Object.values(capturedImages).map((src, i) => (
+                      <img key={i} src={src} className="w-12 h-12 rounded-lg border border-white/10 object-cover" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : reviewData && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
+                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-white/50 hover:text-white">
+                    <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} /> Re-Scan
                   </Button>
-                )}
+                </div>
+
+                <Card className="bg-zinc-900 border-white/10 shadow-2xl">
+                  <CardHeader className="border-b border-white/5 pb-4">
+                    <CardTitle className="text-lg">Product Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2 space-y-1.5">
+                        <Label>Title / Name</Label>
+                        <Input value={reviewData.title} onChange={e => setReviewData({...reviewData, title: e.target.value})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Brand / Maker</Label>
+                        <Input value={reviewData.brand} onChange={e => setReviewData({...reviewData, brand: e.target.value})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Model</Label>
+                        <Input value={reviewData.model} onChange={e => setReviewData({...reviewData, model: e.target.value})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Category</Label>
+                        <Input value={reviewData.category} onChange={e => setReviewData({...reviewData, category: e.target.value})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Condition</Label>
+                        <Input value={reviewData.condition} onChange={e => setReviewData({...reviewData, condition: e.target.value})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Price (AUD)</Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
+                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-white/10 pl-7 text-green-400 font-bold" />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Year</Label>
+                        <Input type="number" value={reviewData.year || ''} onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})} className="bg-black/50 border-white/10" />
+                      </div>
+                      <div className="col-span-2 space-y-1.5">
+                        <Label>Description</Label>
+                        <textarea value={reviewData.description} onChange={e => setReviewData({...reviewData, description: e.target.value})} className="w-full h-24 bg-black/50 border border-white/10 rounded-md p-3 text-sm resize-none" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1 h-14 bg-zinc-900 border-white/10" onClick={handleSkipAndQueue}>
+                    <Layers className="w-5 h-5 mr-2" /> Queue
+                  </Button>
+                  <Button className="flex-1 h-14 bg-blue-600 text-white" onClick={handleSubmitToBench} disabled={saving}>
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Send className="w-5 h-5 mr-2" />} Submit to Bench
+                  </Button>
+                </div>
               </div>
-            </SheetHeader>
-
-            <div className="space-y-4 overflow-y-auto max-h-[50vh] pr-2 scrollbar-hide">
-              {syncQueue.map((item) => {
-                const active = syncStatuses.get(item.id);
-                return (
-                  <SyncStatusTracker key={item.id} status={active || {
-                    id: item.id,
-                    startedAt: new Date(item.createdAt).toISOString(),
-                    currentStep: 0,
-                    steps: []
-                  }} />
-                );
-              })}
-              {syncQueue.length === 0 && (
-                <div className="py-24 text-center text-zinc-500 text-xs">No pending uploads in the database queue. Ready for captures.</div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-
-        {/* Shutter Capture Button */}
-        <div className="flex-1 flex justify-center">
-          <button 
-            onClick={capturePhoto} 
-            disabled={isProcessing}
-            className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition"
-          >
-            <div className={cn("w-12 h-12 rounded-full bg-primary flex items-center justify-center transition-all", isProcessing && "scale-75 opacity-50")}>
-              {isProcessing && <Loader2 className="w-6 h-6 animate-spin text-black" />}
-            </div>
-          </button>
-        </div>
-
-        {/* Captured Batch count / preview thumbnail */}
-        <div className="w-10 h-10 bg-zinc-950 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center relative">
-          {sessionThumbnails.length > 0 ? (
-            <img src={sessionThumbnails[0]} className="w-full h-full object-cover" alt="thumbnail" />
-          ) : (
-            <FileText className="w-4 h-4 text-zinc-600" />
-          )}
-          {sessionThumbnails.length > 0 && (
-            <span className="absolute bottom-0 right-0 bg-black/80 text-primary font-black text-[8px] px-1 rounded-tl">
-              {sessionThumbnails.length}
-            </span>
-          )}
-        </div>
-      </footer>
-
-      {/* SettingsPresets */}
-      <SettingsSheet 
-        isOpen={settingsOpen}
-        setIsOpen={setSettingsOpen}
-        errorLog={errorLog}
-        selectedDevice={selectedDevice}
-        setSelectedDevice={setSelectedDevice}
-      />
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

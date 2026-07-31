@@ -8,6 +8,14 @@ import { deepScanCoin } from '@/ai/flows/deep-scan-coin';
 
 export type SyncCallback = (status: SyncStatus) => void;
 
+export interface SyncResult {
+  success: boolean;
+  aiResult?: Record<string, any>;
+  frontUrl?: string;
+  backUrl?: string;
+  docId?: string;
+}
+
 const blobToBase64 = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined') {
@@ -28,7 +36,7 @@ export class SyncService {
     upload: PendingUpload,
     deviceProfile: DeviceProfile,
     onStatusUpdate: SyncCallback
-  ): Promise<boolean> {
+  ): Promise<SyncResult> {
     const id = upload.id;
     
     // Initialize status
@@ -115,7 +123,8 @@ export class SyncService {
       let aiResult = {};
       try {
         const frontImageBase64 = await blobToBase64(upload.frontBlob);
-        aiResult = await deepScanCoin(frontImageBase64);
+        const backImageBase64 = upload.backBlob ? await blobToBase64(upload.backBlob) : undefined;
+        aiResult = await deepScanCoin(frontImageBase64, backImageBase64);
         await this.updateStep(status, 'ai_identify', 'success', 'Coin identified successfully!', onStatusUpdate);
       } catch (aiErr: any) {
         console.error('AI Identification error:', aiErr);
@@ -163,7 +172,7 @@ export class SyncService {
       await this.updateStep(status, 'complete', 'success', 'Sync complete!', onStatusUpdate);
       
       this.activeSyncs.delete(id);
-      return true;
+      return { success: true, aiResult: aiResult as Record<string, any>, frontUrl, backUrl, docId: id };
       
     } catch (error: any) {
       console.error('[SyncService] Error:', error);
@@ -179,7 +188,7 @@ export class SyncService {
       onStatusUpdate({ ...status });
       
       this.activeSyncs.delete(id);
-      return false;
+      return { success: false };
     }
   }
   
