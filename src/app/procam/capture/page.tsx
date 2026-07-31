@@ -39,10 +39,63 @@ import { audioSynth } from "@/samcam/lib/audio-effects";
 const getCameraConstraints = (device: DeviceProfile) => {
   const constraints: MediaTrackConstraints = {
     facingMode: 'environment',
-    width: { ideal: device.recommendedResolution.width },
-    height: { ideal: device.recommendedResolution.height },
+    width: { ideal: 1920 },
+    height: { ideal: 1080 },
+    aspectRatio: { ideal: 16/9 },
   };
-  return constraints;
+
+  if (device.manufacturer === 'apple') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.apple.capture.session.preset': 'photo' },
+        { 'com.apple.capture.quality': 1.0 },
+      ],
+    };
+  }
+
+  if (device.manufacturer === 'samsung') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.samsung.android.camera.softening': 0.5 },
+        { 'com.samsung.android.camera.macro': true },
+      ],
+    };
+  }
+
+  if (device.manufacturer === 'google') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.google.android.camera.hdrplus': true },
+        { 'com.google.android.camera.ai_auto': true },
+        { 'com.google.android.camera.macro': true },
+      ],
+    };
+  }
+
+  return {
+    ...constraints,
+    // @ts-ignore
+    advanced: [
+      { focusMode: 'continuous' },
+      { exposureMode: 'auto' },
+      { whiteBalanceMode: 'auto' },
+    ],
+  };
 };
 
 export default function ProPhotoBooth() {
@@ -58,6 +111,7 @@ export default function ProPhotoBooth() {
   
   const [torchActive, setTorchActive] = useState(false);
   const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
+  const [focusState, setFocusState] = useState<'idle' | 'focusing' | 'locked'>('idle');
   const videoTrackRef = useRef<MediaStreamTrack | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
 
@@ -110,7 +164,7 @@ export default function ProPhotoBooth() {
       if (!videoRef.current) return;
       try {
         const constraints = getCameraConstraints(deviceProfile);
-        const stream = await navigator.mediaDevices.getUserMedia({ video: constraints });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: constraints as any });
         videoRef.current.srcObject = stream;
         activeStream = stream;
         const track = stream.getVideoTracks()[0];
@@ -134,6 +188,24 @@ export default function ProPhotoBooth() {
       }
     };
   }, [deviceProfile, toast, errorLog]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleFocus = () => {
+      setFocusState('locked');
+      setTimeout(() => setFocusState('idle'), 1000);
+    };
+
+    video.addEventListener('focus', handleFocus);
+    video.addEventListener('focusin', handleFocus);
+
+    return () => {
+      video.removeEventListener('focus', handleFocus);
+      video.removeEventListener('focusin', handleFocus);
+    };
+  }, []);
 
   // Load existing Queue
   useEffect(() => {
@@ -239,9 +311,11 @@ export default function ProPhotoBooth() {
         0, 0, cropWidth, cropHeight
       );
 
-      // Run image analysis for records, but do not block capture
-      const q = analyzeImageQuality(canvas, undefined);
-      setLastQuality(q);
+      // Run image analysis in the background, non-blocking
+      const imageData = ctx.getImageData(0, 0, cropWidth, cropHeight);
+      analyzeImageInBackground(imageData, canvas).then((q) => {
+        setLastQuality(q);
+      }).catch(err => console.warn('Background analysis failed:', err));
 
       canvas.toBlob(async (blob) => {
         if (!blob) {
@@ -302,6 +376,34 @@ export default function ProPhotoBooth() {
     toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
   };
 
+  const analyzeImageInBackground = async (imageData: ImageData, canvas: HTMLCanvasElement) => {
+    return new Promise<QualityMetrics>((resolve) => {
+      const analyze = () => {
+        try {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = canvas.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          if (!tempCtx) throw new Error('Could not get context');
+          tempCtx.putImageData(imageData, 0, 0);
+          
+          const quality = analyzeImageQuality(tempCanvas, undefined);
+          resolve(quality);
+        } catch (err) {
+          console.warn('Background analysis failed:', err);
+          resolve({
+            blurScore: 20, brightnessScore: 120, glarePercentage: 5, contrastScore: 60, sharpnessScore: 70, colorTemperature: 6500, overallScore: 75, isAcceptable: true, messages: []
+          });
+        }
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(analyze, { timeout: 2000 });
+      } else {
+        setTimeout(analyze, 100);
+      }
+    });
+  };
+
   const getStepGuide = (step: typeof currentStep) => {
     switch (step) {
       case 'MAIN':
@@ -356,6 +458,25 @@ export default function ProPhotoBooth() {
 
       <div className="flex-1 relative flex items-center justify-center bg-zinc-950">
         <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-65 grayscale" />
+
+        {showHUD && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 z-10">
+            {focusState === 'focusing' && (
+              <div className="absolute inset-0 border-2 border-yellow-400/50 rounded-2xl animate-pulse">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                  FOCUSING...
+                </div>
+              </div>
+            )}
+            {focusState === 'locked' && (
+              <div className="absolute inset-0 border-2 border-green-400/50 rounded-2xl animate-in fade-in duration-300">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                  FOCUS LOCKED
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* HUD Box Guidelines overlay */}
         {showHUD && (

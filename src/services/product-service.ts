@@ -192,23 +192,38 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     if (q) {
     // SCENARIO 1: TEXT SEARCH
     const qLower = q.toLowerCase().trim();
+    const searchTerms = qLower.split(/\s+/).filter(term => term.length >= 1);
 
-    // If query is a single word, use array-contains on keywords
-    if (qLower.split(/\s+/).length === 1 && qLower.length >= 1) {
-      if (/^\d+$/.test(qLower) && !inFilterUsed) {
-        // For numbers like "50", also search for "50c", "50p", "50oz"
-        constraints.push(where('keywords', 'array-contains-any', [qLower, qLower + 'c', qLower + 'p', qLower + 'oz']));
+    if (searchTerms.length === 1) {
+      const term = searchTerms[0];
+      if (/^\d+$/.test(term) && !inFilterUsed) {
+        constraints.push(where('keywords', 'array-contains-any', [term, term + 'c', term + 'p', term + 'oz']));
         inFilterUsed = true;
       } else {
-        constraints.push(where('keywords', 'array-contains', qLower));
+        constraints.push(or(
+          where('keywords', 'array-contains', term),
+          and(
+            where('title_lowercase', '>=', term),
+            where('title_lowercase', '<=', term + '\uf8ff')
+          )
+        ));
       }
+      orderByConstraints.push(orderBy('title_lowercase', 'asc'));
     } else {
-      // Fallback to Prefix Search for multi-word or short queries
-      // Prefix Search: title >= "batman" AND title <= "batman" + "\uf8ff"
-      constraints.push(where('title_lowercase', '>=', qLower));
-      constraints.push(where('title_lowercase', '<=', qLower + '\uf8ff'));
-
-      // FORCED SORT: Must sort by title_lowercase ASC for prefix search to work
+      const termConditions: any[] = [];
+      for (const term of searchTerms) {
+        termConditions.push(
+          and(
+            where('title_lowercase', '>=', term),
+            where('title_lowercase', '<=', term + '\uf8ff')
+          )
+        );
+        termConditions.push(where('keywords', 'array-contains', term));
+      }
+      const limitedConditions = termConditions.slice(0, 30);
+      if (limitedConditions.length > 0) {
+        constraints.push(or(...limitedConditions));
+      }
       orderByConstraints.push(orderBy('title_lowercase', 'asc'));
     }
 

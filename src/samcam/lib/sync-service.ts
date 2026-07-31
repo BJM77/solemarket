@@ -6,6 +6,15 @@ import { PendingUpload } from './sync-storage';
 import { DeviceProfile } from './device-detector';
 
 export type SyncCallback = (status: SyncStatus) => void;
+
+export interface SyncResult {
+  success: boolean;
+  aiResult?: Record<string, any>;
+  frontUrl?: string;
+  backUrl?: string;
+  docId?: string;
+}
+
 const INTERNAL_TOKEN = "benched_studio_v4_6_secure";
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -28,7 +37,7 @@ export class SyncService {
     upload: PendingUpload,
     deviceProfile: DeviceProfile,
     onStatusUpdate: SyncCallback
-  ): Promise<boolean> {
+  ): Promise<SyncResult> {
     const id = upload.id;
     
     // Initialize status
@@ -179,7 +188,7 @@ export class SyncService {
       await this.updateStep(status, 'complete', 'success', 'Sync complete!', onStatusUpdate);
       
       this.activeSyncs.delete(id);
-      return true;
+      return { success: true, aiResult: aiResult as Record<string, any>, frontUrl, backUrl, docId: id };
       
     } catch (error: any) {
       console.error('[SyncService] Error:', error);
@@ -195,7 +204,7 @@ export class SyncService {
       onStatusUpdate({ ...status });
       
       this.activeSyncs.delete(id);
-      return false;
+      return { success: false };
     }
   }
   

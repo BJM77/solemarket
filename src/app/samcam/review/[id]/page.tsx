@@ -121,7 +121,8 @@ export default function ReviewDetailPage() {
     setScanningAi(true);
     try {
       const { deepScanCard } = await import('@/ai/flows/deep-scan-card');
-      const aiResult = await deepScanCard(item.frontImagePath);
+      // Send both front AND back images for maximum data extraction
+      const aiResult = await deepScanCard(item.frontImagePath, item.backImagePath || undefined);
       
       setItem(prev => {
         if (!prev) return prev;
@@ -136,6 +137,9 @@ export default function ReviewDetailPage() {
           rarity: aiResult.rarity || prev.rarity,
           isRare: aiResult.isRare !== undefined ? aiResult.isRare : prev.isRare,
           description: aiResult.description || prev.description,
+          manufacturer: aiResult.manufacturer || prev.manufacturer,
+          subCategory: aiResult.subCategory || prev.subCategory,
+          condition: aiResult.condition || prev.condition,
           identificationSource: 'AI_DEEP_SCAN',
         };
       });

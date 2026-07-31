@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     let frontBase64 = frontImage.includes(',') ? frontImage.split(',')[1] : frontImage;
     
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro",
+      model: "gemini-2.0-flash",
       generationConfig: { 
         responseMimeType: "application/json",
         responseSchema: {
@@ -33,34 +33,69 @@ export async function POST(req: NextRequest) {
             isRare: { type: SchemaType.BOOLEAN },
             rarity: { type: SchemaType.STRING },
             confidence: { type: SchemaType.NUMBER },
-            description: { type: SchemaType.STRING }
+            description: { type: SchemaType.STRING },
+            manufacturer: { type: SchemaType.STRING },
+            subCategory: { type: SchemaType.STRING },
+            condition: { type: SchemaType.STRING },
           },
           required: ["cardName", "setName", "year", "sport", "cardNumber", "description", "isRare", "rarity"]
         }
       } 
     });
 
-    const prompt = `Identify the trading card in the image(s). You must scan the card and extract the following details accurately:
-    1. Card Name or Player Name: The full name printed on the card.
-    2. Year: The release year of the card/set.
-    3. Card Number: The number of the card in the set (e.g., "101/140", "12", "H15").
-    4. Set Name: The name of the expansion set or card series.
-    5. Category/Sport: The sport (e.g. Basketball, Football, Baseball, Soccer) or game name (e.g. Pokemon).
-    6. Description: Generate a short sentence or paragraph (1-3 sentences) describing the card, its key features, and visual characteristics.
-    7. For Pokemon cards ONLY:
-       - pokemonCode: The set identifier or card code if visible (e.g., "SV4a", "BS-103", "Base Set"). If not a Pokemon card, return null or empty string.
-       - isRare: Analyze the card symbols (like stars * at the bottom/corners, holograms, foil, etc.) or card type to determine if it is a rare card. Return true if rare, otherwise false.
-       - rarity: The specific rarity level (e.g., "Rare", "Common", "Uncommon", "Ultra Rare", "Secret Rare", "Promo") based on stars/symbols or visual cues. If not Pokemon, estimate the general rarity.
-    `;
+    const prompt = `You are an expert trading card appraiser and cataloger. You MUST examine BOTH images (front and back) very carefully.
+
+CRITICAL — How to find the CARD NUMBER:
+- Look at the BOTTOM of the front face for numbers like "101/140", "#24", "SV049", "025/198"
+- Check the BACK of the card near the bottom, in small text boxes, or near copyright info
+- For Pokemon: the collector number is usually at the bottom-left or bottom-right of the front face
+- For sports cards: check bottom corners, card back footer, or small text in the border
+- NEVER leave cardNumber empty — look harder if you don't see it immediately
+
+CRITICAL — How to find the SET NAME:
+- Look for logos, watermarks, or expansion symbols on the front
+- Check the BACK of the card for the full set name in text
+- For Pokemon: match the set symbol icon to known sets (e.g. crown = Prismatic Evolutions, pokeball variants, etc.)
+- For sports: look for "Prizm", "Select", "Donruss", "Mosaic", "Chrome", "Bowman", etc.
+
+CRITICAL — How to find the YEAR:
+- Check the BACK of the card for copyright text like "© 2024 The Pokemon Company" or "© 2023 Panini"
+- The year in the copyright text is the release year of the card
+- For vintage cards, the design style and card stock can help date them
+
+Extract these fields with maximum accuracy:
+1. cardName: Full name of the player, Pokemon, or character (REQUIRED)
+2. setName: Complete set/expansion name (e.g. "Prismatic Evolutions", "Panini Prizm", "Topps Chrome")
+3. year: Release year as integer from copyright text or card design
+4. sport: Category — Pokemon, Basketball, Football, Baseball, Soccer, Yu-Gi-Oh, etc.
+5. cardNumber: The card number EXACTLY as printed (e.g. "150/150", "#24", "SV049"). LOOK CAREFULLY.
+6. pokemonCode: For Pokemon only — set code like "SV4a", "sv7", "S12a"
+7. isRare: true if holo/foil/special treatment, numbered card, or rarity markers beyond Common/Uncommon
+8. rarity: Specific rarity — Common, Uncommon, Rare, Holo Rare, Ultra Rare, Secret Rare, Illustration Rare, Special Art Rare, etc.
+9. confidence: Your confidence score from 0.0 to 1.0 in the overall identification accuracy
+10. description: A compelling 1-3 sentence listing description
+11. manufacturer: Card manufacturer — Panini, Topps, Upper Deck, The Pokemon Company, Konami, etc.
+12. subCategory: Sub-category — Sports Cards, Pokemon TCG, Yu-Gi-Oh TCG, NBA Cards, etc.
+13. condition: Estimated condition from image — Mint, Near Mint, Lightly Played, Moderately Played, Damaged
+
+If you cannot determine a field, provide your BEST educated guess rather than leaving it empty or null.`;
 
     const contentParts: any[] = [
       prompt,
+      "\n\n--- FRONT OF CARD ---",
       { inlineData: { data: frontBase64, mimeType: "image/jpeg" } }
     ];
 
     if (backImage) {
       let backBase64 = backImage.includes(',') ? backImage.split(',')[1] : backImage;
-      contentParts.push({ inlineData: { data: backBase64, mimeType: "image/jpeg" } });
+      contentParts.push(
+        "\n\n--- BACK OF CARD ---",
+        { inlineData: { data: backBase64, mimeType: "image/jpeg" } }
+      );
+    } else {
+      contentParts.push(
+        "\n\nNote: Only the front image is available. Extract as much data as possible from the front alone. Pay extra attention to any visible card number, set name, or year on the front face."
+      );
     }
 
     const result = await model.generateContent(contentParts);
@@ -82,7 +117,8 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ 
       ...aiData, 
-      identificationSource: 'AI_FALLBACK' 
+      identificationSource: 'AI_FALLBACK',
+      identificationConfidence: aiData.confidence || 0.5
     });
   } catch (e: any) { 
     console.error("AI Error:", e);

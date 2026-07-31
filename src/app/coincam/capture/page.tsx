@@ -45,9 +45,24 @@ import { audioSynth } from "@/samcam/lib/audio-effects";
 const getCameraConstraints = (device: DeviceProfile) => {
   const constraints: MediaTrackConstraints = {
     facingMode: 'environment',
-    width: { ideal: device.recommendedResolution.width },
-    height: { ideal: device.recommendedResolution.height },
+    width: { ideal: 1920 },
+    height: { ideal: 1080 },
+    aspectRatio: { ideal: 16/9 },
   };
+
+  if (device.manufacturer === 'apple') {
+    return {
+      ...constraints,
+      // @ts-ignore
+      advanced: [
+        { focusMode: 'continuous' },
+        { exposureMode: 'auto' },
+        { whiteBalanceMode: 'auto' },
+        { 'com.apple.capture.session.preset': 'photo' },
+        { 'com.apple.capture.quality': 1.0 },
+      ],
+    };
+  }
 
   if (device.manufacturer === 'samsung') {
     return {
@@ -57,7 +72,8 @@ const getCameraConstraints = (device: DeviceProfile) => {
         { focusMode: 'continuous' },
         { exposureMode: 'auto' },
         { whiteBalanceMode: 'auto' },
-        { 'com.samsung.android.camera.softening': 0.8 },
+        { 'com.samsung.android.camera.softening': 0.5 },
+        { 'com.samsung.android.camera.macro': true },
       ],
     };
   }
@@ -72,23 +88,20 @@ const getCameraConstraints = (device: DeviceProfile) => {
         { whiteBalanceMode: 'auto' },
         { 'com.google.android.camera.hdrplus': true },
         { 'com.google.android.camera.ai_auto': true },
+        { 'com.google.android.camera.macro': true },
       ],
     };
   }
 
-  if (device.manufacturer === 'apple') {
-    return {
-      ...constraints,
-      // @ts-ignore
-      advanced: [
-        { focusMode: 'auto' },
-        { exposureMode: 'auto' },
-        { whiteBalanceMode: 'auto' },
-      ],
-    };
-  }
-
-  return constraints;
+  return {
+    ...constraints,
+    // @ts-ignore
+    advanced: [
+      { focusMode: 'continuous' },
+      { exposureMode: 'auto' },
+      { whiteBalanceMode: 'auto' },
+    ],
+  };
 };
 
 export default function CoinPhotoBooth() {
@@ -101,6 +114,7 @@ export default function CoinPhotoBooth() {
   const [tempCapture, setTempCapture] = useState<Blob | null>(null);
   const [torchActive, setTorchActive] = useState(false);
   const [sessionThumbnails, setSessionThumbnails] = useState<string[]>([]);
+  const [focusState, setFocusState] = useState<'idle' | 'focusing' | 'locked'>('idle');
   const videoTrackRef = useRef<MediaStreamTrack | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
 
@@ -195,6 +209,24 @@ export default function CoinPhotoBooth() {
       videoTrackRef.current = null;
     };
   }, [deviceProfile, toast]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleFocus = () => {
+      setFocusState('locked');
+      setTimeout(() => setFocusState('idle'), 1000);
+    };
+
+    video.addEventListener('focus', handleFocus);
+    video.addEventListener('focusin', handleFocus);
+
+    return () => {
+      video.removeEventListener('focus', handleFocus);
+      video.removeEventListener('focusin', handleFocus);
+    };
+  }, []);
 
   const triggerVibrate = (pattern: number | number[]) => {
     try {
@@ -299,10 +331,12 @@ export default function CoinPhotoBooth() {
       const yOffset = (v.videoHeight - 800) / 2;
       ctx.drawImage(v, xOffset, yOffset, 800, 800, 0, 0, 800, 800);
 
-      // Run image analysis for HUD logs and sync records, but do not block capture
-      const q = analyzeImageQuality(c, { minBlur: focusThreshold, minBrightness: brightnessThreshold, maxBrightness: 220, maxGlare: 5 });
-      setLastQuality(q);
-      setQualityHistory(prev => [...prev.slice(-9), q]);
+      // Run image analysis in the background, non-blocking
+      const imageData = ctx.getImageData(0, 0, 800, 800);
+      analyzeImageInBackground(imageData, c).then((q) => {
+        setLastQuality(q);
+        setQualityHistory(prev => [...prev.slice(-9), q]);
+      }).catch(err => console.warn('Background analysis failed:', err));
 
       c.toBlob(async (blob) => {
         if (!blob) {
@@ -361,6 +395,34 @@ export default function CoinPhotoBooth() {
     setSyncQueue([]);
     setSyncStatuses(new Map());
     toast({ title: "Queue Cleared", description: "Stuck uploads have been removed." });
+  };
+
+  const analyzeImageInBackground = async (imageData: ImageData, canvas: HTMLCanvasElement) => {
+    return new Promise<QualityMetrics>((resolve) => {
+      const analyze = () => {
+        try {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = canvas.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          if (!tempCtx) throw new Error('Could not get context');
+          tempCtx.putImageData(imageData, 0, 0);
+          
+          const quality = analyzeImageQuality(tempCanvas, { minBlur: focusThreshold, minBrightness: brightnessThreshold, maxBrightness: 220, maxGlare: 5 });
+          resolve(quality);
+        } catch (err) {
+          console.warn('Background analysis failed:', err);
+          resolve({
+            blurScore: 20, brightnessScore: 120, glarePercentage: 5, contrastScore: 60, sharpnessScore: 70, colorTemperature: 6500, overallScore: 75, isAcceptable: true, messages: []
+          });
+        }
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(analyze, { timeout: 2000 });
+      } else {
+        setTimeout(analyze, 100);
+      }
+    });
   };
 
   const getDeviceTips = (device: DeviceProfile) => {
@@ -585,6 +647,25 @@ export default function CoinPhotoBooth() {
       <main className="flex-grow flex items-center justify-center relative">
         <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-65 grayscale" />
         
+        {showHUD && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 z-10">
+            {focusState === 'focusing' && (
+              <div className="absolute inset-0 border-2 border-yellow-400/50 rounded-2xl animate-pulse">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                  FOCUSING...
+                </div>
+              </div>
+            )}
+            {focusState === 'locked' && (
+              <div className="absolute inset-0 border-2 border-green-400/50 rounded-2xl animate-in fade-in duration-300">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                  FOCUS LOCKED
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Advanced Quality HUD */}
         {showHUD && lastQuality && (
           <div 

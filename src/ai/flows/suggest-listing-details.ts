@@ -67,7 +67,79 @@ Images for Analysis:
 - Image {{ @index }}: {{media url=this}}
 {{/each}}
 
+### MARKET VALUE ESTIMATION
+For the 'price' field, you MUST provide an estimated market value in AUD based on the following:
+1. Recent sold listings on eBay Australia (eBay.com.au)
+2. Current market trends for this specific card/player/set
+3. The condition/grade visible in the images
+4. The rarity of the card
+
+**If you are unsure about the exact price, provide a realistic estimate based on similar cards you've seen sell recently.**
+
+### SPORT/GAME DETECTION - CRITICAL FIRST STEP
+Before extracting any other details, you MUST determine what type of card this is:
+
+1. **Is this a Pokémon card?**
+   - Does the card feature Pokémon characters (Pikachu, Charizard, etc.)?
+   - Does it have Pokémon branding or set symbols (e.g., "SV4a", "Base Set", "Evolving Skies")?
+   - Are there Pokémon-specific terms like "HP", "Pokémon Power", "Weakness", "Resistance"?
+   - If YES: This is a Pokémon card. Set category = 'Collector Cards'. The subCategory should be 'Pokémon'.
+
+2. **Is this a basketball card?**
+   - Does it feature NBA players (LeBron James, Michael Jordan, Victor Wembanyama, etc.)?
+   - Does it have NBA or basketball team logos?
+   - Are there basketball-related terms (points, rebounds, assists, etc.)?
+   - If YES: This is a basketball card. Set category = 'Collector Cards'. The subCategory should be 'Basketball Cards'.
+
+3. **Is this a football/soccer/baseball card?**
+   - Does it feature sports players from other leagues?
+   - Does it have team logos from NFL, MLB, MLS, etc.?
+   - If YES: This is a sports card. Set category = 'Collector Cards'. The subCategory should be 'Sports Cards'.
+
+4. **Is this a Yu-Gi-Oh! card?**
+   - Does it feature Yu-Gi-Oh! characters or have Yu-Gi-Oh! branding?
+   - Are there Yu-Gi-Oh! specific terms (ATK, DEF, Spell, Trap)?
+   - If YES: Set category = 'Collector Cards'. The subCategory should be 'Yu-Gi-Oh!'.
+
+**CRITICAL: Pokémon and Basketball cards are completely different categories. A card CANNOT be both.**
+
+Example Pokémon: {"playerName": "Charizard", "brand": "Pokémon", "subCategory": "Pokémon", "model": "Base Set", "year": 1999}
+Example Basketball: {"playerName": "Michael Jordan", "brand": "Upper Deck", "subCategory": "Basketball Cards", "model": "1992-93 Upper Deck", "year": 1992}
+
 You must analyze all uploaded images (which may show the front, back, interior tags, or side of the item) and classify the item into one of the following exact categories: 'Sneakers', 'Collector Cards', 'Coins', 'Streetwear', 'Accessories'.
+
+### CRITICAL SEO TITLE FORMATS
+For ALL product types, the title MUST follow these formats for maximum search visibility:
+
+**1. Trading Cards & Sports Cards:**
+Format: [Year] [Set Name] [Player Name] [Variant/Parallel if applicable]
+Example: "2023 Panini Prizm Victor Wembanyama Silver Prizm"
+Example: "2022 Topps Chrome Shohei Ohtani Refractor"
+Example: "1986 Fleer Michael Jordan Rookie Card"
+- **DO NOT** include the card number in the title (e.g., NOT "2023 Panini Prizm Victor Wembanyama #15")
+- **DO NOT** include the brand as a separate prefix (e.g., NOT "Panini 2023 Prizm...")
+
+**2. Sneakers:**
+Format: [Brand] [Model] [Colorway] [Year if applicable]
+Example: "Nike Air Jordan 1 Retro High OG Chicago 2015"
+Example: "Adidas Yeezy Boost 350 V2 Zebra"
+
+**3. Coins:**
+Format: [Year] [Country] [Denomination] [Mint Mark/Key Date]
+Example: "1930 Australian Penny King George V"
+Example: "2021 Perth Mint Silver Kangaroo 1oz"
+
+**4. General Collectibles:**
+Format: [Brand] [Item Type] [Key Descriptor] [Year]
+Example: "LEGO Star Wars Millennium Falcon 75192"
+Example: "Supreme Box Logo Hoodie Red 2023"
+
+**Key SEO Principles:**
+- Include the most important keywords first (Year, Brand, Model)
+- Keep titles under 60 characters when possible
+- Include searchable variants (colorways, parallels, grades)
+- Use proper capitalization (title case or sentence case)
+- Avoid filler words like "RARE", "HOT", "LOOK" in the title
 
 ### CRITICAL RULES FOR TRADING CARDS:
 A user's trading card listing must have high-fidelity details extracted from BOTH the front and back images.
@@ -76,20 +148,16 @@ A user's trading card listing must have high-fidelity details extracted from BOT
 3. Model/Set: Identify the specific set name (e.g., "Prizm", "Donruss", "Optic", "Select", "Bowman Chrome", "Topps Chrome").
 4. Card Number: Look on the back/rear of the card, usually in one of the corners or next to the stats table (e.g., "#12", "No. US15", "Card No. 24"). Return this value exactly including the '#' symbol if found, e.g., "#123".
 5. Year: Look on the back/rear of the card in the tiny copyright/licensing text at the bottom. Identify the release/copyright year (e.g., 2023, 2019).
-6. Title Format: You MUST format the Title as: [Year] [Brand/Manufacturer] [Model/Set] [Player Name] #[Card Number] (e.g., "2023 Panini Prizm Bronny James #15").
+6. **CRITICAL: Title Format - You MUST format the Title exactly according to the SEO formats section above.**
 7. Manufacturer & Brand fields: Always set both brand and manufacturer to the brand/manufacturer name (e.g., "Panini") so the form maps it perfectly.
 8. Corners, Edges, Surface, Centering: Provide detailed evaluations and pinpoint any flaws in 'defects' with precise percentage (x,y) coordinates relative to the image frame (0-100).
 9. Sub-Category Choice: Select the most accurate sub-category from the list: 'Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama', 'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'.
-   - If it has Pokémon characters, select 'Pokémon'.
-   - If it has Yu-Gi-Oh! characters, select 'Yu-Gi-Oh!'.
-   - If it is signed/autographed, select 'Signed'.
-   - If it is a rookie card, select 'Rookies'.
-   - If it features Michael Jordan, Kobe Bryant, Stephen Curry, or Victor Wembanyama, select 'Jordan', 'Kobe', 'Curry', or 'Wembanyama'.
-   - Otherwise, select 'Basketball Cards' for basketball, 'Sports Cards' for other sports, or 'Trading Cards' for other TCG/non-sports cards.
+   - **CRITICAL: Sport/Game Detection** - You MUST distinguish between sports cards and trading card games based on the rules in the previous section.
+   - **FAILURE TO DISTINGUISH BETWEEN SPORTS AND POKEMON WILL RESULT IN INCORRECT CATEGORIZATION.**
 
 ### CRITICAL RULES FOR COINS & BANKNOTES:
 1. Country & Mint Identification: Identify the country of origin and mint/manufacturer (e.g., 'Royal Australian Mint', 'Perth Mint', 'US Mint'). Set both the brand and manufacturer fields to the mint name (e.g. 'Perth Mint' or 'Royal Australian Mint').
-2. Title Format: You MUST format the Title as: [Year] [Country/Origin] [Denomination] [Mint Mark/Set Type/Key Date Details] (e.g., "1930 Australian Penny" or "2021 US Silver Eagle").
+2. Title Format: You MUST format the Title exactly according to the SEO formats section above.
 3. Year: Extract the mint/release year exactly as a number (e.g., 1930, 2021).
 4. Sub-Category Choice: Select the most accurate sub-category from the list: 'Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'.
    - If it is an Australian coin, select 'Australian Coins'.
@@ -105,7 +173,7 @@ A user's trading card listing must have high-fidelity details extracted from BOT
 3. Size: Extract the US size (e.g., "10.5", "11", "9") from the size tag inside the shoe or the box label.
 4. Brand & Model: Identify the Brand (e.g., "Nike", "Adidas", "Jordan", "Yeezy", "New Balance") and Model (e.g., "Air Jordan 1 High OG", "Yeezy Boost 350 V2", "Dunk Low").
 5. Colorway: Determine the exact name of the colorway (e.g., "Chicago Lost and Found", "Zebra", "Panda", "Bred").
-6. Title Format: You MUST format the Title as: [Brand] [Model] [Colorway] (e.g., "Jordan 1 Retro High OG Chicago Lost and Found").
+6. Title Format: You MUST format the Title exactly according to the SEO formats section above.
 
 ### FORM FIELDS TO POPULATE:
 - title: High-quality SEO Title.
