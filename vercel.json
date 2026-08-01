@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/check-external-urls",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

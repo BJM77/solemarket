@@ -41,6 +41,7 @@ env*
 !storage.cors.json
 !cors.json
 !firebase.json
+!vercel.json
 temp_env_local.txt
 secrets_staging/
 
