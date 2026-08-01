@@ -194,6 +194,36 @@ export default function ProloadPage() {
     });
   };
 
+  // Reset Proload form for loading another listing
+  const resetProloadForm = () => {
+    setScreenshotPreview(null);
+    setScreenshotBase64(null);
+    setProductImages([]);
+    setAnalysisProgress(0);
+    setAnalysisStatus('');
+    setRawSpecs({});
+    setFormData({
+      title: '',
+      price: 0,
+      category: 'Accessories',
+      subCategory: '',
+      brand: '',
+      model: '',
+      size: '',
+      condition: 'Used',
+      description: '',
+      externalUrl: '',
+    });
+    if (screenshotInputRef.current) {
+      screenshotInputRef.current.value = '';
+    }
+    if (productImagesInputRef.current) {
+      productImagesInputRef.current.value = '';
+    }
+    setStep('upload');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Submit and create the product on Benched
   const handlePublish = async (isDraftStatus = false) => {
     if (!user) return;
@@ -208,6 +238,8 @@ export default function ProloadPage() {
       return;
     }
 
+    // Scroll to top immediately so user sees the submitting animation
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setStep('submitting');
 
     try {
@@ -248,10 +280,13 @@ export default function ProloadPage() {
 
       toast({
         title: isDraftStatus ? "Draft Saved!" : "Product Published!",
-        description: isDraftStatus ? "Your product has been saved as a draft." : "Your product is now live on Benched.",
+        description: isDraftStatus
+          ? "Draft saved. Ready to load another listing."
+          : "Listing is now live on Benched. Ready to load another listing.",
       });
 
-      router.push(`/sell/listings`);
+      // Reset form and return to Proload upload screen for rapid batch processing
+      resetProloadForm();
     } catch (error: any) {
       console.error(error);
       setStep('review');
