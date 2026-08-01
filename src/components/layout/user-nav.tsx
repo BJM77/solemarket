@@ -174,10 +174,16 @@ export function UserNav() {
                 <span className="font-medium">ShoeCam Studio</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary", isActive('/procam') && "bg-accent text-primary")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/procam') && "bg-accent text-primary")}>
               <Link href="/procam" className="flex items-center">
                 <Layers className="mr-3 h-4 w-4" />
                 <span className="font-medium">ProCam Studio</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-emerald-400 hover:text-emerald-400 hover:bg-emerald-500/5", isActive('/sell/proload') && "bg-accent text-emerald-400")}>
+              <Link href="/sell/proload" className="flex items-center">
+                <Layers className="mr-3 h-4 w-4 text-emerald-400" />
+                <span className="font-medium">Proload (FB Import)</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />
@@ -236,10 +242,16 @@ export function UserNav() {
 
         {canSell && (
           <DropdownMenuGroup>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-primary/5 text-primary focus:bg-primary/10 focus:text-primary", isActive('/sell/create') && "bg-primary/10")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-primary/5 text-primary focus:bg-primary/10 focus:text-primary mb-1", isActive('/sell/create') && "bg-primary/10")}>
               <Link href="/sell/create" className="flex items-center">
                 <PlusCircle className="mr-3 h-4 w-4" />
                 <span className="font-bold">Sell an Item</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-emerald-500/5 text-emerald-400 focus:bg-emerald-500/10 focus:text-emerald-400", isActive('/sell/proload') && "bg-emerald-500/10")}>
+              <Link href="/sell/proload" className="flex items-center">
+                <Layers className="mr-3 h-4 w-4 text-emerald-400" />
+                <span className="font-bold">Proload (FB Import)</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />

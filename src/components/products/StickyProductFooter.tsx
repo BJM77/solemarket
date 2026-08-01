@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { DollarSign, ShoppingCart } from 'lucide-react';
+import { DollarSign, ShoppingCart, ExternalLink } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { OfferModal } from './OfferModal';
 import { Product, UserProfile } from '@/lib/types';
@@ -18,20 +18,23 @@ interface StickyProductFooterProps {
 }
 
 export function StickyProductFooter({ product, user }: StickyProductFooterProps) {
-    const router = useRouter();
-    const { toast } = useToast();
     const { addItem } = useCart();
+    const { toast } = useToast();
+    const router = useRouter();
+
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            // Show sticky footer when scrolled past 400px (approximate height of image + title)
-            setIsVisible(window.scrollY > 400);
+            // Show sticky footer when user scrolls past 300px
+            if (window.scrollY > 300) {
+                setIsVisible(true);
+            } else {
+                setIsVisible(false);
+            }
         };
-        
+
         window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Initial check
-        
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -39,6 +42,13 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
 
     // Logic from ProductDetailsClient
     const handleBuyNow = () => {
+        if (product?.externalUrl) {
+            let url = product.externalUrl.trim();
+            if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
         if (!user) {
             router.push(`/sign-in?redirect=/product/${product?.id}`);
             return;
@@ -100,11 +110,20 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                     {!product.isUntimed && (
                         <Button
                             size="lg"
-                            className="flex-1 font-bold h-12"
+                            className={cn("flex-1 font-bold h-12", product.externalUrl ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" : "")}
                             onClick={handleBuyNow}
                         >
-                            <ShoppingCart className="h-5 w-5 mr-2" />
-                            Buy Now
+                            {product.externalUrl ? (
+                                <>
+                                    <ExternalLink className="h-5 w-5 mr-2" />
+                                    Buy on Facebook
+                                </>
+                            ) : (
+                                <>
+                                    <ShoppingCart className="h-5 w-5 mr-2" />
+                                    Buy Now
+                                </>
+                            )}
                         </Button>
                     )}
 

@@ -530,9 +530,22 @@ export default function SellerDashboard() {
                           <TableCell className="py-4">
                             <div className="flex items-center gap-4">
                               <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/5">
-                                <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
+                                {product.imageUrls && product.imageUrls.length > 0 ? (
+                                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
+                                ) : (
+                                  <div className="flex items-center justify-center w-full h-full text-slate-700">
+                                    <Package className="w-5 h-5" />
+                                  </div>
+                                )}
                               </div>
-                              <span className="font-bold text-white line-clamp-1 max-w-[200px]">{product.title}</span>
+                               <div className="flex flex-col">
+                                 <span className="font-bold text-white line-clamp-1 max-w-[200px]">{product.title}</span>
+                                 {product.externalUrl && (
+                                   <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
+                                     FB Import
+                                   </Badge>
+                                 )}
+                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="font-bold text-white">{formatPrice(product.price)}</TableCell>

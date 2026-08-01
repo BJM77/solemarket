@@ -206,6 +206,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/procam')}>ProCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/proload')}>Proload</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
@@ -428,8 +429,11 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/shoecam')}>
                                             <Footprints className="mr-3 h-4 w-4" /> ShoeCam Studio
                                         </Button>
-                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary" onClick={() => handleLinkClick('/procam')}>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/procam')}>
                                             <Layers className="mr-3 h-4 w-4" /> ProCam Studio
+                                        </Button>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-emerald-400 hover:bg-emerald-500/5" onClick={() => handleLinkClick('/sell/proload')}>
+                                            <Layers className="mr-3 h-4 w-4 text-emerald-400" /> Proload (FB Import)
                                         </Button>
                                     </>
                                 ) : null}

@@ -339,6 +339,13 @@ export default function ProductDetailsModern({
 
     const handleStartConversation = async () => {
         try {
+            if (product?.externalUrl) {
+                let url = product.externalUrl.trim();
+                if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+                window.open(url, '_blank', 'noopener,noreferrer');
+                return;
+            }
+
             if (!user || !product) {
                 if (!user && product) {
                     // Open guest message dialog instead of forcing sign-in
@@ -403,6 +410,12 @@ export default function ProductDetailsModern({
 
     const handleBuyNow = () => {
         if (!product) return;
+        if (product.externalUrl) {
+            let url = product.externalUrl.trim();
+            if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+            return;
+        }
         if (!user) {
             router.push(`/sign-in?redirect=/product/${product.id}`);
             return;
@@ -901,32 +914,55 @@ export default function ProductDetailsModern({
 
                                                 return (
                                                     <div className="space-y-3">
-                                                        <Button
-                                                            className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-indigo-600/25 bg-indigo-600 hover:bg-indigo-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                                                            onClick={handleBuyNow}
-                                                        >
-                                                            <ShoppingCart className="h-5 w-5" />
-                                                            Buy Now
-                                                        </Button>
+                                                        {product.externalUrl ? (
+                                                            <div className="space-y-3">
+                                                                <Button
+                                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-blue-600/25 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                                    onClick={() => {
+                                                                        let url = product.externalUrl!.trim();
+                                                                        if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+                                                                        window.open(url, '_blank', 'noopener,noreferrer');
+                                                                    }}
+                                                                >
+                                                                    <ExternalLink className="h-5 w-5" />
+                                                                    Message / Buy on Facebook
+                                                                </Button>
 
-                                                        <Button
-                                                            variant="outline"
-                                                            className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
-                                                            onClick={handleStartConversation}
-                                                        >
-                                                            <MessageSquare className="h-5 w-5" />
-                                                            Message Seller
-                                                        </Button>
-
-                                                        <div className="flex items-start gap-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4 rounded-2xl text-left mt-2">
-                                                            <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                                                            <div>
-                                                                <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">PayID Escrow Protection Active</p>
-                                                                <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 leading-relaxed mt-0.5">
-                                                                    Your payment is held securely in escrow. Funds are only released to the seller once you receive and verify the item's condition.
-                                                                </p>
+                                                                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-400 font-semibold bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-center">
+                                                                    <Badge className="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
+                                                                    Opens seller listing in a new window
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        ) : (
+                                                            <>
+                                                                <Button
+                                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-indigo-600/25 bg-indigo-600 hover:bg-indigo-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                                    onClick={handleBuyNow}
+                                                                >
+                                                                    <ShoppingCart className="h-5 w-5" />
+                                                                    Buy Now
+                                                                </Button>
+
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                                    onClick={handleStartConversation}
+                                                                >
+                                                                    <MessageSquare className="h-5 w-5" />
+                                                                    Message Seller
+                                                                </Button>
+
+                                                                <div className="flex items-start gap-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4 rounded-2xl text-left mt-2">
+                                                                    <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                                                                    <div>
+                                                                        <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">PayID Escrow Protection Active</p>
+                                                                        <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 leading-relaxed mt-0.5">
+                                                                            Your payment is held securely in escrow. Funds are only released to the seller once you receive and verify the item's condition.
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        )}
 
 
                                                         {(product.isNegotiable || product.isUntimed) && (

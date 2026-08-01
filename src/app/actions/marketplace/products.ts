@@ -159,9 +159,12 @@ export async function createProductAction(
 
                 const firstResult = analysisResults[0];
                 if (firstResult.detectedAttributes) {
-                    finalData.detectedAttributes = firstResult.detectedAttributes;
-                    if (!finalData.year) finalData.year = firstResult.detectedAttributes.year || undefined;
-                    if (!finalData.manufacturer) finalData.manufacturer = firstResult.detectedAttributes.brand || undefined;
+                    if (!finalData.year && firstResult.detectedAttributes.year) {
+                        finalData.year = firstResult.detectedAttributes.year;
+                    }
+                    if (!finalData.manufacturer && firstResult.detectedAttributes.brand) {
+                        finalData.manufacturer = firstResult.detectedAttributes.brand;
+                    }
                 }
             } catch (error) {
                 console.warn('AI Pipeline failed:', error);
@@ -177,7 +180,11 @@ export async function createProductAction(
         if (validData.description) keywords.push(...generateKeywords(validData.description));
         (finalData as any).keywords = [...new Set(keywords)];
 
-        await docRef.set(finalData);
+        // Clean undefined values from finalData to avoid Firestore document errors
+        const cleanedData = Object.fromEntries(
+            Object.entries(finalData).filter(([_, value]) => value !== undefined)
+        );
+        await docRef.set(cleanedData);
         console.log('Product saved:', docRef.id);
 
         revalidatePath('/browse');
@@ -482,3 +489,75 @@ export const getSimilarProductsByCategory = unstable_cache(
     ['similar-products-category'],
     { revalidate: 3600 }
 );
+
+export async function verifyExternalUrlStatus(url: string): Promise<{ isAvailable: boolean; reason?: string }> {
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      redirect: 'follow',
+    });
+
+    if (res.status === 404 || res.status === 410) {
+      return { isAvailable: false, reason: `HTTP ${res.status} Page Not Found` };
+    }
+
+    const text = await res.text();
+    const lowerText = text.toLowerCase();
+
+    if (
+      lowerText.includes('this listing is no longer available') ||
+      lowerText.includes('content not found') ||
+      lowerText.includes('this item has been sold') ||
+      lowerText.includes("isn't available right now") ||
+      lowerText.includes("this page isn't available")
+    ) {
+      return { isAvailable: false, reason: 'Facebook listing marked as removed or unavailable' };
+    }
+
+    return { isAvailable: true };
+  } catch (err: any) {
+    console.warn(`URL check failed for ${url}:`, err.message);
+    return { isAvailable: true };
+  }
+}
+
+export async function checkExternalUrlStatusAction(productId: string) {
+  try {
+    const docRef = firestoreDb.collection('products').doc(productId);
+    const snap = await docRef.get();
+    if (!snap.exists) return { success: false, error: 'Product not found' };
+
+    const product = snap.data() as Product;
+    if (!product.externalUrl) {
+      return { success: false, error: 'Product has no external listing URL' };
+    }
+
+    const check = await verifyExternalUrlStatus(product.externalUrl);
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    if (!check.isAvailable) {
+      await docRef.update({
+        status: 'sold',
+        soldAt: now,
+        lastExternalCheckAt: now,
+        externalStatusReason: check.reason || 'Listing no longer available',
+      });
+      revalidatePath(`/product/${productId}`);
+      revalidatePath('/sell/dashboard');
+      revalidatePath('/seller/dashboard');
+      return { success: true, status: 'sold', reason: check.reason };
+    } else {
+      await docRef.update({
+        lastExternalCheckAt: now,
+      });
+      return { success: true, status: 'available' };
+    }
+  } catch (error: any) {
+    console.error('Error checking external URL status:', error);
+    return { success: false, error: error.message };
+  }
+}

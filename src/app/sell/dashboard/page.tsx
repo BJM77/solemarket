@@ -282,11 +282,24 @@ export default function SellerDashboard() {
                               <TableCell className="pl-6 py-4">
                                 <div className="flex items-center gap-4">
                                   <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-white/5 shadow-inner">
-                                    <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    {product.imageUrls && product.imageUrls.length > 0 ? (
+                                      <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    ) : (
+                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-slate-900">
+                                        <Package className="w-6 h-6" />
+                                      </div>
+                                    )}
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="font-bold text-white line-clamp-1">{product.title}</span>
-                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter mt-0.5">{product.category}</span>
+                                     <span className="font-bold text-white line-clamp-1">{product.title}</span>
+                                     <div className="flex items-center gap-1.5 mt-0.5">
+                                       <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{product.category}</span>
+                                       {product.externalUrl && (
+                                         <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0">
+                                           FB Import
+                                         </Badge>
+                                       )}
+                                     </div>
                                   </div>
                                 </div>
                               </TableCell>
@@ -386,7 +399,13 @@ export default function SellerDashboard() {
                               <TableCell className="pl-6 py-4">
                                 <div className="flex items-center gap-4">
                                   <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-white/5">
-                                    <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                                    {product.imageUrls && product.imageUrls.length > 0 ? (
+                                      <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                                    ) : (
+                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-slate-900 opacity-60 group-hover:opacity-100 transition-all">
+                                        <Package className="w-6 h-6" />
+                                      </div>
+                                    )}
                                   </div>
                                   <span className="font-bold text-slate-300 group-hover:text-white line-clamp-1">{product.title}</span>
                                 </div>

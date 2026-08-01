@@ -13,12 +13,12 @@ export const productFormSchema = z.object({
 
     imageUrls: z.array(z.string().url("Invalid image URL")).min(1, "At least one image is required").max(10, "Maximum 10 images"),
 
-    // Sneaker Specifics
-    brand: z.string().min(1, "Brand is required (e.g., Nike, Jordan)"),
+    // Sneaker & General Specifics
+    brand: z.string().optional(),
     model: z.string().optional(),
     styleCode: z.string().optional(), // Highly recommended for sneakers
     colorway: z.string().optional(),
-    size: z.string().min(1, "Size is required (e.g., US 10)"),
+    size: z.string().optional(),
 
     condition: z.string().min(1, "Condition is required"), // Keeping as string to allow flexibility, but usually New/Used
     conditionDescription: z.string().optional(),
@@ -55,6 +55,10 @@ export const productFormSchema = z.object({
     auctionEndTime: z.any().optional(),
     buyItNowPrice: z.number().min(0).optional(),
     minStockQuantity: z.number().optional(),
+
+    // External Marketplace Linking
+    externalUrl: z.string().optional(),
+    externalSource: z.enum(['facebook_marketplace', 'other']).optional(),
 }).refine(data => {
     if (data.isUntimed) {
         return true;

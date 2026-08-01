@@ -138,6 +138,8 @@ export type Product = {
   lastViewedTimestamp?: Timestamp; // Timestamp of the most recent view for auto-repricing
   isVault?: boolean;
   allowLocalPickup?: boolean;
+  externalUrl?: string;
+  externalSource?: 'facebook_marketplace' | 'other';
   // New Auction Fields
   isAuction?: boolean;
   startingBid?: number;

@@ -1,11 +1,13 @@
 'use client';
 
 import { useRef, useState, DragEvent, ChangeEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { GripVertical, Scan, Sparkles, Upload, Loader2, Camera } from 'lucide-react';
+import { GripVertical, Scan, Sparkles, Upload, Loader2, Camera, ArrowRight, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface ListingTypeStepProps {
     onSelect: (type: 'sneakers' | 'collector-cards' | 'coins') => void;
@@ -22,6 +24,7 @@ export function ListingTypeStep({
     isAnalyzing,
     analysisStage
 }: ListingTypeStepProps) {
+    const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -61,6 +64,30 @@ export function ListingTypeStep({
                     Let our AI automatically build your listing, or select a category below to list manually.
                 </p>
             </div>
+
+            {/* Proload Banner */}
+            <Card className="relative overflow-hidden transition-all duration-300 border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-zinc-950 to-zinc-900/50 shadow-lg rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto group">
+                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
+                    <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 text-emerald-400">
+                        <Layers className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-black uppercase text-white tracking-wide flex items-center justify-center sm:justify-start gap-2">
+                            PROLOAD <Badge className="bg-emerald-500 hover:bg-emerald-600 text-black text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
+                        </h3>
+                        <p className="text-zinc-400 text-xs mt-1 max-w-md">
+                            Upload a Facebook Marketplace listing screenshot. Gemini will extract all info and build the listing for you!
+                        </p>
+                    </div>
+                </div>
+                <Button 
+                    onClick={() => router.push('/sell/proload')}
+                    className="bg-emerald-500 hover:bg-emerald-600 text-black font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
+                >
+                    Try Proload <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+            </Card>
 
             {/* AI Picture Check Hero Card */}
             <Card 

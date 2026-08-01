@@ -2,7 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, DollarSign, MessageSquare } from 'lucide-react';
+import { CheckCircle, AlertCircle, DollarSign, MessageSquare, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { OfferModal } from '@/components/products/OfferModal';
 import { BiddingInterface } from '@/components/products/BiddingInterface';
@@ -37,35 +38,55 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
       <div className="space-y-4 pt-4 border-t">
         {(!product.isReverseBidding || user?.uid === product.sellerId) && (
           <div className="flex flex-col gap-3">
-            <Button
-              size="lg"
-              className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
-              onClick={() => {
-                const messageButton = document.querySelector('[data-message-seller-btn]') as HTMLButtonElement;
-                if (messageButton) messageButton.click();
-                else window.location.href = `/product/${product.id}#message-seller`;
-              }}
-              disabled={!product.quantity || product.quantity === 0}
-            >
-              <MessageSquare className="h-6 w-6 mr-2" />
-              Message Seller to Buy
-            </Button>
-            
-            {(product.isNegotiable || product.isUntimed) && (
-              <OfferModal
-                product={product}
-                user={user}
-                trigger={
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full h-14 text-lg font-bold border-2"
-                  >
-                    <DollarSign className="h-6 w-6 mr-2" />
-                    Make an Offer
-                  </Button>
-                }
-              />
+            {product.externalUrl ? (
+              <div className="space-y-3">
+                <Button
+                  size="lg"
+                  className="w-full h-16 text-lg font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-900/20"
+                  onClick={() => window.open(product.externalUrl, '_blank', 'noopener,noreferrer')}
+                  disabled={!product.quantity || product.quantity === 0}
+                >
+                  <ExternalLink className="h-6 w-6 mr-2" />
+                  Message / Buy on Facebook
+                </Button>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-400 font-semibold bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl text-center">
+                  <Badge className="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
+                  Opens seller listing in a new window
+                </div>
+              </div>
+            ) : (
+              <>
+                <Button
+                  size="lg"
+                  className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                  onClick={() => {
+                    const messageButton = document.querySelector('[data-message-seller-btn]') as HTMLButtonElement;
+                    if (messageButton) messageButton.click();
+                    else window.location.href = `/product/${product.id}#message-seller`;
+                  }}
+                  disabled={!product.quantity || product.quantity === 0}
+                >
+                  <MessageSquare className="h-6 w-6 mr-2" />
+                  Message Seller to Buy
+                </Button>
+                
+                {(product.isNegotiable || product.isUntimed) && (
+                  <OfferModal
+                    product={product}
+                    user={user}
+                    trigger={
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="w-full h-14 text-lg font-bold border-2"
+                      >
+                        <DollarSign className="h-6 w-6 mr-2" />
+                        Make an Offer
+                      </Button>
+                    }
+                  />
+                )}
+              </>
             )}
           </div>
         )}
