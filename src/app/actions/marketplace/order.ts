@@ -25,7 +25,7 @@ interface OrderOptions {
         state: string;
         zip: string;
     };
-    paymentMethod?: 'Card' | 'PayID Escrow';
+    paymentMethod?: 'Card' | 'PayID Escrow' | 'EFT / PayID Escrow' | 'Cash on Delivery';
     idempotencyKey?: string;
     discountCode?: string;
 }
@@ -195,9 +195,9 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     sellerId,
                     sellerName: group.sellerName,
                     isBusinessSeller: isBusiness,
-                    status: options?.paymentMethod === 'PayID Escrow' ? 'awaiting_payment' : 'processing',
+                    status: options?.paymentMethod === 'Cash on Delivery' ? 'processing' : 'awaiting_payment',
                     paymentStatus: 'pending',
-                    paymentMethod: options?.paymentMethod || 'Card',
+                    paymentMethod: options?.paymentMethod || 'EFT / PayID Escrow',
                     shippingMethod: options?.shippingMethod || 'pickup',
                     shippingAddress: options?.shippingAddress || null,
                     createdAt: FieldValue.serverTimestamp(),

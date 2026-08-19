@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     shippingCost
   } = useCart();
 
-  const [paymentMethod, setPaymentMethod] = useState<'Card' | 'PayID Escrow'>('Card');
+  const [paymentMethod, setPaymentMethod] = useState<'EFT / PayID Escrow' | 'Cash on Delivery'>('EFT / PayID Escrow');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Shipping Address Form State
@@ -436,33 +436,34 @@ export default function CheckoutPage() {
               <CardContent>
                 <RadioGroup 
                   value={paymentMethod} 
-                  onValueChange={(val: 'Card' | 'PayID Escrow') => setPaymentMethod(val)}
+                  onValueChange={(val: 'EFT / PayID Escrow' | 'Cash on Delivery') => setPaymentMethod(val)}
                   className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                   <Label
                     htmlFor="payid"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      paymentMethod === 'PayID Escrow' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      paymentMethod === 'EFT / PayID Escrow' ? 'border-primary bg-primary/5' : 'border-white/10'
                     }`}
                   >
-                    <RadioGroupItem value="PayID Escrow" id="payid" className="mt-1" />
+                    <RadioGroupItem value="EFT / PayID Escrow" id="payid" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">PayID Escrow</p>
-                      <p className="text-xs text-slate-400">Lock the item and pay securely via bank transfer. Order confirmed instantly.</p>
-                      <p className="text-xs text-emerald-400 font-semibold">Highly Recommended</p>
+                      <p className="font-bold text-white">EFT / PayID Escrow</p>
+                      <p className="text-xs text-slate-400">Direct bank transfer with escrow protection. Payment details provided after order.</p>
+                      <p className="text-xs text-emerald-400 font-semibold">Recommended for Shipping</p>
                     </div>
                   </Label>
 
                   <Label
-                    htmlFor="card"
+                    htmlFor="cod"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      paymentMethod === 'Card' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      paymentMethod === 'Cash on Delivery' ? 'border-primary bg-primary/5' : 'border-white/10'
                     }`}
                   >
-                    <RadioGroupItem value="Card" id="card" className="mt-1" />
+                    <RadioGroupItem value="Cash on Delivery" id="cod" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">Credit / Debit Card</p>
-                      <p className="text-xs text-slate-400">Quick processing via secure credit checkout gateway.</p>
+                      <p className="font-bold text-white">Cash on Delivery / Pickup</p>
+                      <p className="text-xs text-slate-400">Pay cash in person upon local meetup or delivery inspection.</p>
+                      <p className="text-xs text-amber-400 font-semibold">Ideal for Local Meetups</p>
                     </div>
                   </Label>
                 </RadioGroup>

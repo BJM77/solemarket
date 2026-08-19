@@ -251,7 +251,7 @@ export const brandConfig: BrandConfig = {
     integrations: {
         stripe: {
             publishableKey: getEnv('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', ''),
-            enabled: getEnvBool('ENABLE_STRIPE', true),
+            enabled: getEnvBool('ENABLE_STRIPE', false),
         },
         googleMaps: {
             apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
