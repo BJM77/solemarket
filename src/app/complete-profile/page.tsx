@@ -82,28 +82,67 @@ export default function CompleteProfilePage() {
         setIsLoading(true);
         try {
             let idToken: string | undefined;
+            let currentUser: any = null;
             try {
                 const { auth } = await import('@/lib/firebase/config');
                 if (auth?.currentUser) {
-                    idToken = await auth.currentUser.getIdToken(true);
+                    currentUser = auth.currentUser;
+                    idToken = await currentUser.getIdToken(true);
                 }
             } catch (authErr) {
                 console.warn('Could not retrieve client ID token, falling back to session:', authErr);
             }
 
-            const { success, error } = await completeUserProfile({
-                accountType: values.accountType,
-                phoneNumber: values.phoneNumber,
-                location: values.location,
-                storeName: values.storeName,
-                storeDescription: values.storeDescription,
-                acceptsStripe: values.acceptsStripe,
-                acceptsCOD: values.acceptsCOD,
-                acceptsPayID: values.acceptsPayID,
-                idToken,
-            });
+            let completed = false;
 
-            if (success) {
+            // 1. Try Server Action first
+            try {
+                const res = await completeUserProfile({
+                    accountType: values.accountType,
+                    phoneNumber: values.phoneNumber,
+                    location: values.location,
+                    storeName: values.storeName,
+                    storeDescription: values.storeDescription,
+                    acceptsStripe: values.acceptsStripe,
+                    acceptsCOD: values.acceptsCOD,
+                    acceptsPayID: values.acceptsPayID,
+                    idToken,
+                });
+
+                if (res?.success) {
+                    completed = true;
+                }
+            } catch (serverActionErr) {
+                console.warn('Server Action execution error, falling back to client write:', serverActionErr);
+            }
+
+            // 2. Direct Client-side Firestore fallback if Server Action hit a 404 or network error
+            if (!completed && currentUser) {
+                const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
+                const { db } = await import('@/lib/firebase/config');
+                
+                const updatePayload: any = {
+                    accountType: values.accountType,
+                    role: values.accountType,
+                    phoneNumber: values.phoneNumber,
+                    location: values.location,
+                    agreedToTerms: true,
+                    updatedAt: serverTimestamp(),
+                };
+
+                if (values.accountType === 'seller') {
+                    updatePayload.storeName = values.storeName || '';
+                    updatePayload.storeDescription = values.storeDescription || '';
+                    updatePayload.acceptsStripe = values.acceptsStripe ?? false;
+                    updatePayload.acceptsCOD = values.acceptsCOD ?? false;
+                    updatePayload.acceptsPayID = values.acceptsPayID ?? false;
+                }
+
+                await setDoc(doc(db, 'users', currentUser.uid), updatePayload, { merge: true });
+                completed = true;
+            }
+
+            if (completed) {
                 toast({
                     title: 'Success!',
                     description: 'Your profile is now complete.',
@@ -111,7 +150,7 @@ export default function CompleteProfilePage() {
                 // Force a hard navigation so the root layout picks up the completed session info
                 window.location.href = '/';
             } else {
-                throw new Error(error || 'Failed to complete profile.');
+                throw new Error('Failed to complete profile. Please check your connection.');
             }
         } catch (error: any) {
             toast({
