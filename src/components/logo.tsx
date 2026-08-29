@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { brandConfig } from '@/config/brand';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({ className, priority = false }: { className?: string; priority?: boolean }) {
     const { config } = useSiteConfig();
     const siteLogo = config?.branding?.siteLogoUrl || brandConfig.branding.logoUrl || '/benchedlogo.png';
 
@@ -17,7 +17,7 @@ export function Logo({ className }: { className?: string }) {
                 width={422}
                 height={193}
                 className="w-auto h-full object-contain"
-                priority
+                priority={priority}
             />
         </div>
     );
