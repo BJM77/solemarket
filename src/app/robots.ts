@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: ['/', '/api/og-proxy', '/api/ai-feed'],
-        disallow: ['/admin/', '/profile/'],
+        disallow: ['/admin/', '/profile/', '/*?*'],
       },
       {
         userAgent: [
@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
           'Meta-ExternalAgent'
         ],
         allow: ['/', '/api/ai-feed'],
-        disallow: ['/admin/', '/profile/'],
+        disallow: ['/admin/', '/profile/', '/*?*'],
       }
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

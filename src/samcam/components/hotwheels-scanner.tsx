@@ -227,10 +227,47 @@ export default function HotWheelsScanner({
       )}
 
       {cameraError && (
-        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
-          <CameraOff className="w-16 h-16 text-destructive mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Camera Error</h3>
-          <p className="text-muted-foreground">{cameraError}</p>
+        <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center text-center p-4 z-20">
+          <CameraOff className="w-12 h-12 text-destructive mb-3" />
+          <h3 className="text-sm font-bold text-white mb-1">Camera Inaccessible</h3>
+          <p className="text-xs text-muted-foreground mb-4 leading-tight">{cameraError}</p>
+          <label 
+            htmlFor="hotwheels-photo-upload" 
+            className="cursor-pointer bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Upload / Take Photo
+          </label>
+          <input
+            id="hotwheels-photo-upload"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setIsProcessing(true);
+              try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  const base64 = reader.result as string;
+                  const resized = await resizeImage(base64);
+                  const { carName, year } = await scanHotWheels({ imageDataUri: resized });
+                  const huntResult = checkTreasureHunt(carName);
+                  setScanResult({ carName, year, ...huntResult });
+                  setShowResult(true);
+                  setTimeout(() => setShowResult(false), 4000);
+                  setIsProcessing(false);
+                };
+                reader.readAsDataURL(file);
+              } catch (err: any) {
+                console.error("Upload scan failed:", err);
+                onError(`Scan failed: ${err.message || 'Unknown error'}`);
+                setIsProcessing(false);
+              }
+            }}
+          />
         </div>
       )}
 

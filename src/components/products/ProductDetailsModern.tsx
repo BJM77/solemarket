@@ -1301,14 +1301,43 @@ export default function ProductDetailsModern({
                                                                 <span className="font-bold">{product.colorway}</span>
                                                             </div>
                                                         )}
-                                                        {product.year && (
-                                                            <Link href={getSiloRoute(product.category, 'year', product.year.toString())} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Release Year</span>
-                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                    {product.year}
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                </span>
-                                                            </Link>
+                                                        {product.gradingCompany && product.gradingCompany !== 'Raw' && (
+                                                            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-xl col-span-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div>
+                                                                        <span className="text-amber-800 dark:text-amber-300 block text-xs font-semibold uppercase tracking-wider mb-0.5">
+                                                                            Graded Slab ({product.gradingCompany})
+                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-lg font-black text-amber-950 dark:text-amber-100">
+                                                                                Grade: {product.grade || 'Authentic'}
+                                                                            </span>
+                                                                            {product.certNumber && (
+                                                                                <span className="text-xs text-muted-foreground font-mono">
+                                                                                    #{product.certNumber}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    {product.certNumber && product.gradingCompany === 'PSA' && (
+                                                                        <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
+                                                                            <a
+                                                                                href={`https://www.psacard.com/cert/${product.certNumber}`}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                            >
+                                                                                Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
+                                                                            </a>
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {product.cardNumber && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                                <span className="text-gray-500 block text-xs mb-1">Card #</span>
+                                                                <span className="font-bold">{product.cardNumber}</span>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 </div>

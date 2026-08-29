@@ -385,3 +385,39 @@ export async function activateProductAction(productId: string, idToken: string) 
         return { success: false, error: error.message };
     }
 }
+
+export async function releaseProductHoldAction(productId: string, idToken: string) {
+    if (!productId || !idToken) return { success: false, error: 'Invalid input' };
+
+    try {
+        const { uid: userId, role } = await ensureActionAuth(idToken);
+        const docRef = firestoreDb.collection('products').doc(productId);
+
+        return await firestoreDb.runTransaction(async (transaction: any) => {
+            const docSnap = await transaction.get(docRef);
+            if (!docSnap.exists) throw new Error('Product not found');
+            const data = docSnap.data();
+
+            const isHolder = data?.heldBy === userId;
+            const isSeller = data?.sellerId === userId;
+            const isAdmin = ['admin', 'superadmin'].includes(role);
+
+            if (!isHolder && !isSeller && !isAdmin) {
+                throw new Error('Unauthorized to release this hold.');
+            }
+
+            transaction.update(docRef, {
+                heldBy: FieldValue.delete(),
+                holdExpiresAt: FieldValue.delete(),
+                holdReason: FieldValue.delete(),
+                updatedAt: FieldValue.serverTimestamp()
+            });
+
+            return { success: true };
+        });
+    } catch (error: any) {
+        console.error('Release hold error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
