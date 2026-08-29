@@ -36,7 +36,7 @@ Provide a realistic, competitive market value in AUD.
 CRITICAL: The recommendedPrice MUST be a single numeric value (e.g. 15.50). Do NOT use strings, currency symbols, or ranges.`;
 
             const { output } = await ai.generate({
-                model: 'googleai/gemini-2.0-flash',
+                model: 'googleai/gemini-3.6-flash',
                 prompt,
                 output: { schema: PricingRecommendationSchema }
             });

@@ -72,7 +72,7 @@ export async function deepScanCoin(
 - coinCount: Number of coins visible in the image (1 for single coin, >1 for sets/rolls/lots). If multiple coins are present, title coinName as a set or lot.`;
 
     const result = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: 'googleai/gemini-3.6-flash',
       prompt: [
         { text: promptText },
         ...mediaArray
