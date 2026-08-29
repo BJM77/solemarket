@@ -14,18 +14,32 @@ import { rejectAllBidsForProduct } from "../marketplace/bidding";
  * Helper to get the authenticated user's ID from the session cookie.
  * @deprecated Use verifyIdToken with a client-supplied token for sensitive actions.
  */
-export async function getUserIdFromSession(): Promise<string | null> {
+export async function getUserIdFromSession(idToken?: string): Promise<string | null> {
+    if (idToken) {
+        try {
+            const decoded = await verifyIdToken(idToken);
+            if (decoded?.uid) return decoded.uid;
+        } catch (e) {
+            // fall through to cookie
+        }
+    }
+
     const cookieStore = await cookies();
     const session = cookieStore.get('session') || cookieStore.get('__session');
 
     if (session?.value) {
         try {
-            // This is insecure as it only decodes. 
-            // For sensitive actions, use verifyIdToken from @/lib/firebase/auth-admin
-            const decodedToken = await verifyIdToken(session.value);
-            return decodedToken.uid || null;
+            const { authAdmin } = await import('@/lib/firebase/admin');
+            const decodedSession = await authAdmin.verifySessionCookie(session.value, true);
+            return decodedSession.uid || null;
         } catch (error) {
-            return null;
+            try {
+                // Fallback attempt with verifyIdToken in case session cookie contains raw ID token
+                const decodedToken = await verifyIdToken(session.value);
+                return decodedToken.uid || null;
+            } catch (fallbackError) {
+                return null;
+            }
         }
     }
     return null;

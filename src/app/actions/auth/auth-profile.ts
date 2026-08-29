@@ -12,9 +12,10 @@ export async function completeUserProfile(data: {
     acceptsStripe?: boolean;
     acceptsCOD?: boolean;
     acceptsPayID?: boolean;
+    idToken?: string;
 }) {
     try {
-        const uid = await getUserIdFromSession();
+        const uid = await getUserIdFromSession(data.idToken);
         if (!uid) {
             return { success: false, error: 'Unauthorized. Please sign in again.' };
         }

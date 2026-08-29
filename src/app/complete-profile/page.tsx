@@ -81,6 +81,16 @@ export default function CompleteProfilePage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
+            let idToken: string | undefined;
+            try {
+                const { auth } = await import('@/lib/firebase/config');
+                if (auth?.currentUser) {
+                    idToken = await auth.currentUser.getIdToken(true);
+                }
+            } catch (authErr) {
+                console.warn('Could not retrieve client ID token, falling back to session:', authErr);
+            }
+
             const { success, error } = await completeUserProfile({
                 accountType: values.accountType,
                 phoneNumber: values.phoneNumber,
@@ -90,6 +100,7 @@ export default function CompleteProfilePage() {
                 acceptsStripe: values.acceptsStripe,
                 acceptsCOD: values.acceptsCOD,
                 acceptsPayID: values.acceptsPayID,
+                idToken,
             });
 
             if (success) {
