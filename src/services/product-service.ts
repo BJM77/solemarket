@@ -274,7 +274,12 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   // we follow the Firestore recommendation to wrap them in an 'and()' for stability.
   const hasOrFilter = constraints.some(c => c.toString().includes('or(') || (c as any)._type === 'or'); // Heuristic check or just always use and()
   
-  const queryArgs: any[] = [...constraints, ...orderByConstraints];
+  let filterArgs: any[] = constraints;
+  if (hasOrFilter && constraints.length > 1) {
+    filterArgs = [and(...constraints)];
+  }
+
+  const queryArgs: any[] = [...filterArgs, ...orderByConstraints];
 
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
