@@ -114,7 +114,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     <div className="flex items-center gap-3 px-4 py-2 bg-muted/30 rounded-2xl mb-2">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20 overflow-hidden">
                             {user.photoURL ? (
-                                <img src={user.photoURL} alt="" className="h-full w-full object-cover" />
+                                <img src={user.photoURL} alt="" className="h-full w-full object-cover" fetchpriority="high" />
                             ) : (
                                 <span>{getInitials(user.displayName)}</span>
                             )}

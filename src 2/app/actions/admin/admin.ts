@@ -1,0 +1,336 @@
+'use server';
+
+import { firestoreDb } from '@/lib/firebase/admin';
+import { verifyIdToken } from '@/lib/firebase/auth-admin';
+import { Product } from '@/lib/types';
+import { revalidateTag, revalidatePath } from 'next/cache';
+import { logActivity } from '@/services/activity-logs';
+import { rejectAllBidsForProduct } from '../marketplace/bidding';
+import { ensureActionAuth } from '@/lib/action-utils';
+
+// import { notifySellerOfRemoval } from '@/ai/flows/notify-seller-of-removal';
+
+/**
+ * Result type for admin actions, ensuring a consistent response shape.
+ */
+export type AdminActionResult =
+    | { success: true; message: string }
+    | { success: false; error: string };
+
+/**
+ * An admin-only action to delete a product and notify the seller.
+ * @param productId The ID of the product to delete.
+ * @param idToken The Firebase ID token of the admin user.
+ * @returns A promise that resolves to an AdminActionResult.
+ */
+export async function deleteProductByAdmin(
+    productId: string,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !idToken) {
+        return {
+            success: false,
+            error: 'Product ID and authentication token are required.',
+        };
+    }
+
+    try {
+        // 1. Verify the user has the 'superadmin' or 'admin' role from the token's custom claims.
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const product = productSnap.data() as Product;
+
+        // 2. Soft Delete the Product
+        await productRef.update({
+            status: 'deleted',
+            deletedAt: firestoreDb.collection('products').doc().id ? new Date() : new Date(), // Using direct update with date
+            updatedAt: new Date()
+        });
+
+        // Notify Bidders
+        await rejectAllBidsForProduct(productId, 'Admin removed listing');
+
+        // Enterprise Safety: Log the deletion activity
+        await logActivity({
+            action: 'product_deleted',
+            resourceId: productId,
+            resourceType: 'product',
+            performedBy: {
+                uid: auth.uid,
+                email: auth.email,
+                displayName: auth.name,
+                role: auth.role || 'admin'
+            },
+            details: {
+                productTitle: product.title,
+                originalStatus: product.status,
+                reason: 'Admin Removal'
+            }
+        });
+
+        // 3. Notify the Seller via AI Flow (non-blocking)
+        let notificationStatus = '';
+        if (product.sellerEmail && product.sellerEmail.trim() !== '') {
+            try {
+                const { notifySellerOfRemoval } = await import('@/ai/flows/notify-seller-of-removal');
+                await notifySellerOfRemoval({
+                    sellerEmail: product.sellerEmail,
+                    sellerName: product.sellerName || 'Seller', // Fallback for sellerName
+                    productName: product.title,
+                    idToken
+                });
+                notificationStatus = ' and the seller has been notified';
+            } catch (notifyError: any) {
+                console.error('Failed to notify seller, but product was soft-deleted:', notifyError);
+                // Don't fail the entire operation if notification fails.
+                notificationStatus = ' but failed to notify the seller';
+            }
+        }
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+        
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: `Product "${product.title}" has been removed${notificationStatus}.`,
+        };
+
+    } catch (error: any) {
+        console.error('Admin Delete Product Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred during deletion.',
+        };
+    }
+}
+
+/**
+ * An admin-only action to renew a product listing by updating its createdAt date to now.
+ */
+export async function renewProductByAdmin(
+    productId: string,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !idToken) {
+        return { success: false, error: 'Product ID and authentication token are required.' };
+    }
+
+    try {
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const admin = require('firebase-admin');
+        await productRef.update({
+            createdAt: admin.firestore.Timestamp.now()
+        });
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: `Product listing has been renewed.`,
+        };
+    } catch (error: any) {
+        console.error('Admin Renew Product Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred during renewal.',
+        };
+    }
+}
+
+/**
+ * An admin-only action to approve a pending product listing.
+ * Sets the release timestamps for tiered access.
+ */
+export async function approveProductByAdmin(
+    productId: string,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !idToken) {
+        return { success: false, error: 'Product ID and authentication token are required.' };
+    }
+
+    try {
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const admin = require('firebase-admin');
+        const now = admin.firestore.Timestamp.now();
+
+        await productRef.update({
+            status: 'available',
+            approvedAt: now,
+            publicReleaseAt: now,
+            updatedAt: now,
+        });
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: `Product has been approved and is now live and public.`,
+        };
+    } catch (error: any) {
+        console.error('Admin Approve Product Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred during approval.',
+        };
+    }
+}
+
+/**
+ * An admin-only action to toggle product hold status (e.g., for fraud investigation).
+ */
+export async function toggleProductHold(
+    productId: string,
+    onHold: boolean,
+    reason: string,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !idToken) return { success: false, error: 'Invalid input' };
+
+    try {
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const adminAuth = require('firebase-admin');
+
+        const updates: any = {
+            status: onHold ? 'on_hold' : 'available', // Revert to available if unheld
+            updatedAt: adminAuth.firestore.Timestamp.now()
+        };
+
+        if (onHold) {
+            updates.holdReason = reason;
+        } else {
+            updates.holdReason = adminAuth.firestore.FieldValue.delete();
+        }
+
+        await productRef.update(updates);
+
+        if (onHold) {
+            const productSnap = await productRef.get();
+            const sellerId = productSnap.data()?.sellerId;
+            if (sellerId) {
+                // Dynamically import to avoid circular dependency if possible, though nextjs handles it often
+                const { issueWarning } = await import('./admin-users');
+                await issueWarning(idToken, sellerId, `Product "${productSnap.data()?.title}" placed on hold: ${reason}`);
+            }
+        }
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: onHold ? "Product placed on hold and seller warned." : "Product released from hold.",
+        };
+
+    } catch (error: any) {
+        console.error('Admin Hold Product Error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * An admin-only action to update a product's category and subcategory.
+ */
+export async function updateProductCategoryByAdmin(
+    productId: string,
+    category: string,
+    subCategory: string | undefined,
+    idToken: string
+): Promise<AdminActionResult> {
+    if (!productId || !category || !idToken) {
+        return { success: false, error: 'Product ID, category, and token are required.' };
+    }
+
+    try {
+        const auth = await ensureActionAuth(idToken, ['admin', 'superadmin']);
+
+        const productRef = firestoreDb.collection('products').doc(productId);
+        const productSnap = await productRef.get();
+
+        if (!productSnap.exists) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        const admin = require('firebase-admin');
+        const updates: any = {
+            category,
+            subCategory: subCategory || admin.firestore.FieldValue.delete(),
+            updatedAt: admin.firestore.Timestamp.now()
+        };
+
+        await productRef.update(updates);
+
+        revalidateTag('active-listings-count');
+        revalidateTag('products-featured');
+        revalidateTag('products-sneakers');
+
+        revalidatePath(`/product/${productId}`);
+        revalidatePath('/shoes');
+        revalidatePath('/cards');
+        revalidatePath('/coins');
+        revalidatePath('/browse');
+
+        return {
+            success: true,
+            message: `Product category updated successfully to ${category}.`,
+        };
+    } catch (error: any) {
+        console.error('Admin Update Category Error:', error);
+        return {
+            success: false,
+            error: error.message || 'An unexpected error occurred.',
+        };
+    }
+}
+

@@ -1,0 +1,92 @@
+
+/**
+ * Marketplace-wide constants for categories, conditions, and sub-categories.
+ * Standardizing these ensures consistent SEO, URLs, and data structure across the platform.
+ */
+
+export const CATEGORY_TRADING_CARDS = 'Collector Cards';
+export const CATEGORY_SNEAKERS = 'Sneakers';
+export const CATEGORY_COINS = 'Coins';
+export const CATEGORY_ACCESSORIES = 'Accessories';
+export const CATEGORY_GENERAL = 'General';
+
+export const DEFAULT_CATEGORIES = [
+  CATEGORY_SNEAKERS,
+  CATEGORY_TRADING_CARDS,
+  CATEGORY_COINS,
+  CATEGORY_ACCESSORIES,
+  CATEGORY_GENERAL
+];
+
+export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
+  [CATEGORY_SNEAKERS]: [
+    'Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Arrivals'
+  ],
+  [CATEGORY_ACCESSORIES]: ['Bags', 'Hats', 'Jewelry', 'Other'],
+  [CATEGORY_TRADING_CARDS]: [
+    'Basketball', 'Pokémon', 'Yu-Gi-Oh!', 'Rookies', 'New Arrivals'
+  ],
+  [CATEGORY_COINS]: [
+    'Australian', 'World', 'Gold & Silver', 'Proof Sets', 'New Arrivals'
+  ],
+  [CATEGORY_GENERAL]: ['Household', 'Electronics', 'Clothing', 'Books', 'Other']
+};
+
+export const DEFAULT_CONDITIONS = [
+  'New',
+  'Used',
+  'Mint',
+  'Near Mint',
+  'Excellent',
+  'Good',
+  'Fair'
+];
+
+/**
+ * Mapping for normalizing legacy or inconsistent category strings.
+ */
+export const CATEGORY_MAPPING: Record<string, string> = {
+  'Cards': CATEGORY_TRADING_CARDS,
+  'Collector Cards': CATEGORY_TRADING_CARDS,
+  'Trading Cards': CATEGORY_TRADING_CARDS,
+  'collector-cards': CATEGORY_TRADING_CARDS,
+  'trading-cards': CATEGORY_TRADING_CARDS,
+  'Shoes': CATEGORY_SNEAKERS,
+  'shoes': CATEGORY_SNEAKERS,
+  'sneakers': CATEGORY_SNEAKERS,
+  'Coins': CATEGORY_COINS,
+  'coins': CATEGORY_COINS,
+};
+
+/**
+ * Mapping for related category names to support legacy data during migrations.
+ */
+export const RELATED_CATEGORIES: Record<string, string[]> = {
+  [CATEGORY_SNEAKERS]: ['Sneakers', 'Shoes', 'shoes', 'sneakers'],
+  [CATEGORY_TRADING_CARDS]: ['Collector Cards', 'Trading Cards', 'Cards', 'collector-cards', 'trading-cards'],
+  [CATEGORY_COINS]: ['Coins', 'coins', 'Numismatics'],
+};
+
+/**
+ * Normalizes a category string to the canonical version.
+ */
+export function normalizeCategory(category?: string): string {
+  if (!category) return CATEGORY_GENERAL;
+  return CATEGORY_MAPPING[category] || category;
+}
+
+/**
+ * Checks if a category is a coin category.
+ */
+export function isCoinCategory(category?: string): boolean {
+  const normalized = normalizeCategory(category);
+  return normalized === CATEGORY_COINS;
+}
+
+/**
+ * Checks if a category is a card category.
+ */
+export function isCardCategory(category?: string): boolean {
+  const normalized = normalizeCategory(category);
+  return normalized === CATEGORY_TRADING_CARDS;
+}

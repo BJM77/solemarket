@@ -96,6 +96,17 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     } catch (err) {
       console.error('Sitemap: Error fetching categories:', err);
     }
+    
+    // 2.5 Programmatic Brand Routes
+    const topBrands = ['nike', 'jordan', 'adidas', 'yeezy', 'new-balance', 'asics', 'pokemon', 'panini', 'topps', 'magic-the-gathering'];
+    const brandRoutes: MetadataRoute.Sitemap = topBrands.map((brand) => ({
+      url: `${baseUrl}/brand/${brand}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
+    
+    categoryRoutes = [...categoryRoutes, ...brandRoutes];
   }
 
   // 3. Guide Routes (Only included on sitemap index 0)

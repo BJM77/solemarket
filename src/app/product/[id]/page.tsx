@@ -27,7 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
-  const proxyUrl = `${siteUrl}/og-image/${id}`;
+  const encodedTitle = encodeURIComponent(product.title);
+  const encodedPrice = encodeURIComponent(product.price.toString());
+  const encodedImage = encodeURIComponent(primaryImage);
+  const proxyUrl = `${siteUrl}/api/og?title=${encodedTitle}&price=${encodedPrice}&image=${encodedImage}`;
 
   return {
     title: `${product.title} | ${product.category} | Benched`,

@@ -1,0 +1,1088 @@
+'use client';
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type { Product } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
+import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
+import { QuickView } from './QuickView';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin/admin';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useViewedProducts } from '@/context/ViewedProductsContext';
+import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { formatPrice, getProductUrl, formatRelativeTime } from '@/lib/utils';
+
+import { ProductImageLightbox } from './ProductImageLightbox';
+import { updateProductPrice } from '@/app/actions/marketplace/product-updates';
+import { toggleProductHold } from '@/app/actions/admin/admin';
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Check, X as XIcon } from "lucide-react";
+import { SmartImage } from './SmartImage';
+import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
+
+
+
+interface ProductCardProps {
+  product: Product;
+  viewMode?: 'grid' | 'list' | 'compact' | 'montage';
+  isAdmin?: boolean;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+  onOpenPriceAssistant?: (product: Product) => void;
+  priority?: boolean;
+}
+
+export default function ProductCard({
+  product,
+  viewMode = 'grid',
+  isAdmin = false,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
+  onOpenPriceAssistant,
+  priority = false
+}: ProductCardProps) {
+  const router = useRouter();
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const { user } = useUser();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isRenewing, setIsRenewing] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const { viewedProductIds } = useViewedProducts();
+
+  // HYDRATION FIX: Use state and useEffect to avoid server/client mismatch on dates and auth state
+  const [mounted, setMounted] = useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const hasViewed = mounted && viewedProductIds.includes(product.id);
+
+  // Favorite Logic
+  const firestore = useFirestore();
+  const favoriteQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid, 'favorites', product.id);
+  }, [firestore, user?.uid, product.id]);
+
+  const { data: favorite } = useDoc<any>(favoriteQuery);
+  const isFavorited = !!favorite;
+
+  // Price Editing State
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [editedPrice, setEditedPrice] = useState(product.price.toString());
+  const [isSavingPrice, setIsSavingPrice] = useState(false);
+
+  const handleFavoriteToggle = React.useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save favorites.",
+        variant: "destructive"
+      });
+      router.push('/sign-in');
+      return;
+    }
+
+    if (!favoriteQuery) return;
+
+    try {
+      if (isFavorited) {
+        await deleteDoc(favoriteQuery);
+        toast({ title: "Removed from favorites" });
+      } else {
+        await setDoc(favoriteQuery, {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          image: product.imageUrls?.[0] || '',
+          category: product.category,
+          addedAt: new Date()
+        });
+        toast({ title: "Added to favorites" });
+      }
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+      toast({ title: "Error", description: "Could not update favorites", variant: "destructive" });
+    }
+  }, [user, favoriteQuery, isFavorited, product.id, product.title, product.price, product.imageUrls, product.category, toast, router]);
+
+  const handlePriceSave = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!isAdmin) return;
+
+
+
+    const newPrice = parseFloat(editedPrice);
+    if (isNaN(newPrice) || newPrice < 0) {
+      toast({ title: "Invalid Price", variant: "destructive" });
+      return;
+    }
+
+    setIsSavingPrice(true);
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Auth required");
+      const result = await updateProductPrice(product.id, newPrice, idToken);
+      if (result.success) {
+        toast({ title: "Price Updated" });
+        setIsEditingPrice(false);
+        product.price = newPrice; // Optimistic update
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSavingPrice(false);
+    }
+  };
+
+  const DealTierBadge = ({ className }: { className?: string }) => {
+    if (!product.multiCardTier) return null;
+    
+    const tiers = {
+      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
+      silver: { label: 'S', classes: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
+      gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' },
+      platinum: { label: 'P', classes: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' }
+    };
+    
+    const tier = tiers[product.multiCardTier as keyof typeof tiers];
+    if (!tier) return null;
+
+    return (
+      <span className={cn(
+        "text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0 border inline-block",
+        tier.classes,
+        className
+      )}>
+        {tier.label}
+      </span>
+    );
+  };
+
+  const DealIndicator = ({ className }: { className?: string }) => {
+    if (!product.marketValue || product.isUntimed) return null;
+    const diff = product.marketValue - product.price;
+    const percentDiff = Math.round((Math.abs(diff) / product.marketValue) * 100);
+    
+    if (percentDiff < 5) return null;
+
+    if (diff > 0) {
+      return (
+        <Badge variant="outline" className={cn("bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+          Great Deal
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge variant="outline" className={cn("bg-red-500/10 text-red-400 border-red-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+          +{percentDiff}% Mkt
+        </Badge>
+      );
+    }
+  };
+
+  const PriceDisplay = () => {
+    if (isEditingPrice) {
+      return (
+        <form onSubmit={handlePriceSave} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+          <Input
+            type="number"
+            value={editedPrice}
+            onChange={(e) => setEditedPrice(e.target.value)}
+            className="h-7 w-20 px-1 py-0 text-sm"
+            autoFocus
+          />
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" type="submit" disabled={isSavingPrice}>
+            {isSavingPrice ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-4 w-4" />}
+          </Button>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500" onClick={() => setIsEditingPrice(false)}>
+            <XIcon className="h-4 w-4" />
+          </Button>
+        </form>
+      );
+    }
+
+    if (product.isUntimed) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-indigo-500/20">
+            Make Offer
+          </span>
+          {(isAdmin || isSuperAdmin) && (
+            <div
+              className={cn("flex items-center gap-2 opacity-50 text-xs", isAdmin && "cursor-pointer hover:bg-muted/50 p-1 rounded")}
+              onClick={(e) => {
+                if (isAdmin) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsEditingPrice(true);
+                }
+              }}
+            >
+              ${formatPrice(product.price)}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={cn("flex items-center gap-2", isAdmin && "cursor-pointer hover:bg-muted/50 p-1 rounded")}
+        onClick={(e) => {
+          if (isAdmin) {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsEditingPrice(true);
+          }
+        }}
+        title={isAdmin ? "Click to edit price" : undefined}
+      >
+        ${formatPrice(product.price)}
+        {isAdmin && <Edit className="h-3 w-3 opacity-20" />}
+        {isSuperAdmin && onOpenPriceAssistant && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-6 w-6 ml-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 relative z-30"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpenPriceAssistant(product);
+            }}
+            title="Price Assistant"
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+
+  // Super admin check
+  const isSuperAdmin = mounted && ((user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email)));
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product);
+    toast({
+      title: 'Added to Cart!',
+      description: `${product.title} is now in your cart.`,
+    });
+  };
+
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSuperAdmin && !isAdmin) return;
+    setIsDeleting(true);
+
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication session expired.");
+
+      const result = await deleteProductByAdmin(product.id, idToken);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: "Product Deleted",
+        description: result.message,
+      });
+      setIsDeleted(true); // Visually remove the card
+
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Deletion Failed",
+        description: error.message || "An error occurred.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleRenew = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSuperAdmin && !isAdmin) return;
+    setIsRenewing(true);
+
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication session expired.");
+
+      const result = await renewProductByAdmin(product.id, idToken);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: "Listing Renewed",
+        description: result.message,
+      });
+
+      router.refresh();
+      // Force a soft refresh to show the updated date internally if needed, 
+      // though user said keep it hidden.
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Renewal Failed",
+        description: error.message || "An error occurred.",
+      });
+    } finally {
+      setIsRenewing(false);
+    }
+  };
+
+  const [isApproving, setIsApproving] = useState(false);
+
+  const handleApprove = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSuperAdmin && !isAdmin) return;
+    setIsApproving(true);
+
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) throw new Error("Authentication session expired.");
+
+      const { approveProductByAdmin } = await import('@/app/actions/admin/admin');
+      const result = await approveProductByAdmin(product.id, idToken);
+
+      if (!result.success) throw new Error(result.error);
+
+      toast({
+        title: "Product Approved",
+        description: result.message,
+      });
+
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Approval Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleToggleHold = async () => {
+    if (!isAdmin) return;
+
+    // If currently on hold, we are releasing it.
+    // If available, we are placing on hold (requires reason).
+    const isOnHold = product.status === 'on_hold';
+    let reason = '';
+
+    if (!isOnHold) {
+      reason = window.prompt("Reason for placing on hold (Fraud, Wrong Product, etc.):") || '';
+      if (!reason) return; // Cancelled
+    }
+
+    try {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) return;
+
+      const result = await toggleProductHold(product.id, !isOnHold, reason, idToken);
+
+      toast({
+        title: result.success ? "Success" : "Error",
+        description: result.success ? result.message : result.error,
+        variant: result.success ? "default" : "destructive"
+      });
+
+      if (result.success) {
+        router.refresh();
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update hold status", variant: "destructive" });
+    }
+  };
+
+
+  const getFormattedDate = formatRelativeTime;
+  const getAspectRatio = (category: string) => {
+    if (isCardCategory(category)) {
+      return 'aspect-[5/7]';
+    }
+    return 'aspect-square';
+  };
+
+  const imageAspectRatio = getAspectRatio(product.category);
+
+  const getEbayQuery = () => {
+    const parts = [];
+    const title = product.title || '';
+    const year = product.year?.toString() || '';
+    const manufacturer = product.brand || product.manufacturer || '';
+
+    if (year && !title.startsWith(year)) {
+      parts.push(year);
+    }
+
+    if (manufacturer && !title.toLowerCase().includes(manufacturer.toLowerCase())) {
+      parts.push(manufacturer);
+    }
+
+    parts.push(title);
+    return parts.join(' ');
+  };
+
+  const isNewArrival = () => {
+    if (!product.createdAt) return false;
+    const now = new Date();
+    const threshold = 48 * 60 * 60 * 1000; // 48 hours for "Just In"
+
+    let d: Date;
+    // @ts-ignore
+    if (product.createdAt.toDate) d = product.createdAt.toDate();
+    // @ts-ignore
+    else if (product.createdAt.seconds) d = new Date(product.createdAt.seconds * 1000);
+    else d = new Date(product.createdAt as any);
+
+    if (isNaN(d.getTime())) return false;
+    return (now.getTime() - d.getTime()) < threshold;
+  };
+
+
+
+  if (isDeleted) {
+    return null; // Don't render the card if it has been deleted
+  }
+
+  if (viewMode === 'compact') {
+    return (
+      <div className="group relative flex items-center justify-between border-b border-gray-100 dark:border-white/5 py-2 px-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+        {!selectable && (
+          <Link
+            href={getProductUrl(product)}
+            className="absolute inset-0 z-0"
+            title={product.title}
+          >
+            <span className="sr-only">View {product.title}</span>
+          </Link>
+        )}
+        <div className="relative z-10 flex items-center gap-3 overflow-hidden pointer-events-none">
+          {product.status === 'sold' && (
+            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold flex-shrink-0 pointer-events-auto">
+              Sold
+            </Badge>
+          )}
+          <span
+            className="text-sm font-semibold truncate hover:text-primary transition-colors pointer-events-auto"
+          >
+            {product.title}
+          </span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-1.5 py-0.5 rounded flex-shrink-0">
+            {product.category}
+          </span>
+          {product.grade && (
+            <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded flex-shrink-0 border border-emerald-500/20">
+              {product.grade}
+            </span>
+          )}
+        </div>
+
+        <div className="relative z-10 flex items-center gap-4 flex-shrink-0">
+          {selectable && (
+            <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="mr-2 pointer-events-auto" />
+          )}
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <div className="flex items-center gap-1.5 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-blue-600 hover:bg-blue-50"
+                  onClick={handleRenew}
+                  disabled={isRenewing}
+                  title="Renew"
+                >
+                  {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-700 hover:bg-slate-100" asChild title="Edit">
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-red-600 hover:bg-red-50"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }}
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            {mounted && isSuperAdmin && (
+              <div className="flex items-center gap-1.5 pointer-events-auto mr-2" onClick={(e) => e.stopPropagation()}>
+                <EbaySearchModal
+                  defaultQuery={getEbayQuery()}
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600 hover:bg-blue-50" title="Check eBay Prices">
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  }
+                />
+              </div>
+            )}
+            <div className="text-sm font-bold w-full text-right flex justify-end items-center gap-2 pointer-events-auto">
+              <DealTierBadge />
+              <DealIndicator />
+              <PriceDisplay />
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(getProductUrl(product));
+              }}
+            >
+              Details
+              <span className="sr-only"> view {product.title}</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (viewMode === 'list') {
+    return (
+      <div className="group relative flex flex-col sm:flex-row gap-4 rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all hover:shadow-md">
+        <div className={cn("relative w-full sm:w-48 flex-shrink-0 bg-muted", imageAspectRatio)}>
+          {selectable && (
+            <div className="absolute top-2 left-2 z-50">
+              <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="bg-white" />
+            </div>
+          )}
+          {product.imageUrls?.[0] ? (
+            <div
+              className="relative w-full h-full cursor-pointer group/image"
+            >
+              <Link href={getProductUrl(product)} className="absolute inset-0 z-0" title={product.title}>
+                <SmartImage
+                  product={product}
+                  imageIndex={0}
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
+                  priority={priority}
+                  quality={50}
+                />
+              </Link>
+              <Button
+                variant="ghost"
+                className="absolute top-2 left-2 z-20 text-white bg-black/40 hover:bg-black/60 hidden group-hover/image:flex h-6 w-6 p-0 items-center justify-center rounded-md"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLightboxOpen(true); }}
+              >
+                <Maximize2 className="h-[11px] w-[11px]" />
+              </Button>
+            </div>
+          ) : null}
+
+          <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 pointer-events-none">
+            {product.isVault && (
+              <Badge
+                variant="default"
+                className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md cursor-pointer z-20 pointer-events-auto"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open('/vault', '_blank');
+                }}
+              >
+                <ShieldCheck className="h-3 w-3" />
+                Vault
+              </Badge>
+            )}
+            {mounted && hasViewed && (
+              <Badge variant="secondary" className="inline-flex items-center justify-center h-6 w-6 bg-black/50 text-white rounded-full backdrop-blur-sm p-0">
+                <Eye className="h-3 w-3" />
+              </Badge>
+            )}
+            {product.status === 'sold' && (
+              <Badge variant="destructive">
+                Sold
+              </Badge>
+            )}
+          </div>
+          <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
+            <Button
+              variant="secondary"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm border-none transition-all duration-300",
+                isFavorited ? "text-red-500 bg-red-50" : "text-white hover:bg-black/70"
+              )}
+              onClick={handleFavoriteToggle}
+              title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            >
+              <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
+            </Button>
+            <QuickView
+              product={product}
+              trigger={
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm border-none text-white hover:bg-black/70 transition-all duration-300"
+                  title="Quick View"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              }
+            />
+            {mounted && (isSuperAdmin || isAdmin) && (
+              <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+                {isSuperAdmin && (
+                  <EbaySearchModal
+                    defaultQuery={getEbayQuery()}
+                    trigger={
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" title="Check eBay Prices">
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/sell/create?edit=${product.id}`}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit Listing
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Search className="mr-2 h-4 w-4" /> eBay Sold Items
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} className="text-red-600">
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete Listing
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{product.title}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
+          </div>
+        </div>
+        {!selectable && (
+          <Link
+            href={getProductUrl(product)}
+            className="absolute inset-0 z-0"
+            title={product.title}
+          >
+            <span className="sr-only">View {product.title}</span>
+          </Link>
+        )}
+        <div className="p-4 flex flex-col justify-between flex-grow relative z-10 pointer-events-none">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <Badge variant="outline" className="text-xs pointer-events-auto">{product.category}</Badge>
+              <div className="font-bold text-lg pointer-events-auto flex items-center gap-2">
+                <DealTierBadge />
+                <DealIndicator />
+                <PriceDisplay />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground group-hover:text-primary leading-tight">
+              {product.title}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+              {product.description}
+            </p>
+          </div>
+          {(isAdmin || isSuperAdmin) && (
+            <div className="flex items-center gap-2 mt-4 pt-4 border-t pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+              <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0" title="Edit">
+                <Link href={`/sell/create?edit=${product.id}`}>
+                  <Edit className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 text-blue-600 border-blue-100 hover:bg-blue-50"
+                onClick={handleRenew}
+                disabled={isRenewing}
+                title="Renew Listing"
+              >
+                {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 text-red-600 border-red-100 hover:bg-red-50"
+                onClick={() => setIsDeleting(true)}
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div >
+    );
+  }
+
+  // Grid View (default) - new style
+  return (
+    <div className={cn(
+      "group relative flex flex-col dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift max-w-full w-full",
+      selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
+    )} onClick={() => selectable && onToggleSelect?.()}>
+      <div className={cn("bg-muted/30 relative overflow-hidden shrink-0 w-full", imageAspectRatio)}>
+
+        {selectable && (
+          <div className="absolute top-3 left-3 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="bg-white border-2 border-primary" />
+          </div>
+        )}
+
+        <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
+          {product.status === 'pending_approval' && (
+            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
+              <Clock className="h-3 w-3" />
+              WAITING FOR MINUTES
+            </Badge>
+          )}
+          {product.status === 'sold' && (
+            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
+              CHECKED IN
+            </Badge>
+          )}
+          {hasViewed && (
+            <Badge variant="secondary" className="inline-flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 bg-black/50 text-white rounded-full backdrop-blur-sm pointer-events-auto shadow-sm p-0">
+              <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            </Badge>
+          )}
+        </div>
+
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-30 scale-90 sm:scale-100 origin-top-right flex flex-col items-center gap-1.5 sm:gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            className={cn(
+              "h-8 w-8 sm:h-9 sm:w-9 rounded-full backdrop-blur-md border-none transition-all duration-300 pointer-events-auto shadow-md",
+              isFavorited ? "text-red-500 bg-red-50" : "bg-black/40 text-white hover:bg-black/60"
+            )}
+            onClick={handleFavoriteToggle}
+            title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+          >
+            <Heart className={cn("h-4 w-4 sm:h-5 sm:w-5", isFavorited && "fill-current")} />
+          </Button>
+          <div className="scale-75 sm:scale-100 hidden">
+            <QuickView
+              product={product}
+              trigger={
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-black/40 backdrop-blur-md border-none text-white hover:bg-black/60 transition-all duration-300 shadow-md pointer-events-auto"
+                  title="Quick View"
+                >
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              }
+            />
+          </div>
+
+          {mounted && (isSuperAdmin || isAdmin) && (
+            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div className="flex gap-1 group-hover:opacity-100 opacity-0 transition-opacity">
+                {isSuperAdmin && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200"
+                      asChild
+                      title="eBay Sold Items"
+                    >
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                    <EbaySearchModal
+                      defaultQuery={getEbayQuery()}
+                      trigger={
+                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-blue-600 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices (In-App)">
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
+                  </>
+                )}
+                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-slate-700 hover:bg-white shadow-sm border border-slate-200" asChild title="Edit">
+                  <Link href={`/sell/create?edit=${product.id}`}>
+                    <Edit className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm border border-slate-200" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} title="Delete">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" aria-label="More options">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href={`/sell/create?edit=${product.id}`}>
+                      <Edit className="mr-2 h-4 w-4" /> Edit Listing
+                    </Link>
+                  </DropdownMenuItem>
+                  {isSuperAdmin && (
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(getEbayQuery())}&LH_Sold=1&LH_Complete=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Search className="mr-2 h-4 w-4" /> eBay Sold Items
+                      </a>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleHold(); }}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    {product.status === 'on_hold' ? "Release Hold" : "Place on Hold"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDeleting(true); }} className="text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete Listing
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete "{product.title}"? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-red-600">Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </div>
+        {product.imageUrls?.[0] && (
+          <Link
+            href={getProductUrl(product)}
+            className="relative w-full h-full cursor-pointer overflow-hidden block"
+            title={product.title}
+          >
+            <SmartImage
+              product={product}
+              imageIndex={0}
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
+              priority={priority}
+              quality={50}
+            />
+          </Link>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      </div>
+
+      {!selectable && (
+        <Link
+          href={getProductUrl(product)}
+          className="absolute inset-0 z-0"
+          title={product.title}
+        >
+          <span className="sr-only">View {product.title}</span>
+        </Link>
+      )}
+
+      <div className="p-2.5 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none min-w-0 overflow-hidden">
+        <div className="flex justify-between items-start mb-1 sm:mb-2 min-w-0">
+          <h3 className="text-xs sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2rem] sm:min-h-0 min-w-0 break-words">
+            {product.title}
+          </h3>
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            {!isCardCategory(product.category) && product.size && (
+              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
+                US {product.size.replace('US ', '')}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 mt-0.5 mb-1.5 pointer-events-auto px-0.5 overflow-x-auto scrollbar-hide min-w-0">
+          {product.oldPrice && product.oldPrice > product.price && (
+            <Badge variant="default" className="bg-red-600 text-white text-[8px] font-black px-1 py-0.5 rounded uppercase flex-shrink-0 animate-pulse">
+              🔥 Price Drop
+            </Badge>
+          )}
+          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-white/5 flex-shrink-0">
+            <AvatarImage src={product.sellerAvatar || ''} />
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
+          </Avatar>
+          <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">{product.sellerName || 'Benched'}</span>
+          {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
+        </div>
+
+        <div className="flex flex-wrap items-end justify-between mt-1 sm:mt-4 gap-1 sm:gap-2 flex-grow min-w-0">
+          <div className="pointer-events-auto min-w-0 max-w-full">
+            <p className="text-[8px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
+            <div className="text-sm sm:text-2xl font-black text-white tracking-tight flex flex-wrap items-center gap-1">
+              <PriceDisplay />
+              <DealTierBadge />
+              <DealIndicator />
+            </div>
+          </div>
+          <div className="flex gap-1.5 pointer-events-auto shrink-0 mt-1 sm:mt-0">
+            {product.status === 'pending_approval' && isSuperAdmin && (
+              <Button
+                size="sm"
+                className="h-7 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95"
+                onClick={handleApprove}
+                disabled={isApproving}
+              >
+                {isApproving ? <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" /> : <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />}
+                Approve
+              </Button>
+            )}
+            {!(product.status === 'pending_approval' && isSuperAdmin) && (
+              <Button
+                size="sm"
+                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  router.push(getProductUrl(product));
+                }}
+              >
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                Details
+              </Button>
+            )}
+          </div>
+        </div>
+        {isAdmin && (
+          <div className="mt-4 pt-4 border-t flex items-center gap-3 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+            <Button variant="secondary" size="sm" asChild className="h-9 flex-1 gap-2" title="Edit">
+              <Link href={`/sell/create?edit=${product.id}`}>
+                <Edit className="h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-9 w-9 p-0 text-blue-600"
+              onClick={handleRenew}
+              disabled={isRenewing}
+              title="Renew Listing"
+            >
+              {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-9 w-9 p-0 text-red-600"
+              onClick={() => setIsDeleting(true)}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+      <ProductImageLightbox
+        images={product.imageUrls}
+        isOpen={isLightboxOpen}
+        onOpenChange={setIsLightboxOpen}
+        title={product.title}
+      />
+    </div >
+  );
+}

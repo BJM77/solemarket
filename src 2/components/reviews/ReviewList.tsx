@@ -1,0 +1,98 @@
+
+'use client';
+
+import { Review } from '@/lib/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Star, Loader2, MessageSquare } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface ReviewListProps {
+  reviews: Review[];
+  isLoading: boolean;
+}
+
+function ReviewSkeleton() {
+  return (
+    <div className="flex gap-4">
+      <Skeleton className="h-10 w-10 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
+  )
+}
+
+export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <ReviewSkeleton />
+        <ReviewSkeleton />
+      </div>
+    )
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="text-center py-16 text-muted-foreground border border-dashed border-white/10 rounded-[2rem] bg-white/5">
+        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-white/10" />
+        <h3 className="text-lg font-black uppercase tracking-tight text-white">No reviews yet</h3>
+        <p className="text-sm">Be the first to share your thoughts on this item.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 mt-6">
+      {reviews.map((review) => (
+        <Card key={review.id}>
+          <CardContent className="p-6">
+            <div className="flex gap-4">
+              <Avatar>
+                <AvatarImage src={review.buyerAvatar} alt={review.buyerName || 'Reviewer'} />
+                <AvatarFallback>{review.buyerName?.[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-black uppercase tracking-tight text-white">{review.buyerName}</h4>
+                  <span className="text-xs text-muted-foreground">
+                    {(() => {
+                      if (!review.createdAt) return '';
+                      let date: Date | null = null;
+
+                      if ((review.createdAt as any).toDate) {
+                        date = (review.createdAt as any).toDate();
+                      } else if (typeof review.createdAt === 'string') {
+                        date = new Date(review.createdAt);
+                      } else if ((review.createdAt as any).seconds) {
+                        date = new Date((review.createdAt as any).seconds * 1000);
+                      }
+
+                      return date && !isNaN(date.getTime())
+                        ? formatDistanceToNow(date, { addSuffix: true })
+                        : '';
+                    })()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-white/10'
+                        }`}
+                    />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mt-3">{review.comment}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

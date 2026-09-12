@@ -1,0 +1,114 @@
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
+import type { Metadata } from 'next';
+import type { Product, UserProfile, Review } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
+import ProductDetailsModern from '@/components/products/ProductDetailsModern';
+import SEO from '@/components/SEO';
+import ProductSchema from '@/components/seo/ProductSchema';
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import FAQSchema from '@/components/seo/FAQSchema';
+
+import { slugify } from '@/lib/utils';
+
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProductById(id);
+  if (!product) return { title: 'Product Not Found | Benched' };
+
+  const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
+  const section = (product.category === 'Collector Cards' || product.category === 'Trading Cards') ? 'cards' : 'shoes';
+  const slug = slugify(product.title);
+  const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
+  const primaryImage = product.imageUrls[0];
+  const siteUrl = 'https://benched.au';
+  const proxyUrl = `${siteUrl}/og-image/${id}`;
+
+  return {
+    title: `${product.title} | ${product.category} | Benched`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: product.title,
+      description,
+      url: canonicalUrl,
+      type: 'article',
+      images: [
+        {
+          url: proxyUrl,
+          secureUrl: proxyUrl,
+          width: 1200,
+          height: 1200,
+          alt: `${product.title} product image`,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description,
+      images: [proxyUrl],
+    }
+  };
+}
+
+export default async function ProductPage({ params }: Props) {
+  const { id } = await params;
+  console.log('ProductPage: Fetching product with ID:', id);
+  const product = await getProductById(id);
+  console.log('ProductPage: Result:', product ? 'Found' : 'Not Found');
+  if (!product) notFound();
+
+  let seller: UserProfile | null = null;
+  const initialReviews = await getReviewsForProduct(id);
+
+  // Fetch SSR related products for SEO Link Juice
+  const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
+  const similarProducts = await getSimilarProductsByCategory(id, product.category, 6);
+
+  const faqQuestions = [
+    {
+      question: "Is this item authentic?",
+      answer: "Yes, Benched guarantees the authenticity of all items. High-value collectibles are processed through our secure vault and verified by expert hobby partners before final dispatch."
+    },
+    {
+      question: "How does Benched DealSafe escrow protection work?",
+      answer: "Your payment is held securely in escrow. Funds are only released to the seller once you receive the item and verify its condition."
+    },
+    {
+      question: "What are the shipping options in Australia?",
+      answer: "Benched handles insured nationwide shipping using Australia Post and local carrier networks. Pick-up is also available for local trades in Metro Perth."
+    }
+  ];
+
+  return (
+    <>
+      <ProductSchema product={product} reviews={initialReviews} />
+      <FAQSchema questions={faqQuestions} />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', item: '/' },
+          { name: product.category === 'Collector Cards' ? 'Cards' : 'Sneakers', item: product.category === 'Collector Cards' ? '/cards' : '/browse' },
+          { name: product.category, item: product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}` },
+          { name: product.title, item: `/product/${product.id}` },
+        ]}
+      />
+      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
+        <ProductDetailsModern
+          productId={id}
+          initialProduct={product}
+          initialSeller={seller}
+          initialReviews={initialReviews}
+          initialRelatedProducts={similarProducts}
+        />
+      </Suspense>
+    </>
+  );
+}

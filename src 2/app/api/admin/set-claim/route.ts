@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { authAdmin } from '@/lib/firebase/admin';
+import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { enforceDevOnly } from '@/lib/security';
+
+export async function POST(request: Request) {
+    // Critical Production Gate
+    const gateError = enforceDevOnly();
+    if (gateError) return gateError;
+    try {
+        const { idToken } = await request.json();
+
+        if (!idToken) {
+            return NextResponse.json({ error: 'Missing ID token' }, { status: 400 });
+        }
+
+        const decodedToken = await authAdmin.verifyIdToken(idToken);
+        const { uid, email } = decodedToken;
+
+        const allowAutoElevate = process.env.ALLOW_AUTO_ADMIN_ELEVATION === 'true';
+
+        if (!email || !SUPER_ADMIN_EMAILS.includes(email)) {
+            return NextResponse.json({ error: 'Unauthorized: Email not in super admin list' }, { status: 403 });
+        }
+
+        if (!allowAutoElevate) {
+            console.warn(`[SetClaim] Self-granting admin claim attempted for ${email} but auto-elevation is disabled.`);
+            return NextResponse.json({ error: 'Forbidden: Auto-elevation is disabled in this environment' }, { status: 403 });
+        }
+
+        await authAdmin.setCustomUserClaims(uid, {
+            role: 'superadmin',
+            admin: true // Backward compatibility
+        });
+
+        return NextResponse.json({
+            success: true,
+            message: `Successfully set superadmin claim for ${email} (${uid})`
+        });
+
+    } catch (error: any) {
+        console.error('Error setting custom claims:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}

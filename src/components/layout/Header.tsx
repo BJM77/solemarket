@@ -15,10 +15,12 @@ import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
 import { MobileNavPills } from './MobileNavPills';
 import { cn } from '@/lib/utils';
+import { InstantSearchModal } from '../search/InstantSearchModal';
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showInstantSearch, setShowInstantSearch] = useState(false);
   const pathname = usePathname();
   const { isPinned } = useMobileNav();
 
@@ -42,16 +44,18 @@ export default function Header() {
             {/* Mobile Nav Pills when pinned - replacing ticker */}
             {isClient && isPinned && !isMarketplacePage && (
               <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
-                <MobileNavPills onSearchClick={() => setShowMobileSearch(!showMobileSearch)} />
+                <MobileNavPills onSearchClick={() => setShowInstantSearch(true)} />
               </div>
             )}
 
-            {isClient && <SearchBar className="hidden lg:flex flex-1 max-w-2xl h-10 group" />}
+            <div onClick={() => setShowInstantSearch(true)} className="hidden lg:flex flex-1 max-w-2xl h-10 group cursor-text">
+              {isClient && <SearchBar className="pointer-events-none" />}
+            </div>
             
             {/* Mobile Search - ALWAYS VISIBLE */}
             {isClient && (
-              <div className="flex-1 lg:hidden mx-2 max-w-[200px] xs:max-w-none">
-                <SearchBar className="h-10 group" inputClassName="h-10 text-xs" />
+              <div onClick={() => setShowInstantSearch(true)} className="flex-1 lg:hidden mx-2 max-w-[200px] xs:max-w-none cursor-text">
+                <SearchBar className="h-10 group pointer-events-none" inputClassName="h-10 text-xs" />
               </div>
             )}
           </div>
@@ -93,9 +97,11 @@ export default function Header() {
           "transition-all duration-300 md:hidden",
           isPinned ? "hidden" : "block"
         )}>
-          <MobileNavPills onSearchClick={() => setShowMobileSearch(!showMobileSearch)} />
+          <MobileNavPills onSearchClick={() => setShowInstantSearch(true)} />
         </div>
       )}
+
+      <InstantSearchModal open={showInstantSearch} onOpenChange={setShowInstantSearch} />
 
       {/* Desktop Ticker Only */}
       {isClient && (
