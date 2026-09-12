@@ -198,10 +198,22 @@ export function CartDrawer() {
                                         <span className="text-primary">${formatPrice(cartSubtotal)}</span>
                                     </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground text-center">
-                                    Shipping and taxes will be calculated at checkout.
-                                </p>
-                                <Button size="lg" className="w-full" asChild>
+                                <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                        </svg>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                                            DealSafe™ Buyer Protection
+                                        </div>
+                                        <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                                            Funds kept in secure escrow until item arrives and is verified.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button size="lg" className="w-full font-bold uppercase tracking-wider" asChild>
                                     <Link href="/checkout" onClick={handleCheckout}>Proceed to Checkout</Link>
                                 </Button>
                             </div>
