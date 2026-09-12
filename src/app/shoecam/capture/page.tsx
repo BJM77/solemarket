@@ -126,8 +126,9 @@ export default function ShoePhotoBooth() {
   const activeUploadRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const urls = createdUrlsRef.current;
     return () => {
-      createdUrlsRef.current.forEach(url => {
+      urls.forEach(url => {
         try { URL.revokeObjectURL(url); } catch (e) { }
       });
     };
