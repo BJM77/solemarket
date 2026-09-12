@@ -94,6 +94,7 @@ import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { SizeChart } from '@/components/sneakers/SizeChart';
 import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
+import { MarketIndexWidget } from '@/components/products/MarketIndexWidget';
 
 const ADMIN_CATEGORIES = {
     'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
@@ -858,6 +859,14 @@ export default function ProductDetailsModern({
                                         user={user}
                                     />
                                 </div>
+
+                                <MarketIndexWidget
+                                    currentPrice={product.price}
+                                    marketValue={product.marketValue}
+                                    category={product.category}
+                                    condition={product.condition}
+                                    brand={product.brand}
+                                />
 
                                 <div className="space-y-4">
                                     {/* Stock Status */}
