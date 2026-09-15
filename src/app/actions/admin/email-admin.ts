@@ -3,7 +3,7 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { sendEmail } from '@/services/email';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 
 export async function getEmailLogs(idToken: string, limitCount = 50) {
     try {

@@ -11,7 +11,8 @@ import { CameraCapture } from '@/components/ui/camera-capture';
 import { useToast } from "@/hooks/use-toast";
 import AICardGrader from '@/components/products/AICardGrader';
 import { ThreeSixtyViewer } from '@/components/products/ThreeSixtyViewer';
-import { cn, processListingImages } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { processListingImages } from "@/lib/utils/image";
 
 interface ImageUploadStepProps {
     imageFiles: any[];
@@ -89,9 +90,9 @@ export function ImageUploadStep({
             // Process the images in single-pass canvas pipeline
             const results = await processListingImages(newFiles);
             
-            const compressedFiles = results.map(r => r.file);
-            const newPreviews = results.map(r => r.previewUrl);
-            const base64s = results.map(r => r.base64ForAI);
+            const compressedFiles = results.map((r: any) => r.file);
+            const newPreviews = results.map((r: any) => r.previewUrl);
+            const base64s = results.map((r: any) => r.base64ForAI);
 
             let currentTotalSize = imageFiles.reduce((acc, file) => acc + (file.size || 0), 0);
             const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total

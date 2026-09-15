@@ -4,7 +4,7 @@ import { useRef, useState, DragEvent, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { GripVertical, Scan, Sparkles, Upload, Loader2, Camera, ArrowRight, Layers } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

@@ -12,13 +12,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { FacebookPixel as FBPixel } from '@/components/analytics/FacebookPixel';
 
-// Jakarta font initialization removed; using only Outfit font.
-// const jakarta = Plus_Jakarta_Sans({
-//   subsets: ['latin'],
-//   display: 'swap',
-//   variable: '--font-jakarta',
-//   weight: ['400', '500', '600', '700', '800'],
-// });
+
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -109,7 +103,6 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-import { headers } from 'next/headers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PwaRegister } from '@/components/layout/PwaRegister';
 
@@ -118,9 +111,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const nonce = headersList.get('x-nonce') || undefined;
-
   return (
     <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} dark overflow-x-hidden max-w-full w-full`}>
       <head>

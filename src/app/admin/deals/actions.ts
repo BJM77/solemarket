@@ -7,7 +7,7 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { Deal, DealValidationResult, MultiCardTier } from '@/types/deals';
 import { Timestamp } from 'firebase-admin/firestore';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 
 /**
  * Create a new deal

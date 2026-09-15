@@ -19,7 +19,8 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { formatPrice, cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { Phone } from 'lucide-react'; // Import Phone icon
 import { safeDate } from '@/lib/date-utils';
 

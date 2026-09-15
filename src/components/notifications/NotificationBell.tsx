@@ -19,7 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Loader2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import Link from 'next/link';
 import { Notification } from '@/lib/types';
 import { query, collection, where, orderBy, limit } from 'firebase/firestore';

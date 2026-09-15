@@ -47,7 +47,7 @@ export async function updateProductPrice(productId: string, newPrice: number, id
             // 2. Background: Find all users who favorited this and prepare notifications
             // (In a real app, this would queue a job to send Push/Email)
             const favoritesSnap = await firestoreDb.collectionGroup('favorites')
-                .where('id', '==', productId) // Assuming the favorite doc has the product ID
+                .where('productId', '==', productId) // Assuming the favorite doc has the product ID
                 .get();
 
             console.log(`Price drop: Notifying ${favoritesSnap.size} interested users.`);

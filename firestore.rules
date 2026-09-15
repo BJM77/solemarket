@@ -3,6 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    match /{path=**}/favorites/{favoriteId} {
+      allow read: if true;
+      allow write: if false; 
+    }
+
+    match /guest_enquiries/{enquiryId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
     // Functions
     function isAuthenticated() {
       return request.auth != null;

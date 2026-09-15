@@ -10,7 +10,7 @@ import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import FAQSchema from '@/components/seo/FAQSchema';
 
-import { slugify } from '@/lib/utils';
+import { slugify } from "@/lib/utils/url";
 
 interface Props {
   params: Promise<{ id: string }>;

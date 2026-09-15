@@ -1,5 +1,5 @@
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 import { Check } from "lucide-react";
 
 interface WizardProgressProps {

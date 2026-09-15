@@ -22,15 +22,16 @@ export const revalidate = 60;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Featured Grails" />;
+  return <TrendingGrid products={products} title="Ending Soon" />;
 }
 
 async function NewArrivalsSection() {
   const products = await getActiveProducts(12);
-  return <TrendingGrid products={products} title="Fresh Steals" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
+  return <TrendingGrid products={products} title="Just Listed" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
+import { MarketPulseTeaser } from "@/components/home/MarketPulseTeaser";
 
 function TrendingSkeleton() {
   return (
@@ -71,6 +72,7 @@ export default async function HomePage() {
       <Suspense fallback={<TrendingSkeleton />}>
         <FeaturedSection />
       </Suspense>
+      <MarketPulseTeaser />
       <BrandLogos />
       <CategoryGrid />
       <CardCategoryGrid />

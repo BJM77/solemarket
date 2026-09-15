@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Lock, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 
 const VAULT_ITEMS = [
     {

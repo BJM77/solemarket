@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Sparkles, Navigation } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 
 interface ThreeSixtyViewerProps {
   imageUrls: string[];

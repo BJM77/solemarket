@@ -2,7 +2,7 @@
 
 import { firestoreDb as db } from '@/lib/firebase/admin';
 import type { ScanHistoryItem, Player } from '@/lib/research-types';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { QueryDocumentSnapshot, FieldValue } from 'firebase-admin/firestore';
 
 export async function getScanHistory(userId: string): Promise<ScanHistoryItem[]> {

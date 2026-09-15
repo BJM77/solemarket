@@ -17,7 +17,8 @@ import { db } from '@/lib/firebase/config';
 import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { useRouter } from 'next/navigation';
-import { formatPrice, cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 
 interface QuickViewProps {

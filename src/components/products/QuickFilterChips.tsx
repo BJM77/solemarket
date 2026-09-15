@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';

@@ -1,5 +1,5 @@
 import type { Product, Review } from '@/lib/types'
-import { getProductUrl } from '@/lib/utils'
+import { getProductUrl } from "@/lib/utils/url";
 
 type Props = {
   product: Product

@@ -18,7 +18,7 @@ import {
     AlertTriangle,
     ShoppingBag
 } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';

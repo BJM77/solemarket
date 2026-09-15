@@ -179,6 +179,15 @@ export type Product = {
   holdExpiresAt?: Timestamp;
   sellerRating?: number;
   marketValue?: number; // Fetched from eBay comps or AI
+  marketData?: {
+    averageSoldPrice?: number;
+    medianSoldPrice?: number;
+    sampleSize: number;
+    lastSoldDate?: string;
+    lastCheckedAt?: any;
+    source?: string;
+    comparables?: Array<{ title: string; price: number; link: string; date?: string }>;
+  };
 };
 
 export type ProductSearchParams = {

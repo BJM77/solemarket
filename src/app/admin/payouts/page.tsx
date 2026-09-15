@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, DollarSign, Clock, CheckCircle, Search, Inbox, ExternalLink, ShieldCheck } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import {
     Table,
     TableBody,

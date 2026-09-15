@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Star, ShieldCheck, ChevronRight, MessageSquare, Phone } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import Link from 'next/link';
 import type { UserProfile } from '@/lib/types';
 

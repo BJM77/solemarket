@@ -4,7 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 
 interface SmartImageProps {
     product: Product;

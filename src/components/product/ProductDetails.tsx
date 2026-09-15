@@ -34,7 +34,8 @@ import {
     Maximize2
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy, updateDoc, increment } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';

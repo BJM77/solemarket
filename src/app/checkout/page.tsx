@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import { Loader2, ShoppingBag, Truck, MapPin, CreditCard, Shield, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 

@@ -2,7 +2,7 @@
 
 import { firestoreDb } from "@/lib/firebase/admin";
 import { UserProfile, Product } from "@/lib/types";
-import { serializeFirestoreData } from "@/lib/utils";
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifyIdToken } from "@/lib/firebase/auth-admin";

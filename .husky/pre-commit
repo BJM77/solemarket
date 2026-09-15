@@ -1,0 +1,4 @@
+npx lint-staged
+
+echo "Running type check..."
+npx tsc --noEmit

@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import type { SafeUser } from '@/lib/types';
 import Link from 'next/link';
 

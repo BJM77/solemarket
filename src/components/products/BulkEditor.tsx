@@ -26,7 +26,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import { Input } from '@/components/ui/input';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { safeDate } from '@/lib/date-utils';

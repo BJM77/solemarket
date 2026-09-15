@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { Sparkles, Calendar, Tag, ShieldCheck } from 'lucide-react';
 
 interface PricingCompsChartProps {

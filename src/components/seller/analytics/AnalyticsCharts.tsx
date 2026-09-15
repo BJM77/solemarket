@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 
 // Dummy data generator for the charts
 const generateRevenueData = () => {

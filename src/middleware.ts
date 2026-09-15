@@ -27,9 +27,6 @@ async function getFirebasePublicKeys() {
 export async function middleware(request: NextRequest) {
   const isDev = process.env.NODE_ENV === 'development';
 
-  // Generate nonce for CSP
-  const nonce = crypto.randomUUID();
-
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://apis.google.com https://www.googletagmanager.com https://js.stripe.com https://m.stripe.network https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://connect.facebook.net;
@@ -43,12 +40,11 @@ export async function middleware(request: NextRequest) {
     frame-ancestors 'none';
     frame-src https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://www.facebook.com;
     connect-src 'self' https://*.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebasestorage.app https://*.firebaseapp.com https://www.googletagmanager.com https://www.google-analytics.com https://api.stripe.com https://maps.googleapis.com https://*.facebook.com blob: data:;
-    upgrade-insecure-requests;
+    ${isDev ? '' : 'upgrade-insecure-requests;'}
   `.replace(/\s{2,}/g, ' ').trim();
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('Content-Security-Policy', cspHeader);
-  requestHeaders.set('x-nonce', nonce); // Pass nonce to Next.js
 
   // 1. Security Headers (Always Safe & Recommended)
   requestHeaders.set('X-Frame-Options', 'DENY');

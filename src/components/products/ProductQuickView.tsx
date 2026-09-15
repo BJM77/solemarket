@@ -1,6 +1,6 @@
 'use client';
 
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import type { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';

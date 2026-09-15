@@ -35,7 +35,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { formatPrice, safeDate } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
+import { safeDate } from "@/lib/utils/serialization";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from "@/lib/firebase/auth";
 import { deleteProductByAdmin, approveProductByAdmin } from "@/app/actions/admin/admin";
 import Image from "next/image";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils/format";
 
 interface SellerProductsListProps {
     products: Product[];

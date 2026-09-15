@@ -7,7 +7,7 @@ import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
-import { slugify } from '@/lib/utils';
+import { slugify } from "@/lib/utils/url";
 
 interface Props {
   params: Promise<{ section: string; slug: string; id: string }>;

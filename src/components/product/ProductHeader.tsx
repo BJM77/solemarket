@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Copyright, Hash, Eye, Users } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import type { Product } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";;
 
 interface ProductHeaderProps {
   product: Product;

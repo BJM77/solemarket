@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { DollarSign } from 'lucide-react';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { PricingCompsChart } from './PricingCompsChart';
 
 interface PricingAndDeliveryStepProps {

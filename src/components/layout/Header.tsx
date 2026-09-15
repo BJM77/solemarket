@@ -14,7 +14,7 @@ import { Button } from '../ui/button';
 import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
 import { MobileNavPills } from './MobileNavPills';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { InstantSearchModal } from '../search/InstantSearchModal';
 
 export default function Header() {

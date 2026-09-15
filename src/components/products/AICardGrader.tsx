@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, CheckCircle2, ChevronLeft, ChevronRight, Eye, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import type { SuggestListingDetailsOutput } from '@/ai/flows/schemas';
 import { useUser } from '@/firebase';
@@ -45,7 +46,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
     startTransition(async () => {
       try {
-        const { resizeAndCompressImage } = await import('@/lib/utils');
+        const { resizeAndCompressImage } = await import('@/lib/utils/image');
         
         // Optimize payload size
         const dataUris = await Promise.all(

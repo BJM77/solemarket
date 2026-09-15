@@ -9,7 +9,7 @@ import { signOutUser } from '@/lib/firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,

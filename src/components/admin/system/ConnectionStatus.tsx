@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, CheckCircle2, XCircle, ExternalLink, HelpCircle, Mail } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 import { auth } from '@/lib/firebase/config';
 
 interface ConnectionStatusProps {

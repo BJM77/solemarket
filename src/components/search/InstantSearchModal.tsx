@@ -47,12 +47,12 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        onOpenChange((open) => !open);
+        onOpenChange(!open);
       }
     };
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, [onOpenChange]);
+  }, [open, onOpenChange]);
 
   const handleSelect = (productId: string) => {
     onOpenChange(false);

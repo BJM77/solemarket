@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { Camera, Upload, AlertCircle, RefreshCcw, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { validateImageQuality } from '@/lib/image-validation';
 
 interface SneakerCameraProps {

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from 'next/link';
 import { features } from '@/lib/features';
 import { useUser } from '@/firebase';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { buttonVariants } from '@/components/ui/button';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 import {

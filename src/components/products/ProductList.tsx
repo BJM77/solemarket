@@ -9,7 +9,8 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import EmptyState from '../ui/EmptyState';
 import { Package } from 'lucide-react';
-import { formatPrice, getProductUrl } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
+import { getProductUrl } from "@/lib/utils/url";
 
 interface ProductListProps {
   products: Product[];

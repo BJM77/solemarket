@@ -18,7 +18,7 @@ import {
     ExternalLink,
     Trash2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { db } from '@/lib/firebase/config';
 import { doc, collection, query, where, getDocs, serverTimestamp, deleteDoc, setDoc, orderBy, Timestamp, addDoc, limit } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';

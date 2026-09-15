@@ -14,7 +14,8 @@ import { deleteProductByAdmin } from '@/app/actions/admin/admin';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice, getProductUrl } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
+import { getProductUrl } from "@/lib/utils/url";
 
 export interface MontageGridProps {
   products: Product[];

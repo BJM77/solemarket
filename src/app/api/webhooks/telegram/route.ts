@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { getProducts } from '@/services/product-service'; // Mocked or Real
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 
 import { firestoreDb } from '@/lib/firebase/admin';
 

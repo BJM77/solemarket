@@ -5,7 +5,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { ensureActionAuth } from '@/lib/action-utils';
 import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateItemTotal, calculateShipping, calculateTax, calculateDutchAuctionPrice } from '@/lib/pricing';
 import { sendTelegramNotification } from '@/lib/telegram';

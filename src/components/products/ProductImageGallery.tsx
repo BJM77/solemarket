@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon, ShieldChec
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 
 interface ProductImageGalleryProps {

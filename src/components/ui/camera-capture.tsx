@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { Badge } from '@/components/ui/badge';
 
 interface CameraCaptureProps {

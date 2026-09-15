@@ -2,7 +2,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import type { Product } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import { Flame, TrendingUp, BarChart3, Clock } from 'lucide-react';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 
 // Build Trigger: Standardized on serializeFirestoreData
 export const dynamic = 'force-dynamic';

@@ -8,7 +8,7 @@ import type { Product, UserProfile } from '@/lib/types';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 import { productFormSchema } from '@/schemas/product';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
 export type CreateProductResult =
@@ -341,11 +341,14 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
 
 export const getFeaturedProducts = unstable_cache(
     async (limitCount: number = 8): Promise<Product[]> => {
-        const { isFirebaseAdminReady } = await import('@/lib/firebase/admin');
+        const { isFirebaseAdminReady, firestoreDb } = await import('@/lib/firebase/admin');
+        const admin = await import('firebase-admin');
         try {
+            const cutoffDate = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
+                    .where('createdAt', '>=', cutoffDate)
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
@@ -362,6 +365,7 @@ export const getFeaturedProducts = unstable_cache(
 
             const fallbackSnapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
+                .where('createdAt', '>=', cutoffDate)
                 .limit(limitCount)
                 .get();
 
@@ -399,10 +403,13 @@ const ACTIVE_CATEGORIES = [
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
         try {
+            const admin = await import('firebase-admin');
+            const cutoffDate = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('category', 'in', ACTIVE_CATEGORIES)
                     .where('status', '==', 'available')
+                    .where('createdAt', '>=', cutoffDate)
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
@@ -414,6 +421,7 @@ export const getActiveProducts = unstable_cache(
             } catch (indexError) {
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
+                    .where('createdAt', '>=', cutoffDate)
                     .limit(limitCount)
                     .get();
                 return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({

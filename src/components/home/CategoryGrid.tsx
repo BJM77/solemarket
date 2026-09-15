@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, LayoutGrid, Footprints, Library } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 
 const CATEGORIES = [

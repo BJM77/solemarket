@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/check-external-urls",
-      "schedule": "0 0 * * *"
+      "path": "/api/cron/sync-market-data",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

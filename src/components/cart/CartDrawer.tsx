@@ -16,7 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trash2, Plus, Minus, ShoppingBag, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import { calculateDutchAuctionPrice } from '@/lib/pricing';
 
 export function CartDrawer() {

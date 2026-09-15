@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, DollarSign, MessageSquare, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { OfferModal } from '@/components/products/OfferModal';
 import { BiddingInterface } from '@/components/products/BiddingInterface';
 import type { Product } from '@/lib/types';

@@ -2,7 +2,7 @@
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
 import { collection, query, where, or, and, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 
 const PAGE_SIZE = 24;

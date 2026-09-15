@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { getAIRecommendedPrice, PricingRecommendation } from '@/app/actions/admin/ai-pricing';
 import { Loader2, Sparkles, Check, X, ExternalLink, RefreshCw } from 'lucide-react';
-import { getProductUrl } from '@/lib/utils';
+import { getProductUrl } from "@/lib/utils/url";
 import Link from 'next/link';
 
 export interface ProductRowRef {

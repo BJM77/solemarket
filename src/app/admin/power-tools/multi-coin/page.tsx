@@ -17,7 +17,7 @@ import {
     ChevronLeft,
     Trash2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { quickSaveAndPublish } from '@/app/actions/admin/admin-bulk';

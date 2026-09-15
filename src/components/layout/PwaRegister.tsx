@@ -10,8 +10,8 @@ declare global {
 
 export function PwaRegister() {
   useEffect(() => {
-    // Register Service Worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    // Register Service Worker (skip in development to avoid stale caches)
+    if (process.env.NODE_ENV !== 'development' && typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
           .register('/sw.js')
@@ -26,7 +26,6 @@ export function PwaRegister() {
 
     // Capture install prompt
     const handleInstallPrompt = (e: Event) => {
-      e.preventDefault();
       // Store event on window for InstallAppButton to access
       window.deferredPrompt = e;
       // Dispatch custom event to trigger visibility of any install UI

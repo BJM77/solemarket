@@ -2,7 +2,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function getPendingEscrowOrders(idToken: string) {

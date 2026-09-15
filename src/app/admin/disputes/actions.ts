@@ -2,7 +2,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 
 export interface Dispute {
     id: string;

@@ -2,10 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { DollarSign, ShoppingCart, ExternalLink } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import { OfferModal } from './OfferModal';
 import { Product, UserProfile } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";;
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';

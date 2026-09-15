@@ -28,7 +28,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X, SlidersHorizontal } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { useToast } from '@/hooks/use-toast';
 
 // These are now defaults, but get overridden by Firestore values.

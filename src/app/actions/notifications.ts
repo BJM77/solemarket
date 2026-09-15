@@ -1,7 +1,6 @@
 'use server';
 
-import { getFirebaseAdminApp } from '@/lib/firebase/admin';
-import { getMessaging } from 'firebase-admin/messaging';
+import { firestoreDb, messagingAdmin } from '@/lib/firebase/admin';
 
 /**
  * Sends a push notification to a specific user using FCM
@@ -13,19 +12,15 @@ export async function sendPushNotification(
   url: string = '/'
 ) {
   try {
-    const admin = await getFirebaseAdminApp();
-    const messaging = getMessaging(admin);
-    const db = admin.firestore();
-
     // Fetch all FCM tokens for the user
-    const tokensSnapshot = await db.collection('users').doc(userId).collection('fcmTokens').get();
+    const tokensSnapshot = await firestoreDb.collection('users').doc(userId).collection('fcmTokens').get();
     
     if (tokensSnapshot.empty) {
       console.log(`No FCM tokens found for user ${userId}`);
       return { success: false, reason: 'no-tokens' };
     }
 
-    const tokens = tokensSnapshot.docs.map(doc => doc.data().token);
+    const tokens = tokensSnapshot.docs.map((doc: any) => doc.data().token);
 
     const message = {
       notification: {
@@ -38,19 +33,19 @@ export async function sendPushNotification(
       tokens,
     };
 
-    const response = await messaging.sendEachForMulticast(message);
+    const response = await (messagingAdmin as any).sendEachForMulticast(message);
     
     // Cleanup invalid tokens
     if (response.failureCount > 0) {
       const failedTokens: string[] = [];
-      response.responses.forEach((resp, idx) => {
+      response.responses.forEach((resp: any, idx: number) => {
         if (!resp.success) {
           failedTokens.push(tokens[idx]);
         }
       });
       
-      const batch = db.batch();
-      tokensSnapshot.docs.forEach((doc) => {
+      const batch = firestoreDb.batch();
+      tokensSnapshot.docs.forEach((doc: any) => {
         if (failedTokens.includes(doc.data().token)) {
           batch.delete(doc.ref);
         }

@@ -5,7 +5,7 @@ import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { sendEmail } from '@/services/email';
 import { sendNotification } from '@/services/notifications';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { serializeFirestoreData } from '@/lib/utils';
+import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { Product, UserProfile } from '@/lib/types';
 
 // Using unified email service instead of Resend directly

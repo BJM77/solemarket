@@ -16,7 +16,7 @@ import { getDraftListing, saveDraftListing, publishListing } from '@/app/actions
 import { doc } from 'firebase/firestore';
 import { withRetry } from '@/ai/utils/retry';
 import { MARKETPLACE_CATEGORIES } from '@/config/categories';
-import { resizeAndCompressImage, processListingImages } from '@/lib/utils';
+import { resizeAndCompressImage, processListingImages } from "@/lib/utils/image";
 import { saveListingImagesCache, getListingImagesCache, clearListingImagesCache } from '@/lib/indexeddb';
 
 import { Button } from '@/components/ui/button';
@@ -690,9 +690,9 @@ function CreateListingForm() {
       // 1. Process files in a single pass canvas operation
       const processedResults = await processListingImages(files);
       
-      const compressedFiles = processedResults.map(r => r.file);
-      const newPreviews = processedResults.map(r => r.previewUrl);
-      const newBase64s = processedResults.map(r => r.base64ForAI);
+      const compressedFiles = processedResults.map((r: any) => r.file);
+      const newPreviews = processedResults.map((r: any) => r.previewUrl);
+      const newBase64s = processedResults.map((r: any) => r.base64ForAI);
 
       form.setValue('imageFiles', compressedFiles, { shouldValidate: true });
       setImagePreviews(newPreviews);

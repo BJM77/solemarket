@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { cva } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils/ui";
 import { useSidebar } from "@/components/layout/sidebar-provider"
 import { Button } from "./button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"

@@ -1,7 +1,6 @@
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
-import { app } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from './firestore';
+import { app, db } from './config';
 
 // Note: In a real app, this vapidKey should be in an env var.
 const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || 'YOUR_VAPID_KEY_HERE';

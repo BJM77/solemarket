@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { Layers, LayoutGrid, Shirt, Footprints, Watch, ShoppingBag, Sparkles, Library } from 'lucide-react';
 
 interface CategoryPillsProps {

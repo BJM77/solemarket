@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { Home, ShoppingBag, CreditCard, Flame, Star, History, Search } from 'lucide-react';
 
 interface MobileNavPillsProps {

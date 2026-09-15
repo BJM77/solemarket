@@ -106,3 +106,60 @@ export async function getPassport(idOrCert: string) {
         return null;
     }
 }
+
+/**
+ * Pillar 4: Automated Dispute Resolution Decision Tree
+ * Handles "Item Not Received" disputes automatically via tracking checks.
+ */
+export async function handleItemNotReceivedDispute(idToken: string, disputeId: string) {
+    try {
+        await ensureActionAuth(idToken, ['admin', 'superadmin']);
+        
+        // 1. Fetch dispute & tracking info (mocked DB access for example)
+        // const dispute = await firestoreDb.collection('disputes').doc(disputeId).get();
+        // const trackingDetails = await fetchCarrierTracking(dispute.data().trackingNumber);
+        const isTrackingDelivered = Math.random() > 0.5; // Simulate carrier API
+
+        if (isTrackingDelivered) {
+            return {
+                status: 'MEDIATION_REQUIRED',
+                action: 'ASK_BUYER_CHECK_NEIGHBORS',
+                message: 'Carrier tracking shows delivered. Automatically messaging buyer to check surroundings. Hold for 7 days.'
+            };
+        } else {
+            return {
+                status: 'AUTO_RESOLVED',
+                action: 'REFUND_BUYER_PUNITIVE',
+                message: 'Tracking confirms stalled/lost. Auto-refunding buyer. Seller Trust Score heavily impacted (-30 pts).'
+            };
+        }
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+/**
+ * Pillar 4: Automated Dispute Resolution Decision Tree
+ * Handles "Item Not As Described" using AI similarity scoring.
+ */
+export async function handleItemNotAsDescribedDispute(idToken: string, disputeId: string, aiSimilarityScore: number) {
+    try {
+        await ensureActionAuth(idToken, ['admin', 'superadmin']);
+        
+        if (aiSimilarityScore > 0.85) {
+            return {
+                status: 'MEDIATION_REQUIRED',
+                action: 'PROPOSE_PARTIAL_REFUND',
+                message: 'High similarity (minor discrepancy). Auto-proposing a 10% partial refund to both parties.'
+            };
+        } else {
+            return {
+                status: 'AUTO_RESOLVED',
+                action: 'FULL_REFUND_RETURN',
+                message: 'Low similarity (major discrepancy). Auto-refunding buyer. Seller covers return shipping. Trust Score impacted (-10 pts).'
+            };
+        }
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}

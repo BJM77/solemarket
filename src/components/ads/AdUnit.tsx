@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Advertisement } from '@/lib/types';
 import { getActiveAd, trackAdImpression, trackAdClick } from '@/services/ad-service';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { ExternalLink } from 'lucide-react';
 
 interface AdUnitProps {

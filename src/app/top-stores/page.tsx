@@ -10,7 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, ShieldCheck, ChevronRight, TrendingUp, Store, ShoppingBag } from 'lucide-react';
-import { cn, formatPrice, getProductUrl } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
+import { getProductUrl } from "@/lib/utils/url";
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface StoreWithProducts extends Seller {

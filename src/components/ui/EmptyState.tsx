@@ -1,7 +1,7 @@
 import { ShoppingBag, Search } from 'lucide-react';
 import { Button } from './button';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { Inbox } from "lucide-react";
 
 interface EmptyStateProps {

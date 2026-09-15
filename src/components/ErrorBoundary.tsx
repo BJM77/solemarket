@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import * as Sentry from '@sentry/nextjs';
 
 interface ErrorBoundaryState {
     hasError: boolean;
@@ -23,6 +24,12 @@ export class ErrorBoundary extends React.Component<
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         console.error('Error caught by boundary:', error, errorInfo);
+        
+        Sentry.captureException(error, {
+            extra: {
+                componentStack: errorInfo.componentStack,
+            },
+        });
 
         // Log to error tracking service (in production)
         if (typeof window !== 'undefined') {

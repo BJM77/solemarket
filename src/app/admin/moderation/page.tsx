@@ -63,10 +63,6 @@ export default function ModerationPage() {
       <PageHeader
         title="Trust & Safety Hub"
         description="Review AI flags, handle user reports, and maintain platform integrity."
-        breadcrumbs={[
-          { label: 'Admin', href: '/admin' },
-          { label: 'Moderation', href: '/admin/moderation' },
-        ]}
       />
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -148,7 +144,7 @@ export default function ModerationPage() {
               )}
               Analyze Content
             </Button>
-          </CardFooter>
+          </CardContent>
         </Card>
 
         <Card className="p-6 rounded-xl flex flex-col">

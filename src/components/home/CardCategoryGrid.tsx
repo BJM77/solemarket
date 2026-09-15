@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Library, Trophy, Zap, Sparkles, Flag, PenTool as Signature, Medal } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 
 const CARD_CATEGORIES = [
     {

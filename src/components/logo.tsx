@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { brandConfig } from '@/config/brand';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 

@@ -6,7 +6,7 @@ import { db } from '@/lib/firebase/config';
 import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { DollarSign, Package, ShoppingCart, TrendingUp, Loader2 } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 import Link from 'next/link';
 
 export function SellerMiniDashboard() {

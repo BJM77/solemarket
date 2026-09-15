@@ -42,7 +42,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 import { db } from '@/lib/firebase/config';
 import { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy } from 'firebase/firestore';
 import { useCart } from '@/context/CartContext';
@@ -95,6 +96,8 @@ import { SizeChart } from '@/components/sneakers/SizeChart';
 import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { MarketIndexWidget } from '@/components/products/MarketIndexWidget';
+import { ProvenanceLedger } from '@/components/trust/ProvenanceLedger';
+import { useProvenanceData } from '@/hooks/use-provenance-data';
 
 const ADMIN_CATEGORIES = {
     'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
@@ -164,6 +167,8 @@ export default function ProductDetailsModern({
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
         initialData: initialProduct,
     });
+
+    const provenanceData = useProvenanceData(product || initialProduct);
 
     useEffect(() => {
         if (!product?.sellerId || !product?.multibuyEnabled) {
@@ -859,14 +864,165 @@ export default function ProductDetailsModern({
                                         user={user}
                                     />
                                 </div>
+                                    {/* Consolidated Product Description & Specs */}
+                                    <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h2 className="text-lg font-bold">Listing Details</h2>
+                                                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
+                                                    {product.condition}
+                                                </Badge>
+                                                <ConditionGuide />
+                                            </div>
+                                            <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
+                                                {product.seoDescription && (
+                                                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium pb-4 border-b border-dashed border-gray-100 dark:border-gray-800">
+                                                        <p className="whitespace-pre-line">{product.seoDescription}</p>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    {product.seoDescription && <span className="block text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-1">Seller Notes:</span>}
+                                                    <p className="whitespace-pre-line">
+                                                        {product.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {(() => {
+                                            const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
+                                                let basePath = '/browse';
+                                                if (cat === 'Sneakers') basePath = '/shoes';
+                                                else if (cat === 'Collector Cards') basePath = '/cards';
+                                                else if (cat === 'Coins') basePath = '/coins';
+
+                                                if (!value) return basePath;
+
+                                                const encodedValue = encodeURIComponent(value);
+                                                if (type === 'subcategory') return `${basePath}?subCategory=${encodedValue}`;
+                                                if (type === 'brand') return `${basePath}?brand=${encodedValue}`;
+                                                if (type === 'model') return `${basePath}?q=${encodedValue}`;
+                                                if (type === 'year') return `${basePath}?year=${encodedValue}`;
+                                                return basePath;
+                                            };
+
+                                            return (
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
+                                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                                        <Link href={getSiloRoute(product.category, 'category')} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                            <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Category</span>
+                                                            <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                {product.category}
+                                                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            </span>
+                                                        </Link>
+                                                        {product.subCategory && (
+                                                            <Link href={getSiloRoute(product.category, 'subcategory', product.subCategory)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Sub-Category</span>
+                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                    {product.subCategory}
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {(product.brand || product.manufacturer) && (
+                                                            <Link href={getSiloRoute(product.category, 'brand', product.brand || product.manufacturer)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Brand</span>
+                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
+                                                                    {product.brand || product.manufacturer}
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {product.size && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
+                                                                <div>
+                                                                    <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
+                                                                    <span className="font-bold text-primary">{product.size}</span>
+                                                                </div>
+                                                                <SizeChart brand={product.brand?.toLowerCase()} />
+                                                            </div>
+                                                        )}
+                                                        {product.model && (
+                                                            <Link href={getSiloRoute(product.category, 'model', product.model)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Model</span>
+                                                                <span className="font-bold truncate flex items-center gap-1 text-slate-900 dark:text-slate-100" title={product.model}>
+                                                                    <span className="truncate">{product.model}</span>
+                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                                                </span>
+                                                            </Link>
+                                                        )}
+                                                        {product.styleCode && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                                <span className="text-gray-500 block text-xs mb-1">Style Code</span>
+                                                                <span className="font-bold">{product.styleCode}</span>
+                                                            </div>
+                                                        )}
+                                                        {product.colorway && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
+                                                                <span className="text-gray-500 block text-xs mb-1">Colorway</span>
+                                                                <span className="font-bold">{product.colorway}</span>
+                                                            </div>
+                                                        )}
+                                                        {product.gradingCompany && product.gradingCompany !== 'Raw' && (
+                                                            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-xl col-span-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div>
+                                                                        <span className="text-amber-800 dark:text-amber-300 block text-xs font-semibold uppercase tracking-wider mb-0.5">
+                                                                            Graded Slab ({product.gradingCompany})
+                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-lg font-black text-amber-950 dark:text-amber-100">
+                                                                                Grade: {product.grade || 'Authentic'}
+                                                                            </span>
+                                                                            {product.certNumber && (
+                                                                                <span className="text-xs text-muted-foreground font-mono">
+                                                                                    #{product.certNumber}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    {product.certNumber && product.gradingCompany === 'PSA' && (
+                                                                        <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
+                                                                            <a
+                                                                                href={`https://www.psacard.com/cert/${product.certNumber}`}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                            >
+                                                                                Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
+                                                                            </a>
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {product.cardNumber && (
+                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                                                <span className="text-gray-500 block text-xs mb-1">Card #</span>
+                                                                <span className="font-bold">{product.cardNumber}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
 
                                 <MarketIndexWidget
                                     currentPrice={product.price}
                                     marketValue={product.marketValue}
+                                    marketData={product.marketData}
                                     category={product.category}
                                     condition={product.condition}
                                     brand={product.brand}
                                 />
+                                
+                                <div className="mt-6 mb-6">
+                                    {provenanceData?.hasSufficientData && (
+                                        <ProvenanceLedger data={provenanceData} />
+                                    )}
+                                </div>
 
                                 <div className="space-y-4">
                                     {/* Stock Status */}
@@ -1037,7 +1193,7 @@ export default function ProductDetailsModern({
                                                         )}
 
                                                         <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
-                                                            Payments are made directly to the seller. Benched does not process payments at this stage.
+                                                            Payments are processed via our secure DealSafe Escrow system. Your funds are protected and only released when you confirm receipt.
                                                         </p>
                                                     </div>
                                                 );
@@ -1209,150 +1365,6 @@ export default function ProductDetailsModern({
                                         </div>
                                     )}
 
-                                    {/* Consolidated Product Description & Specs */}
-                                    <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
-                                        <div>
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h2 className="text-lg font-bold">Listing Details</h2>
-                                                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
-                                                    {product.condition}
-                                                </Badge>
-                                                <ConditionGuide />
-                                            </div>
-                                            <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
-                                                {product.seoDescription && (
-                                                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium pb-4 border-b border-dashed border-gray-100 dark:border-gray-800">
-                                                        <p className="whitespace-pre-line">{product.seoDescription}</p>
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    {product.seoDescription && <span className="block text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-1">Seller Notes:</span>}
-                                                    <p className="whitespace-pre-line">
-                                                        {product.description}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {(() => {
-                                            const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
-                                                let basePath = '/browse';
-                                                if (cat === 'Sneakers') basePath = '/shoes';
-                                                else if (cat === 'Collector Cards') basePath = '/cards';
-                                                else if (cat === 'Coins') basePath = '/coins';
-
-                                                if (!value) return basePath;
-
-                                                const encodedValue = encodeURIComponent(value);
-                                                if (type === 'subcategory') return `${basePath}?subCategory=${encodedValue}`;
-                                                if (type === 'brand') return `${basePath}?brand=${encodedValue}`;
-                                                if (type === 'model') return `${basePath}?q=${encodedValue}`;
-                                                if (type === 'year') return `${basePath}?year=${encodedValue}`;
-                                                return basePath;
-                                            };
-
-                                            return (
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
-                                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                                        <Link href={getSiloRoute(product.category, 'category')} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                            <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Category</span>
-                                                            <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                {product.category}
-                                                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                            </span>
-                                                        </Link>
-                                                        {product.subCategory && (
-                                                            <Link href={getSiloRoute(product.category, 'subcategory', product.subCategory)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Sub-Category</span>
-                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                    {product.subCategory}
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {(product.brand || product.manufacturer) && (
-                                                            <Link href={getSiloRoute(product.category, 'brand', product.brand || product.manufacturer)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Brand</span>
-                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                    {product.brand || product.manufacturer}
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {product.size && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
-                                                                <div>
-                                                                    <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
-                                                                    <span className="font-bold text-primary">{product.size}</span>
-                                                                </div>
-                                                                <SizeChart brand={product.brand?.toLowerCase()} />
-                                                            </div>
-                                                        )}
-                                                        {product.model && (
-                                                            <Link href={getSiloRoute(product.category, 'model', product.model)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Model</span>
-                                                                <span className="font-bold truncate flex items-center gap-1 text-slate-900 dark:text-slate-100" title={product.model}>
-                                                                    <span className="truncate">{product.model}</span>
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {product.styleCode && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                                <span className="text-gray-500 block text-xs mb-1">Style Code</span>
-                                                                <span className="font-bold">{product.styleCode}</span>
-                                                            </div>
-                                                        )}
-                                                        {product.colorway && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
-                                                                <span className="text-gray-500 block text-xs mb-1">Colorway</span>
-                                                                <span className="font-bold">{product.colorway}</span>
-                                                            </div>
-                                                        )}
-                                                        {product.gradingCompany && product.gradingCompany !== 'Raw' && (
-                                                            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-xl col-span-2">
-                                                                <div className="flex items-center justify-between">
-                                                                    <div>
-                                                                        <span className="text-amber-800 dark:text-amber-300 block text-xs font-semibold uppercase tracking-wider mb-0.5">
-                                                                            Graded Slab ({product.gradingCompany})
-                                                                        </span>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-lg font-black text-amber-950 dark:text-amber-100">
-                                                                                Grade: {product.grade || 'Authentic'}
-                                                                            </span>
-                                                                            {product.certNumber && (
-                                                                                <span className="text-xs text-muted-foreground font-mono">
-                                                                                    #{product.certNumber}
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                    {product.certNumber && product.gradingCompany === 'PSA' && (
-                                                                        <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
-                                                                            <a
-                                                                                href={`https://www.psacard.com/cert/${product.certNumber}`}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                            >
-                                                                                Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
-                                                                            </a>
-                                                                        </Button>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        {product.cardNumber && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                                <span className="text-gray-500 block text-xs mb-1">Card #</span>
-                                                                <span className="font-bold">{product.cardNumber}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
                                 </div>
                             </div>
 

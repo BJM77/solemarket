@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";;
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Product } from '@/lib/types';
-import { getProductUrl } from '@/lib/utils';
+import { getProductUrl } from "@/lib/utils/url";
 import { useMobileNav } from '@/context/MobileNavContext';
 
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
@@ -73,6 +73,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
 
     return (
         <div 
+            data-testid="market-ticker"
             style={{ backgroundColor: tickerBgColor || undefined, color: tickerTextColor || undefined }}
             className={cn(
                 "bg-primary text-white overflow-hidden relative z-30",

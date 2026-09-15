@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Heart, ShoppingBag, Loader2, User as UserIcon, DollarSign } from 'lucide-react';
 import { useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 
 const getInitials = (name?: string | null) => {
   if (!name) return 'U';

@@ -13,7 +13,7 @@ import {
     ShieldCheck, 
     Box 
 } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 
 const COIN_CATEGORIES = [
     {

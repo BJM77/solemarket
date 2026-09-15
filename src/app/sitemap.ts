@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getCategories, getActiveProductCount, getActiveProducts } from '@/lib/firebase/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getProductUrl } from '@/lib/utils';
+import { getProductUrl } from "@/lib/utils/url";
 
 /**
  * World-Class Sitemap Generation
@@ -97,7 +97,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       console.error('Sitemap: Error fetching categories:', err);
     }
     
-    // 2.5 Programmatic Brand Routes
+    // 2.5 Programmatic Brand & SEO Routes
     const topBrands = ['nike', 'jordan', 'adidas', 'yeezy', 'new-balance', 'asics', 'pokemon', 'panini', 'topps', 'magic-the-gathering'];
     const brandRoutes: MetadataRoute.Sitemap = topBrands.map((brand) => ({
       url: `${baseUrl}/brand/${brand}`,
@@ -106,7 +106,20 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       priority: 0.8,
     }));
     
-    categoryRoutes = [...categoryRoutes, ...brandRoutes];
+    let seoRoutes: MetadataRoute.Sitemap = [];
+    try {
+      const { PROGRAMMATIC_ROUTES } = await import('@/config/programmatic-seo');
+      seoRoutes = PROGRAMMATIC_ROUTES.map((route) => ({
+        url: `${baseUrl}/p/${route.path}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: route.priority === 'high' ? 0.9 : 0.7,
+      }));
+    } catch (err) {
+      console.error('Sitemap: Error loading programmatic SEO routes:', err);
+    }
+    
+    categoryRoutes = [...categoryRoutes, ...brandRoutes, ...seoRoutes];
   }
 
   // 3. Guide Routes (Only included on sitemap index 0)

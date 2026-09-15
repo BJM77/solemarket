@@ -40,7 +40,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useUser } from "@/firebase";
 import { useSidebar } from "@/components/layout/sidebar-provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/ui";
 import { useState, useEffect } from "react";
 
 // Navigation Items Configuration

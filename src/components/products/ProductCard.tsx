@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
@@ -38,7 +38,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { formatPrice, getProductUrl, formatRelativeTime } from '@/lib/utils';
+import { formatPrice, formatRelativeTime } from "@/lib/utils/format";
+import { getProductUrl } from "@/lib/utils/url";
 
 import { ProductImageLightbox } from './ProductImageLightbox';
 import { updateProductPrice } from '@/app/actions/marketplace/product-updates';
@@ -1004,10 +1005,16 @@ export default function ProductCard({
           )}
           <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-white/5 flex-shrink-0">
             <AvatarImage src={product.sellerAvatar || ''} />
-            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{product.sellerName?.substring(0, 2).toUpperCase() || 'SM'}</AvatarFallback>
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{(!product.sellerName || product.sellerName.toLowerCase().includes('unknown')) ? 'BM' : product.sellerName.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">{product.sellerName || 'Benched'}</span>
-          {product.sellerVerified && <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />}
+          <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">
+            {(!product.sellerName || product.sellerName.toLowerCase().includes('unknown')) ? 'Benched Member' : product.sellerName}
+          </span>
+          {product.sellerVerified ? (
+            <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />
+          ) : (
+            <ShieldCheck className="h-3 w-3 text-primary/80 shrink-0" />
+          )}
         </div>
 
         <div className="flex flex-wrap items-end justify-between mt-1 sm:mt-4 gap-1 sm:gap-2 flex-grow min-w-0">

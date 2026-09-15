@@ -8,7 +8,7 @@ const AnalyticsCharts = dynamic(() => import('@/components/seller/analytics/Anal
   loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-gray-50 rounded-lg animate-pulse">Loading charts...</div>
 });
 import { DollarSign, ShoppingBag, TrendingUp, Users } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 
 export default function SellerAnalyticsPage() {
   // Hardcoded summary stats for the MVP

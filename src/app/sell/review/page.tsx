@@ -11,7 +11,7 @@ import type { Product } from '@/lib/types';
 import { getDraftListing, publishListing } from '@/app/actions/seller/sell';
 import { useSearchParams } from 'next/navigation';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from "@/lib/utils/format";
 
 type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerEmail' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
   imageUrls: string[];

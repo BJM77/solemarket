@@ -35,7 +35,8 @@ import {
 
 import Image from 'next/image';
 import { formatDistanceToNow, format } from 'date-fns';
-import { formatPrice, cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { formatPrice } from "@/lib/utils/format";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SellerOrders } from '@/components/seller/SellerOrders';

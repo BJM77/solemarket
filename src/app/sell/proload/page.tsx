@@ -9,7 +9,8 @@ import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { parseFacebookMarketplaceScreenshot } from '@/app/actions/marketplace/proload-parser';
 import { createProductAction } from '@/app/actions/marketplace/products';
-import { resizeAndCompressImage, cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
+import { resizeAndCompressImage } from "@/lib/utils/image";
 
 // UI Components
 import { Button } from '@/components/ui/button';

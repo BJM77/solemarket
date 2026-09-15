@@ -54,7 +54,12 @@ export default async function BrandPage({ params }: Props) {
         </p>
       </div>
 
-      <InfiniteProductGrid initialFilters={initialFilters} showFilters={true} />
+      <InfiniteProductGrid 
+        pageTitle={displayBrand} 
+        pageDescription={`Explore all authenticated ${displayBrand} items available on Benched.`}
+        initialFilterState={{ brand: displayBrand }} 
+        hideTitle={true}
+      />
     </div>
   );
 }

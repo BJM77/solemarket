@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';

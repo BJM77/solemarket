@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, type ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils/ui";
 import { useSidebar } from './sidebar-provider';
 import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelRightClose } from 'lucide-react';
