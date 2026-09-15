@@ -84,3 +84,9 @@ env:
     value: "false"
   - variable: NODE_ENV
     value: "production"
+
+  # Increase Node.js heap size to prevent OOM during next build
+  - variable: NODE_OPTIONS
+    value: "--max-old-space-size=3072"
+    availability:
+      - BUILD
