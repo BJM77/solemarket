@@ -188,6 +188,7 @@ export async function createProductAction(
         console.log('Product saved:', docRef.id);
 
         revalidatePath('/browse');
+        revalidateTag('products');
         revalidatePath(`/product/${docRef.id}`);
         revalidateTag('active-listings-count');
         revalidateTag('products-featured');
@@ -228,6 +229,7 @@ export async function createBulkProductsAction(
 
         await batch.commit();
         revalidatePath('/browse');
+        revalidateTag('products');
         revalidateTag('active-listings-count');
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');

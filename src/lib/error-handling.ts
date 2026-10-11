@@ -16,6 +16,16 @@ export async function reportError(error: Error | string, context: Record<string,
     return;
   }
 
+  // Server-side: send to Sentry first (alertable), then persist to Firestore.
+  try {
+    const Sentry = await import('@sentry/nextjs');
+    Sentry.withScope((scope) => {
+      scope.setTag('area', String(context.area || 'reported'));
+      scope.setExtras(context);
+      Sentry.captureException(error instanceof Error ? error : new Error(errorMessage));
+    });
+  } catch { /* ignore */ }
+
   // Server-side reporting using Firebase Admin
   try {
     const { isFirebaseAdminReady, firestoreDb } = await import('@/lib/firebase/admin');

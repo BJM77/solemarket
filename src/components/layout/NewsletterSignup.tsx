@@ -16,7 +16,7 @@ const initialState: NewsletterState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button size="icon" className="rounded-lg" disabled={pending} type="submit">
+        <Button size="icon" className="rounded-lg" disabled={pending} type="submit" aria-label="Subscribe to newsletter">
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
     );

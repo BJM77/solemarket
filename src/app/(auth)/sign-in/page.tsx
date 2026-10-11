@@ -1,13 +1,20 @@
+import type { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import SignInForm from '@/components/auth/SignInForm';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Sign In | Benched',
+  description: 'Sign in to Benched to buy and sell sneakers and collector cards across Australia.',
+  robots: { index: false, follow: true },
+};
 
 export default function SignInPage() {
   return (
     <div className="w-full max-w-md mx-auto px-4">
       <Card className="w-full max-w-md p-6 shadow-xl border-t-4 border-primary h-fit bg-card text-card-foreground">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold font-headline text-center">Sign In</CardTitle>
+          <CardTitle className="text-2xl font-bold font-headline text-center"><h1>Sign In</h1></CardTitle>
         </CardHeader>
         <CardContent>
           <SignInForm />

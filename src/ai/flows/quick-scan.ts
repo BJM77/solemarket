@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -21,6 +22,7 @@ const QuickScanOutputSchema = z.object({
 export type QuickScanOutput = z.infer<typeof QuickScanOutputSchema>;
 
 export async function quickScan(input: QuickScanInput): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<QuickScanOutput>(
         input,
         async (validatedInput) => {

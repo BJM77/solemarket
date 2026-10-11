@@ -33,9 +33,12 @@ const nextConfig = {
     // ignoreBuildErrors: true, // Re-enabling strict checks
   },
   images: {
+    // Firebase App Hosting disables Next image optimisation unless this is explicitly false.
+    // Without it, raw 2-3 MB Storage originals were shipped to phones (Lighthouse: -13 MB).
+    unoptimized: false,
     formats: ['image/avif', 'image/webp'],
     qualities: [25, 50, 75, 80, 90, 100],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 2592000, // 30 days - product photo URLs are immutable (tokenised)
     remotePatterns: [
       {
         protocol: 'https',
@@ -55,24 +58,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'example.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
         hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
         hostname: '*.unsplash.com',
       },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-      }
     ],
   },
   // Removed broken rewrite for sitemap.xml

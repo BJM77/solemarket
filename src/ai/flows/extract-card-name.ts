@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 /**
  * @fileOverview A flow to extract detailed card information including player name, brand, type, sport, and year.
@@ -35,6 +36,7 @@ const ExtractCardNameOutputSchema = z.object({
 export type ExtractCardNameOutput = z.infer<typeof ExtractCardNameOutputSchema>;
 
 export async function extractCardName(input: ExtractCardNameInput): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<ExtractCardNameOutput>(
         input,
         async (validatedInput) => {

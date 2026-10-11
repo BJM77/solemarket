@@ -231,10 +231,10 @@ export default function ProductCard({
             className="h-7 w-20 px-1 py-0 text-sm"
             autoFocus
           />
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" type="submit" disabled={isSavingPrice}>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" type="submit" aria-label="Save price" disabled={isSavingPrice}>
             {isSavingPrice ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-4 w-4" />}
           </Button>
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500" onClick={() => setIsEditingPrice(false)}>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500" onClick={() => setIsEditingPrice(false)} aria-label="Cancel price edit">
             <XIcon className="h-4 w-4" />
           </Button>
         </form>
@@ -701,7 +701,7 @@ export default function ProductCard({
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
+                    <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" aria-label="More actions">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>

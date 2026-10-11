@@ -46,6 +46,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        // Icon-only buttons need an accessible name; fall back to `title` when no aria-label is given.
+        aria-label={props['aria-label'] ?? (size === 'icon' && typeof props.title === 'string' ? props.title : undefined)}
         {...props}
       />
     )

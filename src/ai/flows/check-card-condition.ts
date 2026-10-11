@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 
 import { AI_CONFIG } from '@/config/ai';
@@ -12,6 +13,7 @@ import { runAIWorkflow } from '../workflow-engine';
  * @returns {Promise<CardConditionOutput>} A promise that resolves to a detailed condition report.
  */
 export async function checkCardCondition(input: CardConditionInput): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<CardConditionOutput>(
         input,
         async (validatedInput) => {

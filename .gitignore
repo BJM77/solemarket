@@ -63,3 +63,7 @@ sneakmain.txt
 # Archives / backups
 *.zip
 site.txt
+
+# Playwright
+test-results/
+playwright-report/

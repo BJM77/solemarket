@@ -5,10 +5,13 @@ kind: "AppHostingYaml"
 version: "v1"
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
-  memoryMiB: 1024
+  # Keep one warm instance so the first visitor doesn't pay a cold start
+  # (live TTFB on / was 12 s). Scale out under load instead of queueing.
+  minInstances: 1
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 2048
 
 # Environment variables configuration
 env:

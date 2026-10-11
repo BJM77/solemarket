@@ -19,7 +19,7 @@
     
     /* Brand Colors */
     --primary: 25 90% 50%; /* Benched Orange */
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%; /* black on orange = 7:1 (white was 3:1, fails WCAG AA) */
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
     
@@ -63,7 +63,7 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 100%;
     --primary: 25 90% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
     --border: 0 0% 15%;

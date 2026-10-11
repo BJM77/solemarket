@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema, type SuggestListingDetailsInput, type SuggestListingDetailsOutput } from './schemas';
@@ -10,6 +11,7 @@ import { AI_CONFIG } from '@/config/ai';
  * Transitioned to storage-first architecture: pass URLs whenever possible.
  */
 export async function suggestListingDetails(input: SuggestListingDetailsInput): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<SuggestListingDetailsOutput>(
         input,
         async (validatedInput) => {

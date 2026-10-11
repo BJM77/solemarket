@@ -14,7 +14,18 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /responsive\.spec\.ts/ },
+    // Responsive / visual checks at the two breakpoints we design for.
+    {
+      name: 'mobile-390',
+      testMatch: /responsive\.spec\.ts/,
+      use: { ...devices['iPhone 13'], browserName: 'chromium', viewport: { width: 390, height: 844 } },
+    },
+    {
+      name: 'desktop-1440',
+      testMatch: /responsive\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+    },
   ],
   webServer: process.env.CI ? {
     command: 'npm run start -- --port 9007',

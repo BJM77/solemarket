@@ -12,6 +12,14 @@ import FAQSchema from '@/components/seo/FAQSchema';
 
 import { slugify } from "@/lib/utils/url";
 
+// ISR: product pages are rendered on first request and cached for 5 minutes;
+// listing mutations call revalidatePath(`/product/${id}`) for instant updates.
+export const revalidate = 300;
+export const dynamicParams = true;
+export async function generateStaticParams() {
+  return [];
+}
+
 interface Props {
   params: Promise<{ id: string }>;
 }

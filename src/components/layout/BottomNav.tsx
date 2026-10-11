@@ -40,8 +40,8 @@ export function BottomNav() {
                   <item.icon className="h-6 w-6" strokeWidth={3} />
                 </div>
                 <span className={cn(
-                  "text-[10px] font-black mt-1 uppercase tracking-widest transition-colors duration-300",
-                  isActive ? "text-primary" : "text-muted-foreground/60"
+                  "text-[11px] font-black mt-1 uppercase tracking-widest transition-colors duration-300",
+                  isActive ? "text-foreground" : "text-muted-foreground"
                 )}>
                   {item.label}
                 </span>
@@ -55,8 +55,8 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 transition-all duration-300 tap-haptic-subtle group relative",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                "flex flex-col items-center justify-center flex-1 min-h-11 min-w-11 transition-all duration-300 tap-haptic-subtle group relative",
+                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               )}
             >
               <div className={cn(
@@ -66,8 +66,8 @@ export function BottomNav() {
                 <item.icon className={cn("h-5 w-5 transition-all duration-300", isActive && "stroke-[2.5px] scale-110")} />
               </div>
               <span className={cn(
-                "text-[10px] font-bold mt-1 uppercase tracking-tighter transition-all duration-300",
-                isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100"
+                "text-[11px] font-bold mt-1 uppercase tracking-tighter transition-all duration-300",
+                isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
               )}>
                 {item.label}
               </span>
