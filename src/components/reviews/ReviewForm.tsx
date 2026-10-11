@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
+import { getReviewEligibility, submitVerifiedReview, type ReviewEligibility } from '@/app/actions/reviews/verified-reviews';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -42,23 +42,22 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
     },
   });
 
-   // Check if user has already reviewed this product
-   useEffect(() => {
-    if (!user) return;
-    const checkReview = async () => {
-        const q = query(
-            collection(db, "reviews"),
-            where("productId", "==", productId),
-            where("buyerId", "==", user.uid)
-        );
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            setHasReviewed(true);
-        }
-    };
-    checkReview();
-  }, [user, productId]);
+  const [eligibility, setEligibility] = useState<ReviewEligibility | null>(null);
 
+  // Only buyers with a delivered/completed order for this item may review it (verified purchase).
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const result = await getReviewEligibility(token, productId);
+      if (cancelled) return;
+      setEligibility(result);
+      if (!result.eligible && result.reason === 'already_reviewed') setHasReviewed(true);
+    })().catch(() => setEligibility({ eligible: false, reason: 'not_signed_in' }));
+    return () => { cancelled = true; };
+  }, [user, productId]);
 
   async function onSubmit(values: z.infer<typeof reviewSchema>) {
     if (!user) {
@@ -74,16 +73,10 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'reviews'), {
-        ...values,
-        productId,
-        productTitle,
-        sellerId,
-        buyerId: user.uid,
-        buyerName: user.displayName,
-        buyerAvatar: user.photoURL,
-        createdAt: serverTimestamp(),
-      });
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('Please sign in again.');
+      const result = await submitVerifiedReview(token, { productId, rating: values.rating, comment: values.comment });
+      if (!result.success) throw new Error(result.error || 'Could not submit review');
 
       toast({ title: 'Review submitted successfully!' });
       form.reset();
@@ -110,6 +103,17 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
     );
   }
   
+  if (!hasReviewed && eligibility && !eligibility.eligible) {
+    const msg = eligibility.reason === 'own_listing'
+      ? "You can't review your own listing."
+      : 'Only verified buyers can review this item. Reviews open once your order is marked delivered.';
+    return (
+      <div className="border border-white/10 rounded-2xl p-6 text-center bg-white/5">
+        <p className="text-muted-foreground text-sm">{msg}</p>
+      </div>
+    );
+  }
+
   if (hasReviewed) {
     return (
         <div className="border border-emerald-500/20 rounded-2xl p-6 text-center bg-emerald-500/10 text-emerald-500">

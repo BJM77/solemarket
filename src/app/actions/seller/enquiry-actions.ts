@@ -1,5 +1,6 @@
 'use server';
 import { checkRateLimit } from '@/lib/rate-limit-guard';
+import { detectOffPlatform } from '@/lib/messaging/off-platform';
 
 import { firestoreDb as db } from '@/lib/firebase/admin';
 import { revalidatePath } from 'next/cache';
@@ -40,6 +41,7 @@ export async function sendGuestEnquiry(data: GuestEnquiryInput) {
             return { success: false, error: verifyResult.error || "Verification failed" };
         }
 
+        const offPlatform = detectOffPlatform(data.message || '');
         const enquiryData = {
             sellerId: data.sellerId,
             productId: data.productId,
@@ -47,6 +49,7 @@ export async function sendGuestEnquiry(data: GuestEnquiryInput) {
             name: data.name,
             email: data.email,
             message: data.message,
+            ...(offPlatform.flagged ? { offPlatformFlags: offPlatform.reasons, needsReview: true } : {}),
             type: 'guest_enquiry',
             status: 'unread',
             createdAt: new Date().toISOString(),

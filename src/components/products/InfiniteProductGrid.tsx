@@ -5,6 +5,8 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getProducts } from '@/services/product-service';
+import { searchProductsAction } from '@/app/actions/search/search';
+import SaveSearchButton from '@/components/search/SaveSearchButton';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
@@ -58,6 +60,7 @@ function InfiniteProductGridInner({
   initialData,
   hideTitle = false,
   containerClassName = "container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen",
+  searchProvider = 'firestore',
 }: {
   pageTitle: string,
   pageDescription?: string,
@@ -66,7 +69,9 @@ function InfiniteProductGridInner({
   titleAsH1?: boolean,
   initialData?: any,
   hideTitle?: boolean,
-  containerClassName?: string
+  containerClassName?: string,
+  /** 'typesense' | 'algolia' routes public searches through the search adapter (server action). */
+  searchProvider?: string
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -122,12 +127,14 @@ function InfiniteProductGridInner({
     isError
   } = useInfiniteQuery({
     queryKey: ['products', currentSearchParams, userRole],
-    queryFn: ({ pageParam }) => getProducts({
-      ...currentSearchParams,
-      lastId: pageParam as string | undefined,
-      limit: PAGE_SIZE,
-      page: pageParam ? 2 : 1 // Simple hack to indicate not first page if pageParam exists
-    }, userRole as string),
+    queryFn: ({ pageParam }) => (searchProvider !== 'firestore' && !isAdmin)
+      ? searchProductsAction({ ...currentSearchParams, lastId: pageParam as string | undefined, limit: PAGE_SIZE })
+      : getProducts({
+        ...currentSearchParams,
+        lastId: pageParam as string | undefined,
+        limit: PAGE_SIZE,
+        page: pageParam ? 2 : 1 // Simple hack to indicate not first page if pageParam exists
+      }, userRole as string),
     initialPageParam: undefined,
     initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
     getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.lastVisibleId : undefined,
@@ -556,6 +563,7 @@ function InfiniteProductGridInner({
           </div>
         )}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+          {!isAdmin && <SaveSearchButton params={currentSearchParams} />}
           {isClient && typeof Select !== 'undefined' && (
             <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
               <SelectTrigger aria-label="Sort listings" className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">

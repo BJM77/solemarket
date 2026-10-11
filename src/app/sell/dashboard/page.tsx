@@ -1,6 +1,7 @@
 
 'use client';
 
+import SellerOnboarding from '@/components/seller/onboarding/SellerOnboarding';
 import { useMemo, useEffect, useState } from 'react';
 import { useFirebase, useCollection, useUser, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
@@ -203,6 +204,7 @@ export default function SellerDashboard() {
   return (
     <div className="min-h-screen bg-background pt-20">
       <div className="container mx-auto px-4 py-8">
+        <SellerOnboarding compact />
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
           <div className="space-y-1">
             <h1 className="text-4xl font-black text-white uppercase tracking-tighter">Seller Console</h1>

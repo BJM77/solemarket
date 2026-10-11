@@ -1,12 +1,13 @@
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
+import { searchProducts, configuredProvider } from '@/lib/search';
 import { unstable_cache } from 'next/cache';
 
 // Browse results are cached per filter combination for 2 minutes and busted by
 // revalidateTag('products') whenever a listing is created/updated.
 const getCachedProducts = unstable_cache(
-  async (params: Parameters<typeof getProducts>[0]) => getProducts(params),
+  async (params: Parameters<typeof getProducts>[0]) => searchProducts(params),
   ['browse-products'],
   { revalidate: 120, tags: ['products'] }
 );
@@ -124,6 +125,7 @@ export default async function BrowsePage({
       }>
         <InfiniteProductGrid
           key={targetCategory || 'all'}
+          searchProvider={configuredProvider()}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : (targetCategory ? `All ${targetCategory}` : 'The Lineup')}
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{

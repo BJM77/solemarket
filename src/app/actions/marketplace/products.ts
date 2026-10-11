@@ -194,6 +194,9 @@ export async function createProductAction(
         revalidateTag('products-featured');
         revalidateTag('products-sneakers');
 
+        // Keep the external search index in sync (no-op when SEARCH_PROVIDER is unset; never throws).
+        void import('@/lib/search').then(({ syncProductToIndex }) => syncProductToIndex(docRef.id, finalData as any));
+
         return { success: true, productId: docRef.id };
 
     } catch (error: any) {
