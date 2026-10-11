@@ -6,7 +6,7 @@ import { Activity } from 'lucide-react';
 import Link from 'next/link';
 
 interface Props {
-    params: { slug: string[] }; // Captures multiple segments e.g. ['jordan', '1']
+    params: Promise<{ slug: string[] }>; // Captures multiple segments e.g. ['jordan', '1']
 }
 
 export async function generateStaticParams() {
@@ -17,7 +17,8 @@ export async function generateStaticParams() {
     });
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+    const params = await props.params;
     const path = params.slug.join('/');
     const route = PROGRAMMATIC_ROUTES.find(r => r.path === path);
     
@@ -34,7 +35,8 @@ export async function generateMetadata({ params }: Props) {
 
 export const revalidate = 86400; // Cache for 24 hours
 
-export default function ProgrammaticSeoPage({ params }: Props) {
+export default async function ProgrammaticSeoPage(props: Props) {
+    const params = await props.params;
     const path = params.slug.join('/');
     const route = PROGRAMMATIC_ROUTES.find(r => r.path === path);
     

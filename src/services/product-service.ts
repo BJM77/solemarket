@@ -272,7 +272,8 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   
   // If we have multiple filter constraints and any of them might be a composite filter (like our 'or' filter),
   // we follow the Firestore recommendation to wrap them in an 'and()' for stability.
-  const hasOrFilter = constraints.some(c => c.toString().includes('or(') || (c as any)._type === 'or'); // Heuristic check or just always use and()
+  // Use the public QueryConstraint.type ('or' | 'and' | 'where' ...) rather than minified internals.
+  const hasOrFilter = constraints.some(c => (c as any).type === 'or' || (c as any).type === 'and');
   
   let filterArgs: any[] = constraints;
   if (hasOrFilter && constraints.length > 1) {
@@ -399,7 +400,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
     // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
     if (!searchParams.lastId && page === 1 && !q) {
       try {
-        const countQuery = query(productsRef, ...constraints);
+        const countQuery = query(productsRef, ...filterArgs);
         const firestoreMod = await import('firebase/firestore');
         if (firestoreMod && typeof firestoreMod.getCountFromServer === 'function') {
           const snapshot = await firestoreMod.getCountFromServer(countQuery);

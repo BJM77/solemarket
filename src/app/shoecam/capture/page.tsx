@@ -578,7 +578,7 @@ export default function ShoePhotoBooth() {
                   </div>
                   <div className="flex gap-2 mt-4">
                     {Object.values(capturedImages).map((src, i) => (
-                      <img key={i} src={src} className="w-12 h-12 rounded-lg border border-white/10 object-cover" />
+                      <img key={i} src={src} alt={`Captured photo ${i + 1}`} className="w-12 h-12 rounded-lg border border-white/10 object-cover" />
                     ))}
                   </div>
                 </CardContent>
