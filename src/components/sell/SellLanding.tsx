@@ -31,7 +31,7 @@ import Image from 'next/image';
 
 export default function SellLandingPage() {
     return (
-        <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-white text-slate-900">
             {/* Announcement Banner */}
             <div className="bg-primary text-primary-foreground py-3 text-center text-sm font-medium">
                 🚀 Benched.au is live - list your first pair or card in minutes.
@@ -54,7 +54,7 @@ export default function SellLandingPage() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button
                                 size="lg"
-                                className="bg-primary hover:bg-orange-700 text-white font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-orange-200"
+                                className="bg-primary hover:bg-orange-700 text-primary-foreground font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-orange-200"
                                 asChild
                             >
                                 <Link href="/sign-up?accountType=seller">
@@ -64,7 +64,7 @@ export default function SellLandingPage() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-lg h-14 px-8 rounded-xl"
+                                className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-lg h-14 px-8 rounded-xl"
                                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                             >
                                 See How It Works
@@ -87,9 +87,9 @@ export default function SellLandingPage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
+                        <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Zap className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">Lightning Fast Listings</h3>
@@ -99,9 +99,9 @@ export default function SellLandingPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
+                        <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Facebook className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">One-Click FB Sharing</h3>
@@ -111,9 +111,9 @@ export default function SellLandingPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
+                        <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Shield className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">DealSafe™ Protection</h3>
@@ -190,7 +190,7 @@ export default function SellLandingPage() {
                                             <p className="text-2xl font-bold">$0.00</p>
                                         </div>
                                     </div>
-                                    <Button className="w-full bg-primary hover:bg-orange-700 text-white mt-4" disabled>
+                                    <Button className="w-full bg-primary hover:bg-orange-700 text-primary-foreground mt-4" disabled>
                                         Inventory Launching Soon
                                     </Button>
                                 </div>
@@ -205,9 +205,9 @@ export default function SellLandingPage() {
                 <div className="container mx-auto px-4">
                     <div className="max-w-5xl mx-auto bg-white rounded-[2.5rem] shadow-premium overflow-hidden border border-slate-100">
                         <div className="grid lg:grid-cols-2">
-                            <div className="p-8 md:p-16 bg-primary text-white">
+                            <div className="p-8 md:p-16 bg-primary text-primary-foreground">
                                 <h2 className="text-4xl font-bold mb-6 leading-tight">Secure Your Seller Spot Early</h2>
-                                <p className="text-xl mb-8 text-orange-100">
+                                <p className="text-xl mb-8 text-black/80">
                                     The first 100 sellers to register will receive:
                                 </p>
                                 <ul className="space-y-4 mb-10">
@@ -235,13 +235,13 @@ export default function SellLandingPage() {
                                 <p className="text-slate-600 mb-8 text-lg leading-relaxed">
                                     Registration is free and takes less than 2 minutes. Join the future of the Australian secondary market.
                                 </p>
-                                <Button size="lg" className="h-16 text-xl font-bold bg-slate-900 hover:bg-slate-800 rounded-2xl group shadow-lg shadow-slate-200" asChild>
+                                <Button size="lg" className="h-16 text-xl font-bold bg-slate-900 text-white hover:bg-slate-800 rounded-2xl group shadow-lg shadow-slate-200" asChild>
                                     <Link href="/sign-up?accountType=seller">
                                         Register as a Seller
                                         <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </Button>
-                                <p className="mt-6 text-sm text-slate-400">
+                                <p className="mt-6 text-sm text-slate-600">
                                     By registering, you agree to receive launch updates and early access notifications.
                                 </p>
                             </div>

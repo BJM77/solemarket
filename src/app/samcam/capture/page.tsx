@@ -785,7 +785,7 @@ export default function BenchedPhotoBooth() {
                 onClick={toggleTorch}
                 className={cn(
                   "p-2 rounded-lg transition",
-                  torchActive ? "bg-primary text-white shadow-glow" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
+                  torchActive ? "bg-primary text-primary-foreground shadow-glow" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
                 )}
                 title={torchActive ? "Turn Flash Off" : "Turn Flash On"}
               >

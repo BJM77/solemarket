@@ -76,7 +76,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
             data-testid="market-ticker"
             style={{ backgroundColor: tickerBgColor || undefined, color: tickerTextColor || undefined }}
             className={cn(
-                "bg-primary text-white overflow-hidden relative z-30",
+                "bg-primary text-primary-foreground overflow-hidden relative z-30",
                 compact
                     ? "py-0 h-full w-full flex items-center shadow-inner"
                     : "py-1 md:py-1.5 border-y-2 border-primary/20 w-full my-1 md:my-2 shadow-sm",

@@ -126,7 +126,7 @@ export function BulkCardScanner() {
                         <Button 
                             variant="default" 
                             size="lg"
-                            className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 px-8"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isAnalyzing}
                         >
@@ -180,7 +180,7 @@ export function BulkCardScanner() {
                         <Button
                             size="lg"
                             variant="default"
-                            className="bg-primary hover:bg-primary/90 text-white w-full max-w-sm h-14 text-xl font-black shadow-xl"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full max-w-sm h-14 text-xl font-black shadow-xl"
                             onClick={handleBulkScan}
                             disabled={isAnalyzing}
                         >

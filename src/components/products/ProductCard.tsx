@@ -587,7 +587,7 @@ export default function ProductCard({
             <Button
               size="sm"
               variant="outline"
-              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-white"
+              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -824,7 +824,7 @@ export default function ProductCard({
             </Badge>
           )}
           {product.status === 'sold' && (
-            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
+            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-primary-foreground font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
               CHECKED IN
             </Badge>
           )}
@@ -1041,7 +1041,7 @@ export default function ProductCard({
             {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
+                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

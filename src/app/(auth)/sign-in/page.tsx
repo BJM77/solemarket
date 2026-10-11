@@ -19,7 +19,7 @@ export default function SignInPage() {
         <CardContent>
           <SignInForm />
           <div className="mt-4 text-center text-sm">
-            <span className="text-gray-500">Don&apos;t have an account? </span>
+            <span className="text-gray-400">Don&apos;t have an account? </span>
             <Link href="/sign-up" className="text-primary hover:underline font-medium">
               Sign Up
             </Link>

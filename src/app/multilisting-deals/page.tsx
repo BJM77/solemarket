@@ -267,7 +267,7 @@ export default function MultiListingDealsPage() {
                                             disabled={dealCart.has(product.id)}
                                             className={`w-full sm:w-auto px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black uppercase tracking-tight ${dealCart.has(product.id)
                                                 ? 'bg-white/10 text-muted-foreground'
-                                                : 'bg-primary text-white hover:bg-primary/80'
+                                                : 'bg-primary text-primary-foreground hover:bg-primary/80'
                                                 }`}
                                         >
                                             {dealCart.has(product.id) ? 'Added' : 'Add'}

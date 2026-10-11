@@ -100,7 +100,7 @@ export function CategoryPills({ className }: CategoryPillsProps) {
                             className={cn(
                                 "flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all border",
                                 isActive
-                                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
                                     : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10 hover:text-white",
                                 "active:scale-95 whitespace-nowrap"
                             )}

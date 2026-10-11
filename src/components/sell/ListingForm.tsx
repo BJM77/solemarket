@@ -463,7 +463,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
-                                                {i === 0 && <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-[10px] text-white font-bold rounded">COVER</div>}
+                                                {i === 0 && <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-[10px] text-primary-foreground font-bold rounded">COVER</div>}
                                             </div>
                                         ))}
                                     </div>

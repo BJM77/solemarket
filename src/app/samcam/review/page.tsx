@@ -179,9 +179,9 @@ export default function ReviewQueue() {
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                    <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2 border-none", 
-                      item.status === 'VERIFIED' ? "bg-green-600 text-white" : 
+                      item.status === 'VERIFIED' ? "bg-green-600 text-primary-foreground" : 
                       item.status === 'NEEDS_REVIEW' ? "bg-primary text-black" : 
-                      "bg-blue-600 text-white"
+                      "bg-blue-600 text-primary-foreground"
                    )}>
                      {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
                      {item.status}

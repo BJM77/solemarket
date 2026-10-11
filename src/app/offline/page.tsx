@@ -63,7 +63,7 @@ export default function OfflinePage() {
           <Button
             onClick={handleRetry}
             disabled={isReconnecting}
-            className="w-full h-14 rounded-2xl text-base font-black uppercase tracking-wider bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all flex items-center justify-center gap-2"
+            className="w-full h-14 rounded-2xl text-base font-black uppercase tracking-wider bg-primary hover:bg-orange-600 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all flex items-center justify-center gap-2"
           >
             <RotateCw className={`w-4 h-4 ${isReconnecting ? 'animate-spin' : ''}`} />
             {isReconnecting ? 'Reconnecting...' : 'Try Reconnecting'}
