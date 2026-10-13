@@ -15,7 +15,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { calculateItemTotal, calculateDutchAuctionPrice } from '@/lib/pricing';
+import { priceCart, splitProRata, type CartPricing } from '@/lib/bundles';
+import { cartItemsToLines } from '@/lib/order-pricing';
+import { getActiveBundlesForSellers } from '@/app/actions/marketplace/bundle-actions';
+import type { FixedPriceBundle } from '@/types/bundles';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -29,6 +32,10 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   cartSubtotal: number;
+  /** Line-by-line pricing (bundles + multibuy), same engine the server uses. */
+  pricing: CartPricing;
+  /** Live fixed-price bundles for sellers in the cart. */
+  bundles: FixedPriceBundle[];
   cartTotal: number;
   itemCount: number;
   isCartOpen: boolean;
@@ -138,13 +145,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const bundleInstanceId = `${deal.id}-${Date.now()}`;
       
       // Calculate pro-rated price for each item in the bundle
-      const originalTotal = products.reduce((sum, p) => sum + p.price, 0);
-      
-      const bundleItems = products.map((p) => ({
+      // Display estimate only; the server re-validates the deal and splits the price itself.
+      const shares = splitProRata(Math.round(Math.min(deal.price, products.reduce((s, p) => s + p.price, 0)) * 100), products.map(p => Math.round(p.price * 100)));
+      const bundleItems = products.map((p, idx) => ({
         ...p,
         quantity: 1,
         dealId: bundleInstanceId,
-        bundlePrice: originalTotal > 0 ? (p.price / originalTotal) * deal.price : deal.price / products.length,
+        bundlePrice: shares[idx] / 100,
       }));
       return [...prevItems, ...bundleItems];
     });
@@ -181,40 +188,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('benched-shipping-address');
   }, []);
 
-  const cartSubtotal = items.reduce((total, item) => {
-    // Handle Bundle Deals (Pro-rated price)
-    if (item.dealId && item.bundlePrice !== undefined) {
-      return total + item.bundlePrice;
-    }
+  // Fixed-price bundles for the sellers in the cart (refetched when the seller set changes).
+  const [bundles, setBundles] = useState<FixedPriceBundle[]>([]);
+  const sellerKey = Array.from(new Set(items.map(i => i.sellerId).filter(Boolean))).sort().join(',');
+  useEffect(() => {
+    let cancelled = false;
+    if (!sellerKey) { setBundles([]); return; }
+    getActiveBundlesForSellers(sellerKey.split(','))
+      .then(b => { if (!cancelled) setBundles(b); })
+      .catch(() => { if (!cancelled) setBundles([]); });
+    return () => { cancelled = true; };
+  }, [sellerKey]);
 
-    // Determine the base price (Dutch Auction or Regular)
-    let basePrice = item.price;
-    if (item.isDutchAuction && item.dutchAuctionStartTime && item.dutchAuctionDropAmount && item.dutchAuctionIntervalHours && item.dutchAuctionFloorPrice !== undefined) {
-      basePrice = calculateDutchAuctionPrice(
-        item.price,
-        item.dutchAuctionDropAmount,
-        item.dutchAuctionIntervalHours,
-        item.dutchAuctionFloorPrice,
-        item.dutchAuctionStartTime
-      );
-    }
+  // Shared pricing engine (src/lib/bundles.ts) - identical to createOrderAction.
+  const pricing = React.useMemo(() => priceCart(cartItemsToLines(items as any), bundles), [items, bundles]);
+  const cartSubtotal = pricing.subtotal;
 
-    // Grouped Multibuy Logic (restricted by category + seller)
-    let effectiveQuantity = item.quantity;
-    if (item.multibuyEnabled) {
-      effectiveQuantity = items
-        .filter(i => 
-          i.multibuyEnabled && 
-          i.sellerId === item.sellerId && 
-          i.category === item.category &&
-          !i.dealId
-        )
-        .reduce((sum, i) => sum + i.quantity, 0);
-    }
-
-    return total + calculateItemTotal(basePrice, item.quantity, item.multibuyEnabled, item.multibuyTiers, effectiveQuantity);
-  }, 0);
-  
   const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;
   const cartTotal = cartSubtotal + shippingCost;
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -229,6 +218,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateQuantity,
         clearCart,
         cartSubtotal,
+        pricing,
+        bundles,
         cartTotal,
         itemCount,
         isCartOpen,

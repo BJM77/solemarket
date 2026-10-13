@@ -88,7 +88,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                 const currentTiers = form.getValues('multibuyTiers') || [];
                                 const lastTier = currentTiers[currentTiers.length - 1];
                                 const newMinQty = lastTier ? lastTier.minQuantity + 3 : 2;
-                                const newDiscount = lastTier ? Math.min(lastTier.discountPercent + 5, 50) : 5;
+                                const newDiscount = lastTier ? Math.min(lastTier.discountPercent + 5, 90) : 5;
                                 form.setValue('multibuyTiers', [
                                     ...currentTiers,
                                     { minQuantity: newMinQty, discountPercent: newDiscount }
@@ -122,11 +122,11 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                     <Input
                                         type="number"
                                         min="1"
-                                        max="50"
+                                        max="90"
                                         value={tier.discountPercent}
                                         onChange={(e) => {
                                             const tiers = [...(form.getValues('multibuyTiers') || [])];
-                                            tiers[index].discountPercent = parseInt(e.target.value) || 1;
+                                            tiers[index].discountPercent = Math.min(90, Math.max(1, parseInt(e.target.value) || 1));
                                             form.setValue('multibuyTiers', tiers);
                                         }}
                                         className="mt-1 h-9 bg-slate-900/60 border-white/10 text-white focus-visible:ring-indigo-500 rounded-lg text-xs"

@@ -8,15 +8,48 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { Deal, DealValidationResult, MultiCardTier } from '@/types/deals';
 import { Timestamp } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
+import { ensureActionAuth } from '@/lib/action-utils';
+import { FieldValue } from 'firebase-admin/firestore';
+
+/** Every mutating deal action is admin-only (these were previously callable by anyone). */
+async function requireAdmin(idToken?: string) {
+    return ensureActionAuth(idToken, ['admin', 'superadmin']);
+}
+
+function sanitizeDeal(deal: Partial<Deal>): Partial<Deal> {
+    const out: any = { ...deal };
+    if (out.price !== undefined) {
+        const price = Math.round(Number(out.price) * 100) / 100;
+        if (!Number.isFinite(price) || price < 0) throw new Error('Invalid deal price');
+        out.price = price;
+    }
+    if (out.requirements) {
+        for (const k of ['bronze', 'silver', 'gold', 'platinum'] as const) {
+            const n = Math.floor(Number(out.requirements[k] || 0));
+            if (!Number.isFinite(n) || n < 0 || n > 50) throw new Error('Invalid deal requirements');
+            out.requirements[k] = n;
+        }
+    }
+    if (out.maxPerCustomer !== undefined && out.maxPerCustomer !== null) {
+        const m = Math.floor(Number(out.maxPerCustomer));
+        out.maxPerCustomer = Number.isFinite(m) && m >= 1 ? m : null;
+    }
+    delete out.timesUsed;
+    delete out.id;
+    return out;
+}
 
 /**
  * Create a new deal
  */
 export async function createDeal(
-    deal: Omit<Deal, 'id' | 'createdAt' | 'timesUsed'>
+    deal: Omit<Deal, 'id' | 'createdAt' | 'timesUsed'>,
+    idToken?: string
 ): Promise<string> {
+    const { uid } = await requireAdmin(idToken);
     const dealData = {
-        ...deal,
+        ...sanitizeDeal(deal),
+        createdBy: uid,
         createdAt: Timestamp.now(),
         timesUsed: 0,
     };
@@ -30,10 +63,12 @@ export async function createDeal(
  */
 export async function updateDeal(
     dealId: string,
-    updates: Partial<Deal>
+    updates: Partial<Deal>,
+    idToken?: string
 ): Promise<void> {
+    await requireAdmin(idToken);
     await firestoreDb.collection('deals').doc(dealId).update({
-        ...updates,
+        ...sanitizeDeal(updates),
         updatedAt: Timestamp.now(),
     });
 }
@@ -41,7 +76,8 @@ export async function updateDeal(
 /**
  * Toggle deal active status
  */
-export async function toggleDealStatus(dealId: string): Promise<boolean> {
+export async function toggleDealStatus(dealId: string, idToken?: string): Promise<boolean> {
+    await requireAdmin(idToken);
     const dealDoc = await firestoreDb.collection('deals').doc(dealId).get();
     const deal = dealDoc.data();
 
@@ -61,7 +97,8 @@ export async function toggleDealStatus(dealId: string): Promise<boolean> {
 /**
  * Delete a deal
  */
-export async function deleteDeal(dealId: string): Promise<void> {
+export async function deleteDeal(dealId: string, idToken?: string): Promise<void> {
+    await requireAdmin(idToken);
     await firestoreDb.collection('deals').doc(dealId).delete();
 }
 
@@ -209,9 +246,11 @@ export async function validateDealCart(
 /**
  * Increment deal usage counter
  */
-export async function incrementDealUsage(dealId: string): Promise<void> {
+export async function incrementDealUsage(dealId: string, idToken?: string): Promise<void> {
+    // Usage is now incremented inside createOrderAction's transaction; kept for admin tooling.
+    await requireAdmin(idToken);
     await firestoreDb.collection('deals').doc(dealId).update({
-        timesUsed: (firestoreDb as any).FieldValue.increment(1),
+        timesUsed: FieldValue.increment(1),
     });
 }
 
@@ -220,8 +259,10 @@ export async function incrementDealUsage(dealId: string): Promise<void> {
  */
 export async function bulkUpdateTier(
     productIds: string[],
-    tier: MultiCardTier
+    tier: MultiCardTier,
+    idToken?: string
 ): Promise<number> {
+    await requireAdmin(idToken);
     let updatedCount = 0;
 
     for (const productId of productIds) {
@@ -242,7 +283,8 @@ export async function bulkUpdateTier(
 /**
  * Auto-classify products by price into tiers
  */
-export async function autoClassifyByPrice(productIds: string[]): Promise<number> {
+export async function autoClassifyByPrice(productIds: string[], idToken?: string): Promise<number> {
+    await requireAdmin(idToken);
     let classifiedCount = 0;
 
     for (const productId of productIds) {

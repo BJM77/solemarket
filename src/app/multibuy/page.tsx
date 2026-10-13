@@ -1,3 +1,5 @@
+import { BundleShowcase } from '@/components/bundles/BundleShowcase';
+import { getBundleListings, getPublicBundles } from '@/app/actions/marketplace/bundle-actions';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
@@ -36,10 +38,18 @@ export default async function MultibuyPage({
         initialProductsData = undefined;
     }
 
+    const bundleId = typeof resolvedParams.bundle === 'string' ? resolvedParams.bundle : undefined;
+    const [bundles, selected] = await Promise.all([
+        getPublicBundles(24),
+        bundleId ? getBundleListings(bundleId) : Promise.resolve(null),
+    ]);
+
     return (
+        <>
+        <BundleShowcase bundles={bundles} selected={selected?.bundle} products={selected?.products as any} />
         <InfiniteProductGrid
             pageTitle="Multibuy Deals"
-            pageDescription="Buy more, save more! Bulk discounts available on all items below."
+            pageDescription="Buy more, save more! Volume discounts apply automatically in your cart."
             initialFilterState={{
                 q: searchTerm,
                 category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined,
@@ -47,5 +57,6 @@ export default async function MultibuyPage({
             }}
             initialData={initialProductsData}
         />
+        </>
     );
 }

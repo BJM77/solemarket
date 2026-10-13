@@ -7,13 +7,17 @@ import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { getSystemSettingsAdmin } from '@/services/settings-service';
-import { calculateItemTotal, calculateShipping, calculateTax, calculateDutchAuctionPrice } from '@/lib/pricing';
+import { calculateShipping, calculateTax } from '@/lib/pricing';
+import { buildOrderPricing, parseDealId } from '@/lib/order-pricing';
+import type { Deal } from '@/types/deals';
+import type { FixedPriceBundle } from '@/types/bundles';
 import { sendTelegramNotification } from '@/lib/telegram';
 
 interface CartItem {
     id: string;
     quantity: number;
     dealId?: string;
+    /** IGNORED by the server: deal/bundle prices are always loaded from Firestore. */
     bundlePrice?: number;
 }
 
@@ -49,88 +53,120 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
         const { uid: buyerId, email: buyerEmail, name: buyerName } = await ensureActionAuth(idToken);
 
         const results = await firestoreDb.runTransaction(async (t: any) => {
-            const productRefs = items.map(item => firestoreDb.collection('products').doc(item.id));
+            const now = new Date();
+            // ---------- READS (all reads must happen before any transaction write) ----------
+            const productRefs = items.map(item => firestoreDb.collection('products').doc(String(item.id)));
             const productDocs = await t.getAll(...productRefs);
 
-            const sellerGroups: Record<string, { items: any[], subtotal: number, sellerName: string }> = {};
-            const sellerIds = new Set<string>();
-
-            productDocs.forEach((doc: any) => {
-                if (doc.exists) {
-                    const product = doc.data() as Product;
-                    if (product.sellerId) sellerIds.add(product.sellerId);
-                }
+            const products: Product[] = productDocs.map((doc: any, i: number) => {
+                if (!doc.exists) throw new Error(`Product ${items[i].id} not found.`);
+                return { ...(doc.data() as Product), id: doc.id };
             });
 
-            const sellerProfilesRefs = Array.from(sellerIds).map(id => firestoreDb.collection('users').doc(id));
-            const sellerProfilesDocs = await t.getAll(...sellerProfilesRefs);
+            const sellerIds = Array.from(new Set(products.map(p => p.sellerId).filter(Boolean)));
             const fetchedUsers: Record<string, any> = {};
-            sellerProfilesDocs.forEach((doc: any) => {
-                if (doc.exists) fetchedUsers[doc.id] = doc.data();
-            });
+            if (sellerIds.length) {
+                const sellerProfilesDocs = await t.getAll(...sellerIds.map(id => firestoreDb.collection('users').doc(id)));
+                sellerProfilesDocs.forEach((doc: any) => {
+                    if (doc.exists) fetchedUsers[doc.id] = doc.data();
+                });
+            }
 
+            // Deals referenced by the cart: loaded from Firestore, never trusted from the client.
+            const dealIds = Array.from(new Set(items.filter(i => i.dealId).map(i => parseDealId(String(i.dealId)))));
+            const deals: Record<string, Deal | null> = {};
+            if (dealIds.length) {
+                const dealDocs = await t.getAll(...dealIds.map(id => firestoreDb.collection('deals').doc(id)));
+                dealDocs.forEach((doc: any, k: number) => {
+                    deals[dealIds[k]] = doc.exists ? ({ id: doc.id, ...doc.data() } as Deal) : null;
+                });
+            }
+
+            // Fixed-price bundles for the sellers in the cart.
+            const bundles: FixedPriceBundle[] = [];
+            for (let k = 0; k < sellerIds.length; k += 30) {
+                const snap = await t.get(firestoreDb.collection('bundles').where('sellerId', 'in', sellerIds.slice(k, k + 30)));
+                snap.docs.forEach((doc: any) => bundles.push({ id: doc.id, ...doc.data() } as FixedPriceBundle));
+            }
+
+            // Per-customer usage counters (promo_usage/{kind}_{id}_{buyerId}).
+            const usageRef = (kind: 'deal' | 'bundle', id: string) =>
+                firestoreDb.collection('promo_usage').doc(`${kind}_${id}_${buyerId}`);
+            const limited: { kind: 'deal' | 'bundle'; id: string; max: number }[] = [
+                ...dealIds.filter(id => deals[id]?.maxPerCustomer).map(id => ({ kind: 'deal' as const, id, max: Number(deals[id]!.maxPerCustomer) })),
+                ...bundles.filter(b => b.maxPerCustomer).map(b => ({ kind: 'bundle' as const, id: b.id, max: Number(b.maxPerCustomer) })),
+            ];
+            const dealAllowance: Record<string, number> = {};
+            const bundleAllowance: Record<string, number> = {};
+            if (limited.length) {
+                const usageDocs = await t.getAll(...limited.map(l => usageRef(l.kind, l.id)));
+                usageDocs.forEach((doc: any, k: number) => {
+                    const l = limited[k];
+                    const used = doc.exists ? Number(doc.data()?.count || 0) : 0;
+                    (l.kind === 'deal' ? dealAllowance : bundleAllowance)[l.id] = Math.max(0, l.max - used);
+                });
+            }
+
+            // ---------- VALIDATION + PRICING (pure, see src/lib/order-pricing.ts) ----------
             for (let i = 0; i < items.length; i++) {
-                const doc = productDocs[i];
+                const product = products[i];
                 const item = items[i];
-
-                if (!doc.exists) throw new Error(`Product ${item.id} not found.`);
-                const product = doc.data() as Product;
-
+                if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+                    throw new Error('Invalid item quantity.');
+                }
+                if (product.status !== 'available') {
+                    throw new Error(`${product.title} is no longer available.`);
+                }
                 if ((product.quantity || 0) < item.quantity) {
                     throw new Error(`Not enough stock for ${product.title}.`);
                 }
-
-                const now = new Date();
-                const currentHoldExpiresAt = product.holdExpiresAt?.toDate();
+                const currentHoldExpiresAt = product.holdExpiresAt?.toDate?.();
                 const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
                 if (isCurrentlyHeld && product.heldBy !== buyerId) {
                     throw new Error(`Sorry, ${product.title} is currently reserved by another buyer.`);
                 }
+            }
 
+            const { lineTotals, dealUsage, bundleUsage } = buildOrderPricing({
+                items, products, deals, bundles, dealAllowance, bundleAllowance, now,
+            });
+
+            // ---------- WRITES ----------
+            const sellerGroups: Record<string, { items: any[], subtotal: number, sellerName: string }> = {};
+            for (let i = 0; i < items.length; i++) {
+                const product = products[i];
+                const item = items[i];
                 const sellerId = product.sellerId;
                 if (!sellerGroups[sellerId]) {
                     sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };
                 }
-
-                let effectiveQuantity = item.quantity;
-                if (product.multibuyEnabled) {
-                    effectiveQuantity = items.filter((i, idx) => {
-                        const p = productDocs[idx].data() as Product;
-                        return p.multibuyEnabled && p.sellerId === product.sellerId && p.category === product.category && !i.dealId;
-                    }).reduce((sum, i) => sum + i.quantity, 0);
-                }
-
-                let basePrice = product.price;
-                if (product.isDutchAuction && product.dutchAuctionStartTime && product.dutchAuctionDropAmount && product.dutchAuctionIntervalHours && product.dutchAuctionFloorPrice !== undefined) {
-                    basePrice = calculateDutchAuctionPrice(
-                        product.price,
-                        product.dutchAuctionDropAmount,
-                        product.dutchAuctionIntervalHours,
-                        product.dutchAuctionFloorPrice,
-                        product.dutchAuctionStartTime
-                    );
-                }
-
-                const itemTotal = (item.dealId && item.bundlePrice !== undefined)
-                    ? item.bundlePrice
-                    : calculateItemTotal(basePrice, item.quantity, product.multibuyEnabled, product.multibuyTiers, effectiveQuantity);
-
+                const itemTotal = lineTotals[i];
                 sellerGroups[sellerId].items.push({
                     id: item.id,
                     title: product.title,
                     price: product.price,
-                    discountedPrice: itemTotal / item.quantity,
+                    discountedPrice: Math.round((itemTotal / item.quantity) * 100) / 100,
+                    lineTotal: itemTotal,
                     quantity: item.quantity,
                     image: product.imageUrls?.[0] || '',
                     sellerId: product.sellerId,
-                    dealId: item.dealId || null,
+                    dealId: item.dealId ? parseDealId(String(item.dealId)) : null,
                 });
-                sellerGroups[sellerId].subtotal += itemTotal;
+                sellerGroups[sellerId].subtotal = Math.round((sellerGroups[sellerId].subtotal + itemTotal) * 100) / 100;
 
-                t.update(doc.ref, {
+                t.update(productRefs[i], {
                     quantity: FieldValue.increment(-item.quantity),
                     status: (product.quantity || 0) - item.quantity === 0 ? 'sold' : product.status,
                 });
+            }
+
+            for (const [dealId, count] of Object.entries(dealUsage)) {
+                t.update(firestoreDb.collection('deals').doc(dealId), { timesUsed: FieldValue.increment(count) });
+                t.set(usageRef('deal', dealId), { count: FieldValue.increment(count), buyerId, kind: 'deal', refId: dealId, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+            }
+            for (const [bundleId, count] of Object.entries(bundleUsage)) {
+                t.update(firestoreDb.collection('bundles').doc(bundleId), { timesUsed: FieldValue.increment(count) });
+                t.set(usageRef('bundle', bundleId), { count: FieldValue.increment(count), buyerId, kind: 'bundle', refId: bundleId, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
             }
 
             const settings = await getSystemSettingsAdmin();

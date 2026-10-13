@@ -25,8 +25,28 @@ export function calculateItemTotal(
         return price * quantity;
     }
 
-    const discountMultiplier = 1 - (applicableTier.discountPercent / 100);
+    const discountMultiplier = 1 - (clampDiscountPercent(applicableTier.discountPercent) / 100);
     return price * quantity * discountMultiplier;
+}
+
+/** Multibuy discounts are capped at 0-90% everywhere (UI, server actions and pricing). */
+export const MAX_MULTIBUY_DISCOUNT = 90;
+export function clampDiscountPercent(pct: unknown): number {
+    const n = Number(pct);
+    if (!Number.isFinite(n) || n <= 0) return 0;
+    return Math.min(MAX_MULTIBUY_DISCOUNT, n);
+}
+
+/** Sanitises seller-supplied tiers: qty >= 2 (integer), discount clamped to 0-90%, max 5, sorted. */
+export function sanitizeMultibuyTiers(tiers: unknown): MultibuyTier[] {
+    if (!Array.isArray(tiers)) return [];
+    const seen = new Set<number>();
+    return tiers
+        .map((t: any) => ({ minQuantity: Math.floor(Number(t?.minQuantity)), discountPercent: clampDiscountPercent(t?.discountPercent) }))
+        .filter(t => Number.isFinite(t.minQuantity) && t.minQuantity >= 2 && t.minQuantity <= 1000 && t.discountPercent > 0)
+        .filter(t => (seen.has(t.minQuantity) ? false : (seen.add(t.minQuantity), true)))
+        .sort((a, b) => a.minQuantity - b.minQuantity)
+        .slice(0, 5);
 }
 
 /**

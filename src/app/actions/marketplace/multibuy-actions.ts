@@ -3,6 +3,12 @@
 import { firestoreDb as adminDb } from '@/lib/firebase/admin';
 import { MultibuyTemplate, MultibuyTier, MultibuyDiscount } from '@/types/multibuy';
 import { revalidatePath } from 'next/cache';
+import { ensureActionAuth } from '@/lib/action-utils';
+import { MAX_MULTIBUY_DISCOUNT, clampDiscountPercent } from '@/lib/pricing';
+
+async function requireAdmin(idToken?: string) {
+    return ensureActionAuth(idToken, ['admin', 'superadmin']);
+}
 
 /**
  * Get all multibuy templates
@@ -33,8 +39,9 @@ export async function createMultibuyTemplate(data: {
     description: string;
     tiers: MultibuyTier[];
     isDefault?: boolean;
-}): Promise<{ success: boolean; error?: string; id?: string }> {
+}, idToken?: string): Promise<{ success: boolean; error?: string; id?: string }> {
     try {
+        await requireAdmin(idToken);
         // Validate tiers
         const validation = validateTiers(data.tiers);
         if (!validation.valid) {
@@ -83,9 +90,11 @@ export async function updateMultibuyTemplate(
         description?: string;
         tiers?: MultibuyTier[];
         isDefault?: boolean;
-    }
+    },
+    idToken?: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        await requireAdmin(idToken);
         // Validate tiers if provided
         if (data.tiers) {
             const validation = validateTiers(data.tiers);
@@ -126,8 +135,9 @@ export async function updateMultibuyTemplate(
 /**
  * Delete a multibuy template
  */
-export async function deleteMultibuyTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteMultibuyTemplate(id: string, idToken?: string): Promise<{ success: boolean; error?: string }> {
     try {
+        await requireAdmin(idToken);
         await adminDb.collection('multibuy_templates').doc(id).delete();
         revalidatePath('/admin/multibuy');
         return { success: true };
@@ -140,8 +150,9 @@ export async function deleteMultibuyTemplate(id: string): Promise<{ success: boo
 /**
  * Set a template as default
  */
-export async function setDefaultTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+export async function setDefaultTemplate(id: string, idToken?: string): Promise<{ success: boolean; error?: string }> {
     try {
+        await requireAdmin(idToken);
         // Unset all defaults
         const defaultTemplates = await adminDb
             .collection('multibuy_templates')
@@ -189,7 +200,7 @@ export async function calculateMultibuyDiscount(
         };
     }
 
-    const discountMultiplier = 1 - (applicableTier.discountPercent / 100);
+    const discountMultiplier = 1 - (clampDiscountPercent(applicableTier.discountPercent) / 100);
     const discountedPrice = basePrice * discountMultiplier * quantity;
     const originalPrice = basePrice * quantity;
 
@@ -219,8 +230,8 @@ function validateTiers(tiers: MultibuyTier[]): { valid: boolean; error?: string 
         if (tier.minQuantity < 2) {
             return { valid: false, error: 'Minimum quantity must be at least 2' };
         }
-        if (tier.discountPercent < 1 || tier.discountPercent > 50) {
-            return { valid: false, error: 'Discount must be between 1% and 50%' };
+        if (!(tier.discountPercent >= 1) || tier.discountPercent > MAX_MULTIBUY_DISCOUNT) {
+            return { valid: false, error: `Discount must be between 1% and ${MAX_MULTIBUY_DISCOUNT}%` };
         }
     }
 

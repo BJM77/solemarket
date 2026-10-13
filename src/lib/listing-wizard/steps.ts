@@ -51,13 +51,19 @@ export interface WizardDraft {
   description: string;
   price: string;
   isNegotiable: boolean;
+  /** Optional percentage volume discount (multibuy). */
+  multibuyEnabled?: boolean;
+  multibuyTiers?: { minQuantity: number; discountPercent: number }[];
+  /** Existing fixed-price bundles to add this listing to after publishing. */
+  bundleIds?: string[];
 }
 
 export const EMPTY_DRAFT: WizardDraft = {
   photos: {}, title: '', brand: '', size: '', condition: '', description: '', price: '', isNegotiable: true,
+  multibuyEnabled: false, multibuyTiers: [], bundleIds: [],
 };
 
-export const STEPS = ['category', 'photos', 'details', 'price', 'review'] as const;
+export const STEPS = ['category', 'photos', 'details', 'price', 'multibuy', 'review'] as const;
 export type StepId = (typeof STEPS)[number];
 
 /** Returns a list of human-readable problems; empty = step complete. */
@@ -81,6 +87,18 @@ export function validateStep(step: StepId, d: WizardDraft): string[] {
     if (!d.price || isNaN(p) || p < 1) errs.push('Enter a price of at least $1.');
     if (p > 100000) errs.push('Price must be under $100,000.');
   }
+  if ((step === 'multibuy' || step === 'review') && d.multibuyEnabled) {
+    const tiers = d.multibuyTiers || [];
+    if (!tiers.length) errs.push('Add at least one multi-buy tier, or switch multi-buy off.');
+    if (tiers.length > 5) errs.push('Use at most 5 multi-buy tiers.');
+    const seen = new Set<number>();
+    for (const t of tiers) {
+      if (!Number.isInteger(t.minQuantity) || t.minQuantity < 2) errs.push('Each tier needs a quantity of at least 2.');
+      if (!(t.discountPercent >= 1 && t.discountPercent <= 90)) errs.push('Discounts must be between 1% and 90%.');
+      if (seen.has(t.minQuantity)) errs.push('Each tier needs a different quantity.');
+      seen.add(t.minQuantity);
+    }
+  }
   return errs;
 }
 
@@ -100,5 +118,8 @@ export function draftToProduct(d: WizardDraft) {
     isNegotiable: d.isNegotiable,
     status: 'available' as const,
     quantity: 1,
+    ...(d.multibuyEnabled && d.multibuyTiers?.length
+      ? { multibuyEnabled: true, multibuyTiers: [...d.multibuyTiers].sort((a, b) => a.minQuantity - b.minQuantity) }
+      : {}),
   };
 }

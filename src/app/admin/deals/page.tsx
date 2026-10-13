@@ -37,7 +37,7 @@ export default function DealsPage() {
 
     async function handleToggleStatus(dealId: string) {
         try {
-            await toggleDealStatus(dealId);
+            await toggleDealStatus(dealId, await user?.getIdToken());
             await loadDeals();
         } catch (error) {
             console.error('Error toggling deal:', error);
@@ -51,7 +51,7 @@ export default function DealsPage() {
         }
 
         try {
-            await deleteDeal(dealId);
+            await deleteDeal(dealId, await user?.getIdToken());
             await loadDeals();
         } catch (error) {
             console.error('Error deleting deal:', error);
@@ -259,9 +259,9 @@ function DealForm({
             };
 
             if (deal) {
-                await updateDeal(deal.id, dealData);
+                await updateDeal(deal.id, dealData, await user?.getIdToken());
             } else {
-                await createDeal(dealData);
+                await createDeal(dealData, await user?.getIdToken());
             }
 
             onSave();

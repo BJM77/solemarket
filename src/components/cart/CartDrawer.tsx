@@ -13,33 +13,23 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Plus, Minus, ShoppingBag, Tag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Tag, Package } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from "@/lib/utils/format";
-import { calculateDutchAuctionPrice } from '@/lib/pricing';
+import { bundleProgress, isLineEligible, type BundleProgress, type PricedLine } from '@/lib/bundles';
+import { cartItemsToLines } from '@/lib/order-pricing';
 
 export function CartDrawer() {
-    const { items, removeItem, updateQuantity, cartSubtotal, cartTotal, itemCount, isCartOpen, setIsCartOpen } = useCart();
+    const { items, removeItem, updateQuantity, cartSubtotal, cartTotal, itemCount, isCartOpen, setIsCartOpen, pricing, bundles } = useCart();
 
     const handleCheckout = () => {
         setIsCartOpen(false);
     };
 
-    const originalSubtotal = items.reduce((total, item) => {
-        let basePrice = item.price;
-        if (item.isDutchAuction && item.dutchAuctionStartTime && item.dutchAuctionDropAmount && item.dutchAuctionIntervalHours && item.dutchAuctionFloorPrice !== undefined) {
-            basePrice = calculateDutchAuctionPrice(
-                item.price,
-                item.dutchAuctionDropAmount,
-                item.dutchAuctionIntervalHours,
-                item.dutchAuctionFloorPrice,
-                item.dutchAuctionStartTime
-            );
-        }
-        return total + (basePrice * item.quantity);
-    }, 0);
-
+    // All numbers come from the shared pricing engine (same one the server uses at checkout).
+    const originalSubtotal = pricing.originalSubtotal;
+    const lines = cartItemsToLines(items as any);
     const multibuySavings = originalSubtotal - cartSubtotal;
 
     return (
@@ -71,8 +61,8 @@ export function CartDrawer() {
                     <>
                         <ScrollArea className="flex-1 -mx-6 px-6">
                             <div className="space-y-6">
-                                {items.map((item) => (
-                                    <div key={item.id} className="flex gap-4">
+                                {items.map((item, idx) => (
+                                    <div key={`${item.id}-${(item as any).dealId || ''}`} className="flex gap-4">
                                         <div className="relative w-24 h-24 rounded-md overflow-hidden bg-muted shrink-0">
                                             <Image
                                                 src={item.imageUrls[0]}
@@ -85,63 +75,15 @@ export function CartDrawer() {
                                         <div className="flex-1 flex flex-col justify-between py-1">
                                             <div>
                                                 <h4 className="font-semibold line-clamp-2 leading-tight">{item.title}</h4>
-                                                <p className="text-sm font-bold text-primary mt-1 flex items-baseline gap-1.5">
-                                                    {(() => {
-                                                        const groupedQuantity = items
-                                                            .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !i.dealId)
-                                                            .reduce((sum, i) => sum + i.quantity, 0);
-
-                                                        const applicableTier = item.multibuyEnabled && item.multibuyTiers
-                                                            ? [...item.multibuyTiers]
-                                                                .filter(t => groupedQuantity >= t.minQuantity)
-                                                                .sort((a, b) => b.minQuantity - a.minQuantity)[0]
-                                                            : null;
-
-                                                        if (applicableTier) {
-                                                            const discountedPrice = item.price * (1 - applicableTier.discountPercent / 100);
-                                                            return (
-                                                                <>
-                                                                    <span className="text-indigo-600 dark:text-indigo-400">${formatPrice(discountedPrice)}</span>
-                                                                    <span className="text-xs text-muted-foreground line-through font-normal">${formatPrice(item.price)}</span>
-                                                                </>
-                                                            );
-                                                        }
-                                                        return <span>${formatPrice(item.price)}</span>;
-                                                    })()}
-                                                </p>
-                                                {/* Multibuy Info/Upsell Message */}
-                                                {(() => {
-                                                    if (!item.multibuyEnabled || !item.multibuyTiers?.length) return null;
-
-                                                    const groupedQuantity = items
-                                                        .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !i.dealId)
-                                                        .reduce((sum, i) => sum + i.quantity, 0);
-
-                                                    const applicableTier = [...item.multibuyTiers]
-                                                        .filter(t => groupedQuantity >= t.minQuantity)
-                                                        .sort((a, b) => b.minQuantity - a.minQuantity)[0];
-
-                                                    const nextTier = item.multibuyTiers
-                                                        .sort((a, b) => a.minQuantity - b.minQuantity)
-                                                        .find(t => t.minQuantity > groupedQuantity);
-
-                                                    return (
-                                                        <div className="space-y-1 mt-1.5">
-                                                            {applicableTier && (
-                                                                <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
-                                                                    <Tag className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
-                                                                    {applicableTier.discountPercent}% Multibuy Saved
-                                                                </span>
-                                                            )}
-                                                            {nextTier && (
-                                                                <p className="text-[10px] font-semibold text-blue-600 flex items-center gap-1 mt-1">
-                                                                    <Tag className="w-3 h-3" />
-                                                                    Add {nextTier.minQuantity - groupedQuantity} more for {nextTier.discountPercent}% off!
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })()}
+                                                <CartLinePrice line={pricing.lines[idx]} unitPrice={lines[idx]?.unitPrice ?? item.price} />
+                                                <CartLineOffers
+                                                    item={item}
+                                                    line={pricing.lines[idx]}
+                                                    progress={bundles.filter(b => isLineEligible(b, lines[idx])).map(b => bundleProgress(b, lines))}
+                                                    groupedQuantity={items
+                                                        .filter(i => i.multibuyEnabled && i.sellerId === item.sellerId && i.category === item.category && !(i as any).dealId)
+                                                        .reduce((sum, i) => sum + i.quantity, 0)}
+                                                />
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <div className="flex items-center gap-2">
@@ -189,7 +131,7 @@ export function CartDrawer() {
                                     )}
                                     {multibuySavings > 0 && (
                                         <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
-                                            <span>Multibuy Savings</span>
+                                            <span>Bundle &amp; Multibuy Savings</span>
                                             <span>-${formatPrice(multibuySavings)}</span>
                                         </div>
                                     )}
@@ -222,5 +164,52 @@ export function CartDrawer() {
                 )}
             </SheetContent>
         </Sheet>
+    );
+}
+
+function CartLinePrice({ line, unitPrice }: { line?: PricedLine; unitPrice: number }) {
+    if (!line) return <p className="text-sm font-bold text-primary mt-1">${formatPrice(unitPrice)}</p>;
+    const each = line.total / line.quantity;
+    const discounted = line.total < line.originalTotal - 0.004;
+    return (
+        <p className="text-sm font-bold text-primary mt-1 flex items-baseline gap-1.5" data-testid="cart-line-price">
+            {discounted ? (
+                <>
+                    <span className="text-indigo-600 dark:text-indigo-400">${formatPrice(each)}{line.quantity > 1 ? ' ea' : ''}</span>
+                    <span className="text-xs text-muted-foreground line-through font-normal">${formatPrice(unitPrice)}</span>
+                </>
+            ) : (
+                <span>${formatPrice(unitPrice)}</span>
+            )}
+        </p>
+    );
+}
+
+function CartLineOffers({ item, line, progress, groupedQuantity }: { item: any; line?: PricedLine; progress: BundleProgress[]; groupedQuantity: number }) {
+    const tiers = (item.multibuyEnabled && item.multibuyTiers?.length) ? [...item.multibuyTiers].sort((a: any, b: any) => a.minQuantity - b.minQuantity) : [];
+    const nextTier = tiers.find((t: any) => t.minQuantity > groupedQuantity);
+    if (!progress.length && !tiers.length) return null;
+    return (
+        <div className="space-y-1 mt-1.5">
+            {progress.map(p => (
+                <span key={p.bundle.id} data-testid="cart-bundle-progress"
+                    className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${p.remaining === p.bundle.quantity && p.eligibleInCart > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}`}>
+                    <Package className="w-2.5 h-2.5" aria-hidden />
+                    {p.bundle.name}: {p.label}
+                </span>
+            ))}
+            {line && line.multibuyPercent > 0 && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <Tag className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" aria-hidden />
+                    {line.multibuyPercent}% Multibuy Saved
+                </span>
+            )}
+            {nextTier && (
+                <p className="text-[10px] font-semibold text-blue-600 flex items-center gap-1 mt-1">
+                    <Tag className="w-3 h-3" aria-hidden />
+                    Add {nextTier.minQuantity - groupedQuantity} more for {Math.min(90, nextTier.discountPercent)}% off!
+                </p>
+            )}
+        </div>
     );
 }
