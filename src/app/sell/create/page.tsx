@@ -63,7 +63,7 @@ const formSchema = z.object({
   multiCardTier: z.string().optional(),
   multibuyTiers: z.array(z.object({
     minQuantity: z.coerce.number().min(2),
-    discountPercent: z.coerce.number().min(1).max(100),
+    discountPercent: z.coerce.number().min(1).max(90),
   })).optional(),
   acceptsPayId: z.boolean().default(false),
   // Gamified Dutch Auction

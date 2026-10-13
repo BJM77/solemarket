@@ -84,7 +84,7 @@ const formSchema = z.object({
     multibuyEnabled: z.boolean().default(false),
     multibuyTiers: z.array(z.object({
         minQuantity: z.number().min(2),
-        discountPercent: z.number().min(1).max(50),
+        discountPercent: z.number().min(1).max(90),
     })).default([]),
     imageFiles: z.array(z.any()).default([]),
 }).refine(data => {

@@ -340,6 +340,9 @@ export default function SellerDashboard() {
                   <Upload className="mr-2 h-4 w-4" /> Deploy Listing
                 </Link>
               </Button>
+              <Button variant="outline" className="rounded-xl font-bold px-6" asChild>
+                <Link href="/seller/bundles">Bundles</Link>
+              </Button>
               <SyncListingsButton userId={user.uid} />
             </div>
           </div>

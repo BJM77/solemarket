@@ -92,6 +92,7 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
+import { ProductBundleOffers } from '@/components/bundles/ProductBundleOffers';
 import { SizeChart } from '@/components/sneakers/SizeChart';
 import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
@@ -865,6 +866,7 @@ export default function ProductDetailsModern({
                                         user={user}
                                     />
                                 </div>
+                                <ProductBundleOffers product={product} />
                                     {/* Consolidated Product Description & Specs */}
                                     <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
                                         <div>

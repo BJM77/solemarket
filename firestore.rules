@@ -208,6 +208,18 @@ service cloud.firestore {
           request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
     }
+    // Fixed-price bundles: public read while active; all writes via server actions (Admin SDK).
+    match /bundles/{bundleId} {
+      allow read: if resource.data.isActive == true || isAdmin() ||
+                  (isAuthenticated() && resource.data.sellerId == request.auth.uid);
+      allow write: if false;
+    }
+
+    // Per-customer deal/bundle usage counters: server only.
+    match /promo_usage/{usageId} {
+      allow read, write: if false;
+    }
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;

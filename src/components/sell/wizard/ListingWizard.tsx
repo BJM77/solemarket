@@ -16,6 +16,9 @@ import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { uploadImages } from '@/lib/firebase/storage';
 import { createProductAction } from '@/app/actions/marketplace/products';
+import { addListingToBundles, listMyBundles } from '@/app/actions/marketplace/bundle-actions';
+import { formatBundleOffer } from '@/lib/bundles';
+import type { FixedPriceBundle } from '@/types/bundles';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { cn } from '@/lib/utils/ui';
 import {
@@ -29,6 +32,7 @@ const STEP_TITLES: Record<StepId, string> = {
   photos: 'Add photos',
   details: 'Describe it',
   price: 'Set your price',
+  multibuy: 'Multi-buy & bundles',
   review: 'Review & publish',
 };
 
@@ -49,6 +53,7 @@ export default function ListingWizard() {
   const [publishing, setPublishing] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [myBundles, setMyBundles] = useState<FixedPriceBundle[] | null>(null);
   const step = STEPS[stepIndex];
 
   // Restore + autosave draft
@@ -62,6 +67,12 @@ export default function ListingWizard() {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* quota */ }
   }, [draft]);
   useEffect(() => { headingRef.current?.focus(); setShowErrors(false); }, [stepIndex]);
+
+  // Load the seller's bundles the first time they reach the multi-buy step.
+  useEffect(() => {
+    if (step !== 'multibuy' || myBundles !== null) return;
+    getCurrentUserIdToken().then(t => (t ? listMyBundles(t) : [])).then(setMyBundles).catch(() => setMyBundles([]));
+  }, [step, myBundles]);
 
   const errors = useMemo(() => validateStep(step, draft), [step, draft]);
   const update = (patch: Partial<WizardDraft>) => setDraft((d) => ({ ...d, ...patch }));
@@ -121,6 +132,9 @@ export default function ListingWizard() {
       if (!token) throw new Error('Please sign in again.');
       const result = await createProductAction(token, draftToProduct(draft) as any);
       if (!result.success) throw new Error((result as any).error || 'Could not publish');
+      if (draft.bundleIds?.length) {
+        await addListingToBundles(token, (result as any).productId, draft.bundleIds).catch(() => null);
+      }
       localStorage.removeItem(DRAFT_KEY);
       toast({ title: 'Listing submitted', description: 'It will appear once it passes review.' });
       router.push(`/product/${(result as any).productId}`);
@@ -266,6 +280,74 @@ export default function ListingWizard() {
         </div>
       )}
 
+      {step === 'multibuy' && (
+        <div className="space-y-5">
+          <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border p-4">
+            <span>
+              <span className="block font-semibold">Multi-buy discount</span>
+              <span className="text-xs text-muted-foreground">Buyers save a % when they buy several of your items in this category.</span>
+            </span>
+            <Switch
+              checked={!!draft.multibuyEnabled}
+              aria-label="Multi-buy discount"
+              onCheckedChange={(v) => update({
+                multibuyEnabled: v,
+                multibuyTiers: v && !(draft.multibuyTiers || []).length ? [{ minQuantity: 2, discountPercent: 5 }, { minQuantity: 5, discountPercent: 10 }] : draft.multibuyTiers,
+              })}
+            />
+          </label>
+          {draft.multibuyEnabled && (
+            <ul className="space-y-2">
+              {(draft.multibuyTiers || []).map((t, i) => (
+                <li key={i} className="flex items-end gap-2">
+                  <div className="flex-1 space-y-1">
+                    <Label htmlFor={`wz-mq-${i}`}>Buy at least</Label>
+                    <Input id={`wz-mq-${i}`} inputMode="numeric" value={String(t.minQuantity)}
+                      onChange={(e) => { const tiers = [...(draft.multibuyTiers || [])]; tiers[i] = { ...t, minQuantity: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 }; update({ multibuyTiers: tiers }); }} />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <Label htmlFor={`wz-md-${i}`}>% off (max 90)</Label>
+                    <Input id={`wz-md-${i}`} inputMode="numeric" value={String(t.discountPercent)}
+                      onChange={(e) => { const tiers = [...(draft.multibuyTiers || [])]; tiers[i] = { ...t, discountPercent: Math.min(90, parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0) }; update({ multibuyTiers: tiers }); }} />
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" className="h-11 w-11" aria-label={`Remove tier ${i + 1}`}
+                    onClick={() => update({ multibuyTiers: (draft.multibuyTiers || []).filter((_, k) => k !== i) })}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+              {(draft.multibuyTiers || []).length < 5 && (
+                <Button type="button" variant="outline" className="min-h-11" onClick={() => {
+                  const tiers = draft.multibuyTiers || [];
+                  const last = tiers[tiers.length - 1];
+                  update({ multibuyTiers: [...tiers, { minQuantity: last ? last.minQuantity + 3 : 2, discountPercent: last ? Math.min(90, last.discountPercent + 5) : 5 }] });
+                }}>Add tier</Button>
+              )}
+            </ul>
+          )}
+          <div className="space-y-2 rounded-xl border p-4">
+            <p className="font-semibold">Fixed-price bundles</p>
+            <p className="text-xs text-muted-foreground">e.g. &quot;any 5 cards for $20&quot;. Add this listing to one of your bundles, or <Link href="/seller/bundles" className="underline">manage bundles</Link>.</p>
+            {myBundles === null ? <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading bundles" /> : myBundles.length === 0 ? (
+              <p className="text-xs text-muted-foreground">You have no bundles yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {myBundles.map(b => {
+                  const on = (draft.bundleIds || []).includes(b.id);
+                  return (
+                    <button key={b.id} type="button" aria-pressed={on}
+                      onClick={() => update({ bundleIds: on ? (draft.bundleIds || []).filter(x => x !== b.id) : [...(draft.bundleIds || []), b.id] })}
+                      className={cn('min-h-11 rounded-full border px-4 text-sm font-semibold', on ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}>
+                      {b.name} ({formatBundleOffer(b)})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {step === 'review' && draft.category && (
         <div className="space-y-4">
           <div className="flex gap-2 overflow-x-auto pb-2">
@@ -277,7 +359,9 @@ export default function ListingWizard() {
           </div>
           <dl className="divide-y rounded-2xl border text-sm">
             {[['Category', draft.category], ['Title', draft.title], ['Brand', draft.brand || '-'], ['Size', draft.size || '-'],
-              ['Condition', draft.condition], ['Price', draft.price ? `$${draft.price}` : '-'], ['Offers', draft.isNegotiable ? 'Accepted' : 'Off']]
+              ['Condition', draft.condition], ['Price', draft.price ? `$${draft.price}` : '-'], ['Offers', draft.isNegotiable ? 'Accepted' : 'Off'],
+              ['Multi-buy', draft.multibuyEnabled ? (draft.multibuyTiers || []).map(t => `${t.minQuantity}+ = ${t.discountPercent}% off`).join(', ') : 'Off'],
+              ['Bundles', (draft.bundleIds || []).length ? `${draft.bundleIds!.length} selected` : 'None']]
               .map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 p-3"><dt className="text-muted-foreground">{k}</dt><dd className="text-right font-semibold">{v}</dd></div>
               ))}

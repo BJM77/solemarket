@@ -3,7 +3,6 @@
 import { firestoreDb } from '@/lib/firebase/admin';
 import { Product } from '@/lib/types';
 import * as admin from 'firebase-admin';
-import { createDeal } from '../admin/deals/actions';
 
 export async function seedTestDeal() {
     try {
@@ -11,7 +10,9 @@ export async function seedTestDeal() {
         const snapshot = await firestoreDb.collection('deals').where('name', '==', 'Test Starter Bundle').get();
         if (!snapshot.empty) return { success: true, message: 'Deal already exists' };
 
-        await createDeal({
+        await firestoreDb.collection('deals').add({
+            createdAt: admin.firestore.Timestamp.now(),
+            timesUsed: 0,
             name: 'Test Starter Bundle',
             description: 'Build a bundle with 1 Platinum, 1 Gold, 1 Silver, and 1 Bronze item.',
             price: 150.00,

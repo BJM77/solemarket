@@ -56,6 +56,14 @@ export const productFormSchema = z.object({
     buyItNowPrice: z.number().min(0).optional(),
     minStockQuantity: z.number().optional(),
 
+    // Multibuy (percentage tiers). Discount capped at 90%; re-sanitised server-side.
+    multibuyEnabled: z.boolean().optional(),
+    multibuyTiers: z.array(z.object({
+        minQuantity: z.number().int().min(2).max(1000),
+        discountPercent: z.number().min(1).max(90),
+    })).max(5).optional(),
+    multiCardTier: z.enum(['bronze', 'silver', 'gold', 'platinum']).optional(),
+
     // External Marketplace Linking
     externalUrl: z.string().optional(),
     externalSource: z.enum(['facebook_marketplace', 'other']).optional(),

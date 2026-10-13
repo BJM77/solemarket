@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Star, Edit, Percent, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import {
     getMultibuyTemplates,
     createMultibuyTemplate,
@@ -65,7 +66,7 @@ export default function MultibuyAdminPage() {
     const handleAddTier = () => {
         const lastTier = formTiers[formTiers.length - 1];
         const newMinQty = lastTier ? lastTier.minQuantity + 3 : 2;
-        const newDiscount = lastTier ? Math.min(lastTier.discountPercent + 5, 50) : 5;
+        const newDiscount = lastTier ? Math.min(lastTier.discountPercent + 5, 90) : 5;
         setFormTiers([...formTiers, { minQuantity: newMinQty, discountPercent: newDiscount }]);
     };
 
@@ -98,9 +99,9 @@ export default function MultibuyAdminPage() {
 
         let result;
         if (editingTemplate) {
-            result = await updateMultibuyTemplate(editingTemplate.id, data);
+            result = await updateMultibuyTemplate(editingTemplate.id, data, (await getCurrentUserIdToken()) || undefined);
         } else {
-            result = await createMultibuyTemplate(data);
+            result = await createMultibuyTemplate(data, (await getCurrentUserIdToken()) || undefined);
         }
 
         if (result.success) {
@@ -115,7 +116,7 @@ export default function MultibuyAdminPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('Delete this template?')) return;
 
-        const result = await deleteMultibuyTemplate(id);
+        const result = await deleteMultibuyTemplate(id, (await getCurrentUserIdToken()) || undefined);
         if (result.success) {
             toast({ title: 'Template deleted' });
             loadTemplates();
@@ -125,7 +126,7 @@ export default function MultibuyAdminPage() {
     };
 
     const handleSetDefault = async (id: string) => {
-        const result = await setDefaultTemplate(id);
+        const result = await setDefaultTemplate(id, (await getCurrentUserIdToken()) || undefined);
         if (result.success) {
             toast({ title: 'Default template updated' });
             loadTemplates();
@@ -210,7 +211,7 @@ export default function MultibuyAdminPage() {
                                                 <Input
                                                     type="number"
                                                     min="1"
-                                                    max="50"
+                                                    max="90"
                                                     value={tier.discountPercent}
                                                     onChange={(e) => handleTierChange(index, 'discountPercent', parseInt(e.target.value) || 1)}
                                                     className="mt-1"

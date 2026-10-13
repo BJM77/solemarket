@@ -102,10 +102,22 @@ export async function saveDraftListing(idToken: string, data: Omit<DraftListingD
         }
     });
 
-    // Auto-apply Bronze Multibuy for cards < $5
+    // Multibuy tiers are seller input: clamp to 0-90% and drop junk.
+    if (listingData.multibuyTiers !== undefined) {
+        const { sanitizeMultibuyTiers } = await import('@/lib/pricing');
+        listingData.multibuyTiers = sanitizeMultibuyTiers(listingData.multibuyTiers);
+    }
+    // Cheap cards (< $5) go in the Bronze deal tier. Multibuy is only switched on when
+    // there are actual tiers (seller's own, or the admin default template); previously it
+    // was enabled with no tiers, so items showed on /multibuy with no discount.
     if ((listingData.category === 'Collector Cards' || listingData.category === 'Trading Cards') && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
-        listingData.multibuyEnabled = true;
-        listingData.multiCardTier = 'bronze';
+        listingData.multiCardTier = listingData.multiCardTier || 'bronze';
+        if (!listingData.multibuyTiers?.length) {
+            listingData.multibuyTiers = await getDefaultMultibuyTiers();
+        }
+        listingData.multibuyEnabled = listingData.multibuyTiers.length > 0;
+    } else if (listingData.multibuyEnabled && !listingData.multibuyTiers?.length) {
+        listingData.multibuyEnabled = false;
     }
 
     try {
@@ -267,3 +279,13 @@ export async function publishListing(draftId: string, idToken: string): Promise<
     }
 }
 
+/** Tiers of the admin's default multibuy template (empty if none). */
+async function getDefaultMultibuyTiers() {
+    try {
+        const { sanitizeMultibuyTiers } = await import('@/lib/pricing');
+        const snap = await db.collection('multibuy_templates').where('isDefault', '==', true).limit(1).get();
+        return snap.empty ? [] : sanitizeMultibuyTiers(snap.docs[0].data()?.tiers);
+    } catch {
+        return [];
+    }
+}
