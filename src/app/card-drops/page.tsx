@@ -42,7 +42,7 @@ const UPCOMING_DROPS = [
 ];
 
 export const metadata = {
-    title: 'Basketball Card Release Calendar | Benched',
+    title: 'Basketball Card Release Calendar',
     description: 'Upcoming NBA and basketball card releases in Australia. Secure the box.',
 };
 

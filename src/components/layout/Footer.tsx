@@ -21,13 +21,12 @@ const footerLinks = {
   ],
   Support: [
     { name: 'Buyer Guides', href: '/guides' },
-    { name: 'Selling Guide', href: '/sell/guide' },
+    { name: 'Selling Guide', href: '/sell' },
     { name: 'Size Guide', href: '/size-guide' },
     { name: 'Help Center', href: '/help' },
   ],
   Company: [
     { name: `About Benched`, href: '/about' },
-    { name: 'Careers', href: '/about' },
     { name: 'Terms', href: '/terms' },
     { name: 'Privacy', href: '/privacy' },
   ],

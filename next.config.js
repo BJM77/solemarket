@@ -66,7 +66,16 @@ const nextConfig = {
       },
     ],
   },
-  // Removed broken rewrite for sitemap.xml
+  // Sitemap index lives at src/app/sitemap.xml/route.ts.
+  async redirects() {
+    return [
+      // Routes that previously fell through to the generic category template.
+      { source: '/sell/guide', destination: '/sell', permanent: true },
+      { source: '/profile/settings', destination: '/profile', permanent: false },
+      { source: '/search', has: [{ type: 'query', key: 'q' }], destination: '/browse', permanent: true },
+      { source: '/search', destination: '/browse', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

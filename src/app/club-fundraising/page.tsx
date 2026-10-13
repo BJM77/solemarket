@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Heart, Activity, Target, ShieldCheck } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Club Fundraising | Benched',
+  title: 'Club Fundraising',
   description: 'Donate your benched basketball shoes to support your club. Over half the sale value goes towards player fundraisers and events.',
 };
 

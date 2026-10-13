@@ -26,7 +26,11 @@ async function FeaturedSection() {
 }
 
 async function NewArrivalsSection() {
-  const products = await getActiveProducts(12);
+  // Don't repeat the featured items: show the newest listings that aren't already above.
+  const [latest, featured] = await Promise.all([getActiveProducts(24), getFeaturedProducts(12)]);
+  const featuredIds = new Set((featured || []).map((p: { id: string }) => p.id));
+  const fresh = (latest || []).filter((p: { id: string }) => !featuredIds.has(p.id));
+  const products = (fresh.length >= 4 ? fresh : latest || []).slice(0, 12);
   return <TrendingGrid products={products} title="Just Listed" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
 }
 
@@ -85,7 +89,7 @@ export default async function HomePage() {
                 Benched is the premier destination for performance basketball shoes and elite collector cards in Australia. Our secure, peer-to-peer platform connects local collectors, providing a transparent way to buy and sell authenticated grails with zero seller fees. Based in Perth, we serve the entire Australian hobby community with express shipping and our signature DealSafe escrow protection.
             </p>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Whether you are chasing the latest SNKRS drop, looking for performance-ready Kobe Protro sneakers, or hunting for high-value PSA-graded NBA cards, Benched is built by collectors, for collectors. Join the thousand of Australians already trading on the fastest-growing secondary market in the country.
+                Whether you are chasing the latest SNKRS drop, looking for performance-ready Kobe Protro sneakers, or hunting for high-value PSA-graded NBA cards, Benched is built by collectors, for collectors. List for free, pay safely through DealSafe escrow and ship Australia-wide.
             </p>
         </div>
       </section>

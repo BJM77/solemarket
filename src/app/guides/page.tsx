@@ -5,7 +5,7 @@ import { Clock, User } from 'lucide-react';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
-    title: 'Collector Guides & Articles | Benched',
+    title: 'Collector Guides & Articles',
     description: 'Expert guides, authentication tips, and market analysis for sneakerheads and card collectors in Australia.',
     alternates: {
         canonical: '/guides',

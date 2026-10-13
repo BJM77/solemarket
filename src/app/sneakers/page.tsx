@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export const metadata: Metadata = {
-  title: 'Buy Performance Sneakers & Basketball Shoes | Benched Australia',
+  title: 'Buy Performance Sneakers & Basketball Shoes',
   description: 'Shop the largest collection of authentic performance sneakers and basketball shoes in Australia. Verified safe, local Perth-based marketplace with nationwide shipping.',
   keywords: ['sneakers', 'basketball shoes', 'nike', 'jordan', 'adidas', 'australia'],
 };

@@ -50,7 +50,7 @@ const UPCOMING_DROPS = [
 ];
 
 export const metadata = {
-    title: 'Release Calendar | Benched',
+    title: 'Release Calendar',
     description: 'Upcoming performance basketball shoe releases and collector card drops in Australia. Stay ahead of the game.',
 };
 

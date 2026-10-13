@@ -28,7 +28,7 @@ export async function generateMetadata(props: Props) {
     const title = titleParts.join(' ');
 
     return {
-        title: `Buy ${title} in Australia | Benched AU`,
+        title: `Buy ${title} in Australia`,
         description: `Compare prices, check live market data, and buy authentic ${title} from Australian sellers. 100% verified via the Benched Vault.`,
     };
 }

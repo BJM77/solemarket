@@ -32,7 +32,7 @@ export async function generateMetadata(
     const { slug } = await params;
     const title = `Market Pulse: ${slug.replace(/-/g, ' ').toUpperCase()}`;
     return {
-        title: `${title} | Benched AU Data`,
+        title: `${title}`,
         description: `View real-time Australian sale prices, vault verified premiums, and market data for ${slug.replace(/-/g, ' ')}.`,
     };
 }

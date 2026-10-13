@@ -15,11 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const guide = getGuideBySlug(slug);
 
     if (!guide) {
-        return { title: 'Guide Not Found | Benched' };
+        return { title: 'Guide Not Found' };
     }
 
     return {
-        title: `${guide.title} | Benched Guides`,
+        title: `${guide.title}`,
         description: guide.excerpt,
         openGraph: {
             title: guide.title,

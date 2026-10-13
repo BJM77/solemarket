@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
 
 import { Suspense } from 'react';
 import SignInForm from '@/components/auth/SignInForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+export const metadata: Metadata = {
+  title: 'Sign In',
+  description: 'Sign in to your Benched account.',
+  alternates: { canonical: '/log' },
+  robots: { index: false, follow: true },
+};
 
 export default function LogPage() {
     return (

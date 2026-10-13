@@ -16,12 +16,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     if (!listing) {
         return {
-            title: 'Listing Not Found | Benched',
+            title: 'Listing Not Found',
         };
     }
 
     return {
-        title: `WTB: ${listing.title} | Benched`,
+        title: `WTB: ${listing.title}`,
         description: listing.description.substring(0, 160),
     };
 }

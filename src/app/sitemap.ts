@@ -12,12 +12,21 @@ import { getProductUrl } from "@/lib/utils/url";
 const PRODUCT_SITEMAP_SIZE = 5000; // Limit per sitemap chunk
 
 async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
+  const routes: MetadataRoute.Sitemap = [];
+  try {
+    const { SEO_GUIDES } = await import('@/config/guides');
+    for (const g of SEO_GUIDES) {
+      routes.push({ url: `${baseUrl}/guides/${g.slug}`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 });
+    }
+  } catch (error) {
+    console.error('Error loading guides for sitemap:', error);
+  }
   try {
     const guidesDirectory = path.join(process.cwd(), 'src/content/guides');
-    if (!fs.existsSync(guidesDirectory)) return [];
+    if (!fs.existsSync(guidesDirectory)) return routes;
 
     const filenames = fs.readdirSync(guidesDirectory);
-    return filenames
+    return [...routes, ...filenames
       .filter(file => file.endsWith('.json'))
       .map(file => {
         const slug = file.replace('.json', '');
@@ -26,11 +35,11 @@ async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.9, // High priority for high-value content
-        };
-      });
+        } as MetadataRoute.Sitemap[number];
+      })];
   } catch (error) {
     console.error('Error generating guide sitemap:', error);
-    return [];
+    return routes;
   }
 }
 
@@ -72,7 +81,11 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     '/terms',
     '/privacy',
     '/dmca',
-    '/prohibited-items'
+    '/prohibited-items',
+    '/guides',
+    '/help',
+    '/size-guide',
+    '/contact'
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),

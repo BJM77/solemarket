@@ -1,7 +1,10 @@
 import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
 
 export function StructuredData() {
-  const siteUrl = SITE_URL || 'https://benched.au';
+  const siteUrl = (SITE_URL || 'https://benched.au').replace(/\/$/, '');
+  const abs = (u?: string) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${siteUrl}${u.startsWith('/') ? '' : '/'}${u}`);
+  const sameAs = [brandConfig.seo.facebookUrl, brandConfig.seo.instagramUrl, brandConfig.seo.tiktokUrl].filter(Boolean) as string[];
+  const phone = brandConfig.contact.phone || undefined;
   
   return (
     <script
@@ -21,11 +24,7 @@ export function StructuredData() {
               width: '512',
               height: '512'
             },
-            sameAs: [
-              brandConfig.seo.facebookUrl,
-              brandConfig.seo.instagramUrl,
-              brandConfig.seo.tiktokUrl
-            ].filter(Boolean),
+            ...(sameAs.length ? { sameAs } : {}),
             areaServed: {
               '@type': 'Country',
               name: brandConfig.contact.address.country
@@ -40,7 +39,7 @@ export function StructuredData() {
             },
             contactPoint: {
               '@type': 'ContactPoint',
-              telephone: brandConfig.contact.phone,
+              ...(phone ? { telephone: phone } : {}),
               contactType: 'customer service',
               email: brandConfig.contact.email,
               areaServed: brandConfig.contact.address.country,
@@ -61,7 +60,7 @@ export function StructuredData() {
               '@type': 'SearchAction',
               target: {
                 '@type': 'EntryPoint',
-                urlTemplate: `${siteUrl}/search?q={search_term_string}`
+                urlTemplate: `${siteUrl}/browse?q={search_term_string}`
               },
               'query-input': 'required name=search_term_string'
             }
@@ -71,14 +70,14 @@ export function StructuredData() {
             '@type': 'LocalBusiness',
             '@id': `${siteUrl}/#localbusiness`,
             name: SITE_NAME,
-            image: `${siteUrl}${brandConfig.branding.ogImageUrl}`,
+            image: abs(brandConfig.branding.ogImageUrl),
             url: siteUrl,
-            telephone: brandConfig.contact.phone,
+            ...(phone ? { telephone: phone } : {}),
             email: brandConfig.contact.email,
             priceRange: '$$',
             address: {
               '@type': 'PostalAddress',
-              streetAddress: brandConfig.contact.address.street || '',
+              ...(brandConfig.contact.address.street ? { streetAddress: brandConfig.contact.address.street } : {}),
               addressLocality: brandConfig.contact.address.city,
               addressRegion: brandConfig.contact.address.state,
               postalCode: brandConfig.contact.address.postcode,
@@ -99,11 +98,7 @@ export function StructuredData() {
                 closes: '17:00'
               }
             ],
-            sameAs: [
-              brandConfig.seo.facebookUrl,
-              brandConfig.seo.instagramUrl,
-              brandConfig.seo.tiktokUrl
-            ].filter(Boolean)
+            ...(sameAs.length ? { sameAs } : {})
           }
         ]),
       }}

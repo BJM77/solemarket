@@ -4,7 +4,7 @@ import SignInForm from '@/components/auth/SignInForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | Benched',
+  title: 'Sign In',
   description: 'Sign in to Benched to buy and sell sneakers and collector cards across Australia.',
   robots: { index: false, follow: true },
 };
