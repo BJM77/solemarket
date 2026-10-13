@@ -1,3 +1,4 @@
+import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
@@ -43,6 +44,7 @@ export default async function CardsBrowsePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const header = (await getPublishedSiteConfig()).categoryHeaders.cards;
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Collector Cards';
@@ -85,9 +87,9 @@ export default async function CardsBrowsePage({
       }>
         <InfiniteProductGrid
           key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : header.title || 'All Collector Cards'}
           pageDescription="Browse the rarest cards from thousands of collectors."
-          intro={!searchTerm && !subCategoryParam ? 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' : undefined}
+          intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

@@ -4,35 +4,9 @@ import Image from 'next/image';
 import { NewsletterSignup } from './NewsletterSignup';
 import { SITE_NAME, brandConfig } from '@/config/brand';
 import { Logo } from '../logo';
+import { DEFAULT_SITE_CONFIG, type FooterConfig } from '@/lib/types/site-config';
 
-const footerLinks = {
-  Marketplace: [
-    { name: 'New Arrivals', href: '/browse?sort=newest' },
-    { name: 'Best Sellers', href: '/browse?sort=views-desc' },
-    { name: 'Sneakers', href: '/browse?category=Sneakers' },
-    { name: 'Collector Cards', href: '/browse?category=Collector+Cards' },
-  ],
-  Brands: [
-    { name: 'Nike', href: '/browse?category=Sneakers&brand=Nike' },
-    { name: 'Jordan', href: '/browse?category=Sneakers&brand=Jordan' },
-    { name: 'Adidas', href: '/browse?category=Sneakers&brand=Adidas' },
-    { name: 'Under Armour', href: '/browse?category=Sneakers&brand=Under+Armour' },
-    { name: 'Puma', href: '/browse?category=Sneakers&brand=Puma' },
-  ],
-  Support: [
-    { name: 'Buyer Guides', href: '/guides' },
-    { name: 'Selling Guide', href: '/sell' },
-    { name: 'Size Guide', href: '/size-guide' },
-    { name: 'Help Center', href: '/help' },
-  ],
-  Company: [
-    { name: `About Benched`, href: '/about' },
-    { name: 'Terms', href: '/terms' },
-    { name: 'Privacy', href: '/privacy' },
-  ],
-};
-
-export default function Footer() {
+export default function Footer({ config = DEFAULT_SITE_CONFIG.footer }: { config?: FooterConfig }) {
   return (
     <footer className="bg-background border-t border-border py-12 px-4 md:px-10">
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -40,7 +14,7 @@ export default function Footer() {
           <div className="flex items-center mb-6">
             <Logo className="h-16 md:h-20" />
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-4">{brandConfig.company.tagline}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-4">{config.tagline || brandConfig.company.tagline}</p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -51,29 +25,29 @@ export default function Footer() {
             Contact Us
           </Link>
         </div>
-        {Object.entries(footerLinks).map(([category, links]) => (
-          <div key={category}>
-            <h2 className="font-black text-xs uppercase tracking-widest mb-6">{category}</h2>
+        {config.columns.map((column) => (
+          <div key={column.id}>
+            <h2 className="font-black text-xs uppercase tracking-widest mb-6">{column.title}</h2>
             <ul className="space-y-4 text-sm text-gray-500 dark:text-gray-400">
-              {links.map((link) => (
-                <li key={link.name}>
+              {column.links.map((link) => (
+                <li key={`${link.label}-${link.href}`}>
                   <Link href={link.href} className="hover:text-primary transition-colors">
-                    {link.name}
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
         ))}
-        <div>
+        {config.showNewsletter && <div>
           <h2 className="font-black text-xs uppercase tracking-widest mb-6">Newsletter</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Get early access to weekly drops.</p>
           <NewsletterSignup />
-        </div>
+        </div>}
       </div>
       <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
         <Link href="/log" className="cursor-default hover:text-slate-500 transition-colors">
-          © {new Date().getFullYear()} {brandConfig.company.legalName}. All rights reserved.
+          © {new Date().getFullYear()} {config.copyright || `${brandConfig.company.legalName}. All rights reserved.`}
         </Link>
         <div className="flex gap-8">
           <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>

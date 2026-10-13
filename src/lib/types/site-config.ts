@@ -60,11 +60,49 @@ export interface MenuItem {
   subItems?: MenuItemSubItem[];
 }
 
+export interface FooterLink { label: string; href: string }
+export interface FooterColumn { id: string; title: string; links: FooterLink[] }
+export interface FooterConfig {
+  tagline: string;
+  columns: FooterColumn[];
+  /** Shown after the year; defaults to the legal company name. */
+  copyright: string;
+  showNewsletter: boolean;
+}
+
+/** Fonts preloaded by the root layout (next/font). Admin picks one per role. */
+export const FONT_OPTIONS = ['Outfit', 'Inter', 'Space Grotesk', 'Montserrat'] as const;
+export type FontOption = (typeof FONT_OPTIONS)[number];
+export interface FontConfig { body: FontOption; heading: FontOption }
+
+export interface SeoDefaultsConfig {
+  defaultTitle: string;
+  defaultDescription: string;
+  /** Absolute URL or site path; empty = built-in branded image. */
+  ogImageUrl: string;
+}
+
+export type CategoryKey = 'shoes' | 'cards' | 'coins';
+export interface CategoryHeaderConfig { title: string; intro: string }
+
+export interface AnnouncementConfig {
+  enabled: boolean;
+  text: string;
+  href?: string;
+  bgColor: string;
+  textColor: string;
+}
+
 export interface SiteConfig {
   branding: BrandingTheme;
   hero: HeroConfig;
   sections: HomepageSectionConfig[];
   menus: MenuItem[];
+  footer: FooterConfig;
+  fonts: FontConfig;
+  seo: SeoDefaultsConfig;
+  categoryHeaders: Record<CategoryKey, CategoryHeaderConfig>;
+  announcement: AnnouncementConfig;
   updatedAt?: number;
 }
 
@@ -162,5 +200,103 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { label: 'Multi-Listing Deals', href: '/multilisting-deals', iconName: 'LayoutGrid' },
       ]
     }
-  ]
+  ],
+  footer: {
+    tagline: 'The Premier Marketplace for Collectors in Australia',
+    copyright: '',
+    showNewsletter: true,
+    columns: [
+      { id: 'f1', title: 'Marketplace', links: [
+        { label: 'New Arrivals', href: '/browse?sort=newest' },
+        { label: 'Sneakers', href: '/shoes' },
+        { label: 'Collector Cards', href: '/cards' },
+        { label: 'Coins', href: '/coins' },
+      ] },
+      { id: 'f2', title: 'Brands', links: [
+        { label: 'Nike', href: '/brand/nike' },
+        { label: 'Jordan', href: '/brand/jordan' },
+        { label: 'Adidas', href: '/brand/adidas' },
+        { label: 'Pokémon', href: '/brand/pokemon' },
+      ] },
+      { id: 'f3', title: 'Support', links: [
+        { label: 'Buyer Guides', href: '/guides' },
+        { label: 'Selling Guide', href: '/sell' },
+        { label: 'Size Guide', href: '/size-guide' },
+        { label: 'Help Center', href: '/help' },
+      ] },
+      { id: 'f4', title: 'Company', links: [
+        { label: 'About Benched', href: '/about' },
+        { label: 'Contact', href: '/contact' },
+        { label: 'Terms', href: '/terms' },
+        { label: 'Privacy', href: '/privacy' },
+      ] },
+    ],
+  },
+  fonts: { body: 'Outfit', heading: 'Outfit' },
+  seo: {
+    defaultTitle: 'Benched | Sneakers, Collector Cards & Rare Coins',
+    defaultDescription: 'The premier Australian marketplace for authentic sneakers, collector cards, and rare coins. Your collection, upgraded.',
+    ogImageUrl: '',
+  },
+  categoryHeaders: {
+    shoes: { title: 'All Sneakers', intro: 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Every sale is covered by DealSafe escrow and ships Australia-wide.' },
+    cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' },
+    coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' },
+  },
+  announcement: { enabled: false, text: '', href: '', bgColor: '#f26c0d', textColor: '#ffffff' },
 };
+
+/** Fill any missing keys from defaults (older documents predate the newer sections). */
+export function mergeSiteConfig(data: Partial<SiteConfig> | null | undefined): SiteConfig {
+  const d = DEFAULT_SITE_CONFIG;
+  if (!data) return d;
+  return {
+    branding: { ...d.branding, ...(data.branding || {}) },
+    hero: { ...d.hero, ...(data.hero || {}) },
+    sections: data.sections?.length ? data.sections : d.sections,
+    menus: data.menus?.length ? data.menus : d.menus,
+    footer: { ...d.footer, ...(data.footer || {}), columns: data.footer?.columns?.length ? data.footer.columns : d.footer.columns },
+    fonts: { ...d.fonts, ...(data.fonts || {}) },
+    seo: { ...d.seo, ...(data.seo || {}) },
+    categoryHeaders: {
+      shoes: { ...d.categoryHeaders.shoes, ...(data.categoryHeaders?.shoes || {}) },
+      cards: { ...d.categoryHeaders.cards, ...(data.categoryHeaders?.cards || {}) },
+      coins: { ...d.categoryHeaders.coins, ...(data.categoryHeaders?.coins || {}) },
+    },
+    announcement: { ...d.announcement, ...(data.announcement || {}) },
+    ...(data.updatedAt ? { updatedAt: data.updatedAt } : {}),
+  };
+}
+
+const SAFE_COLOR = /^(#[0-9a-fA-F]{3,8}|\d{1,3}(\.\d+)?\s+\d{1,3}(\.\d+)?%\s+\d{1,3}(\.\d+)?%|(rgb|hsl)a?\([\d\s.,%]+\))$/;
+/** Only allow plain colour values into the SSR <style> tag (prevents CSS/HTML injection). */
+export function safeColor(v: string | undefined): string | undefined {
+  const t = (v || '').trim();
+  return SAFE_COLOR.test(t) ? t : undefined;
+}
+
+const FONT_VARS: Record<FontOption, string> = {
+  Outfit: '--font-outfit',
+  Inter: '--font-inter',
+  'Space Grotesk': '--font-space-grotesk',
+  Montserrat: '--font-montserrat',
+};
+
+/** CSS applied server-side so the first paint already uses the published brand. */
+export function siteConfigCss(c: SiteConfig): string {
+  const vars: string[] = [];
+  const primary = safeColor(c.branding.primaryColor);
+  if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`, `--accent:${primary}`);
+  const pairs: [string, string | undefined][] = [
+    ['--btn-primary-bg', c.branding.buttonColor],
+    ['--btn-primary-text', c.branding.buttonTextColor],
+    ['--ticker-bg', c.branding.tickerBgColor],
+    ['--ticker-text', c.branding.tickerTextColor],
+  ];
+  for (const [k, v] of pairs) { const s = safeColor(v); if (s) vars.push(`${k}:${s}`); }
+  const body = FONT_VARS[c.fonts.body] || FONT_VARS.Outfit;
+  const heading = FONT_VARS[c.fonts.heading] || FONT_VARS.Outfit;
+  vars.push(`--font-body:var(${body})`, `--font-heading:var(${heading})`);
+  const headingRule = c.fonts.heading !== c.fonts.body ? `h1,h2,h3,h4{font-family:var(--font-heading),sans-serif}` : '';
+  return `html:root,html.dark{${vars.join(';')}}${headingRule}`;
+}

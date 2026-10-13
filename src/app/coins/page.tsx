@@ -1,3 +1,4 @@
+import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
@@ -43,6 +44,7 @@ export default async function CoinsBrowsePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const header = (await getPublishedSiteConfig()).categoryHeaders.coins;
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Coins';
@@ -85,9 +87,9 @@ export default async function CoinsBrowsePage({
       }>
         <InfiniteProductGrid
           key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Coins` : 'All Rare Coins'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Coins` : header.title || 'All Rare Coins'}
           pageDescription="Browse the rarest coins from thousands of collectors."
-          intro={!searchTerm && !subCategoryParam ? 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' : undefined}
+          intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

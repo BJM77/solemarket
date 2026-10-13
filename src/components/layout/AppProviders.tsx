@@ -9,12 +9,13 @@ import { MobileNavProvider } from '@/context/MobileNavContext';
 import { CartProvider } from '@/context/CartContext';
 import { ViewedProductsProvider } from '@/context/ViewedProductsContext';
 import { Toaster } from "@/components/ui/toaster";
+import type { SiteConfig } from '@/lib/types/site-config';
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function AppProviders({ children, siteConfig }: { children: React.ReactNode; siteConfig?: SiteConfig }) {
   return (
     <ErrorBoundary>
       <FirebaseProvider>
-        <SiteConfigProvider>
+        <SiteConfigProvider initialConfig={siteConfig}>
           <QueryProvider>
             <SidebarProvider>
               <MobileNavProvider>
