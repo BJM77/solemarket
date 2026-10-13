@@ -838,6 +838,7 @@ export default function ProductDetailsModern({
                         {/* Mobile Product Header (Title/Price) */}
                         <div className="lg:hidden">
                             <ProductHeaderInfo
+                                headingAs="h2"
                                 product={product}
                                 seller={seller}
                                 recentViews={recentViews}

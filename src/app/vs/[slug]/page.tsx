@@ -16,10 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const comparison = getComparisonBySlug(slug);
 
     if (!comparison) {
-        return { title: 'Comparison Not Found | Benched' };
+        return { title: 'Comparison Not Found' };
     }
 
-    const title = `${comparison.itemA.name} vs ${comparison.itemB.name}: Which is Better? | Benched`;
+    const title = `${comparison.itemA.name} vs ${comparison.itemB.name}: Which is Better?`;
     const description = `Read our expert head-to-head comparison between ${comparison.itemA.name} and ${comparison.itemB.name}. Analysis of performance, market value, and collectibility.`;
 
     return {

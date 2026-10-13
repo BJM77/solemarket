@@ -1,3 +1,4 @@
+import { getProductUrl } from "@/lib/utils/url";
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { SITE_NAME, SITE_URL } from '@/config/brand';
@@ -33,7 +34,7 @@ export async function GET() {
         seller_name: data.sellerName || 'Verified Seller',
         seller_verified: data.sellerVerified || false,
         image_url: data.imageUrls?.[0] || '',
-        product_url: `${baseUrl}/product/${doc.id}`,
+        product_url: `${baseUrl}${getProductUrl({ id: doc.id, title: data.title || "", category: data.category })}`,
         purchase_options: ['EFT / PayID Escrow', 'Cash on Pickup / Delivery'],
       };
     });

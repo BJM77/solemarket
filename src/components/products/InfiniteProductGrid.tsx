@@ -61,6 +61,7 @@ function InfiniteProductGridInner({
   hideTitle = false,
   containerClassName = "container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen",
   searchProvider = 'firestore',
+  intro,
 }: {
   pageTitle: string,
   pageDescription?: string,
@@ -71,7 +72,9 @@ function InfiniteProductGridInner({
   hideTitle?: boolean,
   containerClassName?: string,
   /** 'typesense' | 'algolia' routes public searches through the search adapter (server action). */
-  searchProvider?: string
+  searchProvider?: string,
+  /** Short, crawlable category intro shown under the heading. */
+  intro?: string
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -560,6 +563,7 @@ function InfiniteProductGridInner({
                 {totalCount !== undefined ? `${totalCount} Available ${itemLabel}` : pageDescription}
               </p>
             </div>
+            {intro && <p className="mt-3 max-w-2xl text-sm text-muted-foreground" data-testid="category-intro">{intro}</p>}
           </div>
         )}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">

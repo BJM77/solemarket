@@ -19,9 +19,12 @@ interface ProductHeaderInfoProps {
     recentViews?: number;
     className?: string;
     user?: any;
+    /** Only one rendered header should be the page H1 (mobile and desktop both render this). */
+    headingAs?: 'h1' | 'h2';
 }
 
-export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user }: ProductHeaderInfoProps) {
+export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1' }: ProductHeaderInfoProps) {
+    const Heading = headingAs;
     const router = useRouter();
     const getRelativeTime = (date: any) => {
         if (!date) return '';
@@ -55,8 +58,9 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                 )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white flex items-center gap-2.5 flex-wrap">
-                {product.title}
+            <div className="flex items-center gap-2.5 flex-wrap">
+                <Heading className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
+                {product.title}</Heading>
                 {product.condition && (
                     <Badge variant="outline" className={cn(
                         "text-xs font-bold uppercase tracking-wider px-2.5 py-1 shrink-0",
@@ -69,7 +73,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                         {product.condition}
                     </Badge>
                 )}
-            </h1>
+            </div>
 
             <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-4 flex-wrap">

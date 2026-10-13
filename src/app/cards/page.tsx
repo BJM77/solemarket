@@ -13,17 +13,17 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Buy NBA Trading Cards & Collector Cards | Benched Australia';
-  let description = 'Shop Australia\'s premier marketplace for rare NBA trading cards, Panini Prizms, and exclusive sports cards. 100% authenticated. Peer-to-peer. Zero selling fees.';
+  let title = 'Buy Trading Cards in Australia | Pokémon, NBA & Sports Cards';
+  let description = 'Buy and sell Pokémon, NBA and sports trading cards in Australia, raw and graded. Verified sellers, DealSafe escrow and Australia-wide shipping.';
 
   if (q && category) {
-    title = `Buy ${q} Cards in ${category} | Benched`;
+    title = `Buy ${q} Cards in ${category}`;
     description = `Searching for ${q} in ${category}. Find the best deals on rare and graded trading cards in Australia.`;
   } else if (q) {
-    title = `Search Results for "${q}" Cards | Benched`;
+    title = `Search Results for "${q}" Cards`;
     description = `Shop verified authentic results for "${q}". Browse the best rare collector cards on Benched Australia.`;
   } else if (category) {
-    title = `Buy ${category} Trading Cards | Benched Australia`;
+    title = `Buy ${category} Trading Cards`;
     description = `Shop the best rare ${category} on Benched. Secure shipping Australia-wide and vetted authentic.`;
   }
 
@@ -87,6 +87,7 @@ export default async function CardsBrowsePage({
           key={categoryParam}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : 'All Collector Cards'}
           pageDescription="Browse the rarest cards from thousands of collectors."
+          intro={!searchTerm && !subCategoryParam ? 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

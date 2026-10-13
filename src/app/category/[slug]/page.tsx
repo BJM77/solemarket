@@ -14,7 +14,7 @@ interface CategoryConfig {
 
 const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     'sneakers': {
-        title: 'Buy & Sell Performance Basketball Shoes Australia | Benched',
+        title: 'Buy & Sell Performance Basketball Shoes Australia',
         h1: 'Performance Basketball Shoes',
         description: 'Shop verified authentic performance basketball shoes including Nike, Jordan, Curry, and KD. The premier hoop marketplace.',
         categoryName: 'Sneakers',
@@ -28,7 +28,7 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     `
     },
     'collector-cards': {
-        title: 'Rare NBA & Basketball Collector Cards Australia | Benched',
+        title: 'Rare NBA & Basketball Collector Cards Australia',
         h1: 'Collector Cards Marketplace',
         description: 'Discover rare NBA and Basketball collector cards. Panini, Topps, and PSA graded sets for serious collectors.',
         categoryName: 'Collector Cards',
@@ -41,7 +41,7 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     `
     },
     'accessories': {
-        title: 'Basketball Accessories & Sneaker Care | Benched',
+        title: 'Basketball Accessories & Sneaker Care',
         h1: 'Basketball & Sneaker Accessories',
         description: 'Shop performance laces, cleaning kits, and display cases to keep your rotation fresh.',
         categoryName: 'Accessories',
@@ -53,7 +53,7 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
     `
     },
     'apparel': {
-        title: 'Performance Apparel | Benched',
+        title: 'Performance Apparel',
         h1: 'Basketball Apparel',
         description: 'Shop verified authentic basketball and lifestyle apparel.',
         categoryName: 'Apparel',
@@ -64,7 +64,7 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
     const config = CATEGORY_CONFIGS[slug];
-    if (!config) return { title: 'Browse Category | Benched' };
+    if (!config) return { title: 'Browse Category' };
 
     return {
         title: config.title,

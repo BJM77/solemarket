@@ -24,17 +24,17 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Shop the Full Marketplace Lineup | Shoes & Cards | Benched Australia';
-  let description = 'Shop Australia\'s premier marketplace for performance basketball shoes, exclusive sneakers, and elite collector cards. Verified authentic, peer-to-peer, zero selling fees.';
+  let title = 'Shop the Full Marketplace | Sneakers, Cards & Coins';
+  let description = 'Browse every listing on Benched: authentic sneakers, Pokémon and sports trading cards, and rare coins from verified Australian sellers.';
 
   if (q && category) {
-    title = `Buy ${q} in ${category} | Benched`;
+    title = `Buy ${q} in ${category}`;
     description = `Searching for ${q} in ${category}. Find the best sneaker deals authenticated by experts on Benched.`;
   } else if (q) {
-    title = `Search Results for "${q}" | Benched`;
+    title = `Search Results for "${q}"`;
     description = `Shop verified authentic results for "${q}". Browse the best performance basketball shoes on Benched Australia.`;
   } else if (category) {
-    title = `Buy ${category} Sneakers | Benched Australia`;
+    title = `Buy ${category} in Australia`;
     description = `Shop the best ${category} on Benched. Verified authentic performance footwear and secure shipping Australia-wide.`;
   }
 

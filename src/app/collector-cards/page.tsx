@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export const metadata: Metadata = {
-  title: 'Buy Collector Cards & NBA Trading Cards | Benched Australia',
+  title: 'Buy Collector Cards & NBA Trading Cards',
   description: 'Shop the finest collection of NBA, Pokémon, and rare collector cards in Australia. Verified authentic, hobby-focused marketplace with secure DealSafe protection.',
   keywords: ['collector cards', 'nba cards', 'pokemon cards', 'panini', 'topps', 'australia'],
 };

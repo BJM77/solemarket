@@ -5,7 +5,7 @@ import { Search, ShoppingCart, Shield, Upload, DollarSign, Package } from "lucid
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'How It Works | Benched Marketplace',
+  title: 'How It Works',
   description: 'Learn how to buy and sell collectibles securely on Benched. From AI-powered listings to secure payments and the Benched Vault.',
 };
 

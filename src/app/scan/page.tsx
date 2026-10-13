@@ -2,7 +2,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { SneakerScanner } from '@/components/scan/SneakerScanner';
 
 export const metadata = {
-    title: 'Sneaker Scanner | Benched',
+    title: 'Sneaker Scanner',
     description: 'Instantly identify and list your sneakers using AI vision technology.',
 };
 

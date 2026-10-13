@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'How Benched collects, uses and protects your personal information under the Australian Privacy Principles.',
+  alternates: { canonical: '/privacy' },
+};
 
 export default function PrivacyPage() {
   return (

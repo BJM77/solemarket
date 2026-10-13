@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
 import type { Metadata } from 'next';
 import { Loader2 } from 'lucide-react';
@@ -7,19 +7,20 @@ import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
-import { slugify } from "@/lib/utils/url";
+import { getProductUrl } from "@/lib/utils/url";
+import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
 
 interface Props {
   params: Promise<{ section: string; slug: string; id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id, section, slug } = await params;
+  const { id } = await params;
   const product = await getProductById(id);
-  if (!product) return { title: 'Product Not Found | Benched' };
+  if (!product) return { title: 'Product Not Found', robots: { index: false } };
 
-  const description = product.description?.substring(0, 160) || `Buy ${product.title} on Benched.`;
-  const canonicalUrl = `https://benched.au/${section}/${slug}/${id}`;
+  const description = metaDescription(product.description) || `Buy ${product.title} on Benched.`;
+  const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category })}`;
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
   
@@ -32,9 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     url: proxyUrl,
     secureUrl: proxyUrl,
     width: 1200,
-    height: 1200,
+    height: 630,
     alt: `${product.title} - ${product.category} on Benched.au`,
-    type: 'image/jpeg',
+    type: 'image/png',
   };
 
   return {
@@ -47,8 +48,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: product.title,
       description,
       url: canonicalUrl,
-      type: 'article',
+      type: 'website',
       images: [ogImage],
+    },
+    other: {
+      'product:price:amount': String(product.price ?? ''),
+      'product:price:currency': 'AUD',
+      ...(product.condition ? { 'product:condition': /new/i.test(product.condition) ? 'new' : 'used' } : {}),
     },
     twitter: {
       card: 'summary_large_image',
@@ -68,6 +74,10 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductById(id);
   if (!product) notFound();
 
+  // One URL per product: send wrong section/slug variants to the canonical path.
+  const canonicalPath = getProductUrl({ id, title: product.title, category: product.category });
+  if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
+
   const initialReviews = await getReviewsForProduct(id);
 
   // Fetch SSR related products for SEO Link Juice
@@ -80,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
       <BreadcrumbSchema
         items={[
           { name: 'Home', item: '/' },
-          { name: product.category, item: product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}` },
+          { name: product.category, item: sectionPathForCategory(section) },
           { name: product.title, item: `/${section}/${slug}/${id}` },
         ]}
       />

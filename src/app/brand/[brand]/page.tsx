@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .join(' ');
 
   return {
-    title: `Buy ${displayBrand} Sneakers & Collectibles | Benched`,
+    title: `Buy ${displayBrand} Sneakers & Collectibles`,
     description: `Shop the latest and rarest ${displayBrand} sneakers, trading cards, and collectibles on Benched. Verified, safe, and secure.`,
     alternates: {
       canonical: `https://benched.au/brand/${brand.toLowerCase()}`,

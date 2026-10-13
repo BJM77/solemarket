@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ShieldCheck, Store, ShoppingBag } from 'lucide-react';
 
 export const metadata = {
-    title: 'Our Sellers | Benched',
+    title: 'Our Sellers',
     description: 'Browse our community of verified sellers and their collections.',
 };
 

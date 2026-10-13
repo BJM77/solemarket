@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import { SITE_NAME } from '@/config/brand';
+
+export const metadata: Metadata = {
+  title: 'Sneaker Size Guide (US, UK, EU & cm)',
+  description: "Convert sneaker sizes between US men's, US women's, UK, EU and centimetres before you buy on Benched.",
+  alternates: { canonical: '/size-guide' },
+};
 
 export default function SizeGuidePage() {
     return (

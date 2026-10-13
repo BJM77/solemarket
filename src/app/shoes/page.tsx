@@ -13,17 +13,17 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Sneakers';
 
-  let title = 'Buy Performance Basketball Shoes & Sneakers | Benched Australia';
-  let description = 'Shop Australia\'s premier marketplace for performance basketball shoes and exclusive sneakers. Verified authentic, peer-to-peer, with zero selling fees.';
+  let title = 'Buy Sneakers Online in Australia | Authentic Kicks';
+  let description = 'Buy and sell authentic sneakers in Australia: Nike, Jordan, adidas, New Balance and more. Verified sellers, DealSafe escrow and Australia-wide shipping.';
 
   if (q && category) {
-    title = `Buy ${q} Sneakers in ${category} | Benched`;
+    title = `Buy ${q} Sneakers in ${category}`;
     description = `Searching for ${q} in ${category}. Find the best sneaker deals authenticated by experts on Benched.`;
   } else if (q) {
-    title = `Search Results for "${q}" Sneakers | Benched`;
+    title = `Search Results for "${q}" Sneakers`;
     description = `Shop verified authentic results for "${q}". Browse the best performance basketball shoes on Benched Australia.`;
-  } else if (category) {
-    title = `Buy ${category} Sneakers | Benched Australia`;
+  } else if (category && category !== 'Sneakers') {
+    title = `Buy ${category} Sneakers`;
     description = `Shop the best ${category} on Benched. Verified authentic performance footwear and secure shipping Australia-wide.`;
   }
 
@@ -97,6 +97,7 @@ export default async function ShoesBrowsePage({
           key={categoryParam}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${categoryParam}` : 'All Sneakers'}
           pageDescription="Browse the best performance kicks from thousands of sellers."
+          intro={!searchTerm && !subCategoryParam ? 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Every sale is covered by DealSafe escrow and ships Australia-wide.' : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

@@ -13,17 +13,17 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Buy Rare Coins & Banknotes | Benched Australia';
+  let title = 'Buy Rare Coins & Banknotes';
   let description = 'Shop Australia\'s premier marketplace for rare Australian coins, gold, silver, and world banknotes. 100% authenticated. Peer-to-peer. Zero selling fees.';
 
   if (q && category) {
-    title = `Buy ${q} Coins in ${category} | Benched`;
+    title = `Buy ${q} Coins in ${category}`;
     description = `Searching for ${q} in ${category}. Find the best deals on rare and graded coins in Australia.`;
   } else if (q) {
-    title = `Search Results for "${q}" Coins | Benched`;
+    title = `Search Results for "${q}" Coins`;
     description = `Shop verified authentic results for "${q}". Browse the best rare collector coins on Benched Australia.`;
   } else if (category) {
-    title = `Buy ${category} Coins | Benched Australia`;
+    title = `Buy ${category} Coins`;
     description = `Shop the best rare ${category} on Benched. Secure shipping Australia-wide and vetted authentic.`;
   }
 
@@ -87,6 +87,7 @@ export default async function CoinsBrowsePage({
           key={categoryParam}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Coins` : 'All Rare Coins'}
           pageDescription="Browse the rarest coins from thousands of collectors."
+          intro={!searchTerm && !subCategoryParam ? 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

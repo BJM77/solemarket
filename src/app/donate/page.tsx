@@ -5,7 +5,7 @@ import { Heart, Camera, Trophy, Footprints, Library, ArrowRight } from "lucide-r
 import Image from "next/image";
 
 export const metadata = {
-    title: 'Donate | The Second Half Mission | Benched',
+    title: 'Donate | The Second Half Mission',
     description: 'Donate your basketball shoes or cards to less privileged athletes. See your gear back in action.',
 };
 

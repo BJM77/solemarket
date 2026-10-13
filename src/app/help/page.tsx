@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { SITE_NAME } from '@/config/brand';
 import { Search, ShieldCheck, ShoppingBag, PlusSquare, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Help Centre',
+  description: 'Get help buying and selling on Benched: orders, DealSafe escrow, shipping, listings and account questions answered.',
+  alternates: { canonical: '/help' },
+};
 
 const TOPICS = [
     {

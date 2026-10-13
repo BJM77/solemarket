@@ -18,13 +18,13 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
     if (!profile) {
         return {
-            title: 'Shop Not Found | Benched',
+            title: 'Shop Not Found',
         };
     }
 
     const name = profile.storeName || profile.displayName;
     return {
-        title: `${name}'s Storefront | Benched`,
+        title: `${name}'s Storefront`,
         description: profile.storeDescription || `Browse the latest collection from ${name} on Benched Australia.`,
         openGraph: {
             images: profile.bannerUrl ? [profile.bannerUrl] : [],

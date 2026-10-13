@@ -25,7 +25,7 @@ export async function generateMetadata(
     if (!article) return { title: 'Article Not Found' };
 
     return {
-        title: `${article.title} | Benched Journal`,
+        title: `${article.title}`,
         description: article.excerpt,
         openGraph: {
             title: article.title,

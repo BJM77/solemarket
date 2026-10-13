@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: "The terms that apply when you buy, sell or browse on Benched, Australia's marketplace for sneakers, cards and coins.",
+  alternates: { canonical: '/terms' },
+};
 
 export default function TermsPage() {
   return (

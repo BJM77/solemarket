@@ -144,7 +144,7 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            'The destination for performance basketball shoes, collector cards, rare coins, and culture.'
+            "Australia's marketplace for authentic sneakers, collector cards and rare coins."
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
@@ -161,7 +161,7 @@ export const brandConfig: BrandConfig = {
         logoUrl: getEnv('NEXT_PUBLIC_LOGO_URL', '/benchedlogo.png'),
         logoDarkUrl: getEnv('NEXT_PUBLIC_LOGO_DARK_URL', '/benchedlogo.png'),
         faviconUrl: getEnv('NEXT_PUBLIC_FAVICON_URL', '/benchedlogo.png'),
-        ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=1200'),
+        ogImageUrl: getEnv('NEXT_PUBLIC_OG_IMAGE_URL', '/og-default'),
     },
 
     // Feature Toggles
@@ -218,12 +218,12 @@ export const brandConfig: BrandConfig = {
     contact: {
         email: getEnv('COMPANY_EMAIL', 'support@benched.au'),
         supportEmail: getEnv('COMPANY_SUPPORT_EMAIL', 'support@benched.au'),
-        phone: getEnv('COMPANY_PHONE', '+61400000000'),
+        phone: process.env.COMPANY_PHONE || '',
         address: {
             street: process.env.COMPANY_ADDRESS_STREET,
-            city: getEnv('COMPANY_ADDRESS_CITY', 'Melbourne'),
-            state: getEnv('COMPANY_ADDRESS_STATE', 'VIC'),
-            postcode: getEnv('COMPANY_ADDRESS_POSTCODE', '3000'),
+            city: getEnv('COMPANY_ADDRESS_CITY', 'Perth'),
+            state: getEnv('COMPANY_ADDRESS_STATE', 'WA'),
+            postcode: getEnv('COMPANY_ADDRESS_POSTCODE', '6000'),
             country: getEnv('COMPANY_ADDRESS_COUNTRY', 'AU'),
         },
         coordinates: process.env.COMPANY_LATITUDE && process.env.COMPANY_LONGITUDE
@@ -232,8 +232,8 @@ export const brandConfig: BrandConfig = {
                 longitude: parseFloat(process.env.COMPANY_LONGITUDE),
             }
             : {
-                latitude: -37.8136,
-                longitude: 144.9631,
+                latitude: -31.9523,
+                longitude: 115.8613,
             },
     },
 
