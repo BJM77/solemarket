@@ -31,7 +31,7 @@ import {
   PlusCircle,
   LogOut,
   CreditCard,
-  Camera,
+  Camera, ScanLine,
   Coins,
   Footprints,
   Layers,
@@ -154,6 +154,12 @@ export function UserNav() {
               <Link href="/admin/power-tools" className="flex items-center">
                 <Zap className="mr-3 h-4 w-4 text-amber-500" />
                 <span className="font-medium">Power Tools</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/autocard') && "bg-accent text-primary")}>
+              <Link href="/autocard" className="flex items-center">
+                <ScanLine className="mr-3 h-4 w-4" />
+                <span className="font-medium">AutoCard</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/samcam') && "bg-accent text-primary")}>
