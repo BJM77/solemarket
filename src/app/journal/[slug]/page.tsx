@@ -7,7 +7,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { brandConfig } from '@/config/brand';
 
 interface Props {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
@@ -20,7 +20,8 @@ export async function generateMetadata(
     { params }: Props,
     parent: ResolvingMetadata
 ): Promise<Metadata> {
-    const article = getArticleBySlug(params.slug);
+    const { slug } = await params;
+    const article = getArticleBySlug(slug);
     if (!article) return { title: 'Article Not Found' };
 
     return {
@@ -37,8 +38,9 @@ export async function generateMetadata(
     };
 }
 
-export default function JournalArticlePage({ params }: Props) {
-    const article = getArticleBySlug(params.slug);
+export default async function JournalArticlePage({ params }: Props) {
+    const { slug } = await params;
+    const article = getArticleBySlug(slug);
     
     if (!article) {
         notFound();

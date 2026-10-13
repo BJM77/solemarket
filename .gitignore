@@ -59,3 +59,7 @@ users.json
 # Temporary dump files
 sneak.txt
 sneakmain.txt
+
+# Archives / backups
+*.zip
+site.txt

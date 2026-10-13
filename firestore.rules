@@ -8,11 +8,6 @@ service cloud.firestore {
       allow write: if false; 
     }
 
-    match /guest_enquiries/{enquiryId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if false;
-    }
     // Functions
     function isAuthenticated() {
       return request.auth != null;
@@ -28,6 +23,18 @@ service cloud.firestore {
         (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin');
     }
 
+    // Users may only self-assign buyer/seller, may only move sellerStatus to 'pending',
+    // and cannot raise their own listing limit or verification flags.
+    function isSafeSelfProfile(d) {
+      return (!('role' in d) || d.role in ['buyer', 'seller']) &&
+             (!('accountType' in d) || d.accountType in ['buyer', 'seller']) &&
+             (!('sellerStatus' in d) || d.sellerStatus == 'pending' ||
+               (resource != null && resource.data.get('sellerStatus', null) == d.sellerStatus)) &&
+             (!('listingLimit' in d) || d.listingLimit <= 40 ||
+               (resource != null && resource.data.get('listingLimit', null) == d.listingLimit)) &&
+             (!('isVerified' in d) || (resource != null && resource.data.get('isVerified', null) == d.isVerified));
+    }
+
     function isValidProduct(productData) {
       return productData.price >= 0 &&
              productData.price <= 100000 &&
@@ -39,11 +46,11 @@ service cloud.firestore {
 
     // Users
     match /users/{userId} {
-      // Allow public read of individual user profiles for display (e.g. seller info)
-      allow get: if true;
-      allow read, list: if isOwner(userId) || isAdmin() || (resource != null && (resource.data.accountType == 'seller' || resource.data.role == 'seller'));
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      // Public can read seller profiles only (seller page / product pages read sellerId docs).
+      // Buyer profiles are private to owner + admins.
+      allow get, list: if isOwner(userId) || isAdmin() || (resource != null && (resource.data.accountType == 'seller' || resource.data.role == 'seller'));
+      allow create: if isOwner(userId) && isSafeSelfProfile(request.resource.data);
+      allow update: if isAdmin() || (isOwner(userId) && isSafeSelfProfile(request.resource.data));
       // Only superadmins should be able to delete user accounts permanently
       allow delete: if isAdmin();
       
@@ -148,11 +155,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
     
-    // Default deny
-    match /{document=**} {
-      allow read, write: if false;
+    // Guest enquiries: created only via server action (Admin SDK).
+    // Sellers read enquiries for their own listings; admins read all.
+    match /guest_enquiries/{enquiryId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.sellerId == request.auth.uid);
+      allow create, update, delete: if false;
     }
-    
+
     // Card Imports for SamCam
     match /card_imports/{importId} {
       allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
@@ -185,5 +194,10 @@ service cloud.firestore {
           request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
     }
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
   }
 }

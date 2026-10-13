@@ -7,13 +7,14 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { brandConfig } from '@/config/brand';
 
 interface Props {
-    params: { certId: string };
+    params: Promise<{ certId: string }>;
 }
 
 export async function generateMetadata(
-    { params }: Props,
+    props: Props,
     parent: ResolvingMetadata
 ): Promise<Metadata> {
+    const params = await props.params;
     return {
         title: `Vault Passport ${params.certId} | ${brandConfig.seo.defaultTitle}`,
         description: `Cryptographic proof of authenticity for Benched Vault item ${params.certId}.`,
@@ -38,7 +39,8 @@ async function getPassportRecord(certId: string) {
     return null;
 }
 
-export default async function PassportPage({ params }: Props) {
+export default async function PassportPage(props: Props) {
+    const params = await props.params;
     const record = await getPassportRecord(params.certId);
 
     if (!record) {

@@ -12,7 +12,7 @@ const nextConfig = {
   ],
   experimental: {
     serverActions: {
-      bodySizeLimit: '50mb',
+      bodySizeLimit: '10mb',
       allowedOrigins: [
         'https://studio-3973035687-658c0.web.app',
         'https://benched.au',
@@ -107,7 +107,7 @@ const nextConfig = {
   },
 }
 
-const { withSentryConfig } = require('@sentry/nextjs');
+const { withSentryConfig } = require('@sentry/nextjs/config');
 
 module.exports = withSentryConfig(
   nextConfig,
