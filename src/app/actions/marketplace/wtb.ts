@@ -1,5 +1,6 @@
 'use server';
 import { checkRateLimit } from '@/lib/rate-limit-guard';
+import { detectOffPlatform } from '@/lib/messaging/off-platform';
 
 import { firestoreDb as db, auth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -343,6 +344,7 @@ export async function contactWTBSeller(
             sellerId: decodedToken.uid,
             sellerName: sellerData.displayName || 'Anonymous',
             message,
+            ...(detectOffPlatform(message).flagged ? { offPlatformFlags: detectOffPlatform(message).reasons, needsReview: true } : {}),
             status: 'pending',
             createdAt: FieldValue.serverTimestamp() as any,
         };

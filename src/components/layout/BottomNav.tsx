@@ -15,7 +15,7 @@ export function BottomNav() {
   const navItems = [
     { label: 'Home', href: '/', icon: Home },
     { label: 'Lineup', href: '/browse', icon: Search },
-    { label: 'Sell', href: '/sell/create', icon: PlusCircle, primary: true },
+    { label: 'Sell', href: '/sell/wizard', icon: PlusCircle, primary: true },
     { label: 'Activity', href: '/profile/orders', icon: Bell },
     { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
   ];

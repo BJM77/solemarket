@@ -1,6 +1,7 @@
 
 'use client';
 
+import { detectOffPlatform, OFF_PLATFORM_WARNING } from '@/lib/messaging/off-platform';
 import { useEffect, useState, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
@@ -186,6 +187,8 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     };
   }, [conversationId]);
 
+  const offPlatformCheck = detectOffPlatform(newMessage);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !user || !conversationId) return;
@@ -193,17 +196,16 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     const messageText = newMessage;
     setNewMessage('');
 
-    // Redact phone numbers and emails
-    let redactedText = messageText.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL REMOVED]');
-    redactedText = redactedText.replace(/(?:\+?[\d\s\-.\(\)]){8,20}/g, function(match) {
-        if (match.replace(/\D/g, '').length >= 8) return '[PHONE NUMBER REMOVED]';
-        return match;
-    });
+    // Detect + mask attempts to move the deal off-platform (phone, email, PayID/bank,
+    // PayPal F&F, WhatsApp, links...). Flagged messages are marked for moderation.
+    const check = detectOffPlatform(messageText);
+    const redactedText = check.masked;
 
     const messageData = {
       senderId: user.uid,
       text: redactedText,
       timestamp: serverTimestamp(),
+      ...(check.flagged ? { offPlatformFlags: check.reasons, needsReview: true } : {}),
     };
 
     await addDoc(collection(db, 'conversations', conversationId, 'messages'), messageData);
@@ -323,10 +325,15 @@ function ConversationView({ conversationId }: { conversationId: string }) {
             placeholder="Type a message..."
             autoComplete="off"
           />
-          <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+          <Button type="submit" size="icon" disabled={!newMessage.trim()} aria-label="Send message">
             <Send />
           </Button>
         </form>
+        {offPlatformCheck.flagged && (
+          <p role="alert" className="mt-2 text-xs text-amber-500">
+            {OFF_PLATFORM_WARNING} Contact details will be hidden.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, ShoppingBag, Loader2, User as UserIcon, DollarSign } from 'lucide-react';
+import { Heart, ShoppingBag, Loader2, User as UserIcon, DollarSign, Bell } from 'lucide-react';
 import { useEffect } from 'react';
 import { cn } from "@/lib/utils/ui";
 
@@ -67,6 +67,7 @@ export default function ProfileLayout({
 
   const getCurrentTab = () => {
     if (pathname.includes('/favorites')) return 'favorites';
+    if (pathname.includes('/saved-searches')) return 'saved-searches';
     if (pathname.includes('/listings')) return 'listings';
     if (pathname.includes('/offers')) return 'offers';
     return 'profile';
@@ -117,6 +118,9 @@ export default function ProfileLayout({
               </TabsTrigger>
               <TabsTrigger value="favorites" asChild>
                 <Link href="/profile/favorites"><Heart className="w-4 h-4 mr-2" />Favorites</Link>
+              </TabsTrigger>
+              <TabsTrigger value="saved-searches" asChild>
+                <Link href="/profile/saved-searches"><Bell className="w-4 h-4 mr-2" />Saved searches</Link>
               </TabsTrigger>
             </TabsList>
             {/* The active page content will be rendered here */}

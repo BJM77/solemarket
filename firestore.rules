@@ -63,6 +63,12 @@ service cloud.firestore {
       match /favorites/{docId} {
         allow read, write: if isOwner(userId);
       }
+
+      // Saved searches: owner can read/delete; create/update via server actions (limits + sanitising).
+      match /saved_searches/{searchId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if false;
+      }
     }
 
     // Products
