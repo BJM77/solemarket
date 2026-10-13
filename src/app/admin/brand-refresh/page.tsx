@@ -31,18 +31,45 @@ import {
 import { storage } from '@/lib/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Image from 'next/image';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { getSiteConfigDraft, saveSiteConfigDraft, publishSiteConfig } from '@/app/actions/admin/site-config';
+import { FooterFontsSettings, SeoContentSettings } from '@/components/admin/brand-refresh/ExtraSettings';
+import { HistoryPanel } from '@/components/admin/brand-refresh/HistoryPanel';
+import { mergeSiteConfig } from '@/lib/types/site-config';
 
 export default function BrandRefreshPage() {
-  const { config, saveConfig, updatePreviewConfig } = useSiteConfig();
+  const { config, updatePreviewConfig } = useSiteConfig();
   const [formData, setFormData] = useState<SiteConfig>(config);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingSiteLogo, setIsUploadingSiteLogo] = useState(false);
   const { toast } = useToast();
 
+  // Load the saved draft (falls back to the published config) once on mount.
   useEffect(() => {
-    setFormData(config);
-  }, [config]);
+    (async () => {
+      const token = await getCurrentUserIdToken();
+      if (!token) return;
+      try {
+        const { draft, published } = await getSiteConfigDraft(token);
+        const start = draft ?? published;
+        setHasDraft(!!draft && JSON.stringify(mergeSiteConfig(draft)) !== JSON.stringify(mergeSiteConfig(published)));
+        setFormData(start);
+        updatePreviewConfig(start);
+      } catch (e: any) {
+        toast({ variant: 'destructive', title: 'Could not load draft', description: e.message });
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleExtraChange = (next: SiteConfig) => {
+    setFormData(next);
+    updatePreviewConfig(next);
+  };
 
   const handleBrandingChange = (key: keyof typeof formData.branding, value: string) => {
     const updated = {
@@ -244,14 +271,37 @@ export default function BrandRefreshPage() {
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
-      const success = await saveConfig(formData);
-      if (success) {
-        toast({ title: 'Brand Refresh Saved!', description: 'Global theme & homepage settings updated successfully.' });
-      }
+      const token = await getCurrentUserIdToken();
+      if (!token) throw new Error('Please sign in again');
+      await saveSiteConfigDraft(token, formData);
+      setHasDraft(true);
+      toast({ title: 'Draft saved', description: 'Not live yet. Preview it, then Publish.' });
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Save Failed', description: err.message || 'Failed to persist changes.' });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePreview = async () => {
+    await handleSaveAll();
+    window.open('/?sitePreview=draft', '_blank');
+  };
+
+  const handlePublish = async () => {
+    if (!window.confirm('Publish these settings to the live site for everyone?')) return;
+    setIsPublishing(true);
+    try {
+      const token = await getCurrentUserIdToken();
+      if (!token) throw new Error('Please sign in again');
+      await publishSiteConfig(token, formData);
+      setHasDraft(false);
+      setHistoryKey((k) => k + 1);
+      toast({ title: 'Published', description: 'The live site now uses these settings. A restore point was saved.' });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Publish Failed', description: err.message || 'Failed to publish.' });
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -265,32 +315,43 @@ export default function BrandRefreshPage() {
             <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Brand Refresh & Customizer</h1>
           </div>
           <p className="text-sm text-zinc-400 font-medium mt-1">
-            Customize global brand colors, logos, CTA buttons, and drag-and-drop homepage sections.
+            Edit colours, logos, fonts, menus, homepage, footer, SEO defaults and the announcement banner. Save a draft, preview it, then publish.
           </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
+          {hasDraft && <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-bold text-amber-300">Unpublished changes</span>}
           <Button
             variant="outline"
-            onClick={() => window.open('/', '_blank')}
+            onClick={handleSaveAll}
+            disabled={isSaving || isPublishing}
             className="border-white/20 text-white hover:bg-white/10"
           >
-            <Eye className="w-4 h-4 mr-2" /> Live Preview
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+            Save draft
           </Button>
           <Button
-            onClick={handleSaveAll}
-            disabled={isSaving}
+            variant="outline"
+            onClick={handlePreview}
+            disabled={isSaving || isPublishing}
+            className="border-white/20 text-white hover:bg-white/10"
+          >
+            <Eye className="w-4 h-4 mr-2" /> Preview draft
+          </Button>
+          <Button
+            onClick={handlePublish}
+            disabled={isSaving || isPublishing}
             className="bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-wider px-6"
           >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-            Save & Publish
+            {isPublishing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+            Publish
           </Button>
         </div>
       </div>
 
       {/* Main Tabs */}
       <Tabs defaultValue="theme" className="w-full">
-        <TabsList className="grid grid-cols-4 bg-zinc-900 border border-white/10 p-1 rounded-xl mb-8">
+        <TabsList className="grid grid-cols-2 md:grid-cols-7 h-auto bg-zinc-900 border border-white/10 p-1 rounded-xl mb-8">
           <TabsTrigger value="theme" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
             <Palette className="w-4 h-4 mr-2" /> Global Colors & Logo
           </TabsTrigger>
@@ -303,6 +364,9 @@ export default function BrandRefreshPage() {
           <TabsTrigger value="menus" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
             <LinkIcon className="w-4 h-4 mr-2" /> Navigation Menus
           </TabsTrigger>
+          <TabsTrigger value="footer" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">Footer & Fonts</TabsTrigger>
+          <TabsTrigger value="seo" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">SEO, Banner & Categories</TabsTrigger>
+          <TabsTrigger value="history" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">History</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: BRAND COLORS & LOGO */}
@@ -979,6 +1043,16 @@ export default function BrandRefreshPage() {
             </div>
 
           </div>
+        </TabsContent>
+
+        <TabsContent value="footer" className="space-y-6">
+          <FooterFontsSettings value={formData} onChange={handleExtraChange} />
+        </TabsContent>
+        <TabsContent value="seo" className="space-y-6">
+          <SeoContentSettings value={formData} onChange={handleExtraChange} />
+        </TabsContent>
+        <TabsContent value="history" className="space-y-6">
+          <HistoryPanel refreshKey={historyKey} onRestored={(c) => { setFormData(c); updatePreviewConfig(c); setHasDraft(false); }} />
         </TabsContent>
       </Tabs>
     </div>

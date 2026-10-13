@@ -143,9 +143,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Brand Refresh: only the published doc is public. Drafts are admin-only.
+    // Publishing/restore go through admin server actions (Admin SDK) so history stays complete.
     match /site_config/{configId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if configId == 'current' || isAdmin();
+      allow write: if isAdmin() && configId == 'draft';
+    }
+
+    // Published versions (written by server actions only); admins can read for restore.
+    match /site_config_history/{versionId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     // Orders

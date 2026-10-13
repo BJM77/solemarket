@@ -1,3 +1,4 @@
+import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
@@ -43,6 +44,7 @@ export default async function ShoesBrowsePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const header = (await getPublishedSiteConfig()).categoryHeaders.shoes;
   const resolvedParams = await searchParams;
   const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Sneakers';
@@ -95,9 +97,9 @@ export default async function ShoesBrowsePage({
       }>
         <InfiniteProductGrid
           key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${categoryParam}` : 'All Sneakers'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${categoryParam}` : header.title || 'All Sneakers'}
           pageDescription="Browse the best performance kicks from thousands of sellers."
-          intro={!searchTerm && !subCategoryParam ? 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Every sale is covered by DealSafe escrow and ships Australia-wide.' : undefined}
+          intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{
             q: searchTerm,
             category: categoryParam,

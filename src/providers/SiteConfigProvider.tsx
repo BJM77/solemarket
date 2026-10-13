@@ -3,115 +3,88 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { SiteConfig, DEFAULT_SITE_CONFIG } from '@/lib/types/site-config';
-import { saveSiteConfig } from '@/services/site-config-service';
+import { SiteConfig, DEFAULT_SITE_CONFIG, mergeSiteConfig, siteConfigCss } from '@/lib/types/site-config';
 
 interface SiteConfigContextValue {
   config: SiteConfig;
   isLoading: boolean;
-  saveConfig: (newConfig: SiteConfig) => Promise<boolean>;
+  /** True when an admin is previewing the unpublished draft (?sitePreview=draft). */
+  isPreview: boolean;
+  /** Live-edit preview inside the admin editor; never persisted. */
   updatePreviewConfig: (updated: Partial<SiteConfig>) => void;
 }
 
 const SiteConfigContext = createContext<SiteConfigContextValue>({
   config: DEFAULT_SITE_CONFIG,
-  isLoading: true,
-  saveConfig: async () => false,
+  isLoading: false,
+  isPreview: false,
   updatePreviewConfig: () => {},
 });
 
-export function SiteConfigProvider({ children }: { children: React.ReactNode }) {
-  const [config, setConfig] = useState<SiteConfig>(DEFAULT_SITE_CONFIG);
-  const [isLoading, setIsLoading] = useState(true);
+const PREVIEW_STYLE_ID = 'site-config-preview-vars';
 
-  // Subscribe to real-time config updates from Firestore
+function applyPreviewCss(config: SiteConfig | null) {
+  if (typeof document === 'undefined') return;
+  let el = document.getElementById(PREVIEW_STYLE_ID) as HTMLStyleElement | null;
+  if (!config) { el?.remove(); return; }
+  if (!el) {
+    el = document.createElement('style');
+    el.id = PREVIEW_STYLE_ID;
+    document.head.appendChild(el);
+  }
+  // Same generator as SSR; higher specificity via body so it overrides the published vars.
+  el.textContent = siteConfigCss(config).replace('html:root,html.dark', 'html:root:root,html.dark.dark');
+}
+
+/**
+ * The published config is loaded on the server (cached, tag 'site-config') and passed in as
+ * `initialConfig`, with its CSS variables already in the SSR <head>, so there is no flash of
+ * defaults. Client-side we only subscribe to the draft when an admin opens a preview link.
+ */
+export function SiteConfigProvider({ children, initialConfig }: { children: React.ReactNode; initialConfig?: SiteConfig }) {
+  const [config, setConfig] = useState<SiteConfig>(initialConfig ?? DEFAULT_SITE_CONFIG);
+  const [isPreview, setIsPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    if (!db) {
-      setIsLoading(false);
-      return;
-    }
-
-    const docRef = doc(db, 'site_config', 'current');
+    if (typeof window === 'undefined' || !db) return;
+    if (new URLSearchParams(window.location.search).get('sitePreview') !== 'draft') return;
+    setIsLoading(true);
     const unsubscribe = onSnapshot(
-      docRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.data() as SiteConfig;
-           setConfig({
-            branding: { ...DEFAULT_SITE_CONFIG.branding, ...(data.branding || {}) },
-            hero: { ...DEFAULT_SITE_CONFIG.hero, ...(data.hero || {}) },
-            sections: data.sections || DEFAULT_SITE_CONFIG.sections,
-            menus: data.menus || DEFAULT_SITE_CONFIG.menus,
-          });
+      doc(db, 'site_config', 'draft'),
+      (snap) => {
+        if (snap.exists()) {
+          const draft = mergeSiteConfig(snap.data() as Partial<SiteConfig>);
+          setConfig(draft);
+          applyPreviewCss(draft);
+          setIsPreview(true);
         }
         setIsLoading(false);
       },
       (error) => {
-        console.warn('[SiteConfigProvider] Firestore config subscription fallback:', error.message);
-        setConfig(DEFAULT_SITE_CONFIG);
+        // Non-admins can't read drafts (rules); stay on the published config.
+        console.warn('[SiteConfigProvider] draft preview unavailable:', error.message);
         setIsLoading(false);
       }
     );
-
-    return () => unsubscribe();
+    return () => { unsubscribe(); applyPreviewCss(null); };
   }, []);
 
-  // Dynamically inject CSS variables onto document root whenever branding changes
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const root = document.documentElement;
-
-    const { primaryColor, buttonColor, buttonTextColor, tickerBgColor, tickerTextColor } = config.branding;
-
-    // Apply primary color if given (HSL or Hex)
-    if (primaryColor) {
-      root.style.setProperty('--primary', primaryColor);
-      root.style.setProperty('--ring', primaryColor);
-      root.style.setProperty('--accent', primaryColor);
-    }
-
-    if (buttonColor) {
-      root.style.setProperty('--btn-primary-bg', buttonColor);
-    }
-    if (buttonTextColor) {
-      root.style.setProperty('--btn-primary-text', buttonTextColor);
-    }
-
-    if (tickerBgColor) {
-      root.style.setProperty('--ticker-bg', tickerBgColor);
-    }
-    if (tickerTextColor) {
-      root.style.setProperty('--ticker-text', tickerTextColor);
-    }
-  }, [config.branding]);
-
   const updatePreviewConfig = (updated: Partial<SiteConfig>) => {
-    setConfig((prev) => ({
-      ...prev,
-      ...updated,
-      branding: { ...prev.branding, ...(updated.branding || {}) },
-      hero: { ...prev.hero, ...(updated.hero || {}) },
-      sections: updated.sections || prev.sections,
-    }));
-  };
-
-  const handleSaveConfig = async (newConfig: SiteConfig) => {
-    const success = await saveSiteConfig(newConfig);
-    if (success) {
-      setConfig(newConfig);
-    }
-    return success;
+    setConfig((prev) => {
+      const next = mergeSiteConfig({ ...prev, ...updated });
+      applyPreviewCss(next);
+      return next;
+    });
   };
 
   return (
-    <SiteConfigContext.Provider
-      value={{
-        config,
-        isLoading,
-        saveConfig: handleSaveConfig,
-        updatePreviewConfig,
-      }}
-    >
+    <SiteConfigContext.Provider value={{ config, isLoading, isPreview, updatePreviewConfig }}>
+      {isPreview && (
+        <div className="fixed bottom-4 left-1/2 z-[100] -translate-x-1/2 rounded-full bg-amber-400 px-4 py-2 text-xs font-black uppercase tracking-wider text-black shadow-xl" data-testid="draft-preview-badge">
+          Draft preview, not live
+        </div>
+      )}
       {children}
     </SiteConfigContext.Provider>
   );
