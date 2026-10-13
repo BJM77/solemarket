@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { features } from '@/lib/features';
 import {
     LayoutGrid, Tag, User, Heart, ShoppingBag, LayoutDashboard, Shield, LogOut, LogIn,
-    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, Coins, Layers, Link as LinkIcon
+    Footprints, Watch, Zap, Search, Scan, X, CreditCard, Gem, Calendar, BookOpen, TrendingUp, Camera, ScanLine, Coins, Layers, Link as LinkIcon
 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
@@ -419,6 +419,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         </Button>
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/admin/power-tools')}>
                                             <Zap className="mr-3 h-4 w-4 text-amber-500" /> Power Tools
+                                        </Button>
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/autocard')}>
+                                            <ScanLine className="mr-3 h-4 w-4" /> AutoCard
                                         </Button>
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/samcam')}>
                                             <Camera className="mr-3 h-4 w-4" /> SamCam Studio
