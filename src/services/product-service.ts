@@ -4,11 +4,13 @@ import type { Product, ProductSearchParams } from '@/lib/types';
 import { collection, query, where, or, and, orderBy, limit, getDocs, startAfter, QueryConstraint, Timestamp, Query, DocumentData, doc, getDoc } from 'firebase/firestore';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
+import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeSize } from '@/lib/filters/params';
 
 const PAGE_SIZE = 24;
 
-export async function getProducts(searchParams: ProductSearchParams, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
-  const { page = 1, sort = 'createdAt-desc', q, subCategory, brand, conditions, priceRange, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
+export async function getProducts(searchParams: ProductSearchParams & { countOnly?: boolean }, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
+  const priceRange = parseRange(searchParams.priceRange as any);
+  const { page = 1, sort = 'createdAt-desc', q, subCategory, brand, conditions, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
   let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
@@ -35,7 +37,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   
   // Normalize and ensure arrays for multi-select filters
   const selectedConditions = Array.isArray(conditions) ? conditions : (conditions ? [conditions] : []);
-  const selectedSizes = Array.isArray(searchParams.sizes) ? searchParams.sizes : (searchParams.sizes ? [searchParams.sizes] : []);
+  const selectedSizes = (Array.isArray(searchParams.sizes) ? searchParams.sizes : (searchParams.sizes ? [searchParams.sizes] : [])).map((x: string) => normalizeSize(x));
   const selectedSellers = Array.isArray(sellers) ? sellers : (sellers ? [sellers] : []);
   const selectedGrading = Array.isArray(gradingCompanies) ? gradingCompanies : (gradingCompanies ? [gradingCompanies] : []);
   const selectedTiers = Array.isArray(searchParams.multiCardTiers) ? searchParams.multiCardTiers : (searchParams.multiCardTiers ? [searchParams.multiCardTiers] : []);
@@ -103,10 +105,9 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   }
 
   if (selectedSizes.length > 0) {
-    if (selectedSizes.length === 1) {
-      constraints.push(where('size', '==', selectedSizes[0]));
-    } else if (!inFilterUsed && selectedSizes.length > 1) {
-      constraints.push(where('size', 'in', selectedSizes.slice(0, 10)));
+    // Listings store sizes inconsistently ("10", "US 10", "US10"); match every spelling.
+    if (!inFilterUsed) {
+      constraints.push(where('size', 'in', sizeQueryVariants(selectedSizes)));
       inFilterUsed = true;
     } else {
       filterSizesInMemory = selectedSizes;
@@ -184,7 +185,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
   let effectiveSort = sort;
   if (sort === 'newest') effectiveSort = 'createdAt-desc';
   if (sort === 'price-asc' || sort === 'price-desc') effectiveSort = sort;
-  if (!effectiveSort.includes('-')) effectiveSort = 'createdAt-desc';
+  if (!/^(createdAt|price|year|views)-(asc|desc)$/.test(effectiveSort)) effectiveSort = 'createdAt-desc';
 
   const [sortField, sortDirection] = effectiveSort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
   let orderByConstraints: QueryConstraint[] = [];
@@ -282,6 +283,22 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
   const queryArgs: any[] = [...filterArgs, ...orderByConstraints];
 
+  // Server counts can't see in-memory filters; don't show a count that could be wrong.
+  const countIsExact = !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating);
+
+  // Count-only mode: used by the filter panel to show "Show N results" before applying.
+  if (searchParams.countOnly) {
+    if (!countIsExact) return { products: [], hasMore: false };
+    try {
+      const firestoreMod = await import('firebase/firestore');
+      const snapshot = await firestoreMod.getCountFromServer(query(productsRef, ...filterArgs));
+      return { products: [], hasMore: false, totalCount: snapshot.data().count };
+    } catch (e) {
+      console.warn('Count failed', e);
+      return { products: [], hasMore: false };
+    }
+  }
+
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
     const lastDocSnap = await getDoc(lastDocRef);
@@ -330,14 +347,7 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
 
       // 4. Size Filter (in memory if multiple sizes and 'in' already used)
       if (filterSizesInMemory && filterSizesInMemory.length > 0) {
-        if (!p.size) return false;
-        
-        // Normalize for comparison (e.g. "10" vs "US 10")
-        const normalizeSize = (s: string) => s.toUpperCase().startsWith('US ') ? s.toUpperCase() : `US ${s.toUpperCase()}`;
-        const normalizedItemSize = normalizeSize(p.size);
-        const normalizedFilterSizes = filterSizesInMemory.map(normalizeSize);
-        
-        if (!normalizedFilterSizes.includes(normalizedItemSize)) return false;
+        if (!sizeMatches(p.size, filterSizesInMemory)) return false;
       }
 
       // 5. Seller Filter (in memory if multiple sellers and 'in' already used)
@@ -392,13 +402,16 @@ export async function getProducts(searchParams: ProductSearchParams, userRole: s
       return true;
     });
 
+    // Keep the page in the requested order regardless of legacy string prices.
+    products = applyClientSort(products, effectiveSort);
+
     const hasMore = querySnapshot.docs.length === PAGE_SIZE;
     const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
 
     let totalCount: number | undefined = undefined;
     // Only fetch count on first page to save reads
     // OPTIMIZATION: Skip count for text searches (q) as it requires a full collection scan matches
-    if (!searchParams.lastId && page === 1 && !q) {
+    if (!searchParams.lastId && page === 1 && !q && countIsExact) {
       try {
         const countQuery = query(productsRef, ...filterArgs);
         const firestoreMod = await import('firebase/firestore');

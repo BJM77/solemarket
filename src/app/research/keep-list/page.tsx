@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -34,7 +35,7 @@ export default function KeepListPage() {
         if (user) {
             const loadData = async () => {
                 try {
-                    const data = await getResearchPreferences(user.uid);
+                    const data = await getResearchPreferences((await getCurrentUserIdToken()) ?? '');
                     setPlayers(data);
                 } catch (error) {
                     toast({ title: "Failed to load preferences", variant: "destructive" });
@@ -65,7 +66,7 @@ export default function KeepListPage() {
 
         try {
             if (user) {
-                await addPlayerToKeepList(user.uid, newPlayer);
+                await addPlayerToKeepList((await getCurrentUserIdToken()) ?? '', newPlayer);
                 toast({ title: 'Player added!', description: `${newPlayer.name} added to keep list` });
             }
         } catch (error) {
@@ -79,7 +80,7 @@ export default function KeepListPage() {
 
         try {
             if (user) {
-                await removePlayerFromKeepList(user.uid, name);
+                await removePlayerFromKeepList((await getCurrentUserIdToken()) ?? '', name);
                 toast({ title: 'Player removed' });
             }
         } catch (error) {

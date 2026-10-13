@@ -38,27 +38,16 @@ export default async function BrandPage({ params }: Props) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  // For the InfiniteProductGrid, we'll pass an initial filter state
-  const initialFilters = {
-    brand: [displayBrand]
-  };
-
+  // Brand pre-applied (matches brand, subCategory or title keyword); the grid adds the
+  // standard sort control, filter panel, chips and counts on top.
   return (
-    <div className="container mx-auto px-4 py-8 mt-20">
-      <div className="mb-8">
-        <h1 className="text-4xl font-black uppercase tracking-tight mb-2">
-          {displayBrand}
-        </h1>
-        <p className="text-slate-500 font-medium">
-          Explore all authenticated {displayBrand} items available on Benched.
-        </p>
-      </div>
-
-      <InfiniteProductGrid 
-        pageTitle={displayBrand} 
+    <div className="pt-4">
+      <InfiniteProductGrid
+        pageTitle={displayBrand}
         pageDescription={`Explore all authenticated ${displayBrand} items available on Benched.`}
-        initialFilterState={{ brand: displayBrand }} 
-        hideTitle={true}
+        intro={`Shop authentic ${displayBrand} from verified Australian sellers, with DealSafe escrow and Australia-wide shipping.`}
+        initialFilterState={{ subCategory: displayBrand, brand: displayBrand }}
+        titleAsH1
       />
     </div>
   );

@@ -16,6 +16,14 @@ vi.mock('@/lib/firebase/admin', () => ({
   },
 }));
 
+vi.mock('server-only', () => ({}));
+vi.mock('@/lib/firebase/auth-admin', () => ({
+  verifyIdToken: vi.fn(async (token: string) => {
+    if (!token || token === 'forged') throw new Error('invalid token');
+    return { uid: token };
+  }),
+}));
+
 vi.mock('firebase-admin/firestore', () => ({
   FieldValue: {
     serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -91,5 +99,13 @@ describe('Seller Actions', () => {
         });
     });
 
-    // publishListing tests could go here...
+    describe('auth', () => {
+        it('rejects a missing ID token instead of trusting a client uid', async () => {
+            await expect(saveDraftListing('', mockData)).rejects.toThrow(/Unauthorized/);
+        });
+        it('rejects an invalid ID token', async () => {
+            await expect(saveDraftListing('forged', mockData)).rejects.toThrow();
+            await expect(publishListing('d1', 'forged')).rejects.toThrow();
+        });
+    });
 });

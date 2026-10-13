@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import Image from 'next/image';
 
 import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
@@ -215,7 +216,7 @@ function CreateListingForm() {
       const draftData = sanitizedDraft;
 
       try {
-        const draftId = await saveDraftListing(user.uid, draftData, editId || undefined);
+        const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', draftData, editId || undefined);
         if (draftId && draftId !== editId) {
           initializedDraftIdRef.current = draftId;
           router.replace(`/sell/create?edit=${draftId}`, { scroll: false });
@@ -271,7 +272,7 @@ function CreateListingForm() {
     const loadDraft = async () => {
       setIsLoadingDraft(true);
       try {
-        const data = await getDraftListing(editId, user.uid);
+        const data = await getDraftListing(editId, (await getCurrentUserIdToken()) ?? '');
         if (data) {
           initializedDraftIdRef.current = editId;
           
@@ -875,8 +876,8 @@ function CreateListingForm() {
             isVault: false,
           }));
 
-          const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
-          await publishListing(draftId, user.uid);
+          const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', listingData, editId || undefined);
+          await publishListing(draftId, (await getCurrentUserIdToken()) ?? '');
 
           if (draftId) {
             await clearListingImagesCache(draftId);
@@ -990,7 +991,7 @@ function CreateListingForm() {
         isVault: false,
       }));
 
-      const draftId = await saveDraftListing(user.uid, listingData, editId || undefined);
+      const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', listingData, editId || undefined);
 
       if (draftId) {
         await clearListingImagesCache(draftId);

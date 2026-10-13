@@ -4,8 +4,10 @@ import { firestoreDb as db } from '@/lib/firebase/admin';
 import type { ScanHistoryItem, Player } from '@/lib/research-types';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { QueryDocumentSnapshot, FieldValue } from 'firebase-admin/firestore';
+import { requireUidFromToken } from '@/lib/firebase/session-user';
 
-export async function getScanHistory(userId: string): Promise<ScanHistoryItem[]> {
+export async function getScanHistory(idToken: string): Promise<ScanHistoryItem[]> {
+    const userId = await requireUidFromToken(idToken).catch(() => '');
     if (!userId) return [];
 
     try {
@@ -29,7 +31,8 @@ export async function getScanHistory(userId: string): Promise<ScanHistoryItem[]>
     }
 }
 
-export async function getResearchPreferences(userId: string): Promise<Player[]> {
+export async function getResearchPreferences(idToken: string): Promise<Player[]> {
+    const userId = await requireUidFromToken(idToken).catch(() => '');
     if (!userId) return [];
     try {
         const doc = await db.collection('users').doc(userId).collection('research').doc('preferences').get();
@@ -43,7 +46,8 @@ export async function getResearchPreferences(userId: string): Promise<Player[]> 
     }
 }
 
-export async function addPlayerToKeepList(userId: string, player: Player): Promise<void> {
+export async function addPlayerToKeepList(idToken: string, player: Player): Promise<void> {
+    const userId = await requireUidFromToken(idToken);
     if (!userId) return;
     try {
         await db.collection('users').doc(userId).collection('research').doc('preferences').set({
@@ -55,7 +59,8 @@ export async function addPlayerToKeepList(userId: string, player: Player): Promi
     }
 }
 
-export async function removePlayerFromKeepList(userId: string, playerName: string): Promise<void> {
+export async function removePlayerFromKeepList(idToken: string, playerName: string): Promise<void> {
+    const userId = await requireUidFromToken(idToken);
     if (!userId) return;
     try {
         const ref = db.collection('users').doc(userId).collection('research').doc('preferences');

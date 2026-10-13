@@ -14,10 +14,10 @@ export interface CardMatchResult {
  */
 export async function matchCardName(
     cardName: string,
-    userId: string
+    idToken: string
 ): Promise<CardMatchResult> {
     // Get user's keep list from research preferences
-    const keepList = await getResearchPreferences(userId);
+    const keepList = await getResearchPreferences(idToken);
 
     // Normalize the input
     const normalizedInput = cardName.toLowerCase().trim();
