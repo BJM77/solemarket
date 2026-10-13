@@ -7,13 +7,8 @@ import { useUser } from '@/firebase';
 import { cn } from "@/lib/utils/ui";
 import { buttonVariants } from '@/components/ui/button';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Store, TrendingUp, ShieldCheck, BookOpen, Search, Gavel, LineChart, LayoutGrid, Link as LinkIcon } from "lucide-react";
+import { HoverMenu } from './HoverMenu';
+import { Store, TrendingUp, ShieldCheck, BookOpen, Search, Gavel, LineChart, LayoutGrid, Link as LinkIcon } from "lucide-react";
 
 const getIcon = (name?: string) => {
   switch (name) {
@@ -44,29 +39,16 @@ export function MainNavLinks() {
   if (activeMenus.length === 0) return null;
 
   return (
-    <nav className="flex items-center gap-6">
+    <nav aria-label="Main" className="flex items-center gap-2 xl:gap-4">
       {activeMenus.map((menu) => {
         // Render dropdown if has sub-items
         if (menu.subItems && menu.subItems.length > 0) {
           return (
-            <div key={menu.id} className="flex items-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300 flex items-center gap-1 group")}>
-                  {menu.label}
-                  <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-300" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-[200px] p-2 bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl shadow-2xl">
-                  {menu.subItems.map((sub, sIdx) => (
-                    <DropdownMenuItem key={sIdx} asChild className="rounded-xl focus:bg-primary/5 focus:text-primary cursor-pointer py-3">
-                      <Link href={sub.href} className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
-                        {getIcon(sub.iconName)}
-                        {sub.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <HoverMenu
+              key={menu.id}
+              label={menu.label}
+              items={menu.subItems.map((sub) => ({ label: sub.label, href: sub.href, icon: getIcon(sub.iconName) }))}
+            />
           );
         }
 
@@ -77,7 +59,7 @@ export function MainNavLinks() {
             href={menu.href}
             className={cn(
               buttonVariants({ variant: "ghost" }),
-              "text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-all duration-300",
+              "h-10 text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary",
               menu.label.toLowerCase() === 'fundraising' && "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
             )}
           >

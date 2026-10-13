@@ -193,29 +193,29 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="tools" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group/trigger">
+                            <AccordionTrigger className="min-h-11 py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group/trigger">
                                 <div className="flex items-center text-sm font-bold">
                                     <Scan className="mr-3 h-4 w-4 text-primary" /> Tools
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/procam')}>ProCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-9 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/proload')}>Proload</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/procam')}>ProCam</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/proload')}>Proload</Button>
                                     {features.research && user && (
-                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
 
                         <AccordionItem value="services" className="border-b-0">
-                            <AccordionTrigger className="py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl">
+                            <AccordionTrigger className="min-h-11 py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl">
                                 <div className="flex items-center text-sm font-bold">
                                     <Shield className="mr-3 h-4 w-4 text-primary" /> Services
                                 </div>
@@ -223,9 +223,9 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
                                     {features.consignment && (
-                                        <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/consign')}>Consignment</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/consign')}>Consignment</Button>
                                     )}
-                                    {/* <Button variant="ghost" size="sm" className="justify-start h-9 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button> */}
+                                    {/* <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/dealsafe')}>DealSafe Escrow</Button> */}
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
@@ -319,7 +319,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             if (!menu.subItems || menu.subItems.length === 0) return null;
                             return (
                                 <AccordionItem key={menu.id} value={menu.id} className="border-b-0">
-                                    <AccordionTrigger className="text-sm font-bold px-4 py-2.5 hover:bg-primary/5 hover:text-primary transition-all rounded-xl hover:no-underline group">
+                                    <AccordionTrigger className="min-h-11 text-sm font-bold px-4 py-2.5 hover:bg-primary/5 hover:text-primary transition-all rounded-xl hover:no-underline group">
                                         <div className="flex items-center">
                                             <Layers className="mr-3 h-4 w-4 text-primary" />
                                             {menu.label}

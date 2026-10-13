@@ -121,7 +121,7 @@ export function UserNav() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 p-2" align="end" forceMount>
+      <DropdownMenuContent className="w-64 p-2 z-[60] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain" align="end" sideOffset={8} collisionPadding={12}>
         <DropdownMenuLabel className="font-normal p-2">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-bold leading-none truncate">{user.displayName || 'User'}</p>
