@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -143,7 +144,7 @@ export default function AutoCardCapture() {
         new File([shots.back.blob], 'autocard-back.jpg', { type: 'image/jpeg' }),
       ];
       const imageUrls = await uploadImages(files, `products/${user.uid}`);
-      const draftId = await saveDraftListing(user.uid, {
+      const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', {
         title: 'Card (AutoCard draft)', price: 0, category: 'Collector Cards', condition: 'Used', quantity: 1,
         isReverseBidding: false, autoRepricingEnabled: false, isVault: false, imageUrls,
       } as any);

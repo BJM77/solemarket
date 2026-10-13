@@ -41,7 +41,7 @@ function ReviewPageContent() {
 
     const loadDraft = async () => {
       try {
-        const data = await getDraftListing(draftId, user.uid);
+        const data = await getDraftListing(draftId, (await getCurrentUserIdToken()) ?? '');
         if (data) {
           setListingData(data);
         } else {
@@ -69,7 +69,7 @@ function ReviewPageContent() {
         router.push(`/sell/dashboard`);
       } else {
         // Publish
-        await publishListing(draftId, user.uid);
+        await publishListing(draftId, (await getCurrentUserIdToken()) ?? '');
         toast({ title: 'Listing Published Successfully!' });
         router.push(`/product/${draftId}`);
       }

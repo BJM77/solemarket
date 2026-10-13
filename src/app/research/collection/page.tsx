@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ export default function CollectionPage() {
         if (user) {
             const loadData = async () => {
                 try {
-                    const parsed = await getScanHistory(user.uid);
+                    const parsed = await getScanHistory((await getCurrentUserIdToken()) ?? '');
                     // Filter only keepers where image is present (optional: server could return all)
                     // The getScanHistory action returns a list.
                     // We only want keepers here.

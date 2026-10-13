@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils/ui";
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
+import { facetCategory, normalizeSize } from '@/lib/filters/params';
 
 interface QuickFilterChipsProps {
     currentFilters: Partial<ProductSearchParams>;
@@ -13,7 +14,7 @@ interface QuickFilterChipsProps {
     className?: string;
 }
 
-const QUICK_SIZES = ['US 9', 'US 10', 'US 11', 'US 12'];
+const QUICK_SIZES = ['9', '10', '10.5', '11', '12'];
 const QUICK_BRANDS = ['Jordan', 'Nike', 'Adidas', 'Yeezy'];
 const QUICK_PRICES = [
     { label: 'Under $200', value: [0, 200] },
@@ -26,8 +27,8 @@ export function QuickFilterChips({
     targetCategory,
     className
 }: QuickFilterChipsProps) {
-    const isSneakers = targetCategory === 'Sneakers';
-    const currentSizes = (currentFilters.sizes as string[]) || [];
+    const isSneakers = facetCategory(targetCategory) === 'sneakers';
+    const currentSizes = ((currentFilters.sizes as string[]) || []).map(normalizeSize);
     const currentTiers = (currentFilters.multiCardTiers as string[]) || [];
     const currentSubCategory = currentFilters.subCategory as string;
     const currentPriceRange = currentFilters.priceRange as [number, number];
@@ -100,7 +101,7 @@ export function QuickFilterChips({
                                     : "bg-muted/30 border-transparent text-muted-foreground hover:border-muted-foreground/30"
                             )}
                         >
-                            {size.replace('US ', '')}
+                            US {size}
                         </button>
                     );
                 })}

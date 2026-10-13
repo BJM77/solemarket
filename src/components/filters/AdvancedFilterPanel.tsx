@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +30,7 @@ import { Filter, X, SlidersHorizontal } from 'lucide-react';
 import type { ProductSearchParams } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";
 import { useToast } from '@/hooks/use-toast';
+import { facetsFor, normalizeSize } from '@/lib/filters/params';
 
 // These are now defaults, but get overridden by Firestore values.
 const DEFAULT_CATEGORIES = [
@@ -38,10 +39,7 @@ const DEFAULT_CATEGORIES = [
     'Collector Cards',
 ];
 
-const DEFAULT_SIZES = [
-    'US 4', 'US 4.5', 'US 5', 'US 5.5', 'US 6', 'US 6.5', 'US 7', 'US 7.5', 'US 8', 'US 8.5',
-    'US 9', 'US 9.5', 'US 10', 'US 10.5', 'US 11', 'US 11.5', 'US 12', 'US 12.5', 'US 13', 'US 14', 'US 15'
-];
+const DEFAULT_SIZES = ['4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13', '14', '15'];
 
 const DEFAULT_CONDITIONS = [
     'New with Box',
@@ -49,15 +47,6 @@ const DEFAULT_CONDITIONS = [
     'New with Defects',
     'Used with Box',
     'Used',
-];
-
-const SORT_OPTIONS = [
-    { value: 'createdAt-desc', label: 'Newest First' },
-    { value: 'createdAt-asc', label: 'Oldest First' },
-    { value: 'price-asc', label: 'Price: Low to High' },
-    { value: 'price-desc', label: 'Price: High to Low' },
-    { value: 'views-desc', label: 'Most Popular' },
-    { value: 'title-asc', label: 'Title: A to Z' },
 ];
 
 const GRADING_COMPANIES = [
@@ -119,6 +108,12 @@ interface AdvancedFilterPanelProps {
     onFilterChange: (filters: Partial<ProductSearchParams>) => void;
     onClearFilters: () => void;
     targetCategory?: string;
+    /** Render the panel body directly (mobile sheet / sidebar) instead of its own trigger + sheet. */
+    inline?: boolean;
+    /** Optional live count for the pending (not yet applied) filters. */
+    countFor?: (filters: Partial<ProductSearchParams>) => Promise<number | undefined>;
+    /** Count for the applied filters (fallback while the pending count loads). */
+    appliedCount?: number;
 }
 
 export default function AdvancedFilterPanel({
@@ -126,6 +121,9 @@ export default function AdvancedFilterPanel({
     onFilterChange,
     onClearFilters,
     targetCategory,
+    inline = false,
+    countFor,
+    appliedCount,
 }: AdvancedFilterPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
     const { toast } = useToast();
@@ -141,6 +139,22 @@ export default function AdvancedFilterPanel({
 
     // Local state for filters
     const [localFilters, setLocalFilters] = useState<Partial<ProductSearchParams>>(currentFilters);
+    useEffect(() => { setLocalFilters(currentFilters); }, [currentFilters]);
+
+    // Live "Show N results" for the pending selection (debounced).
+    const [pendingCount, setPendingCount] = useState<number | undefined>(appliedCount);
+    const [countLoading, setCountLoading] = useState(false);
+    useEffect(() => {
+        if (!countFor) { setPendingCount(appliedCount); return; }
+        let cancelled = false;
+        setCountLoading(true);
+        const t = setTimeout(async () => {
+            try { const n = await countFor(localFilters); if (!cancelled) setPendingCount(n); }
+            catch { if (!cancelled) setPendingCount(undefined); }
+            finally { if (!cancelled) setCountLoading(false); }
+        }, 300);
+        return () => { cancelled = true; clearTimeout(t); };
+    }, [localFilters, countFor, appliedCount]);
 
     const handleLocalChange = useCallback((key: string, value: any) => {
         setLocalFilters(prev => ({
@@ -157,6 +171,7 @@ export default function AdvancedFilterPanel({
     const handleClear = () => {
         setLocalFilters({});
         onClearFilters();
+        setIsOpen(false);
     };
 
     const toggleCategory = (category: string) => {
@@ -196,7 +211,7 @@ export default function AdvancedFilterPanel({
 
     const toggleSize = (size: string) => {
         const currentSizes = (localFilters.sizes as string[]) || [];
-        const isSelected = currentSizes.includes(size);
+        const isSelected = currentSizes.map(normalizeSize).includes(size);
 
         if (!isSelected && currentSizes.length >= 10) {
             toast({
@@ -208,7 +223,7 @@ export default function AdvancedFilterPanel({
         }
 
         const newSizes = isSelected
-            ? currentSizes.filter(s => s !== size)
+            ? currentSizes.filter(s => normalizeSize(s) !== size)
             : [...currentSizes, size];
         handleLocalChange('sizes', newSizes.length > 0 ? newSizes : undefined);
     };
@@ -220,8 +235,9 @@ export default function AdvancedFilterPanel({
     const priceRange = (localFilters.priceRange as [number, number]) || [0, 10000];
     const yearRange = (localFilters.yearRange as [number, number]) || [1900, new Date().getFullYear()];
 
-    const isSneakers = targetCategory === 'Sneakers' || (localFilters.categories as string[])?.includes('Sneakers');
-    const isCards = targetCategory === 'Collector Cards' || targetCategory === 'Trading Cards' || (localFilters.categories as string[])?.some(c => c.includes('Card'));
+    const facets = facetsFor(targetCategory || (localFilters.categories as string[] | undefined)?.[0]);
+    const isSneakers = facets.size;
+    const isCards = facets.cardSubCategory;
 
     const toggleGradingCompany = (company: string) => {
         const currentCompanies = (localFilters.gradingCompanies as string[]) || [];
@@ -231,51 +247,8 @@ export default function AdvancedFilterPanel({
         handleLocalChange('gradingCompanies', newCompanies.length > 0 ? newCompanies : undefined);
     };
 
-    return (
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-                <Button variant="outline" className="relative px-2 sm:px-4">
-                    <SlidersHorizontal className="sm:mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Filters</span>
-                    {activeFilterCount > 0 && (
-                        <Badge className="ml-1 sm:ml-2 px-1.5 min-w-[20px] h-5" variant="default">
-                            {activeFilterCount}
-                        </Badge>
-                    )}
-                </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-lg overflow-y-auto border-l-0" side="right">
-                <SheetHeader className="text-left pb-6 border-b border-border/10">
-                    <SheetTitle className="text-3xl font-black uppercase tracking-tight">
-                        {isSneakers ? 'Sneaker Filters' : isCards ? 'Card Filters' : 'Filters'}
-                    </SheetTitle>
-                    <SheetDescription className="font-medium text-muted-foreground">
-                        {isSneakers ? 'Refine your search for the perfect pair.' : isCards ? 'Find that specific grail for your collection.' : 'Refine your search across the marketplace.'}
-                    </SheetDescription>
-                </SheetHeader>
-
+    const panelBody = (
                 <div className="py-8 space-y-10">
-                    {/* Sort */}
-                    <div className="space-y-3">
-                        <Label className="text-base font-bold">Sort By</Label>
-                        <Select
-                            value={localFilters.sort as string || 'createdAt-desc'}
-                            onValueChange={(value) => handleLocalChange('sort', value)}
-                        >
-                            <SelectTrigger className="h-12">
-                                <SelectValue placeholder="Select sort order" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {SORT_OPTIONS.map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <Separator />
 
                     {/* Sub Category - Sneakers */}
                     {isSneakers && (
@@ -338,11 +311,14 @@ export default function AdvancedFilterPanel({
                                 </div>
                                 <div className="grid grid-cols-4 gap-2">
                                     {displaySizes.map(size => {
-                                        const isSelected = (localFilters.sizes as string[] || []).includes(size);
-                                        const simpleSize = size.replace('US ', '');
+                                        const isSelected = (localFilters.sizes as string[] || []).map(normalizeSize).includes(size);
+                                        const simpleSize = size;
                                         return (
                                             <button
                                                 key={size}
+                                                type="button"
+                                                aria-pressed={isSelected}
+                                                aria-label={`US ${size}`}
                                                 onClick={() => toggleSize(size)}
                                                 className={cn(
                                                     "h-12 rounded-md border text-sm font-medium transition-all",
@@ -361,8 +337,8 @@ export default function AdvancedFilterPanel({
                         </>
                     )}
 
-                    {/* Grading - Cards Only */}
-                    {isCards && (
+                    {/* Grading - Cards & Coins */}
+                    {facets.grading && (
                         <>
                             <div className="space-y-3">
                                 <Label className="text-base font-bold">Grading Company</Label>
@@ -384,7 +360,7 @@ export default function AdvancedFilterPanel({
                             </div>
                             <Separator />
 
-                            <div className="space-y-3">
+                            {facets.manufacturer && <><div className="space-y-3">
                                 <Label className="text-base font-bold">Manufacturer</Label>
                                 <Select
                                     value={localFilters.manufacturer as string || 'all'}
@@ -401,7 +377,7 @@ export default function AdvancedFilterPanel({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Separator />
+                            <Separator /></>}
                         </>
                     )}
 
@@ -444,8 +420,8 @@ export default function AdvancedFilterPanel({
 
                     <Separator />
 
-                    {/* Conditions */}
-                    <div className="space-y-3">
+                    {/* Conditions (sneaker scale; hidden for cards/coins) */}
+                    {facets.sneakerCondition && <><div className="space-y-3">
                         <Label className="text-base font-semibold">Condition</Label>
                         <div className="grid grid-cols-2 gap-2">
                             {displayConditions.map((condition: string) => {
@@ -469,10 +445,10 @@ export default function AdvancedFilterPanel({
                         </div>
                     </div>
 
-                    <Separator />
+                    <Separator /></>}
 
                     {/* Deal Tiers */}
-                    <div className="space-y-3">
+                    {facets.dealTiers && <><div className="space-y-3">
                         <Label className="text-base font-semibold">Multi-Listing Deals</Label>
                         <div className="grid grid-cols-2 gap-2">
                             {DEAL_TIERS.map((tier) => {
@@ -502,10 +478,10 @@ export default function AdvancedFilterPanel({
                         </div>
                     </div>
 
-                    <Separator />
+                    <Separator /></>}
 
                     {/* Year Range */}
-                    <div className="space-y-4">
+                    {facets.year && <><div className="space-y-4">
                         <Label className="text-base font-semibold">
                             Year Range: {yearRange[0]} - {yearRange[1]}
                         </Label>
@@ -539,7 +515,7 @@ export default function AdvancedFilterPanel({
                         </div>
                     </div>
 
-                    <Separator />
+                    <Separator /></>}
 
                     {/* Seller Rating */}
                     <div className="space-y-3">
@@ -573,16 +549,58 @@ export default function AdvancedFilterPanel({
                         />
                     </div>
                 </div>
+    );
 
-                <SheetFooter className="flex-col sm:flex-col gap-2 sticky bottom-0 bg-background pt-4">
-                    <Button onClick={handleApplyFilters} className="w-full">
-                        Apply Filters
+    if (inline) {
+        return (
+            <div className="flex flex-col" data-testid="filter-panel-inline">
+                {panelBody}
+            <div className="sticky bottom-0 flex flex-col gap-2 bg-background pt-4 pb-2 border-t border-border/10" data-testid="filter-footer">
+                    <Button onClick={handleApplyFilters} className="w-full h-12 font-bold" data-testid="filter-apply">
+                        {countLoading ? 'Counting…' : pendingCount !== undefined ? `Show ${pendingCount} result${pendingCount === 1 ? '' : 's'}` : 'Apply Filters'}
                     </Button>
-                    <Button onClick={handleClear} variant="outline" className="w-full">
+                    <Button onClick={handleClear} variant="outline" className="w-full h-11">
                         <X className="mr-2 h-4 w-4" />
-                        Clear All Filters
+                        Clear all
                     </Button>
-                </SheetFooter>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+                <Button variant="outline" className="relative px-2 sm:px-4">
+                    <SlidersHorizontal className="sm:mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Filters</span>
+                    {activeFilterCount > 0 && (
+                        <Badge className="ml-1 sm:ml-2 px-1.5 min-w-[20px] h-5" variant="default">
+                            {activeFilterCount}
+                        </Badge>
+                    )}
+                </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-lg overflow-y-auto border-l-0" side="right">
+                <SheetHeader className="text-left pb-6 border-b border-border/10">
+                    <SheetTitle className="text-3xl font-black uppercase tracking-tight">
+                        {isSneakers ? 'Sneaker Filters' : isCards ? 'Card Filters' : 'Filters'}
+                    </SheetTitle>
+                    <SheetDescription className="font-medium text-muted-foreground">
+                        {isSneakers ? 'Refine your search for the perfect pair.' : isCards ? 'Find that specific grail for your collection.' : 'Refine your search across the marketplace.'}
+                    </SheetDescription>
+                </SheetHeader>
+
+                {panelBody}
+                <div className="sticky bottom-0 flex flex-col gap-2 bg-background pt-4 pb-2 border-t border-border/10" data-testid="filter-footer">
+                    <Button onClick={handleApplyFilters} className="w-full h-12 font-bold" data-testid="filter-apply">
+                        {countLoading ? 'Counting…' : pendingCount !== undefined ? `Show ${pendingCount} result${pendingCount === 1 ? '' : 's'}` : 'Apply Filters'}
+                    </Button>
+                    <Button onClick={handleClear} variant="outline" className="w-full h-11">
+                        <X className="mr-2 h-4 w-4" />
+                        Clear all
+                    </Button>
+                </div>
             </SheetContent>
         </Sheet>
     );

@@ -201,6 +201,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/autocard')}>AutoCard</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>

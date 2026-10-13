@@ -4,6 +4,7 @@ import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { checkForAdminWantedMatch } from '../admin/admin-wanted';
+import { requireUidFromToken } from '@/lib/firebase/session-user';
 
 export interface DraftListingData {
     sellerId: string;
@@ -68,7 +69,9 @@ export interface DraftListingData {
  * Creates or updates a draft listing in Firestore.
  * Returns the draft ID.
  */
-export async function saveDraftListing(userId: string, data: Omit<DraftListingData, 'sellerId' | 'status' | 'isDraft' | 'createdAt' | 'updatedAt'>, draftId?: string): Promise<string> {
+export async function saveDraftListing(idToken: string, data: Omit<DraftListingData, 'sellerId' | 'status' | 'isDraft' | 'createdAt' | 'updatedAt'>, draftId?: string): Promise<string> {
+    // The seller is whoever the verified ID token says, never a client-supplied uid.
+    const userId = await requireUidFromToken(idToken);
     if (!userId) {
         throw new Error("Unauthorized: User ID is required.");
     }
@@ -148,8 +151,9 @@ export async function saveDraftListing(userId: string, data: Omit<DraftListingDa
  * Retrieves a draft listing by ID.
  * Ensures the listing belongs to the user or user is admin.
  */
-export async function getDraftListing(draftId: string, userId: string): Promise<any> {
-    if (!draftId || !userId) return null;
+export async function getDraftListing(draftId: string, idToken: string): Promise<any> {
+    if (!draftId) return null;
+    const userId = await requireUidFromToken(idToken);
 
     try {
         const user = await adminAuth.getUser(userId);
@@ -176,8 +180,9 @@ export async function getDraftListing(draftId: string, userId: string): Promise<
 /**
  * Publishes a draft listing.
  */
-export async function publishListing(draftId: string, userId: string): Promise<void> {
-    if (!draftId || !userId) throw new Error("Invalid request.");
+export async function publishListing(draftId: string, idToken: string): Promise<void> {
+    if (!draftId) throw new Error("Invalid request.");
+    const userId = await requireUidFromToken(idToken);
 
     const docRef = db.collection('products').doc(draftId);
     const docSnap = await docRef.get();

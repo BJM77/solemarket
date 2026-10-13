@@ -258,7 +258,7 @@ export default function ProductCard({
                 }
               }}
             >
-              ${formatPrice(product.price)}
+              <span data-testid="product-price">${formatPrice(product.price)}</span>
             </div>
           )}
         </div>
@@ -277,7 +277,7 @@ export default function ProductCard({
         }}
         title={isAdmin ? "Click to edit price" : undefined}
       >
-        ${formatPrice(product.price)}
+        <span data-testid="product-price">${formatPrice(product.price)}</span>
         {isAdmin && <Edit className="h-3 w-3 opacity-20" />}
         {isSuperAdmin && onOpenPriceAssistant && (
           <Button

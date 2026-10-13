@@ -8,6 +8,7 @@ import { getProducts } from '@/services/product-service';
 import { searchProductsAction } from '@/app/actions/search/search';
 import SaveSearchButton from '@/components/search/SaveSearchButton';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
+import { parseFilterSearchParams, activeFilterChips, clearFiltersHref, sortOptionsFor, applyClientSort, DEFAULT_SORT } from '@/lib/filters/params';
 import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -98,25 +99,14 @@ function InfiniteProductGridInner({
   }, [isSuperAdmin, isUserAdmin, userProfile?.role]);
 
   // Define currentSearchParams BEFORE using it in useInfiniteQuery
-  const currentSearchParams = useMemo(() => {
-    const params: ProductSearchParams = { ...initialFilterState };
-    searchParams.forEach((value, key) => {
-      if (key === 'priceRange' || key === 'yearRange') {
-        try {
-          params[key] = value.split(',').map(Number) as [number, number];
-        } catch {
-          // Ignore invalid formats
-        }
-      } else if (key === 'conditions' || key === 'sellers' || key === 'categories' || key === 'sizes' || key === 'gradingCompanies') {
-        params[key] = value.split(',');
-      } else if (key === 'verifiedOnly') {
-        params[key] = value === 'true';
-      } else if (value) {
-        params[key] = value;
-      }
-    });
-    return params;
-  }, [searchParams, initialFilterState]);
+  const currentSearchParams = useMemo(
+    () => parseFilterSearchParams(new URLSearchParams(searchParams.toString()), initialFilterState),
+    [searchParams, initialFilterState]
+  );
+  // Server-rendered first page only matches an unfiltered URL; filtered deep links fetch fresh.
+  const canUseInitialData = useMemo(() => !!initialData && [...searchParams.keys()].every((k) => k === 'view'), [initialData, searchParams]);
+  const facetCategoryName = (currentSearchParams.category || initialFilterState.category) as string | undefined;
+  const sortOptions = useMemo(() => sortOptionsFor(facetCategoryName), [facetCategoryName]);
 
   const {
     data,
@@ -139,14 +129,23 @@ function InfiniteProductGridInner({
         page: pageParam ? 2 : 1 // Simple hack to indicate not first page if pageParam exists
       }, userRole as string),
     initialPageParam: undefined,
-    initialData: initialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
+    initialData: canUseInitialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
     getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.lastVisibleId : undefined,
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: true,
-    refetchOnMount: !initialData,
+    refetchOnMount: !canUseInitialData,
   });
 
-  const products = useMemo(() => data?.pages.flatMap(page => page.products) ?? [], [data]);
+  const products = useMemo(
+    () => applyClientSort(data?.pages.flatMap(page => page.products) ?? [], currentSearchParams.sort as string | undefined),
+    [data, currentSearchParams.sort]
+  );
+  const chips = useMemo(() => activeFilterChips(currentSearchParams, initialFilterState), [currentSearchParams, initialFilterState]);
+  const clearHref = useMemo(() => clearFiltersHref(pathname, new URLSearchParams(searchParams.toString())), [pathname, searchParams]);
+  const countFor = useCallback(async (f: Partial<ProductSearchParams>) => {
+    const res = await getProducts({ ...(initialFilterState as ProductSearchParams), ...(f as ProductSearchParams), countOnly: true }, userRole as string);
+    return res.totalCount;
+  }, [initialFilterState, userRole]);
   const totalCount = data?.pages[0]?.totalCount;
 
   // Bulk Edit State
@@ -268,7 +267,7 @@ function InfiniteProductGridInner({
     }
   }, [setupObserver]);
 
-  const sortOrder = currentSearchParams.sort || 'createdAt-desc';
+  const sortOrder = (currentSearchParams.sort as string) || DEFAULT_SORT;
   const selectedConditions = useMemo(() => currentSearchParams.conditions || [], [currentSearchParams.conditions]);
   const selectedSellers = useMemo(() => currentSearchParams.sellers || [], [currentSearchParams.sellers]);
 
@@ -395,7 +394,7 @@ function InfiniteProductGridInner({
           <div className={cn("leading-relaxed", isIndexError ? "text-primary font-medium" : "text-destructive")}>
             {isIndexError
               ? "The database is currently optimizing its indexes. This may take a few minutes. Please check back shortly."
-              : `Failed to load products. ${error instanceof Error ? error.message : 'Unknown error'}`
+              : 'We couldn\'t load listings right now. Please try again, or remove a filter.'
             }
           </div>
         </div>
@@ -414,7 +413,7 @@ function InfiniteProductGridInner({
     }
 
     if (products.length === 0 && !isLoading) {
-      const hasActiveFilters = Object.keys(currentSearchParams).some(key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentSearchParams[key as keyof ProductSearchParams]);
+      const hasActiveFilters = chips.length > 0;
       
       return (
         <div className="col-span-full flex flex-col items-center justify-center text-center py-20 px-4 bg-muted/10 border-2 border-dashed rounded-2xl">
@@ -432,10 +431,7 @@ function InfiniteProductGridInner({
                 variant="default" 
                 size="lg" 
                 className="font-bold text-sm uppercase tracking-wider"
-                onClick={() => {
-                  const newUrl = pathname + (currentSearchParams.category ? `?category=${currentSearchParams.category}` : '');
-                  router.push(newUrl, { scroll: false });
-                }}
+                onClick={() => router.push(clearHref, { scroll: false })}
             >
               Clear All Filters
             </Button>
@@ -574,9 +570,7 @@ function InfiniteProductGridInner({
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="createdAt-desc">Newest</SelectItem>
-                <SelectItem value="price-asc">Price: Low-High</SelectItem>
-                <SelectItem value="price-desc">Price: High-Low</SelectItem>
+                {sortOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
               </SelectContent>
             </Select>
           )}
@@ -633,7 +627,9 @@ function InfiniteProductGridInner({
                       const newQuery = createQueryString(newFilters);
                       router.push(`${pathname}?${newQuery}`, { scroll: false });
                     }}
-                    onClearFilters={() => router.push(pathname, { scroll: false })}
+                    onClearFilters={() => router.push(clearHref, { scroll: false })}
+                    appliedCount={totalCount}
+                    countFor={countFor}
                   />
                 </div>
 
@@ -641,26 +637,29 @@ function InfiniteProductGridInner({
                 <div className="md:hidden">
                   <Sheet open={isFilterDrawerOpen} onOpenChange={setIsFilterDrawerOpen}>
                     <SheetTrigger asChild>
-                      <Button variant="outline" className="flex items-center gap-2 h-9 px-3 border-white/10 hover:bg-white/5 text-white">
+                      <Button variant="outline" className="flex items-center gap-2 h-11 px-3" data-testid="mobile-filters-trigger">
                         <SlidersHorizontal className="h-4 w-4 text-primary" />
-                        <span>Filters</span>
+                        <span>Filters{chips.length ? ` (${chips.length})` : ''}</span>
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[85vh] bg-[#020617] border-white/10 p-6 flex flex-col rounded-t-3xl">
-                      <SheetHeader className="pb-4 border-b border-white/5">
-                        <SheetTitle className="text-white font-black uppercase text-lg">Filters</SheetTitle>
+                    <SheetContent side="bottom" className="h-[90vh] p-0 flex flex-col rounded-t-3xl">
+                      <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/10">
+                        <SheetTitle className="font-black uppercase text-lg">Filters</SheetTitle>
                       </SheetHeader>
-                      <div className="flex-1 overflow-y-auto pt-4 pb-12">
+                      <div className="flex-1 overflow-y-auto px-6" data-testid="mobile-filter-sheet">
                         <AdvancedFilterPanel
-                          targetCategory={currentSearchParams.category || initialFilterState.category}
+                          inline
+                          targetCategory={facetCategoryName}
                           currentFilters={currentSearchParams}
+                          appliedCount={totalCount}
+                          countFor={countFor}
                           onFilterChange={(newFilters) => {
-                            const newQuery = createQueryString(newFilters);
+                            const newQuery = createQueryString(newFilters as any);
                             router.push(`${pathname}?${newQuery}`, { scroll: false });
                             setIsFilterDrawerOpen(false);
                           }}
                           onClearFilters={() => {
-                            router.push(pathname, { scroll: false });
+                            router.push(clearHref, { scroll: false });
                             setIsFilterDrawerOpen(false);
                           }}
                         />
@@ -685,64 +684,33 @@ function InfiniteProductGridInner({
         )}
       </div>
 
-      {/* Active Filters Display */}
-      {Object.keys(currentSearchParams).some(key => !['view', 'sort', 'page', 'category', 'categories'].includes(key) && currentSearchParams[key as keyof ProductSearchParams]) && (
-        <div className="flex flex-wrap items-center gap-2 mb-6 animate-in fade-in slide-in-from-top-1">
+      {/* Active Filters Display: only what the user chose (no page defaults / status) */}
+      {chips.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-6" data-testid="active-filters">
           <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mr-2">Active:</span>
-          {Object.entries(currentSearchParams).map(([key, value]) => {
-            if (['view', 'sort', 'page', 'category', 'categories'].includes(key) || !value) return null;
-
-            // Handle arrays (conditions, sizes, etc.)
-            if (Array.isArray(value)) {
-              return value.map((v) => (
-                <Badge key={`${key}-${v}`} variant="secondary" className="px-3 py-1.5 gap-1.5 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm shadow-sm transition-all">
-                  <span className="font-bold uppercase tracking-tight">{key === 'gradingCompanies' ? 'Grade:' : key === 'sizes' ? 'Size:' : ''} {String(v)}</span>
-                  <button
-                    onClick={() => {
-                      const newArr = (value as any[]).filter(x => x !== v);
-                      handleFilterChange(key, newArr.length > 0 ? newArr : null);
-                    }}
-                    className="hover:bg-primary/20 hover:text-destructive rounded-full p-1 transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </Badge>
-              ));
-            }
-
-            // Handle simple values (q, subCategory, verifiedOnly, brand)
-            if (key === 'brand' && currentSearchParams.subCategory === value) return null;
-
-            return (
-              <Badge key={key} variant="secondary" className="px-3 py-1.5 gap-1.5 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs sm:text-sm shadow-sm transition-all">
-                <span className="font-bold uppercase tracking-tight">
-                  {key === 'q' ? 'Search:' : (key === 'brand' || key === 'manufacturer') ? 'Brand:' : key === 'subCategory' ? 'Type:' : ''} {String(value)}
-                </span>
-                <button
-                  onClick={() => {
-                    if (key === 'subCategory' || key === 'brand') {
-                      handleFilterChange({ subCategory: null, brand: null });
-                    } else {
-                      handleFilterChange(key, null);
-                    }
-                  }}
-                  className="hover:bg-primary/20 hover:text-destructive rounded-full p-1 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </Badge>
-            );
-          })}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              // Construct a URL that only keeps the category
-              const newUrl = pathname + (currentSearchParams.category ? `?category=${currentSearchParams.category}` : '');
-              router.push(newUrl, { scroll: false });
-            }}
-            className="h-9 px-3 text-xs sm:text-sm font-bold uppercase tracking-tight hover:text-destructive transition-colors ml-2"
-          >
+          {chips.map((chip) => (
+            <Badge key={`${chip.key}-${chip.value ?? ''}`} variant="secondary" className="px-3 py-1.5 gap-1.5 border-primary/30 bg-primary/10 text-primary text-xs sm:text-sm">
+              <span className="font-bold tracking-tight">{chip.label}</span>
+              <button
+                aria-label={`Remove ${chip.label}`}
+                onClick={() => {
+                  const value = (currentSearchParams as any)[chip.key];
+                  if (chip.value !== undefined && Array.isArray(value)) {
+                    const next = value.filter((x: string) => String(x) !== chip.value);
+                    handleFilterChange(chip.key, next.length ? next : null);
+                  } else if (chip.key === 'subCategory' || chip.key === 'brand') {
+                    handleFilterChange({ subCategory: null, brand: null });
+                  } else {
+                    handleFilterChange(chip.key, null);
+                  }
+                }}
+                className="hover:bg-primary/20 hover:text-destructive rounded-full p-1 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </Badge>
+          ))}
+          <Button variant="ghost" size="sm" data-testid="clear-all-filters" onClick={() => router.push(clearHref, { scroll: false })} className="h-9 px-3 text-xs sm:text-sm font-bold uppercase tracking-tight ml-2">
             Clear All
           </Button>
         </div>
