@@ -558,7 +558,7 @@ function InfiniteProductGridInner({
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           {isClient && typeof Select !== 'undefined' && (
             <Select value={sortOrder} onValueChange={(v) => handleFilterChange('sort', v)}>
-              <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
+              <SelectTrigger aria-label="Sort listings" className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
@@ -571,7 +571,7 @@ function InfiniteProductGridInner({
 
           {isClient && isAdmin && typeof Select !== 'undefined' && (
             <Select value={currentSearchParams.status || 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? null : v)}>
-              <SelectTrigger className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
+              <SelectTrigger aria-label="Filter by status" className="w-[110px] sm:w-[140px] h-9 sm:h-10 text-xs sm:text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>

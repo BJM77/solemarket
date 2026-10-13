@@ -1,3 +1,4 @@
+import { reportError } from '@/lib/monitoring';
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import * as admin from 'firebase-admin';
@@ -74,6 +75,7 @@ export async function GET(request: Request) {
       results,
     });
   } catch (error: any) {
+    reportError(error, 'cron');
     console.error('Error in cron check-external-urls:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal Server Error' },

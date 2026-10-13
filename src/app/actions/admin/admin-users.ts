@@ -4,7 +4,7 @@
 import { auth, firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { UserProfile, UserRole } from '@/lib/types';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export type ActionResponse = {
     success: boolean;
@@ -303,6 +303,7 @@ export async function setUserOnStop(idToken: string, userId: string, onStop: boo
 
         revalidatePath('/admin/users');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,

@@ -145,7 +145,7 @@ export default function ConfirmationPage() {
                 <div className="max-w-2xl mx-auto space-y-6">
                     {orders.some(o => o.status === 'awaiting_payment') && (
                         <Card className="border-2 border-primary bg-primary/5 shadow-2xl overflow-hidden rounded-2xl mb-8">
-                            <CardHeader className="bg-primary text-white py-6 px-6 text-center">
+                            <CardHeader className="bg-primary text-primary-foreground py-6 px-6 text-center">
                                 <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-white animate-pulse" />
                                 <CardTitle className="text-2xl font-black uppercase tracking-tight">Action Required: Transfer Funds</CardTitle>
                                 <p className="text-primary-foreground/90 font-medium mt-2">Your order is locked, but we are waiting for your PayID transfer to secure the item.</p>
@@ -209,7 +209,7 @@ export default function ConfirmationPage() {
                                                     <div 
                                                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                                                             isCompleted 
-                                                                ? 'bg-primary text-white shadow-[0_0_12px_rgba(242,108,13,0.3)]' 
+                                                                ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(242,108,13,0.3)]' 
                                                                 : isActive 
                                                                 ? 'bg-[#020617] border-2 border-primary text-primary animate-pulse' 
                                                                 : 'bg-[#020617] border-2 border-white/10 text-slate-500'

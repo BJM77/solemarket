@@ -231,10 +231,10 @@ export default function ProductCard({
             className="h-7 w-20 px-1 py-0 text-sm"
             autoFocus
           />
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" type="submit" disabled={isSavingPrice}>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" type="submit" aria-label="Save price" disabled={isSavingPrice}>
             {isSavingPrice ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-4 w-4" />}
           </Button>
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500" onClick={() => setIsEditingPrice(false)}>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500" onClick={() => setIsEditingPrice(false)} aria-label="Cancel price edit">
             <XIcon className="h-4 w-4" />
           </Button>
         </form>
@@ -587,7 +587,7 @@ export default function ProductCard({
             <Button
               size="sm"
               variant="outline"
-              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-white"
+              className="h-8 text-xs font-bold border-primary pointer-events-auto text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -701,7 +701,7 @@ export default function ProductCard({
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none">
+                    <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 border-none" aria-label="More actions">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -824,7 +824,7 @@ export default function ProductCard({
             </Badge>
           )}
           {product.status === 'sold' && (
-            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-white font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
+            <Badge variant="destructive" className="inline-flex items-center gap-1 bg-primary text-primary-foreground font-black px-2 py-1 rounded-lg shadow-md pointer-events-auto uppercase text-[9px] sm:text-xs">
               CHECKED IN
             </Badge>
           )}
@@ -1041,7 +1041,7 @@ export default function ProductCard({
             {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-white"
+                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

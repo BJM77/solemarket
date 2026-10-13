@@ -103,6 +103,7 @@ export async function deleteProductByAdmin(
         revalidatePath('/cards');
         revalidatePath('/coins');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,
@@ -149,6 +150,7 @@ export async function renewProductByAdmin(
         revalidatePath('/cards');
         revalidatePath('/coins');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,
@@ -204,6 +206,7 @@ export async function approveProductByAdmin(
         revalidatePath('/cards');
         revalidatePath('/coins');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,
@@ -267,6 +270,7 @@ export async function toggleProductHold(
         revalidatePath('/cards');
         revalidatePath('/coins');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,
@@ -320,6 +324,7 @@ export async function updateProductCategoryByAdmin(
         revalidatePath('/cards');
         revalidatePath('/coins');
         revalidatePath('/browse');
+        revalidateTag('products');
 
         return {
             success: true,

@@ -50,7 +50,7 @@ export default function HelpPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                 {TOPICS.map((topic) => (
                     <div key={topic.title} className="p-8 border rounded-3xl bg-muted/30">
-                        <div className="size-12 bg-primary rounded-xl flex items-center justify-center text-white mb-6">
+                        <div className="size-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground mb-6">
                             <topic.icon className="size-6" />
                         </div>
                         <h2 className="text-2xl font-black mb-6 uppercase tracking-tight">{topic.title}</h2>
@@ -68,9 +68,9 @@ export default function HelpPage() {
                 ))}
             </div>
 
-            <div className="bg-primary text-white rounded-[2.5rem] p-8 md:p-16 text-center">
+            <div className="bg-primary text-primary-foreground rounded-[2.5rem] p-8 md:p-16 text-center">
                 <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tighter italic">Still need assistance?</h2>
-                <p className="text-xl text-white/60 mb-10 max-w-2xl mx-auto">
+                <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
                     Our team of hoop culture specialists is ready to get you back in the game.
                 </p>
                 <Link 

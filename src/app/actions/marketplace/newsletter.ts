@@ -1,4 +1,5 @@
 'use server';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
 
 import { z } from "zod";
 import { firestoreDb, admin } from "@/lib/firebase/admin";
@@ -17,6 +18,9 @@ export async function subscribeToNewsletter(
     prevState: NewsletterState,
     formData: FormData
 ): Promise<NewsletterState> {
+    if (!(await checkRateLimit('newsletter', { limit: 5, windowSeconds: 3600 }))) {
+        return { success: false, message: 'Too many requests. Please wait a moment and try again.', error: 'Too many requests. Please wait a moment and try again.' } as any;
+    }
     const email = formData.get("email");
 
     const validatedFields = NewsletterSchema.safeParse({ email });

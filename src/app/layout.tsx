@@ -99,8 +99,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Pinch-zoom must stay enabled (WCAG 1.4.4) - buyers zoom into sneaker/card photos.
+  maximumScale: 5,
 };
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';

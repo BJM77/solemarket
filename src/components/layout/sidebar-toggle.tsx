@@ -14,6 +14,7 @@ export function SidebarToggle() {
             size="icon" 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="hidden lg:flex"
+            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
             {isSidebarOpen ? <PanelLeftClose /> : <PanelRightClose />}
             <span className="sr-only">Toggle sidebar</span>

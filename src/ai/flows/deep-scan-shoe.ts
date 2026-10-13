@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -21,6 +22,7 @@ export type DeepScanShoeOutput = z.infer<typeof DeepScanShoeOutputSchema>;
 export async function deepScanShoe(
   imageUrlOrBase64: string,
 ): Promise<DeepScanShoeOutput> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   console.log('[AI] deepScanShoe called');
   
   try {

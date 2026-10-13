@@ -1,5 +1,6 @@
 
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import {z} from 'zod';
 
@@ -26,6 +27,7 @@ export type ScanHotWheelsOutput = z.infer<typeof ScanHotWheelsOutputSchema>;
 export async function scanHotWheels(
   input: ScanHotWheelsInput
 ): Promise<ScanHotWheelsOutput> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   try {
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {

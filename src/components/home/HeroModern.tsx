@@ -1,5 +1,6 @@
 'use client';
 
+import { accessibleTextColor } from "@/lib/utils/contrast";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -37,7 +38,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             <Link 
                                 key={btn.id}
                                 href={btn.href} 
-                                style={{ backgroundColor: btn.bgColor, color: btn.textColor }}
+                                style={{ backgroundColor: btn.bgColor, color: accessibleTextColor(btn.bgColor, btn.textColor) }}
                                 className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base"
                             >
                                 {btn.label}
@@ -55,19 +56,19 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-6 md:pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
                         <div className="text-center">
                             <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">Local</div>
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Verified Auth</div>
+                            <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Verified Auth</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">Community</div>
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Peer-to-Peer</div>
+                            <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Peer-to-Peer</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl md:text-3xl font-black text-primary mb-0.5 md:mb-1">{mounted ? listingCount.toLocaleString() : '...'}</div>
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Active Listings</div>
+                            <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Active Listings</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">0%</div>
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Selling Fees</div>
+                            <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Selling Fees</div>
                         </div>
                     </div>
                 </div>

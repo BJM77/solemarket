@@ -140,8 +140,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect Seller Routes
-  if (request.nextUrl.pathname.startsWith('/sell') || request.nextUrl.pathname.startsWith('/seller')) {
+  // Protect Seller Routes. The bare /sell landing page is public (SEO + seller acquisition).
+  const isPublicSellLanding = request.nextUrl.pathname === '/sell' || request.nextUrl.pathname === '/sell/';
+  if (!isPublicSellLanding && (request.nextUrl.pathname.startsWith('/sell') || request.nextUrl.pathname.startsWith('/seller'))) {
     if (!isAuth) {
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);

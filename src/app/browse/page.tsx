@@ -1,6 +1,15 @@
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
+import { unstable_cache } from 'next/cache';
+
+// Browse results are cached per filter combination for 2 minutes and busted by
+// revalidateTag('products') whenever a listing is created/updated.
+const getCachedProducts = unstable_cache(
+  async (params: Parameters<typeof getProducts>[0]) => getProducts(params),
+  ['browse-products'],
+  { revalidate: 120, tags: ['products'] }
+);
 import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
@@ -75,7 +84,7 @@ export default async function BrowsePage({
   const targetCategory = typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined;
 
   try {
-    initialProductsData = await getProducts({
+    initialProductsData = await getCachedProducts({
       q: searchTerm,
       category: targetCategory,
       subCategory: subCategoryParam,

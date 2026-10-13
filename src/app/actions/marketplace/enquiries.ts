@@ -1,5 +1,6 @@
 
 'use server';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
 
 import { firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
@@ -18,6 +19,9 @@ export interface EnquiryData {
 }
 
 export async function submitEnquiry(data: EnquiryData) {
+    if (!(await checkRateLimit('enquiry', { limit: 5, windowSeconds: 600 }))) {
+        return { success: false, message: 'Too many requests. Please wait a moment and try again.', error: 'Too many requests. Please wait a moment and try again.' } as any;
+    }
     try {
         const enquiryRef = await firestoreDb.collection('enquiries').add({
             ...data,

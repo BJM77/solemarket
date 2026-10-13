@@ -1,4 +1,5 @@
 'use server';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
 
 import { firestoreDb as db } from '@/lib/firebase/admin';
 import { revalidatePath } from 'next/cache';
@@ -16,6 +17,9 @@ interface GuestEnquiryInput {
 }
 
 export async function sendGuestEnquiry(data: GuestEnquiryInput) {
+    if (!(await checkRateLimit('guest-enquiry', { limit: 5, windowSeconds: 600 }))) {
+        return { success: false, message: 'Too many requests. Please wait a moment and try again.', error: 'Too many requests. Please wait a moment and try again.' } as any;
+    }
     try {
         // Validate
         if (!data.email || !data.message || !data.name || !data.verificationCode) {

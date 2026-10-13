@@ -1,3 +1,4 @@
+import { reportError } from '@/lib/monitoring';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { getProducts } from '@/services/product-service'; // Mocked or Real
@@ -142,6 +143,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ status: 'ignored' });
     } catch (error) {
+    reportError(error, 'webhook');
         console.error('Telegram Webhook Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

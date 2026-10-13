@@ -43,7 +43,7 @@ export default function DonatePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* How it Works Cards */}
                     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
-                        <CardHeader className="bg-primary text-white p-8">
+                        <CardHeader className="bg-primary text-primary-foreground p-8">
                             <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
                                 <Footprints className="h-6 w-6" />
                             </div>
@@ -71,7 +71,7 @@ export default function DonatePage() {
                     </Card>
 
                     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
-                        <CardHeader className="bg-primary text-white p-8">
+                        <CardHeader className="bg-primary text-primary-foreground p-8">
                             <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
                                 <Camera className="h-6 w-6" />
                             </div>

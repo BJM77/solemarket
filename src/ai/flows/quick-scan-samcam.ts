@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { z } from 'zod';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -15,6 +16,7 @@ export type QuickScanOutput = z.infer<typeof QuickScanOutputSchema>;
 export async function quickScan(
   imageDataUri: string
 ): Promise<QuickScanOutput> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   console.log('[AI] quickScan called');
 
   try {

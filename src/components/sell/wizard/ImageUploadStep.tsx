@@ -236,7 +236,7 @@ export function ImageUploadStep({
                         <Button
                             onClick={(e) => { e.preventDefault(); onAutoFill(); }}
                             disabled={isAnalyzing}
-                            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl h-11 px-6 font-black shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
+                            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-11 px-6 font-black shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
                         >
                             {isAnalyzing ? (
                                 <><Loader2 className="h-4 w-4 animate-spin mr-2" />{analysisStage || "Analyzing..."}</>

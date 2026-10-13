@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -70,6 +71,7 @@ export async function deepScanCard(
   frontImageUrlOrBase64: string,
   backImageUrlOrBase64?: string,
 ): Promise<DeepScanCardOutput> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   console.log('[AI] deepScanCard called', { hasBack: !!backImageUrlOrBase64 });
   
   try {

@@ -54,7 +54,7 @@ export default function Footer() {
         </div>
         {Object.entries(footerLinks).map(([category, links]) => (
           <div key={category}>
-            <h5 className="font-black text-xs uppercase tracking-widest mb-6">{category}</h5>
+            <h2 className="font-black text-xs uppercase tracking-widest mb-6">{category}</h2>
             <ul className="space-y-4 text-sm text-gray-500 dark:text-gray-400">
               {links.map((link) => (
                 <li key={link.name}>
@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
         ))}
         <div>
-          <h5 className="font-black text-xs uppercase tracking-widest mb-6">Newsletter</h5>
+          <h2 className="font-black text-xs uppercase tracking-widest mb-6">Newsletter</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Get early access to weekly drops.</p>
           <NewsletterSignup />
         </div>

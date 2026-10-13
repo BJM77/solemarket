@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { z } from 'zod';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -18,6 +19,7 @@ export async function extractCardName(
   imageDataUri: string,
   deviceProfile?: DeviceProfile
 ): Promise<ExtractCardNameOutput> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   console.log('[AI] extractCardName called');
   
   try {

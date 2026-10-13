@@ -137,7 +137,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                 onClick={(e) => { e.preventDefault(); setActiveTab('defects'); }}
                 className={cn(
                   "flex-1 h-8 rounded-lg font-bold text-xs uppercase tracking-wider",
-                  activeTab === 'defects' ? "bg-primary text-white" : "text-slate-400 hover:text-white"
+                  activeTab === 'defects' ? "bg-primary text-primary-foreground" : "text-slate-400 hover:text-white"
                 )}
               >
                 Defect Radar Map
@@ -148,7 +148,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                 onClick={(e) => { e.preventDefault(); setActiveTab('subgrades'); }}
                 className={cn(
                   "flex-1 h-8 rounded-lg font-bold text-xs uppercase tracking-wider",
-                  activeTab === 'subgrades' ? "bg-primary text-white" : "text-slate-400 hover:text-white"
+                  activeTab === 'subgrades' ? "bg-primary text-primary-foreground" : "text-slate-400 hover:text-white"
                 )}
               >
                 Subgrades Summary
@@ -208,7 +208,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
             <div className="space-y-3 bg-white/5 rounded-2xl p-4 border border-white/5">
               <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                 <span className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Auto-fill Values</span>
-                <Button size="sm" onClick={applySuggestions} className="h-8 rounded-lg font-bold text-xs bg-primary hover:bg-primary/95 text-white">
+                <Button size="sm" onClick={applySuggestions} className="h-8 rounded-lg font-bold text-xs bg-primary hover:bg-primary/95 text-primary-foreground">
                   Apply Suggestions
                 </Button>
               </div>

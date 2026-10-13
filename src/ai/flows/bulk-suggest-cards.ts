@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { 
@@ -14,6 +15,7 @@ import { runAIWorkflow } from '../workflow-engine';
  * Transitioned to storage-first architecture: pass URLs whenever possible.
  */
 export async function bulkSuggestCards(input: BulkSuggestCardsInput): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<BulkSuggestCardsOutput>(
         input,
         async (validatedInput) => {

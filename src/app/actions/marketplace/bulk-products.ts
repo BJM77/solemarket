@@ -5,7 +5,7 @@ import * as admin from 'firebase-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { Product, UserProfile } from '@/lib/types';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 type BulkCreateProductData = {
     title: string;
@@ -71,6 +71,7 @@ export async function bulkCreateProductsFromCSV(
         await batch.commit();
 
         revalidatePath('/browse');
+        revalidateTag('products');
         revalidatePath('/sell/dashboard');
         revalidatePath(`/profile/listings`);
 

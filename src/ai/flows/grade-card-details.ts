@@ -1,4 +1,5 @@
 'use server';
+import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
@@ -72,6 +73,7 @@ export async function gradeCardDetails(input: {
     cardName?: string;
     idToken?: string;
 }): Promise<any> {
+    await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     return await runAIWorkflow<GradeCardDetailsOutput>(
         input,
         async (validatedInput) => {

@@ -145,7 +145,7 @@ function StoreRow({ store }: { store: StoreWithProducts }) {
                                     </div>
                                     <div className="absolute top-2 right-2 flex gap-1">
                                         {product.status === 'sold' && (
-                                            <Badge className="bg-primary text-white text-[8px] font-black py-0 px-1">SOLD</Badge>
+                                            <Badge className="bg-primary text-primary-foreground text-[8px] font-black py-0 px-1">SOLD</Badge>
                                         )}
                                     </div>
                                 </Link>
@@ -248,7 +248,7 @@ export default function TopStoresPage() {
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4">Want to be on this list?</h2>
                         <p className="text-zinc-400 max-w-lg mx-auto mb-8 font-medium">Apply for a Business Account and start building your reputation on Australia's fastest growing marketplace.</p>
-                        <Button size="lg" className="rounded-full px-8 h-12 font-bold bg-primary text-white hover:bg-primary/80" asChild>
+                        <Button size="lg" className="rounded-full px-8 h-12 font-bold bg-primary text-primary-foreground hover:bg-primary/80" asChild>
                             <Link href="/sell">Apply Now</Link>
                         </Button>
                     </div>

@@ -1,4 +1,5 @@
 'use server';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
 
 import { firestoreDb as db, auth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -23,6 +24,9 @@ export async function createWTBListing(
     data: Omit<WantedListing, 'id' | 'createdAt' | 'updatedAt' | 'contactCount'>,
     idToken: string
 ) {
+    if (!(await checkRateLimit('wtb-create', { limit: 10, windowSeconds: 3600 }))) {
+        return { success: false, message: 'Too many requests. Please wait a moment and try again.', error: 'Too many requests. Please wait a moment and try again.' } as any;
+    }
     try {
         const decodedToken = await verifyIdToken(idToken);
         if (!decodedToken) {
@@ -284,6 +288,9 @@ export async function contactWTBSeller(
     message: string,
     idToken: string
 ) {
+    if (!(await checkRateLimit('wtb-contact', { limit: 20, windowSeconds: 3600 }))) {
+        return { success: false, message: 'Too many requests. Please wait a moment and try again.', error: 'Too many requests. Please wait a moment and try again.' } as any;
+    }
     try {
         const decodedToken = await verifyIdToken(idToken);
         if (!decodedToken) {

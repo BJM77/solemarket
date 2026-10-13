@@ -15,7 +15,7 @@ export function WizardProgress({ currentStep, totalSteps, stepLabels }: WizardPr
                 <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-white/10">
                     <div
                         style={{ width: `${((currentStep) / (totalSteps - 1)) * 100}%` }}
-                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary transition-all duration-500 ease-in-out"
+                        className="shadow-none flex flex-col text-center whitespace-nowrap text-primary-foreground justify-center bg-primary transition-all duration-500 ease-in-out"
                     />
                 </div>
 
@@ -36,7 +36,7 @@ export function WizardProgress({ currentStep, totalSteps, stepLabels }: WizardPr
                                 {isCompleted ? (
                                     <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                                 ) : (
-                                    <span className={cn("w-3 h-3 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center text-[10px]", isActive ? "border-primary bg-primary text-white" : "border-white/20 bg-white/5 text-white")}>
+                                    <span className={cn("w-3 h-3 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center text-[10px]", isActive ? "border-primary bg-primary text-primary-foreground" : "border-white/20 bg-white/5 text-primary-foreground")}>
                                         {index + 1}
                                     </span>
                                 )}
