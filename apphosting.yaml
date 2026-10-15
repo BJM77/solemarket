@@ -139,6 +139,12 @@ env:
       - RUNTIME
 
   # Public Config
+  # Card payments (Stripe) are off: PayID + cash only. Set "true" to re-enable.
+  - variable: NEXT_PUBLIC_STRIPE_ENABLED
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSyAe9_0i_LMHWLDS4v33HQ28eOBNwOZ_X5g"
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN

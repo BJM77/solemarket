@@ -1,11 +1,13 @@
 'use server';
 
+import { STRIPE_ENABLED, STRIPE_DISABLED_MESSAGE } from '@/lib/feature-flags';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { getStripe } from '@/lib/stripe/server';
 
 // 1. Create a SetupIntent for saving a card (binding offer)
 export async function createSetupIntentAction(idToken: string) {
+    if (!STRIPE_ENABLED) return { success: false, error: STRIPE_DISABLED_MESSAGE } as any;
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId, email } = decodedToken;
@@ -44,6 +46,7 @@ export async function createSetupIntentAction(idToken: string) {
 }
 
 export async function createPromotionCheckoutSession(idToken: string, productId: string) {
+    if (!STRIPE_ENABLED) return { success: false, error: STRIPE_DISABLED_MESSAGE } as any;
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;

@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { OrderPaymentInstructions } from '@/components/orders/OrderPaymentInstructions';
 import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { confirmOrderReceipt } from '@/app/actions/marketplace/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
@@ -249,6 +250,9 @@ export default function UserOrdersPage() {
                                 </Badge>
                             </CardHeader>
                             <CardContent className="p-6">
+                                {order.status === 'awaiting_payment' && (
+                                    <div className="mb-6"><OrderPaymentInstructions orderId={order.id} /></div>
+                                )}
                                 <div className="space-y-4 mb-6">
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4">
@@ -284,7 +288,7 @@ export default function UserOrdersPage() {
                                     <MessageSquare className="h-4 w-4" />
                                     Contact Seller
                                 </Button>
-                                {['processing', 'shipped'].includes(order.status) && (
+                                {['processing', 'paid', 'shipped'].includes(order.status) && order.shippingMethod !== 'pickup' && (
                                     <Button
                                         size="sm"
                                         className="flex-1 font-bold rounded-xl gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"

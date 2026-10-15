@@ -32,7 +32,9 @@ service cloud.firestore {
                (resource != null && resource.data.get('sellerStatus', null) == d.sellerStatus)) &&
              (!('listingLimit' in d) || d.listingLimit <= 40 ||
                (resource != null && resource.data.get('listingLimit', null) == d.listingLimit)) &&
-             (!('isVerified' in d) || (resource != null && resource.data.get('isVerified', null) == d.isVerified));
+             (!('isVerified' in d) || (resource != null && resource.data.get('isVerified', null) == d.isVerified)) &&
+             // payIdReady is set by the server when a seller saves a PayID.
+             (!('payIdReady' in d) || (resource != null && resource.data.get('payIdReady', null) == d.payIdReady));
     }
 
     function isValidProduct(productData) {
@@ -54,6 +56,12 @@ service cloud.firestore {
       // Only superadmins should be able to delete user accounts permanently
       allow delete: if isAdmin();
       
+      // Private payout details (PayID + account name). Never public: written and read
+      // only by server actions (Admin SDK); buyers see it only via their own placed order.
+      match /private/{docId} {
+        allow read, write: if false;
+      }
+
       // Allow users to manage their favorite categories
       match /favorite_categories/{docId} {
         allow read, write: if isOwner(userId);
@@ -162,6 +170,11 @@ service cloud.firestore {
       // Orders must ALWAYS be created via createOrderAction server action for calculation integrity
       allow create: if false;
       allow update: if isAdmin();
+
+      // Per-order payment snapshot (seller PayID). Server-only.
+      match /private/{docId} {
+        allow read, write: if false;
+      }
     }
 
     // Activity Logs - System only

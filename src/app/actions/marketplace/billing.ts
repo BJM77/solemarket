@@ -1,11 +1,13 @@
 
 'use server'
 
+import { STRIPE_ENABLED, STRIPE_DISABLED_MESSAGE } from '@/lib/feature-flags';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function upgradePlanAction(idToken: string) {
+    if (!STRIPE_ENABLED) return { success: false, error: STRIPE_DISABLED_MESSAGE } as any;
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;

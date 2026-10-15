@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from "@/lib/utils/format";
 import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { useUser } from '@/firebase';
+import { OrderPaymentInstructions } from '@/components/orders/OrderPaymentInstructions';
 
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { useRef } from 'react';
@@ -25,6 +26,7 @@ import { useRef } from 'react';
 const getStepIndex = (status: string) => {
     switch (status) {
         case 'awaiting_payment': return 0;
+        case 'paid':
         case 'processing': return 1;
         case 'shipped': return 2;
         case 'delivered':
@@ -34,8 +36,8 @@ const getStepIndex = (status: string) => {
 };
 
 const steps = [
-    { label: 'Awaiting Payment', desc: 'Escrow pending PayID' },
-    { label: 'Payment Secured', desc: 'Locked in escrow' },
+    { label: 'Awaiting Payment', desc: 'PayID or cash on pickup' },
+    { label: 'Paid', desc: 'Seller confirmed payment' },
     { label: 'Shipped', desc: 'Item is in transit' },
     { label: 'Delivered', desc: 'Received & finalized' }
 ];
@@ -143,36 +145,9 @@ export default function ConfirmationPage() {
                 </div>
 
                 <div className="max-w-2xl mx-auto space-y-6">
-                    {orders.some(o => o.status === 'awaiting_payment') && (
-                        <Card className="border-2 border-primary bg-primary/5 shadow-2xl overflow-hidden rounded-2xl mb-8">
-                            <CardHeader className="bg-primary text-primary-foreground py-6 px-6 text-center">
-                                <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-white animate-pulse" />
-                                <CardTitle className="text-2xl font-black uppercase tracking-tight">Action Required: Transfer Funds</CardTitle>
-                                <p className="text-primary-foreground/90 font-medium mt-2">Your order is locked, but we are waiting for your PayID transfer to secure the item.</p>
-                            </CardHeader>
-                            <CardContent className="p-8 space-y-6">
-                                <div className="space-y-4">
-                                    <div className="bg-slate-900 p-4 rounded-xl border border-white/5">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">1. Send exactly</p>
-                                        <p className="text-3xl font-black text-white">${formatPrice(orders.reduce((acc, curr) => acc + curr.totalAmount, 0))}</p>
-                                    </div>
-                                    <div className="bg-slate-900 p-4 rounded-xl border border-white/5">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">2. To Benched PayID</p>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-2xl font-black text-primary">dawn</p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-rose-500/10 p-4 rounded-xl border border-rose-500/20">
-                                        <p className="text-xs font-bold text-rose-400 uppercase tracking-widest mb-1">3. MUST INCLUDE AS DESCRIPTION/REFERENCE</p>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-2xl font-black font-mono text-rose-500">{orders[0]?.payIdReference || orders[0]?.groupOrderId}</p>
-                                        </div>
-                                        <p className="text-xs text-rose-400/80 mt-2 font-medium">If you do not include this exact code, we cannot match your payment to your order and you may lose the item.</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                    {orders.filter(o => o.status === 'awaiting_payment' && o.id).map(o => (
+                        <OrderPaymentInstructions key={`pay-${o.id}`} orderId={o.id} />
+                    ))}
 
                     {orders.map((order, idx) => (
                         <Card key={order.id || idx} className="border-white/10 bg-[#0c1120] backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
@@ -190,7 +165,7 @@ export default function ConfirmationPage() {
                             <CardContent className="p-6">
                                 {/* Escrow Progress Bar */}
                                 <div className="mb-8 bg-slate-950/40 p-4 md:p-6 rounded-2xl border border-white/5">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Escrow Status Tracker</p>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Order Status</p>
                                     <div className="grid grid-cols-4 gap-2 relative">
                                         {/* Connection line */}
                                         <div className="absolute top-4 left-[12.5%] right-[12.5%] h-0.5 bg-white/10 z-0 hidden md:block" />

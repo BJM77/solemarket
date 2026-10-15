@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { updateOrderStatus } from '@/app/actions/marketplace/order';
+import { cancelUnpaidOrder, markOrderCollected, markOrderPaid } from '@/app/actions/marketplace/order-payments';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -119,6 +120,21 @@ export function SellerOrders({ limit }: { limit?: number }) {
                 setTrackingNumber('');
             } else {
                 toast({ title: "Error", description: result.message, variant: "destructive" });
+            }
+        });
+    };
+
+    const handlePaymentAction = (orderId: string, action: 'paid' | 'collected' | 'cancel') => {
+        if (action === 'cancel' && !confirm('Cancel this unpaid order and re-list the items?')) return;
+        startTransition(async () => {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) return;
+            const fn = action === 'paid' ? markOrderPaid : action === 'collected' ? markOrderCollected : cancelUnpaidOrder;
+            const result = await fn(idToken, orderId);
+            if (result.success) {
+                toast({ title: action === 'paid' ? 'Marked as paid' : action === 'collected' ? 'Marked as collected' : 'Order cancelled' });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
     };
@@ -346,7 +362,32 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                         </Button>
                                     ) : (
                                         <>
-                                            {order.status === 'processing' && (
+                                            {order.status === 'awaiting_payment' && (
+                                                <div className="space-y-2" data-testid="seller-payment-actions">
+                                                    <p className="text-xs text-slate-500">
+                                                        {order.paymentMethod === 'cash' ? 'Cash on pickup (Perth).' : 'PayID transfer to you.'} Ref <span className="font-mono font-bold">{order.paymentReference || order.payIdReference}</span>
+                                                    </p>
+                                                    {order.paymentMethod !== 'cash' && (
+                                                        <Button className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'paid')}>
+                                                            Mark as paid
+                                                        </Button>
+                                                    )}
+                                                    {order.shippingMethod === 'pickup' && (
+                                                        <Button variant={order.paymentMethod === 'cash' ? 'default' : 'outline'} className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'collected')}>
+                                                            {order.paymentMethod === 'cash' ? 'Mark collected (cash received)' : 'Mark collected'}
+                                                        </Button>
+                                                    )}
+                                                    <Button variant="ghost" className="w-full min-h-11 text-slate-500" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'cancel')}>
+                                                        Cancel &amp; re-list
+                                                    </Button>
+                                                </div>
+                                            )}
+                                            {order.status === 'paid' && order.shippingMethod === 'pickup' && (
+                                                <Button className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'collected')}>
+                                                    Mark collected
+                                                </Button>
+                                            )}
+                                            {['processing', 'paid'].includes(order.status) && order.shippingMethod !== 'pickup' && (
                                                 <Dialog open={selectedOrder === order.id} onOpenChange={(o) => setSelectedOrder(o ? order.id : null)}>
                                                     <DialogTrigger asChild>
                                                         <Button className="w-full font-bold rounded-xl gap-2 bg-slate-900 hover:bg-black text-white py-6">

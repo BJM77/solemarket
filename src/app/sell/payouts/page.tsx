@@ -1,11 +1,18 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { PayIdSettings } from '@/components/seller/PayIdSettings';
+
+export const metadata: Metadata = { title: 'Get paid', robots: { index: false, follow: false } };
+
 export default function PayoutsPage() {
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold mb-4">Payouts</h1>
-            <p className="text-gray-600">View and manage your earnings and payout settings.</p>
-            <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800">This feature is currently under development.</p>
-            </div>
+        <div className="mx-auto max-w-xl px-4 py-8 pb-32">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground"><Link href="/sell/onboarding" className="underline">Seller setup</Link></p>
+            <h1 className="mb-4 text-3xl font-black tracking-tight">Get paid</h1>
+            <PayIdSettings />
+            <p className="mt-6 text-sm text-muted-foreground">
+                Buyers can also pay cash when they collect in person in Perth. Cards aren&apos;t available yet.
+            </p>
         </div>
     );
 }

@@ -101,7 +101,7 @@ export type Product = {
     colorway?: string | null;
   };
   // holdReason moved to line 165 for better grouping
-  status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold' | 'deleted'; // Added deleted for soft deletion
+  status: 'available' | 'sold' | 'draft' | 'pending_approval' | 'on_hold' | 'reserved' | 'deleted'; // Added deleted for soft deletion
   isPrivate?: boolean;
   approvedAt?: Timestamp;
   publicReleaseAt?: Timestamp;
