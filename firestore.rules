@@ -234,6 +234,10 @@ service cloud.firestore {
     }
 
     // Default deny
+    // Price intel cache + admin report: server (Admin SDK) only.
+    match /price_checks/{id} { allow read, write: if false; }
+    match /price_reports/{id} { allow read, write: if false; }
+
     match /{document=**} {
       allow read, write: if false;
     }

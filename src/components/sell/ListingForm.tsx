@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, ChangeEvent, useEffect, useCallback, useMemo } from 'react';
+import { InlinePriceSuggestion } from '@/components/price-check/InlinePriceSuggestion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -654,6 +655,13 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                             <FormMessage />
                                         </FormItem>
                                     )} />
+                                    <InlinePriceSuggestion
+                                        title={form.watch('title') || ''}
+                                        category={form.watch('category')}
+                                        price={Number(form.watch('price')) || undefined}
+                                        productId={initialData?.id}
+                                        onUsePrice={(p) => form.setValue('price', p, { shouldValidate: true, shouldDirty: true })}
+                                    />
 
                                     <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-between">
                                         <div className="flex items-center gap-3">
