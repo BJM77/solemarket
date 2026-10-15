@@ -9,6 +9,7 @@ import { DollarSign } from 'lucide-react';
 import { MultibuyConfig } from '@/components/sell/MultibuyConfig';
 import { cn } from "@/lib/utils/ui";
 import { PricingCompsChart } from './PricingCompsChart';
+import { InlinePriceSuggestion } from '@/components/price-check/InlinePriceSuggestion';
 
 interface PricingAndDeliveryStepProps {
     form: any;
@@ -74,6 +75,14 @@ export function PricingAndDeliveryStep({
                             {Number(form.watch('price')) > 0 && (
                                 <PricingCompsChart price={Number(form.watch('price'))} />
                             )}
+                            <div className="mt-3">
+                                <InlinePriceSuggestion
+                                    title={form.watch('title') || ''}
+                                    category={form.watch('category')}
+                                    price={Number(form.watch('price')) || undefined}
+                                    onUsePrice={(p) => form.setValue('price', p, { shouldValidate: true, shouldDirty: true })}
+                                />
+                            </div>
                         </FormItem>
                     )} />
 
