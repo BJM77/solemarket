@@ -1,5 +1,6 @@
 'use server'
 
+import { STRIPE_ENABLED, STRIPE_DISABLED_MESSAGE } from '@/lib/feature-flags';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -8,6 +9,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 export async function connectStripeAction(idToken: string) {
+    if (!STRIPE_ENABLED) return { success: false, error: STRIPE_DISABLED_MESSAGE } as any;
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId, email } = decodedToken;
@@ -63,6 +65,7 @@ export async function connectStripeAction(idToken: string) {
 }
 
 export async function verifyStripeAccountAction(idToken: string) {
+    if (!STRIPE_ENABLED) return { success: false, error: STRIPE_DISABLED_MESSAGE } as any;
     try {
         const decodedToken = await verifyIdToken(idToken);
         const { uid: userId } = decodedToken;

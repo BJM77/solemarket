@@ -55,6 +55,7 @@ import { updateEnquiryStatus, deleteProductsAction, activateProductAction } from
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2 } from 'lucide-react';
+import { PayIdSettings } from '@/components/seller/PayIdSettings';
 
 import { useToast } from '@/hooks/use-toast';
 
@@ -666,7 +667,8 @@ export default function SellerDashboard() {
                 <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Deal Enquiries</CardTitle>
                 <CardDescription className="text-slate-400 font-medium">Manage your buyer messages and payment arrangements here.</CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-6 space-y-6">
+                <PayIdSettings compact />
                 <SellerOrders />
               </CardContent>
             </Card>

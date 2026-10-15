@@ -1,7 +1,7 @@
 /**
  * Seller onboarding checklist (UX only - no payment/KYC logic here).
- * Payout setup and ID verification are shown as "coming soon" until the payments
- * phase lands; they don't block listing today.
+ * Payouts = the seller's PayID (buyers pay sellers directly). It doesn't block listing,
+ * but without it buyers can only pay in cash at a Perth pickup.
  */
 export interface OnboardingProfile {
   displayName?: string;
@@ -15,6 +15,8 @@ export interface OnboardingProfile {
   sellerStatus?: string;
   agreementAccepted?: boolean;
   emailVerified?: boolean;
+  /** Set server-side when the seller saves a PayID (value itself is private). */
+  payIdReady?: boolean;
 }
 
 export interface OnboardingStep {
@@ -37,7 +39,7 @@ export function buildOnboardingChecklist(p: OnboardingProfile | null | undefined
     { id: 'agreement', title: 'Accept the seller agreement', description: 'Our rules on authenticity, shipping times and prohibited items.', href: '/seller/agreement', done: !!u.agreementAccepted },
     { id: 'approval', title: 'Get approved', description: u.sellerStatus === 'rejected' ? 'Your application needs changes - contact support.' : 'We review new sellers within 1 business day.', href: '/help', done: u.sellerStatus === 'approved' || u.role === 'admin' || u.role === 'superadmin' },
     { id: 'first_listing', title: 'List your first item', description: 'Use the guided listing flow - about 2 minutes from your phone.', href: '/sell/wizard', done: activeListings > 0 },
-    { id: 'payouts', title: 'Set up payouts', description: 'Connect a bank account to get paid automatically.', href: '/sell/payouts', done: false, comingSoon: true },
+    { id: 'payouts', title: 'Add your PayID', description: 'Buyers pay you directly by PayID. Without one, buyers can only pay cash at a Perth pickup.', href: '/sell/payouts', done: !!u.payIdReady },
   ];
 }
 

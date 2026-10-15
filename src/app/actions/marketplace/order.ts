@@ -3,12 +3,13 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { ensureActionAuth } from '@/lib/action-utils';
-import { FieldValue, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { FieldValue, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore';
 import type { Product } from '@/lib/types';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateShipping, calculateTax } from '@/lib/pricing';
 import { buildOrderPricing, parseDealId } from '@/lib/order-pricing';
+import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymentMethod, paymentDueAt } from '@/lib/payments/local';
 import type { Deal } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { sendTelegramNotification } from '@/lib/telegram';
@@ -29,7 +30,10 @@ interface OrderOptions {
         state: string;
         zip: string;
     };
-    paymentMethod?: 'Card' | 'PayID Escrow' | 'EFT / PayID Escrow' | 'Cash on Delivery';
+    /** 'payid' | 'cash' (legacy labels like 'EFT / PayID Escrow' are mapped). Card is disabled. */
+    paymentMethod?: 'payid' | 'cash' | 'Card' | 'PayID Escrow' | 'EFT / PayID Escrow' | 'Cash on Delivery';
+    /** Buyer confirmed they can collect in person in Perth (required for cash). */
+    perthPickupConfirmed?: boolean;
     idempotencyKey?: string;
     discountCode?: string;
 }
@@ -70,6 +74,13 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 sellerProfilesDocs.forEach((doc: any) => {
                     if (doc.exists) fetchedUsers[doc.id] = doc.data();
                 });
+            }
+
+            // Seller PayID details (private subcollection, never public).
+            const payoutDocs: Record<string, any> = {};
+            if (sellerIds.length) {
+                const docs = await t.getAll(...sellerIds.map(id => firestoreDb.collection('users').doc(id).collection('private').doc('payout')));
+                docs.forEach((doc: any, k: number) => { payoutDocs[sellerIds[k]] = doc.exists ? doc.data() : null; });
             }
 
             // Deals referenced by the cart: loaded from Firestore, never trusted from the client.
@@ -127,6 +138,23 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 }
             }
 
+            const paymentMethod = normalizePaymentMethod(options?.paymentMethod ?? 'payid');
+            if (!paymentMethod) {
+                throw new Error('Card payments are not available yet. Please pay by PayID or cash on pickup.');
+            }
+            const shippingMethod = options?.shippingMethod || 'pickup';
+            assertCheckoutPaymentAllowed({
+                method: paymentMethod,
+                shippingMethod,
+                perthPickupConfirmed: options?.perthPickupConfirmed,
+                sellers: sellerIds.map(id => ({
+                    sellerId: id,
+                    sellerName: fetchedUsers[id]?.displayName || products.find(p => p.sellerId === id)?.sellerName,
+                    payIdReady: !!payoutDocs[id]?.payId,
+                })),
+            });
+            const dueAt = paymentDueAt(paymentMethod, now);
+
             const { lineTotals, dealUsage, bundleUsage } = buildOrderPricing({
                 items, products, deals, bundles, dealAllowance, bundleAllowance, now,
             });
@@ -154,9 +182,17 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 });
                 sellerGroups[sellerId].subtotal = Math.round((sellerGroups[sellerId].subtotal + itemTotal) * 100) / 100;
 
+                // Reserve (not sell) while awaiting payment; the release-unpaid-orders cron
+                // puts it back if the buyer doesn't pay in time.
+                const soldOut = (product.quantity || 0) - item.quantity === 0;
                 t.update(productRefs[i], {
                     quantity: FieldValue.increment(-item.quantity),
-                    status: (product.quantity || 0) - item.quantity === 0 ? 'sold' : product.status,
+                    ...(soldOut ? {
+                        status: 'reserved',
+                        reservedBy: buyerId,
+                        reservedUntil: Timestamp.fromDate(dueAt),
+                        updatedAt: FieldValue.serverTimestamp(),
+                    } : {}),
                 });
             }
 
@@ -214,7 +250,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 const sellerDiscount = Number((discountAmount * sellerShare).toFixed(2));
                 const totalAmount = Math.max(0, group.subtotal + shippingCost - sellerDiscount);
                 const sellerPaypalLink = sellerProfile?.paypalMeLink || null;
-                const payIdReference = `BNCH-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+                const paymentReference = generatePaymentReference();
 
                 const newOrder = {
                     groupOrderId,
@@ -231,20 +267,34 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     sellerId,
                     sellerName: group.sellerName,
                     isBusinessSeller: isBusiness,
-                    status: options?.paymentMethod === 'Cash on Delivery' ? 'processing' : 'awaiting_payment',
+                    status: 'awaiting_payment',
                     paymentStatus: 'pending',
-                    paymentMethod: options?.paymentMethod || 'EFT / PayID Escrow',
-                    shippingMethod: options?.shippingMethod || 'pickup',
+                    paymentMethod,
+                    paymentReference,
+                    paymentDueAt: Timestamp.fromDate(dueAt),
+                    pickupLocation: paymentMethod === 'cash' ? 'Perth (arranged with seller)' : null,
+                    shippingMethod,
                     shippingAddress: options?.shippingAddress || null,
                     createdAt: FieldValue.serverTimestamp(),
                     updatedAt: FieldValue.serverTimestamp(),
                     sellerPaypalMeLink: sellerPaypalLink,
-                    payIdReference,
+                    payIdReference: paymentReference, // legacy field name used by admin screens
                     nudgeCount: 0,
                     lastNudgeAt: null,
                 };
 
                 t.set(orderRef, newOrder);
+                if (paymentMethod === 'payid') {
+                    // Snapshot of the seller's PayID for this order. Server-only (rules deny clients);
+                    // revealed to the buyer by getOrderPaymentDetails().
+                    const payout = payoutDocs[sellerId];
+                    t.set(orderRef.collection('private').doc('payment'), {
+                        payId: payout.payId,
+                        payIdType: payout.payIdType || null,
+                        accountName: payout.accountName || null,
+                        createdAt: FieldValue.serverTimestamp(),
+                    });
+                }
                 createdOrders.push({ id: orderRef.id, ...newOrder });
             }
 
@@ -258,6 +308,14 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
         }));
 
         const result = { orders: serializedOrders };
+
+        // Buyer + seller notifications / emails with payment or pickup instructions.
+        try {
+            const { notifyOrderPlaced } = await import('@/lib/payments/server');
+            await Promise.all(results.map((o: any) => notifyOrderPlaced(o)));
+        } catch (e) {
+            console.error('notifyOrderPlaced failed', e);
+        }
 
         // Save result for idempotency
         if (idempotencyKey) {
@@ -311,6 +369,16 @@ export async function updateOrderStatus(idToken: string, orderId: string, status
             throw new Error("Forbidden: You do not have permission to update this order.");
         }
 
+        // Payment-state changes go through markOrderPaid / markOrderCollected / cancelUnpaidOrder
+        // (order-payments.ts) so reserved listings are sold or released correctly.
+        const ALLOWED = ['processing', 'shipped', 'delivered', 'cancelled'];
+        if (!ALLOWED.includes(status)) {
+            throw new Error('Unsupported status change.');
+        }
+        if (orderData?.status === 'awaiting_payment') {
+            throw new Error('Use "Mark as paid", "Mark collected" or "Cancel" for unpaid orders.');
+        }
+
         const updates: any = {
             status,
             updatedAt: FieldValue.serverTimestamp(),
@@ -344,7 +412,7 @@ export async function confirmOrderReceipt(idToken: string, orderId: string) {
             throw new Error("Unauthorized access. Only the buyer can confirm receipt.");
         }
 
-        if (!['processing', 'shipped'].includes(orderData?.status)) {
+        if (!['processing', 'paid', 'shipped'].includes(orderData?.status)) {
             throw new Error("Order cannot be confirmed at this stage.");
         }
 

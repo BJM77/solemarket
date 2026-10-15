@@ -1,4 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const flags = vi.hoisted(() => ({ enabled: true }));
+vi.mock('@/lib/feature-flags', () => ({
+    get STRIPE_ENABLED() { return flags.enabled; },
+    STRIPE_DISABLED_MESSAGE: 'Card payments are not available yet.',
+}));
 import { createSetupIntentAction } from './payments';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
@@ -76,5 +82,17 @@ describe('Payments Actions', () => {
         const result = await createSetupIntentAction('bad-token');
         expect(result.success).toBe(false);
         expect(result.message).toBe('Invalid Token');
+    });
+});
+
+import { describe as dF, it as iF, expect as eF } from 'vitest';
+dF('Stripe feature flag', () => {
+    iF('card actions refuse when Stripe is disabled', async () => {
+        flags.enabled = false;
+        const { createSetupIntentAction } = await import('./payments');
+        const res: any = await createSetupIntentAction('token');
+        eF(res.success).toBe(false);
+        eF(res.error).toMatch(/not available/);
+        flags.enabled = true;
     });
 });

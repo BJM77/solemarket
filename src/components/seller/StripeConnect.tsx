@@ -1,6 +1,7 @@
 
 'use client';
 
+import { STRIPE_ENABLED } from '@/lib/feature-flags';
 import { useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import { connectStripeAction } from '@/app/actions/marketplace/stripe';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 
-export function StripeConnect({ stripeEnabled = false, stripeAccountId = '' }: { stripeEnabled?: boolean, stripeAccountId?: string }) {
+export function StripeConnect(props: { stripeEnabled?: boolean, stripeAccountId?: string }) {
+    // Cards are behind a feature flag (PayID + cash only for now).
+    if (!STRIPE_ENABLED) return null;
+    return <StripeConnectInner {...props} />;
+}
+
+function StripeConnectInner({ stripeEnabled = false, stripeAccountId = '' }: { stripeEnabled?: boolean, stripeAccountId?: string }) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 

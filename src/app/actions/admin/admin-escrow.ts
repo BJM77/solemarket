@@ -43,23 +43,11 @@ export async function markEscrowAsPaid(idToken: string, orderId: string) {
             throw new Error('Unauthorized');
         }
 
-        const orderRef = firestoreDb.collection('orders').doc(orderId);
-        const orderSnap = await orderRef.get();
+        // Shared transition: order -> paid, reserved listings -> sold, buyer notified.
+        const { applyOrderTransition } = await import('@/lib/payments/server');
+        await applyOrderTransition(orderId, 'mark_paid', { uid: decodedToken.uid, role: decodedToken.role });
 
-        if (!orderSnap.exists) {
-            throw new Error('Order not found');
-        }
-
-        await orderRef.update({
-            status: 'processing', // 'processing' signals the seller to ship
-            paymentStatus: 'paid',
-            payoutStatus: 'pending',
-            updatedAt: FieldValue.serverTimestamp()
-        });
-
-        // Here we could also send an email/notification to the seller
-
-        return { success: true, message: 'Order marked as paid. Seller notified to ship.' };
+        return { success: true, message: 'Order marked as paid.' };
     } catch (error: any) {
         console.error('Error marking escrow as paid:', error);
         return { success: false, error: error.message };

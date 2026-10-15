@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useCart, ShippingAddress } from '@/context/CartContext';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/marketplace/order';
+import { getSellersPaymentReadiness } from '@/app/actions/marketplace/order-payments';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,23 @@ export default function CheckoutPage() {
     shippingCost
   } = useCart();
 
-  const [paymentMethod, setPaymentMethod] = useState<'EFT / PayID Escrow' | 'Cash on Delivery'>('EFT / PayID Escrow');
+  const [paymentMethod, setPaymentMethod] = useState<'payid' | 'cash'>('payid');
+  const [perthPickupConfirmed, setPerthPickupConfirmed] = useState(false);
+  const [sellerReadiness, setSellerReadiness] = useState<{ sellerId: string; sellerName: string | null; payIdReady: boolean }[]>([]);
+  const sellerKey = Array.from(new Set(items.map(i => i.sellerId))).sort().join(',');
+  useEffect(() => {
+    if (!sellerKey) return;
+    getSellersPaymentReadiness(sellerKey.split(',')).then(setSellerReadiness).catch(() => setSellerReadiness([]));
+  }, [sellerKey]);
+  const sellersWithoutPayId = sellerReadiness.filter(s => !s.payIdReady);
+  const payIdAvailable = sellerReadiness.length > 0 && sellersWithoutPayId.length === 0;
+  useEffect(() => {
+    // Sellers without a PayID can only be paid in cash at a Perth pickup.
+    if (sellerReadiness.length && !payIdAvailable && paymentMethod === 'payid') setPaymentMethod('cash');
+  }, [sellerReadiness, payIdAvailable, paymentMethod]);
+  useEffect(() => {
+    if (paymentMethod === 'cash' && shippingMethod !== 'pickup') setShippingMethod('pickup');
+  }, [paymentMethod, shippingMethod, setShippingMethod]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Shipping Address Form State
@@ -206,6 +223,7 @@ export default function CheckoutPage() {
           zip,
         } : undefined,
         paymentMethod,
+        perthPickupConfirmed: paymentMethod === 'cash' ? perthPickupConfirmed : undefined,
         idempotencyKey: `ord_${activeUser.uid}_${Date.now()}`,
         discountCode: appliedPromo || undefined,
       };
@@ -263,13 +281,15 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Escrow Trust Banner */}
+        {/* Buyer protection */}
         <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-300">
           <Shield className="h-6 w-6 text-emerald-400 shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">PayID Escrow Protection Active</h3>
+            <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">Stay safe when you pay</h3>
             <p className="text-xs text-emerald-400/80 leading-relaxed mt-1">
-              Your purchase is 100% protected. Payments are held securely by Benched's escrow system. The seller is only paid after the item has been delivered and you have verified the condition of the card.
+              You pay the seller directly. Only pay to the PayID shown on your Benched order page, always with your order reference.
+              Never pay a PayID or bank account sent to you by message, email or text. Something not right?{' '}
+              <Link href="/contact?topic=order-problem" className="underline font-semibold">Report a problem</Link>.
             </p>
           </div>
         </div>
@@ -434,39 +454,56 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup 
-                  value={paymentMethod} 
-                  onValueChange={(val: 'EFT / PayID Escrow' | 'Cash on Delivery') => setPaymentMethod(val)}
+                <RadioGroup
+                  value={paymentMethod}
+                  onValueChange={(val: 'payid' | 'cash') => setPaymentMethod(val)}
                   className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                   <Label
                     htmlFor="payid"
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      paymentMethod === 'EFT / PayID Escrow' ? 'border-primary bg-primary/5' : 'border-white/10'
+                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${payIdAvailable ? 'cursor-pointer hover:bg-white/5' : 'opacity-50 cursor-not-allowed'} ${
+                      paymentMethod === 'payid' ? 'border-primary bg-primary/5' : 'border-white/10'
                     }`}
                   >
-                    <RadioGroupItem value="EFT / PayID Escrow" id="payid" className="mt-1" />
+                    <RadioGroupItem value="payid" id="payid" className="mt-1" disabled={!payIdAvailable} />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">EFT / PayID Escrow</p>
-                      <p className="text-xs text-slate-400">Direct bank transfer with escrow protection. Payment details provided after order.</p>
-                      <p className="text-xs text-emerald-400 font-semibold">Recommended for Shipping</p>
+                      <p className="font-bold text-white">PayID (bank transfer to the seller)</p>
+                      <p className="text-xs text-slate-400">After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
+                      {sellersWithoutPayId.length > 0 && (
+                        <p className="text-xs text-amber-400 font-semibold">
+                          {sellersWithoutPayId.map(s => s.sellerName || 'A seller').join(', ')} can&apos;t take PayID yet. Pay cash at pickup or remove their items.
+                        </p>
+                      )}
                     </div>
                   </Label>
 
                   <Label
-                    htmlFor="cod"
+                    htmlFor="cash"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      paymentMethod === 'Cash on Delivery' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'border-white/10'
                     }`}
                   >
-                    <RadioGroupItem value="Cash on Delivery" id="cod" className="mt-1" />
+                    <RadioGroupItem value="cash" id="cash" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">Cash on Delivery / Pickup</p>
-                      <p className="text-xs text-slate-400">Pay cash in person upon local meetup or delivery inspection.</p>
-                      <p className="text-xs text-amber-400 font-semibold">Ideal for Local Meetups</p>
+                      <p className="font-bold text-white">Cash on pickup (Perth only)</p>
+                      <p className="text-xs text-slate-400">Collect in person in Perth and pay cash when you inspect the item. Arrange a time with the seller within 72 hours.</p>
                     </div>
                   </Label>
                 </RadioGroup>
+                {paymentMethod === 'cash' && (
+                  <label className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-200">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-5 w-5"
+                      checked={perthPickupConfirmed}
+                      onChange={e => setPerthPickupConfirmed(e.target.checked)}
+                      aria-describedby="cash-note"
+                    />
+                    <span id="cash-note">
+                      I&apos;m in Perth and will collect in person. I&apos;ll message the seller to arrange a safe, public meeting place and pay cash on collection.
+                    </span>
+                  </label>
+                )}
               </CardContent>
             </Card>
 
@@ -577,7 +614,7 @@ export default function CheckoutPage() {
                 <Button 
                   type="submit" 
                   className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (paymentMethod === 'cash' && !perthPickupConfirmed)}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
