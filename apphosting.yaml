@@ -63,83 +63,11 @@ env:
 
   # Server secrets (references to Cloud Secret Manager only - create each with
   # `firebase apphosting:secrets:set <NAME>` before deploying)
-  - variable: STRIPE_SECRET_KEY
-    secret: STRIPE_SECRET_KEY
-    availability:
-      - RUNTIME
-
-  - variable: STRIPE_WEBHOOK_SECRET
-    secret: STRIPE_WEBHOOK_SECRET
-    availability:
-      - RUNTIME
-
-  - variable: CRON_SECRET
-    secret: CRON_SECRET
-    availability:
-      - RUNTIME
-
-  - variable: TELEGRAM_BOT_TOKEN
-    secret: TELEGRAM_BOT_TOKEN
-    availability:
-      - RUNTIME
-
-  - variable: TELEGRAM_CHAT_ID
-    secret: TELEGRAM_CHAT_ID
-    availability:
-      - RUNTIME
-
-  - variable: TELEGRAM_SECRET_TOKEN
-    secret: TELEGRAM_SECRET_TOKEN
-    availability:
-      - RUNTIME
-
-  - variable: FACEBOOK_PAGE_ACCESS_TOKEN
-    secret: FACEBOOK_PAGE_ACCESS_TOKEN
-    availability:
-      - RUNTIME
-
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
     availability:
       - RUNTIME
 
-  - variable: GOOGLE_API_KEY
-    secret: GOOGLE_API_KEY
-    availability:
-      - RUNTIME
-
-  - variable: RESEND_API_KEY
-    secret: RESEND_API_KEY
-    availability:
-      - RUNTIME
-
-  - variable: HEALTH_CHECK_SECRET
-    secret: HEALTH_CHECK_SECRET
-    availability:
-      - RUNTIME
-
-  - variable: INTERNAL_API_SECRET
-    secret: INTERNAL_API_SECRET
-    availability:
-      - RUNTIME
-
-  - variable: EBAY_CLIENT_ID
-    secret: EBAY_CLIENT_ID
-    availability:
-      - RUNTIME
-
-  - variable: EBAY_CLIENT_SECRET
-    secret: EBAY_CLIENT_SECRET
-    availability:
-      - RUNTIME
-
-  - variable: VAULT_PRIVATE_KEY_B
-    secret: VAULT_PRIVATE_KEY_B
-    availability:
-      - RUNTIME
-
-  # Public Config
-  # Card payments (Stripe) are off: PayID + cash only. Set "true" to re-enable.
   - variable: NEXT_PUBLIC_STRIPE_ENABLED
     value: "false"
     availability:
