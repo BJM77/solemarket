@@ -1,5 +1,8 @@
 'use client';
 
+import { getProductUrl } from '@/lib/utils/url';
+import { facetCategory } from '@/lib/filters/params';
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -203,8 +206,11 @@ export default function ProductDetailsModern({
         fetchSellerMultibuy();
     }, [product?.sellerId, product?.category, productId, product?.multibuyEnabled]);
 
+    // Shoe-size labels and the size guide only make sense for footwear.
+    const isShoeListing = facetCategory(product?.category) === 'sneakers';
     const sellerRef = useMemoFirebase(() => product?.sellerId ? doc(db, 'users', product.sellerId) : null, [product?.sellerId]);
     const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller ?? undefined });
+    const sellerDisplayName = resolveSellerName(seller, product?.sellerName);
 
     const reviewsQuery = useMemoFirebase(() =>
         query(
@@ -223,7 +229,7 @@ export default function ProductDetailsModern({
 
     const toggleFavorite = useCallback(async () => {
         if (!user || !favoriteRef) {
-            router.push(`/sign-in?redirect=/product/${productId}`);
+            router.push(`/sign-in?redirect=${encodeURIComponent(product ? getProductUrl(product) : `/product/${productId}`)}`);
             return;
         }
         if (isFavorited) {
@@ -236,7 +242,7 @@ export default function ProductDetailsModern({
             });
             toast({ title: "Added to favorites!" });
         }
-    }, [user, favoriteRef, isFavorited, productId, router, toast]);
+    }, [user, favoriteRef, isFavorited, productId, product, router, toast]);
 
     const handleShare = useCallback((platform: 'fb' | 'ig') => {
         if (typeof window === 'undefined') return;
@@ -392,7 +398,7 @@ export default function ProductDetailsModern({
                             photoURL: user.photoURL || '',
                         },
                         [product.sellerId]: {
-                            displayName: 'Seller',
+                            displayName: sellerDisplayName,
                             photoURL: '',
                         }
                     },
@@ -424,7 +430,7 @@ export default function ProductDetailsModern({
             return;
         }
         if (!user) {
-            router.push(`/sign-in?redirect=/product/${product.id}`);
+            router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`);
             return;
         }
 
@@ -941,10 +947,10 @@ export default function ProductDetailsModern({
                                                         {product.size && (
                                                             <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
                                                                 <div>
-                                                                    <span className="text-gray-500 block text-xs mb-1">Size (US Men)</span>
+                                                                    <span className="text-gray-500 block text-xs mb-1">{isShoeListing ? 'Size (US Men)' : 'Size'}</span>
                                                                     <span className="font-bold text-primary">{product.size}</span>
                                                                 </div>
-                                                                <SizeChart brand={product.brand?.toLowerCase()} />
+                                                                {isShoeListing && <SizeChart brand={product.brand?.toLowerCase()} />}
                                                             </div>
                                                         )}
                                                         {product.model && (
@@ -1123,9 +1129,13 @@ export default function ProductDetailsModern({
                                                                 <div className="flex items-start gap-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4 rounded-2xl text-left mt-2">
                                                                     <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                                                                     <div>
-                                                                        <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">PayID Escrow Protection Active</p>
+                                                                        <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wide">
+                                                                            {seller?.payIdReady ? 'PayID or cash pickup (Perth)' : 'Cash pickup (Perth)'}
+                                                                        </p>
                                                                         <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 leading-relaxed mt-0.5">
-                                                                            Your payment is held securely in escrow. Funds are only released to the seller once you receive and verify the item's condition.
+                                                                            {seller?.payIdReady
+                                                                                ? "Pay the seller directly by PayID (details shown after you order), or pay cash when you collect in Perth."
+                                                                                : "This seller takes cash on pickup in Perth. Inspect the item before you pay."}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -1402,7 +1412,7 @@ export default function ProductDetailsModern({
                                 Mix & Match Multibuy Deals
                             </h2>
                             <p className="text-xs font-semibold text-slate-500 mt-1">
-                                Add more items from <b>{product.sellerName || 'this seller'}</b>'s eligible collection to save!
+                                Add more items from <b>{sellerDisplayName}</b>'s eligible collection to save!
                             </p>
                         </div>
                         {product.multiCardTier && (

@@ -148,10 +148,10 @@ export function CartDrawer() {
                                     </div>
                                     <div className="text-left">
                                         <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                                            DealSafe™ Buyer Protection
+                                            Pay the seller directly
                                         </div>
                                         <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                                            Funds kept in secure escrow until item arrives and is verified.
+                                            Cash on pickup (Perth) or the seller's PayID. Benched never holds your money.
                                         </p>
                                     </div>
                                 </div>

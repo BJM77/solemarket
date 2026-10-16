@@ -68,6 +68,7 @@ export type UserProfile = {
   isBanned?: boolean;
   shopSlug?: string;
   paypalMeLink?: string;
+  payIdReady?: boolean; // public flag only; the PayID itself lives in users/{uid}/private/payout
 };
 
 export type Product = {

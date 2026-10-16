@@ -689,8 +689,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                             <CreditCard className="h-4 w-4 text-primary" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-xs font-bold">Secure Escrow Hold</p>
-                                            <p className="text-[10px] text-slate-400">Your funds are held securely in the Benched escrow account and only released to the seller after you confirm delivery.</p>
+                                            <p className="text-xs font-bold">Pay the seller directly</p>
+                                            <p className="text-[10px] text-slate-400">Pay by the seller&apos;s PayID (where offered) or cash on pickup in Perth. Benched never holds your money.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 items-start">

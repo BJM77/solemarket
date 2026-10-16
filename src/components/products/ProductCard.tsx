@@ -1,5 +1,6 @@
 'use client';
 
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -1005,10 +1006,10 @@ export default function ProductCard({
           )}
           <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-white/5 flex-shrink-0">
             <AvatarImage src={product.sellerAvatar || ''} />
-            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{(!product.sellerName || product.sellerName.toLowerCase().includes('unknown')) ? 'BM' : product.sellerName.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{resolveSellerName(null, product.sellerName).substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">
-            {(!product.sellerName || product.sellerName.toLowerCase().includes('unknown')) ? 'Benched Member' : product.sellerName}
+            {resolveSellerName(null, product.sellerName)}
           </span>
           {product.sellerVerified ? (
             <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />

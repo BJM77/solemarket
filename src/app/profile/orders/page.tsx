@@ -1,6 +1,7 @@
 
 'use client';
 
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/firebase';
 import { db } from '@/lib/firebase/config';
@@ -157,7 +158,7 @@ export default function UserOrdersPage() {
                         photoURL: user.photoURL || ''
                     },
                     [order.sellerId]: {
-                        displayName: order.sellerName || 'Seller',
+                        displayName: resolveSellerName(null, order.sellerName),
                         photoURL: ''
                     }
                 },
@@ -270,7 +271,7 @@ export default function UserOrdersPage() {
                                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-50">
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Seller</p>
-                                        <p className="text-sm font-bold text-white">{order.sellerName || 'Private Seller'}</p>
+                                        <p className="text-sm font-bold text-white">{resolveSellerName(null, order.sellerName)}</p>
                                     </div>
                                     <div className="space-y-1 text-right">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Total Amount</p>

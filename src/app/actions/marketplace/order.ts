@@ -1,6 +1,7 @@
 
 'use server'
 
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { ensureActionAuth } from '@/lib/action-utils';
 import { FieldValue, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore';
@@ -149,7 +150,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 perthPickupConfirmed: options?.perthPickupConfirmed,
                 sellers: sellerIds.map(id => ({
                     sellerId: id,
-                    sellerName: fetchedUsers[id]?.displayName || products.find(p => p.sellerId === id)?.sellerName,
+                    sellerName: resolveSellerName(fetchedUsers[id], products.find(p => p.sellerId === id)?.sellerName),
                     payIdReady: !!payoutDocs[id]?.payId,
                 })),
             });
@@ -166,7 +167,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 const item = items[i];
                 const sellerId = product.sellerId;
                 if (!sellerGroups[sellerId]) {
-                    sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: product.sellerName };
+                    sellerGroups[sellerId] = { items: [], subtotal: 0, sellerName: resolveSellerName(fetchedUsers[sellerId], product.sellerName) };
                 }
                 const itemTotal = lineTotals[i];
                 sellerGroups[sellerId].items.push({

@@ -330,3 +330,17 @@
 *:focus-visible {
   @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
 }
+
+/* Menus: Radix/HoverMenu move focus between the menu container and its items on hover,
+   which made the ring jump from the panel to the item ("flashing border"). Menu containers
+   never show a ring; items use a background highlight instead. */
+[role="menu"]:focus-visible,
+[role="menubar"]:focus-visible,
+[role="listbox"]:focus-visible,
+[data-radix-menu-content]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="menuitemcheckbox"]:focus-visible,
+[role="menuitemradio"]:focus-visible,
+[role="option"]:focus-visible {
+  @apply ring-0 ring-offset-0 outline-none;
+}

@@ -34,6 +34,10 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   // Firestore allows only ONE 'in' filter per query.
   // We prioritize: category > size > condition > sellers
   let inFilterUsed = false;
+  // Size of the single 'in' / array-contains-any filter; Firestore multiplies it with OR
+  // branches when counting disjunctions (max 30 per query).
+  let inFilterSize = 1;
+  let brandOrBranches = 1;
   
   // Normalize and ensure arrays for multi-select filters
   const selectedConditions = Array.isArray(conditions) ? conditions : (conditions ? [conditions] : []);
@@ -55,18 +59,21 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
       if (related && related.length > 1) {
         constraints.push(where('category', 'in', related));
         inFilterUsed = true;
+        inFilterSize = related.length;
       } else {
         constraints.push(where('category', '==', categories[0]));
       }
     } else {
       constraints.push(where('category', 'in', categories.slice(0, 10)));
       inFilterUsed = true;
+        inFilterSize = Math.min(categories.length, 10);
     }
   } else if (category) {
     const related = RELATED_CATEGORIES[category];
     if (related && related.length > 1) {
       constraints.push(where('category', 'in', related));
       inFilterUsed = true;
+        inFilterSize = related.length;
     } else {
       constraints.push(where('category', '==', category));
     }
@@ -82,6 +89,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
       where('brand', '==', brand),
       where('keywords', 'array-contains', subCategory.toLowerCase())
     ));
+    brandOrBranches = 3;
     // Firestore OR logic handles multi-field inclusivity
   } else {
     if (subCategory) {
@@ -99,6 +107,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     } else if (!inFilterUsed && selectedConditions.length > 1) {
       constraints.push(where('condition', 'in', selectedConditions.slice(0, 10)));
       inFilterUsed = true;
+        inFilterSize = Math.min(selectedConditions.length, 10);
     } else {
       filterConditionsInMemory = selectedConditions;
     }
@@ -109,6 +118,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     if (!inFilterUsed) {
       constraints.push(where('size', 'in', sizeQueryVariants(selectedSizes)));
       inFilterUsed = true;
+        inFilterSize = sizeQueryVariants(selectedSizes).length;
     } else {
       filterSizesInMemory = selectedSizes;
     }
@@ -120,6 +130,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     } else if (!inFilterUsed && selectedSellers.length > 1) {
       constraints.push(where('sellerId', 'in', selectedSellers.slice(0, 10)));
       inFilterUsed = true;
+        inFilterSize = Math.min(selectedSellers.length, 10);
     } else {
       filterSellersInMemory = selectedSellers;
     }
@@ -132,6 +143,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     } else if (!inFilterUsed && selectedGrading.length > 1) {
       constraints.push(where('gradingCompany', 'in', selectedGrading.slice(0, 10)));
       inFilterUsed = true;
+        inFilterSize = Math.min(selectedGrading.length, 10);
     } else {
       filterGradingInMemory = selectedGrading;
     }
@@ -148,6 +160,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     } else if (!inFilterUsed && selectedTiers.length > 1) {
       constraints.push(where('multiCardTier', 'in', selectedTiers.slice(0, 10)));
       inFilterUsed = true;
+        inFilterSize = Math.min(selectedTiers.length, 10);
     } else {
       filterTiersInMemory = selectedTiers;
     }
@@ -195,12 +208,17 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     const qLower = q.toLowerCase().trim();
     const searchTerms = qLower.split(/\s+/).filter(term => term.length >= 1);
 
+    // Firestore rejects queries whose disjunctive normal form exceeds 30 terms
+    // ("Too many disjunctions"). Every OR branch is multiplied by the 'in' filter size
+    // and by the brand OR, so budget the search branches accordingly.
+    const branchBudget = Math.max(1, Math.floor(30 / (inFilterSize * brandOrBranches)));
+
     if (searchTerms.length === 1) {
       const term = searchTerms[0];
-      if (/^\d+$/.test(term) && !inFilterUsed) {
+      if (/^\d+$/.test(term) && !inFilterUsed && brandOrBranches === 1) {
         constraints.push(where('keywords', 'array-contains-any', [term, term + 'c', term + 'p', term + 'oz']));
         inFilterUsed = true;
-      } else {
+      } else if (branchBudget >= 2) {
         constraints.push(or(
           where('keywords', 'array-contains', term),
           and(
@@ -208,10 +226,13 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
             where('title_lowercase', '<=', term + '\uf8ff')
           )
         ));
+      } else {
+        constraints.push(where('keywords', 'array-contains', term));
       }
       orderByConstraints.push(orderBy('title_lowercase', 'asc'));
     } else {
-      const termConditions: any[] = [];
+      // Keyword matches first (one branch per term), then title-prefix branches while budget allows.
+      const termConditions: any[] = searchTerms.map(term => where('keywords', 'array-contains', term));
       for (const term of searchTerms) {
         termConditions.push(
           and(
@@ -219,10 +240,11 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
             where('title_lowercase', '<=', term + '\uf8ff')
           )
         );
-        termConditions.push(where('keywords', 'array-contains', term));
       }
-      const limitedConditions = termConditions.slice(0, 30);
-      if (limitedConditions.length > 0) {
+      const limitedConditions = termConditions.slice(0, branchBudget);
+      if (limitedConditions.length === 1) {
+        constraints.push(limitedConditions[0]);
+      } else if (limitedConditions.length > 0) {
         constraints.push(or(...limitedConditions));
       }
       orderByConstraints.push(orderBy('title_lowercase', 'asc'));
@@ -326,7 +348,11 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     // Tiered Access Filtering
     const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
 
+    const isAdminView = userRole === 'admin' || userRole === 'superadmin';
     products = products.filter((p: Product) => {
+      // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
+      if (!isAdminView && !(Number(p.price) > 0)) return false;
+
       // 0. Logical Delete Filter (Admins only, normal users handled by Firestore query above)
       if ((userRole === 'admin' || userRole === 'superadmin') && !searchParams.status && p.status === 'deleted') {
         return false;

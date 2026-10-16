@@ -1,5 +1,6 @@
 'use server';
 
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
@@ -233,6 +234,11 @@ export async function publishListing(draftId: string, idToken: string): Promise<
             throw new Error("Your seller application is pending approval or has not been submitted.");
         }
 
+        // 1b. A listing can't go live without a real price (reverse-bid/WTB listings excepted).
+        if (!data?.isReverseBidding && !(Number(data?.price) > 0)) {
+            throw new Error("Set a price above $0 before publishing.");
+        }
+
         // 2. Check listing limit (Admins/Superadmins bypass)
         if (!isSuperAdmin && !isStaff) {
             const activeListingsQuery = await db.collection('products')
@@ -253,7 +259,7 @@ export async function publishListing(draftId: string, idToken: string): Promise<
             status: 'available',
             isDraft: false,
             updatedAt: FieldValue.serverTimestamp(),
-            sellerName: userData?.displayName || 'Unknown Seller',
+            sellerName: resolveSellerName(userData as any, data?.sellerName),
             sellerEmail: userData?.email || '',
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,

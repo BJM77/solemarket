@@ -32,7 +32,7 @@ import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliv
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  price: z.coerce.number().min(0, 'Price must be 0 or more'),
+  price: z.coerce.number().min(0, 'Price must be 0 or more'), // > 0 enforced below unless reverse bidding
   category: z.string().min(1, 'Category is required'),
   subCategory: z.string().optional(),
   condition: z.string().min(1, 'Condition is required'),
@@ -74,6 +74,9 @@ const formSchema = z.object({
   dutchAuctionStartTime: z.any().optional(),
   imageAltTexts: z.array(z.string()).optional(),
   seoDescription: z.string().optional(),
+}).refine((d) => d.isReverseBidding || d.price > 0, {
+  message: 'Price must be more than $0',
+  path: ['price'],
 });
 
 type ListingFormValues = z.infer<typeof formSchema>;

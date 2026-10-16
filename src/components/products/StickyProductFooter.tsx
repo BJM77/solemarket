@@ -1,5 +1,6 @@
 'use client';
 
+import { getProductUrl } from '@/lib/utils/url';
 import { Button } from '@/components/ui/button';
 import { DollarSign, ShoppingCart, ExternalLink } from 'lucide-react';
 import { formatPrice } from "@/lib/utils/format";
@@ -50,7 +51,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
         }
 
         if (!user) {
-            router.push(`/sign-in?redirect=/product/${product?.id}`);
+            router.push(`/sign-in?redirect=${encodeURIComponent(product ? getProductUrl(product) : "/")}`);
             return;
         }
 

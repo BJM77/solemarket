@@ -99,7 +99,7 @@ export function HoverMenu({ label, items, className }: { label: string; items: H
           role="menu"
           aria-label={label}
           onKeyDown={onPanelKey}
-          className="min-w-[220px] rounded-2xl border border-border/50 bg-background/95 p-2 shadow-2xl backdrop-blur-md"
+          className="min-w-[220px] rounded-2xl outline-none border border-border/50 bg-background/95 p-2 shadow-2xl backdrop-blur-md"
         >
           {items.map((it) => (
             <Link
@@ -108,7 +108,7 @@ export function HoverMenu({ label, items, className }: { label: string; items: H
               role="menuitem"
               tabIndex={open ? 0 : -1}
               onClick={() => setOpen(false)}
-              className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold uppercase tracking-widest outline-none transition-colors hover:bg-primary/5 hover:text-primary focus-visible:bg-primary/10 focus-visible:text-primary"
+              className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold uppercase tracking-widest outline-none transition-colors hover:bg-primary/5 hover:text-primary focus-visible:bg-primary/10 focus-visible:text-primary focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               {it.icon}
               {it.label}

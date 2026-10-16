@@ -52,6 +52,8 @@ export default function CheckoutPage() {
     if (paymentMethod === 'cash' && shippingMethod !== 'pickup') setShippingMethod('pickup');
   }, [paymentMethod, shippingMethod, setShippingMethod]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Set once an order is placed so the empty-cart screen never flashes before the redirect.
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   // Shipping Address Form State
   const [fullName, setFullName] = useState(shippingAddress?.fullName || '');
@@ -138,6 +140,15 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <p className="text-slate-400">Loading your profile...</p>
+      </div>
+    );
+  }
+
+  if (orderPlaced) {
+    return (
+      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-3 px-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-slate-300 font-medium">Order placed. Loading your confirmation…</p>
       </div>
     );
   }
@@ -235,15 +246,13 @@ export default function CheckoutPage() {
       }
 
       if (result.orders) {
-        toast({
-          title: 'Order Placed!',
-          description: 'Your order has been recorded successfully.',
-        });
-
-        // Store last orders for confirmation page
+        // Store last orders for the confirmation page, then redirect before clearing the cart
+        // so the "Your cart is empty" screen never shows.
         sessionStorage.setItem('lastOrders', JSON.stringify(result.orders));
+        setOrderPlaced(true);
+        const ids = (result.orders as any[]).map((o) => o.id).filter(Boolean).join(',');
+        router.replace(`/checkout/confirmation${ids ? `?orders=${encodeURIComponent(ids)}` : ''}`);
         clearCart();
-        router.push('/checkout/confirmation');
       } else {
         throw new Error('Order creation failed to return order details.');
       }

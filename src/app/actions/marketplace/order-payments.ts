@@ -7,6 +7,7 @@ import { ensureActionAuth } from '@/lib/action-utils';
 import { maskPayId, validateSellerPayout } from '@/lib/payments/local';
 import { applyOrderTransition } from '@/lib/payments/server';
 import { serializeFirestoreData } from '@/lib/utils/serialization';
+import { resolveSellerName } from '@/lib/utils/seller-name';
 
 const payoutRef = (uid: string) => firestoreDb.collection('users').doc(uid).collection('private').doc('payout');
 
@@ -56,6 +57,8 @@ export async function getOrderPaymentDetails(idToken: string, orderId: string) {
         const p = await orderRef.collection('private').doc('payment').get();
         if (p.exists) payId = { payId: p.data().payId, payIdType: p.data().payIdType, accountName: p.data().accountName };
     }
+    const sellerSnap = o.sellerId ? await firestoreDb.collection('users').doc(String(o.sellerId)).get() : null;
+    const sellerName = resolveSellerName(sellerSnap?.exists ? (sellerSnap.data() as any) : null, o.sellerName);
     return serializeFirestoreData({
         id: snap.id,
         status: o.status,
@@ -63,7 +66,7 @@ export async function getOrderPaymentDetails(idToken: string, orderId: string) {
         paymentReference: o.paymentReference || o.payIdReference,
         paymentDueAt: o.paymentDueAt,
         totalAmount: o.totalAmount,
-        sellerName: o.sellerName,
+        sellerName,
         sellerId: o.sellerId,
         shippingMethod: o.shippingMethod,
         payId,
@@ -103,7 +106,7 @@ export async function getSellersPaymentReadiness(sellerIds: string[]) {
     const users = await firestoreDb.getAll(...ids.map(id => firestoreDb.collection('users').doc(id)));
     return ids.map((id, k) => ({
         sellerId: id,
-        sellerName: users[k].exists ? (users[k].data()?.displayName || null) : null,
+        sellerName: users[k].exists ? resolveSellerName(users[k].data() as any) : null,
         payIdReady: docs[k].exists && !!docs[k].data()?.payId,
     }));
 }

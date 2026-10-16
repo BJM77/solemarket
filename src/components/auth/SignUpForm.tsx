@@ -72,7 +72,9 @@ const formSchema = z.object({
 function SignUpFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/';
+  const rawRedirect = searchParams.get('redirect') || '/';
+  // Only allow same-site relative redirects.
+  const redirectUrl = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
   const refCode = searchParams.get('ref');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -115,36 +117,50 @@ function SignUpFormInner() {
       });
       setIsGoogleLoading(false);
     } else {
-      // Set session cookie
-      try {
-        const { auth } = await import("@/lib/firebase/config");
-        if (auth?.currentUser) {
-          const idToken = await auth.currentUser.getIdToken();
-          await fetch("/api/auth/session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idToken }),
-          });
-        }
-      } catch (e) {
-        console.error("Failed to set session cookie", e);
-      }
+      await establishSession();
 
       toast({
         title: "Success",
         description: "Account created with Google",
       });
       if (needsProfileCompletion) {
-        window.location.href = '/complete-profile';
+        window.location.href = `/complete-profile?redirect=${encodeURIComponent(redirectUrl)}`;
       } else {
         window.location.href = redirectUrl;
       }
     }
   };
 
+  const establishSession = async () => {
+    try {
+      const { auth } = await import("@/lib/firebase/config");
+      if (auth?.currentUser) {
+        const idToken = await auth.currentUser.getIdToken(true);
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+      }
+    } catch (e) {
+      console.error("Failed to set session cookie", e);
+    }
+  };
+
+  function onInvalid(errors: Record<string, any>) {
+    const first = Object.values(errors)[0] as any;
+    toast({
+      title: "Please check the form",
+      description: first?.message || "Some fields need attention.",
+      variant: "destructive",
+    });
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const { error } = await signUpWithEmail({
+    let result: Awaited<ReturnType<typeof signUpWithEmail>>;
+    try {
+      result = await signUpWithEmail({
       email: values.email,
       password: values.password,
       displayName: values.displayName,
@@ -157,7 +173,11 @@ function SignUpFormInner() {
       acceptsStripe: values.acceptsStripe,
       acceptsCOD: values.acceptsCOD,
       acceptsPayID: values.acceptsPayID,
-    });
+      });
+    } catch (e: any) {
+      result = { user: null, error: { code: e?.code, message: e?.message || 'Sign-up failed.' } };
+    }
+    const { error } = result;
 
     if (error) {
       let errorMessage = "An unknown error occurred. Please try again.";
@@ -183,18 +203,22 @@ function SignUpFormInner() {
       });
       setIsLoading(false);
     } else {
+      // Make sure the server session cookie exists before navigating, so protected
+      // actions (Buy Now, checkout) recognise the new user straight away.
+      await establishSession();
       toast({
-        title: "Success!",
-        description: "Your account has been created. Please verify your email.",
+        title: "Welcome to Benched!",
+        description: "Your account has been created. We've emailed you a link to verify your address.",
       });
-      window.location.href = '/verify';
+      // Full navigation so every provider picks up the new auth state.
+      window.location.assign(redirectUrl);
     }
   }
 
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4">
 
           <FormField
             control={form.control}

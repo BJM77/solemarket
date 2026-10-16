@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -43,7 +43,18 @@ const steps = [
 ];
 
 export default function ConfirmationPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+            <ConfirmationContent />
+        </Suspense>
+    );
+}
+
+function ConfirmationContent() {
     const [orders, setOrders] = useState<any[]>([]);
+    const [loaded, setLoaded] = useState(false);
+    const searchParams = useSearchParams();
+    const orderIdsFromUrl = (searchParams?.get('orders') || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 10);
     const [isDisputeOpen, setIsDisputeOpen] = useState(false);
     const [selectedOrderForDispute, setSelectedOrderForDispute] = useState<string | null>(null);
     const [disputeReason, setDisputeReason] = useState('');
@@ -110,12 +121,36 @@ export default function ConfirmationPage() {
                     trackingFired.current = true;
                 }
             } catch {
-                router.push('/');
+                // fall through to the URL-based fallback below
             }
-        } else {
-            router.push('/');
         }
+        setLoaded(true);
     }, [router]);
+
+    if (!loaded) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" aria-label="Loading your order" />
+            </div>
+        );
+    }
+
+    // Opened in a new tab / after refresh: no session copy, but we know the order ids.
+    if (orders.length === 0 && orderIdsFromUrl.length > 0) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
+                <div className="container mx-auto px-4 w-full max-w-2xl space-y-6">
+                    <div className="text-center">
+                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+                        <h1 className="text-3xl font-black text-white">Order placed</h1>
+                        <p className="text-slate-400 mt-1">Here&apos;s how to pay. Full details are in your purchases.</p>
+                    </div>
+                    {orderIdsFromUrl.map(id => <OrderPaymentInstructions key={id} orderId={id} />)}
+                    <Button asChild className="w-full h-12 font-bold rounded-xl"><Link href="/profile/orders">View Purchases</Link></Button>
+                </div>
+            </div>
+        );
+    }
 
     if (orders.length === 0) {
         return (
@@ -138,7 +173,8 @@ export default function ConfirmationPage() {
                         <CheckCircle2 className="w-12 h-12 text-emerald-500" />
                     </div>
                     <h1 className="text-4xl font-black text-white tracking-tight mb-2">Order Confirmed!</h1>
-                    <p className="text-lg text-slate-400">Thank you for your purchase. We've notified the sellers.</p>
+                    <p className="text-lg text-slate-400">Thank you for your purchase. We&apos;ve notified the seller.</p>
+                    {orders.length > 0 && <p className="mt-2 text-sm text-slate-300">Next step: follow the payment instructions below.</p>}
                     {orders[0]?.groupOrderId && (
                         <p className="text-xs font-mono text-slate-400 mt-2 uppercase tracking-widest">Global Ref: {orders[0].groupOrderId}</p>
                     )}
@@ -156,14 +192,20 @@ export default function ConfirmationPage() {
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Details</p>
                                         <CardTitle className="text-base font-bold text-white">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
+                                        {(order.paymentReference || order.id) && (
+                                            <p className="text-xs text-slate-300">Reference: <span className="font-mono font-bold text-white">{order.paymentReference || order.id}</span></p>
+                                        )}
+                                        <p className="text-xs text-slate-300">
+                                            Payment: {order.paymentMethod === 'payid' ? 'PayID to seller' : order.paymentMethod === 'cash' ? 'Cash on pickup (Perth)' : (order.paymentMethod || 'As arranged')}
+                                        </p>
                                     </div>
                                     <Badge variant="outline" className="border-slate-600 text-slate-200 bg-white/5 px-3 py-1">
-                                        {order.status}
+                                        {String(order.status || '').replace(/_/g, ' ')}
                                     </Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-6">
-                                {/* Escrow Progress Bar */}
+                                {/* Order progress */}
                                 <div className="mb-8 bg-slate-950/40 p-4 md:p-6 rounded-2xl border border-white/5">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Order Status</p>
                                     <div className="grid grid-cols-4 gap-2 relative">

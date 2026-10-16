@@ -1,5 +1,7 @@
 'use client';
 
+import { getProductUrl } from '@/lib/utils/url';
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -95,7 +97,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                             </div>
                         ) : (
                             <Button 
-                                onClick={() => router.push(`/sign-in?redirect=/product/${product.id}`)}
+                                onClick={() => router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`)}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-indigo-600/20"
                             >
                                 <Lock className="h-4 w-4 mr-2" /> Sign In to View Live Price
@@ -146,7 +148,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                             }
                         </div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2.5 font-medium leading-relaxed">
-                            💡 Mix & match with other eligible items from <b>{product.sellerName || 'this seller'}</b> in <b>{product.category}</b>.
+                            💡 Mix & match with other eligible items from <b>{resolveSellerName(seller, product.sellerName)}</b> in <b>{product.category}</b>.
                         </p>
                     </div>
                 )}

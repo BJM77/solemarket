@@ -1,5 +1,6 @@
 'use client';
 
+import { getProductUrl } from '@/lib/utils/url';
 import React, { useState, useCallback } from 'react';
 import type { Product } from '@/lib/types';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
@@ -60,7 +61,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
 
   const handleFavorite = useCallback(async () => {
     if (!user || !favoriteRef) {
-      router.push(`/sign-in?redirect=/product/${product.id}`);
+      router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`);
       return;
     }
     if (isFavorited) {
@@ -73,7 +74,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
       });
       toast({ title: "Added to favorites!" });
     }
-  }, [user, favoriteRef, isFavorited, product.id, router, toast]);
+  }, [user, favoriteRef, isFavorited, product, router, toast]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(`${window.location.origin}/product/${product.id}`);

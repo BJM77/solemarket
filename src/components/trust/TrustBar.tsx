@@ -17,9 +17,9 @@ export default function TrustBar() {
                         <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
                             <Lock className="h-6 w-6" />
                         </div>
-                        <h3 className="font-black uppercase tracking-tight text-white mb-1.5 text-base">DealSafe™ Escrow</h3>
+                        <h3 className="font-black uppercase tracking-tight text-white mb-1.5 text-base">Pay Sellers Directly</h3>
                         <p className="text-muted-foreground text-xs leading-relaxed">
-                            Your payment is safely held in escrow until you receive and verify the item. 100% money-back guarantee.
+                            Pay cash when you collect in Perth, or pay the seller's PayID directly. Inspect before you pay on pickup.
                         </p>
                     </div>
 

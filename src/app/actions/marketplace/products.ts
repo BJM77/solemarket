@@ -1,5 +1,6 @@
 'use server';
 
+import { resolveSellerName } from '@/lib/utils/seller-name';
 import * as admin from 'firebase-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
@@ -64,7 +65,7 @@ export async function createProductAction(
             const userProfile = userSnap.data() as UserProfile;
             userRole = userProfile.role || 'viewer';
             canSell = userProfile.canSell === true;
-            sellerName = userProfile.displayName || 'Seller';
+            sellerName = resolveSellerName(userProfile, decodedToken.name);
             sellerAvatar = userProfile.photoURL || '';
             sellerVerified = userProfile.isVerified || false;
 
@@ -119,6 +120,9 @@ export async function createProductAction(
         }
 
         const validData = validationResult.data;
+        if (!(validData as any).isReverseBidding && !(Number(validData.price) > 0)) {
+            return { success: false, error: 'Price must be more than $0.' };
+        }
 
         const finalData: Product = {
             ...validData,
