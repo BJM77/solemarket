@@ -1,11 +1,12 @@
 import { homography, applyH, type Quad } from './geometry';
 
-export const OUTPUT_W = 1500;
-export const OUTPUT_H = 2100;
+/** Exactly 63:88 (card mm x 20). */
+export const OUTPUT_W = 1260;
+export const OUTPUT_H = 1760;
 
 /**
  * Perspective-warp `quad` (in source pixel coords) of `src` RGBA into a fixed
- * portrait output (default 1500x2100, 5:7 ~ 63:88) with bilinear sampling.
+ * portrait output (default 1260x1760, exactly 63:88) with bilinear sampling.
  * Inverse mapping: for each output pixel find the source location.
  */
 export function warpQuad(

@@ -46,21 +46,17 @@ export function convexHull(points: Pt[]): Pt[] {
 export function maxAreaQuad(hull: Pt[]): Pt[] | null {
   const n = hull.length;
   if (n < 4) return null;
-  let best = -1;
-  let res: Pt[] | null = null;
   const tri = (a: Pt, b: Pt, c: Pt) => Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2;
-  for (let i = 0; i < n; i++) {
-    let j = (i + 1) % n;
-    let l = (i + 2) % n;
-    for (let k = (i + 2) % n; k !== i; k = (k + 1) % n) {
-      // best j between i and k
-      while ((j + 1) % n !== k && tri(hull[i], hull[(j + 1) % n], hull[k]) >= tri(hull[i], hull[j], hull[k])) j = (j + 1) % n;
-      if (l === k || l === i) l = (k + 1) % n;
-      while ((l + 1) % n !== i && tri(hull[i], hull[k], hull[(l + 1) % n]) >= tri(hull[i], hull[k], hull[l])) l = (l + 1) % n;
-      if (l === i || j === k) continue;
-      const area = tri(hull[i], hull[j], hull[k]) + tri(hull[i], hull[k], hull[l]);
-      if (area > best) { best = area; res = [hull[i], hull[j], hull[k], hull[l]]; }
-    }
+  // O(n^3): for each diagonal (i,k) pick the best vertex on each side. Distinct vertices
+  // are guaranteed (the old two-pointer sweep could return a repeated corner).
+  let best = -1, res: Pt[] | null = null;
+  for (let i = 0; i < n; i++) for (let k = i + 2; k < n; k++) {
+    if (i === 0 && k === n - 1) continue;
+    let bj = -1, aj = -1, bl = -1, al = -1;
+    for (let j = i + 1; j < k; j++) { const t = tri(hull[i], hull[j], hull[k]); if (t > aj) { aj = t; bj = j; } }
+    for (let l = k + 1; l < n + i; l++) { const t = tri(hull[i], hull[k], hull[l % n]); if (t > al) { al = t; bl = l % n; } }
+    if (bj < 0 || bl < 0) continue;
+    if (aj + al > best) { best = aj + al; res = [hull[i], hull[bj], hull[k], hull[bl]]; }
   }
   return res;
 }
@@ -142,4 +138,18 @@ function solve(A: number[][], b: number[]): number[] {
 export function applyH(H: number[], p: Pt): Pt {
   const w = H[6] * p.x + H[7] * p.y + H[8];
   return { x: (H[0] * p.x + H[1] * p.y + H[2]) / w, y: (H[3] * p.x + H[4] * p.y + H[5]) / w };
+}
+
+/**
+ * Keystone measure: the larger angle (degrees) between opposite edges. 0 when the phone
+ * is perfectly parallel to the card; grows as the phone tilts.
+ */
+export function perspectiveDeg(q: Quad): number {
+  const ang = (a: Pt, b: Pt, c: Pt, d: Pt) => {
+    const u = { x: b.x - a.x, y: b.y - a.y }, v = { x: d.x - c.x, y: d.y - c.y };
+    const cos = (u.x * v.x + u.y * v.y) / (Math.hypot(u.x, u.y) * Math.hypot(v.x, v.y));
+    return (Math.acos(Math.min(1, Math.max(-1, cos))) * 180) / Math.PI;
+  };
+  const m = Math.max(ang(q[0], q[1], q[3], q[2]), ang(q[0], q[3], q[1], q[2]));
+  return Number.isFinite(m) ? m : 90; // degenerate quad counts as badly tilted
 }

@@ -1,4 +1,5 @@
-import { CARD_ASPECT, quadAspect, quadDelta, type Quad } from './geometry';
+import { CARD_ASPECT, perspectiveDeg, quadAspect, quadDelta, type Quad } from './geometry';
+import type { Lighting } from './lighting';
 import type { Detection } from './detect';
 
 export interface GateConfig {
@@ -10,6 +11,9 @@ export interface GateConfig {
   stableMs: number;
   maxJitterFrac: number;     // corner movement allowed, fraction of frame diagonal
   minSharpness: number;      // Laplacian variance
+  maxPerspectiveDeg: number; // max angle between opposite edges (phone tilt)
+  maxGlare: number;          // share of card pixels that are clipped highlights
+  minLuma: number;           // mean card luma below this = too dark
 }
 
 export const DEFAULT_GATE: GateConfig = {
@@ -21,10 +25,13 @@ export const DEFAULT_GATE: GateConfig = {
   stableMs: 500,
   maxJitterFrac: 0.012,
   minSharpness: 60,
+  maxPerspectiveDeg: 3.5,
+  maxGlare: 0.006,
+  minLuma: 45,
 };
 
 export type GateState =
-  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry'; message: string; progress: number }
+  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light'; message: string; progress: number }
   | { ok: true; message: string; progress: 1 };
 
 /**
@@ -38,15 +45,18 @@ export class CaptureGate {
 
   reset() { this.since = null; this.last = null; }
 
-  update(d: Detection, sharpness: number, now: number): GateState {
+  update(d: Detection, sharpness: number, now: number, light?: Lighting): GateState {
     const fail = (reason: any, message: string): GateState => { this.since = null; this.last = d.quad; return { ok: false, reason, message, progress: 0 }; };
     if (d.backgroundCoverage < this.cfg.minBackground) return fail('background', 'Use a plain white or black background');
     if (!d.quad) return fail(d.fill === 0 && d.backgroundCoverage > 0.9 ? 'no_card' : 'not_portrait', d.backgroundCoverage > 0.9 ? 'Place a card in the frame' : 'Hold the card upright (portrait)');
+    if (perspectiveDeg(d.quad) > this.cfg.maxPerspectiveDeg) return fail('tilted', 'Level your phone over the card');
     const aspect = quadAspect(d.quad);
     if (Math.abs(aspect - CARD_ASPECT) > this.cfg.aspectTolerance) return fail('aspect', 'Hold the phone flat above the card');
     if (d.fill < this.cfg.minFill) return fail('too_small', 'Move closer');
     if (d.fill > this.cfg.maxFill) return fail('too_close', 'Move back a little');
     if (d.backgroundCoverage > this.cfg.maxBackground) return fail('background', 'Move closer');
+    if (light && light.meanLuma < this.cfg.minLuma) return fail('low_light', 'Need more light');
+    if (light && light.glare > this.cfg.maxGlare) return fail('glare', 'Tilt slightly to remove glare');
     const diag = Math.hypot(d.width, d.height);
     if (this.last && quadDelta(this.last, d.quad) > this.cfg.maxJitterFrac * diag) {
       this.last = d.quad; this.since = now;

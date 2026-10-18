@@ -10,12 +10,61 @@ import { detectCard, laplacianVariance, toGray, type Background } from '@/lib/au
 import { CaptureGate, type GateState } from '@/lib/autocard/gate';
 import { CARD_ASPECT, type Quad } from '@/lib/autocard/geometry';
 import { OUTPUT_H, OUTPUT_W, scaleQuad, warpQuad } from '@/lib/autocard/warp';
+import { refineCorners } from '@/lib/autocard/refine';
+import { analyseLighting, normaliseColour } from '@/lib/autocard/lighting';
+import { locateCard } from '@/lib/autocard/pipeline';
 import { uploadImages } from '@/lib/firebase/storage';
 import { saveDraftListing } from '@/app/actions/seller/sell';
+import { identifyCardForEbay } from '@/ai/flows/identify-card-autocard';
+import { ebaySoldUrl } from '@/lib/autocard/ebay';
+import { buildDraftFields } from '@/lib/autocard/draft';
+import type { IdentifyCardResult } from '@/ai/flows/identify-card-autocard';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 type Side = 'front' | 'back';
 const ANALYSIS_W = 320;
-const FRAME_INTERVAL_MS = 80;
+const FRAME_INTERVAL_MS = 100; // ~10 fps detection
+const SHARPNESS_W = 640;        // common scale for comparing burst frames
+const MAX_FULL_SIDE = 3200;     // cap full-res processing on huge photos
+const BURST_FRAMES = 3;
+
+type Frame = { canvas: HTMLCanvasElement; w: number; h: number; isPhoto: boolean };
+
+function drawToCanvas(src: CanvasImageSource, sw: number, sh: number, maxSide = MAX_FULL_SIDE): Frame {
+  const k = Math.min(1, maxSide / Math.max(sw, sh));
+  const w = Math.round(sw * k), h = Math.round(sh * k);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  canvas.getContext('2d', { willReadFrequently: true })!.drawImage(src, 0, 0, w, h);
+  return { canvas, w, h, isPhoto: false };
+}
+
+/** Sharpness (variance of Laplacian) over the card, measured at a common 640px scale. */
+function frameSharpness(f: Frame, bg: Background): { sharp: number; quad: Quad | null; sw: number; sh: number } {
+  const sw = SHARPNESS_W, sh = Math.round((SHARPNESS_W * f.h) / f.w);
+  const c = document.createElement('canvas'); c.width = sw; c.height = sh;
+  const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(f.canvas, 0, 0, sw, sh);
+  const g = toGray(ctx.getImageData(0, 0, sw, sh).data, sw, sh);
+  const d = detectCard(g, sw, sh, bg);
+  const q = d.quad;
+  const rect = q ? { x0: Math.min(...q.map((p) => p.x)) | 0, y0: Math.min(...q.map((p) => p.y)) | 0, x1: Math.max(...q.map((p) => p.x)) | 0, y1: Math.max(...q.map((p) => p.y)) | 0 } : undefined;
+  return { sharp: laplacianVariance(g, sw, sh, rect), quad: q, sw, sh };
+}
+
+/** Downscaled JPEG data URI for AI identification (keeps the upload small). */
+async function blobToSmallDataUri(blob: Blob, maxW = 800): Promise<string> {
+  const bmp = await createImageBitmap(blob);
+  const k = Math.min(1, maxW / bmp.width);
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close?.();
+  return c.toDataURL('image/jpeg', 0.85);
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Centre crop at card aspect, used by the manual shutter when no card is detected. */
 function centreQuad(w: number, h: number): Quad {
@@ -31,6 +80,12 @@ export default function AutoCardCapture() {
   const gateRef = useRef(new CaptureGate());
   const lastQuadRef = useRef<Quad | null>(null);
   const busyRef = useRef(false);
+  const trackRef = useRef<MediaStreamTrack | null>(null);
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const identityRef = useRef<{ key: string; res: Promise<IdentifyCardResult> } | null>(null);
+  const [ebay, setEbay] = useState<{ open: boolean; busy: boolean; query: string; error?: string; identified?: string }>({ open: false, busy: false, query: '' });
   const [side, setSide] = useState<Side>('front');
   const [shots, setShots] = useState<Partial<Record<Side, { blob: Blob; url: string }>>>({});
   const [quad, setQuad] = useState<Quad | null>(null);
@@ -58,27 +113,78 @@ export default function AutoCardCapture() {
         if (cancelled) return stream.getTracks().forEach((t) => t.stop());
         const v = videoRef.current!;
         v.srcObject = stream;
+        const track = stream.getVideoTracks()[0] ?? null;
+        trackRef.current = track;
+        const caps: any = track?.getCapabilities?.() ?? {};
+        setTorchSupported(!!caps.torch);
         await v.play().catch(() => {});
       } catch (e: any) {
         setCameraError(e?.message || 'Could not open the camera');
       }
     })();
-    return () => { cancelled = true; stream?.getTracks().forEach((t) => t.stop()); };
+    return () => { cancelled = true; trackRef.current = null; stream?.getTracks().forEach((t) => t.stop()); };
   }, []);
+
+  const toggleTorch = useCallback(async () => {
+    const t = trackRef.current;
+    if (!t) return;
+    const next = !torchOn;
+    try {
+      await t.applyConstraints({ advanced: [{ torch: next } as any] });
+      setTorchOn(next);
+    } catch {
+      setTorchSupported(false);
+    }
+  }, [torchOn]);
+
+  /** Burst of video frames (+ a full-res still when ImageCapture is available). */
+  const grabFrames = useCallback(async (): Promise<Frame[]> => {
+    const v = videoRef.current!;
+    const frames: Frame[] = [];
+    const IC = (globalThis as any).ImageCapture;
+    const photoP: Promise<Frame | null> = (async () => {
+      const t = trackRef.current;
+      if (!IC || !t || torchOn) return null; // takePhoto can kill the torch on some Android phones
+      try {
+        const blob: Blob = await Promise.race([new IC(t).takePhoto(), sleep(2500).then(() => { throw new Error('timeout'); })]);
+        const bmp = await createImageBitmap(blob);
+        const f = drawToCanvas(bmp, bmp.width, bmp.height);
+        bmp.close?.();
+        return { ...f, isPhoto: true };
+      } catch { return null; }
+    })();
+    for (let i = 0; i < BURST_FRAMES; i++) {
+      frames.push(drawToCanvas(v, v.videoWidth, v.videoHeight));
+      if (i < BURST_FRAMES - 1) await sleep(70);
+    }
+    const photo = await photoP;
+    if (photo) frames.push(photo);
+    return frames;
+  }, [torchOn]);
 
   const capture = useCallback(async (q: Quad | null, aw: number, ah: number) => {
     const v = videoRef.current;
     if (!v || !v.videoWidth || busyRef.current) return;
     busyRef.current = true;
+    setProcessing(true);
     try {
-      const vw = v.videoWidth, vh = v.videoHeight;
-      const full = document.createElement('canvas');
-      full.width = vw; full.height = vh;
-      const fctx = full.getContext('2d', { willReadFrequently: true })!;
-      fctx.drawImage(v, 0, 0, vw, vh);
-      const src = fctx.getImageData(0, 0, vw, vh);
-      const fq = q ? scaleQuad(q, vw / aw, vh / ah) : centreQuad(vw, vh);
-      const out = warpQuad(src.data, vw, vh, fq, OUTPUT_W, OUTPUT_H);
+      const frames = await grabFrames();
+      // Keep the sharpest frame that still shows the card.
+      let best: { f: Frame; sharp: number; quad: Quad | null; sw: number; sh: number } | null = null;
+      for (const f of frames) {
+        const m = frameSharpness(f, bg);
+        const score = m.quad ? m.sharp : m.sharp * 0.01;
+        if (!best || score > (best.quad ? best.sharp : best.sharp * 0.01)) best = { f, ...m };
+      }
+      const f = best!.f;
+      const src = f.canvas.getContext('2d', { willReadFrequently: true })!.getImageData(0, 0, f.w, f.h);
+      const gray = toGray(src.data, f.w, f.h);
+      const hint = best!.quad ? scaleQuad(best!.quad, f.w / best!.sw, f.h / best!.sh) : !f.isPhoto && q ? scaleQuad(q, f.w / aw, f.h / ah) : null;
+      // Re-detect + fit edge lines at full resolution, then verify the rectified card.
+      const loc = hint || q ? locateCard(gray, f.w, f.h, bg, hint) : null;
+      const fq = loc?.quad ?? hint ?? centreQuad(f.w, f.h);
+      const out = warpQuad(src.data, f.w, f.h, fq, OUTPUT_W, OUTPUT_H);
+      normaliseColour(out);
       const oc = document.createElement('canvas');
       oc.width = OUTPUT_W; oc.height = OUTPUT_H;
       oc.getContext('2d')!.putImageData(new ImageData(out as any, OUTPUT_W, OUTPUT_H), 0, 0);
@@ -89,11 +195,14 @@ export default function AutoCardCapture() {
       });
       setSide((cur) => (cur === 'front' ? 'back' : cur));
       gateRef.current.reset();
+    } catch (e: any) {
+      toast({ title: 'Capture failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
+      setProcessing(false);
       // short cool-down so flipping the card doesn't trigger an instant second shot
       setTimeout(() => { busyRef.current = false; }, 900);
     }
-  }, [side]);
+  }, [side, bg, grabFrames, toast]);
 
   // Analysis loop
   useEffect(() => {
@@ -111,12 +220,18 @@ export default function AutoCardCapture() {
       ctx.drawImage(v, 0, 0, aw, ah);
       const g = toGray(ctx.getImageData(0, 0, aw, ah).data, aw, ah);
       const d = detectCard(g, aw, ah, bg);
+      if (d.quad) {
+        // Line-fit corners even at preview scale so the tilt gate and outline are accurate.
+        const r = refineCorners(g, aw, ah, d.quad, { samples: 24 });
+        if (r.ok) d.quad = r.quad;
+      }
+      const light = d.quad ? analyseLighting(g, aw, ah, d.quad) : undefined;
       let sharp = 0;
       if (d.quad) {
         const xs = d.quad.map((p) => p.x), ys = d.quad.map((p) => p.y);
         sharp = laplacianVariance(g, aw, ah, { x0: Math.min(...xs) | 0, y0: Math.min(...ys) | 0, x1: Math.max(...xs) | 0, y1: Math.max(...ys) | 0 });
       }
-      const st = gateRef.current.update(d, sharp, t);
+      const st = gateRef.current.update(d, sharp, t, light);
       lastQuadRef.current = d.quad;
       setQuad(d.quad);
       setGate(st);
@@ -143,17 +258,58 @@ export default function AutoCardCapture() {
         new File([shots.front.blob], 'autocard-front.jpg', { type: 'image/jpeg' }),
         new File([shots.back.blob], 'autocard-back.jpg', { type: 'image/jpeg' }),
       ];
-      const imageUrls = await uploadImages(files, `products/${user.uid}`);
+      // Identify (or reuse the eBay-button result) while the images upload.
+      const [imageUrls, idRes] = await Promise.all([uploadImages(files, `products/${user.uid}`), identify()]);
+      const fields = buildDraftFields(idRes.ok ? idRes.identity : null);
       const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', {
-        title: 'Card (AutoCard draft)', price: 0, category: 'Collector Cards', condition: 'Used', quantity: 1,
+        ...fields, quantity: 1,
         isReverseBidding: false, autoRepricingEnabled: false, isVault: false, imageUrls,
       } as any);
-      toast({ title: 'Draft created', description: 'Add the details and publish.' });
+      toast(idRes.ok
+        ? { title: 'Draft created', description: 'Card details filled in. Check them, add a price and publish.' }
+        : { title: 'Draft created', description: "Couldn't identify the card automatically. Add the details and a price, then publish." });
       router.push(`/sell/create?edit=${draftId}`);
     } catch (e: any) {
       toast({ title: 'Could not save', description: e?.message || 'Upload failed', variant: 'destructive' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  /** Identify once per front/back pair; the eBay button and draft save share the result. */
+  const identify = (): Promise<IdentifyCardResult> => {
+    const key = `${shots.front?.url}|${shots.back?.url}`;
+    if (identityRef.current?.key === key) return identityRef.current.res;
+    const res = (async (): Promise<IdentifyCardResult> => {
+      const [front, back] = await Promise.all([blobToSmallDataUri(shots.front!.blob), blobToSmallDataUri(shots.back!.blob)]);
+      return identifyCardForEbay((await getCurrentUserIdToken()) ?? '', front, back);
+    })().catch((e: any): IdentifyCardResult => ({ ok: false, error: e?.message || 'Identification failed' }));
+    identityRef.current = { key, res };
+    // Failed attempts are not cached, so a retry can succeed.
+    void res.then((r) => { if (!r.ok && identityRef.current?.key === key) identityRef.current = null; });
+    return res;
+  };
+
+  /** Optional: identify the card with AI and open eBay AU sold listings. Never scrapes eBay. */
+  const checkEbaySold = async () => {
+    if (!shots.front || !shots.back || ebay.busy) return;
+    if (!user) { router.push('/sign-in?redirect=/autocard'); return; }
+    // Open the window synchronously on tap so popup blockers allow it; navigate it later.
+    const win = window.open('about:blank', '_blank');
+    try { if (win) { win.opener = null; win.document.title = 'Identifying card…'; win.document.body.innerHTML = '<p style="font-family:sans-serif;padding:24px">Identifying your card… eBay sold listings will open here.</p>'; } } catch { /* cross-origin guard */ }
+    setEbay({ open: true, busy: true, query: '' });
+    try {
+      const res = await identify();
+      if (!res.ok) {
+        win?.close();
+        setEbay({ open: true, busy: false, query: '', error: res.error });
+        return;
+      }
+      if (win && !win.closed) win.location.href = ebaySoldUrl(res.query);
+      setEbay({ open: true, busy: false, query: res.query, identified: res.query });
+    } catch (e: any) {
+      win?.close();
+      setEbay({ open: true, busy: false, query: '', error: e?.message || 'Identification failed. You can type a search instead.' });
     }
   };
 
@@ -191,9 +347,16 @@ export default function AutoCardCapture() {
       )}
 
       {!done && (
-        <Button onClick={manualShutter} variant="secondary" className="w-full h-12" disabled={!!cameraError}>
-          Take photo manually ({side})
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={manualShutter} variant="secondary" className="flex-1 h-12" disabled={!!cameraError || processing}>
+            {processing ? 'Processing…' : `Take photo manually (${side})`}
+          </Button>
+          {torchSupported && (
+            <Button onClick={toggleTorch} variant={torchOn ? 'default' : gate?.ok === false && gate.reason === 'low_light' ? 'default' : 'outline'} className="h-12" aria-pressed={torchOn} data-testid="autocard-torch">
+              {torchOn ? 'Torch off' : 'Torch on'}
+            </Button>
+          )}
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
@@ -210,10 +373,30 @@ export default function AutoCardCapture() {
 
       {done && (
         <div className="flex flex-col gap-2 sm:flex-row">
-          <Button className="flex-1 h-12" onClick={save} disabled={saving}>{saving ? 'Uploading…' : 'Create listing draft'}</Button>
+          <Button className="flex-1 h-12" onClick={save} disabled={saving}>{saving ? 'Identifying & uploading…' : 'Create listing draft'}</Button>
+          <Button className="flex-1 h-12" variant="outline" onClick={checkEbaySold} disabled={saving || ebay.busy} data-testid="autocard-ebay">
+            {ebay.busy ? 'Identifying…' : 'Check eBay sold'}
+          </Button>
           <Button className="flex-1 h-12" variant="outline" onClick={nextProduct} disabled={saving}>Discard & start over</Button>
         </div>
       )}
+
+      <Dialog open={ebay.open} onOpenChange={(o) => setEbay((e) => ({ ...e, open: o }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>eBay sold prices</DialogTitle>
+            <DialogDescription>
+              {ebay.busy ? 'Identifying the card from your photos…' : ebay.error ? ebay.error : 'Edit the search if anything looks wrong, then open eBay.'}
+            </DialogDescription>
+          </DialogHeader>
+          <Input value={ebay.query} onChange={(e) => setEbay((s) => ({ ...s, query: e.target.value }))} placeholder="e.g. 2019 Panini Prizm Zion Williamson #248" disabled={ebay.busy} aria-label="eBay search" data-testid="autocard-ebay-query" />
+          <DialogFooter>
+            <Button asChild={!!ebay.query.trim() && !ebay.busy} disabled={!ebay.query.trim() || ebay.busy}>
+              {ebay.query.trim() && !ebay.busy ? <a href={ebaySoldUrl(ebay.query)} target="_blank" rel="noopener noreferrer">Open eBay sold</a> : <span>Open eBay sold</span>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
