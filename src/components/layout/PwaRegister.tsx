@@ -14,8 +14,9 @@ export function PwaRegister() {
     if (process.env.NODE_ENV !== 'development' && typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
-          .register('/sw.js')
+          .register('/sw.js', { updateViaCache: 'none' })
           .then((reg) => {
+            reg.update().catch(() => {});
             console.log('PWA: ServiceWorker registration successful with scope: ', reg.scope);
           })
           .catch((err) => {

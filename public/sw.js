@@ -1,66 +1,42 @@
-const CACHE_NAME = 'benched-cache-v1';
+// v2: network-first for pages so deploys are picked up immediately.
+// v1 was cache-first for everything, which pinned phones to old builds
+// (stale Server Action IDs -> "Server Action ... was not found").
+const CACHE_NAME = 'benched-cache-v2';
 const OFFLINE_URL = '/offline';
-
-const ASSETS_TO_CACHE = [
-  '/',
-  '/favicon.ico',
-  '/manifest.webmanifest',
-  '/grid.svg',
-  '/logo.svg',
-  '/wtb-wanted-placeholder.png'
-];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((c) => c.addAll([OFFLINE_URL, '/favicon.ico', '/logo.svg'])).catch(() => {}).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then((names) => Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests and skip chrome-extension/firebase calls
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+  const req = event.request;
+  if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) return;
+  const url = new URL(req.url);
+
+  // Pages: always network; offline page only when the network is down.
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).catch(() => caches.match(OFFLINE_URL)));
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((response) => {
-        // Don't cache dynamic API routes, admin page, or dev-server stuff
-        if (!response || response.status !== 200 || response.type !== 'basic' || 
-            event.request.url.includes('/api/') || event.request.url.includes('/admin/')) {
-          return response;
-        }
-
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return response;
-      }).catch(() => {
-        // Fallback for offline support
-        return caches.match('/');
-      });
-    })
-  );
+  // Only immutable, content-hashed build assets are safe to serve from cache.
+  if (url.pathname.startsWith('/_next/static/')) {
+    event.respondWith(
+      caches.match(req).then((hit) => hit || fetch(req).then((res) => {
+        if (res && res.status === 200) { const copy = res.clone(); caches.open(CACHE_NAME).then((c) => c.put(req, copy)); }
+        return res;
+      }))
+    );
+  }
+  // Everything else (RSC payloads, APIs, images): straight to network.
 });
