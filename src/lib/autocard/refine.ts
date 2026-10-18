@@ -110,14 +110,14 @@ function edgePoints(g: Uint8Array, w: number, h: number, A: Pt, B: Pt, out: Pt, 
  * Refine a coarse [TL,TR,BR,BL] quad to line-intersection corners.
  * `radius` is the normal search distance in pixels (default ~4% of the edge).
  */
-export function refineCorners(g: Uint8Array, w: number, h: number, coarse: Quad, opts: { radius?: number; samples?: number; trim?: number } = {}): RefineResult {
+export function refineCorners(g: Uint8Array, w: number, h: number, coarse: Quad, opts: { radius?: number; radiusFrac?: number; samples?: number; trim?: number } = {}): RefineResult {
   const c = { x: coarse.reduce((s, p) => s + p.x, 0) / 4, y: coarse.reduce((s, p) => s + p.y, 0) / 4 };
   const lines: Line[] = [];
   let inl = 0, tot = 0, rmsSum = 0;
   for (let i = 0; i < 4; i++) {
     const A = coarse[i], B = coarse[(i + 1) % 4];
     const L = Math.hypot(B.x - A.x, B.y - A.y);
-    const radius = opts.radius ?? Math.max(5, 0.04 * L);
+    const radius = opts.radius ?? Math.max(5, (opts.radiusFrac ?? 0.04) * L);
     const n = opts.samples ?? Math.max(16, Math.min(120, Math.round(L / 4)));
     const pts = edgePoints(g, w, h, A, B, c, radius, n, opts.trim ?? 0.12);
     const fit = fitLineRobust(pts, Math.max(0.6, 0.003 * L), 80, 7 + i);
@@ -149,7 +149,7 @@ export function warpGrayH(g: Uint8Array, w: number, h: number, H: number[], ow: 
  * If off by more than `tol` (fraction of card width), map the measured corners back into
  * the source and try again. Returns the corrected quad and the final error.
  */
-export function verifyAndCorrect(g: Uint8Array, w: number, h: number, quad: Quad, opts: { tol?: number; iterations?: number; cardW?: number } = {}): { quad: Quad; error: number; aspect: number; corrected: boolean } {
+export function verifyAndCorrect(g: Uint8Array, w: number, h: number, quad: Quad, opts: { tol?: number; iterations?: number; cardW?: number; searchFrac?: number } = {}): { quad: Quad; error: number; aspect: number; corrected: boolean } {
   const tol = opts.tol ?? 0.01, cw = opts.cardW ?? 252, ch = Math.round((cw * 88) / 63), pad = Math.round(cw * 0.06);
   let q = quad, corrected = false, error = Infinity, aspect = 0;
   for (let it = 0; it <= (opts.iterations ?? 2); it++) {
@@ -157,7 +157,7 @@ export function verifyAndCorrect(g: Uint8Array, w: number, h: number, quad: Quad
     const H = homography(rect, q); // padded output -> source
     const ow = cw + 2 * pad, oh = ch + 2 * pad;
     const img = warpGrayH(g, w, h, H, ow, oh);
-    const r = refineCorners(img, ow, oh, rect as Quad, { radius: pad * 0.8 });
+    const r = refineCorners(img, ow, oh, rect as Quad, { radius: pad * (opts.searchFrac ?? 0.8) });
     if (!r.ok) return { quad: q, error: Number.NaN, aspect: Number.NaN, corrected };
     error = Math.max(...r.quad.map((p, i) => Math.hypot(p.x - rect[i].x, p.y - rect[i].y))) / cw;
     const mw = (Math.hypot(r.quad[1].x - r.quad[0].x, r.quad[1].y - r.quad[0].y) + Math.hypot(r.quad[2].x - r.quad[3].x, r.quad[2].y - r.quad[3].y)) / 2;

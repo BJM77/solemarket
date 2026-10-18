@@ -3,6 +3,7 @@ import type { Lighting } from './lighting';
 import type { Detection } from './detect';
 import { shapeCheck } from './validate';
 import { DEFAULT_GUIDANCE, guidanceMetrics } from './guidance';
+import { EDGE_GLARE_THRESHOLD, GLARE_THRESHOLD, type Sleeve } from './sleeve';
 
 export interface GateConfig {
   aspectTolerance: number;   // |aspect - 0.716| allowed
@@ -14,7 +15,8 @@ export interface GateConfig {
   maxJitterFrac: number;     // corner movement allowed, fraction of frame diagonal
   minSharpness: number;      // Laplacian variance
   maxPerspectiveDeg: number; // max angle between opposite edges (phone tilt)
-  maxGlare: number;          // share of card pixels that are clipped highlights
+  maxGlare: number;          // share of card pixels in the largest clustered clipped-highlight blob
+  maxEdgeGlare: number;      // same, inside the card's edge band (sleeve reflections over edges/corners)
   minLuma: number;           // mean card luma below this = too dark
   minSurround: number;       // outside-edge bands must match background this often
   maxCentreOffset: number;   // card centre offset from frame centre, fraction of frame width/height
@@ -30,15 +32,25 @@ export const DEFAULT_GATE: GateConfig = {
   maxJitterFrac: 0.012,
   minSharpness: 60,
   maxPerspectiveDeg: 3.5,
-  maxGlare: 0.006,
+  maxGlare: GLARE_THRESHOLD.none,
+  maxEdgeGlare: EDGE_GLARE_THRESHOLD.none,
   minLuma: 45,
   minSurround: 0.7,
   // Same threshold that lights the on-screen move arrow, so the arrow and the gate agree.
   maxCentreOffset: DEFAULT_GUIDANCE.moveOn,
 };
 
+/** Per-sleeve gate settings. Soft: slightly looser outer edge, stricter edge glare. */
+export function gateConfigFor(sleeve: Sleeve): GateConfig {
+  const base = { ...DEFAULT_GATE, maxGlare: GLARE_THRESHOLD[sleeve], maxEdgeGlare: EDGE_GLARE_THRESHOLD[sleeve] };
+  if (sleeve === 'soft') return { ...base, aspectTolerance: 0.04, minSurround: 0.6 };
+  return base;
+}
+
+export const GLARE_MESSAGE = 'Tilt away from the light';
+
 export type GateState =
-  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light' | 'clipped' | 'shape' | 'surround' | 'off_centre'; message: string; progress: number }
+  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light' | 'clipped' | 'shape' | 'surround' | 'off_centre' | 'sleeve'; message: string; progress: number }
   | { ok: true; message: string; progress: 1 };
 
 /**
@@ -52,9 +64,13 @@ export class CaptureGate {
 
   reset() { this.since = null; this.last = null; }
 
+  /** Switch sleeve settings without losing the instance (resets the hold timer). */
+  setConfig(cfg: GateConfig) { this.cfg = cfg; this.reset(); }
+
   update(d: Detection, sharpness: number, now: number, light?: Lighting): GateState {
     const fail = (reason: any, message: string): GateState => { this.since = null; this.last = d.quad; return { ok: false, reason, message, progress: 0 }; };
     if (d.backgroundCoverage < this.cfg.minBackground) return fail('background', 'Use a plain white or black background');
+    if (!d.quad && d.nested === 'inconsistent') return fail('sleeve', "Can't see the card's edge inside the holder. Centre the card in the sleeve and use a dark background");
     if (!d.quad) return fail(d.fill === 0 && d.backgroundCoverage > 0.9 ? 'no_card' : 'not_portrait', d.backgroundCoverage > 0.9 ? 'Place a card in the frame' : 'Hold the card upright (portrait)');
     if (d.clipped) return fail('clipped', 'Move back so the whole card is visible');
     if (perspectiveDeg(d.quad) > this.cfg.maxPerspectiveDeg) return fail('tilted', 'Level your phone over the card');
@@ -69,7 +85,8 @@ export class CaptureGate {
     const gm = guidanceMetrics(d.quad, d.width, d.height);
     if (Math.max(Math.abs(gm.dx), Math.abs(gm.dy)) > this.cfg.maxCentreOffset) return fail('off_centre', 'Centre the card in the frame');
     if (light && light.meanLuma < this.cfg.minLuma) return fail('low_light', 'Need more light');
-    if (light && light.glare > this.cfg.maxGlare) return fail('glare', 'Tilt slightly to remove glare');
+    if (light && light.glare > this.cfg.maxGlare) return fail('glare', GLARE_MESSAGE);
+    if (light && (light.edgeGlare ?? 0) > this.cfg.maxEdgeGlare) return fail('glare', 'Glare on the sleeve edge. ' + GLARE_MESSAGE);
     const diag = Math.hypot(d.width, d.height);
     if (this.last && quadDelta(this.last, d.quad) > this.cfg.maxJitterFrac * diag) {
       this.last = d.quad; this.since = now;

@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { detectCard, laplacianVariance, toGray, type Background } from '@/lib/autocard/detect';
-import { CaptureGate, type GateState } from '@/lib/autocard/gate';
+import { CaptureGate, gateConfigFor, type GateState } from '@/lib/autocard/gate';
 import { CARD_ASPECT, type Quad } from '@/lib/autocard/geometry';
 import { OUTPUT_H, OUTPUT_W, scaleQuad, warpQuad } from '@/lib/autocard/warp';
 import { refineCorners } from '@/lib/autocard/refine';
-import { analyseLighting, normaliseColour } from '@/lib/autocard/lighting';
+import { analyseLighting, GlareHint, normaliseColour } from '@/lib/autocard/lighting';
 import { locateCard } from '@/lib/autocard/pipeline';
-import { borderBandOk, cardSignature, isClipped, shapeCheck, signatureDistance, SAME_FACE_DISTANCE, type CardSignature } from '@/lib/autocard/validate';
+import { borderBandOk, cardSignature, DEFAULT_SHAPE, isClipped, shapeCheck, signatureDistance, SAME_FACE_DISTANCE, type CardSignature } from '@/lib/autocard/validate';
 import { polygonArea } from '@/lib/autocard/geometry';
 import { uploadImages } from '@/lib/firebase/storage';
 import { saveDraftListing } from '@/app/actions/seller/sell';
@@ -26,6 +26,9 @@ import type { IdentifyCardResult } from '@/ai/flows/identify-card-autocard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { GuidanceSmoother, tiltCaption, type Dir, type Guidance, type Zoom } from '@/lib/autocard/guidance';
+import { loadSleeve, REFINE_RADIUS_FRAC, saveSleeve, SLEEVES, type Sleeve } from '@/lib/autocard/sleeve';
+import { QuadSmoother } from '@/lib/autocard/smooth';
+import { applyZoom, loadZoom, saveZoom, ZOOM_HINT, zoomSupport, type ZoomLevel, type ZoomRange } from '@/lib/autocard/camera-zoom';
 
 type Side = 'front' | 'back';
 const ANALYSIS_W = 320;
@@ -46,13 +49,13 @@ function drawToCanvas(src: CanvasImageSource, sw: number, sh: number, maxSide = 
 }
 
 /** Sharpness (variance of Laplacian) over the card, measured at a common 640px scale. */
-function frameSharpness(f: Frame, bg: Background): { sharp: number; quad: Quad | null; sw: number; sh: number } {
+function frameSharpness(f: Frame, bg: Background, sleeve: Sleeve): { sharp: number; quad: Quad | null; sw: number; sh: number } {
   const sw = SHARPNESS_W, sh = Math.round((SHARPNESS_W * f.h) / f.w);
   const c = document.createElement('canvas'); c.width = sw; c.height = sh;
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
   ctx.drawImage(f.canvas, 0, 0, sw, sh);
   const g = toGray(ctx.getImageData(0, 0, sw, sh).data, sw, sh);
-  const d = detectCard(g, sw, sh, bg);
+  const d = detectCard(g, sw, sh, bg, 40, { sleeve });
   const q = d.quad;
   const rect = q ? { x0: Math.min(...q.map((p) => p.x)) | 0, y0: Math.min(...q.map((p) => p.y)) | 0, x1: Math.max(...q.map((p) => p.x)) | 0, y1: Math.max(...q.map((p) => p.y)) | 0 } : undefined;
   return { sharp: laplacianVariance(g, sw, sh, rect), quad: q, sw, sh };
@@ -93,7 +96,7 @@ const CORNER_OUT = 'M-4,-4 L3,-4 M-4,-4 L-4,3 M-4,-4 L3,3';
  * mapping), corner chevrons mean move closer (pointing in) or back (pointing out), and a
  * green ring with a tick means everything lines up and capture is about to fire.
  */
-function GuidanceOverlay({ guidance, zoom, holding, progress }: { guidance: Guidance | null; zoom: Zoom; holding: boolean; progress: number }) {
+function GuidanceOverlay({ guidance, zoom, holding, progress, glare }: { guidance: Guidance | null; zoom: Zoom; holding: boolean; progress: number; glare: boolean }) {
   const lit = (d: Dir) => !holding && !!guidance && (guidance.move.includes(d) || guidance.tilt.includes(d));
   const isTilt = (d: Dir) => !holding && !!guidance?.tilt.includes(d);
   const z = holding ? null : zoom;
@@ -124,6 +127,21 @@ function GuidanceOverlay({ guidance, zoom, holding, progress }: { guidance: Guid
           </g>
         </g>
       ))}
+      {/* Glare: angled phone with light rays bouncing off it = tilt away from the light */}
+      {glare && (
+        <g transform="translate(83 17)" opacity={0.85} filter="url(#ac-shadow)" data-testid="autocard-glare-hint">
+          <g className="motion-safe:animate-pulse">
+            <circle cx="0" cy="0" r="10" fill="#000" fillOpacity={0.35} />
+            <g transform="rotate(-25)">
+              <rect x="-3.6" y="-6.5" width="7.2" height="13" rx="1.6" fill="none" stroke="#fff" strokeWidth={1.4} />
+              <line x1="-1.2" y1="4.6" x2="1.2" y2="4.6" stroke="#fff" strokeWidth={0.9} strokeLinecap="round" />
+            </g>
+            <path d="M4.5,-7.5 L7.5,-9.5 M5.8,-4.6 L9,-5.2 M3,-9.4 L4.4,-12" stroke="#facc15" strokeWidth={1.2} strokeLinecap="round" />
+            <path d="M-8,6 A9,9 0 0 1 -6,-2" fill="none" stroke="#fff" strokeWidth={1} strokeLinecap="round" />
+            <path d="M-6,-2 L-7.9,-1.4 M-6,-2 L-5.4,-0.1" stroke="#fff" strokeWidth={1} strokeLinecap="round" />
+          </g>
+        </g>
+      )}
       {/* Centre: faint ring normally, green ring + tick (with hold progress) when aligned */}
       {holding ? (
         <g filter="url(#ac-shadow)" data-testid="autocard-aligned">
@@ -142,7 +160,14 @@ export default function AutoCardCapture() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const analysisRef = useRef<HTMLCanvasElement | null>(null);
   const gateRef = useRef(new CaptureGate());
-  const guideRef = useRef(new GuidanceSmoother());
+  // Corners are already EMA-smoothed (QuadSmoother), so the guidance smoother can be quicker.
+  const guideRef = useRef(new GuidanceSmoother(0.6));
+  const smoothRef = useRef(new QuadSmoother());
+  const glareRef = useRef(new GlareHint());
+  const [glareHint, setGlareHint] = useState(false);
+  const [sleeve, setSleeveState] = useState<Sleeve>('none');
+  const [zoomRange, setZoomRange] = useState<ZoomRange | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(1);
   const [guidance, setGuidance] = useState<Guidance | null>(null);
   const frontSigRef = useRef<CardSignature | null>(null);
   const lastQuadRef = useRef<Quad | null>(null);
@@ -184,6 +209,13 @@ export default function AutoCardCapture() {
         trackRef.current = track;
         const caps: any = track?.getCapabilities?.() ?? {};
         setTorchSupported(!!caps.torch);
+        // Zoom chip only where the browser exposes real zoom (hidden on most iPhones).
+        const zr = zoomSupport(caps);
+        setZoomRange(zr);
+        if (zr) {
+          const saved = loadZoom(window.localStorage);
+          if (saved === 2) setZoomLevel((await applyZoom(track, 2, zr)) ? 2 : 1);
+        }
         await v.play().catch(() => {});
       } catch (e: any) {
         setCameraError(e?.message || 'Could not open the camera');
@@ -191,6 +223,24 @@ export default function AutoCardCapture() {
     })();
     return () => { cancelled = true; trackRef.current = null; stream?.getTracks().forEach((t) => t.stop()); };
   }, []);
+
+  // Sleeve setting: restore the last choice, and keep the gate in step with it.
+  useEffect(() => { setSleeveState(loadSleeve(window.localStorage)); }, []);
+  useEffect(() => {
+    gateRef.current.setConfig(gateConfigFor(sleeve));
+    smoothRef.current.reset(); guideRef.current.reset(); glareRef.current.reset();
+  }, [sleeve]);
+  const setSleeve = (s: Sleeve) => { setSleeveState(s); saveSleeve(window.localStorage, s); };
+
+  const chooseZoom = useCallback(async (level: ZoomLevel) => {
+    if (!zoomRange) return;
+    if (await applyZoom(trackRef.current, level, zoomRange)) {
+      setZoomLevel(level); saveZoom(window.localStorage, level);
+      gateRef.current.reset(); smoothRef.current.reset(); guideRef.current.reset();
+    } else if (level !== 1) {
+      setZoomRange(null); setZoomLevel(1); // browser refused: hide the chip
+    }
+  }, [zoomRange]);
 
   // Restore front/back captures after a stale-deploy reload so the user need not rescan.
   useEffect(() => {
@@ -259,7 +309,7 @@ export default function AutoCardCapture() {
       // Keep the sharpest frame that still shows the card.
       let best: { f: Frame; sharp: number; quad: Quad | null; sw: number; sh: number } | null = null;
       for (const f of frames) {
-        const m = frameSharpness(f, bg);
+        const m = frameSharpness(f, bg, sleeve);
         const score = m.quad ? m.sharp : m.sharp * 0.01;
         if (!best || score > (best.quad ? best.sharp : best.sharp * 0.01)) best = { f, ...m };
       }
@@ -268,7 +318,7 @@ export default function AutoCardCapture() {
       const gray = toGray(src.data, f.w, f.h);
       const hint = best!.quad ? scaleQuad(best!.quad, f.w / best!.sw, f.h / best!.sh) : !f.isPhoto && q ? scaleQuad(q, f.w / aw, f.h / ah) : null;
       // Re-detect + fit edge lines at full resolution, then verify the rectified card.
-      const loc = hint || q ? locateCard(gray, f.w, f.h, bg, hint) : null;
+      const loc = hint || q ? locateCard(gray, f.w, f.h, bg, hint, ANALYSIS_W, sleeve) : null;
       // Auto capture never falls back to a blind centre crop (that produced zoomed, cut-off
       // shots). If the full-res card fails the shape/context checks, keep searching.
       const reject = (msg: string) => { gateRef.current.reset(); setGate({ ok: false, reason: 'shape', message: msg, progress: 0 }); };
@@ -278,7 +328,7 @@ export default function AutoCardCapture() {
       else { reject('Move back so the whole card is visible'); return; }
       if (!manual) {
         if (isClipped(fq, f.w, f.h)) { reject('Move back so the whole card is visible'); return; }
-        if (shapeCheck(fq)) { reject('Hold the phone flat and square above the card'); return; }
+        if (shapeCheck(fq, sleeve === 'soft' ? { ...DEFAULT_SHAPE, aspectTol: 0.04 } : DEFAULT_SHAPE)) { reject('Hold the phone flat and square above the card'); return; }
       }
       const out = warpQuad(src.data, f.w, f.h, fq, OUTPUT_W, OUTPUT_H);
       // Post-warp sanity at low res: uniform border on all sides, and the back must differ from the front.
@@ -302,6 +352,7 @@ export default function AutoCardCapture() {
       setSide((cur) => (cur === 'front' ? 'back' : cur));
       gateRef.current.reset();
       guideRef.current.reset();
+      smoothRef.current.reset();
     } catch (e: any) {
       toast({ title: 'Capture failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
@@ -309,7 +360,7 @@ export default function AutoCardCapture() {
       // short cool-down so flipping the card doesn't trigger an instant second shot
       setTimeout(() => { busyRef.current = false; }, 900);
     }
-  }, [side, bg, grabFrames, toast]);
+  }, [side, bg, sleeve, grabFrames, toast]);
 
   // Analysis loop
   useEffect(() => {
@@ -326,12 +377,14 @@ export default function AutoCardCapture() {
       const ctx = c.getContext('2d', { willReadFrequently: true })!;
       ctx.drawImage(v, 0, 0, aw, ah);
       const g = toGray(ctx.getImageData(0, 0, aw, ah).data, aw, ah);
-      const d = detectCard(g, aw, ah, bg);
+      const d = detectCard(g, aw, ah, bg, 40, { sleeve });
       if (d.quad) {
         // Line-fit corners even at preview scale so the tilt gate and outline are accurate.
-        const r = refineCorners(g, aw, ah, d.quad, { samples: 24 });
-        // Ignore refinements that collapse onto an inner rectangle.
-        if (r.ok && polygonArea(r.quad) >= polygonArea(d.quad) * 0.9) d.quad = r.quad;
+        const r = refineCorners(g, aw, ah, d.quad, { samples: 24, radiusFrac: REFINE_RADIUS_FRAC[sleeve] });
+        // Ignore refinements that collapse onto an inner rectangle (or, in hard-sleeve mode,
+        // grow outward onto the plastic).
+        const ratio = r.ok ? polygonArea(r.quad) / polygonArea(d.quad) : 0;
+        if (r.ok && ratio >= 0.9 && (sleeve !== 'hard' || ratio <= 1.1)) d.quad = r.quad;
       }
       const light = d.quad ? analyseLighting(g, aw, ah, d.quad) : undefined;
       let sharp = 0;
@@ -339,22 +392,28 @@ export default function AutoCardCapture() {
         const xs = d.quad.map((p) => p.x), ys = d.quad.map((p) => p.y);
         sharp = laplacianVariance(g, aw, ah, { x0: Math.min(...xs) | 0, y0: Math.min(...ys) | 0, x1: Math.max(...xs) | 0, y1: Math.max(...ys) | 0 });
       }
-      const st = gateRef.current.update(d, sharp, t, light);
+      // Smoothed corners drive the outline, the arrows and the gate's stability checks;
+      // the capture itself re-detects fresh full-resolution corners.
+      const sq = smoothRef.current.update(d.quad, aw, ah);
+      const cfg = gateConfigFor(sleeve);
+      const st = gateRef.current.update({ ...d, quad: sq }, sharp, t, light);
       lastQuadRef.current = d.quad;
-      setQuad(d.quad);
-      setGuidance(guideRef.current.update(d.quad, aw, ah));
+      setQuad(sq);
+      setGuidance(guideRef.current.update(sq, aw, ah));
+      setGlareHint(glareRef.current.update(light, cfg.maxGlare, cfg.maxEdgeGlare));
       setGate(st);
       if (st.ok) void capture(d.quad, aw, ah);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [bg, capture, done]);
+  }, [bg, sleeve, capture, done]);
 
   const retake = (s: Side) => {
     setShots((cur) => { if (cur[s]) URL.revokeObjectURL(cur[s]!.url); const n = { ...cur }; delete n[s]; return n; });
     setSide(s);
     gateRef.current.reset();
     guideRef.current.reset();
+    smoothRef.current.reset();
   };
 
   const manualShutter = () => void capture(lastQuadRef.current, dims.w, dims.h, true);
@@ -433,7 +492,7 @@ export default function AutoCardCapture() {
     }
   };
 
-  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); };
+  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); smoothRef.current.reset(); };
 
   const ready = gate?.ok || (gate?.reason === 'unstable' && gate.progress > 0);
   const stroke = gate?.ok ? '#22c55e' : ready ? '#facc15' : '#ef4444';
@@ -448,12 +507,30 @@ export default function AutoCardCapture() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 text-sm" role="group" aria-label="Background">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium">Background:</span>
-        {(['auto', 'white', 'black'] as Background[]).map((b) => (
-          <Button key={b} size="sm" variant={bg === b ? 'default' : 'outline'} onClick={() => setBg(b)} aria-pressed={bg === b}>{b[0].toUpperCase() + b.slice(1)}</Button>
-        ))}
+        <span className="contents" role="group" aria-label="Background">
+          {(['auto', 'white', 'black'] as Background[]).map((b) => (
+            <Button key={b} size="sm" variant={bg === b ? 'default' : 'outline'} onClick={() => setBg(b)} aria-pressed={bg === b}>{b[0].toUpperCase() + b.slice(1)}</Button>
+          ))}
+        </span>
+        <span className="ml-2 font-medium">Sleeve:</span>
+        <span className="contents" role="group" aria-label="Sleeve">
+          {SLEEVES.map((o) => (
+            <Button key={o.id} size="sm" variant={sleeve === o.id ? 'default' : 'outline'} onClick={() => setSleeve(o.id)} aria-pressed={sleeve === o.id} data-testid={`autocard-sleeve-${o.id}`}>{o.label}</Button>
+          ))}
+        </span>
       </div>
+
+      {zoomRange && !done && (
+        <div className="flex flex-wrap items-center gap-2 text-sm" role="group" aria-label="Camera zoom" data-testid="autocard-zoom-chip">
+          <span className="font-medium">Zoom:</span>
+          {([1, 2] as ZoomLevel[]).map((z) => (
+            <Button key={z} size="sm" variant={zoomLevel === z ? 'default' : 'outline'} onClick={() => void chooseZoom(z)} aria-pressed={zoomLevel === z}>{z}×</Button>
+          ))}
+          <span className="text-xs text-muted-foreground">{ZOOM_HINT}</span>
+        </div>
+      )}
 
       {!done && (
         <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }}>
@@ -462,7 +539,7 @@ export default function AutoCardCapture() {
             {quad && <polygon data-testid="autocard-outline" points={quad.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={stroke} strokeWidth={3} />}
             {quad && <circle cx={(quad[0].x + quad[1].x) / 2} cy={(quad[0].y + quad[1].y) / 2} r={4} fill={stroke} />}
           </svg>
-          {!cameraError && !processing && <GuidanceOverlay guidance={guidance} zoom={zoom} holding={holding} progress={gate?.progress ?? 0} />}
+          {!cameraError && !processing && <GuidanceOverlay guidance={guidance} zoom={zoom} holding={holding} progress={gate?.progress ?? 0} glare={glareHint && !holding} />}
           <div className="absolute top-2 left-2 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white">
             {side === 'front' ? '1 / 2 Front' : '2 / 2 Back'}
           </div>

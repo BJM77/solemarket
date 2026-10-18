@@ -107,7 +107,7 @@ describe('lighting', () => {
     const d = detectCard(g, W, H, 'white');
     const l = analyseLighting(g, W, H, d.quad!);
     expect(l.glare).toBeGreaterThan(0.01);
-    expect(new CaptureGate().update(d, 500, 0, l)).toMatchObject({ reason: 'glare', message: 'Tilt slightly to remove glare' });
+    expect(new CaptureGate().update(d, 500, 0, l)).toMatchObject({ reason: 'glare', message: 'Tilt away from the light' });
     const clean = render(W, H, q, 240, 90);
     expect(analyseLighting(clean, W, H, detectCard(clean, W, H, 'white').quad!).glare).toBeLessThan(0.001);
   });
