@@ -1,6 +1,7 @@
 import { CARD_ASPECT, perspectiveDeg, quadAspect, quadDelta, type Quad } from './geometry';
 import type { Lighting } from './lighting';
 import type { Detection } from './detect';
+import { shapeCheck } from './validate';
 
 export interface GateConfig {
   aspectTolerance: number;   // |aspect - 0.716| allowed
@@ -14,10 +15,11 @@ export interface GateConfig {
   maxPerspectiveDeg: number; // max angle between opposite edges (phone tilt)
   maxGlare: number;          // share of card pixels that are clipped highlights
   minLuma: number;           // mean card luma below this = too dark
+  minSurround: number;       // outside-edge bands must match background this often
 }
 
 export const DEFAULT_GATE: GateConfig = {
-  aspectTolerance: 0.05,
+  aspectTolerance: 0.03,
   minFill: 0.25,
   maxFill: 0.85,
   minBackground: 0.12,
@@ -28,10 +30,11 @@ export const DEFAULT_GATE: GateConfig = {
   maxPerspectiveDeg: 3.5,
   maxGlare: 0.006,
   minLuma: 45,
+  minSurround: 0.7,
 };
 
 export type GateState =
-  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light'; message: string; progress: number }
+  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light' | 'clipped' | 'shape' | 'surround'; message: string; progress: number }
   | { ok: true; message: string; progress: 1 };
 
 /**
@@ -49,9 +52,13 @@ export class CaptureGate {
     const fail = (reason: any, message: string): GateState => { this.since = null; this.last = d.quad; return { ok: false, reason, message, progress: 0 }; };
     if (d.backgroundCoverage < this.cfg.minBackground) return fail('background', 'Use a plain white or black background');
     if (!d.quad) return fail(d.fill === 0 && d.backgroundCoverage > 0.9 ? 'no_card' : 'not_portrait', d.backgroundCoverage > 0.9 ? 'Place a card in the frame' : 'Hold the card upright (portrait)');
+    if (d.clipped) return fail('clipped', 'Move back so the whole card is visible');
     if (perspectiveDeg(d.quad) > this.cfg.maxPerspectiveDeg) return fail('tilted', 'Level your phone over the card');
     const aspect = quadAspect(d.quad);
     if (Math.abs(aspect - CARD_ASPECT) > this.cfg.aspectTolerance) return fail('aspect', 'Hold the phone flat above the card');
+    const shape = shapeCheck(d.quad, { maxAngleDev: 8, maxOppositeRatio: 0.06, aspectTol: this.cfg.aspectTolerance });
+    if (shape) return fail('shape', 'Hold the phone flat and square above the card');
+    if (d.surround !== undefined && d.surround < this.cfg.minSurround) return fail('surround', 'Move back so the whole card is visible on the background');
     if (d.fill < this.cfg.minFill) return fail('too_small', 'Move closer');
     if (d.fill > this.cfg.maxFill) return fail('too_close', 'Move back a little');
     if (d.backgroundCoverage > this.cfg.maxBackground) return fail('background', 'Move closer');

@@ -1,3 +1,4 @@
+import { isClipped, surroundScore } from './validate';
 import { convexHull, maxAreaQuad, orderPortrait, polygonArea, type Pt, type Quad } from './geometry';
 
 /**
@@ -19,6 +20,10 @@ export interface Detection {
   bgLuma: number;
   width: number;
   height: number;
+  /** a corner touches the frame margin (card cut off) */
+  clipped?: boolean;
+  /** worst-edge share of outside-band samples that match the background (1 = clean) */
+  surround?: number;
 }
 
 export function toGray(rgba: Uint8ClampedArray, w: number, h: number): Uint8Array {
@@ -74,7 +79,16 @@ export function detectCard(g: Uint8Array, w: number, h: number, bg: Background =
   const hull = convexHull(pts);
   const q = maxAreaQuad(hull);
   const quad = q ? orderPortrait(q) : null;
-  return { ...empty, quad, fill: quad ? polygonArea(quad) / (w * h) : 0 };
+  // Blob touching the frame edge = card cut off; judge on the blob, not the quad.
+  let touches = false;
+  const m = Math.max(1, Math.round(Math.min(w, h) * 0.01));
+  for (let x = 0; x < w && !touches; x++) for (let k = 0; k < m; k++) if (label[k * w + x] === bestLabel || label[(h - 1 - k) * w + x] === bestLabel) { touches = true; break; }
+  for (let y = 0; y < h && !touches; y++) for (let k = 0; k < m; k++) if (label[y * w + k] === bestLabel || label[y * w + w - 1 - k] === bestLabel) { touches = true; break; }
+  return {
+    ...empty, quad, fill: quad ? polygonArea(quad) / (w * h) : 0,
+    clipped: touches || (quad ? isClipped(quad, w, h) : false),
+    surround: quad ? surroundScore(g, w, h, quad, bgLuma, { tol: threshold }) : 0,
+  };
 }
 
 /** Variance of the 4-neighbour Laplacian inside a rectangle (focus measure). */

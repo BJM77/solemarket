@@ -13,6 +13,8 @@ import { OUTPUT_H, OUTPUT_W, scaleQuad, warpQuad } from '@/lib/autocard/warp';
 import { refineCorners } from '@/lib/autocard/refine';
 import { analyseLighting, normaliseColour } from '@/lib/autocard/lighting';
 import { locateCard } from '@/lib/autocard/pipeline';
+import { borderBandOk, cardSignature, isClipped, shapeCheck, signatureDistance, SAME_FACE_DISTANCE, type CardSignature } from '@/lib/autocard/validate';
+import { polygonArea } from '@/lib/autocard/geometry';
 import { uploadImages } from '@/lib/firebase/storage';
 import { saveDraftListing } from '@/app/actions/seller/sell';
 import { identifyCardForEbay } from '@/ai/flows/identify-card-autocard';
@@ -80,6 +82,7 @@ export default function AutoCardCapture() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const analysisRef = useRef<HTMLCanvasElement | null>(null);
   const gateRef = useRef(new CaptureGate());
+  const frontSigRef = useRef<CardSignature | null>(null);
   const lastQuadRef = useRef<Quad | null>(null);
   const busyRef = useRef(false);
   const trackRef = useRef<MediaStreamTrack | null>(null);
@@ -184,7 +187,7 @@ export default function AutoCardCapture() {
     return frames;
   }, [torchOn]);
 
-  const capture = useCallback(async (q: Quad | null, aw: number, ah: number) => {
+  const capture = useCallback(async (q: Quad | null, aw: number, ah: number, manual = false) => {
     const v = videoRef.current;
     if (!v || !v.videoWidth || busyRef.current) return;
     busyRef.current = true;
@@ -204,8 +207,27 @@ export default function AutoCardCapture() {
       const hint = best!.quad ? scaleQuad(best!.quad, f.w / best!.sw, f.h / best!.sh) : !f.isPhoto && q ? scaleQuad(q, f.w / aw, f.h / ah) : null;
       // Re-detect + fit edge lines at full resolution, then verify the rectified card.
       const loc = hint || q ? locateCard(gray, f.w, f.h, bg, hint) : null;
-      const fq = loc?.quad ?? hint ?? centreQuad(f.w, f.h);
+      // Auto capture never falls back to a blind centre crop (that produced zoomed, cut-off
+      // shots). If the full-res card fails the shape/context checks, keep searching.
+      const reject = (msg: string) => { gateRef.current.reset(); setGate({ ok: false, reason: 'shape', message: msg, progress: 0 }); };
+      let fq: Quad;
+      if (loc) fq = loc.quad;
+      else if (manual) fq = hint ?? centreQuad(f.w, f.h);
+      else { reject('Move back so the whole card is visible'); return; }
+      if (!manual) {
+        if (isClipped(fq, f.w, f.h)) { reject('Move back so the whole card is visible'); return; }
+        if (shapeCheck(fq)) { reject('Hold the phone flat and square above the card'); return; }
+      }
       const out = warpQuad(src.data, f.w, f.h, fq, OUTPUT_W, OUTPUT_H);
+      // Post-warp sanity at low res: uniform border on all sides, and the back must differ from the front.
+      const SW = 252, SH = 352;
+      const small = toGray(warpQuad(src.data, f.w, f.h, fq, SW, SH), SW, SH);
+      if (!manual && !borderBandOk(small, SW, SH)) { reject('Move back so the whole card border is visible'); return; }
+      const sig = cardSignature(small, SW, SH);
+      if (side === 'back' && frontSigRef.current && signatureDistance(sig, frontSigRef.current) < SAME_FACE_DISTANCE) {
+        reject('Flip the card over'); toast({ title: 'Flip the card over', description: 'That looks like the front again. Turn the card over to scan the back.' }); return;
+      }
+      if (side === 'front') frontSigRef.current = sig;
       normaliseColour(out);
       const oc = document.createElement('canvas');
       oc.width = OUTPUT_W; oc.height = OUTPUT_H;
@@ -245,7 +267,8 @@ export default function AutoCardCapture() {
       if (d.quad) {
         // Line-fit corners even at preview scale so the tilt gate and outline are accurate.
         const r = refineCorners(g, aw, ah, d.quad, { samples: 24 });
-        if (r.ok) d.quad = r.quad;
+        // Ignore refinements that collapse onto an inner rectangle.
+        if (r.ok && polygonArea(r.quad) >= polygonArea(d.quad) * 0.9) d.quad = r.quad;
       }
       const light = d.quad ? analyseLighting(g, aw, ah, d.quad) : undefined;
       let sharp = 0;
@@ -269,7 +292,7 @@ export default function AutoCardCapture() {
     gateRef.current.reset();
   };
 
-  const manualShutter = () => void capture(lastQuadRef.current, dims.w, dims.h);
+  const manualShutter = () => void capture(lastQuadRef.current, dims.w, dims.h, true);
 
   const persistShotsForReload = useCallback(async () => {
     await saveAutocardCaptures({ front: shots.front?.blob, back: shots.back?.blob });
@@ -345,7 +368,7 @@ export default function AutoCardCapture() {
     }
   };
 
-  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); gateRef.current.reset(); };
+  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); };
 
   const ready = gate?.ok || (gate?.reason === 'unstable' && gate.progress > 0);
   const stroke = gate?.ok ? '#22c55e' : ready ? '#facc15' : '#ef4444';

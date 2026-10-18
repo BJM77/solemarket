@@ -1,5 +1,5 @@
 import { detectCard, type Background } from './detect';
-import type { Quad } from './geometry';
+import { polygonArea, type Quad } from './geometry';
 import { refineCorners, verifyAndCorrect } from './refine';
 import { scaleQuad } from './warp';
 
@@ -37,7 +37,13 @@ export function locateCard(g: Uint8Array, w: number, h: number, bg: Background =
   // Two passes: the first pulls the cut-corner quad onto the edges, the second tightens.
   let r = refineCorners(g, w, h, coarse);
   if (r.ok) { const r2 = refineCorners(g, w, h, r.quad, { radius: Math.max(4, Math.min(w, h) * 0.006) }); if (r2.ok) r = r2; }
-  const base = r.ok ? r.quad : coarse;
+  // Never let refinement shrink onto an inner rectangle (artwork / text box) that sits
+  // inside the outer card blob: a refined quad much smaller than the blob is rejected.
+  const coarseArea = polygonArea(coarse);
+  const shrunk = (q: Quad) => polygonArea(q) < coarseArea * 0.9;
+  const refinedOk = r.ok && !shrunk(r.quad);
+  const base = refinedOk ? r.quad : coarse;
   const v = verifyAndCorrect(g, w, h, base);
-  return { quad: v.quad, refined: r.ok, verifyError: v.error, aspect: v.aspect };
+  if (shrunk(v.quad)) return { quad: base, refined: refinedOk, verifyError: Number.NaN, aspect: Number.NaN };
+  return { quad: v.quad, refined: refinedOk, verifyError: v.error, aspect: v.aspect };
 }

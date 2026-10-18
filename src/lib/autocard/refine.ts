@@ -87,8 +87,15 @@ function edgePoints(g: Uint8Array, w: number, h: number, A: Pt, B: Pt, out: Pt, 
   const sign = pol >= 0 ? 1 : -1;
   const pts: Pt[] = [];
   for (const { P, prof: pr } of profiles) {
+    // Prefer the OUTERMOST strong transition (card/background), not the strongest one:
+    // inner artwork or text-box frames can have higher contrast than the card edge.
+    const D = new Float32Array(pr.length);
+    let mx = 0;
+    for (let i = 1; i < pr.length - 1; i++) { D[i] = sign * (pr[i + 1] - pr[i - 1]); if (D[i] > mx) mx = D[i]; }
     let bi = -1, bv = 0;
-    for (let i = 1; i < pr.length - 1; i++) { const d = sign * (pr[i + 1] - pr[i - 1]); if (d > bv) { bv = d; bi = i; } }
+    for (let i = pr.length - 2; i >= 1; i--) {
+      if (D[i] >= 0.5 * mx && D[i] >= D[i - 1] && D[i] >= D[i + 1]) { bi = i; bv = D[i]; break; }
+    }
     if (bi < 2 || bi > pr.length - 3 || bv < 8) continue;
     const dm = sign * (pr[bi] - pr[bi - 2]), dp = sign * (pr[bi + 2] - pr[bi]);
     const den = dm - 2 * bv + dp;
