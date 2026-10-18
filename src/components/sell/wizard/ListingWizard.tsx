@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { handleStaleDeploy } from '@/lib/stale-deploy';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { uploadImages } from '@/lib/firebase/storage';
@@ -139,6 +140,7 @@ export default function ListingWizard() {
       toast({ title: 'Listing submitted', description: 'It will appear once it passes review.' });
       router.push(`/product/${(result as any).productId}`);
     } catch (e: any) {
+      if (handleStaleDeploy(e)) return;
       toast({ title: 'Publish failed', description: e?.message, variant: 'destructive' });
     } finally {
       setPublishing(false);

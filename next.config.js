@@ -2,6 +2,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Optional: set NEXT_DEPLOYMENT_ID at build time so Next can detect skew and hard-reload.
+  // Safe when unset (no-op). Firebase App Hosting does not require this.
+  ...(process.env.NEXT_DEPLOYMENT_ID
+    ? { deploymentId: process.env.NEXT_DEPLOYMENT_ID }
+    : {}),
   // output: 'standalone',
   serverExternalPackages: [
     'firebase-admin',

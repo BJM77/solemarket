@@ -18,6 +18,8 @@ import { saveDraftListing } from '@/app/actions/seller/sell';
 import { identifyCardForEbay } from '@/ai/flows/identify-card-autocard';
 import { ebaySoldUrl } from '@/lib/autocard/ebay';
 import { buildDraftFields } from '@/lib/autocard/draft';
+import { handleStaleDeploy, isStaleServerActionError } from '@/lib/stale-deploy';
+import { saveAutocardCaptures, loadAutocardCaptures, clearAutocardCaptures } from '@/lib/autocard/capture-persist';
 import type { IdentifyCardResult } from '@/ai/flows/identify-card-autocard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -123,6 +125,26 @@ export default function AutoCardCapture() {
       }
     })();
     return () => { cancelled = true; trackRef.current = null; stream?.getTracks().forEach((t) => t.stop()); };
+  }, []);
+
+  // Restore front/back captures after a stale-deploy reload so the user need not rescan.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const pending = await loadAutocardCaptures();
+      if (!pending || cancelled) return;
+      await clearAutocardCaptures();
+      if (cancelled) return;
+      const next: Partial<Record<Side, { blob: Blob; url: string }>> = {};
+      if (pending.front) next.front = { blob: pending.front, url: URL.createObjectURL(pending.front) };
+      if (pending.back) next.back = { blob: pending.back, url: URL.createObjectURL(pending.back) };
+      if (!next.front && !next.back) return;
+      setShots(next);
+      setSide(next.front && next.back ? 'back' : next.front ? 'back' : 'front');
+      toast({ title: 'Photos restored', description: 'Kept your scans after the site update.' });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restore once on mount
   }, []);
 
   const toggleTorch = useCallback(async () => {
@@ -249,6 +271,10 @@ export default function AutoCardCapture() {
 
   const manualShutter = () => void capture(lastQuadRef.current, dims.w, dims.h);
 
+  const persistShotsForReload = useCallback(async () => {
+    await saveAutocardCaptures({ front: shots.front?.blob, back: shots.back?.blob });
+  }, [shots]);
+
   const save = async () => {
     if (!shots.front || !shots.back) return;
     if (!user) { router.push('/sign-in?redirect=/autocard'); return; }
@@ -260,6 +286,9 @@ export default function AutoCardCapture() {
       ];
       // Identify (or reuse the eBay-button result) while the images upload.
       const [imageUrls, idRes] = await Promise.all([uploadImages(files, `products/${user.uid}`), identify()]);
+      if (!idRes.ok && isStaleServerActionError(new Error(idRes.error || ''))) {
+        if (handleStaleDeploy(new Error(idRes.error || ''), { beforeReload: persistShotsForReload })) return;
+      }
       const fields = buildDraftFields(idRes.ok ? idRes.identity : null);
       const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', {
         ...fields, quantity: 1,
@@ -270,6 +299,7 @@ export default function AutoCardCapture() {
         : { title: 'Draft created', description: "Couldn't identify the card automatically. Add the details and a price, then publish." });
       router.push(`/sell/create?edit=${draftId}`);
     } catch (e: any) {
+      if (handleStaleDeploy(e, { beforeReload: persistShotsForReload })) return;
       toast({ title: 'Could not save', description: e?.message || 'Upload failed', variant: 'destructive' });
     } finally {
       setSaving(false);
@@ -302,6 +332,7 @@ export default function AutoCardCapture() {
       const res = await identify();
       if (!res.ok) {
         win?.close();
+        if (handleStaleDeploy(new Error(res.error || ''), { beforeReload: persistShotsForReload })) return;
         setEbay({ open: true, busy: false, query: '', error: res.error });
         return;
       }
@@ -309,6 +340,7 @@ export default function AutoCardCapture() {
       setEbay({ open: true, busy: false, query: res.query, identified: res.query });
     } catch (e: any) {
       win?.close();
+      if (handleStaleDeploy(e, { beforeReload: persistShotsForReload })) return;
       setEbay({ open: true, busy: false, query: '', error: e?.message || 'Identification failed. You can type a search instead.' });
     }
   };

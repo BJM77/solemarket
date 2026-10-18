@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useToast } from "@/hooks/use-toast";
+import { handleStaleDeploy } from "@/lib/stale-deploy";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { BeforeUnload } from '@/hooks/use-before-unload';
@@ -894,6 +895,7 @@ function CreateListingForm() {
             router.push(`/product/${draftId}`);
           }
         } catch (error: any) {
+          if (handleStaleDeploy(error)) return;
           toast({ title: "Error publishing listing", description: error.message, variant: "destructive" });
         }
       };
@@ -961,6 +963,7 @@ function CreateListingForm() {
       }
 
     } catch (error: any) {
+      if (handleStaleDeploy(error)) return;
       toast({ title: "Error starting publish", description: error.message, variant: "destructive" });
       setIsSubmitting(false);
     }
@@ -1003,6 +1006,7 @@ function CreateListingForm() {
       toast({ title: "Draft Saved!", description: "Your listing draft has been saved." });
       router.push(`/sell/dashboard`);
     } catch (error: any) {
+      if (handleStaleDeploy(error)) return;
       toast({ title: "Error saving draft", description: error.message, variant: "destructive" });
     } finally {
       setIsSubmitting(false);

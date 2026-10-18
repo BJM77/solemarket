@@ -20,6 +20,7 @@ import { Upload, Trash2, DollarSign, Sparkles, Loader2, GripVertical, ShieldChec
 import { cn } from "@/lib/utils/ui";
 import { resizeAndCompressImage } from "@/lib/utils/image";
 import { useToast } from "@/hooks/use-toast";
+import { handleStaleDeploy } from "@/lib/stale-deploy";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
@@ -382,6 +383,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                 toast({ title: "Error", description: result.error, variant: "destructive" });
             }
         } catch (error: any) {
+            if (handleStaleDeploy(error)) return;
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
             setIsSubmitting(false);

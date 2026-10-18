@@ -9,6 +9,7 @@ import { MobileNavProvider } from '@/context/MobileNavContext';
 import { CartProvider } from '@/context/CartContext';
 import { ViewedProductsProvider } from '@/context/ViewedProductsContext';
 import { Toaster } from "@/components/ui/toaster";
+import { StaleDeployGuard } from '@/components/layout/StaleDeployGuard';
 import type { SiteConfig } from '@/lib/types/site-config';
 
 export function AppProviders({ children, siteConfig }: { children: React.ReactNode; siteConfig?: SiteConfig }) {
@@ -29,6 +30,7 @@ export function AppProviders({ children, siteConfig }: { children: React.ReactNo
           </QueryProvider>
         </SiteConfigProvider>
       </FirebaseProvider>
+      <StaleDeployGuard />
       <Toaster />
     </ErrorBoundary>
   );

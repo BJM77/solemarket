@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { handleStaleDeploy } from '@/lib/stale-deploy';
 import { formatPrice } from "@/lib/utils/format";
 import { Loader2, ShoppingBag, Truck, MapPin, CreditCard, Shield, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
@@ -258,6 +259,7 @@ export default function CheckoutPage() {
       }
     } catch (err: any) {
       console.error(err);
+      if (handleStaleDeploy(err)) return;
       toast({
         title: 'Checkout Failed',
         description: err.message || 'An unexpected error occurred.',
