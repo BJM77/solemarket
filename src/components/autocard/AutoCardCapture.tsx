@@ -25,6 +25,7 @@ import { saveAutocardCaptures, loadAutocardCaptures, clearAutocardCaptures } fro
 import type { IdentifyCardResult } from '@/ai/flows/identify-card-autocard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { GuidanceSmoother, tiltCaption, type Dir, type Guidance, type Zoom } from '@/lib/autocard/guidance';
 
 type Side = 'front' | 'back';
 const ANALYSIS_W = 320;
@@ -78,10 +79,71 @@ function centreQuad(w: number, h: number): Quad {
   return [{ x: x0, y: y0 }, { x: x0 + cw, y: y0 }, { x: x0 + cw, y: y0 + ch }, { x: x0, y: y0 + ch }];
 }
 
+const ARROW_POS: Record<Dir, { x: number; y: number; rot: number }> = {
+  up: { x: 50, y: 20, rot: 0 }, right: { x: 80, y: 50, rot: 90 }, down: { x: 50, y: 80, rot: 180 }, left: { x: 20, y: 50, rot: 270 },
+};
+// Chunky joystick arrow pointing up, centred on (0,0).
+const ARROW_PATH = 'M0,-10 L10,1 L4.5,1 L4.5,9 L-4.5,9 L-4.5,1 L-10,1 Z';
+// Small corner arrow at the top-left, head pointing OUT toward the corner (rotated for the others).
+const CORNER_OUT = 'M-4,-4 L3,-4 M-4,-4 L-4,3 M-4,-4 L3,3';
+
+/**
+ * Semi-transparent D-pad over the live camera: arrows say which way to move the phone,
+ * a bold "T" on an arrow means tip that side of the phone down (see guidance.ts for the
+ * mapping), corner chevrons mean move closer (pointing in) or back (pointing out), and a
+ * green ring with a tick means everything lines up and capture is about to fire.
+ */
+function GuidanceOverlay({ guidance, zoom, holding, progress }: { guidance: Guidance | null; zoom: Zoom; holding: boolean; progress: number }) {
+  const lit = (d: Dir) => !holding && !!guidance && (guidance.move.includes(d) || guidance.tilt.includes(d));
+  const isTilt = (d: Dir) => !holding && !!guidance?.tilt.includes(d);
+  const z = holding ? null : zoom;
+  const R = 9, C = 2 * Math.PI * R;
+  return (
+    <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden data-testid="autocard-joystick">
+      <defs>
+        <filter id="ac-shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.8" floodColor="#000" floodOpacity="0.45" /></filter>
+      </defs>
+      {(Object.keys(ARROW_POS) as Dir[]).map((d) => {
+        const p = ARROW_POS[d], on = lit(d);
+        return (
+          <g key={d} transform={`translate(${p.x} ${p.y})`} opacity={on ? 0.45 : 0.12} filter="url(#ac-shadow)" data-testid={`autocard-arrow-${d}`} data-active={on ? (isTilt(d) ? 'tilt' : 'move') : 'off'}>
+            <g className={on ? 'motion-safe:animate-pulse' : undefined}>
+              <path d={ARROW_PATH} transform={`rotate(${p.rot})`} fill="#fff" />
+              {on && isTilt(d) && (
+                <text x="0" y="3.2" textAnchor="middle" fontSize="9" fontWeight="900" fill="#111" fillOpacity="0.9" style={{ fontFamily: 'system-ui, sans-serif' }}>T</text>
+              )}
+            </g>
+          </g>
+        );
+      })}
+      {/* Closer (corner arrows point in) / move back (corner arrows point out) */}
+      {z && [0, 90, 180, 270].map((rot) => (
+        <g key={rot} transform={`translate(50 50) rotate(${rot}) translate(-33 -33)`} opacity={0.5} filter="url(#ac-shadow)" data-testid={`autocard-zoom-${z}`}>
+          <g className="motion-safe:animate-pulse">
+            <path d={CORNER_OUT} transform={z === 'closer' ? 'rotate(180)' : undefined} stroke="#fff" strokeWidth={2.2} strokeLinecap="round" fill="none" />
+          </g>
+        </g>
+      ))}
+      {/* Centre: faint ring normally, green ring + tick (with hold progress) when aligned */}
+      {holding ? (
+        <g filter="url(#ac-shadow)" data-testid="autocard-aligned">
+          <circle cx="50" cy="50" r={R} fill="#22c55e" fillOpacity={0.25} stroke="#22c55e" strokeOpacity={0.5} strokeWidth={1.5} />
+          <circle cx="50" cy="50" r={R} fill="none" stroke="#22c55e" strokeWidth={2} strokeDasharray={`${C * Math.max(0.02, progress)} ${C}`} transform="rotate(-90 50 50)" className="motion-safe:transition-all" />
+          <path d="M45.5,50.5 L49,54 L55,46.5" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </g>
+      ) : (
+        <circle cx="50" cy="50" r={R * 0.6} fill="none" stroke="#fff" strokeOpacity={0.3} strokeWidth={1.2} filter="url(#ac-shadow)" />
+      )}
+    </svg>
+  );
+}
+
 export default function AutoCardCapture() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const analysisRef = useRef<HTMLCanvasElement | null>(null);
   const gateRef = useRef(new CaptureGate());
+  const guideRef = useRef(new GuidanceSmoother());
+  const [guidance, setGuidance] = useState<Guidance | null>(null);
   const frontSigRef = useRef<CardSignature | null>(null);
   const lastQuadRef = useRef<Quad | null>(null);
   const busyRef = useRef(false);
@@ -239,6 +301,7 @@ export default function AutoCardCapture() {
       });
       setSide((cur) => (cur === 'front' ? 'back' : cur));
       gateRef.current.reset();
+      guideRef.current.reset();
     } catch (e: any) {
       toast({ title: 'Capture failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
@@ -279,6 +342,7 @@ export default function AutoCardCapture() {
       const st = gateRef.current.update(d, sharp, t, light);
       lastQuadRef.current = d.quad;
       setQuad(d.quad);
+      setGuidance(guideRef.current.update(d.quad, aw, ah));
       setGate(st);
       if (st.ok) void capture(d.quad, aw, ah);
     };
@@ -290,6 +354,7 @@ export default function AutoCardCapture() {
     setShots((cur) => { if (cur[s]) URL.revokeObjectURL(cur[s]!.url); const n = { ...cur }; delete n[s]; return n; });
     setSide(s);
     gateRef.current.reset();
+    guideRef.current.reset();
   };
 
   const manualShutter = () => void capture(lastQuadRef.current, dims.w, dims.h, true);
@@ -368,10 +433,18 @@ export default function AutoCardCapture() {
     }
   };
 
-  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); };
+  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); };
 
   const ready = gate?.ok || (gate?.reason === 'unstable' && gate.progress > 0);
   const stroke = gate?.ok ? '#22c55e' : ready ? '#facc15' : '#ef4444';
+  // "All good": geometry passes and the gate is only waiting for the card to hold still / focus.
+  const holding = !!quad && !!gate && (gate.ok || gate.reason === 'unstable' || gate.reason === 'blurry');
+  const gateZoom: Zoom = !gate || gate.ok ? null
+    : gate.reason === 'clipped' || gate.reason === 'too_close' || gate.reason === 'surround' ? 'back'
+    : gate.reason === 'too_small' || (gate.reason === 'background' && gate.message === 'Move closer') ? 'closer' : null;
+  const zoom: Zoom = guidance?.zoom ?? gateZoom;
+  const tiltText = gate && !gate.ok && (gate.reason === 'tilted' || gate.reason === 'shape' || gate.reason === 'aspect') ? tiltCaption(guidance) : null;
+  const caption = cameraError ? `Camera unavailable: ${cameraError}` : tiltText ?? gate?.message ?? 'Starting camera…';
 
   return (
     <div className="space-y-4">
@@ -389,11 +462,12 @@ export default function AutoCardCapture() {
             {quad && <polygon data-testid="autocard-outline" points={quad.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={stroke} strokeWidth={3} />}
             {quad && <circle cx={(quad[0].x + quad[1].x) / 2} cy={(quad[0].y + quad[1].y) / 2} r={4} fill={stroke} />}
           </svg>
+          {!cameraError && !processing && <GuidanceOverlay guidance={guidance} zoom={zoom} holding={holding} progress={gate?.progress ?? 0} />}
           <div className="absolute top-2 left-2 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white">
             {side === 'front' ? '1 / 2 Front' : '2 / 2 Back'}
           </div>
-          <div className="absolute bottom-3 inset-x-3 rounded-lg bg-black/70 px-3 py-2 text-center text-white" aria-live="polite" data-testid="autocard-guidance">
-            {cameraError ? `Camera unavailable: ${cameraError}` : gate?.message ?? 'Starting camera…'}
+          <div className="absolute bottom-2 inset-x-6 rounded-md bg-black/60 px-2 py-1 text-center text-xs text-white sm:text-sm" role="status" aria-live="polite" aria-atomic="true" data-testid="autocard-guidance">
+            {caption}
             {gate && !gate.ok && gate.progress > 0 && (
               <div className="mt-1 h-1 w-full rounded bg-white/30"><div className="h-1 rounded bg-green-400" style={{ width: `${gate.progress * 100}%` }} /></div>
             )}

@@ -2,6 +2,7 @@ import { CARD_ASPECT, perspectiveDeg, quadAspect, quadDelta, type Quad } from '.
 import type { Lighting } from './lighting';
 import type { Detection } from './detect';
 import { shapeCheck } from './validate';
+import { DEFAULT_GUIDANCE, guidanceMetrics } from './guidance';
 
 export interface GateConfig {
   aspectTolerance: number;   // |aspect - 0.716| allowed
@@ -16,6 +17,7 @@ export interface GateConfig {
   maxGlare: number;          // share of card pixels that are clipped highlights
   minLuma: number;           // mean card luma below this = too dark
   minSurround: number;       // outside-edge bands must match background this often
+  maxCentreOffset: number;   // card centre offset from frame centre, fraction of frame width/height
 }
 
 export const DEFAULT_GATE: GateConfig = {
@@ -31,10 +33,12 @@ export const DEFAULT_GATE: GateConfig = {
   maxGlare: 0.006,
   minLuma: 45,
   minSurround: 0.7,
+  // Same threshold that lights the on-screen move arrow, so the arrow and the gate agree.
+  maxCentreOffset: DEFAULT_GUIDANCE.moveOn,
 };
 
 export type GateState =
-  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light' | 'clipped' | 'shape' | 'surround'; message: string; progress: number }
+  | { ok: false; reason: 'no_card' | 'not_portrait' | 'aspect' | 'too_small' | 'too_close' | 'background' | 'unstable' | 'blurry' | 'tilted' | 'glare' | 'low_light' | 'clipped' | 'shape' | 'surround' | 'off_centre'; message: string; progress: number }
   | { ok: true; message: string; progress: 1 };
 
 /**
@@ -62,6 +66,8 @@ export class CaptureGate {
     if (d.fill < this.cfg.minFill) return fail('too_small', 'Move closer');
     if (d.fill > this.cfg.maxFill) return fail('too_close', 'Move back a little');
     if (d.backgroundCoverage > this.cfg.maxBackground) return fail('background', 'Move closer');
+    const gm = guidanceMetrics(d.quad, d.width, d.height);
+    if (Math.max(Math.abs(gm.dx), Math.abs(gm.dy)) > this.cfg.maxCentreOffset) return fail('off_centre', 'Centre the card in the frame');
     if (light && light.meanLuma < this.cfg.minLuma) return fail('low_light', 'Need more light');
     if (light && light.glare > this.cfg.maxGlare) return fail('glare', 'Tilt slightly to remove glare');
     const diag = Math.hypot(d.width, d.height);
