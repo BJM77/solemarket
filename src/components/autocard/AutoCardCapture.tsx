@@ -456,7 +456,7 @@ export default function AutoCardCapture() {
       </div>
 
       {!done && (
-        <div className="relative w-full overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }}>
+        <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }}>
           <video ref={videoRef} playsInline muted className="absolute inset-0 h-full w-full object-cover" data-testid="autocard-video" />
           <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox={`0 0 ${dims.w} ${dims.h}`} preserveAspectRatio="none" aria-hidden>
             {quad && <polygon data-testid="autocard-outline" points={quad.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={stroke} strokeWidth={3} />}
