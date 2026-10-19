@@ -17,6 +17,10 @@ export async function generateStaticParams() {
     });
 }
 
+// Only the slugs above exist. Anything else 404s at routing time; a notFound() in the
+// page body would render inside loading.tsx's Suspense boundary after a 200 was sent.
+export const dynamicParams = false;
+
 export async function generateMetadata(props: Props) {
     const params = await props.params;
     const path = params.slug.join('/');
