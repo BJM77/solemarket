@@ -10,7 +10,7 @@ export function ProvenanceLedger({ data }: { data: ProvenanceData }) {
     `${data.daysListed} days ago`;
 
   // Nothing to show if there's zero real activity. Be honest.
-  if (data.uniqueViews === 0 && data.watchlistCount === 0 && data.enquiryCount === 0) {
+  if (data.uniqueViews === 0 && !data.watchlistCount && !data.enquiryCount) {
     return null;
   }
 
@@ -33,11 +33,13 @@ export function ProvenanceLedger({ data }: { data: ProvenanceData }) {
             {data.uniqueViews} {data.uniqueViews === 1 ? 'buyer' : 'buyers'}
           </Row>
 
-          <Row icon={<Heart className="h-4 w-4" />} label="Watchlist">
-            {data.watchlistCount} {data.watchlistCount === 1 ? 'person' : 'people'}
-          </Row>
+          {data.watchlistCount !== null && (
+            <Row icon={<Heart className="h-4 w-4" />} label="Watchlist">
+              {data.watchlistCount} {data.watchlistCount === 1 ? 'person' : 'people'}
+            </Row>
+          )}
 
-          {data.enquiryCount > 0 && (
+          {data.enquiryCount !== null && data.enquiryCount > 0 && (
             <Row icon={<MessageSquare className="h-4 w-4" />} label="Enquiries">
               {data.enquiryCount}
             </Row>
