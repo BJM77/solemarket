@@ -3,13 +3,22 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from "@/lib/utils/ui";
+import { Suspense } from 'react';
 import { Layers, LayoutGrid, Shirt, Footprints, Watch, ShoppingBag, Sparkles, Library } from 'lucide-react';
 
 interface CategoryPillsProps {
     className?: string;
 }
 
-export function CategoryPills({ className }: CategoryPillsProps) {
+export function CategoryPills(props: CategoryPillsProps) {
+    return (
+        <Suspense fallback={null}>
+            <CategoryPillsInner {...props} />
+        </Suspense>
+    );
+}
+
+function CategoryPillsInner({ className }: CategoryPillsProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 

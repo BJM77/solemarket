@@ -1,3 +1,4 @@
+import { KNOWN_BRANDS } from '@/lib/seo/brands';
 import { MetadataRoute } from 'next';
 import { getCategories, getActiveProductCount, getActiveProducts } from '@/lib/firebase/firestore';
 import * as fs from 'fs';
@@ -114,8 +115,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     }
     
     // 2.5 Programmatic Brand & SEO Routes
-    const topBrands = ['nike', 'jordan', 'adidas', 'yeezy', 'new-balance', 'asics', 'pokemon', 'panini', 'topps', 'magic-the-gathering'];
-    const brandRoutes: MetadataRoute.Sitemap = topBrands.map((brand) => ({
+    const brandRoutes: MetadataRoute.Sitemap = KNOWN_BRANDS.map((brand) => ({
       url: `${baseUrl}/brand/${brand}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
