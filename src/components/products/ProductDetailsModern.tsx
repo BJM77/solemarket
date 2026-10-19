@@ -7,6 +7,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,9 +54,6 @@ import { useCart } from '@/context/CartContext';
 import type { Product, Review, UserProfile } from '@/lib/types';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
 import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
-import ReviewList from '@/components/reviews/ReviewList';
-import { ConditionGuide } from './ConditionGuide';
-import ReviewForm from '@/components/reviews/ReviewForm';
 import { deleteProductByAdmin, updateProductCategoryByAdmin } from '@/app/actions/admin/admin';
 import { recordProductView } from '@/app/actions/marketplace/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
@@ -77,14 +75,10 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
-import { OfferModal } from '@/components/products/OfferModal';
-import { GuestMessageDialog } from '@/components/product/GuestMessageDialog';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
-import { BiddingInterface } from '@/components/products/BiddingInterface';
 import { acceptBidAction } from '@/app/actions/marketplace/bidding';
 import { getRecentViewCount } from '@/app/actions/marketplace/products';
 import { TrendingUp } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
 import {
     Dialog,
     DialogContent,
@@ -95,13 +89,22 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
-import { ProductBundleOffers } from '@/components/bundles/ProductBundleOffers';
-import { SizeChart } from '@/components/sneakers/SizeChart';
-import { RelatedProductsCarousel } from '@/components/product/RelatedProductsCarousel';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
-import { MarketIndexWidget } from '@/components/products/MarketIndexWidget';
-import { ProvenanceLedger } from '@/components/trust/ProvenanceLedger';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
+
+// Below-the-fold / on-demand UI: split into separate chunks to cut product-page JS.
+const ConditionGuide = dynamic(() => import('./ConditionGuide').then((m) => m.ConditionGuide));
+const OfferModal = dynamic(() => import('@/components/products/OfferModal').then((m) => m.OfferModal));
+const GuestMessageDialog = dynamic(() => import('@/components/product/GuestMessageDialog').then((m) => m.GuestMessageDialog));
+const BiddingInterface = dynamic(() => import('@/components/products/BiddingInterface').then((m) => m.BiddingInterface));
+const ProductBundleOffers = dynamic(() => import('@/components/bundles/ProductBundleOffers').then((m) => m.ProductBundleOffers));
+const SizeChart = dynamic(() => import('@/components/sneakers/SizeChart').then((m) => m.SizeChart));
+const RelatedProductsCarousel = dynamic(() => import('@/components/product/RelatedProductsCarousel').then((m) => m.RelatedProductsCarousel));
+const MarketIndexWidget = dynamic(() => import('@/components/products/MarketIndexWidget').then((m) => m.MarketIndexWidget));
+const ProvenanceLedger = dynamic(() => import('@/components/trust/ProvenanceLedger').then((m) => m.ProvenanceLedger));
+const ReviewList = dynamic(() => import('@/components/reviews/ReviewList'));
+const ReviewForm = dynamic(() => import('@/components/reviews/ReviewForm'));
+const QRCodeCanvas = dynamic(() => import('qrcode.react').then((m) => m.QRCodeCanvas), { ssr: false });
 
 const ADMIN_CATEGORIES = {
     'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
