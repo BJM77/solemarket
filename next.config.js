@@ -2,6 +2,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Always resolve metadata before streaming so <title>, meta description,
+  // canonical, Open Graph and robots tags land in <head>. With Next 15's default
+  // streaming metadata, dynamic pages (listings, /browse, /cards, /shoes, /coins,
+  // /brand/*) emitted them inside <body> on live benched.au, even for crawlers:
+  // Google ignores rel=canonical outside <head>, and Lighthouse SEO failed
+  // meta-description. Product/category metadata reuses the page's cached
+  // Firestore read, so the extra wait before first byte is small.
+  htmlLimitedBots: /.*/,
   // Optional: set NEXT_DEPLOYMENT_ID at build time so Next can detect skew and hard-reload.
   // Safe when unset (no-op). Firebase App Hosting does not require this.
   ...(process.env.NEXT_DEPLOYMENT_ID
