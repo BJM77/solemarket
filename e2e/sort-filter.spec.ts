@@ -23,8 +23,13 @@ test('mobile filter drawer contains filters and an apply button', async ({ page 
 
 test('clear all keeps the category and drops filters', async ({ page }) => {
   await page.goto('/category/sneakers?sizes=10&priceRange=100,300');
-  await page.getByTestId('clear-all-filters').click();
-  await expect(page).toHaveURL(/\/category\/sneakers(\?view=[^&]+)?$/);
+  // Retry the click (a pre-hydration click is a no-op). Allow a slow RSC fetch: CI has no
+  // reachable Firestore, so each server render waits ~10s on backend timeouts.
+  test.setTimeout(90000);
+  await expect(async () => {
+    await page.getByTestId('clear-all-filters').click();
+    await expect(page).toHaveURL(/\/category\/sneakers(\?view=[^&]+)?$/, { timeout: 20000 });
+  }).toPass({ timeout: 70000 });
   await expect(page.getByTestId('active-filters')).toHaveCount(0);
 });
 
