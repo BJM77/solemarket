@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { isKnownBrand, brandDisplayName } from '@/lib/seo/brands';
+import { brandHasListings } from '@/lib/seo/brand-exists';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 
 interface Props {
@@ -8,13 +10,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { brand } = await params;
-  const decodedBrand = decodeURIComponent(brand).replace(/-/g, ' ');
-  
-  // Capitalize each word
-  const displayBrand = decodedBrand
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  const displayBrand = brandDisplayName(brand);
+  const known = isKnownBrand(brand);
 
   return {
     title: `Buy ${displayBrand} Sneakers & Collectibles`,
@@ -22,21 +19,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `https://benched.au/brand/${brand.toLowerCase()}`,
     },
+    // Only curated brand pages are indexable; arbitrary /brand/<anything> URLs are not.
+    ...(known ? {} : { robots: { index: false, follow: true } }),
   };
 }
 
 export default async function BrandPage({ params }: Props) {
   const { brand } = await params;
-  
+
   if (!brand) {
     notFound();
   }
 
-  const decodedBrand = decodeURIComponent(brand).replace(/-/g, ' ');
-  const displayBrand = decodedBrand
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  const displayBrand = brandDisplayName(brand);
+  // Unknown brand with no listings: real 404 instead of an empty page with 200.
+  if (!isKnownBrand(brand) && (await brandHasListings(displayBrand)) === false) {
+    notFound();
+  }
 
   // Brand pre-applied (matches brand, subCategory or title keyword); the grid adds the
   // standard sort control, filter panel, chips and counts on top.

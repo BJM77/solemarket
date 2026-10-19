@@ -1,5 +1,6 @@
 'use client';
 
+import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
@@ -822,4 +823,14 @@ function InfiniteProductGridInner({
   );
 }
 
-export default InfiniteProductGridInner;
+// useSearchParams needs its own Suspense boundary so static pages using the grid can
+// still prerender (and real 404s aren't masked by a route-level loading.tsx).
+function InfiniteProductGrid(props: React.ComponentProps<typeof InfiniteProductGridInner>) {
+    return (
+        <React.Suspense fallback={<ProductGridSkeleton count={12} />}>
+            <InfiniteProductGridInner {...props} />
+        </React.Suspense>
+    );
+}
+
+export default InfiniteProductGrid;
