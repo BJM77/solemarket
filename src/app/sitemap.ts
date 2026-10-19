@@ -3,6 +3,7 @@ import { getCategories, getActiveProductCount, getActiveProducts } from '@/lib/f
 import * as fs from 'fs';
 import * as path from 'path';
 import { getProductUrl } from "@/lib/utils/url";
+import { sitemapChunkIndex, toSitemapDate } from "@/lib/seo/sitemap";
 
 /**
  * World-Class Sitemap Generation
@@ -57,8 +58,10 @@ export async function generateSitemaps() {
   }
 }
 
-export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
+export default async function sitemap({ id: rawId }: { id: number | string }): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au').replace(/\/$/, '');
+  // Next passes the id as a string ("0") at runtime; normalise before comparing.
+  const id = sitemapChunkIndex(rawId);
   const startOffset = id * PRODUCT_SITEMAP_SIZE;
 
   // 1. Static Routes (Only included on sitemap index 0)
@@ -182,7 +185,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
     productRoutes = activeProducts.map(p => ({
       url: `${baseUrl}${getProductUrl(p)}`,
-      lastModified: new Date(),
+      lastModified: toSitemapDate(p.updatedAt, p.createdAt),
       changeFrequency: 'daily',
       priority: 0.6,
     }));
