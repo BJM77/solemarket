@@ -103,7 +103,7 @@ export default async function SellersPage() {
                                         <ShoppingBag className="w-4 h-4 mr-1.5 text-muted-foreground/60" />
                                         <span>{seller.productCount}+ items</span>
                                     </div>
-                                    <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+                                    <Button asChild size="sm" className="bg-orange-700 hover:bg-orange-800 text-white">
                                         <Link href={`/seller/${seller.id}`}>
                                             Visit Shop
                                         </Link>

@@ -1213,13 +1213,13 @@ export default function ProductDetailsModern({
                                             })()}
 
                                             <div className="flex items-center justify-center gap-2 mt-2">
-                                                <Button variant="ghost" size="icon" onClick={toggleFavorite} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
+                                                <Button variant="ghost" size="icon" onClick={toggleFavorite} aria-label={isFavorited ? "Remove from favourites" : "Add to favourites"} aria-pressed={isFavorited} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
                                                     <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
                                                 </Button>
 
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-50 text-blue-600" title="Share to Facebook">
+                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-50 text-blue-600" title="Share to Facebook" aria-label="Share to Facebook">
                                                             {isPostingFB ? <Loader2 className="h-6 w-6 animate-spin" /> : <Share2 className="h-6 w-6" />}
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -1238,7 +1238,7 @@ export default function ProductDetailsModern({
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
 
-                                                <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram">
+                                                <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram" aria-label="Copy link for Instagram">
                                                     <ExternalLink className="h-6 w-6" />
                                                 </Button>
                                             </div>

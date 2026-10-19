@@ -235,7 +235,7 @@ export default function MultiListingDealsPage() {
                                 <button
                                     onClick={() => setSelectedTier('bronze')}
                                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${selectedTier === 'bronze'
-                                        ? 'bg-orange-600 text-white'
+                                        ? 'bg-orange-700 text-white'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >

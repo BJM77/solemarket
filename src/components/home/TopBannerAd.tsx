@@ -32,7 +32,7 @@ export default function TopBannerAd() {
             />
             {/* Optional Advertisement badge overlay */}
             <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden sm:block">
-                <span className="bg-primary/90 backdrop-blur-sm text-white text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider shadow-sm">
+                <span className="bg-primary/90 backdrop-blur-sm text-black text-[10px] md:text-xs font-black uppercase px-2 py-0.5 rounded-sm tracking-wider shadow-sm">
                     Advertisement
                 </span>
             </div>

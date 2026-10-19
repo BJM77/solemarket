@@ -72,7 +72,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 )}
                 {deal.requirements.bronze > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.bronze === deal.requirements.bronze
-                        ? 'bg-orange-600 text-white'
+                        ? 'bg-orange-700 text-white'
                         : 'bg-orange-100 text-orange-800'
                         }`}>
                         Bronze: {progress.bronze}/{deal.requirements.bronze}

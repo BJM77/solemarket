@@ -336,7 +336,7 @@ export default function ProductDetailsClient({
                         <div className="flex items-center justify-between mb-2">
                             <div />
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon" onClick={toggleFavorite} className="h-9 w-9">
+                                <Button variant="ghost" size="icon" onClick={toggleFavorite} aria-label={isFavorited ? "Remove from favourites" : "Add to favourites"} className="h-9 w-9">
                                     <Heart className={cn("h-5 w-5", isFavorited && "fill-red-500 text-red-500")} />
                                 </Button>
                                 <ProductStoryShare product={product} />
