@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+// Needs a Firestore with live listings; CI builds use a dummy Firebase project, so set
+// E2E_LIVE_DATA=1 when running against real data (e.g. PLAYWRIGHT_BASE_URL=https://benched.au).
 test('homepage renders MarketTicker with real products', async ({ page }) => {
+  test.skip(!process.env.E2E_LIVE_DATA, 'needs live listings (set E2E_LIVE_DATA=1)');
   await page.goto('/');
   
   // 1. No console errors during load
