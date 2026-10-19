@@ -350,14 +350,15 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
 
 export const getFeaturedProducts = unstable_cache(
     async (limitCount: number = 8): Promise<Product[]> => {
-        const { isFirebaseAdminReady, firestoreDb } = await import('@/lib/firebase/admin');
-        const admin = await import('firebase-admin');
+        const { firestoreDb } = await import('@/lib/firebase/admin');
         try {
-            const cutoffDate = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
+            // Newest available listings first. There used to be a 60-day createdAt
+            // cutoff here; once no listing was newer than 60 days the home page's
+            // "Ending Soon" rail rendered empty (products: []) even with 76 live
+            // listings. Ordering + limit already favours fresh stock.
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
-                    .where('createdAt', '>=', cutoffDate)
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
@@ -374,7 +375,6 @@ export const getFeaturedProducts = unstable_cache(
 
             const fallbackSnapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
-                .where('createdAt', '>=', cutoffDate)
                 .limit(limitCount)
                 .get();
 
@@ -412,25 +412,28 @@ const ACTIVE_CATEGORIES = [
 export const getActiveProducts = unstable_cache(
     async (limitCount: number = 20): Promise<Product[]> => {
         try {
-            const admin = await import('firebase-admin');
-            const cutoffDate = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
+            // No 60-day cutoff (see getFeaturedProducts): it emptied the home
+            // page's "Just Listed" rail once every listing was older than that.
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('category', 'in', ACTIVE_CATEGORIES)
                     .where('status', '==', 'available')
-                    .where('createdAt', '>=', cutoffDate)
                     .orderBy('createdAt', 'desc')
                     .limit(limitCount)
                     .get();
 
-                return snapshot.docs.map((doc: any) => serializeFirestoreData({
-                    id: doc.id,
-                    ...doc.data(),
-                })) as Product[];
+                if (!snapshot.empty) {
+                    return snapshot.docs.map((doc: any) => serializeFirestoreData({
+                        id: doc.id,
+                        ...doc.data(),
+                    })) as Product[];
+                }
             } catch (indexError) {
+                console.warn("Active products optimal query failed, falling back.");
+            }
+            {
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
-                    .where('createdAt', '>=', cutoffDate)
                     .limit(limitCount)
                     .get();
                 return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
