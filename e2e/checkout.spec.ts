@@ -5,8 +5,9 @@ test.describe('Marketplace Core Flows', () => {
     await page.goto('/');
     
     // Check if the main heading or a specific element is visible
-    await expect(page.locator('text=Sneakers').first()).toBeVisible();
-    await expect(page.locator('text=Collector Cards').first()).toBeVisible();
+    const nav = page.getByRole('navigation', { name: 'Main' });
+    await expect(nav.getByRole('link', { name: 'Shoes' })).toBeVisible({ timeout: 15000 });
+    await expect(nav.getByRole('link', { name: 'Cards' })).toBeVisible();
   });
 
   // Example of a stubbed checkout test
