@@ -623,7 +623,7 @@ export default function ProductCard({
                 <SmartImage
                   product={product}
                   imageIndex={0}
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
+                  sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
                   priority={priority}
                   quality={50}
                 />
@@ -966,7 +966,7 @@ export default function ProductCard({
             <SmartImage
               product={product}
               imageIndex={0}
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 17vw"
+              sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
               priority={priority}
               quality={50}
             />

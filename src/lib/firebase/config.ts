@@ -9,8 +9,8 @@ import {
   persistentMultipleTabManager
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
-import { getPerformance, FirebasePerformance } from "firebase/performance";
-import { getMessaging, Messaging, isSupported } from "firebase/messaging";
+import type { FirebasePerformance } from "firebase/performance";
+import type { Messaging } from "firebase/messaging";
 import { connectAuthEmulator } from "firebase/auth";
 import { connectFirestoreEmulator } from "firebase/firestore";
 
@@ -74,17 +74,19 @@ if (typeof window !== 'undefined') {
     auth = getAuth(app);
     storage = getStorage(app);
 
-    // FCM Initialization
-    isSupported().then(supported => {
-        if (supported) {
-            messaging = getMessaging(app);
-        }
-    });
-
-    // Initialize performance monitoring on the client in production
-    if (process.env.NODE_ENV === 'production') {
-      perf = getPerformance(app);
-    }
+    // FCM and Performance Monitoring aren't needed for first paint: load their
+    // SDKs in separate chunks once the browser is idle, instead of shipping them
+    // in the JavaScript every page downloads up front.
+    const loadDeferred = () => {
+      import("firebase/messaging")
+        .then(({ isSupported, getMessaging }) => isSupported().then((ok) => { if (ok) messaging = getMessaging(app); }))
+        .catch(() => {});
+      if (process.env.NODE_ENV === 'production') {
+        import("firebase/performance").then(({ getPerformance }) => { perf = getPerformance(app); }).catch(() => {});
+      }
+    };
+    if ('requestIdleCallback' in window) window.requestIdleCallback(loadDeferred, { timeout: 5000 });
+    else setTimeout(loadDeferred, 3000);
 
     // CRITICAL: Ensure we're NEVER in emulator mode in production
     const useEmulators = process.env.NEXT_PUBLIC_USE_EMULATORS === 'true';

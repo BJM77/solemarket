@@ -199,11 +199,12 @@ function InfiniteProductGridInner({
   // Filter specific states, derived from URL
   const [viewMode, setViewMode] = useState<ViewMode>((currentSearchParams.view as ViewMode) || 'grid');
 
+  // Phones used to auto-switch to montage after hydration, which threw away the
+  // server-rendered grid and re-downloaded every image (5-11 s mobile LCP).
+  // The server-rendered grid now stays; montage is one tap away (or ?view=montage).
   useEffect(() => {
     if (currentSearchParams.view) {
       setViewMode(currentSearchParams.view as ViewMode);
-    } else if (typeof window !== 'undefined' && window.innerWidth < 640) {
-      setViewMode('montage');
     }
   }, [currentSearchParams.view]);
 

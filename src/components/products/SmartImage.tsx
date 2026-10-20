@@ -55,6 +55,7 @@ export function SmartImage({
                     alt={imageAlt}
                     fill
                     priority={priority}
+                    fetchPriority={priority ? 'high' : undefined}
                     sizes={sizes}
                     quality={quality}
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
