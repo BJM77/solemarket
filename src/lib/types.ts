@@ -81,7 +81,6 @@ export type Product = {
   subCategory?: string;
   sellerId: string;
   sellerName: string;
-  sellerEmail: string;
   sellerAvatar?: string;
   sellerVerified?: boolean;
   imageUrls: string[];

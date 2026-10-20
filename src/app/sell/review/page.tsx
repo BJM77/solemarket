@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { formatPrice } from "@/lib/utils/format";
 
-type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerEmail' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
+type ListingFormData = Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerAvatar' | 'createdAt' | 'updatedAt' | 'views'> & {
   imageUrls: string[];
 };
 

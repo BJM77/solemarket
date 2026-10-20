@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
                 category: 'Sneakers',
                 sellerId: sellerId,
                 sellerName: 'Benched Official',
-                sellerEmail: 'official@benched.au',
                 sellerAvatar: PlaceHolderImages.find(i => i.id === 'hero')?.imageUrl || '',
                 imageUrls: ['https://images.unsplash.com/photo-1556906781-99412902f7c9?auto=format&fit=crop&q=80&w=800'], // Placeholder
                 status: 'available',
@@ -81,7 +80,6 @@ export async function POST(request: NextRequest) {
                 category: 'Sneakers',
                 sellerId: sellerId,
                 sellerName: 'Benched Official',
-                sellerEmail: 'official@benched.au',
                 sellerAvatar: PlaceHolderImages.find(i => i.id === 'hero')?.imageUrl || '',
                 imageUrls: ['https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&q=80&w=800'],
                 status: 'available',

@@ -214,7 +214,6 @@ export default function AIPriceCheckPage() {
                     batch.update(d.ref, {
                         sellerId: user.uid,
                         sellerName: user.displayName || 'Admin',
-                        sellerEmail: user.email || ''
                     });
                     count++;
                 }

@@ -62,7 +62,6 @@ export async function quickSaveAndPublish(idToken: string, data: any, imageDataU
             imageUrls,
             sellerId: userId,
             sellerName: userData?.displayName || 'Admin',
-            sellerEmail: userData?.email || '',
             sellerAvatar: userData?.photoURL || '',
             status: 'available',
             isDraft: false,
