@@ -18,12 +18,13 @@ import { Badge } from '@/components/ui/badge';
 import { LayoutGrid, List, Loader2, Grid3x3, Rows3, CreditCard, Coins, ShieldCheck, AlertCircle, Footprints, Shirt, Watch, ShoppingBag, Library, X, SlidersHorizontal } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { PageHeader } from '../layout/PageHeader';
-import AdvancedFilterPanel from '../filters/AdvancedFilterPanel';
+import dynamic from 'next/dynamic';
+// Interactive widgets load after the grid: they only render client-side anyway.
+const AdvancedFilterPanel = dynamic(() => import('../filters/AdvancedFilterPanel'), { ssr: false });
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { motion } from 'framer-motion';
-import MontageGrid from './MontageGrid';
+const MontageGrid = dynamic(() => import('./MontageGrid'));
 import Link from 'next/link';
 import Image from 'next/image';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
@@ -42,7 +43,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { cn } from "@/lib/utils/ui";
-import PriceAssistantModal from '@/components/admin/PriceAssistantModal';
+const PriceAssistantModal = dynamic(() => import('@/components/admin/PriceAssistantModal'), { ssr: false });
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
 import { QuickFilterChips } from './QuickFilterChips';
@@ -447,11 +448,8 @@ function InfiniteProductGridInner({
           {products.map((product, index) => {
             const isLastElement = index === products.length - 1;
             return (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+              <div
+                className="animate-in fade-in duration-300"
                 ref={isLastElement ? lastProductElementRef : null}
                 key={`${product.id}-${index}`}
               >
@@ -465,7 +463,7 @@ function InfiniteProductGridInner({
                   onOpenPriceAssistant={openPriceAssistant}
                   priority={index < 4}
                 />
-              </motion.div>
+              </div>
             );
           })}
         </div>
