@@ -10,7 +10,9 @@ import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
-import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
+import dynamic from 'next/dynamic';
+// Admin-only and on-demand dialogs are split out of the listing grid bundle.
+const EbaySearchModal = dynamic(() => import('@/components/admin/EbaySearchModal').then((m) => m.EbaySearchModal), { ssr: false });
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +23,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { QuickView } from './QuickView';
+const QuickView = dynamic(() => import('./QuickView').then((m) => m.QuickView));
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
@@ -42,7 +44,7 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice, formatRelativeTime } from "@/lib/utils/format";
 import { getProductUrl } from "@/lib/utils/url";
 
-import { ProductImageLightbox } from './ProductImageLightbox';
+const ProductImageLightbox = dynamic(() => import('./ProductImageLightbox').then((m) => m.ProductImageLightbox), { ssr: false });
 import { updateProductPrice } from '@/app/actions/marketplace/product-updates';
 import { toggleProductHold } from '@/app/actions/admin/admin';
 import { Input } from "@/components/ui/input";
