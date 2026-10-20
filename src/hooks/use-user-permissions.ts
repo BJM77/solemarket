@@ -24,9 +24,11 @@ export function useUserPermissions(): UserPermissions {
 
     // Memoize the document reference to prevent re-renders
     const userProfileRef = useMemoFirebase(() => {
-        if (!user?.uid) return null;
+        // Only subscribe to the private profile once auth has settled and only for
+        // the signed-in user's own doc; the ref goes null on sign-out, which unsubscribes.
+        if (isAuthLoading || !user?.uid) return null;
         return doc(db, 'users', user.uid);
-    }, [user?.uid]);
+    }, [user?.uid, isAuthLoading]);
 
     // useDoc will fetch the user's profile from Firestore
     const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);

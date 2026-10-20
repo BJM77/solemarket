@@ -1,4 +1,5 @@
 'use client';
+import { usePublicSeller } from '@/hooks/use-public-seller';
 
 import { getProductUrl } from '@/lib/utils/url';
 import { facetCategory } from '@/lib/filters/params';
@@ -211,8 +212,7 @@ export default function ProductDetailsModern({
 
     // Shoe-size labels and the size guide only make sense for footwear.
     const isShoeListing = facetCategory(product?.category) === 'sneakers';
-    const sellerRef = useMemoFirebase(() => product?.sellerId ? doc(db, 'users', product.sellerId) : null, [product?.sellerId]);
-    const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller ?? undefined });
+    const { data: seller, isLoading: isSellerLoading } = usePublicSeller(product?.sellerId, initialSeller ?? null);
     const sellerDisplayName = resolveSellerName(seller, product?.sellerName);
 
     const reviewsQuery = useMemoFirebase(() =>

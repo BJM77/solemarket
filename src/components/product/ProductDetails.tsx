@@ -1,5 +1,6 @@
 
 'use client';
+import { getPublicSellerInfo } from '@/app/actions/seller/public-seller';
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -208,13 +209,11 @@ export default function ProductDetails({ productId, initialProduct }: { productI
             const fetchExtraData = async () => {
                 setLoadingRelated(true);
                 if (product.sellerId) {
-                    const sellerRef = doc(db, 'users', product.sellerId);
-                    const sellerSnap = await getDoc(sellerRef);
-                    if (sellerSnap.exists()) {
-                        const sellerData = sellerSnap.data() as UserProfile;
+                    const sellerData = await getPublicSellerInfo(product.sellerId).catch(() => null);
+                    if (sellerData) {
                         setSeller({
                             ...sellerData,
-                            id: sellerSnap.id,
+                            id: product.sellerId,
                             rating: 4.8,
                             isVerified: true,
                             // Use safeDate helper logic properly here if needed, or just use existing Date logic
