@@ -1,4 +1,5 @@
 'use server';
+import { pickPublicSellerFields } from '@/lib/utils/public-seller';
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import type { Product, Review, Category, Seller } from '@/lib/types';
@@ -77,7 +78,7 @@ export async function getTopSellers(limitCount: number): Promise<Seller[]> {
         if (snapshot.empty) return [];
 
         const sellers = snapshot.docs.map((docSnap: any) => {
-            const data = serializeData(docSnap.data(), docSnap.id) as any;
+            const data = serializeData(pickPublicSellerFields(docSnap.data()), docSnap.id) as any;
             return {
                 ...data,
                 id: docSnap.id,
