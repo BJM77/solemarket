@@ -108,17 +108,21 @@ export async function saveDraftListing(idToken: string, data: Omit<DraftListingD
         const { sanitizeMultibuyTiers } = await import('@/lib/pricing');
         listingData.multibuyTiers = sanitizeMultibuyTiers(listingData.multibuyTiers);
     }
-    // Cheap cards (< $5) go in the Bronze deal tier. Multibuy is only switched on when
-    // there are actual tiers (seller's own, or the admin default template); previously it
-    // was enabled with no tiers, so items showed on /multibuy with no discount.
-    if ((listingData.category === 'Collector Cards' || listingData.category === 'Trading Cards') && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
-        listingData.multiCardTier = listingData.multiCardTier || 'bronze';
-        if (!listingData.multibuyTiers?.length) {
-            listingData.multibuyTiers = await getDefaultMultibuyTiers();
-        }
-        listingData.multibuyEnabled = listingData.multibuyTiers.length > 0;
-    } else if (listingData.multibuyEnabled && !listingData.multibuyTiers?.length) {
+    // Bronze/Silver/Gold bundle tiers only apply to Cards and Coins; a tiered listing is
+    // always shown on /multibuy. Cheap cards (< $5) default to Bronze unless the seller
+    // explicitly cleared the tier (null).
+    const { isBundleTier, tierGroupFor } = await import('@/lib/tier-bundles');
+    const tierGroup = tierGroupFor(listingData.category);
+    if (listingData.multiCardTier === '') listingData.multiCardTier = null;
+    if (!tierGroup && isBundleTier(listingData.multiCardTier)) listingData.multiCardTier = null;
+    if (tierGroup === 'cards' && listingData.multiCardTier === undefined && Number(listingData.price) < 5 && Number(listingData.price) > 0) {
+        listingData.multiCardTier = 'bronze';
+    }
+    if (listingData.multibuyEnabled && !listingData.multibuyTiers?.length) {
         listingData.multibuyEnabled = false;
+    }
+    if (tierGroup && isBundleTier(listingData.multiCardTier)) {
+        listingData.multibuyEnabled = true;
     }
 
     try {

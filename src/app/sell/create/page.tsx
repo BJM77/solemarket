@@ -61,7 +61,7 @@ const formSchema = z.object({
   cardNumber: z.string().optional(),
   // Multibuy
   multibuyEnabled: z.boolean().default(false),
-  multiCardTier: z.string().optional(),
+  multiCardTier: z.string().nullable().optional(),
   multibuyTiers: z.array(z.object({
     minQuantity: z.coerce.number().min(2),
     discountPercent: z.coerce.number().min(1).max(90),
@@ -1253,7 +1253,7 @@ function CreateListingForm() {
                     </div>
 
                     {/* Multibuy discount badge indicator */}
-                    {form.watch('multibuyEnabled') && form.watch('multiCardTier') && (
+                    {form.watch('multiCardTier') && (
                       <div className="pt-2 border-t border-white/5 flex items-center justify-between">
                         <span className="text-[10px] font-bold uppercase text-slate-400">Volume Discount:</span>
                         {[

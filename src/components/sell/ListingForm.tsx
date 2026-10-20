@@ -84,6 +84,7 @@ const formSchema = z.object({
     autoAcceptPrice: z.coerce.number().optional(),
     floorPrice: z.coerce.number().optional(),
     multibuyEnabled: z.boolean().default(false),
+    multiCardTier: z.string().nullable().optional(),
     multibuyTiers: z.array(z.object({
         minQuantity: z.number().min(2),
         discountPercent: z.number().min(1).max(90),
@@ -164,6 +165,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             autoAcceptPrice: initialData.autoAcceptPrice ? Number(initialData.autoAcceptPrice) : '' as any,
             floorPrice: initialData.floorPrice ? Number(initialData.floorPrice) : '' as any,
             multibuyEnabled: initialData.multibuyEnabled || false,
+            multiCardTier: initialData.multiCardTier ?? null,
             multibuyTiers: initialData.multibuyTiers || [],
         },
     });

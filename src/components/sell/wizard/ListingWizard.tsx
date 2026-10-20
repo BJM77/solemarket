@@ -22,6 +22,7 @@ import { formatBundleOffer } from '@/lib/bundles';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { cn } from '@/lib/utils/ui';
+import { BundleTierPicker } from '@/components/sell/BundleTierPicker';
 import {
   CONDITIONS, EMPTY_DRAFT, SHOT_LISTS, STEPS, WIZARD_CATEGORIES,
   draftToProduct, validateStep, type StepId, type WizardCategory, type WizardDraft,
@@ -284,6 +285,7 @@ export default function ListingWizard() {
 
       {step === 'multibuy' && (
         <div className="space-y-5">
+          <BundleTierPicker category={draft.category} value={draft.multiCardTier} onChange={(v) => update({ multiCardTier: v })} />
           <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border p-4">
             <span>
               <span className="block font-semibold">Multi-buy discount</span>

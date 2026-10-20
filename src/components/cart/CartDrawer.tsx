@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { formatPrice } from "@/lib/utils/format";
 import { bundleProgress, isLineEligible, type BundleProgress, type PricedLine } from '@/lib/bundles';
 import { cartItemsToLines } from '@/lib/order-pricing';
+import { TierNudges } from '@/components/cart/TierNudges';
 
 export function CartDrawer() {
     const { items, removeItem, updateQuantity, cartSubtotal, cartTotal, itemCount, isCartOpen, setIsCartOpen, pricing, bundles } = useCart();
@@ -122,6 +123,7 @@ export function CartDrawer() {
 
                         <SheetFooter className="px-6 pb-6 pt-4 mt-auto border-t">
                             <div className="w-full space-y-4">
+                                <TierNudges pricing={pricing} sellerNames={Object.fromEntries(items.map(i => [i.sellerId, i.sellerName || 'this seller']))} />
                                 <div className="space-y-1.5">
                                     {multibuySavings > 0 && (
                                         <div className="flex justify-between text-sm text-slate-500">
@@ -188,9 +190,16 @@ function CartLinePrice({ line, unitPrice }: { line?: PricedLine; unitPrice: numb
 function CartLineOffers({ item, line, progress, groupedQuantity }: { item: any; line?: PricedLine; progress: BundleProgress[]; groupedQuantity: number }) {
     const tiers = (item.multibuyEnabled && item.multibuyTiers?.length) ? [...item.multibuyTiers].sort((a: any, b: any) => a.minQuantity - b.minQuantity) : [];
     const nextTier = tiers.find((t: any) => t.minQuantity > groupedQuantity);
-    if (!progress.length && !tiers.length) return null;
+    const tierBadge = line && line.tierUnits > 0 && ['bronze', 'silver', 'gold'].includes(item.multiCardTier) ? (
+        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+            <Package className="w-2.5 h-2.5" aria-hidden />
+            {item.multiCardTier} bundle price
+        </span>
+    ) : null;
+    if (!progress.length && !tiers.length) return tierBadge ? <div className="mt-1.5">{tierBadge}</div> : null;
     return (
         <div className="space-y-1 mt-1.5">
+            {tierBadge}
             {progress.map(p => (
                 <span key={p.bundle.id} data-testid="cart-bundle-progress"
                     className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${p.remaining === p.bundle.quantity && p.eligibleInCart > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}`}>

@@ -10,6 +10,7 @@ import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateShipping, calculateTax } from '@/lib/pricing';
 import { buildOrderPricing, parseDealId } from '@/lib/order-pricing';
+import { DEFAULT_TIER_SETTINGS, normalizeTierSettings } from '@/lib/tier-bundles';
 import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymentMethod, paymentDueAt } from '@/lib/payments/local';
 import type { Deal } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
@@ -101,6 +102,10 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 snap.docs.forEach((doc: any) => bundles.push({ id: doc.id, ...doc.data() } as FixedPriceBundle));
             }
 
+            // Bronze/Silver/Gold tier settings (admin-controlled, never from the client).
+            const tierDoc = await t.get(firestoreDb.collection('settings').doc('multibuy_tiers'));
+            const tierSettings = tierDoc.exists ? normalizeTierSettings(tierDoc.data()) : DEFAULT_TIER_SETTINGS;
+
             // Per-customer usage counters (promo_usage/{kind}_{id}_{buyerId}).
             const usageRef = (kind: 'deal' | 'bundle', id: string) =>
                 firestoreDb.collection('promo_usage').doc(`${kind}_${id}_${buyerId}`);
@@ -157,7 +162,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             const dueAt = paymentDueAt(paymentMethod, now);
 
             const { lineTotals, dealUsage, bundleUsage } = buildOrderPricing({
-                items, products, deals, bundles, dealAllowance, bundleAllowance, now,
+                items, products, deals, bundles, dealAllowance, bundleAllowance, tierSettings, now,
             });
 
             // ---------- WRITES ----------

@@ -19,6 +19,7 @@ import { priceCart, splitProRata, type CartPricing } from '@/lib/bundles';
 import { cartItemsToLines } from '@/lib/order-pricing';
 import { getActiveBundlesForSellers } from '@/app/actions/marketplace/bundle-actions';
 import type { FixedPriceBundle } from '@/types/bundles';
+import { useTierSettings } from '@/hooks/use-tier-settings';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -201,7 +202,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [sellerKey]);
 
   // Shared pricing engine (src/lib/bundles.ts) - identical to createOrderAction.
-  const pricing = React.useMemo(() => priceCart(cartItemsToLines(items as any), bundles), [items, bundles]);
+  const tierSettings = useTierSettings();
+  const pricing = React.useMemo(() => priceCart(cartItemsToLines(items as any), bundles, { tierSettings }), [items, bundles, tierSettings]);
   const cartSubtotal = pricing.subtotal;
 
   const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;
