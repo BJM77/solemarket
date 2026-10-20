@@ -160,8 +160,8 @@ export default function ProductImageGallery({
     <>
       <div className="space-y-4">
         {/* Main Gallery */}
-        {/* Main image shown at 70% of the column width (Ben: 30% smaller); the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative mx-auto w-[70%] bg-slate-950 rounded-2xl overflow-hidden group border border-slate-800 shadow-2xl", aspectRatio)}>
+        {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
+        <div className={cn("relative w-full bg-slate-950 rounded-2xl overflow-hidden group border border-slate-800 shadow-2xl", aspectRatio)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -286,10 +286,11 @@ export default function ProductImageGallery({
           <Button
             onClick={() => setIsFullscreen(true)}
             variant="ghost"
-            className="absolute top-4 right-4 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-white/10 rounded-full px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
+            aria-label="Show all photos"
+            className="absolute top-4 right-4 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-white/10 rounded-full px-2.5 sm:px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
           >
-            <ImageIcon className="w-3.5 h-3.5 mr-2" />
-            Show All Photos
+            <ImageIcon className="w-3.5 h-3.5 sm:mr-2" />
+            <span className="hidden sm:inline">Show All Photos</span>
           </Button>
 
         </div>

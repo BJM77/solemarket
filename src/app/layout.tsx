@@ -141,8 +141,6 @@ export default async function RootLayout({
         <style id="site-config-vars" dangerouslySetInnerHTML={{ __html: siteConfigCss(siteConfig) }} />
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://firestore.googleapis.com" />
-        <link rel="preconnect" href="https://js.stripe.com" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
       </head>
       <body className="font-sans antialiased overflow-x-hidden max-w-full w-full min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />

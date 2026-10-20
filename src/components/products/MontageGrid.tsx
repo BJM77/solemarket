@@ -102,7 +102,8 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false,
               src={product.imageUrls[0]}
               alt={product.title}
               fill
-              sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12.5vw, 10vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, (max-width: 1024px) 17vw, (max-width: 1280px) 13vw, 10vw"
+              priority={index < 4}
               className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />

@@ -834,7 +834,8 @@ export default function ProductDetailsModern({
                     {/* Left Column: Gallery & Description */}
                     <div className="lg:col-span-7 space-y-8">
                         {/* Image Gallery */}
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
+                        {/* Main image is 30% smaller than the column (Ben's request); the card hugs it so there are no empty side bands. */}
+                        <div className="mx-auto w-[70%] rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
                                 title={product.title}
