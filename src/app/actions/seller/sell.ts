@@ -264,7 +264,6 @@ export async function publishListing(draftId: string, idToken: string): Promise<
             isDraft: false,
             updatedAt: FieldValue.serverTimestamp(),
             sellerName: resolveSellerName(userData as any, data?.sellerName),
-            sellerEmail: userData?.email || '',
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,
             isFeatured: data?.isFeatured ?? false,

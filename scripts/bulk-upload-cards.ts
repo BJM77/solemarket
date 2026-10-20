@@ -177,7 +177,6 @@ async function main() {
             imageUrls,
             sellerId: adminUid,
             sellerName: adminData.displayName || 'Admin',
-            sellerEmail: adminData.email || '',
             sellerAvatar: adminData.photoURL || '',
             status: 'available',
             isDraft: false,

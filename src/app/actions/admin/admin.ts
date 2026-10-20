@@ -1,5 +1,6 @@
 'use server';
 
+import { getSellerEmail } from '@/lib/server/seller-email';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { Product } from '@/lib/types';
@@ -77,11 +78,12 @@ export async function deleteProductByAdmin(
 
         // 3. Notify the Seller via AI Flow (non-blocking)
         let notificationStatus = '';
-        if (product.sellerEmail && product.sellerEmail.trim() !== '') {
+        const sellerEmail = await getSellerEmail(product.sellerId);
+        if (sellerEmail) {
             try {
                 const { notifySellerOfRemoval } = await import('@/ai/flows/notify-seller-of-removal');
                 await notifySellerOfRemoval({
-                    sellerEmail: product.sellerEmail,
+                    sellerEmail,
                     sellerName: product.sellerName || 'Seller', // Fallback for sellerName
                     productName: product.title,
                     idToken

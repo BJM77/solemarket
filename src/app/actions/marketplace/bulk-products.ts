@@ -53,10 +53,9 @@ export async function bulkCreateProductsFromCSV(
             const docRef = productsCollection.doc(); // Auto-generate ID
 
             const finalData: Product = {
-                ...(productData as Omit<Product, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName' | 'sellerAvatar' | 'status' | 'isDraft' | 'createdAt' | 'updatedAt'>),
+                ...(productData as Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'sellerAvatar' | 'status' | 'isDraft' | 'createdAt' | 'updatedAt'>),
                 id: docRef.id,
                 sellerId: decodedToken.uid,
-                sellerEmail: decodedToken.email || '',
                 sellerName: userProfile.displayName,
                 sellerAvatar: userProfile.photoURL,
                 status: 'available',

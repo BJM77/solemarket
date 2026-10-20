@@ -35,7 +35,6 @@ export async function POST(request: Request) {
     }
 
     const sellerId = decodedToken.uid;
-    const sellerEmail = decodedToken.email || '';
     const sellerName = decodedToken.name || decodedToken.email?.split('@')[0] || 'Unknown Seller';
 
     // 2. Parse the Request Body
@@ -103,7 +102,6 @@ export async function POST(request: Request) {
       subCategory: subCategory || '',
       sellerId,
       sellerName,
-      sellerEmail,
       imageUrls,
       status: 'available', // Or 'draft' / 'pending_approval' based on your workflow
       createdAt: FieldValue.serverTimestamp() as any,

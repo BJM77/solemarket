@@ -93,7 +93,6 @@ export async function seedSneakers(idToken: string) {
 
         // 1. Create a default seller profile if needed (omitted for now, assuming sellerId exists or we use admin's)
         const sellerId = decodedToken.uid;
-        const sellerEmail = decodedToken.email || 'admin@benched.au';
 
         for (const sneaker of SAMPLE_SNEAKERS) {
             const docRef = firestoreDb.collection('products').doc();
@@ -102,7 +101,6 @@ export async function seedSneakers(idToken: string) {
                 id: docRef.id,
                 ...sneaker as any, // Cast to avoid partial issues, we fill the rest below
                 sellerId: sellerId,
-                sellerEmail: sellerEmail,
                 createdAt: admin.firestore.Timestamp.now(),
                 updatedAt: admin.firestore.Timestamp.now(),
                 isDraft: false,

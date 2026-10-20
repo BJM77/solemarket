@@ -1,5 +1,6 @@
 'use server';
 
+import { getSellerEmail } from '@/lib/server/seller-email';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { ensureActionAuth } from '@/lib/action-utils';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
@@ -239,9 +240,10 @@ export async function recordProductEnquiry(
         );
 
         // Notify via Email (Professional Transactional Email)
-        if (data?.sellerEmail) {
+        const sellerEmail = await getSellerEmail(data?.sellerId);
+        if (sellerEmail) {
             await sendSellerEnquiryEmail({
-                to: data.sellerEmail,
+                to: sellerEmail,
                 sellerName: data.sellerName || 'Seller',
                 productTitle: data.title,
                 price: data.price.toString(),

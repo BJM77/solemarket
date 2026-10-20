@@ -1,5 +1,6 @@
 'use server';
 
+import { getSellerEmail } from '@/lib/server/seller-email';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { sendEmail } from '@/services/email';
@@ -184,10 +185,11 @@ export async function nudgePendingSellers() {
                 if (lastNudgeAt > oneWeekAgo) continue;
             }
 
-            if (product.sellerEmail) {
+            const sellerEmail = await getSellerEmail(product.sellerId);
+            if (sellerEmail) {
                 const { sendSellerGhostNudgeEmail } = await import('@/lib/email');
                 await sendSellerGhostNudgeEmail({
-                    to: product.sellerEmail,
+                    to: sellerEmail,
                     sellerName: product.sellerName || 'Seller',
                     productTitle: product.title,
                     dashboardLink
