@@ -10,6 +10,15 @@ import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import { getProductUrl } from "@/lib/utils/url";
 import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
 
+// ISR: product pages are cached for 5 minutes instead of rendered on every
+// visit. Price/status stay live because ProductDetailsModern subscribes to the
+// listing doc on the client. Unknown ids still call notFound() and return 404.
+export const revalidate = 300;
+export const dynamicParams = true;
+export async function generateStaticParams() {
+  return [];
+}
+
 interface Props {
   params: Promise<{ section: string; slug: string; id: string }>;
 }
@@ -78,11 +87,12 @@ export default async function ProductPage({ params }: Props) {
   const canonicalPath = getProductUrl({ id, title: product.title, category: product.category });
   if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
 
-  const initialReviews = await getReviewsForProduct(id);
-
-  // Fetch SSR related products for SEO Link Juice
+  // Reviews and related products are independent: fetch them in parallel.
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
-  const similarProducts = await getSimilarProductsByCategory(id, product.category, 6);
+  const [initialReviews, similarProducts] = await Promise.all([
+    getReviewsForProduct(id),
+    getSimilarProductsByCategory(id, product.category, 6),
+  ]);
 
   return (
     <>
