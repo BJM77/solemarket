@@ -8,14 +8,21 @@ import { Switch } from '@/components/ui/switch';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Plus, Trash2 } from 'lucide-react';
 import { MultibuyTier } from '@/types/multibuy';
+import { BundleTierPicker } from '@/components/sell/BundleTierPicker';
 
 interface MultibuyConfigProps {
     form: any;
 }
 
 export function MultibuyConfig({ form }: MultibuyConfigProps) {
+    const category = form.watch('category');
     return (
         <>
+            <BundleTierPicker
+                category={category}
+                value={form.watch('multiCardTier')}
+                onChange={(v) => form.setValue('multiCardTier', v, { shouldDirty: true })}
+            />
             <FormField
                 control={form.control}
                 name="multibuyEnabled"
@@ -46,38 +53,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
             />
             {form.watch('multibuyEnabled') && (
                 <div className="border border-white/10 rounded-2xl p-5 space-y-4 bg-slate-950/40 backdrop-blur-md shadow-2xl">
-                    <FormField
-                        control={form.control}
-                        name="multiCardTier"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-sm font-bold text-slate-300">Multibuy Tier Color</FormLabel>
-                                <FormDescription className="text-xs text-slate-500">Select the badge color for this volume discount.</FormDescription>
-                                <div className="grid grid-cols-4 gap-3 mt-3">
-                                    {[
-                                        { id: 'bronze', label: 'Bronze', color: 'bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 border border-amber-600/30', text: 'text-amber-100 shadow-md shadow-amber-950/50' },
-                                        { id: 'silver', label: 'Silver', color: 'bg-gradient-to-br from-slate-400 via-slate-500 to-slate-700 border border-slate-400/30', text: 'text-slate-100 shadow-md shadow-slate-900/50' },
-                                        { id: 'gold', label: 'Gold', color: 'bg-gradient-to-br from-yellow-500 via-amber-500 to-yellow-600 border border-yellow-400/40', text: 'text-amber-950 font-black shadow-md shadow-yellow-950/20' },
-                                        { id: 'platinum', label: 'Platinum', color: 'bg-gradient-to-br from-slate-100 via-indigo-100 to-slate-200 border border-indigo-200/50', text: 'text-indigo-950 font-black shadow-md shadow-indigo-950/10' }
-                                    ].map((tier) => (
-                                        <div
-                                            key={tier.id}
-                                            onClick={() => field.onChange(tier.id)}
-                                            className={`
-                                                cursor-pointer rounded-xl p-3 text-center transition-all duration-300 active:scale-95 flex items-center justify-center min-h-[48px]
-                                                ${field.value === tier.id ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950 scale-[1.03] opacity-100' : 'opacity-60 hover:opacity-100 border border-white/5'}
-                                                ${tier.color}
-                                            `}
-                                        >
-                                            <span className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${tier.text}`}>{tier.label}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </FormItem>
-                        )}
-                    />
- 
-                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                    <div className="flex items-center justify-between ">
                         <Label className="text-sm font-bold text-slate-300">Discount Tiers</Label>
                         <Button
                             type="button"

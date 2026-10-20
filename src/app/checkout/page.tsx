@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart, ShippingAddress } from '@/context/CartContext';
+import { TierNudges } from '@/components/cart/TierNudges';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/marketplace/order';
 import { getSellersPaymentReadiness } from '@/app/actions/marketplace/order-payments';
@@ -32,7 +33,8 @@ export default function CheckoutPage() {
     setShippingMethod, 
     shippingAddress, 
     setShippingAddress,
-    shippingCost
+    shippingCost,
+    pricing
   } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState<'payid' | 'cash'>('payid');
@@ -556,6 +558,13 @@ export default function CheckoutPage() {
                 <CardTitle className="text-xl font-bold text-white">Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <TierNudges pricing={pricing} sellerNames={Object.fromEntries(items.map(i => [i.sellerId, i.sellerName || 'this seller']))} />
+                {pricing.savings > 0.004 && (
+                  <div className="flex justify-between text-sm text-emerald-400 font-semibold">
+                    <span>Bundle savings</span>
+                    <span>-${formatPrice(pricing.savings)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>Subtotal</span>
                   <span className="text-white">${formatPrice(cartSubtotal)}</span>

@@ -9,6 +9,7 @@
 import type { Product } from '@/lib/types';
 import type { Deal, MultiCardTier } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
+import type { TierSettings } from '@/lib/tier-bundles';
 import { calculateDutchAuctionPrice } from '@/lib/pricing';
 import { priceCart, productTags, splitProRata, type CartPricing, type PricingLine } from '@/lib/bundles';
 
@@ -78,6 +79,8 @@ export interface OrderPricingInput {
     bundles: FixedPriceBundle[];
     /** How many more times the buyer may use each bundle / deal (maxPerCustomer - used). */
     bundleAllowance?: Record<string, number>;
+    /** Admin Bronze/Silver/Gold settings (loaded server-side). */
+    tierSettings?: TierSettings | null;
     dealAllowance?: Record<string, number>;
     now?: Date;
 }
@@ -136,8 +139,9 @@ export function buildOrderPricing(input: OrderPricingInput): OrderPricingResult 
         multibuyEnabled: p.multibuyEnabled,
         multibuyTiers: p.multibuyTiers,
         fixedTotal: fixedTotals[i],
+        bundleTier: (p as any).multiCardTier,
     }));
-    const pricing = priceCart(lines, input.bundles, { now, allowance: input.bundleAllowance });
+    const pricing = priceCart(lines, input.bundles, { now, allowance: input.bundleAllowance, tierSettings: input.tierSettings });
     const bundleUsage: Record<string, number> = {};
     pricing.bundles.forEach(b => { bundleUsage[b.bundleId] = b.count; });
     return { pricing, lineTotals: pricing.lines.map(l => l.total), dealUsage, bundleUsage };
@@ -156,5 +160,6 @@ export function cartItemsToLines(items: Array<Product & { quantity: number; deal
         multibuyTiers: it.multibuyTiers,
         // Display only: the server re-validates and re-prices deals at checkout.
         fixedTotal: it.dealId && it.bundlePrice !== undefined ? it.bundlePrice : undefined,
+        bundleTier: (it as any).multiCardTier,
     }));
 }

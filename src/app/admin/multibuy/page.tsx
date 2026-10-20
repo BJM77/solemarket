@@ -19,6 +19,8 @@ import {
     setDefaultTemplate,
 } from '@/app/actions/marketplace/multibuy-actions';
 import { MultibuyTemplate, MultibuyTier } from '@/types/multibuy';
+import { TierSettingsCard } from '@/components/multibuy/TierSettingsCard';
+import { TierBulkAssign } from '@/components/multibuy/TierBulkAssign';
 
 export default function MultibuyAdminPage() {
     const { toast } = useToast();
@@ -137,6 +139,10 @@ export default function MultibuyAdminPage() {
 
     return (
         <div className="p-8 max-w-7xl mx-auto">
+            <div className="space-y-6 mb-10">
+                <TierSettingsCard />
+                <TierBulkAssign scope="all" />
+            </div>
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-2">

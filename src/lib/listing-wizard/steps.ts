@@ -53,6 +53,7 @@ export interface WizardDraft {
   isNegotiable: boolean;
   /** Optional percentage volume discount (multibuy). */
   multibuyEnabled?: boolean;
+  multiCardTier?: 'bronze' | 'silver' | 'gold' | null;
   multibuyTiers?: { minQuantity: number; discountPercent: number }[];
   /** Existing fixed-price bundles to add this listing to after publishing. */
   bundleIds?: string[];
@@ -118,6 +119,7 @@ export function draftToProduct(d: WizardDraft) {
     isNegotiable: d.isNegotiable,
     status: 'available' as const,
     quantity: 1,
+    ...(d.multiCardTier !== undefined ? { multiCardTier: d.multiCardTier } : {}),
     ...(d.multibuyEnabled && d.multibuyTiers?.length
       ? { multibuyEnabled: true, multibuyTiers: [...d.multibuyTiers].sort((a, b) => a.minQuantity - b.minQuantity) }
       : {}),

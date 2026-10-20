@@ -62,7 +62,7 @@ export const productFormSchema = z.object({
         minQuantity: z.number().int().min(2).max(1000),
         discountPercent: z.number().min(1).max(90),
     })).max(5).optional(),
-    multiCardTier: z.enum(['bronze', 'silver', 'gold', 'platinum']).optional(),
+    multiCardTier: z.enum(['bronze', 'silver', 'gold', 'platinum']).nullable().optional(),
 
     // External Marketplace Linking
     externalUrl: z.string().optional(),

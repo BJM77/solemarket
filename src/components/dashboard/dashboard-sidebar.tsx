@@ -32,6 +32,7 @@ const navItems = [
 
 const aiTools = [
     { href: '/sell/bulk-lister', label: 'Bulk AI Lister', icon: Layers },
+    { href: '/sell/bundle-tiers', label: 'Bundle Tiers', icon: Layers },
     { href: '/sell/cards', label: 'AI Card Grader', icon: Sparkles },
 ]
 

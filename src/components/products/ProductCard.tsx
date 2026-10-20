@@ -193,7 +193,7 @@ export default function ProductCard({
         "text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0 border inline-block",
         tier.classes,
         className
-      )}>
+      )} title={`${product.multiCardTier} bundle tier`} aria-label={`${product.multiCardTier} bundle tier`}>
         {tier.label}
       </span>
     );

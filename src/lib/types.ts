@@ -170,7 +170,7 @@ export type Product = {
   isUntimed?: boolean;
   multibuyEnabled?: boolean;
   multibuyTiers?: { minQuantity: number; discountPercent: number; }[];
-  multiCardTier?: 'bronze' | 'silver' | 'gold' | 'platinum';
+  multiCardTier?: 'bronze' | 'silver' | 'gold' | 'platinum' | null;
   dealId?: string;
   bundlePrice?: number;
   keywords?: string[];

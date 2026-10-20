@@ -22,6 +22,7 @@
 import type { MultibuyTier } from '@/types/multibuy';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { calculateItemTotal } from '@/lib/pricing';
+import { isBundleTier, priceTierPool, tierGroupFor, tierNudge, type BundleTier, type TierGroup, type TierNudge, type TierSettings, type TierUnit } from '@/lib/tier-bundles';
 
 export interface PricingLine {
     id: string;
@@ -35,6 +36,19 @@ export interface PricingLine {
     multibuyTiers?: MultibuyTier[];
     /** Pre-computed total for deal-priced lines (excluded from bundles/multibuy). */
     fixedTotal?: number;
+    /** Bronze/Silver/Gold bundle tier (multiCardTier). */
+    bundleTier?: string;
+}
+
+export interface AppliedTierBundle {
+    key: string;
+    sellerId: string;
+    group: TierGroup;
+    tier: BundleTier;
+    sets: number;
+    quantity: number;
+    price: number;
+    originalValue: number;
 }
 
 export interface PricedLine {
@@ -46,6 +60,8 @@ export interface PricedLine {
     bundledUnits: number;
     bundleIds: string[];
     multibuyPercent: number;
+    /** Units priced by a Bronze/Silver/Gold tier bundle. */
+    tierUnits: number;
 }
 
 export interface AppliedBundle {
@@ -60,6 +76,8 @@ export interface AppliedBundle {
 export interface CartPricing {
     lines: PricedLine[];
     bundles: AppliedBundle[];
+    tierBundles: AppliedTierBundle[];
+    tierNudges: TierNudge[];
     subtotal: number;
     originalSubtotal: number;
     savings: number;
@@ -121,7 +139,7 @@ function bundleOrder(a: FixedPriceBundle, b: FixedPriceBundle) {
 export function priceCart(
     lines: PricingLine[],
     bundles: FixedPriceBundle[] = [],
-    opts: { now?: Date; allowance?: Record<string, number> } = {},
+    opts: { now?: Date; allowance?: Record<string, number>; tierSettings?: TierSettings | null } = {},
 ): CartPricing {
     const now = opts.now ?? new Date();
     const lineCents = lines.map(() => 0);
@@ -170,6 +188,33 @@ export function priceCart(
         }
     }
 
+    // Bronze / Silver / Gold tier bundles (see src/lib/tier-bundles.ts), same seller only.
+    const tierUnits = lines.map(() => 0);
+    const tierBundles: AppliedTierBundle[] = [];
+    const tierNudges: TierNudge[] = [];
+    const ts = opts.tierSettings;
+    if (ts && ts.enabled) {
+        const pools = new Map<string, { sellerId: string; group: TierGroup; tier: BundleTier; units: TierUnit[] }>();
+        lines.forEach((l, i) => {
+            if (l.fixedTotal !== undefined || !isBundleTier(l.bundleTier)) return;
+            const group = tierGroupFor(l.category);
+            if (!group) return;
+            const key = `${l.sellerId}::${group}::${l.bundleTier}`;
+            const pool = pools.get(key) || { sellerId: l.sellerId, group, tier: l.bundleTier, units: [] };
+            for (let u = 0; u < l.quantity - claimed[i]; u++) pool.units.push({ line: i, cents: toCents(l.unitPrice) });
+            pools.set(key, pool);
+        });
+        for (const [key, pool] of pools) {
+            const rule = ts[pool.group][pool.tier];
+            const r = priceTierPool(pool.units, rule);
+            r.assigned.forEach(a => { lineCents[a.line] += a.cents; claimed[a.line] += 1; tierUnits[a.line] += 1; });
+            if (r.sets > 0) {
+                tierBundles.push({ key, sellerId: pool.sellerId, group: pool.group, tier: pool.tier, sets: r.sets, quantity: rule.quantity, price: fromCents(r.priceCents), originalValue: fromCents(r.originalCents) });
+            }
+            if (pool.units.length > 0) tierNudges.push(tierNudge(pool.sellerId, pool.group, pool.tier, pool.units.length, rule, r.sets));
+        }
+    }
+
     // Multibuy tiers on whatever is left, pooled by seller + category.
     const poolQty = new Map<string, number>();
     lines.forEach((l, i) => {
@@ -197,10 +242,11 @@ export function priceCart(
         bundledUnits: l.fixedTotal !== undefined ? 0 : claimed[i],
         bundleIds: bundleIds[i],
         multibuyPercent: multibuyPercent[i],
+        tierUnits: tierUnits[i],
     }));
     const subtotal = fromCents(lineCents.reduce((a, b) => a + b, 0));
     const originalSubtotal = fromCents(priced.reduce((a, p) => a + toCents(p.originalTotal), 0));
-    return { lines: priced, bundles: applied, subtotal, originalSubtotal, savings: fromCents(toCents(originalSubtotal) - toCents(subtotal)) };
+    return { lines: priced, bundles: applied, tierBundles, tierNudges, subtotal, originalSubtotal, savings: fromCents(toCents(originalSubtotal) - toCents(subtotal)) };
 }
 
 export interface BundleProgress {
