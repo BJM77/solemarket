@@ -1,4 +1,5 @@
 'use server';
+import { pickPublicSellerFields } from '@/lib/utils/public-seller';
 
 import { firestoreDb } from "@/lib/firebase/admin";
 import { UserProfile, Product } from "@/lib/types";
@@ -115,7 +116,7 @@ export async function getSellersAction(): Promise<SellerWithCategories[]> {
             });
 
             sellers.push({
-                ...(serializeFirestoreData(userData) as UserProfile),
+                ...(serializeFirestoreData(pickPublicSellerFields(userData as any)) as UserProfile),
                 id: doc.id,
                 categories: Array.from(categorySet),
                 productCount: productsSnapshot.size // This is just the limit size, ideally count()

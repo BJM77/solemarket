@@ -46,10 +46,10 @@ export async function getSellerProfile(identifier: string): Promise<{ profile: U
         const data = doc.data() as UserProfile;
 
         // Return only a subset of data for safety
-        const safeProfile: UserProfile = {
+        // Public fields only: no email, phone, address or PayID.
+        const safeProfile = {
             id: doc.id,
             displayName: data.displayName || 'Collector',
-            email: data.email || '',
             storeName: data.storeName || data.displayName,
             storeDescription: data.storeDescription || '',
             bio: data.bio || '',
@@ -62,7 +62,7 @@ export async function getSellerProfile(identifier: string): Promise<{ profile: U
             totalSales: data.totalSales || 0,
             joinDate: data.joinDate || '2024',
             role: data.role || 'seller'
-        };
+        } as UserProfile;
 
         return { profile: safeProfile };
     } catch (error: any) {
