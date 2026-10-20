@@ -1,7 +1,7 @@
 import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
-import { getProducts } from '@/services/product-service';
+import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
@@ -59,7 +59,7 @@ export default async function ShoesBrowsePage({
   // Initial Server Fetch
   let initialProductsData;
   try {
-    initialProductsData = await getProducts({
+    initialProductsData = await getCachedCategoryProducts({
       q: searchTerm,
       category: categoryParam,
       subCategory: subCategoryParam,

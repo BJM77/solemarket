@@ -160,7 +160,8 @@ export default function ProductImageGallery({
     <>
       <div className="space-y-4">
         {/* Main Gallery */}
-        <div className={cn("relative bg-slate-950 rounded-2xl overflow-hidden group border border-slate-800 shadow-2xl", aspectRatio)}>
+        {/* Main image shown at 70% of the column width (Ben: 30% smaller); the magnifier still zooms into the full-res original. */}
+        <div className={cn("relative mx-auto w-[70%] bg-slate-950 rounded-2xl overflow-hidden group border border-slate-800 shadow-2xl", aspectRatio)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -213,7 +214,7 @@ export default function ProductImageGallery({
                         fetchPriority={index === 0 ? "high" : "auto"}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
-                        sizes="(max-width: 768px) 100vw, 800px"
+                        sizes="(max-width: 768px) 70vw, 560px"
                       />
                       {showMagnifier && index === selectedIndex && (
                         <div
