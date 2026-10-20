@@ -1,4 +1,5 @@
 'use client';
+import { usePublicSeller } from '@/hooks/use-public-seller';
 
 import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import { notFound, useRouter } from 'next/navigation';
@@ -90,8 +91,7 @@ export default function ProductDetailsClient({
         initialData: initialProduct,
     });
 
-    const sellerRef = useMemoFirebase(() => product?.sellerId ? doc(db, 'users', product.sellerId) : null, [product?.sellerId]);
-    const { data: seller, isLoading: isSellerLoading } = useDoc<UserProfile>(sellerRef, { initialData: initialSeller ?? undefined });
+    const { data: seller, isLoading: isSellerLoading } = usePublicSeller(product?.sellerId, initialSeller ?? null);
 
     const reviewsQuery = useMemoFirebase(() =>
         query(

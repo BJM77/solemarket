@@ -1,5 +1,6 @@
 
 'use client';
+import { usePublicSeller } from '@/hooks/use-public-seller';
 
 import { useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
@@ -68,8 +69,8 @@ export default function SellerPage() {
   const { firestore } = useFirebase();
   const { user } = useUser();
 
-  const sellerRef = useMemoFirebase(() => sellerId ? doc(db, 'users', sellerId) : null, [sellerId]);
-  const { data: seller, isLoading: loadingSeller } = useDoc<Seller>(sellerRef);
+  const { data: sellerData, isLoading: loadingSeller } = usePublicSeller(sellerId);
+  const seller = sellerData as unknown as Seller | null;
 
   const reviewsQuery = useMemoFirebase(() => {
     if (!firestore || !sellerId) return null;

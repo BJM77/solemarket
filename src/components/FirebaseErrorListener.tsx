@@ -7,7 +7,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * A client-side component that listens for Firestore permission errors
- * and throws them to be caught by Next.js's development error overlay.
+ * and logs them in development (never throws).
  * This is essential for debugging Security Rules during development.
  * 
  * Errors during the first 3 seconds after mount are suppressed — they 
@@ -24,9 +24,11 @@ export function FirebaseErrorListener() {
       const elapsed = Date.now() - mountTime.current;
       if (elapsed < 3000) return;
 
-      // Throwing the error here will trigger the Next.js error overlay
-      // in development, showing the detailed permission error message.
-      throw error;
+      // Never throw: an uncaught throw from an event handler surfaces as an
+      // "Uncaught FirebaseError" in visitors' consoles. Log in development only.
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Firestore permission denied]', error.message);
+      }
     };
 
     // Subscribe to the custom 'permission-error' event
