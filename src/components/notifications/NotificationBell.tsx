@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
-import { useUser, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useCollection, useFirebaseRef } from '@/firebase';
 import { getUserNotifications, markAllAsRead, markAsRead } from '@/services/notifications';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,15 +22,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from "@/lib/utils/ui";
 import Link from 'next/link';
 import { Notification } from '@/lib/types';
-import { query, collection, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
 
 export function NotificationBell() {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const notificationsQuery = useMemoFirebase(() => {
+  const notificationsQuery = useFirebaseRef(({ db, fs: { query, collection, where, orderBy, limit } }) => {
     if (!user?.uid) return null;
     return query(
       collection(db, 'notifications'),

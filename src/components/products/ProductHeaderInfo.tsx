@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
 import type { Product, UserProfile } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 import { calculateDutchAuctionPrice } from '@/lib/pricing';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';

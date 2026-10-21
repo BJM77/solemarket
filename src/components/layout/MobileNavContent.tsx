@@ -2,10 +2,8 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOutUser } from '@/lib/firebase/auth';
-import { useUser, useMemoFirebase, useCollection } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { signOutLazy as signOutUser } from '@/lib/firebase/lazy';
+import { useUser, useFirebaseRef, useCollection } from '@/firebase';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -34,7 +32,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     }, [config?.menus]);
 
     // 1. Fetch Categories Dynamically
-    const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), orderBy('name')), []);
+    const categoriesQuery = useFirebaseRef(({ db, fs: { query, collection, orderBy } }) => query(collection(db, 'categories'), orderBy('name')), []);
     const { data: categories } = useCollection<Category>(categoriesQuery);
 
     const groupedCategories = useMemo(() => {
@@ -70,7 +68,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     }, [categories]);
 
     // 3. Fetch User Favorites
-    const favoritesQuery = useMemoFirebase(() => {
+    const favoritesQuery = useFirebaseRef(({ db, fs: { query, collection, orderBy } }) => {
         if (!user) return null;
         return query(collection(db, 'users', user.uid, 'favorite_categories'), orderBy('name'));
     }, [user?.uid]);

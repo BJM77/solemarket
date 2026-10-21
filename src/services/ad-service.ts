@@ -1,11 +1,11 @@
-import { db } from '@/lib/firebase/config';
-import { collection, query, where, getDocs, limit, updateDoc, doc, increment, orderBy } from 'firebase/firestore';
+import { loadFirebase } from '@/lib/firebase/lazy';
 import { Advertisement } from '@/lib/types';
 
 import { trackAdImpressionAction, trackAdClickAction } from '@/app/actions/system/ad-tracking';
 
 export async function getActiveAd(placement: Advertisement['placement']): Promise<Advertisement | null> {
     try {
+        const { db, fs: { collection, query, where, getDocs, limit, orderBy } } = await loadFirebase();
         const now = new Date();
         const q = query(
             collection(db, 'ads'),

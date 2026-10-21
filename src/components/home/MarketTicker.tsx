@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react';
 import { cn } from "@/lib/utils/ui";;
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { useCollection, useFirebaseRef } from '@/firebase';
 import type { Product } from '@/lib/types';
 import { getProductUrl } from "@/lib/utils/url";
 import { useMobileNav } from '@/context/MobileNavContext';
@@ -23,8 +21,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
         setIsClient(true);
     }, []);
 
-    const tickerQuery = useMemoFirebase(() => {
-        if (!db) return null;
+    const tickerQuery = useFirebaseRef(({ db, fs: { query, collection, where, orderBy, limit } }) => {
         return query(
             collection(db, 'products'),
             where('status', '==', 'available'),

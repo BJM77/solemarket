@@ -24,9 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 const QuickView = dynamic(() => import('./QuickView').then((m) => m.QuickView));
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { useUser, useDoc, useFirebaseRef } from '@/firebase';
+import { loadFirebase, getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { deleteProductByAdmin, renewProductByAdmin } from '@/app/actions/admin/admin';
 import {
   AlertDialog,
@@ -95,11 +94,10 @@ export default function ProductCard({
   const hasViewed = mounted && viewedProductIds.includes(product.id);
 
   // Favorite Logic
-  const firestore = useFirestore();
-  const favoriteQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return doc(firestore, 'users', user.uid, 'favorites', product.id);
-  }, [firestore, user?.uid, product.id]);
+  const favoriteQuery = useFirebaseRef(({ db, fs: { doc } }) => {
+    if (!user?.uid) return null;
+    return doc(db, 'users', user.uid, 'favorites', product.id);
+  }, [user?.uid, product.id]);
 
   const { data: favorite } = useDoc<any>(favoriteQuery);
   const isFavorited = !!favorite;
@@ -126,6 +124,7 @@ export default function ProductCard({
     if (!favoriteQuery) return;
 
     try {
+      const { fs: { setDoc, deleteDoc } } = await loadFirebase();
       if (isFavorited) {
         await deleteDoc(favoriteQuery);
         toast({ title: "Removed from favorites" });

@@ -1,14 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  collectionGroup,
-  query,
-  where,
-  getCountFromServer,
-} from 'firebase/firestore';
-import { db, auth } from '@/lib/firebase/config';
+import type { Query } from 'firebase/firestore';
+import { loadFirebase } from '@/lib/firebase/lazy';
 import type { Product } from '@/lib/types';
 
 export interface ProvenanceData {
@@ -48,7 +42,8 @@ function toListedDate(raw: unknown): Date {
   return new Date();
 }
 
-async function safeCount(q: Parameters<typeof getCountFromServer>[0]): Promise<number | null> {
+async function safeCount(q: Query): Promise<number | null> {
+  const { fs: { getCountFromServer } } = await loadFirebase();
   try {
     const snap = await getCountFromServer(q);
     return snap.data().count;
@@ -76,6 +71,8 @@ export function useProvenanceData(product: Product | null): ProvenanceData | nul
         Math.floor((Date.now() - listedDate.getTime()) / (1000 * 60 * 60 * 24))
       );
       const uniqueViews = product.uniqueViews ?? 0;
+      const { db, auth, fs: { collection, collectionGroup, query, where } } = await loadFirebase();
+      if (cancelled) return;
 
       // Only the seller can count enquiries; wait for Firebase Auth to restore
       // the session so we know who is viewing (skipped for low-view listings).

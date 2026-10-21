@@ -1,5 +1,5 @@
 
-import { Timestamp } from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 
 // We can extend the FirebaseUser type to include our custom fields
 export type User = {
