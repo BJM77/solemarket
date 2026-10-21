@@ -9,6 +9,7 @@ import {
   getIdToken,
   GoogleAuthProvider,
   signInWithPopup,
+  browserPopupRedirectResolver,
   sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "./config";
@@ -129,7 +130,7 @@ export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
   try {
     await setPersistence(auth, browserLocalPersistence);
-    const result = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
     const user = result.user;
 
     const { getDoc, doc } = await import('firebase/firestore');

@@ -17,6 +17,7 @@ export function Logo({ className, priority = false }: { className?: string; prio
                 width={422}
                 height={193}
                 className="w-auto h-full object-contain"
+                sizes="(max-width: 767px) 160px, 200px"
                 priority={priority}
             />
         </div>
