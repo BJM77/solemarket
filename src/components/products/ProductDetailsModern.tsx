@@ -49,17 +49,15 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
-import { db } from '@/lib/firebase/config';
-import { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc, orderBy } from 'firebase/firestore';
+import { loadFirebase, getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { useCart } from '@/context/CartContext';
 import type { Product, Review, UserProfile } from '@/lib/types';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
-import { useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { useUser, useCollection, useFirebaseRef, useDoc } from '@/firebase';
 import { deleteProductByAdmin, updateProductCategoryByAdmin } from '@/app/actions/admin/admin';
 import { recordProductView } from '@/app/actions/marketplace/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { incrementProductContactCount, recordProductEnquiry, holdProductAction } from '@/app/actions/marketplace/product-updates';
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { sendActionVerificationEmail } from '@/app/actions/auth/email-verification';
 import {
     AlertDialog,
@@ -171,7 +169,7 @@ export default function ProductDetailsModern({
         fetchRecentViews();
     }, [productId]);
 
-    const productRef = useMemoFirebase(() => doc(db, 'products', productId), [productId]);
+    const productRef = useFirebaseRef(({ db, fs: { doc } }) => doc(db, 'products', productId), [productId]);
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
         initialData: initialProduct,
     });
@@ -187,6 +185,7 @@ export default function ProductDetailsModern({
         const fetchSellerMultibuy = async () => {
             setLoadingSellerMultibuy(true);
             try {
+                const { db, fs: { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc } } = await loadFirebase();
                 const q = query(
                     collection(db, 'products'),
                     where('sellerId', '==', product.sellerId),
@@ -215,7 +214,7 @@ export default function ProductDetailsModern({
     const { data: seller, isLoading: isSellerLoading } = usePublicSeller(product?.sellerId, initialSeller ?? null);
     const sellerDisplayName = resolveSellerName(seller, product?.sellerName);
 
-    const reviewsQuery = useMemoFirebase(() =>
+    const reviewsQuery = useFirebaseRef(({ db, fs: { query, collection, where, orderBy } }) =>
         query(
             collection(db, 'reviews'),
             where('productId', '==', productId),
@@ -224,7 +223,7 @@ export default function ProductDetailsModern({
         [productId]);
     const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery, { initialData: initialReviews });
 
-    const favoriteRef = useMemoFirebase(() =>
+    const favoriteRef = useFirebaseRef(({ db, fs: { doc } }) =>
         user?.uid ? doc(db, `users/${user.uid}/favorites/${productId}`) : null
         , [user?.uid, productId]);
     const { data: favorite } = useDoc(favoriteRef);
@@ -235,6 +234,7 @@ export default function ProductDetailsModern({
             router.push(`/sign-in?redirect=${encodeURIComponent(product ? getProductUrl(product) : `/product/${productId}`)}`);
             return;
         }
+        const { db, fs: { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc } } = await loadFirebase();
         if (isFavorited) {
             await deleteDoc(favoriteRef);
             toast({ title: "Removed from favorites." });
@@ -375,6 +375,7 @@ export default function ProductDetailsModern({
                 return;
             }
 
+            const { db, fs: { doc, collection, query, where, getDocs, limit, addDoc, serverTimestamp, deleteDoc, setDoc } } = await loadFirebase();
             const conversationQuery = query(
                 collection(db, 'conversations'),
                 where('participantIds', 'array-contains', user.uid)

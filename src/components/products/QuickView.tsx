@@ -13,9 +13,8 @@ import { useViewedProducts } from '@/context/ViewedProductsContext';
 import ProductImageGallery from './ProductImageGallery';
 import { Heart, Share2, ShoppingCart, Edit, Eye, Search, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { db } from '@/lib/firebase/config';
-import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser, useDoc, useFirebaseRef } from '@/firebase';
+import { loadFirebase } from '@/lib/firebase/lazy';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils/ui";
@@ -45,7 +44,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
   const canEdit = isOwner || isSuperAdmin;
 
   // Favorite Logic
-  const favoriteRef = useMemoFirebase(() =>
+  const favoriteRef = useFirebaseRef(({ db, fs: { doc } }) =>
     user?.uid ? doc(db, `users/${user.uid}/favorites/${product.id}`) : null
     , [user?.uid, product.id]);
   const { data: favorite } = useDoc(favoriteRef);
@@ -64,6 +63,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
       router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`);
       return;
     }
+    const { fs: { setDoc, deleteDoc, serverTimestamp } } = await loadFirebase();
     if (isFavorited) {
       await deleteDoc(favoriteRef);
       toast({ title: "Removed from favorites." });

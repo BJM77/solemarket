@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { loadFirebase } from '@/lib/firebase/lazy';
 import { SiteConfig, DEFAULT_SITE_CONFIG, mergeSiteConfig, siteConfigCss } from '@/lib/types/site-config';
 
 interface SiteConfigContextValue {
@@ -47,10 +46,15 @@ export function SiteConfigProvider({ children, initialConfig }: { children: Reac
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !db) return;
+    if (typeof window === 'undefined') return;
     if (new URLSearchParams(window.location.search).get('sitePreview') !== 'draft') return;
     setIsLoading(true);
-    const unsubscribe = onSnapshot(
+    // Admin-only draft preview: load the Firebase SDK only when it's actually used.
+    let unsubscribe: () => void = () => {};
+    let cancelled = false;
+    loadFirebase().then(({ db, fs: { doc, onSnapshot } }) => {
+    if (cancelled) return;
+    unsubscribe = onSnapshot(
       doc(db, 'site_config', 'draft'),
       (snap) => {
         if (snap.exists()) {
@@ -67,7 +71,8 @@ export function SiteConfigProvider({ children, initialConfig }: { children: Reac
         setIsLoading(false);
       }
     );
-    return () => { unsubscribe(); applyPreviewCss(null); };
+    });
+    return () => { cancelled = true; unsubscribe(); applyPreviewCss(null); };
   }, []);
 
   const updatePreviewConfig = (updated: Partial<SiteConfig>) => {

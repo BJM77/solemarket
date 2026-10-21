@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ShieldCheck, Info } from 'lucide-react';
 import { placeBidAction } from '@/app/actions/marketplace/bidding';
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { sendActionVerificationEmail, verifyActionCode } from '@/app/actions/auth/email-verification';
 import { trackEcommerceEvent } from '@/lib/analytics';
 

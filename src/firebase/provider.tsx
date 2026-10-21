@@ -2,12 +2,12 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Firestore, doc, getDoc, setDoc } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import type { FirebaseApp } from 'firebase/app';
+import type { Firestore } from 'firebase/firestore';
+import type { Auth, User } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import type { SafeUser } from './auth/use-user';
-import { app, auth as authInstance, db } from '@/lib/firebase/config';
+import { loadFirebase, type LoadedFirebase } from '@/lib/firebase/lazy';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { syncUserOnLogin } from '@/app/actions/auth/auth';
 
@@ -53,6 +53,8 @@ export interface FirebaseContextState {
   isUserLoading: boolean;
   userError: Error | null;
   role?: string;
+  /** Lazily loaded SDK modules + instances; null until loaded. */
+  services: LoadedFirebase | null;
 }
 
 // Return type for useFirebase()
@@ -84,12 +86,27 @@ export const FirebaseProvider: React.FC<{
       role: undefined
     });
 
-    const authService = typeof window !== 'undefined' ? authInstance : null;
+    // The Firebase SDK is loaded lazily (after first paint / when idle) so public
+    // pages don't ship Firestore + Auth in their initial JavaScript. Until it's
+    // loaded, isUserLoading stays true and services are null.
+    const [services, setServices] = useState<LoadedFirebase | null>(null);
+    useEffect(() => {
+      let cancelled = false;
+      const start = () => { loadFirebase().then((s) => { if (!cancelled) setServices(s); }).catch((e) => {
+        console.error('FirebaseProvider: failed to load Firebase SDK', e);
+        if (!cancelled) setUserAuthState({ user: null, isUserLoading: false, userError: e as Error });
+      }); };
+      const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+      if (w.requestIdleCallback) w.requestIdleCallback(start, { timeout: 1500 });
+      else setTimeout(start, 200);
+      return () => { cancelled = true; };
+    }, []);
+    const authService = services?.auth ?? null;
 
     // Effect to subscribe to Firebase auth state changes
     useEffect(() => {
       // DEV MOCK: Automatically sign in a mock user in development if not already signed in
-      if (process.env.NODE_ENV === 'development' && !authService) {
+      if (process.env.NODE_ENV === 'development' && services && !authService) {
         console.log('🧪 DEV MOCK: Injecting mock user for testing');
         setUserAuthState({
           user: {
@@ -108,6 +125,7 @@ export const FirebaseProvider: React.FC<{
         return;
       }
 
+      if (!services) return; // still loading the SDK: keep isUserLoading = true
       if (!authService) {
         setTimeout(() => {
           setUserAuthState({ user: null, isUserLoading: false, userError: null });
@@ -115,7 +133,7 @@ export const FirebaseProvider: React.FC<{
         return;
       }
 
-      const unsubscribe = onAuthStateChanged(
+      const unsubscribe = services.authSdk.onAuthStateChanged(
         authService,
         async (firebaseUser) => { // Raw Firebase user
           if (firebaseUser) {
@@ -155,22 +173,23 @@ export const FirebaseProvider: React.FC<{
       );
 
       return () => unsubscribe(); // Cleanup
-    }, [authService]);
+    }, [services, authService]);
 
     // Memoize the context value
     const contextValue = useMemo((): FirebaseContextState => {
-      const servicesAvailable = !!(app && db && authInstance);
+      const servicesAvailable = !!(services?.app && services?.db && services?.auth);
       return {
         areServicesAvailable: servicesAvailable,
-        firebaseApp: servicesAvailable ? app : null,
-        firestore: servicesAvailable ? db : null,
-        auth: servicesAvailable ? authInstance : null,
+        firebaseApp: servicesAvailable ? services!.app : null,
+        firestore: servicesAvailable ? services!.db : null,
+        auth: servicesAvailable ? services!.auth! : null,
+        services,
         user: userAuthState.user,
         isUserLoading: userAuthState.isUserLoading,
         userError: userAuthState.userError,
         role: userAuthState.role,
       };
-    }, [userAuthState]);
+    }, [userAuthState, services]);
 
     return (
       <FirebaseContext.Provider value={contextValue}>

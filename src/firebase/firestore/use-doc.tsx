@@ -2,9 +2,8 @@
 'use client';
     
 import { useState, useEffect } from 'react';
-import {
+import type {
   DocumentReference,
-  onSnapshot,
   DocumentData,
   FirestoreError,
   DocumentSnapshot,
@@ -83,7 +82,12 @@ export function useDoc<T = any>(
         setError(null);
     }, 0);
 
-    const unsubscribe = onSnapshot(
+    // The ref exists, so the SDK is already loaded; this import resolves from cache.
+    let unsubscribe: () => void = () => {};
+    let cancelled = false;
+    import('firebase/firestore').then(({ onSnapshot }) => {
+    if (cancelled) return;
+    unsubscribe = onSnapshot(
       memoizedDocRef,
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
@@ -111,8 +115,9 @@ export function useDoc<T = any>(
         setIsLoading(false);
       }
     );
+    });
 
-    return () => unsubscribe();
+    return () => { cancelled = true; unsubscribe(); };
   }, [memoizedDocRef, options.initialData, isUserLoading]);
   
   if(memoizedDocRef && !(memoizedDocRef as any).__memo) {

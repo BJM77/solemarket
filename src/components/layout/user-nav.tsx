@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
-import { signOutUser } from '@/lib/firebase/auth';
+import { signOutLazy as signOutUser } from '@/lib/firebase/lazy';
 import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';

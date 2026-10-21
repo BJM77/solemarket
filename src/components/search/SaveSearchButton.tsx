@@ -6,7 +6,7 @@ import { BellPlus, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { saveSearch } from '@/app/actions/saved-search/saved-search';
 
 /** "Save search & alert me" - stores the current filters and notifies on new matching listings. */

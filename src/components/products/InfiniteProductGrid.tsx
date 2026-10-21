@@ -5,7 +5,9 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getProducts } from '@/services/product-service';
+// product-service uses the Firestore client SDK: load it only when the grid needs more pages.
+const getProducts: typeof import('@/services/product-service').getProducts = (...args) =>
+  import('@/services/product-service').then((m) => m.getProducts(...args));
 import { searchProductsAction } from '@/app/actions/search/search';
 import SaveSearchButton from '@/components/search/SaveSearchButton';
 import type { Product, ProductSearchParams, UserProfile } from '@/lib/types';
@@ -21,9 +23,7 @@ import { PageHeader } from '../layout/PageHeader';
 import dynamic from 'next/dynamic';
 // Interactive widgets load after the grid: they only render client-side anyway.
 const AdvancedFilterPanel = dynamic(() => import('../filters/AdvancedFilterPanel'), { ssr: false });
-import { useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { useUser, useCollection, useFirebaseRef } from '@/firebase';
 const MontageGrid = dynamic(() => import('./MontageGrid'));
 import Link from 'next/link';
 import Image from 'next/image';
@@ -41,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { cn } from "@/lib/utils/ui";
 const PriceAssistantModal = dynamic(() => import('@/components/admin/PriceAssistantModal'), { ssr: false });
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -274,7 +274,7 @@ function InfiniteProductGridInner({
   const selectedConditions = useMemo(() => currentSearchParams.conditions || [], [currentSearchParams.conditions]);
   const selectedSellers = useMemo(() => currentSearchParams.sellers || [], [currentSearchParams.sellers]);
 
-  const usersQuery = useMemoFirebase(() => {
+  const usersQuery = useFirebaseRef(({ db, fs: { query, collection, where } }) => {
     if (!user) return null;
     // RESTRICTION: Only admins can list users. Regular users cannot fetch the seller list.
     // If we need this for public filtering, we must create a public 'sellers' collection or aggregation.

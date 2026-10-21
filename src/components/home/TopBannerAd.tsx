@@ -1,13 +1,11 @@
 'use client';
 
-import { useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { useCollection, useFirebaseRef } from '@/firebase';
 import { Advertisement } from '@/lib/types';
 import Link from 'next/link';
 
 export default function TopBannerAd() {
-    const q = useMemoFirebase(() => query(
+    const q = useFirebaseRef(({ db, fs: { query, collection, where, limit } }) => query(
         collection(db, 'ads'),
         where('placement', '==', 'home_top_banner'),
         where('status', '==', 'active'),

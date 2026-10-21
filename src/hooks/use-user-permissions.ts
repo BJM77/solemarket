@@ -1,9 +1,7 @@
 
 'use client';
 
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { useUser, useDoc, useFirebaseRef } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 
 interface UserPermissions {
@@ -23,7 +21,7 @@ export function useUserPermissions(): UserPermissions {
     const { user, isUserLoading: isAuthLoading } = useUser();
 
     // Memoize the document reference to prevent re-renders
-    const userProfileRef = useMemoFirebase(() => {
+    const userProfileRef = useFirebaseRef(({ db, fs: { doc } }) => {
         // Only subscribe to the private profile once auth has settled and only for
         // the signed-in user's own doc; the ref goes null on sign-out, which unsubscribes.
         if (isAuthLoading || !user?.uid) return null;

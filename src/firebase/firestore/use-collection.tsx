@@ -2,9 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
+import type {
   Query,
-  onSnapshot,
   DocumentData,
   FirestoreError,
   QuerySnapshot,
@@ -92,7 +91,12 @@ export function useCollection<T = any>(
       setError(null);
     }, 0);
 
-    const unsubscribe = onSnapshot(
+    // The ref exists, so the SDK is already loaded; this import resolves from cache.
+    let unsubscribe: () => void = () => {};
+    let cancelled = false;
+    import('firebase/firestore').then(({ onSnapshot }) => {
+    if (cancelled) return;
+    unsubscribe = onSnapshot(
       memoizedTargetRefOrQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
         const results: ResultItemType[] = [];
@@ -120,8 +124,9 @@ export function useCollection<T = any>(
         setIsLoading(false);
       }
     );
+    });
 
-    return () => unsubscribe();
+    return () => { cancelled = true; unsubscribe(); };
   }, [memoizedTargetRefOrQuery, isUserLoading]);
 
   if (memoizedTargetRefOrQuery && !(memoizedTargetRefOrQuery as any).__memo) {
