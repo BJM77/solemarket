@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect, Suspense } from 'react';
+import { useFirstInteraction } from '@/hooks/use-first-interaction';
 import brandConfig from '@/config/brand';
 
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID || brandConfig.integrations.analytics?.facebookPixelId;
@@ -10,6 +11,7 @@ const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID || brandConfig.integrati
 function FacebookPixelInner() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const ready = useFirstInteraction();
 
     useEffect(() => {
         if (!FB_PIXEL_ID) {
@@ -23,7 +25,7 @@ function FacebookPixelInner() {
         }
     }, [pathname, searchParams]);
 
-    if (!FB_PIXEL_ID) {
+    if (!ready || !FB_PIXEL_ID) {
         return null;
     }
 

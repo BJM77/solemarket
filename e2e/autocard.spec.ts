@@ -45,7 +45,7 @@ test('AutoCard auto-captures front then back and offers a draft', async ({ page 
 test('AutoCard shows guidance and manual shutter when no card is present', async ({ page }) => {
   await page.addInitScript(fakeCamera('empty'));
   await page.goto('/autocard');
-  await expect(page.getByTestId('autocard-guidance').filter({ hasText: /Place a card|background/i }).first()).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId('autocard-guidance').filter({ hasText: /Place (a )?card|background/i }).first()).toBeVisible({ timeout: 15000 });
   await page.getByRole('button', { name: /Take photo manually/ }).click();
   await expect(page.getByTestId('autocard-front')).toBeVisible();
 });

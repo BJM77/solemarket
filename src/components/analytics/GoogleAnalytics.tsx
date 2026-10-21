@@ -4,12 +4,14 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect, Suspense } from 'react';
+import { useFirstInteraction } from '@/hooks/use-first-interaction';
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 function GoogleAnalyticsInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const ready = useFirstInteraction();
 
   useEffect(() => {
     if (!GA_MEASUREMENT_ID || !GA_MEASUREMENT_ID.startsWith('G-')) {
@@ -26,7 +28,7 @@ function GoogleAnalyticsInner() {
     }
   }, [pathname, searchParams]);
 
-  if (!GA_MEASUREMENT_ID || !GA_MEASUREMENT_ID.startsWith('G-')) {
+  if (!ready || !GA_MEASUREMENT_ID || !GA_MEASUREMENT_ID.startsWith('G-')) {
     return null;
   }
 
