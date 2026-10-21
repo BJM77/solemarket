@@ -10,11 +10,9 @@ import { detectCard, laplacianVariance, toGray, type Background } from '@/lib/au
 import { CaptureGate, gateConfigFor, type GateState } from '@/lib/autocard/gate';
 import { CARD_ASPECT, type Quad } from '@/lib/autocard/geometry';
 import { OUTPUT_H, OUTPUT_W, scaleQuad, warpQuad } from '@/lib/autocard/warp';
-import { refineCorners } from '@/lib/autocard/refine';
-import { analyseLighting, GlareHint, normaliseColour } from '@/lib/autocard/lighting';
+import { GlareHint, normaliseColour } from '@/lib/autocard/lighting';
 import { locateCard } from '@/lib/autocard/pipeline';
 import { borderBandOk, cardSignature, DEFAULT_SHAPE, isClipped, shapeCheck, signatureDistance, SAME_FACE_DISTANCE, type CardSignature } from '@/lib/autocard/validate';
-import { polygonArea } from '@/lib/autocard/geometry';
 import { uploadImages } from '@/lib/firebase/storage';
 import { saveDraftListing } from '@/app/actions/seller/sell';
 import { identifyCardForEbay } from '@/ai/flows/identify-card-autocard';
@@ -26,8 +24,12 @@ import type { IdentifyCardResult } from '@/ai/flows/identify-card-autocard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { GuidanceSmoother, tiltCaption, type Dir, type Guidance, type Zoom } from '@/lib/autocard/guidance';
-import { loadSleeve, REFINE_RADIUS_FRAC, saveSleeve, SLEEVES, type Sleeve } from '@/lib/autocard/sleeve';
+import { loadSleeve, saveSleeve, SLEEVES, type Sleeve } from '@/lib/autocard/sleeve';
 import { QuadSmoother } from '@/lib/autocard/smooth';
+import { DetectClient } from '@/lib/autocard/detect-client';
+import { GUIDE_PROMPT, guideQuads, guideState } from '@/lib/autocard/ghost-guide';
+import { CORNER_BLUR_MESSAGE, cornerSharpness } from '@/lib/autocard/corner-sharpness';
+import { FLASH_MS, loadMuted, saveMuted, ShutterSound, tapToFocus, vibrate } from '@/lib/autocard/capture-feedback';
 import { applyZoom, loadZoom, saveZoom, ZOOM_HINT, zoomSupport, type ZoomLevel, type ZoomRange } from '@/lib/autocard/camera-zoom';
 
 type Side = 'front' | 'back';
@@ -49,7 +51,7 @@ function drawToCanvas(src: CanvasImageSource, sw: number, sh: number, maxSide = 
 }
 
 /** Sharpness (variance of Laplacian) over the card, measured at a common 640px scale. */
-function frameSharpness(f: Frame, bg: Background, sleeve: Sleeve): { sharp: number; quad: Quad | null; sw: number; sh: number } {
+function frameSharpness(f: Frame, bg: Background, sleeve: Sleeve): { sharp: number; quad: Quad | null; sw: number; sh: number; g: Uint8Array } {
   const sw = SHARPNESS_W, sh = Math.round((SHARPNESS_W * f.h) / f.w);
   const c = document.createElement('canvas'); c.width = sw; c.height = sh;
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
@@ -58,7 +60,7 @@ function frameSharpness(f: Frame, bg: Background, sleeve: Sleeve): { sharp: numb
   const d = detectCard(g, sw, sh, bg, 40, { sleeve });
   const q = d.quad;
   const rect = q ? { x0: Math.min(...q.map((p) => p.x)) | 0, y0: Math.min(...q.map((p) => p.y)) | 0, x1: Math.max(...q.map((p) => p.x)) | 0, y1: Math.max(...q.map((p) => p.y)) | 0 } : undefined;
-  return { sharp: laplacianVariance(g, sw, sh, rect), quad: q, sw, sh };
+  return { sharp: laplacianVariance(g, sw, sh, rect), quad: q, sw, sh, g };
 }
 
 /** Downscaled JPEG data URI for AI identification (keeps the upload small). */
@@ -186,6 +188,12 @@ export default function AutoCardCapture() {
   const [bg, setBg] = useState<Background>('auto');
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const detectRef = useRef<DetectClient | null>(null);
+  const soundRef = useRef<ShutterSound | null>(null);
+  const [muted, setMuted] = useState(false);
+  const [flashKey, setFlashKey] = useState(0);
+  const [frozen, setFrozen] = useState<string | null>(null);
+  const [cornerWarn, setCornerWarn] = useState<Side | null>(null);
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -230,6 +238,38 @@ export default function AutoCardCapture() {
     gateRef.current.setConfig(gateConfigFor(sleeve));
     smoothRef.current.reset(); guideRef.current.reset(); glareRef.current.reset();
   }, [sleeve]);
+  useEffect(() => {
+    setMuted(loadMuted(window.localStorage));
+    soundRef.current = new ShutterSound();
+    detectRef.current = new DetectClient(() => new Worker(new URL('../../lib/autocard/detect.worker.ts', import.meta.url)));
+    return () => { detectRef.current?.dispose(); detectRef.current = null; soundRef.current?.dispose(); soundRef.current = null; };
+  }, []);
+  /** iOS only plays Web Audio after a gesture: unlock on the first tap anywhere in AutoCard. */
+  const unlockAudio = () => { if (!muted) soundRef.current?.unlock(); };
+  const toggleMute = () => {
+    const next = !muted; setMuted(next); saveMuted(window.localStorage, next);
+    if (!next) soundRef.current?.unlock();
+  };
+  /** Shutter flash + click + haptics, and freeze the preview on the current frame for the burst. */
+  const fireFeedback = () => {
+    const v = videoRef.current;
+    if (v?.videoWidth) {
+      try {
+        const c = document.createElement('canvas'); c.width = 480; c.height = Math.round((480 * v.videoHeight) / v.videoWidth);
+        c.getContext('2d')!.drawImage(v, 0, 0, c.width, c.height);
+        setFrozen(c.toDataURL('image/jpeg', 0.7));
+      } catch { /* ignore */ }
+    }
+    setFlashKey((k) => k + 1);
+    if (!muted) soundRef.current?.play();
+    vibrate();
+  };
+  const onViewfinderTap = (e: React.PointerEvent<HTMLDivElement>) => {
+    unlockAudio();
+    const r = e.currentTarget.getBoundingClientRect();
+    void tapToFocus(trackRef.current, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+  };
+
   const setSleeve = (s: Sleeve) => { setSleeveState(s); saveSleeve(window.localStorage, s); };
 
   const chooseZoom = useCallback(async (level: ZoomLevel) => {
@@ -304,10 +344,12 @@ export default function AutoCardCapture() {
     if (!v || !v.videoWidth || busyRef.current) return;
     busyRef.current = true;
     setProcessing(true);
+    fireFeedback();
     try {
       const frames = await grabFrames();
+      setFrozen(null);
       // Keep the sharpest frame that still shows the card.
-      let best: { f: Frame; sharp: number; quad: Quad | null; sw: number; sh: number } | null = null;
+      let best: { f: Frame; sharp: number; quad: Quad | null; sw: number; sh: number; g: Uint8Array } | null = null;
       for (const f of frames) {
         const m = frameSharpness(f, bg, sleeve);
         const score = m.quad ? m.sharp : m.sharp * 0.01;
@@ -349,6 +391,9 @@ export default function AutoCardCapture() {
         if (s[side]) URL.revokeObjectURL(s[side]!.url);
         return { ...s, [side]: { blob, url: URL.createObjectURL(blob) } };
       });
+      // Corner micro-blur check on the chosen frame (auto captures only).
+      const cs = !manual && best!.quad ? cornerSharpness(best!.g, best!.sw, best!.sh, best!.quad) : null;
+      setCornerWarn(cs?.blurry ? side : null);
       setSide((cur) => (cur === 'front' ? 'back' : cur));
       gateRef.current.reset();
       guideRef.current.reset();
@@ -356,59 +401,51 @@ export default function AutoCardCapture() {
     } catch (e: any) {
       toast({ title: 'Capture failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
+      setFrozen(null);
       setProcessing(false);
       // short cool-down so flipping the card doesn't trigger an instant second shot
       setTimeout(() => { busyRef.current = false; }, 900);
     }
-  }, [side, bg, sleeve, grabFrames, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fireFeedback reads refs + muted only
+  }, [side, bg, sleeve, grabFrames, toast, muted]);
 
   // Analysis loop
   useEffect(() => {
     if (done) return;
-    let raf = 0, last = 0;
+    let raf = 0, last = 0, inFlight = false, alive = true;
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick);
       const v = videoRef.current;
-      if (!v || !v.videoWidth || t - last < FRAME_INTERVAL_MS || busyRef.current) return;
+      if (!v || !v.videoWidth || t - last < FRAME_INTERVAL_MS || busyRef.current || inFlight) return;
       last = t;
       const aw = ANALYSIS_W, ah = Math.round((ANALYSIS_W * v.videoHeight) / v.videoWidth);
       const c = (analysisRef.current ??= document.createElement('canvas'));
       if (c.width !== aw || c.height !== ah) { c.width = aw; c.height = ah; setDims({ w: aw, h: ah }); }
       const ctx = c.getContext('2d', { willReadFrequently: true })!;
-      ctx.drawImage(v, 0, 0, aw, ah);
-      const g = toGray(ctx.getImageData(0, 0, aw, ah).data, aw, ah);
-      const d = detectCard(g, aw, ah, bg, 40, { sleeve });
-      if (d.quad) {
-        // Line-fit corners even at preview scale so the tilt gate and outline are accurate.
-        const r = refineCorners(g, aw, ah, d.quad, { samples: 24, radiusFrac: REFINE_RADIUS_FRAC[sleeve] });
-        // Ignore refinements that collapse onto an inner rectangle (or, in hard-sleeve mode,
-        // grow outward onto the plastic).
-        const ratio = r.ok ? polygonArea(r.quad) / polygonArea(d.quad) : 0;
-        if (r.ok && ratio >= 0.9 && (sleeve !== 'hard' || ratio <= 1.1)) d.quad = r.quad;
-      }
-      const light = d.quad ? analyseLighting(g, aw, ah, d.quad) : undefined;
-      let sharp = 0;
-      if (d.quad) {
-        const xs = d.quad.map((p) => p.x), ys = d.quad.map((p) => p.y);
-        sharp = laplacianVariance(g, aw, ah, { x0: Math.min(...xs) | 0, y0: Math.min(...ys) | 0, x1: Math.max(...xs) | 0, y1: Math.max(...ys) | 0 });
-      }
-      // Smoothed corners drive the outline, the arrows and the gate's stability checks;
-      // the capture itself re-detects fresh full-resolution corners.
-      const sq = smoothRef.current.update(d.quad, aw, ah);
-      const cfg = gateConfigFor(sleeve);
-      const st = gateRef.current.update({ ...d, quad: sq }, sharp, t, light);
-      lastQuadRef.current = d.quad;
-      setQuad(sq);
-      setGuidance(guideRef.current.update(sq, aw, ah));
-      setGlareHint(glareRef.current.update(light, cfg.maxGlare, cfg.maxEdgeGlare));
-      setGate(st);
-      if (st.ok) void capture(d.quad, aw, ah);
+      const client = (detectRef.current ??= new DetectClient());
+      inFlight = true;
+      void client.analyse(v, ctx, aw, ah, bg, sleeve).then(({ d, light, sharp }) => {
+        inFlight = false;
+        if (!alive || busyRef.current) return;
+        // Smoothed corners drive the outline, the arrows and the gate's stability checks;
+        // the capture itself re-detects fresh full-resolution corners.
+        const sq = smoothRef.current.update(d.quad, aw, ah);
+        const cfg = gateConfigFor(sleeve);
+        const st = gateRef.current.update({ ...d, quad: sq }, sharp, t, light);
+        lastQuadRef.current = d.quad;
+        setQuad(sq);
+        setGuidance(guideRef.current.update(sq, aw, ah));
+        setGlareHint(glareRef.current.update(light, cfg.maxGlare, cfg.maxEdgeGlare));
+        setGate(st);
+        if (st.ok) void capture(d.quad, aw, ah);
+      }, () => { inFlight = false; });
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => { alive = false; cancelAnimationFrame(raf); };
   }, [bg, sleeve, capture, done]);
 
   const retake = (s: Side) => {
+    setCornerWarn(null);
     setShots((cur) => { if (cur[s]) URL.revokeObjectURL(cur[s]!.url); const n = { ...cur }; delete n[s]; return n; });
     setSide(s);
     gateRef.current.reset();
@@ -492,7 +529,7 @@ export default function AutoCardCapture() {
     }
   };
 
-  const nextProduct = () => { (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); smoothRef.current.reset(); };
+  const nextProduct = () => { setCornerWarn(null); (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); smoothRef.current.reset(); };
 
   const ready = gate?.ok || (gate?.reason === 'unstable' && gate.progress > 0);
   const stroke = gate?.ok ? '#22c55e' : ready ? '#facc15' : '#ef4444';
@@ -503,10 +540,13 @@ export default function AutoCardCapture() {
     : gate.reason === 'too_small' || (gate.reason === 'background' && gate.message === 'Move closer') ? 'closer' : null;
   const zoom: Zoom = guidance?.zoom ?? gateZoom;
   const tiltText = gate && !gate.ok && (gate.reason === 'tilted' || gate.reason === 'shape' || gate.reason === 'aspect') ? tiltCaption(guidance) : null;
-  const caption = cameraError ? `Camera unavailable: ${cameraError}` : tiltText ?? gate?.message ?? 'Starting camera…';
+  const guide = guideQuads(dims.w, dims.h, sleeve);
+  const gState = guideState(quad, dims.w, dims.h, sleeve);
+  const showGuide = !cameraError && !processing && (gState === 'idle' || (gState === 'matched' && !holding));
+  const caption = cameraError ? `Camera unavailable: ${cameraError}` : tiltText ?? (gState === 'idle' && gate && !gate.ok && (gate.reason === 'no_card' || gate.reason === 'not_portrait') ? GUIDE_PROMPT : gate?.message) ?? 'Starting camera…';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onPointerDownCapture={unlockAudio}>
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium">Background:</span>
         <span className="contents" role="group" aria-label="Background">
@@ -520,6 +560,9 @@ export default function AutoCardCapture() {
             <Button key={o.id} size="sm" variant={sleeve === o.id ? 'default' : 'outline'} onClick={() => setSleeve(o.id)} aria-pressed={sleeve === o.id} data-testid={`autocard-sleeve-${o.id}`}>{o.label}</Button>
           ))}
         </span>
+        <Button size="sm" variant="ghost" className="ml-auto" onClick={toggleMute} aria-pressed={muted} aria-label={muted ? 'Unmute shutter sound' : 'Mute shutter sound'} data-testid="autocard-mute">
+          {muted ? '🔇 Sound off' : '🔊 Sound on'}
+        </Button>
       </div>
 
       {zoomRange && !done && (
@@ -533,13 +576,24 @@ export default function AutoCardCapture() {
       )}
 
       {!done && (
-        <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }}>
+        <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }} onPointerDown={onViewfinderTap}>
           <video ref={videoRef} playsInline muted className="absolute inset-0 h-full w-full object-cover" data-testid="autocard-video" />
+          {frozen && <img src={frozen} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" data-testid="autocard-frozen" />}
+          {showGuide && (
+            <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox={`0 0 ${dims.w} ${dims.h}`} preserveAspectRatio="none" aria-hidden data-testid="autocard-ghost" data-state={gState}>
+              {(() => { const o = guide.outline; const gw = o[1].x - o[0].x; const on = gState === 'matched'; return (
+                <rect x={o[0].x} y={o[0].y} width={gw} height={o[3].y - o[0].y} rx={gw * 0.05} fill="none"
+                  stroke={on ? '#22c55e' : '#fff'} strokeOpacity={on ? 0.9 : 0.45} strokeWidth={2} strokeDasharray="8 6" className="motion-safe:transition-colors" />
+              ); })()}
+            </svg>
+          )}
+          {flashKey > 0 && <div key={flashKey} className="ac-flash pointer-events-none absolute inset-0 bg-white" data-testid="autocard-flash" />}
+          <style>{`@keyframes ac-flash{from{opacity:1}to{opacity:0}}@keyframes ac-flash-soft{from{opacity:.35}to{opacity:0}}.ac-flash{opacity:0;animation:ac-flash ${FLASH_MS}ms ease-out forwards}@media (prefers-reduced-motion: reduce){.ac-flash{animation:ac-flash-soft 300ms linear forwards}}`}</style>
           <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox={`0 0 ${dims.w} ${dims.h}`} preserveAspectRatio="none" aria-hidden>
             {quad && <polygon data-testid="autocard-outline" points={quad.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={stroke} strokeWidth={3} />}
             {quad && <circle cx={(quad[0].x + quad[1].x) / 2} cy={(quad[0].y + quad[1].y) / 2} r={4} fill={stroke} />}
           </svg>
-          {!cameraError && !processing && <GuidanceOverlay guidance={guidance} zoom={zoom} holding={holding} progress={gate?.progress ?? 0} glare={glareHint && !holding} />}
+          {!cameraError && !processing && gState !== 'idle' && <GuidanceOverlay guidance={guidance} zoom={zoom} holding={holding} progress={gate?.progress ?? 0} glare={glareHint && !holding} />}
           <div className="absolute top-2 left-2 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white">
             {side === 'front' ? '1 / 2 Front' : '2 / 2 Back'}
           </div>
@@ -562,6 +616,14 @@ export default function AutoCardCapture() {
               {torchOn ? 'Torch off' : 'Torch on'}
             </Button>
           )}
+        </div>
+      )}
+
+      {cornerWarn && shots[cornerWarn] && (
+        <div className="flex flex-wrap items-center gap-2 rounded-md border border-yellow-400 bg-yellow-50 p-3 text-sm text-yellow-900" role="alert" data-testid="autocard-corner-warn">
+          <span className="flex-1">{CORNER_BLUR_MESSAGE} ({cornerWarn})</span>
+          <Button size="sm" onClick={() => retake(cornerWarn)} data-testid="autocard-corner-rescan">Rescan</Button>
+          <Button size="sm" variant="outline" onClick={() => setCornerWarn(null)} data-testid="autocard-corner-keep">Keep</Button>
         </div>
       )}
 
