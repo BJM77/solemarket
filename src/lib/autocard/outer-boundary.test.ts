@@ -46,7 +46,7 @@ function pose(w: number, h: number, scale: number, rot: number, cx = w / 2, cy =
 const err = (a: Quad, b: Quad) => Math.max(...a.map((p, i) => Math.hypot(p.x - b[i].x, p.y - b[i].y))) / Math.hypot(b[1].x - b[0].x, b[1].y - b[0].y);
 const W = 480, H = 640;
 const feed = (g: Uint8Array, d = detectCard(g, W, H, 'auto')) => {
-  const gate = new CaptureGate(); let st = gate.update(d, 999, 0); st = gate.update(d, 999, 600); return st;
+  const gate = new CaptureGate(); let st = gate.update(d, 999, 0); for (let t = 100; t <= 1200; t += 100) st = gate.update(d, 999, t); return st;
 };
 
 describe('AutoCard locks onto the OUTER card boundary', () => {

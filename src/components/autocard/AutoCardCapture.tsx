@@ -433,8 +433,10 @@ export default function AutoCardCapture() {
         const cfg = gateConfigFor(sleeve);
         const st = gateRef.current.update({ ...d, quad: sq }, sharp, t, light);
         lastQuadRef.current = d.quad;
-        setQuad(sq);
-        setGuidance(guideRef.current.update(sq, aw, ah));
+        // Keep the frame on screen through a brief missed detection while the gate is in grace.
+        const shown = sq ?? (gateRef.current.isTracking ? gateRef.current.heldQuad : null);
+        setQuad(shown);
+        setGuidance(guideRef.current.update(shown, aw, ah));
         setGlareHint(glareRef.current.update(light, cfg.maxGlare, cfg.maxEdgeGlare));
         setGate(st);
         if (st.ok) void capture(d.quad, aw, ah);
