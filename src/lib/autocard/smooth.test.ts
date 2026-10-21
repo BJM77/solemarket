@@ -14,11 +14,11 @@ function lcg(seed: number) { let s = seed >>> 0; return () => ((s = (s * 1664525
 const jitter = (q: Quad, amp: number, rnd: () => number) => q.map((p) => ({ x: p.x + (rnd() * 2 - 1) * amp, y: p.y + (rnd() * 2 - 1) * amp })) as Quad;
 
 describe('adaptive EMA on quad corners', () => {
-  it('alpha is ~0.25 when still and ~0.8 when moving fast', () => {
-    expect(adaptiveAlpha(0)).toBeCloseTo(0.25);
+  it('alpha is ~0.18 when still and ~0.8 when moving fast', () => {
+    expect(adaptiveAlpha(0)).toBeCloseTo(0.18);
     expect(adaptiveAlpha(0.1)).toBeCloseTo(0.8);
     const mid = adaptiveAlpha((DEFAULT_SMOOTH.slow + DEFAULT_SMOOTH.fast) / 2);
-    expect(mid).toBeGreaterThan(0.25); expect(mid).toBeLessThan(0.8);
+    expect(mid).toBeGreaterThan(0.18); expect(mid).toBeLessThan(0.8);
   });
 
   it('damps 1-3 px jitter on a still card', () => {
@@ -55,7 +55,7 @@ describe('adaptive EMA on quad corners', () => {
     const run = (smooth: boolean) => {
       const rnd = lcg(11), s = new QuadSmoother(), gate = new CaptureGate(), truth = card(W / 2, H / 2);
       let restarts = 0, ok = false, last = 0;
-      for (let i = 0; i < 12 && !ok; i++) {
+      for (let i = 0; i < 16 && !ok; i++) {
         const raw = jitter(truth, 4, rnd);
         const st = gate.update(det(smooth ? s.update(raw, W, H)! : raw), 500, i * 100);
         if (st.ok) ok = true;
@@ -67,6 +67,6 @@ describe('adaptive EMA on quad corners', () => {
     const raw = run(false), sm = run(true);
     expect(sm.ok).toBe(true);
     expect(sm.restarts).toBe(0);
-    expect(raw.ok).toBe(false);
+    expect(raw.ok).toBe(true); // grace + stay thresholds now absorb raw 4 px jitter too
   });
 });

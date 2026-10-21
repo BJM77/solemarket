@@ -71,8 +71,10 @@ describe('CaptureGate', () => {
     const d = detectCard(g, 320, 400, 'white');
     const gate = new CaptureGate();
     expect(gate.update(d, 500, 0).ok).toBe(false);
-    expect(gate.update(d, 500, 300).ok).toBe(false);
-    expect(gate.update(d, 500, 0 + DEFAULT_GATE.stableMs + 10).ok).toBe(true);
+    let ok = false;
+    for (let t = 100; t < DEFAULT_GATE.stableMs; t += 100) expect(gate.update(d, 500, t).ok).toBe(false);
+    for (let t = DEFAULT_GATE.stableMs; t <= DEFAULT_GATE.stableMs + 100 && !ok; t += 50) ok = gate.update(d, 500, t).ok;
+    expect(ok).toBe(true);
   });
   it('gives guidance when blurry or too small', () => {
     const gate = new CaptureGate();

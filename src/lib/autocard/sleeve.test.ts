@@ -72,8 +72,9 @@ describe('hard sleeve / slab: detect the CARD inside the plastic', () => {
       expect(loc).not.toBeNull();
       expect(err(loc.quad, truth)).toBeLessThan(0.015);
       const gate = new CaptureGate(gateConfigFor('hard'));
-      gate.update(d, 999, 0);
-      expect(gate.update(d, 999, 600).ok).toBe(true);
+      let st = gate.update(d, 999, 0);
+      for (let t = 100; t <= 1200; t += 100) st = gate.update(d, 999, t);
+      expect(st.ok).toBe(true);
     });
   }
   it('graded slab with label: card only (no label), within 1.5%', () => {

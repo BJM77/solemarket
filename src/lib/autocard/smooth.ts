@@ -6,7 +6,7 @@ import { dist, type Quad } from './geometry';
  *   P̂ₜ = α·Pₜ + (1 − α)·P̂ₜ₋₁
  *
  * α follows the corner speed: ~0.8 while the card / phone is moving fast (the box keeps up),
- * ~0.25 when it is nearly still (1–3 px detector jitter is averaged away, so the box stops
+ * ~0.18 when it is nearly still (1–3 px detector jitter is averaged away, so the box stops
  * twitching and the capture countdown doesn't restart). Speed is the largest corner move
  * since the last smoothed position, as a fraction of the frame diagonal.
  *
@@ -26,7 +26,7 @@ export interface SmoothConfig {
   holdFrames: number;
 }
 
-export const DEFAULT_SMOOTH: SmoothConfig = { alphaSlow: 0.25, alphaFast: 0.8, slow: 0.006, fast: 0.03, snap: 0.15, holdFrames: 2 };
+export const DEFAULT_SMOOTH: SmoothConfig = { alphaSlow: 0.18, alphaFast: 0.8, slow: 0.006, fast: 0.03, snap: 0.15, holdFrames: 2 };
 
 export function adaptiveAlpha(speed: number, cfg: SmoothConfig = DEFAULT_SMOOTH): number {
   if (speed <= cfg.slow) return cfg.alphaSlow;
