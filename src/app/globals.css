@@ -264,13 +264,30 @@
     @apply active:scale-95 transition-transform duration-200;
   }
 
+  /* Composited glow: animate opacity of a pre-rendered shadow layer instead of
+     box-shadow itself. Animating box-shadow repaints every frame, which kept the
+     main thread busy on phones and pushed Lighthouse LCP out to ~10s. */
   .pulse-glow {
+    position: relative;
+  }
+  .pulse-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 25px rgba(242, 108, 13, 0.4);
+    opacity: 0.3;
+    pointer-events: none;
+    will-change: opacity;
     animation: pulse-glow 2s infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-glow::after { animation: none; }
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 10px rgba(242, 108, 13, 0.2); }
-    50% { box-shadow: 0 0 25px rgba(242, 108, 13, 0.4); }
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
   }
 
   @keyframes bounce-subtle {

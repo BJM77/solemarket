@@ -1,6 +1,6 @@
 
 import { initializeApp, getApps, getApp, FirebaseOptions, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
+import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, Auth } from "firebase/auth";
 import {
   getFirestore,
   Firestore,
@@ -71,7 +71,16 @@ let perf: FirebasePerformance | undefined;
 
 if (typeof window !== 'undefined') {
   try {
-    auth = getAuth(app);
+    // initializeAuth without a popup/redirect resolver: getAuth() eagerly loads
+    // the ~95 KB firebaseapp.com auth iframe on every page. The resolver is
+    // passed to signInWithPopup instead, so it only loads when signing in.
+    try {
+      auth = initializeAuth(app, {
+        persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+      });
+    } catch {
+      auth = getAuth(app);
+    }
     storage = getStorage(app);
 
     // FCM and Performance Monitoring aren't needed for first paint: load their
