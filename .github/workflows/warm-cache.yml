@@ -1,0 +1,24 @@
+name: Warm cache
+# App Hosting rollouts start with an empty image cache, so the first phone
+# visitors wait for images to be re-encoded. Warm the main pages after each
+# push to main (rollout takes ~10-15 min) and every 6 hours. No secrets used.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+concurrency:
+  group: warm-cache
+  cancel-in-progress: true
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for rollout
+        if: github.event_name == 'push'
+        run: sleep 900
+      - name: Warm
+        run: scripts/warm-cache.sh https://benched.au
