@@ -90,6 +90,7 @@ import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Below-the-fold / on-demand UI: split into separate chunks to cut product-page JS.
 const ConditionGuide = dynamic(() => import('./ConditionGuide').then((m) => m.ConditionGuide));
@@ -799,9 +800,9 @@ export default function ProductDetailsModern({
                 </DialogContent>
             </Dialog>
 
-            <div className="max-w-7xl mx-auto px-4 pt-6">
+            <div className="max-w-7xl mx-auto px-4 pt-3 lg:pt-4">
                 {/* Header Row: Breadcrumbs & Back Button */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2 sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 lg:mb-3 gap-2 sm:gap-4">
                     <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto pb-1 min-w-0">
                         <Link href="/" className="hover:text-primary transition-colors pr-1">Home</Link>
                         <span className="text-gray-300">/</span>
@@ -827,16 +828,16 @@ export default function ProductDetailsModern({
                     </Button>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-4 lg:mb-4">
                     <CategoryPills />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                     {/* Left Column: Gallery & Description */}
-                    <div className="lg:col-span-7 space-y-8">
+                    <div className="lg:col-span-5 space-y-4">
                         {/* Image Gallery */}
-                        {/* Main image is 30% smaller than the column (Ben's request); the card hugs it so there are no empty side bands. */}
-                        <div className="mx-auto w-[70%] rounded-2xl">
+                        {/* Scaled dynamically to fit within viewport height above the fold */}
+                        <div className="mx-auto w-full max-w-[420px] rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
                                 title={product.title}
@@ -857,13 +858,11 @@ export default function ProductDetailsModern({
                                 user={user}
                             />
                         </div>
-
-                        {/* The description and specs have been moved to the right column as per the request */}
                     </div>
 
                     {/* Right Column: Sticky Buy Box */}
-                    <div className="lg:col-span-5 relative">
-                        <div className="sticky top-24 space-y-6">
+                    <div className="lg:col-span-7 relative">
+                        <div className="space-y-4">
                             {/* The "Back Button" was moved up to the Header Row (Breadcrumbs) to align the top of the buy box with the image gallery */}
 
                             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
@@ -878,149 +877,161 @@ export default function ProductDetailsModern({
                                     />
                                 </div>
                                 <ProductBundleOffers product={product} />
-                                    {/* Consolidated Product Description & Specs */}
-                                    <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
-                                        <div>
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h2 className="text-lg font-bold">Listing Details</h2>
-                                                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
-                                                    {product.condition}
-                                                </Badge>
-                                                <ConditionGuide />
-                                            </div>
-                                            <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
-                                                {product.seoDescription && (
-                                                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium pb-4 border-b border-dashed border-gray-100 dark:border-gray-800">
-                                                        <p className="whitespace-pre-line">{product.seoDescription}</p>
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    {product.seoDescription && <span className="block text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-1">Seller Notes:</span>}
-                                                    <p className="whitespace-pre-line">
-                                                        {product.description}
-                                                    </p>
+
+                                    {/* Consolidated Product Description & Specs inside compact Tabs */}
+                                    <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
+                                        <Tabs defaultValue="details" className="w-full">
+                                            <TabsList className="grid grid-cols-2 w-full mb-3 bg-gray-100 dark:bg-gray-900/60 p-1 rounded-xl">
+                                                <TabsTrigger value="details" className="text-xs font-bold py-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm">
+                                                    Listing Details
+                                                </TabsTrigger>
+                                                <TabsTrigger value="specs" className="text-xs font-bold py-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm">
+                                                    Specifications
+                                                </TabsTrigger>
+                                            </TabsList>
+
+                                            <TabsContent value="details" className="space-y-3 mt-0 focus-visible:outline-none">
+                                                <div className="flex items-center gap-2 mb-1.5">
+                                                    <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
+                                                        {product.condition}
+                                                    </Badge>
+                                                    <ConditionGuide />
                                                 </div>
-                                            </div>
-                                        </div>
+                                                <div className="max-h-[140px] overflow-y-auto pr-1 text-gray-600 dark:text-gray-400 leading-relaxed text-xs space-y-2">
+                                                    {product.seoDescription && (
+                                                        <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium pb-2 border-b border-dashed border-gray-100 dark:border-gray-800">
+                                                            <p className="whitespace-pre-line">{product.seoDescription}</p>
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        {product.seoDescription && <span className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-0.5">Seller Notes:</span>}
+                                                        <p className="whitespace-pre-line">
+                                                            {product.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </TabsContent>
 
-                                        {(() => {
-                                            const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
-                                                let basePath = '/browse';
-                                                if (cat === 'Sneakers') basePath = '/shoes';
-                                                else if (cat === 'Collector Cards') basePath = '/cards';
-                                                else if (cat === 'Coins') basePath = '/coins';
+                                            <TabsContent value="specs" className="mt-0 focus-visible:outline-none">
+                                                {(() => {
+                                                    const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
+                                                        let basePath = '/browse';
+                                                        if (cat === 'Sneakers') basePath = '/shoes';
+                                                        else if (cat === 'Collector Cards') basePath = '/cards';
+                                                        else if (cat === 'Coins') basePath = '/coins';
 
-                                                if (!value) return basePath;
+                                                        if (!value) return basePath;
 
-                                                const encodedValue = encodeURIComponent(value);
-                                                if (type === 'subcategory') return `${basePath}?subCategory=${encodedValue}`;
-                                                if (type === 'brand') return `${basePath}?brand=${encodedValue}`;
-                                                if (type === 'model') return `${basePath}?q=${encodedValue}`;
-                                                if (type === 'year') return `${basePath}?year=${encodedValue}`;
-                                                return basePath;
-                                            };
+                                                        const encodedValue = encodeURIComponent(value);
+                                                        if (type === 'subcategory') return `${basePath}?subCategory=${encodedValue}`;
+                                                        if (type === 'brand') return `${basePath}?brand=${encodedValue}`;
+                                                        if (type === 'model') return `${basePath}?q=${encodedValue}`;
+                                                        if (type === 'year') return `${basePath}?year=${encodedValue}`;
+                                                        return basePath;
+                                                    };
 
-                                            return (
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider">Specifications</h3>
-                                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                                        <Link href={getSiloRoute(product.category, 'category')} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                            <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Category</span>
-                                                            <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                {product.category}
-                                                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                            </span>
-                                                        </Link>
-                                                        {product.subCategory && (
-                                                            <Link href={getSiloRoute(product.category, 'subcategory', product.subCategory)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Sub-Category</span>
-                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                    {product.subCategory}
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {(product.brand || product.manufacturer) && (
-                                                            <Link href={getSiloRoute(product.category, 'brand', product.brand || product.manufacturer)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Brand</span>
-                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                                                                    {product.brand || product.manufacturer}
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {product.size && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl flex items-center justify-between">
-                                                                <div>
-                                                                    <span className="text-gray-500 block text-xs mb-1">{isShoeListing ? 'Size (US Men)' : 'Size'}</span>
-                                                                    <span className="font-bold text-primary">{product.size}</span>
-                                                                </div>
-                                                                {isShoeListing && <SizeChart brand={product.brand?.toLowerCase()} />}
-                                                            </div>
-                                                        )}
-                                                        {product.model && (
-                                                            <Link href={getSiloRoute(product.category, 'model', product.model)} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
-                                                                <span className="text-gray-500 block text-xs mb-1 group-hover:text-primary/70 transition-colors">Model</span>
-                                                                <span className="font-bold truncate flex items-center gap-1 text-slate-900 dark:text-slate-100" title={product.model}>
-                                                                    <span className="truncate">{product.model}</span>
-                                                                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                                                                </span>
-                                                            </Link>
-                                                        )}
-                                                        {product.styleCode && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                                <span className="text-gray-500 block text-xs mb-1">Style Code</span>
-                                                                <span className="font-bold">{product.styleCode}</span>
-                                                            </div>
-                                                        )}
-                                                        {product.colorway && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl col-span-2">
-                                                                <span className="text-gray-500 block text-xs mb-1">Colorway</span>
-                                                                <span className="font-bold">{product.colorway}</span>
-                                                            </div>
-                                                        )}
-                                                        {product.gradingCompany && product.gradingCompany !== 'Raw' && (
-                                                            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-xl col-span-2">
-                                                                <div className="flex items-center justify-between">
-                                                                    <div>
-                                                                        <span className="text-amber-800 dark:text-amber-300 block text-xs font-semibold uppercase tracking-wider mb-0.5">
-                                                                            Graded Slab ({product.gradingCompany})
+                                                    return (
+                                                        <div className="max-h-[160px] overflow-y-auto pr-1">
+                                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                                                <Link href={getSiloRoute(product.category, 'category')} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                    <span className="text-gray-500 block text-[10px] mb-0.5 group-hover:text-primary/70 transition-colors">Category</span>
+                                                                    <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100 truncate">
+                                                                        {product.category}
+                                                                        <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                                                    </span>
+                                                                </Link>
+                                                                {product.subCategory && (
+                                                                    <Link href={getSiloRoute(product.category, 'subcategory', product.subCategory)} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5 group-hover:text-primary/70 transition-colors">Sub-Category</span>
+                                                                        <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100 truncate">
+                                                                            {product.subCategory}
+                                                                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                                                                         </span>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-lg font-black text-amber-950 dark:text-amber-100">
-                                                                                Grade: {product.grade || 'Authentic'}
-                                                                            </span>
-                                                                            {product.certNumber && (
-                                                                                <span className="text-xs text-muted-foreground font-mono">
-                                                                                    #{product.certNumber}
+                                                                    </Link>
+                                                                )}
+                                                                {(product.brand || product.manufacturer) && (
+                                                                    <Link href={getSiloRoute(product.category, 'brand', product.brand || product.manufacturer)} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5 group-hover:text-primary/70 transition-colors">Brand</span>
+                                                                        <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100 truncate">
+                                                                            {product.brand || product.manufacturer}
+                                                                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                                                        </span>
+                                                                    </Link>
+                                                                )}
+                                                                {product.size && (
+                                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl flex items-center justify-between">
+                                                                        <div>
+                                                                            <span className="text-gray-500 block text-[10px] mb-0.5">{isShoeListing ? 'Size (US Men)' : 'Size'}</span>
+                                                                            <span className="font-bold text-primary">{product.size}</span>
+                                                                        </div>
+                                                                        {isShoeListing && <SizeChart brand={product.brand?.toLowerCase()} />}
+                                                                    </div>
+                                                                )}
+                                                                {product.model && (
+                                                                    <Link href={getSiloRoute(product.category, 'model', product.model)} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5 group-hover:text-primary/70 transition-colors">Model</span>
+                                                                        <span className="font-bold truncate flex items-center gap-1 text-slate-900 dark:text-slate-100" title={product.model}>
+                                                                            <span className="truncate">{product.model}</span>
+                                                                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                                                                        </span>
+                                                                    </Link>
+                                                                )}
+                                                                {product.styleCode && (
+                                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5">Style Code</span>
+                                                                        <span className="font-bold truncate">{product.styleCode}</span>
+                                                                    </div>
+                                                                )}
+                                                                {product.colorway && (
+                                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl col-span-2">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5">Colorway</span>
+                                                                        <span className="font-bold">{product.colorway}</span>
+                                                                    </div>
+                                                                )}
+                                                                {product.gradingCompany && product.gradingCompany !== 'Raw' && (
+                                                                    <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-2.5 rounded-xl col-span-2">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <div>
+                                                                                <span className="text-amber-800 dark:text-amber-300 block text-[10px] font-semibold uppercase tracking-wider mb-0.5">
+                                                                                    Graded Slab ({product.gradingCompany})
                                                                                 </span>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="text-sm font-black text-amber-950 dark:text-amber-100">
+                                                                                        Grade: {product.grade || 'Authentic'}
+                                                                                    </span>
+                                                                                    {product.certNumber && (
+                                                                                        <span className="text-[10px] text-muted-foreground font-mono">
+                                                                                            #{product.certNumber}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                            {product.certNumber && product.gradingCompany === 'PSA' && (
+                                                                                <Button variant="outline" size="sm" className="h-7 text-[11px] font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
+                                                                                    <a
+                                                                                        href={`https://www.psacard.com/cert/${product.certNumber}`}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                    >
+                                                                                        Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
+                                                                                    </a>
+                                                                                </Button>
                                                                             )}
                                                                         </div>
                                                                     </div>
-                                                                    {product.certNumber && product.gradingCompany === 'PSA' && (
-                                                                        <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
-                                                                            <a
-                                                                                href={`https://www.psacard.com/cert/${product.certNumber}`}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                            >
-                                                                                Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
-                                                                            </a>
-                                                                        </Button>
-                                                                    )}
-                                                                </div>
+                                                                )}
+                                                                {product.cardNumber && (
+                                                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl">
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5">Card #</span>
+                                                                        <span className="font-bold">{product.cardNumber}</span>
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                        {product.cardNumber && (
-                                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
-                                                                <span className="text-gray-500 block text-xs mb-1">Card #</span>
-                                                                <span className="font-bold">{product.cardNumber}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })()}
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </TabsContent>
+                                        </Tabs>
                                     </div>
 
                                 <MarketIndexWidget

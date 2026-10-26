@@ -218,16 +218,16 @@ export default function ProductImageGallery({
                       />
                       {showMagnifier && index === selectedIndex && (
                         <div
-                          className="absolute pointer-events-none rounded-full border-2 border-white/50 bg-no-repeat shadow-[0_0_20px_rgba(0,0,0,0.5)] z-30"
+                          className="absolute pointer-events-none rounded-full border-2 border-white/80 bg-no-repeat shadow-[0_0_25px_rgba(0,0,0,0.6)] z-30 ring-4 ring-black/20"
                           style={{
-                            width: '180px',
-                            height: '180px',
+                            width: '200px',
+                            height: '200px',
                             // Offset vertical position on touch devices to avoid finger obstruction
-                            top: `${magnifierPos.y - (isTouch.current ? 140 : 90)}px`,
-                            left: `${magnifierPos.x - 90}px`,
+                            top: `${magnifierPos.y - (isTouch.current ? 150 : 100)}px`,
+                            left: `${magnifierPos.x - 100}px`,
                             backgroundImage: `url(${item.url})`,
                             backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`,
-                            backgroundSize: `${imgSize.width * 2.2}px ${imgSize.height * 2.2}px`,
+                            backgroundSize: `${imgSize.width * 2.5}px ${imgSize.height * 2.5}px`,
                           }}
                         />
                       )}
