@@ -1,5 +1,11 @@
-
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const metadata: Metadata = {
+  title: "DMCA Takedown Policy",
+  description: "How to report copyright infringement on Benched and how sellers can file a counter-notification.",
+  alternates: { canonical: "/dmca" },
+};
 
 export default function DMCAPage() {
   return (

@@ -1,7 +1,13 @@
-
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Eye, Users, MessageSquare } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Buyer & Seller Safety Tips",
+  description: "How to buy and sell safely on Benched: check listings and seller reviews, keep messages on Benched and meet in public places for local pickups.",
+  alternates: { canonical: "/safety-tips" },
+};
 
 const safetyTips = [
   {
