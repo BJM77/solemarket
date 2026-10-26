@@ -1,6 +1,12 @@
-
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AlertTriangle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Prohibited Items Policy",
+  description: "Items that can't be listed on Benched, including counterfeits and replicas, to keep the marketplace safe and trusted for Australian collectors.",
+  alternates: { canonical: "/prohibited-items" },
+};
 
 const prohibitedCategories = [
     {

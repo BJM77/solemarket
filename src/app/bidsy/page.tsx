@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getProducts } from '@/services/product-service';
+
+export const metadata: Metadata = {
+  title: 'Bidsy: Make an Offer on Unpriced Items',
+  description: 'Bidsy on Benched: sneakers, trading cards and coins listed without a fixed price. Make the seller an offer.',
+  alternates: { canonical: '/bidsy' },
+};
 
 export default async function UntimedPage({
     searchParams,
@@ -28,6 +35,7 @@ export default async function UntimedPage({
     return (
         <InfiniteProductGrid
             pageTitle="Bidsy"
+            titleAsH1
             pageDescription="Make an offer on these exclusive, unpriced items."
             initialFilterState={{
                 q: searchTerm,
