@@ -72,11 +72,11 @@ export async function sendReceiptNudge(idToken: string, orderId: string) {
             subject: `Quick check: Have you received your order ${orderRefCode}?`,
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #f26c0d;">Hey ${order.buyerName || 'there'}!</h2>
+                    <h2 style="color: #2563eb;">Hey ${order.buyerName || 'there'}!</h2>
                     <p>Our records show that your order <strong>${orderRefCode}</strong> was shipped a few days ago.</p>
                     <p>Have you received it yet? If so, please log in to your dashboard and click <strong>"Confirm Receipt"</strong>. This helps ensure the seller gets paid for their item!</p>
                     <div style="margin: 30px 0;">
-                        <a href="https://benched.au/profile/orders" style="background-color: #f26c0d; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to My Orders</a>
+                        <a href="https://benched.au/profile/orders" style="background-color: #2563eb; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to My Orders</a>
                     </div>
                     <p style="color: #666; font-size: 12px;">If there is an issue with your order, you can also lodge a dispute from the same page.</p>
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />

@@ -195,7 +195,7 @@ export default function UserOrdersPage() {
         return (
             <div className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="h-10 w-10 animate-spin text-primary/40 mb-4" />
-                <p className="text-slate-400 font-medium">Retrieving your purchase history...</p>
+                <p className="text-muted-foreground font-medium">Retrieving your purchase history...</p>
             </div>
         );
     }
@@ -207,15 +207,15 @@ export default function UserOrdersPage() {
                     <ShoppingBag className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black tracking-tighter text-white uppercase">My Purchases</h1>
+                    <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">My Purchases</h1>
                     <p className="text-muted-foreground">Track and manage your collectible acquisitions.</p>
                 </div>
             </div>
 
             {orders.length === 0 ? (
-                <div className="text-center py-24 bg-card rounded-[2.5rem] border border-white/5">
+                <div className="text-center py-24 bg-card rounded-[2.5rem] border border-border">
                     <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-                    <h3 className="text-lg font-black uppercase tracking-tight text-white">No purchases yet</h3>
+                    <h3 className="text-lg font-black uppercase tracking-tight text-foreground">No purchases yet</h3>
                     <p className="text-muted-foreground mb-6">Start your collection by browsing the marketplace.</p>
                     <Button asChild>
                         <Link href="/">Browse Marketplace</Link>
@@ -224,18 +224,18 @@ export default function UserOrdersPage() {
             ) : (
                 <div className="space-y-6">
                     {orders.map((order) => (
-                        <Card key={order.id} className="border border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden bg-card">
-                            <CardHeader className="bg-slate-900 text-white py-4 px-6 flex flex-row items-center justify-between">
+                        <Card key={order.id} className="border border-border shadow-premium rounded-[2.5rem] overflow-hidden bg-card">
+                            <CardHeader className="bg-card text-foreground py-4 px-6 flex flex-row items-center justify-between">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order ID</p>
-                                        <Badge variant="outline" className="border-white/20 text-white bg-white/10 text-[10px]">
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Order ID</p>
+                                        <Badge variant="outline" className="border-border text-foreground bg-muted text-[10px]">
                                             #{order.id.slice(-8).toUpperCase()}
                                         </Badge>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Clock className="h-3 w-3 text-slate-400" />
-                                        <p className="text-xs font-bold text-slate-300">
+                                        <Clock className="h-3 w-3 text-muted-foreground" />
+                                        <p className="text-xs font-bold text-foreground/80">
                                             {format(order.createdAt, 'MMM d, yyyy')}
                                         </p>
                                     </div>
@@ -261,25 +261,25 @@ export default function UserOrdersPage() {
                                                 <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-black uppercase tracking-tight text-white line-clamp-1">{item.title}</p>
+                                                <p className="font-black uppercase tracking-tight text-foreground line-clamp-1">{item.title}</p>
                                                 <p className="text-xs text-muted-foreground">Qty: {item.quantity} · ${formatPrice(item.price)} ea</p>
                                             </div>
-                                            <p className="font-black text-white">${formatPrice(item.price * item.quantity)}</p>
+                                            <p className="font-black text-foreground">${formatPrice(item.price * item.quantity)}</p>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-50">
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Seller</p>
-                                        <p className="text-sm font-bold text-white">{resolveSellerName(null, order.sellerName)}</p>
+                                        <p className="text-sm font-bold text-foreground">{resolveSellerName(null, order.sellerName)}</p>
                                     </div>
                                     <div className="space-y-1 text-right">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Total Amount</p>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Total Amount</p>
                                         <p className="text-xl font-black text-primary">${formatPrice(order.totalAmount)}</p>
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-white/5 p-4 flex gap-2 flex-wrap">
+                            <CardFooter className="bg-muted/60 p-4 flex gap-2 flex-wrap">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -303,7 +303,7 @@ export default function UserOrdersPage() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-slate-400 hover:text-rose-600 gap-2 font-bold px-3 w-full sm:w-auto mt-2 sm:mt-0"
+                                    className="text-muted-foreground hover:text-rose-600 gap-2 font-bold px-3 w-full sm:w-auto mt-2 sm:mt-0"
                                     onClick={() => {
                                         setSelectedOrderForDispute(order.id);
                                         setIsDisputeOpen(true);

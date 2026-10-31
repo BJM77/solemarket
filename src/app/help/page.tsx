@@ -77,12 +77,12 @@ export default function HelpPage() {
 
             <div className="bg-primary text-primary-foreground rounded-[2.5rem] p-8 md:p-16 text-center">
                 <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tighter italic">Still need assistance?</h2>
-                <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
+                <p className="text-xl text-primary-foreground mb-10 max-w-2xl mx-auto">
                     Our team of hoop culture specialists is ready to get you back in the game.
                 </p>
                 <Link 
                     href="/contact" 
-                    className="inline-flex h-14 px-10 items-center justify-center bg-secondary text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
+                    className="inline-flex h-14 px-10 items-center justify-center bg-secondary text-foreground rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
                 >
                     Contact Support
                 </Link>

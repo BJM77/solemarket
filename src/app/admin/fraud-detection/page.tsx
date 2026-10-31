@@ -68,7 +68,7 @@ export default function FraudDetectionPage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-bold text-foreground">Risk Score</span>
-                      <span className={`text-xl font-black ${state.result.riskScore > 0.7 ? 'text-red-500' : state.result.riskScore > 0.4 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      <span className={`text-xl font-black ${state.result.riskScore > 0.7 ? 'text-red-500' : state.result.riskScore > 0.4 ? 'text-yellow-700' : 'text-green-700'}`}>
                         {(typeof state.result.riskScore === 'number' ? state.result.riskScore * 100 : 0).toFixed(0)}%
                       </span>
                     </div>
@@ -83,7 +83,7 @@ export default function FraudDetectionPage() {
                   {state.result.recommendedAction && (
                     <div className="border p-4 rounded-xl">
                       <p className="font-medium mb-2">Recommended Action</p>
-                      <p className="text-base font-bold text-yellow-500">{state.result.recommendedAction}</p>
+                      <p className="text-base font-bold text-yellow-700">{state.result.recommendedAction}</p>
                     </div>
                   )}
 

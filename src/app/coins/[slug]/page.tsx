@@ -65,7 +65,7 @@ export default async function CoinTopicPage({ params }: Props) {
     return (
         <div className="min-h-screen pb-20">
             <TopicSchema topic={topic} urlPath={`/coins/${topic.slug}`} />
-            <div className="bg-amber-950 text-white py-16 lg:py-24 mb-12">
+            <div className="bg-amber-950 text-foreground py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
                     <div className="bg-amber-500/20 w-fit px-4 py-1 rounded-full text-amber-200 text-xs font-black uppercase tracking-widest mb-6">
                         Rare Coins

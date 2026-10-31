@@ -164,7 +164,7 @@ export default function CompleteProfilePage() {
 
     return (
         <div className="min-h-screen bg-background py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto bg-card rounded-[2.5rem] p-8 shadow-sm border border-white/5">
+            <div className="max-w-md mx-auto bg-card rounded-[2.5rem] p-8 shadow-sm border border-border">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-bold font-headline mb-2">Complete Your Profile</h1>
                     <p className="text-muted-foreground text-sm">

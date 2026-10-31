@@ -40,7 +40,7 @@ export default function RarePage() {
             <span className="sr-only">Back</span>
         </Button>
         <h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
-            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+            <Star className="w-6 h-6 text-yellow-700 fill-yellow-400" />
             My Rares
         </h1>
         <div className="w-10"></div>
@@ -83,9 +83,9 @@ export default function RarePage() {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                          <div className="absolute bottom-0 left-0 p-4 text-white w-full">
+                          <div className="absolute bottom-0 left-0 p-4 text-foreground w-full">
                               <h3 className="font-bold text-lg truncate">{card.name}</h3>
-                              <div className="flex justify-between text-sm text-white/80">
+                              <div className="flex justify-between text-sm text-foreground/80">
                                   <span>{card.brand}</span>
                                   <span>{card.sport}</span>
                               </div>

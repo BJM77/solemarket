@@ -291,7 +291,7 @@ export default function CardDetailPage() {
                     </div>
                   )}
                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center rounded-xl">
-                      <p className="text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">View Full Size</p>
+                      <p className="text-foreground font-bold opacity-0 group-hover:opacity-100 transition-opacity">View Full Size</p>
                     </div>
                 </div>
               </DialogTrigger>
@@ -336,7 +336,7 @@ export default function CardDetailPage() {
                     )}
                     <div className="flex items-center gap-2 text-muted-foreground">
                         {card.isKeeper ? (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
+                            <CheckCircle className="w-5 h-5 text-green-700" />
                         ) : (
                             <XCircle className="w-5 h-5 text-red-500" />
                         )}
@@ -369,7 +369,7 @@ export default function CardDetailPage() {
                 </CardContent>
                 <CardFooter className="flex items-center justify-between gap-2">
                   <Button onClick={handleToggleRare} variant={card.isRare ? "default" : "outline"} size="sm" className="w-[70%]">
-                    <Star className={cn("w-4 h-4 mr-2", card.isRare && "fill-yellow-300 text-yellow-500")} />
+                    <Star className={cn("w-4 h-4 mr-2", card.isRare && "fill-yellow-300 text-yellow-700")} />
                     {card.isRare ? "Unmark Rare" : "Mark as Rare"}
                   </Button>
                   <AlertDialog>

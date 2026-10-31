@@ -35,7 +35,7 @@ export default function HistoryLog({ history, onDeleteItem, onAddNameToKeep }: H
           >
             {item.isKeeper ? (
               <Link href={`/card/${item.id}`} className="flex-grow flex items-center gap-3 truncate hover:bg-muted/50 rounded-md p-1 -m-1">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <CheckCircle className="w-5 h-5 text-green-700 flex-shrink-0" />
                 <div className="flex-grow truncate">
                   <p className="font-semibold text-foreground truncate">{item.name}</p>
                   <p className="text-xs text-muted-foreground truncate">

@@ -140,32 +140,32 @@ export default function CheckoutPage() {
 
   if (isUserLoading) {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-slate-400">Loading your profile...</p>
+        <p className="text-muted-foreground">Loading your profile...</p>
       </div>
     );
   }
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center gap-3 px-4">
+      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center gap-3 px-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-slate-300 font-medium">Order placed. Loading your confirmation…</p>
+        <p className="text-foreground/80 font-medium">Order placed. Loading your confirmation…</p>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center px-4">
-        <Card className="max-w-md w-full bg-[#0c1120] border-white/10 p-8 text-center space-y-6">
+      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center px-4">
+        <Card className="max-w-md w-full bg-[#0c1120] border-border p-8 text-center space-y-6">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
             <ShoppingBag className="h-8 w-8 text-primary" />
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">Your Cart is Empty</h1>
-            <p className="text-slate-400">You don't have any items in your cart to checkout.</p>
+            <p className="text-muted-foreground">You don't have any items in your cart to checkout.</p>
           </div>
           <Button className="w-full h-12 font-bold" asChild>
             <Link href="/browse">Browse Marketplace</Link>
@@ -273,9 +273,9 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-[#020617] text-foreground pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-6 hover:bg-white/5 text-slate-400 hover:text-white">
+        <Button variant="ghost" onClick={() => router.back()} className="mb-6 hover:bg-muted/60 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
@@ -284,22 +284,22 @@ export default function CheckoutPage() {
           <h1 className="text-3xl font-black tracking-tight uppercase">Checkout</h1>
 
           {/* Option 4: Inventory Hold Reservation Timer */}
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-400">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-700">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-700"></span>
             </span>
             <span>Item held for:</span>
-            <span className="font-mono text-sm text-amber-300">{formatTimer(timeLeft)}</span>
+            <span className="font-mono text-sm text-amber-700">{formatTimer(timeLeft)}</span>
           </div>
         </div>
 
         {/* Buyer protection */}
-        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-300">
-          <Shield className="h-6 w-6 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-700">
+          <Shield className="h-6 w-6 text-emerald-700 shrink-0 mt-0.5" />
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">Stay safe when you pay</h3>
-            <p className="text-xs text-emerald-400/80 leading-relaxed mt-1">
+            <p className="text-xs text-emerald-700/80 leading-relaxed mt-1">
               You pay the seller directly. Only pay to the PayID shown on your Benched order page, always with your order reference.
               Never pay a PayID or bank account sent to you by message, email or text. Something not right?{' '}
               <Link href="/contact?topic=order-problem" className="underline font-semibold">Report a problem</Link>.
@@ -310,9 +310,9 @@ export default function CheckoutPage() {
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Delivery Method */}
-            <Card className="bg-[#0c1120] border-white/10">
+            <Card className="bg-[#0c1120] border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-bold flex items-center gap-2 text-white">
+                <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <Truck className="h-5 w-5 text-primary" />
                   1. Delivery Method
                 </CardTitle>
@@ -326,47 +326,47 @@ export default function CheckoutPage() {
                   <Label
                     htmlFor="pickup"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      shippingMethod === 'pickup' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      shippingMethod === 'pickup' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
                     <RadioGroupItem value="pickup" id="pickup" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4 text-slate-400" /> Local Pickup
+                      <p className="font-bold text-foreground flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4 text-muted-foreground" /> Local Pickup
                       </p>
-                      <p className="text-xs text-slate-400">Collect in-person directly from the seller.</p>
-                      <p className="text-xs font-semibold text-emerald-400">Free</p>
+                      <p className="text-xs text-muted-foreground">Collect in-person directly from the seller.</p>
+                      <p className="text-xs font-semibold text-emerald-700">Free</p>
                     </div>
                   </Label>
 
                   <Label
                     htmlFor="shipping"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      shippingMethod === 'shipping' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      shippingMethod === 'shipping' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
                     <RadioGroupItem value="shipping" id="shipping" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white flex items-center gap-1.5">
-                        <Truck className="h-4 w-4 text-slate-400" /> Delivery Shipping
+                      <p className="font-bold text-foreground flex items-center gap-1.5">
+                        <Truck className="h-4 w-4 text-muted-foreground" /> Delivery Shipping
                       </p>
-                      <p className="text-xs text-slate-400">Direct courier shipping straight to your address.</p>
+                      <p className="text-xs text-muted-foreground">Direct courier shipping straight to your address.</p>
                       <p className="text-xs font-semibold text-primary">$12.00</p>
                     </div>
                   </Label>
                 </RadioGroup>
 
                 {!user && (
-                  <div className="space-y-4 pb-4 border-b border-white/5">
-                    <h3 className="font-bold text-white text-sm">Contact Information</h3>
+                  <div className="space-y-4 pb-4 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm">Contact Information</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="guestEmail" className="text-xs font-semibold text-slate-400 uppercase">Email Address (for Order Confirmation & Tracking)</Label>
+                      <Label htmlFor="guestEmail" className="text-xs font-semibold text-muted-foreground uppercase">Email Address (for Order Confirmation & Tracking)</Label>
                       <Input 
                         id="guestEmail" 
                         type="email"
                         required 
                         autoComplete="email"
-                        className="bg-[#020617] border-white/10" 
+                        className="bg-[#020617] border-border" 
                         placeholder="you@example.com"
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
@@ -376,51 +376,51 @@ export default function CheckoutPage() {
                 )}
 
                 {shippingMethod === 'shipping' && (
-                  <div className="space-y-4 pt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <h3 className="font-bold text-white text-sm">Shipping Address</h3>
+                  <div className="space-y-4 pt-4 border-t border-border animate-in fade-in slide-in-from-top-2 duration-200">
+                    <h3 className="font-bold text-foreground text-sm">Shipping Address</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-xs font-semibold text-slate-400 uppercase">Full Name</Label>
+                        <Label htmlFor="fullName" className="text-xs font-semibold text-muted-foreground uppercase">Full Name</Label>
                         <Input 
                           id="fullName" 
                           required 
                           autoComplete="name"
-                          className="bg-[#020617] border-white/10" 
+                          className="bg-[#020617] border-border" 
                           placeholder="John Doe"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-xs font-semibold text-slate-400 uppercase">Phone Number</Label>
+                        <Label htmlFor="phone" className="text-xs font-semibold text-muted-foreground uppercase">Phone Number</Label>
                         <Input 
                           id="phone" 
                           autoComplete="tel"
-                          className="bg-[#020617] border-white/10" 
+                          className="bg-[#020617] border-border" 
                           placeholder="e.g. 0400 000 000"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                         />
                       </div>
                       <div className="md:col-span-2 space-y-2">
-                        <Label htmlFor="street" className="text-xs font-semibold text-slate-400 uppercase">Street Address</Label>
+                        <Label htmlFor="street" className="text-xs font-semibold text-muted-foreground uppercase">Street Address</Label>
                         <Input 
                           id="street" 
                           required 
                           autoComplete="street-address"
-                          className="bg-[#020617] border-white/10" 
+                          className="bg-[#020617] border-border" 
                           placeholder="123 Example Street"
                           value={street}
                           onChange={(e) => setStreet(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="city" className="text-xs font-semibold text-slate-400 uppercase">City</Label>
+                        <Label htmlFor="city" className="text-xs font-semibold text-muted-foreground uppercase">City</Label>
                         <Input 
                           id="city" 
                           required 
                           autoComplete="address-level2"
-                          className="bg-[#020617] border-white/10" 
+                          className="bg-[#020617] border-border" 
                           placeholder="Melbourne"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
@@ -428,24 +428,24 @@ export default function CheckoutPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="state" className="text-xs font-semibold text-slate-400 uppercase">State</Label>
+                          <Label htmlFor="state" className="text-xs font-semibold text-muted-foreground uppercase">State</Label>
                           <Input 
                             id="state" 
                             required 
                             autoComplete="address-level1"
-                            className="bg-[#020617] border-white/10" 
+                            className="bg-[#020617] border-border" 
                             placeholder="VIC"
                             value={state}
                             onChange={(e) => setState(e.target.value)}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="zip" className="text-xs font-semibold text-slate-400 uppercase">Postcode</Label>
+                          <Label htmlFor="zip" className="text-xs font-semibold text-muted-foreground uppercase">Postcode</Label>
                           <Input 
                             id="zip" 
                             required 
                             autoComplete="postal-code"
-                            className="bg-[#020617] border-white/10" 
+                            className="bg-[#020617] border-border" 
                             placeholder="3000"
                             value={zip}
                             onChange={(e) => setZip(e.target.value)}
@@ -459,9 +459,9 @@ export default function CheckoutPage() {
             </Card>
 
             {/* Payment Method */}
-            <Card className="bg-[#0c1120] border-white/10">
+            <Card className="bg-[#0c1120] border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-bold flex items-center gap-2 text-white">
+                <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <CreditCard className="h-5 w-5 text-primary" />
                   2. Payment Method
                 </CardTitle>
@@ -474,16 +474,16 @@ export default function CheckoutPage() {
                 >
                   <Label
                     htmlFor="payid"
-                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${payIdAvailable ? 'cursor-pointer hover:bg-white/5' : 'opacity-50 cursor-not-allowed'} ${
-                      paymentMethod === 'payid' ? 'border-primary bg-primary/5' : 'border-white/10'
+                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${payIdAvailable ? 'cursor-pointer hover:bg-muted/60' : 'opacity-50 cursor-not-allowed'} ${
+                      paymentMethod === 'payid' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
                     <RadioGroupItem value="payid" id="payid" className="mt-1" disabled={!payIdAvailable} />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">PayID (bank transfer to the seller)</p>
-                      <p className="text-xs text-slate-400">After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
+                      <p className="font-bold text-foreground">PayID (bank transfer to the seller)</p>
+                      <p className="text-xs text-muted-foreground">After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
                       {sellersWithoutPayId.length > 0 && (
-                        <p className="text-xs text-amber-400 font-semibold">
+                        <p className="text-xs text-amber-700 font-semibold">
                           {sellersWithoutPayId.map(s => s.sellerName || 'A seller').join(', ')} can&apos;t take PayID yet. Pay cash at pickup or remove their items.
                         </p>
                       )}
@@ -493,13 +493,13 @@ export default function CheckoutPage() {
                   <Label
                     htmlFor="cash"
                     className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
-                      paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'border-white/10'
+                      paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
                     <RadioGroupItem value="cash" id="cash" className="mt-1" />
                     <div className="space-y-1">
-                      <p className="font-bold text-white">Cash on pickup (Perth only)</p>
-                      <p className="text-xs text-slate-400">Collect in person in Perth and pay cash when you inspect the item. Arrange a time with the seller within 72 hours.</p>
+                      <p className="font-bold text-foreground">Cash on pickup (Perth only)</p>
+                      <p className="text-xs text-muted-foreground">Collect in person in Perth and pay cash when you inspect the item. Arrange a time with the seller within 72 hours.</p>
                     </div>
                   </Label>
                 </RadioGroup>
@@ -521,17 +521,17 @@ export default function CheckoutPage() {
             </Card>
 
             {/* Order Items */}
-            <Card className="bg-[#0c1120] border-white/10">
+            <Card className="bg-[#0c1120] border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-bold flex items-center gap-2 text-white">
+                <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <ShoppingBag className="h-5 w-5 text-primary" />
                   3. Order Items
                 </CardTitle>
               </CardHeader>
-              <CardContent className="divide-y divide-white/5">
+              <CardContent className="divide-y divide-border">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-white/5">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
                       <Image 
                         src={item.imageUrls[0]} 
                         alt={item.title} 
@@ -541,10 +541,10 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white text-sm line-clamp-1">{item.title}</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">Quantity: {item.quantity}</p>
+                      <h4 className="font-bold text-foreground text-sm line-clamp-1">{item.title}</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">Quantity: {item.quantity}</p>
                     </div>
-                    <p className="font-black text-sm text-white">${formatPrice(item.price * item.quantity)}</p>
+                    <p className="font-black text-sm text-foreground">${formatPrice(item.price * item.quantity)}</p>
                   </div>
                 ))}
               </CardContent>
@@ -553,36 +553,36 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="space-y-6">
-            <Card className="bg-[#0c1120] border-white/10 sticky top-24">
+            <Card className="bg-[#0c1120] border-border sticky top-24">
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">Summary</CardTitle>
+                <CardTitle className="text-xl font-bold text-foreground">Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <TierNudges pricing={pricing} sellerNames={Object.fromEntries(items.map(i => [i.sellerId, i.sellerName || 'this seller']))} />
                 {pricing.savings > 0.004 && (
-                  <div className="flex justify-between text-sm text-emerald-400 font-semibold">
+                  <div className="flex justify-between text-sm text-emerald-700 font-semibold">
                     <span>Bundle savings</span>
                     <span>-${formatPrice(pricing.savings)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm text-slate-400">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal</span>
-                  <span className="text-white">${formatPrice(cartSubtotal)}</span>
+                  <span className="text-foreground">${formatPrice(cartSubtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-slate-400">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Shipping</span>
-                  <span className="text-white">{shippingMethod === 'pickup' ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
+                  <span className="text-foreground">{shippingMethod === 'pickup' ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
                 </div>
 
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-emerald-400 font-bold">
+                  <div className="flex justify-between text-sm text-emerald-700 font-bold">
                     <span>Discount ({appliedPromo})</span>
                     <span>-${formatPrice(discountAmount)}</span>
                   </div>
                 )}
 
                 <div className="pt-2">
-                  <Label htmlFor="promo-input" className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">
+                  <Label htmlFor="promo-input" className="text-[10px] font-black text-muted-foreground uppercase tracking-wider block mb-1.5">
                     Discount Promo Code
                   </Label>
                   <div className="flex gap-2">
@@ -592,7 +592,7 @@ export default function CheckoutPage() {
                       onChange={(e) => setPromoCode(e.target.value)}
                       disabled={!!appliedPromo || isValidatingPromo}
                       placeholder="e.g. WELCOME10"
-                      className="bg-[#020617] border-white/10 text-xs h-9 uppercase"
+                      className="bg-[#020617] border-border text-xs h-9 uppercase"
                     />
                     {appliedPromo ? (
                       <Button
@@ -619,17 +619,17 @@ export default function CheckoutPage() {
                     <p className="text-[10px] text-rose-500 font-bold mt-1.5">{promoError}</p>
                   )}
                   {appliedPromo && (
-                    <p className="text-[10px] text-emerald-400 font-bold mt-1.5">Promo code applied successfully!</p>
+                    <p className="text-[10px] text-emerald-700 font-bold mt-1.5">Promo code applied successfully!</p>
                   )}
                 </div>
 
-                <Separator className="bg-white/5" />
-                <div className="flex justify-between font-black text-xl text-white">
+                <Separator className="bg-muted/60" />
+                <div className="flex justify-between font-black text-xl text-foreground">
                   <span>Total</span>
                   <span className="text-primary">${formatPrice(displayTotal)}</span>
                 </div>
               </CardContent>
-              <Separator className="bg-white/5" />
+              <Separator className="bg-muted/60" />
               <div className="p-6 space-y-4">
                 <Button 
                   type="submit" 

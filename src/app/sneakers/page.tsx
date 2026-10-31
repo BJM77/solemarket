@@ -40,12 +40,12 @@ export default async function SneakersPage({
           { name: 'Sneakers', item: '/sneakers' },
         ]}
       />
-      <div className="bg-black text-white py-12 md:py-20">
+      <div className="bg-background text-foreground py-12 md:py-20">
         <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
                 The Sneaker <span className="text-primary italic">Lineup.</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-2xl leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 From court-ready performance kicks to the rarest street grails. 
                 Shop Australia&apos;s most trusted peer-to-peer sneaker marketplace.
             </p>

@@ -58,7 +58,7 @@ export default async function CardTopicPage({ params }: Props) {
             <TopicSchema topic={topic} urlPath={`/cards/${topic.slug}`} />
             <div className="bg-indigo-950 text-white py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
-                    <div className="bg-indigo-500/20 w-fit px-4 py-1 rounded-full text-indigo-300 text-xs font-black uppercase tracking-widest mb-6">
+                    <div className="bg-indigo-500/20 w-fit px-4 py-1 rounded-full text-indigo-600 text-xs font-black uppercase tracking-widest mb-6">
                         Premium Collectibles
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6">

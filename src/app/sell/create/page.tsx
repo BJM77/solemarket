@@ -629,7 +629,7 @@ function CreateListingForm() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-indigo-500/30 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 h-8 rounded-lg text-xs font-semibold" 
+              className="border-indigo-500/30 text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 h-8 rounded-lg text-xs font-semibold" 
               onClick={(e) => {
                 e.preventDefault();
                 setShowRetryModal(true);
@@ -640,7 +640,7 @@ function CreateListingForm() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-white/10 text-slate-300 bg-white/5 hover:bg-white/10 h-8 rounded-lg text-xs" 
+              className="border-border text-foreground/80 bg-muted/60 hover:bg-muted h-8 rounded-lg text-xs" 
               onClick={(e) => {
                 e.preventDefault();
                 undoLastAIAction();
@@ -1047,13 +1047,13 @@ function CreateListingForm() {
       <BeforeUnload when={form.formState.isDirty && !isSubmitting} />
       <div className="bg-background min-h-screen pb-32">
         {/* Header */}
-        <div className="bg-card/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 shadow-sm">
+        <div className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-30 shadow-sm">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-white hover:bg-white/10" 
+                className="text-foreground hover:bg-muted" 
                 onClick={() => {
                   setCurrentStep(0);
                   setSelectedType(null);
@@ -1061,10 +1061,10 @@ function CreateListingForm() {
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-lg font-bold text-white">Create Your Listing</h1>
+              <h1 className="text-lg font-bold text-foreground">Create Your Listing</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+              <span className="text-xs bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                 {selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}
               </span>
             </div>
@@ -1078,15 +1078,15 @@ function CreateListingForm() {
             <div className="lg:col-span-7 space-y-6">
               
               {/* Category Header Switcher */}
-              <div className="bg-card p-5 rounded-2xl border border-white/10 flex items-center justify-between shadow-lg">
+              <div className="bg-card p-5 rounded-2xl border border-border flex items-center justify-between shadow-lg">
                 <div>
-                  <h3 className="text-xs font-black text-white uppercase tracking-widest">Listing Category</h3>
-                  <p className="text-xs text-slate-400 mt-1">Currently listing in <span className="font-bold text-indigo-400">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
+                  <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Listing Category</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Currently listing in <span className="font-bold text-indigo-600">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border-white/10 text-slate-300 bg-white/5 hover:bg-white/10 text-xs rounded-lg font-semibold"
+                  className="border-border text-foreground/80 bg-muted/60 hover:bg-muted text-xs rounded-lg font-semibold"
                   onClick={() => {
                     setCurrentStep(0);
                     setSelectedType(null);
@@ -1143,7 +1143,7 @@ function CreateListingForm() {
               </div>
 
               {/* Bottom Unified Action Buttons */}
-              <div className="flex flex-col md:flex-row items-center gap-3 justify-center py-8 border-t border-white/10 pt-8 mt-10">
+              <div className="flex flex-col md:flex-row items-center gap-3 justify-center py-8 border-t border-border pt-8 mt-10">
                 <Button 
                   onClick={(e) => { e.preventDefault(); handleSubmit(false); }} 
                   disabled={isSubmitting} 
@@ -1166,9 +1166,9 @@ function CreateListingForm() {
                   variant="outline" 
                   onClick={(e) => { e.preventDefault(); handleSaveDraftOnly(); }} 
                   disabled={isSubmitting} 
-                  className="w-full md:w-auto min-w-[180px] border-white/20 bg-white/5 text-white hover:bg-white/10 rounded-xl h-14 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                  className="w-full md:w-auto min-w-[180px] border-border bg-muted/60 text-foreground hover:bg-muted rounded-xl h-14 text-sm font-bold transition-all flex items-center justify-center gap-2"
                 >
-                  <Package className="h-4 w-4 text-slate-300" />
+                  <Package className="h-4 w-4 text-foreground/80" />
                   Save Draft
                 </Button>
               </div>
@@ -1177,15 +1177,15 @@ function CreateListingForm() {
 
             {/* Right Column: Sticky Buyer Live Preview */}
             <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
-              <h3 className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
+              <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
                 <Eye className="h-4 w-4" /> Live Buyer Preview
               </h3>
               
               {/* Interactive Live Preview Card */}
-              <div className="bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-black/80 hover:border-indigo-500/30 transition-all duration-300">
+              <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl shadow-black/80 hover:border-indigo-500/30 transition-all duration-300">
                 <div className="flex flex-col">
                   {/* Photo Section */}
-                  <div className="aspect-square bg-slate-950 relative flex items-center justify-center overflow-hidden border-b border-white/5">
+                  <div className="aspect-square bg-background relative flex items-center justify-center overflow-hidden border-b border-border">
                     {imagePreviews[0] ? (
                       <Image
                         src={imagePreviews[0]}
@@ -1196,24 +1196,24 @@ function CreateListingForm() {
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center text-slate-500 p-8 text-center space-y-3">
-                        <div className="bg-slate-900 p-4 rounded-full border border-white/5">
+                        <div className="bg-card p-4 rounded-full border border-border">
                           <ImagePlus className="w-8 h-8 text-slate-600" />
                         </div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">No photos captured yet</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">No photos captured yet</p>
                         <p className="text-[10px] text-slate-500">Your first photo will display here as the cover image</p>
                       </div>
                     )}
                     
                     {imagePreviews.length > 1 && (
                       <div className="absolute bottom-4 left-4 flex gap-2">
-                        <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold tracking-wider text-white shadow-sm border border-white/20">
+                        <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold tracking-wider text-white shadow-sm border border-border">
                           + {imagePreviews.length - 1} Photos
                         </span>
                       </div>
                     )}
                     
                     {form.watch('isVault') && (
-                      <div className="absolute top-4 right-4 bg-emerald-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-emerald-400/40 shadow-lg">
+                      <div className="absolute top-4 right-4 bg-emerald-700 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-emerald-400/40 shadow-lg">
                         <ShieldCheck className="h-3.5 w-3.5" /> VAULT
                       </div>
                     )}
@@ -1222,40 +1222,40 @@ function CreateListingForm() {
                   {/* Details Body */}
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                      <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
                         {form.watch('category') || 'Category'}
                       </span>
                       {form.watch('condition') && (
-                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider bg-white/5 px-2.5 py-0.5 rounded border border-white/10">
+                        <span className="text-[10px] text-foreground/80 font-bold uppercase tracking-wider bg-muted/60 px-2.5 py-0.5 rounded border border-border">
                           {form.watch('condition')}
                         </span>
                       )}
                     </div>
 
-                    <h2 className="text-lg font-black text-white line-clamp-2 min-h-[48px] leading-snug">
+                    <h2 className="text-lg font-black text-foreground line-clamp-2 min-h-[48px] leading-snug">
                       {form.watch('title') || "Your Listing Title"}
                     </h2>
 
                     {/* Specs badges */}
                     <div className="flex flex-wrap gap-1.5">
                       {form.watch('brand') && (
-                        <span className="text-[9px] bg-slate-800 border border-white/5 px-2 py-0.5 rounded text-slate-300 font-bold uppercase tracking-wider">{form.watch('brand')}</span>
+                        <span className="text-[9px] bg-muted border border-border px-2 py-0.5 rounded text-foreground/80 font-bold uppercase tracking-wider">{form.watch('brand')}</span>
                       )}
                       {form.watch('model') && (
-                        <span className="text-[9px] bg-slate-800 border border-white/5 px-2 py-0.5 rounded text-slate-300 font-bold uppercase tracking-wider">{form.watch('model')}</span>
+                        <span className="text-[9px] bg-muted border border-border px-2 py-0.5 rounded text-foreground/80 font-bold uppercase tracking-wider">{form.watch('model')}</span>
                       )}
                       {form.watch('size') && (
-                        <span className="text-[9px] bg-slate-800 border border-white/5 px-2 py-0.5 rounded text-slate-300 font-bold uppercase tracking-wider">US {form.watch('size')}</span>
+                        <span className="text-[9px] bg-muted border border-border px-2 py-0.5 rounded text-foreground/80 font-bold uppercase tracking-wider">US {form.watch('size')}</span>
                       )}
                       {form.watch('year') && (
-                        <span className="text-[9px] bg-slate-800 border border-white/5 px-2 py-0.5 rounded text-slate-300 font-bold uppercase tracking-wider">{form.watch('year')}</span>
+                        <span className="text-[9px] bg-muted border border-border px-2 py-0.5 rounded text-foreground/80 font-bold uppercase tracking-wider">{form.watch('year')}</span>
                       )}
                     </div>
 
                     {/* Multibuy discount badge indicator */}
                     {form.watch('multiCardTier') && (
-                      <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">Volume Discount:</span>
+                      <div className="pt-2 border-t border-border flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground">Volume Discount:</span>
                         {[
                           { id: 'bronze', label: 'Bronze Discount', color: 'bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 border border-amber-600/30 text-amber-100' },
                           { id: 'silver', label: 'Silver Discount', color: 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600 border border-slate-300/30 text-white' },
@@ -1270,13 +1270,13 @@ function CreateListingForm() {
                     )}
 
                     {/* Price & Offers */}
-                    <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div className="pt-4 border-t border-border flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider">Listing Price</p>
-                        <p className="text-2xl font-black text-indigo-400">${form.watch('price') || '0.00'}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">Listing Price</p>
+                        <p className="text-2xl font-black text-indigo-600">${form.watch('price') || '0.00'}</p>
                       </div>
                       {form.watch('isNegotiable') && (
-                        <span className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
+                        <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
                           Offers Allowed
                         </span>
                       )}
@@ -1292,12 +1292,12 @@ function CreateListingForm() {
 
         {/* Alternative Selection Modal */}
         <Dialog open={showAlternativesModal} onOpenChange={setShowAlternativesModal}>
-          <DialogContent className="max-w-md bg-slate-950 border-white/10 text-white">
+          <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-400" /> Did we get this right?
+                <Sparkles className="w-5 h-5 text-indigo-600" /> Did we get this right?
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-muted-foreground">
                 The AI found a few possible matches. Please select the correct option below.
               </DialogDescription>
             </DialogHeader>
@@ -1313,7 +1313,7 @@ function CreateListingForm() {
                     setPendingAlternatives([]);
                     setPendingAiData(null);
                   }}
-                  className="p-4 rounded-xl border border-white/10 hover:border-indigo-500 bg-white/5 hover:bg-indigo-500/10 cursor-pointer transition-all group flex gap-3 items-start relative"
+                  className="p-4 rounded-xl border border-border hover:border-indigo-500 bg-muted/60 hover:bg-indigo-500/10 cursor-pointer transition-all group flex gap-3 items-start relative"
                 >
                   {alt.isPrimary && (
                     <div className="absolute top-0 right-0 bg-indigo-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
@@ -1321,14 +1321,14 @@ function CreateListingForm() {
                     </div>
                   )}
                   <div className="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 transition-colors">
-                    <CheckCircle2 className="w-4 h-4 text-white/40 group-hover:text-white" />
+                    <CheckCircle2 className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-sm text-white">{alt.title || `${alt.year || ''} ${alt.brand || ''} ${alt.model || ''} ${alt.cardNumber || ''}`}</h4>
-                    {alt.description && <p className="text-xs text-slate-400 line-clamp-2">{alt.description}</p>}
+                    <h4 className="font-bold text-sm text-foreground">{alt.title || `${alt.year || ''} ${alt.brand || ''} ${alt.model || ''} ${alt.cardNumber || ''}`}</h4>
+                    {alt.description && <p className="text-xs text-muted-foreground line-clamp-2">{alt.description}</p>}
                     <div className="flex flex-wrap gap-2 pt-1">
-                      {alt.brand && <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300">{alt.brand}</span>}
-                      {alt.cardNumber && <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300">{alt.cardNumber}</span>}
+                      {alt.brand && <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-foreground/80">{alt.brand}</span>}
+                      {alt.cardNumber && <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-foreground/80">{alt.cardNumber}</span>}
                     </div>
                   </div>
                 </div>
@@ -1338,16 +1338,16 @@ function CreateListingForm() {
             <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-col">
               <Button 
                 variant="outline" 
-                className="border-indigo-500/30 text-indigo-300 bg-indigo-500/5 hover:bg-indigo-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
+                className="border-indigo-500/30 text-indigo-600 bg-indigo-500/5 hover:bg-indigo-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
                 onClick={() => {
                   setShowAlternativesModal(false);
                   setShowRetryModal(true);
                 }}
               >
-                <Sparkles className="w-4 h-4 text-indigo-400" />
+                <Sparkles className="w-4 h-4 text-indigo-600" />
                 None of these match (Search Again)
               </Button>
-              <Button variant="outline" className="border-white/20 bg-transparent text-white w-full hover:bg-white/10" onClick={() => setShowAlternativesModal(false)}>
+              <Button variant="outline" className="border-border bg-transparent text-foreground w-full hover:bg-muted" onClick={() => setShowAlternativesModal(false)}>
                 Cancel (Fill Manually)
               </Button>
             </DialogFooter>
@@ -1356,37 +1356,37 @@ function CreateListingForm() {
 
         {/* Search Again / Retry Modal */}
         <Dialog open={showRetryModal} onOpenChange={setShowRetryModal}>
-          <DialogContent className="max-w-md bg-slate-950 border-white/10 text-white">
+          <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" /> Search Again with Hint
+                <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" /> Search Again with Hint
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-muted-foreground">
                 Type a specific keyword, color parallel, year, or variant (e.g. "Red Wave parallel", "2022 Select", "Bowman Chrome") to help the AI narrow down the correct match.
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4 my-4">
               {previousTitle && (
-                <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-300">
+                <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-600">
                   <span className="font-bold">Avoided previous match:</span> "{previousTitle}"
                 </div>
               )}
               
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Search Hint</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Search Hint</label>
                 <input 
                   type="text" 
                   value={retryHint} 
                   onChange={(e) => setRetryHint(e.target.value)}
                   placeholder="e.g. Pink Ice parallel, rookie card, etc."
-                  className="w-full h-11 bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 text-sm text-white focus:outline-none transition-colors"
+                  className="w-full h-11 bg-muted/60 border border-border focus:border-indigo-500 rounded-xl px-4 text-sm text-foreground focus:outline-none transition-colors"
                 />
               </div>
             </div>
 
             <DialogFooter className="flex gap-2">
-              <Button variant="outline" className="border-white/10 bg-transparent text-white hover:bg-white/5" onClick={() => setShowRetryModal(false)}>
+              <Button variant="outline" className="border-border bg-transparent text-foreground hover:bg-muted/60" onClick={() => setShowRetryModal(false)}>
                 Cancel
               </Button>
               <Button 

@@ -40,14 +40,14 @@ const principles = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <div className="container py-12 md:py-16">
         <PageHeader
           title="Our Story"
           description="The destination for local sneakers — Perth-based, with nationwide shipping."
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8">
-          <div className="prose lg:prose-lg max-w-none text-gray-300">
+          <div className="prose lg:prose-lg max-w-none text-foreground/80">
             <p>
               Benched was born from a simple frustration shared by hoopers across Australia: performance sneakers always have more game left in them. We were tired of seeing pristine Kobes, LeBrons, and KDs gathering dust or being sold on platforms that didn't understand the court.
             </p>
@@ -75,15 +75,15 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-center mb-12 font-headline">Our Core Principles</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             {principles.map((p) => (
-              <Card key={p.title} className="text-center bg-gray-900 border-gray-800 text-white">
+              <Card key={p.title} className="text-center bg-card border-border text-foreground">
                 <CardHeader>
                   <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-2">
                     {p.icon}
                   </div>
-                  <CardTitle className="text-white">{p.title}</CardTitle>
+                  <CardTitle className="text-foreground">{p.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-400">{p.description}</p>
+                  <p className="text-sm text-muted-foreground">{p.description}</p>
                 </CardContent>
               </Card>
             ))}

@@ -106,7 +106,7 @@ export default function PayoutDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-amber-500" />
+                        <Clock className="h-5 w-5 text-amber-700" />
                         Awaiting Payments to Sellers
                     </CardTitle>
                     <CardDescription>
@@ -122,7 +122,7 @@ export default function PayoutDashboard() {
                     ) : orders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+                                <Inbox className="h-10 w-10 text-foreground/80 dark:text-slate-600" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ledger is Empty</h3>
                             <p className="text-gray-500 dark:text-gray-400">All payouts are settled, or no orders are currently delivered.</p>
@@ -164,7 +164,7 @@ export default function PayoutDashboard() {
                                                         </a>
                                                     ) : order.sellerBankDetails ? (
                                                         <div className="text-[10px] text-muted-foreground bg-slate-100 dark:bg-slate-800 p-1.5 rounded border border-slate-200 dark:border-slate-700 mt-1 max-w-[120px]">
-                                                            <p className="font-bold text-[8px] uppercase text-slate-400 mb-0.5">Bank Details</p>
+                                                            <p className="font-bold text-[8px] uppercase text-muted-foreground mb-0.5">Bank Details</p>
                                                             <p className="line-clamp-2">{order.sellerBankDetails}</p>
                                                         </div>
                                                     ) : (

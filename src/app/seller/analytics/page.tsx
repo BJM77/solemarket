@@ -39,7 +39,7 @@ export default function SellerAnalyticsPage() {
       value: 1205,
       change: '+24%',
       icon: Users,
-      color: 'text-orange-600 bg-orange-100',
+      color: 'text-blue-600 bg-blue-100',
     },
   ];
 

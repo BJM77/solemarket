@@ -17,7 +17,7 @@ export default function ClubFundraisingPage() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6 flex items-center gap-4">
-              <Heart className="h-12 w-12 text-green-300" />
+              <Heart className="h-12 w-12 text-green-700" />
               Club Fundraising
             </h1>
             <p className="text-xl md:text-2xl text-green-50 leading-relaxed mb-8 font-medium">

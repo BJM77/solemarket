@@ -41,7 +41,7 @@ export default function SellLandingPage() {
             <section className="relative overflow-hidden pt-16 pb-24 lg:pt-32 lg:pb-40 bg-gradient-to-br from-slate-50 to-white">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-orange-100 text-orange-700 mb-6">
+                        <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-blue-100 text-blue-700 mb-6">
                             <Clock className="h-4 w-4 mr-2" />
                             Launch Countdown: 14 Days
                         </div>
@@ -54,7 +54,7 @@ export default function SellLandingPage() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button
                                 size="lg"
-                                className="bg-primary hover:bg-orange-700 text-primary-foreground font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-orange-200"
+                                className="bg-primary hover:bg-blue-700 text-primary-foreground font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-blue-200"
                                 asChild
                             >
                                 <Link href="/sign-up?accountType=seller">
@@ -89,7 +89,7 @@ export default function SellLandingPage() {
                     <div className="grid md:grid-cols-3 gap-8">
                         <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                <div className="p-3 bg-blue-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Zap className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">Lightning Fast Listings</h3>
@@ -101,7 +101,7 @@ export default function SellLandingPage() {
 
                         <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                <div className="p-3 bg-blue-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Facebook className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">One-Click FB Sharing</h3>
@@ -113,7 +113,7 @@ export default function SellLandingPage() {
 
                         <Card className="bg-white text-slate-900 border-0 shadow-premium bg-slate-50/50 hover:bg-white transition-all group">
                             <CardContent className="p-8">
-                                <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                <div className="p-3 bg-blue-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Shield className="h-6 w-6" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">DealSafe™ Protection</h3>
@@ -127,12 +127,12 @@ export default function SellLandingPage() {
             </section>
 
             {/* Specialized Categories */}
-            <section className="py-20 bg-slate-900 text-white overflow-hidden">
+            <section className="py-20 bg-card text-foreground overflow-hidden">
                 <div className="container mx-auto px-4 relative">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                                Designed Specifically for <span className="text-primary">Grails</span> and <span className="text-orange-500">Heavy Hitters</span>
+                                Designed Specifically for <span className="text-primary">Grails</span> and <span className="text-blue-500">Heavy Hitters</span>
                             </h2>
                             <ul className="space-y-6">
                                 <li className="flex items-start gap-4">
@@ -141,7 +141,7 @@ export default function SellLandingPage() {
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Sneaker Experts</span>
-                                        <p className="text-slate-400">Advanced condition tracking, size conversions, and brand-specific data.</p>
+                                        <p className="text-muted-foreground">Advanced condition tracking, size conversions, and brand-specific data.</p>
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4">
@@ -150,7 +150,7 @@ export default function SellLandingPage() {
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Card Collectors</span>
-                                        <p className="text-slate-400">Support for PSA/BGS grading info, slab tracking, and raw card details.</p>
+                                        <p className="text-muted-foreground">Support for PSA/BGS grading info, slab tracking, and raw card details.</p>
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4">
@@ -159,38 +159,38 @@ export default function SellLandingPage() {
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Secure Payments</span>
-                                        <p className="text-slate-400">Multiple payout options including Stripe, PayID, and secure escrow.</p>
+                                        <p className="text-muted-foreground">Multiple payout options including Stripe, PayID, and secure escrow.</p>
                                     </div>
                                 </li>
                             </ul>
                         </div>
                         <div className="relative">
-                            <div className="aspect-square bg-gradient-to-br from-primary to-orange-800 rounded-3xl opacity-20 absolute -inset-4 blur-2xl"></div>
-                            <div className="relative bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
+                            <div className="aspect-square bg-gradient-to-br from-primary to-blue-800 rounded-3xl opacity-20 absolute -inset-4 blur-2xl"></div>
+                            <div className="relative bg-muted border border-border rounded-3xl p-8 shadow-2xl">
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
                                     <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center font-bold">B</div>
                                         <div>
                                             <p className="font-bold">Benched Seller Dashboard</p>
-                                            <p className="text-xs text-slate-400">Live Status: Active</p>
+                                            <p className="text-xs text-muted-foreground">Live Status: Active</p>
                                         </div>
                                     </div>
-                                    <Badge className="bg-green-500/20 text-green-400 border-green-500/50">New Seller</Badge>
+                                    <Badge className="bg-green-50 text-green-800 border-green-200">New Seller</Badge>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="h-4 w-full bg-slate-700 rounded animate-pulse"></div>
-                                    <div className="h-4 w-3/4 bg-slate-700 rounded animate-pulse"></div>
+                                    <div className="h-4 w-full bg-muted rounded animate-pulse"></div>
+                                    <div className="h-4 w-3/4 bg-muted rounded animate-pulse"></div>
                                     <div className="grid grid-cols-2 gap-4 pt-4">
-                                        <div className="h-24 bg-slate-700/50 rounded-xl flex flex-col items-center justify-center">
-                                            <p className="text-xs text-slate-400 mb-1">Items Sold</p>
+                                        <div className="h-24 bg-muted rounded-xl flex flex-col items-center justify-center">
+                                            <p className="text-xs text-muted-foreground mb-1">Items Sold</p>
                                             <p className="text-2xl font-bold">0</p>
                                         </div>
-                                        <div className="h-24 bg-slate-700/50 rounded-xl flex flex-col items-center justify-center">
-                                            <p className="text-xs text-slate-400 mb-1">Sales</p>
+                                        <div className="h-24 bg-muted rounded-xl flex flex-col items-center justify-center">
+                                            <p className="text-xs text-muted-foreground mb-1">Sales</p>
                                             <p className="text-2xl font-bold">$0.00</p>
                                         </div>
                                     </div>
-                                    <Button className="w-full bg-primary hover:bg-orange-700 text-primary-foreground mt-4" disabled>
+                                    <Button className="w-full bg-primary hover:bg-blue-700 text-primary-foreground mt-4" disabled>
                                         Inventory Launching Soon
                                     </Button>
                                 </div>
@@ -207,7 +207,7 @@ export default function SellLandingPage() {
                         <div className="grid lg:grid-cols-2">
                             <div className="p-8 md:p-16 bg-primary text-primary-foreground">
                                 <h2 className="text-4xl font-bold mb-6 leading-tight">Secure Your Seller Spot Early</h2>
-                                <p className="text-xl mb-8 text-black/80">
+                                <p className="text-xl mb-8 text-white">
                                     The first 100 sellers to register will receive:
                                 </p>
                                 <ul className="space-y-4 mb-10">
@@ -224,7 +224,7 @@ export default function SellLandingPage() {
                                         <span>Priority Support Channel</span>
                                     </li>
                                 </ul>
-                                <div className="p-6 bg-white/10 rounded-2xl backdrop-blur-md">
+                                <div className="p-6 bg-blue-800 text-white rounded-2xl">
                                     <p className="text-sm italic">
                                         &quot;This platform is designed specifically to give Australian sellers and buyers a faster, safer way to trade shoes and cards.&quot;
                                     </p>
@@ -235,7 +235,7 @@ export default function SellLandingPage() {
                                 <p className="text-slate-600 mb-8 text-lg leading-relaxed">
                                     Registration is free and takes less than 2 minutes. Join the future of the Australian secondary market.
                                 </p>
-                                <Button size="lg" className="h-16 text-xl font-bold bg-slate-900 text-white hover:bg-slate-800 rounded-2xl group shadow-lg shadow-slate-200" asChild>
+                                <Button size="lg" className="h-16 text-xl font-bold bg-card text-foreground hover:bg-muted rounded-2xl group shadow-lg shadow-slate-200" asChild>
                                     <Link href="/sign-up?accountType=seller">
                                         Register as a Seller
                                         <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />

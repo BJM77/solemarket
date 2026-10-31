@@ -41,7 +41,7 @@ const powerTools = [
         description: 'Professional high-speed camera scanning, AI card identification, and verification workspace',
         icon: Camera,
         href: '/samcam',
-        color: 'bg-primary text-black',
+        color: 'bg-primary text-primary-foreground',
     },
     {
         title: 'AI Price Checker',
@@ -55,7 +55,7 @@ const powerTools = [
         description: 'Track AI usage, tokens, and estimated costs in real-time',
         icon: Brain,
         href: '/admin/ai-usage',
-        color: 'bg-emerald-500',
+        color: 'bg-emerald-700',
     },
     {
         title: 'Ads Management',
@@ -76,7 +76,7 @@ const powerTools = [
         description: 'Import products from CSV file with images',
         icon: FileSpreadsheet,
         href: '/sell/bulk-csv-lister',
-        color: 'bg-green-500',
+        color: 'bg-green-700',
     },
     {
         title: 'Bulk Editor',
@@ -90,7 +90,7 @@ const powerTools = [
         description: 'Automatically match lowest prices in categories',
         icon: TrendingUp,
         href: '/admin/auto-repricing',
-        color: 'bg-orange-500',
+        color: 'bg-blue-500',
     },
     {
         title: 'Inventory Alerts',
@@ -134,7 +134,7 @@ const powerTools = [
         description: 'Rapid 1:1 capture for coins and currency',
         icon: Zap,
         href: '/admin/power-tools/multi-coin',
-        color: 'bg-amber-500',
+        color: 'bg-amber-700',
     },
     {
         title: 'MultiGen Fast Lister',
@@ -203,7 +203,7 @@ export default function PowerToolsPage() {
 
                             <CardHeader>
                                 <div className="flex items-start justify-between">
-                                    <div className={`p-3 rounded-lg ${tool.color} text-white`}>
+                                    <div className={`p-3 rounded-lg ${tool.color} text-foreground`}>
                                         <Icon className="h-6 w-6" />
                                     </div>
                                     {tool.comingSoon && (

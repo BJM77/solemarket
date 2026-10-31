@@ -18,7 +18,7 @@ describe('site config', () => {
 
   it('renders SSR CSS variables and fonts', () => {
     const css = siteConfigCss(mergeSiteConfig({ fonts: { body: 'Inter', heading: 'Montserrat' } } as any));
-    expect(css).toContain('--primary:25 90% 50%');
+    expect(css).toContain('--primary:221 83% 53%');
     expect(css).toContain('--font-body:var(--font-inter)');
     expect(css).toContain('h1,h2,h3,h4{font-family:var(--font-heading)');
     expect(css).not.toContain('<');

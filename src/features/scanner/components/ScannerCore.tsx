@@ -134,7 +134,7 @@ export default function ScannerCore({
   }, [processingState, onCapture, isCameraActive, toast]);
 
   return (
-    <div className="relative w-full max-w-md mx-auto aspect-[3/4] bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-center border-4 border-slate-800">
+    <div className="relative w-full max-w-md mx-auto aspect-[3/4] bg-card rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-center border-4 border-border">
       {/* Video Stream */}
       <video
         ref={videoRef}
@@ -155,7 +155,7 @@ export default function ScannerCore({
       {processingState !== "idle" && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
           <Sparkles className="h-12 w-12 text-primary animate-pulse mb-4" />
-          <p className="text-white font-bold tracking-widest uppercase">
+          <p className="text-foreground font-bold tracking-widest uppercase">
             {processingState === "scanning" ? "Analyzing..." : "Verifying..."}
           </p>
         </div>
@@ -165,7 +165,7 @@ export default function ScannerCore({
       {!isCameraActive && !cameraError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
           <CameraOff className="h-16 w-16 text-slate-600 mb-4" />
-          <p className="text-slate-400 font-medium mb-6">Camera is currently off</p>
+          <p className="text-muted-foreground font-medium mb-6">Camera is currently off</p>
           <Button onClick={toggleCamera} size="lg" className="rounded-full font-bold px-8">
             <Camera className="mr-2 h-5 w-5" /> Enable Camera
           </Button>
@@ -176,7 +176,7 @@ export default function ScannerCore({
       {cameraError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-red-950/20">
           <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
-          <p className="text-red-400 font-medium text-sm mb-6 max-w-xs">{cameraError}</p>
+          <p className="text-red-600 font-medium text-sm mb-6 max-w-xs">{cameraError}</p>
           <Button onClick={toggleCamera} variant="outline" size="lg" className="rounded-full font-bold px-8">
             Try Again
           </Button>

@@ -135,7 +135,7 @@ export default async function RootLayout({
 }>) {
   const siteConfig = await getPublishedSiteConfig();
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable} dark overflow-x-hidden max-w-full w-full`}>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable} overflow-x-hidden max-w-full w-full`}>
       <head>
         {/* Published brand colours/fonts in the SSR HTML: no flash of default styles. */}
         <style id="site-config-vars" dangerouslySetInnerHTML={{ __html: siteConfigCss(siteConfig) }} />

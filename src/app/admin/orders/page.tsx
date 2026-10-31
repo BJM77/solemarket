@@ -88,7 +88,7 @@ export default function EscrowDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-amber-500" />
+                        <Clock className="h-5 w-5 text-amber-700" />
                         Awaiting PayID Transfers
                     </CardTitle>
                     <CardDescription>
@@ -104,7 +104,7 @@ export default function EscrowDashboard() {
                     ) : orders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-                                <Inbox className="h-10 w-10 text-slate-300" />
+                                <Inbox className="h-10 w-10 text-foreground/80" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">Ledger is Empty</h3>
                             <p className="text-gray-500">No buyers are currently awaiting payment verification.</p>

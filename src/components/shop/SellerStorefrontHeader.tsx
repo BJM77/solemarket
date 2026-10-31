@@ -81,7 +81,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-xl border border-muted-foreground/10">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-background rounded-lg shadow-sm">
-                            <Star className="h-4 w-4 text-amber-500" />
+                            <Star className="h-4 w-4 text-amber-700" />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1">Rating</p>
@@ -91,7 +91,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
 
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-background rounded-lg shadow-sm">
-                            <ShoppingBag className="h-4 w-4 text-emerald-500" />
+                            <ShoppingBag className="h-4 w-4 text-emerald-700" />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1">Sales</p>

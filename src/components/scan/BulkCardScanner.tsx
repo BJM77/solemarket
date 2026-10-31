@@ -105,10 +105,10 @@ export function BulkCardScanner() {
 
     return (
         <div className="w-full max-w-4xl mx-auto space-y-6">
-            <Card className="border-dashed border-2 border-white/10 bg-card">
+            <Card className="border-dashed border-2 border-border bg-card">
                 <CardContent className="p-10">
                     <div className="flex flex-col items-center justify-center text-center space-y-4">
-                        <div className="p-4 bg-white/5 rounded-full text-white">
+                        <div className="p-4 bg-muted/60 rounded-full text-foreground">
                             <Upload className="w-10 h-10" />
                         </div>
                         <div>
@@ -140,7 +140,7 @@ export function BulkCardScanner() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h4 className="font-bold text-lg flex items-center gap-2">
-                            <ImageIcon className="w-5 h-5 text-white" />
+                            <ImageIcon className="w-5 h-5 text-foreground" />
                             Selected Cards ({previews.length}/20)
                         </h4>
                         <Button 
@@ -159,7 +159,7 @@ export function BulkCardScanner() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {previews.map((preview, idx) => (
-                            <div key={idx} className="relative group aspect-[2.5/3.5] rounded-lg overflow-hidden border border-white/10 bg-card">
+                            <div key={idx} className="relative group aspect-[2.5/3.5] rounded-lg overflow-hidden border border-border bg-card">
                                 <Image
                                     src={preview}
                                     alt={`Card ${idx + 1}`}

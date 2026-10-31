@@ -35,7 +35,7 @@ export interface HeroConfig {
 }
 
 export interface BrandingTheme {
-  primaryColor: string; // HSL or Hex string (e.g. '25 90% 50%' or '#f26c0d')
+  primaryColor: string; // HSL or Hex string (e.g. '25 90% 50%' or '#2563eb')
   buttonColor: string;
   buttonTextColor: string;
   tickerBgColor: string;
@@ -108,8 +108,8 @@ export interface SiteConfig {
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   branding: {
-    primaryColor: '25 90% 50%',
-    buttonColor: '#f26c0d',
+    primaryColor: '221 83% 53%',
+    buttonColor: '#2563eb',
     buttonTextColor: '#ffffff',
     tickerBgColor: '#18181b',
     tickerTextColor: '#ffffff',
@@ -123,7 +123,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     subText1: 'Buy Footwear, Collector Cards and Australian Coins & Notes.',
     subText2: 'Metro Perth Collection or Express Freight Solutions Available',
     buttons: [
-      { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#f26c0d', textColor: '#ffffff' },
+      { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#2563eb', textColor: '#ffffff' },
       { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#0f172a', textColor: '#ffffff' },
       { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#ca8a04', textColor: '#ffffff' },
     ],
@@ -136,10 +136,10 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       subtitle: 'Browse premier sneaker brands authenticated by experts',
       enabled: true,
       order: 1,
-      customClasses: 'py-16 bg-black',
+      customClasses: 'py-16 bg-background',
       items: [
         { id: 'l1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/shoes?subCategory=Jordan&brand=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
-        { id: 'l2', name: 'Nike', logo: '/brand-logos/svg/nike.svg', href: '/shoes?subCategory=Nike&brand=Nike', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
+        { id: 'l2', name: 'Nike', logo: '/brand-logos/svg/nike.svg', href: '/shoes?subCategory=Nike&brand=Nike', color: 'bg-blue-50/50 dark:bg-orange-950/10' },
         { id: 'l3', name: 'Adidas', logo: '/brand-logos/svg/adidas.svg', href: '/shoes?subCategory=Adidas&brand=Adidas', color: 'bg-blue-50/50 dark:bg-blue-950/10' },
         { id: 'l4', name: 'New Balance', logo: '/brand-logos/svg/new-balance.svg', href: '/shoes?subCategory=New%20Balance&brand=New%20Balance', color: 'bg-green-50/50 dark:bg-green-950/10' },
         { id: 'l5', name: 'Under Armour', logo: '/brand-logos/svg/under-armour.svg', href: '/shoes?subCategory=Under%20Armour&brand=Under%20Armour', color: 'bg-slate-100/50 dark:bg-slate-800/10' },
@@ -156,7 +156,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       subtitle: 'Explore high-value trading cards, grails & PSA slabs',
       enabled: true,
       order: 2,
-      customClasses: 'py-16 bg-zinc-950/60 border-t border-white/5',
+      customClasses: 'py-16 bg-background/60 border-t border-border',
       items: [
         { id: 'c1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/cards?subCategory=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
         { id: 'c2', name: 'Kobe', logo: '/brand-logos/svg/kobe.svg', href: '/cards?subCategory=Kobe', color: 'bg-purple-50/50 dark:bg-purple-950/10' },
@@ -173,7 +173,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       subtitle: 'Rare Australian decimal coins, gold, silver & bank notes',
       enabled: true,
       order: 3,
-      customClasses: 'py-16 bg-black border-t border-white/5',
+      customClasses: 'py-16 bg-background border-t border-border',
       items: [
         { id: 'v1', name: 'Australian Coins', iconName: 'Coins', href: '/coins?subCategory=Australian+Coins' },
         { id: 'v2', name: 'World Coins', iconName: 'Globe', href: '/coins?subCategory=World+Coins' },
@@ -243,7 +243,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' },
     coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' },
   },
-  announcement: { enabled: false, text: '', href: '', bgColor: '#f26c0d', textColor: '#ffffff' },
+  announcement: { enabled: false, text: '', href: '', bgColor: '#2563eb', textColor: '#ffffff' },
 };
 
 /** Fill any missing keys from defaults (older documents predate the newer sections). */
@@ -285,7 +285,10 @@ const FONT_VARS: Record<FontOption, string> = {
 /** CSS applied server-side so the first paint already uses the published brand. */
 export function siteConfigCss(c: SiteConfig): string {
   const vars: string[] = [];
-  const primary = safeColor(c.branding.primaryColor);
+  // Legacy orange brand values saved in the CMS map to the new marketplace blue.
+  const LEGACY = ['25 90% 50%', '#f26c0d', '#F26C0D'];
+  const raw = LEGACY.includes((c.branding.primaryColor || '').trim()) ? '221 83% 53%' : c.branding.primaryColor;
+  const primary = safeColor(raw);
   if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`, `--accent:${primary}`);
   const pairs: [string, string | undefined][] = [
     ['--btn-primary-bg', c.branding.buttonColor],

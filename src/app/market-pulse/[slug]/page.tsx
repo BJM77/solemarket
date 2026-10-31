@@ -57,7 +57,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
     const displayTitle = slug.replace(/-/g, ' ').toUpperCase();
 
     return (
-        <div className="bg-black min-h-screen pt-24 pb-20">
+        <div className="bg-background min-h-screen pt-24 pb-20">
             <DatasetSchema 
                 name={`Market Pulse: ${displayTitle}`}
                 description={`Australian sold prices, volume, and premium index for ${displayTitle}.`}
@@ -68,12 +68,12 @@ export default async function MarketPulseSlugPage({ params }: Props) {
             
             <div className="max-w-5xl mx-auto px-4">
                 <div className="mb-10">
-                    <div className="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-2">Market Pulse Report</div>
+                    <div className="text-emerald-700 font-bold uppercase tracking-widest text-sm mb-2">Market Pulse Report</div>
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">{displayTitle}</h1>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    <Card className="bg-white/5 border-white/10">
+                    <Card className="bg-muted/60 border-border">
                         <CardHeader>
                             <CardTitle className="text-sm text-muted-foreground uppercase tracking-widest">Market Average (90d)</CardTitle>
                         </CardHeader>
@@ -83,39 +83,39 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                         </CardContent>
                     </Card>
                     
-                    <Card className="bg-white/5 border-emerald-500/30">
+                    <Card className="bg-muted/60 border-emerald-500/30">
                         <CardHeader>
-                            <CardTitle className="text-sm text-emerald-500 uppercase tracking-widest">Vault Verified Average</CardTitle>
+                            <CardTitle className="text-sm text-emerald-700 uppercase tracking-widest">Vault Verified Average</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-4xl font-bold text-white">${pulseData.vaultVerified.averagePrice || 'N/A'}</div>
+                            <div className="text-4xl font-bold text-foreground">${pulseData.vaultVerified.averagePrice || 'N/A'}</div>
                             {pulseData.vaultVerified.premiumOverMarket > 0 && (
-                                <Badge className="mt-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-none">
+                                <Badge className="mt-2 bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30 border-none">
                                     +{pulseData.vaultVerified.premiumOverMarket}% Premium
                                 </Badge>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 border-white/10 lg:col-span-1 md:col-span-2">
+                    <Card className="bg-muted/60 border-border lg:col-span-1 md:col-span-2">
                         <CardHeader>
                             <CardTitle className="text-sm text-muted-foreground uppercase tracking-widest">Data Confidence</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {pulseData.volume >= 5 ? (
-                                <Badge className="bg-emerald-500">High Confidence</Badge>
+                                <Badge className="bg-emerald-700">High Confidence</Badge>
                             ) : (
-                                <Badge variant="secondary" className="bg-amber-500/20 text-amber-500">Low Sample Size</Badge>
+                                <Badge variant="secondary" className="bg-amber-500/20 text-amber-700">Low Sample Size</Badge>
                             )}
                             <p className="text-xs text-muted-foreground mt-2">Statistically filtered to remove market outliers.</p>
                         </CardContent>
                     </Card>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-6 border-b border-white/10 pb-4">Recent Included Sales</h2>
-                <div className="overflow-x-auto rounded-lg border border-white/10">
+                <h2 className="text-2xl font-bold mb-6 border-b border-border pb-4">Recent Included Sales</h2>
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-white/5">
+                        <thead className="bg-muted/60">
                             <tr>
                                 <th className="p-4 font-medium uppercase text-xs tracking-widest text-muted-foreground">Item Specs</th>
                                 <th className="p-4 font-medium uppercase text-xs tracking-widest text-muted-foreground">Sale Price</th>
@@ -123,9 +123,9 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                                 <th className="p-4 font-medium uppercase text-xs tracking-widest text-muted-foreground">Provenance</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10">
+                        <tbody className="divide-y divide-border">
                             {pulseData.recentSales.map((sale, i) => (
-                                <tr key={i} className="bg-black hover:bg-white/5 transition-colors">
+                                <tr key={i} className="bg-background hover:bg-muted/60 transition-colors">
                                     <td className="p-4">
                                         <div className="font-bold">{sale.title}</div>
                                         {sale.grade && <div className="text-xs text-muted-foreground mt-1">{sale.grade}</div>}
@@ -136,7 +136,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                                     </td>
                                     <td className="p-4">
                                         {sale.isVaultVerified ? (
-                                            <Badge className="bg-emerald-500/20 text-emerald-400 border-none">Vault Verified</Badge>
+                                            <Badge className="bg-emerald-500/20 text-emerald-700 border-none">Vault Verified</Badge>
                                         ) : (
                                             <span className="text-muted-foreground text-xs uppercase tracking-wider">Unverified P2P</span>
                                         )}

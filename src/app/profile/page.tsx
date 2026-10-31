@@ -261,7 +261,7 @@ export default function ProfileDetailsPage() {
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
                               {slugStatus === 'checking' && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-                              {slugStatus === 'available' && <Check className="h-4 w-4 text-emerald-500" />}
+                              {slugStatus === 'available' && <Check className="h-4 w-4 text-emerald-700" />}
                               {slugStatus === 'taken' && <X className="h-4 w-4 text-destructive" />}
                             </div>
                           </div>

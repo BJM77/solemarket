@@ -57,7 +57,7 @@ export async function GET(
               width: '400px',
               height: '400px',
               borderRadius: '50%',
-              backgroundColor: '#f26c0d',
+              backgroundColor: '#2563eb',
               opacity: '0.15',
               filter: 'blur(80px)',
             }}
@@ -105,7 +105,7 @@ export async function GET(
                     fontSize: '14px',
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    color: '#f26c0d',
+                    color: '#2563eb',
                     letterSpacing: '2px',
                     marginBottom: '10px',
                   }}
@@ -181,7 +181,7 @@ export async function GET(
                   right: '30px',
                   display: 'flex',
                   alignItems: 'center',
-                  backgroundColor: '#f26c0d',
+                  backgroundColor: '#2563eb',
                   padding: '10px 20px',
                   borderRadius: '15px',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',

@@ -83,9 +83,9 @@ export default function SellerAgreementPage() {
                 </div>
 
                 <Card className="border-none shadow-xl">
-                    <CardHeader className="bg-slate-900 text-white rounded-t-xl py-8">
+                    <CardHeader className="bg-card text-foreground rounded-t-xl py-8">
                         <CardTitle className="text-2xl">Terms of Service for Sellers</CardTitle>
-                        <CardDescription className="text-slate-300">Please read carefully before proceeding.</CardDescription>
+                        <CardDescription className="text-foreground/80">Please read carefully before proceeding.</CardDescription>
                     </CardHeader>
                     <CardContent className="p-8 space-y-6">
                         <div className="space-y-4 text-slate-600">

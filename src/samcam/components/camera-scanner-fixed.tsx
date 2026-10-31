@@ -170,7 +170,7 @@ export default function CameraScannerFixed() {
       {result && (
         <div className="result-card">
           <div className="result-header">
-            <Check className="text-green-500" />
+            <Check className="text-green-700" />
             <h3>Card Identified!</h3>
           </div>
           <div className="result-details">

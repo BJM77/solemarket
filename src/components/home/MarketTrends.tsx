@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
 
 const trends = [
-  { name: "NBA Prizm Rookies", change: "+12.4%", volume: "$4.2M", color: "text-green-500" },
-  { name: "Jordan Retro Highs", change: "+8.1%", volume: "$1.8M", color: "text-green-500" },
+  { name: "NBA Prizm Rookies", change: "+12.4%", volume: "$4.2M", color: "text-green-700" },
+  { name: "Jordan Retro Highs", change: "+8.1%", volume: "$1.8M", color: "text-green-700" },
   { name: "NBA Top Shot", change: "-3.2%", volume: "$940K", color: "text-red-500" },
-  { name: "Kobe Signature", change: "+22.7%", volume: "$12.5M", color: "text-green-500" },
+  { name: "Kobe Signature", change: "+22.7%", volume: "$12.5M", color: "text-green-700" },
 ];
 
 export function MarketTrends() {
@@ -29,7 +29,7 @@ export function MarketTrends() {
               </div>
               <div className="text-right">
                 <p className={`text-sm font-bold ${trend.color}`}>{trend.change}</p>
-                <p className="text-[10px] text-gray-400">{trend.volume}</p>
+                <p className="text-[10px] text-muted-foreground">{trend.volume}</p>
               </div>
             </div>
           ))}

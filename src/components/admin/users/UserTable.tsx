@@ -82,7 +82,7 @@ export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn
                                         </div>
                                     )}
                                     {user.warningCount && user.warningCount > 0 && (
-                                        <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                                        <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20">
                                             {user.warningCount} Warning{user.warningCount > 1 ? 's' : ''}
                                         </span>
                                     )}
@@ -115,7 +115,7 @@ export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn
                                             {!user.disabled ? <><Ban className="mr-2 h-4 w-4" /> Ban User</> : "Unban User"}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="text-orange-600"
+                                            className="text-blue-600"
                                             onClick={() => onWarn(user.id)}
                                         >
                                             <Shield className="mr-2 h-4 w-4" /> Issue Warning

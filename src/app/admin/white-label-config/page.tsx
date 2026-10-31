@@ -36,7 +36,7 @@ export default function WhiteLabelConfigPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         {overall.isValid ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            <CheckCircle2 className="w-5 h-5 text-green-700" />
                         ) : (
                             <XCircle className="w-5 h-5 text-red-500" />
                         )}
@@ -56,7 +56,7 @@ export default function WhiteLabelConfigPage() {
                             <div className="text-sm text-muted-foreground">Errors</div>
                         </div>
                         <div className="p-4 bg-muted rounded-lg">
-                            <div className="text-2xl font-bold text-yellow-500">{overall.totalWarnings}</div>
+                            <div className="text-2xl font-bold text-yellow-700">{overall.totalWarnings}</div>
                             <div className="text-sm text-muted-foreground">Warnings</div>
                         </div>
                     </div>
@@ -329,7 +329,7 @@ function FeatureToggle({ label, enabled }: { label: string; enabled: boolean }) 
         <div className="flex items-center justify-between p-3 border rounded-lg">
             <span className="text-sm font-medium">{label}</span>
             {enabled ? (
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <CheckCircle2 className="w-5 h-5 text-green-700" />
             ) : (
                 <XCircle className="w-5 h-5 text-muted-foreground" />
             )}

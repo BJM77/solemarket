@@ -702,10 +702,10 @@ export default function BenchedPhotoBooth() {
   const QualityAlerts = ({ quality }: { quality: QualityMetrics }) => {
     const alerts = [];
     if (quality.brightnessScore < 50) {
-      alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-400 border-yellow-400/20" });
+      alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-700 border-yellow-400/20" });
     }
     if (quality.blurScore < 10) {
-      alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-400 border-red-400/20" });
+      alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-600 border-red-400/20" });
     }
     if (quality.glarePercentage > 15) {
       alerts.push({ icon: <Target className="w-3.5 h-3.5" />, text: "Glare Detected", color: "text-red-500 border-red-500/20" });
@@ -714,7 +714,7 @@ export default function BenchedPhotoBooth() {
     if (alerts.length === 0) {
       return (
         <div className="absolute bottom-24 left-4 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-1.5 backdrop-blur-md">
-          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" /> Ready to Capture
           </span>
         </div>
@@ -736,14 +736,14 @@ export default function BenchedPhotoBooth() {
 
   // ─── Render ─────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-black text-white font-mono flex flex-col">
+    <div className="min-h-screen bg-background text-foreground font-mono flex flex-col">
       {/* ─── Header ──────────────────────────────────────────────── */}
-      <header className="p-3 bg-zinc-900 border-b border-white/10 flex justify-between items-center z-20 sticky top-0">
+      <header className="p-3 bg-card border-b border-border flex justify-between items-center z-20 sticky top-0">
         <Button variant="ghost" size="icon" onClick={() => router.push('/samcam')}><ArrowLeft className="w-5 h-5" /></Button>
         
         <div className="flex gap-2 items-center">
           {boothStep === 'CAPTURE' ? (
-            <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-orange-500")}>
+            <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-blue-500")}>
               {currentSide === 'FRONT' ? 'Capture Front' : 'Flip for Back'}
             </Badge>
           ) : (
@@ -755,7 +755,7 @@ export default function BenchedPhotoBooth() {
           <Button 
             variant="outline" 
             size="sm" 
-            className="hidden sm:flex bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] px-3 text-[10px] uppercase font-black tracking-widest gap-2 ml-2"
+            className="hidden sm:flex bg-muted text-foreground/80 border-border hover:bg-secondary h-[32px] px-3 text-[10px] uppercase font-black tracking-widest gap-2 ml-2"
             onClick={() => router.push('/samcam/review')}
           >
             <ListChecks className="w-3.5 h-3.5" />
@@ -765,7 +765,7 @@ export default function BenchedPhotoBooth() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="sm:hidden bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700 h-[32px] w-[32px] ml-2"
+            className="sm:hidden bg-muted text-foreground/80 border-border hover:bg-secondary h-[32px] w-[32px] ml-2"
             onClick={() => router.push('/samcam/review')}
           >
             <ListChecks className="w-3.5 h-3.5" />
@@ -775,17 +775,17 @@ export default function BenchedPhotoBooth() {
             <>
               <button 
                 onClick={() => setShowHUD(prev => !prev)}
-                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+                className="p-2 rounded-lg bg-muted hover:bg-secondary transition"
                 title={showHUD ? "Hide HUD" : "Show HUD"}
               >
-                {showHUD ? <EyeOff className="w-4 h-4 text-zinc-400" /> : <Eye className="w-4 h-4 text-zinc-400" />}
+                {showHUD ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
               </button>
 
               <button 
                 onClick={toggleTorch}
                 className={cn(
                   "p-2 rounded-lg transition",
-                  torchActive ? "bg-primary text-primary-foreground shadow-glow" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
+                  torchActive ? "bg-primary text-primary-foreground shadow-glow" : "bg-muted hover:bg-secondary text-muted-foreground"
                 )}
                 title={torchActive ? "Turn Flash Off" : "Turn Flash On"}
               >
@@ -794,18 +794,18 @@ export default function BenchedPhotoBooth() {
 
               <button 
                 onClick={() => setSettingsOpen(true)}
-                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+                className="p-2 rounded-lg bg-muted hover:bg-secondary transition"
                 title="Configure Presets"
               >
-                <Settings className="w-4 h-4 text-zinc-400" />
+                <Settings className="w-4 h-4 text-muted-foreground" />
               </button>
             </>
           )}
 
           <Sheet>
             <SheetTrigger asChild>
-              <button className="flex items-center gap-2 bg-zinc-800 px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-all active:scale-95">
-                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-orange-400 animate-pulse" : "text-zinc-600")} />
+              <button className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full hover:bg-secondary transition-all active:scale-95">
+                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-blue-600 animate-pulse" : "text-zinc-600")} />
                 <span className="text-[10px] font-black">
                   {syncQueue.filter(i => i.status === 'PENDING').length} PENDING
                   {syncQueue.filter(i => i.status === 'ERROR').length > 0 && 
@@ -814,14 +814,14 @@ export default function BenchedPhotoBooth() {
                 </span>
               </button>
             </SheetTrigger>
-            <SheetContent className="bg-zinc-950 text-white border-zinc-800 font-mono w-full sm:w-[450px] overflow-y-auto">
+            <SheetContent className="bg-background text-foreground border-border font-mono w-full sm:w-[450px] overflow-y-auto">
               <SheetHeader className="flex flex-row justify-between items-center pr-10">
-                <SheetTitle className="text-white uppercase font-black text-sm">System Monitor</SheetTitle>
+                <SheetTitle className="text-foreground uppercase font-black text-sm">System Monitor</SheetTitle>
                 <div className="flex gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="text-[8px] font-black uppercase px-2 h-7 border-zinc-700"
+                    className="text-[8px] font-black uppercase px-2 h-7 border-border"
                     onClick={() => {
                       const logs = Array.from(syncStatuses.values()).map(s => ({
                         id: s.id,
@@ -850,7 +850,7 @@ export default function BenchedPhotoBooth() {
                   <div className="text-center py-10 opacity-30">
                     <CheckCircle2 className="w-8 h-8 mx-auto mb-2" />
                     <p className="text-[10px] font-black uppercase">No Active Syncs</p>
-                    <p className="text-[8px] text-zinc-500 mt-1">Capture front/back of a card to begin</p>
+                    <p className="text-[8px] text-muted-foreground mt-1">Capture front/back of a card to begin</p>
                   </div>
                 )}
                 
@@ -880,11 +880,11 @@ export default function BenchedPhotoBooth() {
 
                 {/* Queued items (pending processing) */}
                 {syncQueue.filter(i => i.status === 'PENDING' && !syncStatuses.has(i.id)).map(item => (
-                  <div key={item.id} className="bg-zinc-900 border border-white/5 rounded-xl p-4 flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-zinc-500" />
+                  <div key={item.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <div className="font-bold text-xs text-white">Queued: {item.id}</div>
-                      <div className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">Waiting for sync pipeline...</div>
+                      <div className="font-bold text-xs text-foreground">Queued: {item.id}</div>
+                      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5">Waiting for sync pipeline...</div>
                     </div>
                   </div>
                 ))}
@@ -895,16 +895,16 @@ export default function BenchedPhotoBooth() {
                     <div className="flex items-start gap-3">
                       <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                       <div className="flex-grow">
-                        <div className="font-bold text-xs text-red-400">Failed: {item.id}</div>
-                        <div className="text-[10px] font-mono text-red-300 mt-1 break-all">{item.error || "Unknown upload error."}</div>
-                        <div className="text-[8px] text-zinc-500 mt-1 uppercase font-black tracking-widest">
+                        <div className="font-bold text-xs text-red-600">Failed: {item.id}</div>
+                        <div className="text-[10px] font-mono text-red-600 mt-1 break-all">{item.error || "Unknown upload error."}</div>
+                        <div className="text-[8px] text-muted-foreground mt-1 uppercase font-black tracking-widest">
                           Retries: {item.retries} • Created: {new Date(item.createdAt).toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
                     <Button 
                       size="sm" 
-                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-600 hover:bg-red-500/30"
                       onClick={() => {
                         syncStorage.update({ ...item, status: 'PENDING' });
                         setSyncQueue(prev => prev.map(i => i.id === item.id ? { ...i, status: 'PENDING' } : i));
@@ -930,7 +930,7 @@ export default function BenchedPhotoBooth() {
             onClick={() => setCameraCollapsed(true)}
             className="absolute top-2 right-2 z-20 bg-black/60 backdrop-blur-sm rounded-full p-1.5 hover:bg-black/80 transition"
           >
-            <ChevronUp className="w-4 h-4 text-white" />
+            <ChevronUp className="w-4 h-4 text-foreground" />
           </button>
         )}
         
@@ -942,14 +942,14 @@ export default function BenchedPhotoBooth() {
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 z-10">
                 {focusState === 'focusing' && (
                   <div className="absolute inset-0 border-2 border-yellow-400/50 rounded-2xl animate-pulse">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-700 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
                       FOCUSING...
                     </div>
                   </div>
                 )}
                 {focusState === 'locked' && (
                   <div className="absolute inset-0 border-2 border-green-400/50 rounded-2xl animate-in fade-in duration-300">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-700 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
                       FOCUS LOCKED
                     </div>
                   </div>
@@ -962,7 +962,7 @@ export default function BenchedPhotoBooth() {
               <div 
                 onClick={() => setIsHudCollapsed(!isHudCollapsed)}
                 className={cn(
-                  "absolute bg-black/70 backdrop-blur-md p-4 rounded-xl border border-white/10 text-[9px] z-10 transition-all duration-300 cursor-pointer hover:bg-black/80 shadow-2xl",
+                  "absolute bg-black/70 backdrop-blur-md p-4 rounded-xl border border-border text-[9px] z-10 transition-all duration-300 cursor-pointer hover:bg-black/80 shadow-2xl",
                   hudPosition === 'top-left' && "top-4 left-4",
                   hudPosition === 'top-right' && "top-4 right-4",
                   hudPosition === 'bottom-left' && "bottom-24 left-4",
@@ -972,74 +972,74 @@ export default function BenchedPhotoBooth() {
                 
                 {isHudCollapsed ? (
                   <div className="flex flex-col items-center justify-center gap-1 opacity-80">
-                    <Gauge className="w-5 h-5 text-emerald-400" />
-                    <span className="font-bold text-[10px] tracking-widest uppercase text-white/90">HUD</span>
+                    <Gauge className="w-5 h-5 text-emerald-700" />
+                    <span className="font-bold text-[10px] tracking-widest uppercase text-foreground/90">HUD</span>
                   </div>
                 ) : (
                   <>
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-400" /> Device</span>
-                      <span className="font-black text-blue-400 truncate max-w-[100px]">{deviceProfile.name}</span>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-600" /> Device</span>
+                      <span className="font-black text-blue-600 truncate max-w-[100px]">{deviceProfile.name}</span>
                     </div>
                     
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-400" /> Focus</span>
-                      <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-400" : "text-red-400")}>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-700" /> Focus</span>
+                      <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-700" : "text-red-600")}>
                         {lastQuality.blurScore}
                       </span>
                     </div>
                     
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-700" /> Brightness</span>
                       <span className={cn(
                         "font-black",
-                        lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
+                        lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-600" : "text-green-700"
                       )}>
                         {lastQuality.brightnessScore} LUX
                       </span>
                     </div>
                     
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-400" /> Glare</span>
-                      <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-400" : "text-red-400")}>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-600" /> Glare</span>
+                      <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-700" : "text-red-600")}>
                         {lastQuality.glarePercentage}%
                       </span>
                     </div>
 
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-400" /> Contrast</span>
-                      <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-400" : "text-yellow-400")}>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-600" /> Contrast</span>
+                      <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-700" : "text-yellow-700")}>
                         {lastQuality.contrastScore}%
                       </span>
                     </div>
 
-                    <div className="flex justify-between border-b border-white/5 pb-2 mb-2">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Zap className="w-3 h-3 text-purple-400" /> Sharpness</span>
-                      <span className={cn("font-black", lastQuality.sharpnessScore > 60 ? "text-green-400" : "text-yellow-400")}>
+                    <div className="flex justify-between border-b border-border pb-2 mb-2">
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Zap className="w-3 h-3 text-purple-600" /> Sharpness</span>
+                      <span className={cn("font-black", lastQuality.sharpnessScore > 60 ? "text-green-700" : "text-yellow-700")}>
                         {lastQuality.sharpnessScore}%
                       </span>
                     </div>
 
                     <div className="flex justify-between pb-2 items-center">
-                      <span className="text-zinc-500 flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-orange-400" /> Temp</span>
-                      <span className="font-black text-white">{lastQuality.colorTemperature}K</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-blue-600" /> Temp</span>
+                      <span className="font-black text-foreground">{lastQuality.colorTemperature}K</span>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-white/5">
-                      <div className="flex items-center justify-between mb-1 text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <div className="flex items-center justify-between mb-1 text-[8px] font-bold text-muted-foreground uppercase tracking-widest">
                         <span>Quality Score</span>
                         <span className={cn(
-                          lastQuality.overallScore > 80 ? "text-green-400" :
-                          lastQuality.overallScore > 60 ? "text-yellow-400" : "text-red-400"
+                          lastQuality.overallScore > 80 ? "text-green-700" :
+                          lastQuality.overallScore > 60 ? "text-yellow-700" : "text-red-600"
                         )}>
                           {lastQuality.overallScore}%
                         </span>
                       </div>
-                      <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
                         <div 
                           className={cn(
                             "h-full transition-all duration-500",
-                            lastQuality.overallScore > 80 ? "bg-green-500" :
+                            lastQuality.overallScore > 80 ? "bg-green-700" :
                             lastQuality.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
                           )}
                           style={{ width: `${lastQuality.overallScore}%` }}
@@ -1058,7 +1058,7 @@ export default function BenchedPhotoBooth() {
             {sessionThumbnails.length > 0 && (
               <div className="absolute left-4 top-24 bottom-32 w-14 overflow-y-auto flex flex-col gap-2.5 scrollbar-none z-10">
                 {sessionThumbnails.map((url, i) => (
-                  <div key={i} className="w-12 h-16 rounded-lg border border-white/20 bg-zinc-900 overflow-hidden relative shrink-0 shadow-md">
+                  <div key={i} className="w-12 h-16 rounded-lg border border-border bg-card overflow-hidden relative shrink-0 shadow-md">
                     <img src={url} className="w-full h-full object-cover" alt="thumbnail" />
                   </div>
                 ))}
@@ -1069,17 +1069,17 @@ export default function BenchedPhotoBooth() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className={cn(
                 "w-72 md:w-80 aspect-[2.5/3.5] border-2 rounded-2xl flex items-center justify-center relative transition-all duration-300 bg-white/[0.02]",
-                !lastQuality && "border-dashed border-white/30",
-                lastQuality && lastQuality.overallScore > 80 && "border-solid border-primary shadow-[0_0_25px_rgba(242,108,13,0.4)] animate-pulse",
+                !lastQuality && "border-dashed border-border",
+                lastQuality && lastQuality.overallScore > 80 && "border-solid border-primary shadow-[0_0_25px_rgba(37, 99, 235,0.4)] animate-pulse",
                 lastQuality && lastQuality.overallScore <= 80 && "border-solid border-yellow-500 shadow-[0_0_25px_rgba(234,179,8,0.25)]"
               )}>
                 <div className="text-center px-4">
-                   <Badge className="bg-zinc-900/90 px-6 py-2 uppercase tracking-[0.3em] font-black text-[10px] border border-white/10 mb-4">{labStatus}</Badge>
-                   {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-orange-500 animate-bounce" />}
+                   <Badge className="bg-card/90 px-6 py-2 uppercase tracking-[0.3em] font-black text-[10px] border border-border mb-4">{labStatus}</Badge>
+                   {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-blue-500 animate-bounce" />}
                    
                    {/* Micro Tip Box */}
-                   <div className="mt-4 p-2 bg-black/60 border border-white/5 rounded-lg text-[8px] font-bold uppercase tracking-wider text-zinc-400 flex gap-1.5 items-start text-left">
-                     <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                   <div className="mt-4 p-2 bg-black/60 border border-border rounded-lg text-[8px] font-bold uppercase tracking-wider text-muted-foreground flex gap-1.5 items-start text-left">
+                     <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                      <span>{getDeviceTips(deviceProfile)}</span>
                    </div>
                 </div>
@@ -1088,8 +1088,8 @@ export default function BenchedPhotoBooth() {
 
             {/* Quality Trend sparkline */}
             {showHUD && qualityHistory.length > 0 && (
-              <div className="absolute bottom-32 right-4 bg-black/60 backdrop-blur-md p-2.5 rounded-xl border border-white/10 w-44">
-                <div className="flex items-center justify-between mb-1 text-[7px] font-bold text-zinc-400 uppercase tracking-widest">
+              <div className="absolute bottom-32 right-4 bg-black/60 backdrop-blur-md p-2.5 rounded-xl border border-border w-44">
+                <div className="flex items-center justify-between mb-1 text-[7px] font-bold text-muted-foreground uppercase tracking-widest">
                   <span>Trend</span>
                   <span>{qualityHistory.length}/10 runs</span>
                 </div>
@@ -1099,7 +1099,7 @@ export default function BenchedPhotoBooth() {
                       key={i}
                       className={cn(
                         "flex-1 rounded-sm transition-all duration-300",
-                        q.overallScore > 80 ? "bg-green-500" :
+                        q.overallScore > 80 ? "bg-green-700" :
                         q.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
                       )}
                       style={{ height: `${q.overallScore}%` }}
@@ -1113,9 +1113,9 @@ export default function BenchedPhotoBooth() {
             <button 
               onClick={capture} 
               disabled={isProcessing} 
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-20 h-20 bg-white rounded-full border-8 border-zinc-900 active:scale-90 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center justify-center transition-all disabled:opacity-50"
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-20 h-20 bg-white rounded-full border-8 border-border active:scale-90 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center justify-center transition-all disabled:opacity-50"
             >
-              {isProcessing ? <Loader2 className="w-10 h-10 text-zinc-900 animate-spin" /> : <div className="w-8 h-8 rounded-full bg-zinc-900" />}
+              {isProcessing ? <Loader2 className="w-10 h-10 text-zinc-900 animate-spin" /> : <div className="w-8 h-8 rounded-full bg-card" />}
             </button>
           </>
         )}
@@ -1123,12 +1123,12 @@ export default function BenchedPhotoBooth() {
 
       {/* ─── Review & Edit Panel ───────────────────────────────── */}
       {boothStep !== 'CAPTURE' && (
-        <div ref={reviewPanelRef} className="flex-grow bg-black overflow-y-auto">
+        <div ref={reviewPanelRef} className="flex-grow bg-background overflow-y-auto">
           {/* Camera expand button when collapsed */}
           {cameraCollapsed && (
             <button 
               onClick={() => setCameraCollapsed(false)}
-              className="w-full py-2 bg-zinc-900 border-b border-white/10 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-zinc-800 transition"
+              className="w-full py-2 bg-card border-b border-border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-muted transition"
             >
               <Camera className="w-3.5 h-3.5" />
               Show Camera
@@ -1142,7 +1142,7 @@ export default function BenchedPhotoBooth() {
               <Loader2 className="w-5 h-5 text-primary animate-spin" />
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">AI Scanning Card...</p>
-                <p className="text-[8px] text-zinc-400 mt-0.5">Analyzing image with Gemini for card identification</p>
+                <p className="text-[8px] text-muted-foreground mt-0.5">Analyzing image with Gemini for card identification</p>
               </div>
             </div>
           )}
@@ -1150,11 +1150,11 @@ export default function BenchedPhotoBooth() {
           <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
             {/* ─── Image Previews ──────────────────────────────── */}
             <div>
-              <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2 mb-3">
+              <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-3">
                 <Camera className="w-3.5 h-3.5" /> Captured Images
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <div className="aspect-[2.5/3.5] relative bg-zinc-900 rounded-xl overflow-hidden border-2 border-white/10">
+                <div className="aspect-[2.5/3.5] relative bg-card rounded-xl overflow-hidden border-2 border-border">
                   {capturedFrontPreview ? (
                     <img src={capturedFrontPreview} alt="Front" className="w-full h-full object-cover" />
                   ) : reviewData?.frontUrl ? (
@@ -1166,7 +1166,7 @@ export default function BenchedPhotoBooth() {
                   )}
                   <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white">Front</Badge>
                 </div>
-                <div className="aspect-[2.5/3.5] relative bg-zinc-900 rounded-xl overflow-hidden border-2 border-white/10">
+                <div className="aspect-[2.5/3.5] relative bg-card rounded-xl overflow-hidden border-2 border-border">
                   {capturedBackPreview ? (
                     <img src={capturedBackPreview} alt="Back" className="w-full h-full object-cover" />
                   ) : reviewData?.backUrl ? (
@@ -1184,7 +1184,7 @@ export default function BenchedPhotoBooth() {
             {/* ─── Metadata Form ───────────────────────────────── */}
             {reviewData && (
               <div>
-                <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center justify-between w-full mb-3">
+                <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center justify-between w-full mb-3">
                   <div className="flex items-center gap-2">
                     <BadgeCheck className="w-3.5 h-3.5" /> Card Details
                   </div>
@@ -1200,21 +1200,21 @@ export default function BenchedPhotoBooth() {
                   </Button>
                 </h2>
 
-                <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
+                <Card className="bg-card border-border text-foreground shadow-none">
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       {/* ID Source indicator */}
-                      <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5">
+                      <div className="flex items-center justify-between p-3 bg-background rounded-lg border border-border">
                         <div>
-                          <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">ID Source</p>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">ID Source</p>
                           <p className="text-[10px] font-black uppercase text-primary flex items-center gap-1">
                             <Gem className="w-3 h-3 text-primary" /> {reviewData.identificationSource} 
                           </p>
                         </div>
                         {reviewData.identificationConfidence > 0 && (
                           <div className="text-right">
-                            <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Confidence</p>
-                            <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", reviewData.identificationConfidence > 0.9 ? "text-green-400 bg-green-950/20" : "text-yellow-400 bg-yellow-950/20")}>
+                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Confidence</p>
+                            <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", reviewData.identificationConfidence > 0.9 ? "text-green-700 bg-green-950/20" : "text-yellow-700 bg-yellow-950/20")}>
                               {Math.round(reviewData.identificationConfidence * 100)}% Match
                             </Badge>
                           </div>
@@ -1223,37 +1223,37 @@ export default function BenchedPhotoBooth() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5 col-span-2">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Card / Player Name</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Card / Player Name</Label>
                           <Input 
                             value={reviewData.cardName} 
                             onChange={e => setReviewData({...reviewData, cardName: e.target.value})}
-                            className="font-bold bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            className="font-bold bg-background border-border text-foreground focus:ring-primary" 
                             placeholder="e.g. Charizard, LeBron James"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Set Name</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Set Name</Label>
                           <Input 
                             value={reviewData.setName} 
                             onChange={e => setReviewData({...reviewData, setName: e.target.value})}
-                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Card # / Number</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Card # / Number</Label>
                           <Input 
                             value={reviewData.cardNumber} 
                             onChange={e => setReviewData({...reviewData, cardNumber: e.target.value})}
-                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Category / Sport</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category / Sport</Label>
                           <Select value={reviewData.sport} onValueChange={val => setReviewData({...reviewData, sport: val})}>
-                            <SelectTrigger className="font-bold bg-zinc-950 border-white/10 text-white">
+                            <SelectTrigger className="font-bold bg-background border-border text-foreground">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                            <SelectContent className="bg-card border-border text-foreground">
                               <SelectItem value="Pokemon">Pokemon</SelectItem>
                               <SelectItem value="NBA">NBA</SelectItem>
                               <SelectItem value="NFL">NFL</SelectItem>
@@ -1263,71 +1263,71 @@ export default function BenchedPhotoBooth() {
                           </Select>
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Year</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Year</Label>
                           <Input 
                             type="number" 
                             value={reviewData.year || ''} 
                             onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})}
-                            className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                            className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                           />
                         </div>
                         {reviewData.sport === "Pokemon" && (
                           <>
                             <div className="space-y-1.5">
-                              <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pokemon Code</Label>
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pokemon Code</Label>
                               <Input 
                                 value={reviewData.pokemonCode} 
                                 onChange={e => setReviewData({...reviewData, pokemonCode: e.target.value})}
-                                className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                                className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                                 placeholder="e.g. SV4a, 150/150"
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rarity / Stars</Label>
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Rarity / Stars</Label>
                               <Input 
                                 value={reviewData.rarity} 
                                 onChange={e => setReviewData({...reviewData, rarity: e.target.value})}
-                                className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                                className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                                 placeholder="e.g. Rare, Secret Rare, **"
                               />
                             </div>
                           </>
                         )}
                         
-                        <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 col-span-2">
+                        <div className="flex items-center justify-between p-3 bg-background rounded-lg border border-border col-span-2">
                           <div className="space-y-0.5">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Rare Designation</Label>
-                            <p className="text-[8px] text-zinc-500 uppercase">Mark if this card is considered rare or a collector item</p>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Rare Designation</Label>
+                            <p className="text-[8px] text-muted-foreground uppercase">Mark if this card is considered rare or a collector item</p>
                           </div>
                           <input 
                             type="checkbox" 
                             checked={reviewData.isRare}
                             onChange={e => setReviewData({...reviewData, isRare: e.target.checked})}
-                            className="w-4 h-4 accent-primary rounded border-zinc-700 bg-zinc-950 focus:ring-primary"
+                            className="w-4 h-4 accent-primary rounded border-border bg-background focus:ring-primary"
                           />
                         </div>
 
                         <div className="space-y-1.5 col-span-2">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">AI Listing Description</Label>
                           <textarea
                             value={reviewData.description}
                             onChange={e => setReviewData({...reviewData, description: e.target.value})}
                             placeholder="Gemini is analyzing the card..."
-                            className="w-full min-h-[70px] rounded-lg border border-white/10 bg-zinc-950 p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-white placeholder-zinc-600"
+                            className="w-full min-h-[70px] rounded-lg border border-border bg-background p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-foreground placeholder-zinc-600"
                           />
                         </div>
                       </div>
 
                       {/* Condition & Price */}
-                      <div className="pt-4 border-t border-white/5">
+                      <div className="pt-4 border-t border-border">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Condition Estimate</Label>
                             <Select value={reviewData.condition} onValueChange={val => setReviewData({...reviewData, condition: val})}>
-                              <SelectTrigger className="border-primary/20 bg-zinc-950 text-white font-black uppercase text-[10px]">
+                              <SelectTrigger className="border-primary/20 bg-background text-foreground font-black uppercase text-[10px]">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                              <SelectContent className="bg-card border-border text-foreground">
                                 <SelectItem value="Mint">Gem Mint (10)</SelectItem>
                                 <SelectItem value="Near Mint">Near Mint (NM)</SelectItem>
                                 <SelectItem value="Lightly Played">Lightly Played (LP)</SelectItem>
@@ -1342,7 +1342,7 @@ export default function BenchedPhotoBooth() {
                               type="number" 
                               value={reviewData.price || ''} 
                               onChange={e => setReviewData({...reviewData, price: parseFloat(e.target.value) || undefined})}
-                              className="font-black border-primary/20 bg-zinc-950 text-white focus:ring-primary" 
+                              className="font-black border-primary/20 bg-background text-foreground focus:ring-primary" 
                             />
                           </div>
                         </div>
@@ -1351,7 +1351,7 @@ export default function BenchedPhotoBooth() {
                       {/* Action Buttons */}
                       <div className="pt-6 space-y-3">
                         <Button 
-                          className="w-full bg-primary text-black hover:bg-primary/90 font-black uppercase tracking-wider py-6 text-sm"
+                          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-black uppercase tracking-wider py-6 text-sm"
                           onClick={handleSubmitToBench}
                           disabled={saving || aiScanning}
                         >
@@ -1361,7 +1361,7 @@ export default function BenchedPhotoBooth() {
 
                         <Button 
                           variant="outline"
-                          className="w-full border-white/10 text-zinc-300 hover:bg-zinc-800 font-black uppercase tracking-wider py-5 text-xs"
+                          className="w-full border-border text-foreground/80 hover:bg-muted font-black uppercase tracking-wider py-5 text-xs"
                           onClick={handleSkipAndQueue}
                           disabled={saving}
                         >

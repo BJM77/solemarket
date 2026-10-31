@@ -206,7 +206,7 @@ export default function ShippingLabelsPage() {
                                 </form>
                             ) : (
                                 <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-xl">
-                                    <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
+                                    <Package className="h-12 w-12 mx-auto mb-2 text-foreground/80" />
                                     <p className="text-sm">Select an order from the list to continue.</p>
                                 </div>
                             )}

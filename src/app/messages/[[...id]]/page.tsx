@@ -90,7 +90,7 @@ function ConversationList({
       <ScrollArea className="flex-1">
         {conversations.length === 0 ? (
           <div className="text-center p-8 text-gray-500">
-            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-foreground/80" />
             No conversations yet.
           </div>
         ) : (
@@ -118,7 +118,7 @@ function ConversationList({
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold truncate">{displayParticipant?.displayName}</h3>
-                      <span className="text-xs text-gray-400 flex-shrink-0">
+                      <span className="text-xs text-muted-foreground flex-shrink-0">
                         {convo.lastMessage.timestamp && formatDistanceToNow(convo.lastMessage.timestamp.toDate(), { addSuffix: true })}
                       </span>
                     </div>
@@ -262,7 +262,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
               <Image src={conversation.productContext.imageUrl} alt={conversation.productContext.title} fill className="object-cover" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Product Protocol</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-0.5">Product Protocol</p>
               <p className="text-sm font-bold text-slate-900 line-clamp-1">{conversation.productContext.title}</p>
             </div>
           </Link>
@@ -270,19 +270,19 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       )}
 
       {conversation.orderContext && (
-        <div className="p-3 border-b bg-slate-900 text-white">
+        <div className="p-3 border-b bg-card text-foreground">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
+              <div className="p-2 bg-muted rounded-lg">
                 <Package className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Active Order Tracking</p>
+                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Active Order Tracking</p>
                 <p className="text-xs font-bold font-mono">#{conversation.orderContext.id.toUpperCase()}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Status</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Status</p>
               <p className="text-xs font-bold text-primary uppercase">{conversation.orderContext.status}</p>
             </div>
           </div>
@@ -330,7 +330,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
           </Button>
         </form>
         {offPlatformCheck.flagged && (
-          <p role="alert" className="mt-2 text-xs text-amber-500">
+          <p role="alert" className="mt-2 text-xs text-amber-700">
             {OFF_PLATFORM_WARNING} Contact details will be hidden.
           </p>
         )}
@@ -391,7 +391,7 @@ export default function MessagesPage() {
         ) : (
           <div className="flex-1 flex items-center justify-center text-center p-8">
             <div className="text-gray-500">
-              <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <MessageSquare className="h-16 w-16 mx-auto mb-4 text-foreground/80" />
               <h2 className="text-xl font-semibold">Select a conversation</h2>
               <p>Or start a new one from a product page.</p>
             </div>

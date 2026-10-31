@@ -56,12 +56,12 @@ export default async function ShoeTopicPage({ params }: Props) {
     return (
         <div className="min-h-screen pb-20">
             <TopicSchema topic={topic} urlPath={`/shoes/${topic.slug}`} />
-            <div className="bg-slate-900 text-white py-16 lg:py-24 mb-12">
+            <div className="bg-card text-foreground py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6">
                         {topic.h1}
                     </h1>
-                    <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
+                    <p className="text-xl text-foreground/80 max-w-3xl leading-relaxed">
                         {topic.description}
                     </p>
                 </div>

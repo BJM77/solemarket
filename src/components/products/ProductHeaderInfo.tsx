@@ -52,9 +52,9 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     </div>
                 )}
                 {recentViews > 5 && (
-                    <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50 animation-pulse-subtle">
-                        <TrendingUp className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-                        <span className="text-xs font-bold text-orange-700 dark:text-orange-300">
+                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-blue-100 dark:border-orange-900/50 animation-pulse-subtle">
+                        <TrendingUp className="h-3.5 w-3.5 text-blue-600 dark:text-orange-400" />
+                        <span className="text-xs font-bold text-blue-700 dark:text-orange-300">
                             {recentViews} people viewed this
                         </span>
                     </div>
@@ -126,10 +126,10 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                             {product.multiCardTier && (
                                 <span className={cn(
                                     "text-[9px] font-black uppercase px-2 py-0.5 rounded ml-auto border",
-                                    product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
-                                    product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-slate-400 border-slate-500/20' :
-                                    product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                    'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                    product.multiCardTier === 'bronze' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                    product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
+                                    product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' :
+                                    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
                                 )}>
                                     {product.multiCardTier}
                                 </span>
@@ -143,7 +143,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                                         key={idx} 
                                         className="bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-sm"
                                     >
-                                        <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Buy {tier.minQuantity}+</span>
+                                        <span className="text-[8px] sm:text-[9px] font-bold text-muted-foreground dark:text-slate-500 uppercase tracking-wider">Buy {tier.minQuantity}+</span>
                                         <span className="text-xs sm:text-sm font-black text-indigo-600 dark:text-indigo-400 mt-0.5">{tier.discountPercent}% Off</span>
                                     </div>
                                 ))

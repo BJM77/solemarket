@@ -30,7 +30,7 @@ export default async function SellersPage() {
 
             {sellers.length === 0 ? (
                 <div className="text-center py-16">
-                    <Store className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                    <Store className="h-12 w-12 mx-auto text-foreground/80 mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900">No sellers found yet</h3>
                     <p className="text-gray-500 max-w-sm mx-auto mt-2">
                         It looks like we're just getting started. Be the first to list your items!
@@ -39,10 +39,10 @@ export default async function SellersPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {sellers.map((seller) => (
-                        <Card key={seller.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden border-white/5 bg-card">
-                            <CardHeader className="bg-gradient-to-r from-white/5 to-transparent pb-6 pt-6 border-b border-white/5">
+                        <Card key={seller.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden border-border bg-card">
+                            <CardHeader className="bg-gradient-to-r from-white/5 to-transparent pb-6 pt-6 border-b border-border">
                                 <div className="flex items-center gap-4">
-                                    <Avatar className="h-16 w-16 border-2 border-white/10 shadow-sm bg-black">
+                                    <Avatar className="h-16 w-16 border-2 border-border shadow-sm bg-background">
                                         <AvatarImage src={seller.photoURL || ''} alt={seller.displayName || 'Seller'} />
                                         <AvatarFallback className="text-lg font-bold text-primary bg-primary/10">
                                             {seller.displayName?.charAt(0) || 'S'}
@@ -98,12 +98,12 @@ export default async function SellersPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <ShoppingBag className="w-4 h-4 mr-1.5 text-muted-foreground/60" />
                                         <span>{seller.productCount}+ items</span>
                                     </div>
-                                    <Button asChild size="sm" className="bg-orange-700 hover:bg-orange-800 text-white">
+                                    <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800 text-white">
                                         <Link href={`/seller/${seller.id}`}>
                                             Visit Shop
                                         </Link>

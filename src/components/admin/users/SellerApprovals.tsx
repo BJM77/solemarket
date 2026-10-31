@@ -22,7 +22,7 @@ export function SellerApprovals({ users, onApprove, onReject, isPending }: Selle
     if (pendingSellers.length === 0) {
         return (
             <div className="text-center py-12 bg-white rounded-lg border border-dashed border-slate-200">
-                <Clock className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+                <Clock className="h-12 w-12 mx-auto text-foreground/80 mb-4" />
                 <h3 className="text-lg font-medium text-slate-900">No pending applications</h3>
                 <p className="text-slate-500">All seller applications have been processed.</p>
             </div>

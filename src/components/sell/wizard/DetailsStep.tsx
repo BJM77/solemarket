@@ -87,8 +87,8 @@ export function DetailsStep({
     const AIAnalyzingIndicator = ({ fieldName }: { fieldName: string }) => {
         if (!analyzingFields[fieldName]) return null;
         return (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 animate-pulse duration-1000">
-                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-indigo-400" />
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-600 animate-pulse duration-1000">
+                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-indigo-600" />
                 <span>AI ANALYZING...</span>
             </div>
         );
@@ -96,7 +96,7 @@ export function DetailsStep({
 
     return (
         <div className="space-y-6">
-            <div className="pt-2 border-t border-white/10 my-4" />
+            <div className="pt-2 border-t border-border my-4" />
 
             <Card className="border-0 shadow-md bg-card">
                 <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>
@@ -154,7 +154,7 @@ export function DetailsStep({
                                         <FormControl>
                                             <SelectTrigger className={cn(
                                                 suggestedFields.includes('subCategory') && "bg-primary/5 border-primary/30",
-                                                analyzingFields['subCategory'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                                analyzingFields['subCategory'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
                                             )}>
                                                 <SelectValue placeholder="Select sub-category" />
                                             </SelectTrigger>
@@ -193,9 +193,9 @@ export function DetailsStep({
                         )} />
 
                         <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5 md:col-span-2">
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border p-4 shadow-sm bg-muted/60 md:col-span-2">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-sm font-bold text-white">Enable Buy & Collect</FormLabel>
+                                    <FormLabel className="text-sm font-bold text-foreground">Enable Buy & Collect</FormLabel>
                                     <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>
                                 </div>
                                 <FormControl>
@@ -226,7 +226,7 @@ export function DetailsStep({
                                     <FormControl>
                                         <SelectTrigger className={cn(
                                             suggestedFields.includes('condition') && "bg-primary/5 border-primary/30",
-                                            analyzingFields['condition'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                            analyzingFields['condition'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
                                         )}>
                                             <SelectValue placeholder="Select condition" />
                                         </SelectTrigger>
@@ -391,7 +391,7 @@ export function DetailsStep({
                                 >
                                     <FormControl>
                                         <SelectTrigger className={cn(
-                                            analyzingFields['gradingCompany'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-400"
+                                            analyzingFields['gradingCompany'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
                                         )}>
                                             <SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} />
                                         </SelectTrigger>

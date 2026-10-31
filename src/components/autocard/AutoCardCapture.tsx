@@ -578,7 +578,7 @@ export default function AutoCardCapture() {
       )}
 
       {!done && (
-        <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: `${dims.w} / ${dims.h}` }} onPointerDown={onViewfinderTap}>
+        <div className="relative mx-auto w-[70%] overflow-hidden rounded-xl bg-background" style={{ aspectRatio: `${dims.w} / ${dims.h}` }} onPointerDown={onViewfinderTap}>
           <video ref={videoRef} playsInline muted className="absolute inset-0 h-full w-full object-cover" data-testid="autocard-video" />
           {frozen && <img src={frozen} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" data-testid="autocard-frozen" />}
           {showGuide && (

@@ -40,7 +40,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
   const isProcessing = status.steps.some(s => s.status === 'processing');
   
   return (
-    <div className="bg-zinc-900 border border-white/5 rounded-xl overflow-hidden mb-4">
+    <div className="bg-card border border-border rounded-xl overflow-hidden mb-4">
       {/* Header */}
       <div 
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
@@ -48,19 +48,19 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
       >
         <div className="flex items-center gap-3">
           {isComplete ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-700" />
           ) : hasError ? (
             <XCircle className="w-5 h-5 text-red-500" />
           ) : isProcessing ? (
             <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
           ) : (
-            <Clock className="w-5 h-5 text-zinc-500" />
+            <Clock className="w-5 h-5 text-muted-foreground" />
           )}
           <div>
-            <div className="font-bold text-sm text-white truncate max-w-[160px]">
+            <div className="font-bold text-sm text-foreground truncate max-w-[160px]">
               Sync: {status.id}
             </div>
-            <div className="text-[10px] text-zinc-400">
+            <div className="text-[10px] text-muted-foreground">
               {isComplete ? 'Complete' : hasError ? 'Failed' : isProcessing ? 'Processing...' : 'Pending'}
               {mounted && status.startedAt && ` • ${new Date(status.startedAt).toLocaleTimeString()}`}
             </div>
@@ -71,7 +71,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {hasError && onRetry && (
             <button
               onClick={(e) => { e.stopPropagation(); onRetry(status.id); }}
-              className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold hover:bg-blue-500/30 transition"
+              className="px-3 py-1 bg-blue-500/20 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-500/30 transition"
             >
               Retry
             </button>
@@ -79,12 +79,12 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {isProcessing && onCancel && (
             <button
               onClick={(e) => { e.stopPropagation(); onCancel(status.id); }}
-              className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold hover:bg-red-500/30 transition"
+              className="px-3 py-1 bg-red-500/20 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-500/30 transition"
             >
               Cancel
             </button>
           )}
-          <div className="text-[10px] font-bold text-zinc-500">
+          <div className="text-[10px] font-bold text-muted-foreground">
             {status.steps.filter(s => s.status === 'success').length}/{status.steps.length}
           </div>
         </div>
@@ -92,13 +92,13 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
       
       {/* Steps */}
       {expanded && (
-        <div className="border-t border-white/5 p-4 space-y-4 bg-zinc-950/40">
+        <div className="border-t border-border p-4 space-y-4 bg-background/40">
           {status.steps.map((step) => (
             <div key={step.id} className="flex items-start gap-3">
               {/* Step Icon */}
               <div className="mt-0.5">
                 {step.status === 'success' && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
                 )}
                 {step.status === 'error' && (
                   <XCircle className="w-4 h-4 text-red-500" />
@@ -117,11 +117,11 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
               {/* Step Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium text-xs text-white">
+                  <div className="font-medium text-xs text-foreground">
                     {step.label}
                   </div>
                    {mounted && step.timestamp && (
-                    <div className="text-[8px] text-zinc-500 font-mono">
+                    <div className="text-[8px] text-muted-foreground font-mono">
                       {new Date(step.timestamp).toLocaleTimeString()}
                     </div>
                   )}
@@ -130,9 +130,9 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                 {step.detail && (
                   <div className={cn(
                     "text-[10px] mt-1 font-mono break-all",
-                    step.status === 'error' ? "text-red-400" :
-                    step.status === 'success' ? "text-emerald-400" :
-                    "text-zinc-400"
+                    step.status === 'error' ? "text-red-600" :
+                    step.status === 'success' ? "text-emerald-700" :
+                    "text-muted-foreground"
                   )}>
                     {step.detail}
                   </div>
@@ -140,7 +140,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                 
                 {/* Progress bar for active step */}
                 {step.status === 'processing' && (
-                  <div className="mt-2 w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }} />
                   </div>
                 )}
@@ -151,7 +151,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {/* Error Details */}
           {status.error && (
             <div className="mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <div className="text-[10px] text-red-400 font-mono break-all">
+              <div className="text-[10px] text-red-600 font-mono break-all">
                 ❌ {status.error}
               </div>
             </div>
@@ -159,7 +159,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           
           {/* Completion Time */}
           {mounted && status.completedAt && (
-            <div className="text-[8px] text-zinc-500 text-right font-mono">
+            <div className="text-[8px] text-muted-foreground text-right font-mono">
               Completed: {new Date(status.completedAt).toLocaleTimeString()}
             </div>
           )}

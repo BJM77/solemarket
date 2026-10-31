@@ -180,7 +180,7 @@ export default function SellerPage() {
 
                 <div className="flex items-center gap-2 mt-4">
                   <div className="flex items-center gap-1">
-                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-700" />
                     <span className="font-bold">{typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'}</span>
                   </div>
                   <span className="text-muted-foreground text-sm">({reviews?.length || 0} reviews)</span>

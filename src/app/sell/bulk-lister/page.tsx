@@ -133,7 +133,7 @@ export default function BulkImageListerPage() {
                     >
                         <input {...getInputProps()} />
                         <div className="p-4 bg-white rounded-full shadow-sm mb-4">
-                            <UploadCloud className={`h-10 w-10 ${isDragActive ? 'text-primary' : 'text-slate-400'}`} />
+                            <UploadCloud className={`h-10 w-10 ${isDragActive ? 'text-primary' : 'text-muted-foreground'}`} />
                         </div>
                         <h3 className="text-xl font-bold text-slate-800 mb-2">
                             {isDragActive ? 'Drop images here...' : 'Drag & drop item photos'}
@@ -141,7 +141,7 @@ export default function BulkImageListerPage() {
                         <p className="text-slate-500 mb-6">
                             Upload photos of your items. Our AI will analyze them and generate draft listings.
                         </p>
-                        <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span>Supports JPG, PNG, WEBP</span>
                             <span>•</span>
                             <span>Max 20MB per file</span>
@@ -170,7 +170,7 @@ export default function BulkImageListerPage() {
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles className="mr-2 h-4 w-4 text-yellow-400" />
+                                    <Sparkles className="mr-2 h-4 w-4 text-yellow-700" />
                                     Auto-Draft All with AI
                                 </>
                             )}
@@ -194,9 +194,9 @@ export default function BulkImageListerPage() {
                                                 <X className="h-4 w-4" />
                                             </Button>
                                         )}
-                                        {upload.status === 'uploading' && <Loader2 className="h-6 w-6 text-white animate-spin" />}
-                                        {upload.status === 'processing' && <Sparkles className="h-6 w-6 text-yellow-400 animate-pulse" />}
-                                        {upload.status === 'success' && <CheckCircle2 className="h-8 w-8 text-emerald-400" />}
+                                        {upload.status === 'uploading' && <Loader2 className="h-6 w-6 text-foreground animate-spin" />}
+                                        {upload.status === 'processing' && <Sparkles className="h-6 w-6 text-yellow-700 animate-pulse" />}
+                                        {upload.status === 'success' && <CheckCircle2 className="h-8 w-8 text-emerald-700" />}
                                     </div>
 
                                     {/* Progress Bar */}
@@ -214,7 +214,7 @@ export default function BulkImageListerPage() {
                                         {upload.file.name}
                                     </div>
                                     <div className="flex items-center justify-between mt-1">
-                                        <div className="text-[10px] text-slate-400 capitalize">
+                                        <div className="text-[10px] text-muted-foreground capitalize">
                                             {upload.status === 'error' ? (
                                                 <span className="text-red-500 truncate" title={upload.error}>{upload.error}</span>
                                             ) : upload.status}

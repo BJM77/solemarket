@@ -94,7 +94,7 @@ export default function QrCodesPage() {
                                     {product.imageUrls?.[0] ? (
                                         <img src={product.imageUrls[0]} alt={product.title} className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                        <div className="w-full h-full flex items-center justify-center text-foreground/80">
                                             <QrCode className="h-8 w-8" />
                                         </div>
                                     )}

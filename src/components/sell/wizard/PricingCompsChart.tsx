@@ -60,11 +60,11 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
   const fillD = `${pathD} L ${points[points.length - 1].x} 115 L ${points[0].x} 115 Z`;
 
   return (
-    <div className="mt-4 p-4 bg-white/5 border border-white/5 rounded-2xl relative animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div className="mt-4 p-4 bg-muted/60 border border-border rounded-2xl relative animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="flex items-center justify-between mb-3">
         <div className="space-y-0.5">
-          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-            <Sparkles className="h-3 w-3 text-indigo-400" />
+          <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1">
+            <Sparkles className="h-3 w-3 text-indigo-600" />
             Market Value Comps
           </h4>
           <p className="text-[9px] text-slate-500">Recent sold listings matching your item specs</p>
@@ -73,7 +73,7 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
       </div>
 
       {/* SVG Canvas wrapper */}
-      <div className="relative h-[120px] w-full bg-slate-950/40 rounded-xl overflow-hidden border border-white/5 p-1">
+      <div className="relative h-[120px] w-full bg-background/40 rounded-xl overflow-hidden border border-border p-1">
         <svg viewBox="0 0 400 120" className="w-full h-full overflow-visible select-none pointer-events-auto">
           <defs>
             {/* Smooth charts gradients */}
@@ -133,14 +133,14 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
 
         {/* Dynamic Tooltip on Hover */}
         {activePoint && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur border border-white/10 p-2.5 rounded-xl shadow-2xl animate-in fade-in zoom-in duration-200 z-30 max-w-[200px] pointer-events-none">
-            <div className="flex items-center gap-1.5 border-b border-white/5 pb-1 mb-1">
-              <Calendar className="h-3 w-3 text-indigo-400" />
-              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{activePoint.day}</span>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-card/95 backdrop-blur border border-border p-2.5 rounded-xl shadow-2xl animate-in fade-in zoom-in duration-200 z-30 max-w-[200px] pointer-events-none">
+            <div className="flex items-center gap-1.5 border-b border-border pb-1 mb-1">
+              <Calendar className="h-3 w-3 text-indigo-600" />
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">{activePoint.day}</span>
             </div>
             <div className="space-y-0.5">
-              <p className="text-xs font-black text-white">${formatPrice(activePoint.val)} AUD</p>
-              <p className="text-[9px] text-slate-400 font-medium leading-tight">{activePoint.desc}</p>
+              <p className="text-xs font-black text-foreground">${formatPrice(activePoint.val)} AUD</p>
+              <p className="text-[9px] text-muted-foreground font-medium leading-tight">{activePoint.desc}</p>
             </div>
           </div>
         )}

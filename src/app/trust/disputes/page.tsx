@@ -40,12 +40,12 @@ export default function DisputeStatsPage() {
 
                     <Card className="bg-white dark:bg-slate-900 border-none shadow-md">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                            <CardTitle className="text-sm text-emerald-700 uppercase tracking-widest flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4" /> SLA Met (&lt; 48h)
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-4xl font-black text-emerald-500">94%</div>
+                            <div className="text-4xl font-black text-emerald-700">94%</div>
                             <p className="text-xs text-slate-500 mt-1">Auto-resolved or mediated</p>
                         </CardContent>
                     </Card>
@@ -76,7 +76,7 @@ export default function DisputeStatsPage() {
                                 <div className="flex justify-between text-xs font-bold text-slate-500">
                                     <span>Seller Favored</span> <span>28%</span>
                                 </div>
-                                <div className="flex justify-between text-xs font-bold text-slate-400">
+                                <div className="flex justify-between text-xs font-bold text-muted-foreground">
                                     <span>Split</span> <span>11%</span>
                                 </div>
                             </div>

@@ -129,9 +129,9 @@ export default function EmailManagementPage() {
                                                 <TableCell className="max-w-[250px] truncate">{log.subject}</TableCell>
                                                 <TableCell>
                                                     <Badge className="gap-1 bg-transparent border-none p-0 text-inherit hover:bg-transparent">
-                                                        {log.status === 'sent' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                                                        {log.status === 'sent' && <CheckCircle2 className="h-4 w-4 text-green-700" />}
                                                         {log.status === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
-                                                        {log.status === 'dev_skipped' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+                                                        {log.status === 'dev_skipped' && <AlertTriangle className="h-4 w-4 text-yellow-700" />}
                                                         <span className="capitalize">{log.status}</span>
                                                     </Badge>
                                                 </TableCell>
@@ -188,7 +188,7 @@ export default function EmailManagementPage() {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">API Status</span>
-                                <Badge className="bg-green-500">Connected</Badge>
+                                <Badge className="bg-green-700">Connected</Badge>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Default Sender</span>

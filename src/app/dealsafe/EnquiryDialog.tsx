@@ -75,15 +75,15 @@ export function DealSafeEnquiryDialog({ children }: { children: React.ReactNode 
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-slate-900 border-white/10 text-white shadow-2xl rounded-[2rem]">
+            <DialogContent className="sm:max-w-[500px] bg-card border-border text-foreground shadow-2xl rounded-[2rem]">
                 <DialogHeader>
-                    <DialogTitle className="text-3xl font-black italic flex items-center gap-3 text-white">
+                    <DialogTitle className="text-3xl font-black italic flex items-center gap-3 text-foreground">
                         <div className="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
                             <Send className="h-5 w-5 text-primary" />
                         </div>
                         Secure Inquiry
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400 text-lg">
+                    <DialogDescription className="text-muted-foreground text-lg">
                         Explain your deal or ask any questions. A verified Benched concierge will review your message immediately.
                     </DialogDescription>
                 </DialogHeader>
@@ -91,48 +91,48 @@ export function DealSafeEnquiryDialog({ children }: { children: React.ReactNode 
                 <form onSubmit={handleSubmit} className="space-y-6 pt-6">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-slate-300 font-bold ml-1">Your Name</Label>
+                            <Label htmlFor="name" className="text-foreground/80 font-bold ml-1">Your Name</Label>
                             <Input
                                 id="name"
                                 placeholder="Full Name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="bg-white/5 border-white/10 h-12 focus:ring-primary text-white"
+                                className="bg-muted/60 border-border h-12 focus:ring-primary text-foreground"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-slate-300 font-bold ml-1">Email Address</Label>
+                            <Label htmlFor="email" className="text-foreground/80 font-bold ml-1">Email Address</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 placeholder="name@example.com"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="bg-white/5 border-white/10 h-12 focus:ring-primary text-white"
+                                className="bg-muted/60 border-border h-12 focus:ring-primary text-foreground"
                                 required
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-slate-300 font-bold ml-1">Phone Number (Optional)</Label>
+                        <Label htmlFor="phone" className="text-foreground/80 font-bold ml-1">Phone Number (Optional)</Label>
                         <Input
                             id="phone"
                             type="tel"
                             placeholder="+61 400 000 000"
                             value={formData.phoneNumber}
                             onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                            className="bg-white/5 border-white/10 h-12 focus:ring-primary text-white"
+                            className="bg-muted/60 border-border h-12 focus:ring-primary text-foreground"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="message" className="text-slate-300 font-bold ml-1">Deal Details</Label>
+                        <Label htmlFor="message" className="text-foreground/80 font-bold ml-1">Deal Details</Label>
                         <Textarea
                             id="message"
                             placeholder="I'm buying a high-value item and want to use DealSafe for verification..."
-                            className="min-h-[120px] bg-white/5 border-white/10 focus:ring-primary text-white resize-none p-4"
+                            className="min-h-[120px] bg-muted/60 border-border focus:ring-primary text-foreground resize-none p-4"
                             value={formData.message}
                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                             required
@@ -145,9 +145,9 @@ export function DealSafeEnquiryDialog({ children }: { children: React.ReactNode 
                     <DialogFooter className="pt-4">
                         <Button type="submit" className="w-full h-14 text-xl font-black italic rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all" disabled={isPending}>
                             {isPending ? (
-                                <><Loader2 className="mr-3 h-6 w-6 animate-spin text-white" /> Sending...</>
+                                <><Loader2 className="mr-3 h-6 w-6 animate-spin text-foreground" /> Sending...</>
                             ) : (
-                                <><Send className="mr-3 h-5 w-5 text-white" /> Secure Transmission</>
+                                <><Send className="mr-3 h-5 w-5 text-foreground" /> Secure Transmission</>
                             )}
                         </Button>
                     </DialogFooter>

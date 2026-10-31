@@ -105,7 +105,7 @@ function StoreRow({ store }: { store: StoreWithProducts }) {
                             </Link>
                             <div className="flex items-center gap-2 mt-2">
                                 <div className="flex items-center gap-1 bg-yellow-400/10 px-2 py-0.5 rounded-full border border-yellow-400/20">
-                                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-700" />
                                     <span className="text-xs font-bold text-yellow-700">{store.rating.toFixed(1)}</span>
                                 </div>
                                 <span className="text-xs text-muted-foreground font-medium">{store.totalSales}+ Sales</span>
@@ -140,7 +140,7 @@ function StoreRow({ store }: { store: StoreWithProducts }) {
                                         className="w-full h-full object-cover group-hover/product:scale-110 transition-transform duration-700"
                                     />
                                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover/product:opacity-100 transition-opacity duration-300">
-                                        <p className="text-[10px] text-white font-bold truncate">{product.title}</p>
+                                        <p className="text-[10px] text-foreground font-bold truncate">{product.title}</p>
                                         <p className="text-xs text-primary font-black">${formatPrice(product.price)}</p>
                                     </div>
                                     <div className="absolute top-2 right-2 flex gap-1">
@@ -220,7 +220,7 @@ export default function TopStoresPage() {
                         <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">Verified Rankings</h2>
                         <div className="flex gap-4">
                              <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                                <div className="h-2 w-2 rounded-full bg-green-700 animate-pulse" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Stats</span>
                              </div>
                         </div>
@@ -243,11 +243,11 @@ export default function TopStoresPage() {
 
             {/* Bottom CTA */}
             <div className="container mx-auto px-4 mt-20 text-center">
-                <div className="bg-zinc-900 rounded-[2.5rem] p-10 md:p-16 text-white overflow-hidden relative border border-white/5">
+                <div className="bg-card rounded-[2.5rem] p-10 md:p-16 text-foreground overflow-hidden relative border border-border">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -mr-32 -mt-32" />
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4">Want to be on this list?</h2>
-                        <p className="text-zinc-400 max-w-lg mx-auto mb-8 font-medium">Apply for a Business Account and start building your reputation on Australia's fastest growing marketplace.</p>
+                        <p className="text-muted-foreground max-w-lg mx-auto mb-8 font-medium">Apply for a Business Account and start building your reputation on Australia's fastest growing marketplace.</p>
                         <Button size="lg" className="rounded-full px-8 h-12 font-bold bg-primary text-primary-foreground hover:bg-primary/80" asChild>
                             <Link href="/sell">Apply Now</Link>
                         </Button>

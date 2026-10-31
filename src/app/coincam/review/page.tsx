@@ -108,86 +108,86 @@ export default function CoinReviewQueue() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="flex items-center justify-between p-4 bg-card border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/coincam')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/coincam')} className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
             <h1 className="text-xl font-black uppercase font-headline tracking-tighter">Review Queue</h1>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Coin Verification Workspace</p>
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Coin Verification Workspace</p>
           </div>
         </div>
-        <Badge className="bg-primary text-black font-black px-5 py-1 text-[10px] tracking-widest">{imports.length} COINS</Badge>
+        <Badge className="bg-primary text-primary-foreground font-black px-5 py-1 text-[10px] tracking-widest">{imports.length} COINS</Badge>
       </header>
 
       <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-grow">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Search coins, denominations, or country..." 
-              className="pl-12 bg-zinc-900 h-12 font-medium border-white/10 shadow-sm text-white focus:ring-primary"
+              className="pl-12 bg-card h-12 font-medium border-border shadow-sm text-foreground focus:ring-primary"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="bg-zinc-900 border-white/10 text-white gap-2 font-black uppercase text-[10px] px-6 h-12 hover:bg-zinc-800">
+          <Button variant="outline" className="bg-card border-border text-foreground gap-2 font-black uppercase text-[10px] px-6 h-12 hover:bg-muted">
             <Filter className="w-4 h-4" /> Filters
           </Button>
         </div>
 
         {/* Status filtering Tabs */}
-        <div className="flex border-b border-white/10 mb-8 overflow-x-auto gap-6 text-[10px] font-black uppercase tracking-wider">
+        <div className="flex border-b border-border mb-8 overflow-x-auto gap-6 text-[10px] font-black uppercase tracking-wider">
           <button 
             onClick={() => setActiveTab('ALL')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+              activeTab === 'ALL' ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            All Items <span className="bg-zinc-850 text-zinc-400 rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
+            All Items <span className="bg-zinc-850 text-muted-foreground rounded px-1.5 py-0.5 text-[8px]">{allCount}</span>
           </button>
           
           <button 
             onClick={() => setActiveTab('VERIFIED')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'VERIFIED' ? "border-green-500 text-green-400" : "border-transparent text-zinc-500 hover:text-zinc-300"
+              activeTab === 'VERIFIED' ? "border-green-500 text-green-700" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            Verified <span className="bg-green-950/40 text-green-400 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+            Verified <span className="bg-green-950/40 text-green-700 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('NEEDS_REVIEW')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-zinc-500 hover:text-zinc-300"
+              activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            Incomplete <span className="bg-orange-950/40 text-orange-400 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+            Incomplete <span className="bg-blue-950/40 text-blue-600 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((item: CoinImport) => (
-            <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-glow transition-all bg-zinc-900 border-white/10 text-white">
+            <Card key={item.id} className="overflow-hidden group hover:border-primary/50 hover:shadow-glow transition-all bg-card border-border text-foreground">
                <div className="aspect-square relative bg-zinc-955 overflow-hidden rounded-t-xl">
                  <img src={item.frontImagePath} className="w-full h-full object-cover transition-transform group-hover:scale-105 animate-fade-in" alt="front" />
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                    <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2 border-none", 
                       item.status === 'VERIFIED' ? "bg-green-600 text-primary-foreground" : 
-                      item.status === 'NEEDS_REVIEW' ? "bg-primary text-black" : 
+                      item.status === 'NEEDS_REVIEW' ? "bg-primary text-primary-foreground" : 
                       "bg-blue-600 text-primary-foreground"
                    )}>
                      {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
                      {item.status}
                    </Badge>
                    {item.identificationSource && (
-                      <Badge variant="outline" className="bg-zinc-900/90 text-[8px] font-black uppercase gap-1 px-2 border-none text-zinc-300">
+                      <Badge variant="outline" className="bg-card/90 text-[8px] font-black uppercase gap-1 px-2 border-none text-foreground/80">
                         {item.identificationSource === 'DATABASE_MATCH' ? <Database className="w-2.5 h-2.5 text-primary" /> : <Gem className="w-2.5 h-2.5 text-primary" />}
                         {item.identificationSource}
                       </Badge>
@@ -196,27 +196,27 @@ export default function CoinReviewQueue() {
                </div>
                <CardContent className="p-5">
                   <div className="mb-4">
-                    <h3 className="font-black text-xs truncate uppercase tracking-tight text-white">
+                    <h3 className="font-black text-xs truncate uppercase tracking-tight text-foreground">
                       {item.coinName || 'Pending Identification'}
                     </h3>
-                    <p className="text-[10px] font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                    <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">
                       {item.denomination || 'No Denomination'} {item.year ? `• ${item.year}` : ''}
                     </p>
                   </div>
                   
                   {item.identificationConfidence && (
                     <div className="flex flex-col gap-1 mb-4">
-                       <div className="flex justify-between items-center text-[8px] font-black uppercase text-zinc-500">
+                       <div className="flex justify-between items-center text-[8px] font-black uppercase text-muted-foreground">
                          <span>Match Confidence</span>
                          <span>{Math.round(item.identificationConfidence * 100)}%</span>
                        </div>
-                       <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                       <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
                            <div className="h-full bg-primary" style={{ width: `${item.identificationConfidence * 100}%` }} />
                        </div>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5 gap-2">
+                  <div className="flex items-center justify-between pt-4 border-t border-border gap-2">
                     <div className="text-[9px] font-black text-zinc-650 uppercase">
                       ID: {item.id.substring(0,8)}
                     </div>
@@ -224,7 +224,7 @@ export default function CoinReviewQueue() {
                       <Button 
                         size="icon" 
                         variant="destructive"
-                        className="h-8 w-8 hover:bg-red-600 bg-zinc-800 text-red-400 hover:text-white"
+                        className="h-8 w-8 hover:bg-red-600 bg-muted text-red-600 hover:text-white"
                         onClick={() => handleDelete(item.id)}
                         disabled={actionId === item.id}
                       >
@@ -233,7 +233,7 @@ export default function CoinReviewQueue() {
                       <Button 
                         size="icon" 
                         variant="outline"
-                        className="h-8 w-8 border-white/10 text-white hover:bg-zinc-800"
+                        className="h-8 w-8 border-border text-foreground hover:bg-muted"
                         onClick={() => router.push(`/coincam/review/${item.id}`)}
                         disabled={actionId === item.id}
                       >
@@ -241,7 +241,7 @@ export default function CoinReviewQueue() {
                       </Button>
                       <Button 
                         size="sm" 
-                        className="h-8 text-[10px] font-black uppercase bg-primary text-black hover:bg-primary/90"
+                        className="h-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/90"
                         onClick={() => handleSubmit(item)}
                         disabled={actionId === item.id || item.status === 'VERIFIED'}
                       >
@@ -256,12 +256,12 @@ export default function CoinReviewQueue() {
 
           {filtered.length === 0 && !loading && (
             <div className="col-span-full py-24 text-center">
-               <div className="bg-zinc-900 p-10 rounded-full inline-block mb-6 ring-8 ring-zinc-955">
+               <div className="bg-card p-10 rounded-full inline-block mb-6 ring-8 ring-zinc-955">
                  <AlertCircle className="w-16 h-16 text-zinc-600" />
                </div>
-               <h3 className="text-xl font-black uppercase tracking-tight text-white">Queue Depleted</h3>
-               <p className="text-xs text-zinc-400 font-medium mt-2">Active booth session required to populate workspace.</p>
-               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12 bg-primary text-black hover:bg-primary/95" onClick={() => router.push('/coincam/capture')}>Open Booth</Button>
+               <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Queue Depleted</h3>
+               <p className="text-xs text-muted-foreground font-medium mt-2">Active booth session required to populate workspace.</p>
+               <Button className="mt-8 font-black uppercase tracking-widest px-10 h-12 bg-primary text-primary-foreground hover:bg-primary/95" onClick={() => router.push('/coincam/capture')}>Open Booth</Button>
             </div>
           )}
         </div>

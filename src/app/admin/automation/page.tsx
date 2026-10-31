@@ -89,7 +89,7 @@ export default function AutomationDashboard() {
             <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
                 <CardHeader className="bg-slate-50/50 border-b">
                     <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-amber-500" />
+                        <Clock className="h-5 w-5 text-amber-700" />
                         Shipped &gt; 3 Days Ago
                     </CardTitle>
                     <CardDescription>
@@ -105,7 +105,7 @@ export default function AutomationDashboard() {
                     ) : orders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 text-center">
                             <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+                                <Inbox className="h-10 w-10 text-foreground/80 dark:text-slate-600" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Everything is Current</h3>
                             <p className="text-gray-500 dark:text-gray-400">No buyers currently require a reminder nudge.</p>
@@ -145,7 +145,7 @@ export default function AutomationDashboard() {
                                                 {[...Array(3)].map((_, i) => (
                                                     <div 
                                                         key={i} 
-                                                        className={`h-2 w-2 rounded-full ${i < (order.nudgeCount || 0) ? 'bg-primary shadow-[0_0_8px_rgba(242,108,13,0.5)]' : 'bg-slate-200 dark:bg-slate-800'}`} 
+                                                        className={`h-2 w-2 rounded-full ${i < (order.nudgeCount || 0) ? 'bg-primary shadow-[0_0_8px_rgba(37, 99, 235,0.5)]' : 'bg-slate-200 dark:bg-slate-800'}`} 
                                                     />
                                                 ))}
                                             </div>

@@ -115,7 +115,7 @@ function ReviewPageContent() {
             </div>
             {imageUrls && imageUrls.length > 1 && (
               <div className="absolute bottom-4 left-4 flex gap-2">
-                <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-sm border border-white/20">
+                <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-sm border border-border">
                   + {imageUrls.length - 1} Photos
                 </span>
               </div>
@@ -142,7 +142,7 @@ function ReviewPageContent() {
                   </span>
                 )}
                 {isReverseBidding && (
-                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-orange-200">
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-blue-200">
                     <ArrowLeft className="h-3 w-3" />
                     REVERSE BIDDING
                   </span>
@@ -209,7 +209,7 @@ function ReviewPageContent() {
           Save as Draft
         </Button>
       </div>
-      <p className="text-center text-xs text-gray-400 mt-6">By publishing, you agree to Benched's Seller Terms of Service and Privacy Policy.</p>
+      <p className="text-center text-xs text-muted-foreground mt-6">By publishing, you agree to Benched's Seller Terms of Service and Privacy Policy.</p>
     </main>
   );
 }

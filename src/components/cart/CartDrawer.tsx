@@ -149,7 +149,7 @@ export function CartDrawer() {
                                         </svg>
                                     </div>
                                     <div className="text-left">
-                                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
                                             Pay the seller directly
                                         </div>
                                         <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
@@ -209,7 +209,7 @@ function CartLineOffers({ item, line, progress, groupedQuantity }: { item: any; 
             ))}
             {line && line.multibuyPercent > 0 && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
-                    <Tag className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" aria-hidden />
+                    <Tag className="w-2.5 h-2.5 text-emerald-700 dark:text-emerald-400" aria-hidden />
                     {line.multibuyPercent}% Multibuy Saved
                 </span>
             )}

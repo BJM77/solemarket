@@ -40,12 +40,12 @@ export default async function CollectorCardsPage({
           { name: 'Collector Cards', item: '/collector-cards' },
         ]}
       />
-      <div className="bg-slate-950 text-white py-12 md:py-20">
+      <div className="bg-background text-foreground py-12 md:py-20">
         <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
-                The Hobby <span className="text-indigo-400 italic">Vault.</span>
+                The Hobby <span className="text-indigo-600 italic">Vault.</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-2xl leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 From graded NBA singles to sealed Pokémon hobby boxes. 
                 Australia&apos;s most trusted secure trading card marketplace.
             </p>

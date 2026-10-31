@@ -93,14 +93,14 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
                             setValidationError(null);
                             inputRef.current?.click();
                         }}
-                        className="w-full h-14 font-black text-lg bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-lg"
+                        className="w-full h-14 font-black text-lg bg-card hover:bg-muted rounded-2xl shadow-lg"
                     >
                         <RefreshCcw className="w-5 h-5 mr-3" />
                         Try Again
                     </Button>
                     <button 
                         onClick={() => setValidationError(null)}
-                        className="text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-slate-600"
+                        className="text-muted-foreground text-xs font-bold uppercase tracking-widest hover:text-slate-600"
                     >
                         Dismiss
                     </button>
@@ -111,27 +111,27 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
 
     if (isValidating) {
         return (
-            <div className="w-full aspect-[2.5/3.5] max-w-sm mx-auto border-2 border-indigo-500/20 bg-slate-900 rounded-3xl flex flex-col items-center justify-center p-8 text-white text-center shadow-2xl">
+            <div className="w-full aspect-[2.5/3.5] max-w-sm mx-auto border-2 border-indigo-500/20 bg-card rounded-3xl flex flex-col items-center justify-center p-8 text-foreground text-center shadow-2xl">
                 <div className="relative mb-10">
                     <div className="w-24 h-24 rounded-full border-4 border-indigo-500/20 flex items-center justify-center">
                         <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
                     </div>
-                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-indigo-400 animate-pulse" />
+                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-indigo-600 animate-pulse" />
                 </div>
                 
                 <h3 className="text-xl font-black uppercase tracking-widest mb-6">Scanning Quality</h3>
                 
                 <div className="w-full space-y-4 text-left max-w-[200px]">
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'size' || currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">File integrity</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Resolution check</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Sharpness test</span>
                     </div>
                 </div>
@@ -166,7 +166,7 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
                 
                 <div className="mb-2">
                     <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Smart Scan</h3>
-                    <p className="text-sm text-slate-400 mt-3 font-bold uppercase tracking-widest">Collector Card Mode</p>
+                    <p className="text-sm text-muted-foreground mt-3 font-bold uppercase tracking-widest">Collector Card Mode</p>
                 </div>
 
                 <div className="w-full space-y-3 text-left bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
@@ -200,7 +200,7 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
                 
                 <button 
                     onClick={() => inputRef.current?.click()}
-                    className="text-xs text-slate-400 font-black uppercase tracking-widest hover:text-slate-900 transition-colors"
+                    className="text-xs text-muted-foreground font-black uppercase tracking-widest hover:text-slate-900 transition-colors"
                 >
                     Upload Gallery
                 </button>

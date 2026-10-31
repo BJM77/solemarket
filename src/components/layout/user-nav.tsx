@@ -146,13 +146,13 @@ export function UserNav() {
             </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/users') && "bg-accent text-accent-foreground")}>
               <Link href="/admin/users" className="flex items-center">
-                <User className="mr-3 h-4 w-4 text-emerald-500" />
+                <User className="mr-3 h-4 w-4 text-emerald-700" />
                 <span className="font-medium">User Management</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/admin/power-tools') && "bg-accent text-accent-foreground")}>
               <Link href="/admin/power-tools" className="flex items-center">
-                <Zap className="mr-3 h-4 w-4 text-amber-500" />
+                <Zap className="mr-3 h-4 w-4 text-amber-700" />
                 <span className="font-medium">Power Tools</span>
               </Link>
             </DropdownMenuItem>
@@ -186,9 +186,9 @@ export function UserNav() {
                 <span className="font-medium">ProCam Studio</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-emerald-400 hover:text-emerald-400 hover:bg-emerald-500/5", isActive('/sell/proload') && "bg-accent text-emerald-400")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-emerald-700 hover:text-emerald-700 hover:bg-emerald-500/5", isActive('/sell/proload') && "bg-accent text-emerald-700")}>
               <Link href="/sell/proload" className="flex items-center">
-                <Layers className="mr-3 h-4 w-4 text-emerald-400" />
+                <Layers className="mr-3 h-4 w-4 text-emerald-700" />
                 <span className="font-medium">Proload (FB Import)</span>
               </Link>
             </DropdownMenuItem>
@@ -254,9 +254,9 @@ export function UserNav() {
                 <span className="font-bold">Sell an Item</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-emerald-500/5 text-emerald-400 focus:bg-emerald-500/10 focus:text-emerald-400", isActive('/sell/proload') && "bg-emerald-500/10")}>
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg bg-emerald-500/5 text-emerald-700 focus:bg-emerald-500/10 focus:text-emerald-700", isActive('/sell/proload') && "bg-emerald-500/10")}>
               <Link href="/sell/proload" className="flex items-center">
-                <Layers className="mr-3 h-4 w-4 text-emerald-400" />
+                <Layers className="mr-3 h-4 w-4 text-emerald-700" />
                 <span className="font-bold">Proload (FB Import)</span>
               </Link>
             </DropdownMenuItem>

@@ -25,15 +25,15 @@ export default function EnterpriseDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-black font-mono text-white">
-      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10">
+    <div className="min-h-screen bg-background font-mono text-foreground">
+      <header className="flex items-center justify-between p-4 bg-card border-b border-border sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <Link href="/samcam"><ArrowLeft className="w-5 h-5" /></Link>
           </Button>
           <div>
-            <h1 className="text-xl font-black uppercase tracking-tighter text-white">Enterprise Lab</h1>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Benched.au v4.5 "Golden Copy"</p>
+            <h1 className="text-xl font-black uppercase tracking-tighter text-foreground">Enterprise Lab</h1>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Benched.au v4.5 "Golden Copy"</p>
           </div>
         </div>
         <Badge className="bg-green-600 text-white font-black px-4 py-1 text-[10px] border-none">SYSTEM ONLINE</Badge>
@@ -42,30 +42,30 @@ export default function EnterpriseDashboard() {
       <main className="p-6 max-w-7xl mx-auto w-full space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard title="Total Captures" value={stats.total} icon={<Database className="w-4 h-4" />} />
-          <StatCard title="Success Rate" value={`${stats.successRate}%`} icon={<Zap className="w-4 h-4" />} color="text-yellow-400" />
+          <StatCard title="Success Rate" value={`${stats.successRate}%`} icon={<Zap className="w-4 h-4" />} color="text-yellow-700" />
           <StatCard title="Review Queue" value={stats.pending} icon={<History className="w-4 h-4" />} color="text-primary" />
-          <StatCard title="Verified" value={stats.verified} icon={<CheckCircle2 className="w-4 h-4" />} color="text-green-400" />
+          <StatCard title="Verified" value={stats.verified} icon={<CheckCircle2 className="w-4 h-4" />} color="text-green-700" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                <Activity className="w-4 h-4" /> Live Sync Stream
             </h2>
             <div className="space-y-3">
               {metrics.slice(0, 10).map((item) => (
-                <div key={item.id} className="bg-zinc-900 p-4 rounded-xl border border-white/10 flex items-center justify-between group hover:border-primary transition-all text-white">
+                <div key={item.id} className="bg-card p-4 rounded-xl border border-border flex items-center justify-between group hover:border-primary transition-all text-foreground">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-16 bg-zinc-950 rounded-lg overflow-hidden relative">
+                    <div className="w-12 h-16 bg-background rounded-lg overflow-hidden relative">
                       <img src={item.frontImagePath} className="w-full h-full object-cover" alt="" />
                     </div>
                     <div>
-                      <p className="font-black text-xs uppercase truncate w-48 text-white">{item.cardName || 'IDENTIFYING...'}</p>
-                      <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{item.identificationSource || 'PENDING'}</p>
+                      <p className="font-black text-xs uppercase truncate w-48 text-foreground">{item.cardName || 'IDENTIFYING...'}</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{item.identificationSource || 'PENDING'}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge className={cn("text-[8px] font-black uppercase border-none text-white", item.status === 'VERIFIED' ? "bg-green-600" : "bg-blue-600")}>
+                    <Badge className={cn("text-[8px] font-black uppercase border-none text-foreground", item.status === 'VERIFIED' ? "bg-green-600" : "bg-blue-600")}>
                       {item.status}
                     </Badge>
                     <p className="text-[8px] font-bold text-zinc-650 mt-1 uppercase">{new Date(item.createdAt).toLocaleTimeString()}</p>
@@ -76,23 +76,23 @@ export default function EnterpriseDashboard() {
           </div>
 
           <div className="space-y-6">
-             <h2 className="text-sm font-black uppercase tracking-widest text-zinc-500">Lab Diagnostics</h2>
-             <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
+             <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Lab Diagnostics</h2>
+             <Card className="bg-card border-border text-foreground shadow-none">
                <CardContent className="pt-6 space-y-6">
                   <DiagItem label="Sensor Model" value="ISOCELL HM3" icon={<Cpu className="w-3.5 h-3.5" />} />
                   <DiagItem label="Shutter Strategy" value="Predictive Peak" icon={<Zap className="w-3.5 h-3.5" />} />
                   <DiagItem label="Filter Logic" value="Kalman Filter" icon={<Gauge className="w-3.5 h-3.5" />} />
                   <DiagItem label="Latency Δ" value="1.2ms" icon={<Clock className="w-3.5 h-3.5" />} />
-                  <div className="pt-4 border-t border-white/5">
-                    <p className="text-[9px] font-black text-zinc-500 uppercase mb-3">Health Profile</p>
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase mb-3">Health Profile</p>
                     <div className="grid grid-cols-2 gap-4">
-                       <div className="p-3 bg-zinc-950 rounded-lg border border-white/5">
+                       <div className="p-3 bg-background rounded-lg border border-border">
                           <p className="text-[8px] font-black uppercase text-zinc-550">Memory</p>
-                          <p className="text-xs font-black text-white">244MB</p>
+                          <p className="text-xs font-black text-foreground">244MB</p>
                        </div>
-                       <div className="p-3 bg-zinc-950 rounded-lg border border-white/5">
+                       <div className="p-3 bg-background rounded-lg border border-border">
                           <p className="text-[8px] font-black uppercase text-zinc-550">FPS Avg</p>
-                          <p className="text-xs font-black text-green-400">58.2</p>
+                          <p className="text-xs font-black text-green-700">58.2</p>
                        </div>
                     </div>
                   </div>
@@ -105,13 +105,13 @@ export default function EnterpriseDashboard() {
   );
 }
 
-function StatCard({ title, value, icon, color = "text-white" }: any) {
+function StatCard({ title, value, icon, color = "text-foreground" }: any) {
   return (
-    <Card className="bg-zinc-900 border-white/10 text-white shadow-sm overflow-hidden">
+    <Card className="bg-card border-border text-foreground shadow-sm overflow-hidden">
       <CardContent className="p-5">
         <div className="flex justify-between items-start mb-2">
           <span className="text-[9px] font-black text-zinc-550 uppercase tracking-widest">{title}</span>
-          <div className="p-1.5 bg-zinc-950 border border-white/5 rounded-lg text-zinc-500">{icon}</div>
+          <div className="p-1.5 bg-background border border-border rounded-lg text-muted-foreground">{icon}</div>
         </div>
         <div className={cn("text-2xl font-black font-headline tracking-tighter", color)}>{value}</div>
       </CardContent>
@@ -121,8 +121,8 @@ function StatCard({ title, value, icon, color = "text-white" }: any) {
 
 function DiagItem({ label, value, icon }: any) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-      <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+    <div className="flex items-center justify-between py-2 border-b border-border last:border-0">
+      <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
         {icon} {label}
       </div>
       <span className="text-[10px] font-black uppercase text-primary">{value}</span>

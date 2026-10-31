@@ -141,9 +141,9 @@ function ConfirmationContent() {
             <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
                 <div className="container mx-auto px-4 w-full max-w-2xl space-y-6">
                     <div className="text-center">
-                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-                        <h1 className="text-3xl font-black text-white">Order placed</h1>
-                        <p className="text-slate-400 mt-1">Here&apos;s how to pay. Full details are in your purchases.</p>
+                        <CheckCircle2 className="w-12 h-12 text-emerald-700 mx-auto mb-4" />
+                        <h1 className="text-3xl font-black text-foreground">Order placed</h1>
+                        <p className="text-muted-foreground mt-1">Here&apos;s how to pay. Full details are in your purchases.</p>
                     </div>
                     {orderIdsFromUrl.map(id => <OrderPaymentInstructions key={id} orderId={id} />)}
                     <Button asChild className="w-full h-12 font-bold rounded-xl"><Link href="/profile/orders">View Purchases</Link></Button>
@@ -155,7 +155,7 @@ function ConfirmationContent() {
     if (orders.length === 0) {
         return (
             <div className="container mx-auto px-4 py-16 text-center">
-                <ShoppingBag className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <ShoppingBag className="h-16 w-16 mx-auto text-foreground/80 mb-4" />
                 <h1 className="text-2xl font-bold text-gray-800 mb-2">Looking for an order?</h1>
                 <p className="text-gray-600 mb-6">We can't find any recent order details.</p>
                 <Button asChild>
@@ -170,13 +170,13 @@ function ConfirmationContent() {
             <div className="container mx-auto px-4 w-full">
                 <div className="max-w-2xl mx-auto text-center mb-10">
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+                        <CheckCircle2 className="w-12 h-12 text-emerald-700" />
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">Order Confirmed!</h1>
-                    <p className="text-lg text-slate-400">Thank you for your purchase. We&apos;ve notified the seller.</p>
-                    {orders.length > 0 && <p className="mt-2 text-sm text-slate-300">Next step: follow the payment instructions below.</p>}
+                    <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">Order Confirmed!</h1>
+                    <p className="text-lg text-muted-foreground">Thank you for your purchase. We&apos;ve notified the seller.</p>
+                    {orders.length > 0 && <p className="mt-2 text-sm text-foreground/80">Next step: follow the payment instructions below.</p>}
                     {orders[0]?.groupOrderId && (
-                        <p className="text-xs font-mono text-slate-400 mt-2 uppercase tracking-widest">Global Ref: {orders[0].groupOrderId}</p>
+                        <p className="text-xs font-mono text-muted-foreground mt-2 uppercase tracking-widest">Global Ref: {orders[0].groupOrderId}</p>
                     )}
                 </div>
 
@@ -186,31 +186,31 @@ function ConfirmationContent() {
                     ))}
 
                     {orders.map((order, idx) => (
-                        <Card key={order.id || idx} className="border-white/10 bg-[#0c1120] backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
-                            <CardHeader className="bg-[#1e293b] text-white py-4 px-6 border-b border-white/5">
+                        <Card key={order.id || idx} className="border-border bg-[#0c1120] backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
+                            <CardHeader className="bg-[#1e293b] text-foreground py-4 px-6 border-b border-border">
                                 <div className="flex justify-between items-center">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Details</p>
-                                        <CardTitle className="text-base font-bold text-white">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Order Details</p>
+                                        <CardTitle className="text-base font-bold text-foreground">Sold by {order.sellerName || 'Private Seller'}</CardTitle>
                                         {(order.paymentReference || order.id) && (
-                                            <p className="text-xs text-slate-300">Reference: <span className="font-mono font-bold text-white">{order.paymentReference || order.id}</span></p>
+                                            <p className="text-xs text-foreground/80">Reference: <span className="font-mono font-bold text-foreground">{order.paymentReference || order.id}</span></p>
                                         )}
-                                        <p className="text-xs text-slate-300">
+                                        <p className="text-xs text-foreground/80">
                                             Payment: {order.paymentMethod === 'payid' ? 'PayID to seller' : order.paymentMethod === 'cash' ? 'Cash on pickup (Perth)' : (order.paymentMethod || 'As arranged')}
                                         </p>
                                     </div>
-                                    <Badge variant="outline" className="border-slate-600 text-slate-200 bg-white/5 px-3 py-1">
+                                    <Badge variant="outline" className="border-slate-600 text-foreground bg-muted/60 px-3 py-1">
                                         {String(order.status || '').replace(/_/g, ' ')}
                                     </Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-6">
                                 {/* Order progress */}
-                                <div className="mb-8 bg-slate-950/40 p-4 md:p-6 rounded-2xl border border-white/5">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Order Status</p>
+                                <div className="mb-8 bg-background/40 p-4 md:p-6 rounded-2xl border border-border">
+                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Order Status</p>
                                     <div className="grid grid-cols-4 gap-2 relative">
                                         {/* Connection line */}
-                                        <div className="absolute top-4 left-[12.5%] right-[12.5%] h-0.5 bg-white/10 z-0 hidden md:block" />
+                                        <div className="absolute top-4 left-[12.5%] right-[12.5%] h-0.5 bg-muted z-0 hidden md:block" />
                                         <div 
                                             className="absolute top-4 left-[12.5%] h-0.5 bg-primary z-0 transition-all duration-500 hidden md:block" 
                                             style={{ width: `${(getStepIndex(order.status) / 3) * 75}%` }}
@@ -226,16 +226,16 @@ function ConfirmationContent() {
                                                     <div 
                                                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                                                             isCompleted 
-                                                                ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(242,108,13,0.3)]' 
+                                                                ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(37, 99, 235,0.3)]' 
                                                                 : isActive 
                                                                 ? 'bg-[#020617] border-2 border-primary text-primary animate-pulse' 
-                                                                : 'bg-[#020617] border-2 border-white/10 text-slate-500'
+                                                                : 'bg-[#020617] border-2 border-border text-slate-500'
                                                         }`}
                                                     >
                                                         {sIdx + 1}
                                                     </div>
                                                     <div className="space-y-0.5">
-                                                        <p className={`text-[10px] md:text-xs font-bold transition-colors ${isActive ? 'text-primary' : isCompleted ? 'text-white' : 'text-slate-500'}`}>
+                                                        <p className={`text-[10px] md:text-xs font-bold transition-colors ${isActive ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-slate-500'}`}>
                                                             {step.label}
                                                         </p>
                                                         <p className="text-[8px] md:text-[10px] text-slate-500 hidden md:block">
@@ -251,42 +251,42 @@ function ConfirmationContent() {
                                 <div className="space-y-4">
                                     {order.items.map((item: any) => (
                                         <div key={item.id} className="flex items-center gap-4 group">
-                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10 transition-transform group-hover:scale-105">
+                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border transition-transform group-hover:scale-105">
                                                 <Image src={item.image || item.imageUrls?.[0]} alt={item.title} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-bold text-white line-clamp-1 text-sm">{item.title}</p>
-                                                <p className="text-xs text-slate-300 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
+                                                <p className="font-bold text-foreground line-clamp-1 text-sm">{item.title}</p>
+                                                <p className="text-xs text-foreground/80 font-medium">Qty: {item.quantity} · ${formatPrice(item.price)} per unit</p>
                                             </div>
-                                            <p className="font-black text-white text-sm whitespace-nowrap">${formatPrice(item.price * item.quantity)}</p>
+                                            <p className="font-black text-foreground text-sm whitespace-nowrap">${formatPrice(item.price * item.quantity)}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <Separator className="my-6 bg-white/10" />
+                                <Separator className="my-6 bg-muted" />
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-400">Subtotal</span>
-                                        <span className="text-white">${formatPrice(order.subtotal)}</span>
+                                        <span className="text-muted-foreground">Subtotal</span>
+                                        <span className="text-foreground">${formatPrice(order.subtotal)}</span>
                                     </div>
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-400">Shipping & Handling</span>
-                                        <span className="text-white">{order.shippingCost === 0 ? 'Free' : `$${formatPrice(order.shippingCost)}`}</span>
+                                        <span className="text-muted-foreground">Shipping & Handling</span>
+                                        <span className="text-foreground">{order.shippingCost === 0 ? 'Free' : `$${formatPrice(order.shippingCost)}`}</span>
                                     </div>
                                     <div className="flex justify-between text-xs font-medium">
-                                        <span className="text-slate-400">Estimated Tax</span>
-                                        <span className="text-white">${formatPrice(order.taxAmount)}</span>
+                                        <span className="text-muted-foreground">Estimated Tax</span>
+                                        <span className="text-foreground">${formatPrice(order.taxAmount)}</span>
                                     </div>
-                                    <div className="flex justify-between font-black text-xl pt-2 text-white border-t border-white/10">
+                                    <div className="flex justify-between font-black text-xl pt-2 text-foreground border-t border-border">
                                         <span>Total</span>
                                         <span className="text-primary">${formatPrice(order.totalAmount)}</span>
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-white/5 border-t border-white/10 p-4">
+                            <CardFooter className="bg-muted/60 border-t border-border p-4">
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-[10px] font-bold text-slate-400 hover:text-rose-600 gap-2 h-auto py-1 px-2 transition-colors uppercase tracking-tight"
+                                    className="text-[10px] font-bold text-muted-foreground hover:text-rose-600 gap-2 h-auto py-1 px-2 transition-colors uppercase tracking-tight"
                                     onClick={() => {
                                         setSelectedOrderForDispute(order.id);
                                         setIsDisputeOpen(true);
@@ -298,7 +298,7 @@ function ConfirmationContent() {
                                     <Button
                                         variant="default"
                                         size="sm"
-                                        className="gap-2 h-auto py-1 px-3 bg-[#0070BA] hover:bg-[#003087] text-white font-bold ml-auto"
+                                        className="gap-2 h-auto py-1 px-3 bg-[#0070BA] hover:bg-[#003087] text-foreground font-bold ml-auto"
                                         asChild
                                     >
                                         <Link href={`${order.sellerPaypalMeLink}/${order.totalAmount}`} target="_blank" rel="noopener noreferrer">
@@ -310,11 +310,11 @@ function ConfirmationContent() {
                         </Card>
                     ))}
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-8 border-t border-white/10">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-8 border-t border-border">
                         <Button size="lg" className="flex-1 font-bold rounded-xl h-12" asChild>
                             <Link href="/">Back to Marketplace</Link>
                         </Button>
-                        <Button variant="outline" size="lg" className="flex-1 font-bold rounded-xl h-12 border-white/10 text-white hover:bg-white/5" asChild>
+                        <Button variant="outline" size="lg" className="flex-1 font-bold rounded-xl h-12 border-border text-foreground hover:bg-muted/60" asChild>
                             <Link href="/profile/orders">View Purchases</Link>
                         </Button>
                     </div>

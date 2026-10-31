@@ -5,68 +5,42 @@
 
 @layer base {
   :root {
-    /* Base Colors - Black Theme by Default */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    
-    /* Surface Colors */
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
-    
-    /* Brand Colors */
-    --primary: 25 90% 50%; /* Benched Orange */
-    --primary-foreground: 0 0% 0%; /* black on orange = 7:1 (white was 3:1, fails WCAG AA) */
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-    
-    /* Premium Neutrals */
-    --sneaker-cream: 0 0% 8%;
-    --sneaker-grey: 0 0% 12%;
-    --deep-black: 0 0% 0%;
-    
-    /* Utility Colors */
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 25 90% 50%;
-    --accent-foreground: 0 0% 0%; /* black on orange (white was ~3:1) */
-    --destructive: 0 84% 60%;
+    /* Marketplace light theme: white + blue + grey */
+    --background: 0 0% 100%;            /* #ffffff */
+    --foreground: 222 47% 11%;          /* #0f172a */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;             /* #2563eb */
+    --primary-foreground: 0 0% 100%;    /* white on #2563eb = 5.2:1 */
+    --secondary: 210 40% 96%;           /* #f1f5f9 */
+    --secondary-foreground: 222 47% 11%;
+    --sneaker-cream: 210 40% 98%;
+    --sneaker-grey: 210 40% 96%;
+    --deep-black: 222 47% 11%;
+    --muted: 210 40% 96%;               /* #f1f5f9 */
+    --muted-foreground: 215 19% 35%;    /* #475569, 7.6:1 on white */
+    --accent: 214 100% 97%;             /* #eff6ff */
+    --accent-foreground: 224 76% 40%;   /* #1e40af-ish */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    
-    /* Eco/Sustainability */
-    --eco-green: 147 50% 47%;
+    --eco-green: 147 50% 36%;
     --eco-green-foreground: 0 0% 100%;
-    
-    /* Borders & Inputs */
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 25 90% 50%;
+    --border: 214 32% 91%;              /* #e2e8f0 */
+    --input: 214 32% 85%;
+    --ring: 221 83% 53%;
     --radius: 1rem;
-    
-    /* Shadows - Elevation System (Dark Optimized) */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.7);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.8);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.9);
-    --shadow-glow: 0 0 20px rgb(242 108 13 / 0.3);
-    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+    --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08);
+    --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.10);
+    --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.12);
+    --shadow-glow: 0 0 20px rgb(37 99 235 / 0.25);
+    --shadow-premium: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 25 90% 50%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 25 90% 50%;
+    --background: 0 0% 100%;
   }
 }
 
@@ -84,7 +58,7 @@
   html, body {
     @apply bg-background text-foreground;
     overflow-x: clip;
-    color-scheme: dark;
+    color-scheme: light;
     font-feature-settings: "rlig" 1, "calt" 1;
     max-width: 100%;
     width: 100%;
@@ -196,7 +170,7 @@
   
   /* Button Styles */
   .btn-premium {
-    @apply gradient-bg-primary font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 text-black;
+    @apply gradient-bg-primary font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 text-white;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-xl);
   }
@@ -275,7 +249,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: 0 0 25px rgba(242, 108, 13, 0.4);
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
     opacity: 0.3;
     pointer-events: none;
     will-change: opacity;

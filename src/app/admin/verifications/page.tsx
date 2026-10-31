@@ -122,7 +122,7 @@ export default function AdminVerificationsPage() {
 
             {requests.length === 0 ? (
                 <div className="text-center py-20 border rounded-lg bg-gray-50">
-                    <Check className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <Check className="w-12 h-12 text-foreground/80 mx-auto mb-4" />
                     <h3 className="text-lg font-medium">All caught up!</h3>
                     <p className="text-muted-foreground">There are no pending verification requests.</p>
                 </div>
@@ -152,7 +152,7 @@ export default function AdminVerificationsPage() {
                                             <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block group relative aspect-video bg-gray-100 rounded-md overflow-hidden border hover:border-blue-500 transition-all">
                                                 <img src={url} alt={`Doc ${idx + 1}`} className="object-cover w-full h-full" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-all">
-                                                    <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
+                                                    <ExternalLink className="w-6 h-6 text-foreground opacity-0 group-hover:opacity-100 drop-shadow-md" />
                                                 </div>
                                             </a>
                                         ))}

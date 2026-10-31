@@ -92,13 +92,13 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
 
     return (
         <div className={cn(
-            "fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 p-4 lg:hidden safe-area-pb transition-transform duration-300",
+            "fixed bottom-0 left-0 right-0 z-50 bg-background/95 shadow-[0_-4px_12px_rgba(15,23,42,0.08)] backdrop-blur-xl border-t border-border p-4 lg:hidden safe-area-pb transition-transform duration-300",
             isVisible ? "translate-y-0" : "translate-y-full"
         )}>
             <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
                 <div className="flex flex-col">
                     {!product.isUntimed && (
-                        <span className="text-lg font-black text-white">
+                        <span className="text-lg font-black text-foreground">
                             ${formatPrice(product.price)}
                         </span>
                     )}

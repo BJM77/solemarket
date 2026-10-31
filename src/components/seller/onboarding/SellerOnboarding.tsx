@@ -56,7 +56,7 @@ export default function SellerOnboarding({ compact = false }: { compact?: boolea
           const Icon = s.done ? CheckCircle2 : s.comingSoon ? Clock : Circle;
           const body = (
             <div className={cn('flex items-start gap-4 rounded-2xl border p-4', s.done && 'opacity-70', progress.next?.id === s.id && 'border-primary')}>
-              <Icon className={cn('mt-0.5 h-6 w-6 shrink-0', s.done ? 'text-emerald-500' : 'text-muted-foreground')} aria-hidden />
+              <Icon className={cn('mt-0.5 h-6 w-6 shrink-0', s.done ? 'text-emerald-700' : 'text-muted-foreground')} aria-hidden />
               <div className="min-w-0 flex-1">
                 <p className="font-bold">
                   {s.title}

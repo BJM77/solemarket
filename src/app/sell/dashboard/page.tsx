@@ -162,7 +162,7 @@ export default function SellerDashboard() {
   }
 
   const statCards = [
-    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '', icon: DollarSign, color: 'text-orange-600 bg-orange-100' },
+    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '', icon: DollarSign, color: 'text-blue-600 bg-blue-100' },
     { label: 'Total Earnings', value: `$${formatPrice(stats.actualRevenue)}`, change: '', icon: DollarSign, color: 'text-green-600 bg-green-100' },
     { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-blue-600 bg-blue-100' },
     { label: 'Seller Rating', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
@@ -207,9 +207,9 @@ export default function SellerDashboard() {
         <SellerOnboarding compact />
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black text-white uppercase tracking-tighter">Seller Console</h1>
+            <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">Seller Console</h1>
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-emerald-700 animate-pulse" />
               <p className="text-slate-500 font-medium">Market Protocol Active • {user.displayName}</p>
             </div>
           </div>
@@ -223,18 +223,18 @@ export default function SellerDashboard() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {statCards.map((stat, index) => (
-            <Card key={index} className="bg-card/50 border-white/5 shadow-2xl overflow-hidden group hover:border-primary/20 transition-all duration-300">
+            <Card key={index} className="bg-card/50 border-border shadow-2xl overflow-hidden group hover:border-primary/20 transition-all duration-300">
               <CardContent className="pt-8 relative">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                   <stat.icon className="h-16 w-16" />
                 </div>
                 <div className="flex items-center justify-between mb-6">
-                  <div className={`p-3 rounded-2xl bg-white/5 border border-white/10 ${stat.color.split(' ')[0]}`}>
+                  <div className={`p-3 rounded-2xl bg-muted/60 border border-border ${stat.color.split(' ')[0]}`}>
                     <stat.icon className="h-6 w-6" />
                   </div>
-                  {stat.change && <Badge variant="secondary" className="bg-white/5 text-slate-400 border-none font-bold">{stat.change}</Badge>}
+                  {stat.change && <Badge variant="secondary" className="bg-muted/60 text-muted-foreground border-none font-bold">{stat.change}</Badge>}
                 </div>
-                <div className="text-3xl font-black text-white mb-1 tracking-tight">{stat.value}</div>
+                <div className="text-3xl font-black text-foreground mb-1 tracking-tight">{stat.value}</div>
                 <div className="text-sm text-slate-500 font-bold uppercase tracking-wider">{stat.label}</div>
               </CardContent>
             </Card>
@@ -244,7 +244,7 @@ export default function SellerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Tabs defaultValue="active" className="w-full space-y-6">
-              <TabsList className="bg-card/50 border border-white/5 p-1 rounded-xl h-12">
+              <TabsList className="bg-card/50 border border-border p-1 rounded-xl h-12">
                 <TabsTrigger 
                   value="active" 
                   className="rounded-lg px-6 font-bold data-[state=active]:bg-primary data-[state=active]:text-black"
@@ -260,45 +260,45 @@ export default function SellerDashboard() {
               </TabsList>
 
               <TabsContent value="active">
-                <Card className="bg-card/50 border-white/5 shadow-2xl overflow-hidden">
-                  <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-white/5 bg-white/5">
+                <Card className="bg-card/50 border-border shadow-2xl overflow-hidden">
+                  <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border bg-muted/60">
                     <div className="space-y-1">
-                      <CardTitle className="text-xl font-black text-white uppercase tracking-tight">Active Inventory</CardTitle>
+                      <CardTitle className="text-xl font-black text-foreground uppercase tracking-tight">Active Inventory</CardTitle>
                       <CardDescription className="text-slate-500 font-medium">Manage your currently live market entries.</CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
                     {activeProducts.length > 0 ? (
                       <Table>
-                        <TableHeader className="bg-white/5">
-                          <TableRow className="hover:bg-transparent border-white/5">
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest pl-6">Product</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Price</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Views</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Listed</TableHead>
-                            <TableHead className="text-right text-slate-400 font-bold uppercase text-[10px] tracking-widest pr-6">Status • Actions</TableHead>
+                        <TableHeader className="bg-muted/60">
+                          <TableRow className="hover:bg-transparent border-border">
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest pl-6">Product</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Price</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Views</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Listed</TableHead>
+                            <TableHead className="text-right text-muted-foreground font-bold uppercase text-[10px] tracking-widest pr-6">Status • Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {activeProducts.map(product => (
-                            <TableRow key={product.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                            <TableRow key={product.id} className="border-border hover:bg-muted/60 transition-colors group">
                               <TableCell className="pl-6 py-4">
                                 <div className="flex items-center gap-4">
-                                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-white/5 shadow-inner">
+                                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-card border border-border shadow-inner">
                                     {product.imageUrls && product.imageUrls.length > 0 ? (
                                       <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                     ) : (
-                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-slate-900">
+                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-card">
                                         <Package className="w-6 h-6" />
                                       </div>
                                     )}
                                   </div>
                                   <div className="flex flex-col">
-                                     <span className="font-bold text-white line-clamp-1">{product.title}</span>
+                                     <span className="font-bold text-foreground line-clamp-1">{product.title}</span>
                                      <div className="flex items-center gap-1.5 mt-0.5">
                                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{product.category}</span>
                                        {product.externalUrl && (
-                                         <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0">
+                                         <Badge className="bg-blue-600/20 text-blue-600 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0">
                                            FB Import
                                          </Badge>
                                        )}
@@ -306,7 +306,7 @@ export default function SellerDashboard() {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="font-black text-white text-lg">${formatPrice(product.price)}</TableCell>
+                              <TableCell className="font-black text-foreground text-lg">${formatPrice(product.price)}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
                                   <Eye className="h-3 w-3" />
@@ -326,20 +326,20 @@ export default function SellerDashboard() {
                                       Complete Draft
                                     </Badge>
                                   ) : (
-                                    <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[10px] uppercase px-3 py-1">Active</Badge>
+                                    <Badge className="bg-emerald-500/10 text-emerald-700 border-none font-black text-[10px] uppercase px-3 py-1">Active</Badge>
                                   )}
-                                  <div className="h-8 w-px bg-white/5 mx-2" />
+                                  <div className="h-8 w-px bg-muted/60 mx-2" />
                                   <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/5" onClick={() => setViewProduct(product)} title="View">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/60" onClick={() => setViewProduct(product)} title="View">
                                       <Eye className="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-white/5" onClick={() => setEditProduct(product)} title="Edit">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-muted/60" onClick={() => setEditProduct(product)} title="Edit">
                                       <Edit className="h-4 w-4" />
                                     </Button>
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="h-8 w-8 text-slate-400 hover:text-emerald-500 hover:bg-white/5"
+                                      className="h-8 w-8 text-muted-foreground hover:text-emerald-700 hover:bg-muted/60"
                                       title="Mark as Sold"
                                       onClick={() => {
                                         setSelectedProductForSold(product);
@@ -351,7 +351,7 @@ export default function SellerDashboard() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-white/5"
+                                      className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-muted/60"
                                       title="Delete"
                                       onClick={() => handleDelete(product.id)}
                                     >
@@ -365,11 +365,11 @@ export default function SellerDashboard() {
                         </TableBody>
                       </Table>
                     ) : (
-                      <div className="text-center py-24 bg-white/5 border-t border-white/5">
+                      <div className="text-center py-24 bg-muted/60 border-t border-border">
                         <Package className="h-16 w-16 mx-auto mb-6 opacity-10 text-primary" />
-                        <p className="text-white font-black uppercase tracking-tight text-xl">Operational Silence</p>
+                        <p className="text-foreground font-black uppercase tracking-tight text-xl">Operational Silence</p>
                         <p className="text-slate-500 text-sm mt-1">No active listings currently registered in the grid.</p>
-                        <Button variant="outline" className="mt-8 rounded-xl font-bold border-white/10 hover:bg-white/5 text-slate-400 hover:text-white" asChild>
+                        <Button variant="outline" className="mt-8 rounded-xl font-bold border-border hover:bg-muted/60 text-muted-foreground hover:text-foreground" asChild>
                           <Link href="/sell/create">Initialize First Entry</Link>
                         </Button>
                       </div>
@@ -379,54 +379,54 @@ export default function SellerDashboard() {
               </TabsContent>
 
               <TabsContent value="sold">
-                <Card className="bg-card/50 border-white/5 shadow-2xl overflow-hidden">
-                  <CardHeader className="bg-white/5 border-b border-white/5">
-                    <CardTitle className="text-xl font-black text-white uppercase tracking-tight">Deployment History</CardTitle>
+                <Card className="bg-card/50 border-border shadow-2xl overflow-hidden">
+                  <CardHeader className="bg-muted/60 border-b border-border">
+                    <CardTitle className="text-xl font-black text-foreground uppercase tracking-tight">Deployment History</CardTitle>
                     <CardDescription className="text-slate-500 font-medium">Verified list of successful market distributions.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                     {soldProducts.length > 0 ? (
                       <Table>
-                        <TableHeader className="bg-white/5">
-                          <TableRow className="hover:bg-transparent border-white/5">
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest pl-6">Product</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Price</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Sold Date</TableHead>
-                            <TableHead className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Protocol</TableHead>
-                            <TableHead className="text-right text-slate-400 font-bold uppercase text-[10px] tracking-widest pr-6">Actions</TableHead>
+                        <TableHeader className="bg-muted/60">
+                          <TableRow className="hover:bg-transparent border-border">
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest pl-6">Product</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Price</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Sold Date</TableHead>
+                            <TableHead className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Protocol</TableHead>
+                            <TableHead className="text-right text-muted-foreground font-bold uppercase text-[10px] tracking-widest pr-6">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {soldProducts.map(product => (
-                            <TableRow key={product.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                            <TableRow key={product.id} className="border-border hover:bg-muted/60 transition-colors group">
                               <TableCell className="pl-6 py-4">
                                 <div className="flex items-center gap-4">
-                                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-white/5">
+                                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-card border border-border">
                                     {product.imageUrls && product.imageUrls.length > 0 ? (
                                       <Image src={product.imageUrls[0]} alt={product.title} fill sizes="56px" className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
                                     ) : (
-                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-slate-900 opacity-60 group-hover:opacity-100 transition-all">
+                                      <div className="flex items-center justify-center w-full h-full text-slate-700 bg-card opacity-60 group-hover:opacity-100 transition-all">
                                         <Package className="w-6 h-6" />
                                       </div>
                                     )}
                                   </div>
-                                  <span className="font-bold text-slate-300 group-hover:text-white line-clamp-1">{product.title}</span>
+                                  <span className="font-bold text-foreground/80 group-hover:text-foreground line-clamp-1">{product.title}</span>
                                 </div>
                               </TableCell>
-                              <TableCell className="font-black text-white text-lg">${formatPrice(product.price)}</TableCell>
+                              <TableCell className="font-black text-foreground text-lg">${formatPrice(product.price)}</TableCell>
                               <TableCell className="text-slate-500 text-xs">{safeDate(product.soldAt || product.updatedAt) ? formatDistanceToNow(safeDate(product.soldAt || product.updatedAt)!, { addSuffix: true }) : 'N/A'}</TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="bg-white/5 border-white/10 text-slate-400 text-[10px] font-black uppercase">{(product as any).fulfillmentStatus || 'Platform'}</Badge>
+                                <Badge variant="outline" className="bg-muted/60 border-border text-muted-foreground text-[10px] font-black uppercase">{(product as any).fulfillmentStatus || 'Platform'}</Badge>
                               </TableCell>
                               <TableCell className="text-right pr-6">
                                 <div className="flex items-center justify-end gap-1">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/5" onClick={() => setViewProduct(product)} title="View">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/60" onClick={() => setViewProduct(product)} title="View">
                                     <Eye className="h-4 w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-slate-400 hover:text-emerald-500 hover:bg-white/5"
+                                    className="h-8 w-8 text-muted-foreground hover:text-emerald-700 hover:bg-muted/60"
                                     title="Republish"
                                     onClick={() => handleRepublish(product)}
                                     disabled={actionLoading}
@@ -440,7 +440,7 @@ export default function SellerDashboard() {
                         </TableBody>
                       </Table>
                     ) : (
-                      <div className="text-center py-24 bg-white/5">
+                      <div className="text-center py-24 bg-muted/60">
                         <Package className="h-16 w-16 mx-auto mb-6 opacity-10 text-slate-500" />
                         <p className="text-slate-500 font-black uppercase tracking-tight">No Market Exits Logged</p>
                       </div>
@@ -451,16 +451,16 @@ export default function SellerDashboard() {
             </Tabs>
           </div>
           <div className="space-y-6">
-            <Card className="bg-card/50 border-white/5 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-white/5 border-b border-white/5">
-                <CardTitle className="text-xl font-black text-white uppercase tracking-tight">Recent Feedback</CardTitle>
+            <Card className="bg-card/50 border-border shadow-2xl overflow-hidden">
+              <CardHeader className="bg-muted/60 border-b border-border">
+                <CardTitle className="text-xl font-black text-foreground uppercase tracking-tight">Recent Feedback</CardTitle>
                 <CardDescription className="text-slate-500 font-medium">Your latest reputation updates from the network.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 {reviews && reviews.length > 0 ? (
                   <div className="space-y-6">
                     {reviews.slice(0, 5).map(review => (
-                      <div key={review.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                      <div key={review.id} className="p-4 rounded-2xl bg-muted/60 border border-border space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
@@ -469,9 +469,9 @@ export default function SellerDashboard() {
                           </div>
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Verified</span>
                         </div>
-                        <p className="text-slate-300 text-sm italic leading-relaxed">"{review.comment}"</p>
-                        <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                           <span className="text-xs font-bold text-white uppercase">{review.buyerName}</span>
+                        <p className="text-foreground/80 text-sm italic leading-relaxed">"{review.comment}"</p>
+                        <div className="pt-3 border-t border-border flex items-center justify-between">
+                           <span className="text-xs font-bold text-foreground uppercase">{review.buyerName}</span>
                            <span className="text-[10px] text-slate-500 font-medium uppercase truncate max-w-[100px]">{review.productTitle}</span>
                         </div>
                       </div>
@@ -495,7 +495,7 @@ export default function SellerDashboard() {
               </CardHeader>
               <CardContent className="px-6 pb-6 pt-2">
                 <div className="space-y-4">
-                  <p className="text-sm text-slate-400 font-medium">Can't find a brand or category for your listing? Request a grid expansion.</p>
+                  <p className="text-sm text-muted-foreground font-medium">Can't find a brand or category for your listing? Request a grid expansion.</p>
                   <BrandRequestModal />
                 </div>
               </CardContent>

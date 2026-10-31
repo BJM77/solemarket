@@ -300,18 +300,18 @@ export default function ProloadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
       {/* Header */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+      <div className="max-w-7xl mx-auto flex items-center justify-between border-b border-border pb-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2 rounded-xl border border-primary/20 text-primary">
             <Layers className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-2xl font-black font-headline tracking-tight uppercase flex items-center gap-2">
-              PROLOAD <Badge className="bg-primary text-black font-black uppercase text-[10px]">AI BETA</Badge>
+              PROLOAD <Badge className="bg-primary text-primary-foreground font-black uppercase text-[10px]">AI BETA</Badge>
             </h1>
-            <p className="text-xs text-zinc-400 font-medium mt-0.5">FB Marketplace Importer & Auto-Lister</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">FB Marketplace Importer & Auto-Lister</p>
           </div>
         </div>
         {step === 'review' && (
@@ -322,7 +322,7 @@ export default function ProloadPage() {
               setScreenshotPreview(null);
               setProductImages([]);
             }}
-            className="text-zinc-400 hover:text-white hover:bg-zinc-950 font-bold uppercase text-xs"
+            className="text-muted-foreground hover:text-foreground hover:bg-background font-bold uppercase text-xs"
           >
             <ChevronLeft className="w-4 h-4 mr-2" /> Start Over
           </Button>
@@ -332,7 +332,7 @@ export default function ProloadPage() {
       <div className="max-w-7xl mx-auto">
         {/* Upload Step */}
         {step === 'upload' && (
-          <Card className="bg-zinc-950 border-white/10 text-white max-w-2xl mx-auto overflow-hidden relative shadow-glow">
+          <Card className="bg-background border-border text-foreground max-w-2xl mx-auto overflow-hidden relative shadow-glow">
             <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
               <Sparkles className="w-40 h-40 text-primary" />
             </div>
@@ -341,20 +341,20 @@ export default function ProloadPage() {
                 <UploadCloud className="w-5 h-5 text-primary animate-pulse" />
                 Upload Marketplace Listing Screenshot
               </CardTitle>
-              <CardDescription className="text-zinc-400 text-xs">
+              <CardDescription className="text-muted-foreground text-xs">
                 Take a screenshot of any Facebook Marketplace listing on your device and upload it here. Gemini AI will scan it and fill in all the details for you automatically.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div
                 onClick={() => screenshotInputRef.current?.click()}
-                className="border-dashed border-2 border-white/10 hover:border-primary/50 transition-all rounded-2xl p-12 flex flex-col items-center justify-center cursor-pointer text-center bg-zinc-900/50 hover:bg-zinc-900"
+                className="border-dashed border-2 border-border hover:border-primary/50 transition-all rounded-2xl p-12 flex flex-col items-center justify-center cursor-pointer text-center bg-card/50 hover:bg-card"
               >
-                <div className="bg-zinc-800 p-4 rounded-full mb-4 ring-8 ring-zinc-800/40 text-zinc-400">
+                <div className="bg-muted p-4 rounded-full mb-4 ring-8 ring-zinc-800/40 text-muted-foreground">
                   <UploadCloud className="w-8 h-8" />
                 </div>
                 <h3 className="font-bold text-sm uppercase tracking-wider">Drag & drop or Click to browse</h3>
-                <p className="text-[10px] text-zinc-500 mt-1 max-w-xs font-semibold uppercase tracking-wider">
+                <p className="text-[10px] text-muted-foreground mt-1 max-w-xs font-semibold uppercase tracking-wider">
                   Supports PNG, JPG, JPEG screenshots
                 </p>
                 <input
@@ -367,20 +367,20 @@ export default function ProloadPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div className="flex gap-3 bg-zinc-900/80 p-4 rounded-xl border border-white/5 items-start">
+                <div className="flex gap-3 bg-card/80 p-4 rounded-xl border border-border items-start">
                   <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-black uppercase text-zinc-300">Intelligent Extraction</h4>
-                    <p className="text-[10px] text-zinc-400 mt-1">
+                    <h4 className="text-xs font-black uppercase text-foreground/80">Intelligent Extraction</h4>
+                    <p className="text-[10px] text-muted-foreground mt-1">
                       Gemini parses title, condition, price, category, brand, model, size, and the full description directly.
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-3 bg-zinc-900/80 p-4 rounded-xl border border-white/5 items-start">
+                <div className="flex gap-3 bg-card/80 p-4 rounded-xl border border-border items-start">
                   <Camera className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-black uppercase text-zinc-300">Fresh Photos Integration</h4>
-                    <p className="text-[10px] text-zinc-400 mt-1">
+                    <h4 className="text-xs font-black uppercase text-foreground/80">Fresh Photos Integration</h4>
+                    <p className="text-[10px] text-muted-foreground mt-1">
                       Add the high-quality product images or use your device camera directly on the next step to ensure clear listings.
                     </p>
                   </div>
@@ -392,7 +392,7 @@ export default function ProloadPage() {
 
         {/* Analyzing / Parsing Step */}
         {step === 'analyzing' && (
-          <Card className="bg-zinc-950 border-white/10 text-white max-w-md mx-auto py-12 px-6 text-center shadow-glow">
+          <Card className="bg-background border-border text-foreground max-w-md mx-auto py-12 px-6 text-center shadow-glow">
             <CardContent className="space-y-6">
               <div className="flex justify-center">
                 <div className="relative w-20 h-20 flex items-center justify-center">
@@ -404,9 +404,9 @@ export default function ProloadPage() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-black uppercase tracking-wider text-sm">{analysisStatus}</h3>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Powered by Gemini Pro Vision</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Powered by Gemini Pro Vision</p>
               </div>
-              <Progress value={analysisProgress} className="h-1 bg-white/5" />
+              <Progress value={analysisProgress} className="h-1 bg-muted/60" />
             </CardContent>
           </Card>
         )}
@@ -417,15 +417,15 @@ export default function ProloadPage() {
             
             {/* Left Pane: Images & Camera capture */}
             <div className="lg:col-span-5 space-y-6">
-              <Card className="bg-zinc-950 border-white/10 text-white overflow-hidden">
-                <CardHeader className="pb-3 border-b border-white/5">
-                  <CardTitle className="text-xs font-black uppercase tracking-widest text-zinc-400">
+              <Card className="bg-background border-border text-foreground overflow-hidden">
+                <CardHeader className="pb-3 border-b border-border">
+                  <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                     Marketplace Screenshot Context
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 flex justify-center bg-zinc-900/40">
+                <CardContent className="p-4 flex justify-center bg-card/40">
                   {screenshotPreview && (
-                    <div className="relative w-full aspect-[9/16] max-h-[360px] rounded-xl overflow-hidden border border-white/10">
+                    <div className="relative w-full aspect-[9/16] max-h-[360px] rounded-xl overflow-hidden border border-border">
                       <Image
                         src={screenshotPreview}
                         alt="Facebook Marketplace Screenshot"
@@ -438,28 +438,28 @@ export default function ProloadPage() {
               </Card>
 
               {/* Product Photos */}
-              <Card className="bg-zinc-950 border-white/10 text-white">
-                <CardHeader className="pb-3 border-b border-white/5">
+              <Card className="bg-background border-border text-foreground">
+                <CardHeader className="pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xs font-black uppercase tracking-widest text-zinc-400">
+                    <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                       Actual Listing Photos (Required)
                     </CardTitle>
-                    <Badge variant="outline" className="text-[8px] border-white/15 text-zinc-400 font-bold uppercase">
+                    <Badge variant="outline" className="text-[8px] border-white/15 text-muted-foreground font-bold uppercase">
                       {productImages.length} ADDED
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   {productImages.length === 0 ? (
-                    <div className="border border-dashed border-white/10 rounded-xl p-8 text-center bg-zinc-900/10">
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                    <div className="border border-dashed border-border rounded-xl p-8 text-center bg-zinc-900/10">
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                         No product photos added yet
                       </p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 gap-3">
                       {productImages.map((img, idx) => (
-                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-zinc-900 group">
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-card group">
                           <Image
                             src={img.url}
                             alt={`Product Photo ${idx + 1}`}
@@ -469,7 +469,7 @@ export default function ProloadPage() {
                           <button
                             type="button"
                             onClick={() => removeProductPhoto(idx)}
-                            className="absolute top-1 right-1 bg-black/75 hover:bg-red-950 text-white hover:text-red-400 p-1.5 rounded-lg border border-white/5 transition-all opacity-0 group-hover:opacity-100"
+                            className="absolute top-1 right-1 bg-black/75 hover:bg-red-950 text-white hover:text-red-600 p-1.5 rounded-lg border border-border transition-all opacity-0 group-hover:opacity-100"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -484,7 +484,7 @@ export default function ProloadPage() {
                       type="button"
                       variant="outline"
                       onClick={() => productImagesInputRef.current?.click()}
-                      className="border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold uppercase text-[10px] h-10 tracking-wider"
+                      className="border-border bg-card hover:bg-muted text-foreground/80 font-bold uppercase text-[10px] h-10 tracking-wider"
                     >
                       <UploadCloud className="w-4 h-4 mr-2 text-primary" /> Upload Photos
                     </Button>
@@ -507,7 +507,7 @@ export default function ProloadPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold uppercase text-[10px] h-10 tracking-wider"
+                        className="w-full border-border bg-card hover:bg-muted text-foreground/80 font-bold uppercase text-[10px] h-10 tracking-wider"
                       >
                         <Camera className="w-4 h-4 mr-2 text-primary" /> Take Photo
                       </Button>
@@ -519,8 +519,8 @@ export default function ProloadPage() {
 
             {/* Right Pane: Editing Form */}
             <div className="lg:col-span-7 space-y-6">
-              <Card className="bg-zinc-950 border-white/10 text-white">
-                <CardHeader className="pb-3 border-b border-white/5">
+              <Card className="bg-background border-border text-foreground">
+                <CardHeader className="pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
                       <Sparkles className="w-4.5 h-4.5 text-primary" /> Review & Edit Product Details
@@ -533,39 +533,39 @@ export default function ProloadPage() {
                 <CardContent className="p-6 space-y-4">
                   {/* Title */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="title" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Product Title</Label>
+                    <Label htmlFor="title" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Product Title</Label>
                     <Input
                       id="title"
                       value={formData.title}
                       onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                      className="bg-card border-border text-foreground focus-visible:ring-primary"
                     />
                   </div>
 
                   {/* Price & Condition */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="price" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Price (AUD)</Label>
+                      <Label htmlFor="price" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Price (AUD)</Label>
                       <Input
                         id="price"
                         type="number"
                         value={formData.price}
                         onChange={e => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
-                        className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                        className="bg-card border-border text-foreground focus-visible:ring-primary"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="condition" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Condition</Label>
+                      <Label htmlFor="condition" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Condition</Label>
                       <Select
                         value={formData.condition}
                         onValueChange={val => setFormData(prev => ({ ...prev, condition: val }))}
                       >
-                        <SelectTrigger className="bg-zinc-900 border-white/10 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground">
                           <SelectValue placeholder="Select Condition" />
                         </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                        <SelectContent className="bg-card border-border text-foreground">
                           {['New', 'Used', 'Mint', 'Near Mint', 'Excellent', 'Good', 'Fair'].map(c => (
-                            <SelectItem key={c} value={c} className="hover:bg-zinc-800">{c}</SelectItem>
+                            <SelectItem key={c} value={c} className="hover:bg-muted">{c}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -575,28 +575,28 @@ export default function ProloadPage() {
                   {/* Category & SubCategory */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="category" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Category</Label>
+                      <Label htmlFor="category" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Category</Label>
                       <Select
                         value={formData.category}
                         onValueChange={val => setFormData(prev => ({ ...prev, category: val as any }))}
                       >
-                        <SelectTrigger className="bg-zinc-900 border-white/10 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground">
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                        <SelectContent className="bg-card border-border text-foreground">
                           {['Sneakers', 'Apparel', 'Collector Cards', 'Accessories'].map(cat => (
-                            <SelectItem key={cat} value={cat} className="hover:bg-zinc-800">{cat}</SelectItem>
+                            <SelectItem key={cat} value={cat} className="hover:bg-muted">{cat}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="subCategory" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Sub-Category</Label>
+                      <Label htmlFor="subCategory" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Sub-Category</Label>
                       <Input
                         id="subCategory"
                         value={formData.subCategory}
                         onChange={e => setFormData(prev => ({ ...prev, subCategory: e.target.value }))}
-                        className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                        className="bg-card border-border text-foreground focus-visible:ring-primary"
                         placeholder="e.g. Jordan, Nike, Rims"
                       />
                     </div>
@@ -605,33 +605,33 @@ export default function ProloadPage() {
                   {/* Brand, Model, Size (Size conditionally rendered for Sneakers/Apparel) */}
                   <div className={cn("grid gap-4", (formData.category === 'Sneakers' || formData.category === 'Apparel') ? "grid-cols-3" : "grid-cols-2")}>
                     <div className="space-y-1.5">
-                      <Label htmlFor="brand" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Brand</Label>
+                      <Label htmlFor="brand" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Brand</Label>
                       <Input
                         id="brand"
                         value={formData.brand}
                         onChange={e => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                        className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                        className="bg-card border-border text-foreground focus-visible:ring-primary"
                         placeholder="e.g. Pokémon, Upper Deck, Nike"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="model" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Model / Set</Label>
+                      <Label htmlFor="model" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Model / Set</Label>
                       <Input
                         id="model"
                         value={formData.model}
                         onChange={e => setFormData(prev => ({ ...prev, model: e.target.value }))}
-                        className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                        className="bg-card border-border text-foreground focus-visible:ring-primary"
                         placeholder="e.g. Charizard, Air Jordan 1"
                       />
                     </div>
                     {(formData.category === 'Sneakers' || formData.category === 'Apparel') && (
                       <div className="space-y-1.5">
-                        <Label htmlFor="size" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Size</Label>
+                        <Label htmlFor="size" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Size</Label>
                         <Input
                           id="size"
                           value={formData.size}
                           onChange={e => setFormData(prev => ({ ...prev, size: e.target.value }))}
-                          className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary"
+                          className="bg-card border-border text-foreground focus-visible:ring-primary"
                           placeholder="e.g. US 10, Large"
                         />
                       </div>
@@ -640,23 +640,23 @@ export default function ProloadPage() {
 
                   {/* Description */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="description" className="text-zinc-400 font-black uppercase text-[9px] tracking-widest">Description</Label>
+                    <Label htmlFor="description" className="text-muted-foreground font-black uppercase text-[9px] tracking-widest">Description</Label>
                     <Textarea
                       id="description"
                       rows={6}
                       value={formData.description}
                       onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      className="bg-zinc-900 border-white/10 text-white focus-visible:ring-primary text-xs"
+                      className="bg-card border-border text-foreground focus-visible:ring-primary text-xs"
                     />
                   </div>
 
                   {/* Facebook Marketplace URL */}
-                  <div className="space-y-2 pt-2 border-t border-white/5">
+                  <div className="space-y-2 pt-2 border-t border-border">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="externalUrl" className="text-emerald-400 font-black uppercase text-[9px] tracking-widest flex items-center gap-1.5">
+                      <Label htmlFor="externalUrl" className="text-emerald-700 font-black uppercase text-[9px] tracking-widest flex items-center gap-1.5">
                         Facebook Marketplace Listing URL (Optional)
                       </Label>
-                      <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[8px] font-black uppercase">
+                      <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 text-[8px] font-black uppercase">
                         3 Methods Supported
                       </Badge>
                     </div>
@@ -667,7 +667,7 @@ export default function ProloadPage() {
                         placeholder="https://www.facebook.com/marketplace/item/..."
                         value={formData.externalUrl}
                         onChange={e => setFormData(prev => ({ ...prev, externalUrl: e.target.value }))}
-                        className="bg-zinc-900 border-emerald-500/30 text-white focus-visible:ring-emerald-500 text-xs flex-1"
+                        className="bg-card border-emerald-500/30 text-foreground focus-visible:ring-emerald-500 text-xs flex-1"
                       />
                       <Button
                         type="button"
@@ -688,7 +688,7 @@ export default function ProloadPage() {
                             toast({ title: "Clipboard Access", description: "Permission denied. Please paste manually.", variant: "destructive" });
                           }
                         }}
-                        className="border-emerald-500/30 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/50 font-bold uppercase text-[10px] h-9 px-3 shrink-0"
+                        className="border-emerald-500/30 bg-emerald-950/30 text-emerald-700 hover:bg-emerald-900/50 font-bold uppercase text-[10px] h-9 px-3 shrink-0"
                       >
                         <ClipboardPaste className="w-3.5 h-3.5 mr-1" /> Paste
                       </Button>
@@ -696,31 +696,31 @@ export default function ProloadPage() {
                     
                     {/* 3 Supported Methods Guide */}
                     <div className="grid grid-cols-3 gap-2 pt-1 text-[9px]">
-                      <div className="bg-zinc-900/80 p-2 rounded-lg border border-white/5 flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">1. AI Auto-Detect</span>
-                        <span className="text-zinc-400 text-[8px] mt-0.5">Reads link if address bar is in screenshot</span>
+                      <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
+                        <span className="font-bold text-emerald-700">1. AI Auto-Detect</span>
+                        <span className="text-muted-foreground text-[8px] mt-0.5">Reads link if address bar is in screenshot</span>
                       </div>
-                      <div className="bg-zinc-900/80 p-2 rounded-lg border border-white/5 flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">2. 1-Tap Paste</span>
-                        <span className="text-zinc-400 text-[8px] mt-0.5">Copy link in FB App & tap Paste above</span>
+                      <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
+                        <span className="font-bold text-emerald-700">2. 1-Tap Paste</span>
+                        <span className="text-muted-foreground text-[8px] mt-0.5">Copy link in FB App & tap Paste above</span>
                       </div>
-                      <div className="bg-zinc-900/80 p-2 rounded-lg border border-white/5 flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">3. Manual Entry</span>
-                        <span className="text-zinc-400 text-[8px] mt-0.5">Type or edit URL directly into input field</span>
+                      <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
+                        <span className="font-bold text-emerald-700">3. Manual Entry</span>
+                        <span className="text-muted-foreground text-[8px] mt-0.5">Type or edit URL directly into input field</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Raw Specs from FB (Visual context) */}
                   {Object.keys(rawSpecs).length > 0 && (
-                    <div className="bg-zinc-900/35 border border-white/5 rounded-xl p-4">
-                      <h4 className="text-[10px] font-black uppercase text-zinc-400 tracking-wider mb-2">
+                    <div className="bg-zinc-900/35 border border-border rounded-xl p-4">
+                      <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-wider mb-2">
                         Extra Extracted Listing Attributes
                       </h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-zinc-300">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-foreground/80">
                         {Object.entries(rawSpecs).map(([key, value]) => (
-                          <div key={key} className="flex justify-between py-0.5 border-b border-white/5">
-                            <span className="text-zinc-500 font-medium capitalize">{key}:</span>
+                          <div key={key} className="flex justify-between py-0.5 border-b border-border">
+                            <span className="text-muted-foreground font-medium capitalize">{key}:</span>
                             <span className="font-bold">{value}</span>
                           </div>
                         ))}
@@ -729,19 +729,19 @@ export default function ProloadPage() {
                   )}
 
                   {/* Action buttons */}
-                  <div className="flex gap-4 pt-4 border-t border-white/5">
+                  <div className="flex gap-4 pt-4 border-t border-border">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handlePublish(true)}
-                      className="flex-1 border-white/10 bg-zinc-950 hover:bg-zinc-900 text-white font-black uppercase text-xs tracking-wider h-12"
+                      className="flex-1 border-border bg-background hover:bg-card text-foreground font-black uppercase text-xs tracking-wider h-12"
                     >
                       Save Draft
                     </Button>
                     <Button
                       type="button"
                       onClick={() => handlePublish(false)}
-                      className="flex-1 bg-primary text-black hover:bg-primary/95 font-black uppercase text-xs tracking-wider h-12"
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/95 font-black uppercase text-xs tracking-wider h-12"
                     >
                       Publish Listing <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
@@ -754,14 +754,14 @@ export default function ProloadPage() {
 
         {/* Submitting/Publishing State */}
         {step === 'submitting' && (
-          <Card className="bg-zinc-950 border-white/10 text-white max-w-md mx-auto py-12 px-6 text-center shadow-glow">
+          <Card className="bg-background border-border text-foreground max-w-md mx-auto py-12 px-6 text-center shadow-glow">
             <CardContent className="space-y-6">
               <div className="flex justify-center">
                 <Loader2 className="w-12 h-12 text-primary animate-spin" />
               </div>
               <div className="space-y-2">
                 <h3 className="font-black uppercase tracking-wider text-sm">Uploading Assets & Listing to Benched...</h3>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Creating Firestore documents</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Creating Firestore documents</p>
               </div>
             </CardContent>
           </Card>

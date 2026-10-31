@@ -101,14 +101,14 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
   };
 
   return (
-    <div className="w-full mx-auto border border-white/10 shadow-xl overflow-hidden rounded-2xl bg-card mb-6">
+    <div className="w-full mx-auto border border-border shadow-xl overflow-hidden rounded-2xl bg-card mb-6">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="bg-indigo-600 p-2 rounded-lg">
-            <Sparkles className="h-5 w-5 text-white" />
+            <Sparkles className="h-5 w-5 text-foreground" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-white">AI Visual Grader</h3>
+            <h3 className="text-lg font-black text-foreground">AI Visual Grader</h3>
             <p className="text-sm text-muted-foreground">Scans card front & back to map defects and generate subgrades.</p>
           </div>
         </div>
@@ -130,14 +130,14 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 mt-6 space-y-4">
             
             {/* Navigation Tabs */}
-            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+            <div className="flex bg-muted/60 p-1 rounded-xl border border-border">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={(e) => { e.preventDefault(); setActiveTab('defects'); }}
                 className={cn(
                   "flex-1 h-8 rounded-lg font-bold text-xs uppercase tracking-wider",
-                  activeTab === 'defects' ? "bg-primary text-primary-foreground" : "text-slate-400 hover:text-white"
+                  activeTab === 'defects' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 Defect Radar Map
@@ -148,7 +148,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                 onClick={(e) => { e.preventDefault(); setActiveTab('subgrades'); }}
                 className={cn(
                   "flex-1 h-8 rounded-lg font-bold text-xs uppercase tracking-wider",
-                  activeTab === 'subgrades' ? "bg-primary text-primary-foreground" : "text-slate-400 hover:text-white"
+                  activeTab === 'subgrades' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 Subgrades Summary
@@ -159,7 +159,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
             {activeTab === 'defects' && (
               <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
                 {/* Visual Defects Overlay Wrapper */}
-                <div className="relative flex flex-col items-center justify-center bg-slate-950/40 p-4 rounded-2xl border border-white/5">
+                <div className="relative flex flex-col items-center justify-center bg-background/40 p-4 rounded-2xl border border-border">
                   <AICardDefectOverlay 
                     imageUrl={previews[activeImageIdx]} 
                     defects={result.defects} 
@@ -172,7 +172,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                       <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={handlePrevImage}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                         Photo {activeImageIdx + 1} of {previews.length}
                       </span>
                       <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={handleNextImage}>
@@ -187,14 +187,14 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
             {/* TAB 2: SUBGRADES SUMMARY TABLE */}
             {activeTab === 'subgrades' && (
               <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                <div className="bg-slate-950/40 rounded-2xl border border-white/5 overflow-hidden">
-                  <div className="p-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subgrade Assessments</span>
+                <div className="bg-background/40 rounded-2xl border border-border overflow-hidden">
+                  <div className="p-4 bg-muted/60 border-b border-border flex items-center justify-between">
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Subgrade Assessments</span>
                     <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold border-primary/20 text-primary bg-primary/5 uppercase tracking-wider">
                       Est. {result.condition || 'Raw'}
                     </span>
                   </div>
-                  <div className="p-4 divide-y divide-white/5 text-xs">
+                  <div className="p-4 divide-y divide-border text-xs">
                     <SubgradeRow label="Corners" value={result.cornersGrade} />
                     <SubgradeRow label="Edges" value={result.edgesGrade} />
                     <SubgradeRow label="Surface" value={result.surfaceGrade} />
@@ -205,8 +205,8 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
             )}
 
             {/* AI Mapping Apply Card */}
-            <div className="space-y-3 bg-white/5 rounded-2xl p-4 border border-white/5">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+            <div className="space-y-3 bg-muted/60 rounded-2xl p-4 border border-border">
+              <div className="flex items-center justify-between border-b border-border pb-2.5">
                 <span className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest">Auto-fill Values</span>
                 <Button size="sm" onClick={applySuggestions} className="h-8 rounded-lg font-bold text-xs bg-primary hover:bg-primary/95 text-primary-foreground">
                   Apply Suggestions
@@ -220,8 +220,8 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
                 <AISuggestion label="Year" value={String(result.year)} />
               </div>
 
-              <div className="flex gap-2 text-[10px] text-slate-400 pt-2 items-center justify-center">
-                <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+              <div className="flex gap-2 text-[10px] text-muted-foreground pt-2 items-center justify-center">
+                <CheckCircle2 className="h-3 w-3 text-emerald-700" />
                 <span>AI Grade Checked • Review before publishing</span>
               </div>
             </div>
@@ -243,10 +243,10 @@ function SubgradeRow({ label, value }: SubgradeRowProps) {
   return (
     <div className="py-2.5 flex flex-col gap-1 first:pt-0 last:pb-0">
       <div className="flex items-center justify-between">
-        <h5 className="font-bold text-white tracking-wide">{label}</h5>
+        <h5 className="font-bold text-foreground tracking-wide">{label}</h5>
         <span className="text-[10px] font-semibold text-primary uppercase">Report</span>
       </div>
-      <p className="text-[11px] text-slate-400 leading-normal">{value}</p>
+      <p className="text-[11px] text-muted-foreground leading-normal">{value}</p>
     </div>
   );
 }
@@ -254,9 +254,9 @@ function SubgradeRow({ label, value }: SubgradeRowProps) {
 function AISuggestion({ label, value }: { label: string, value: string | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex justify-between items-center bg-background p-2 rounded-lg border border-white/5 shadow-sm">
-      <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{label}</h5>
-      <p className="text-xs font-semibold text-white leading-snug text-right">{value}</p>
+    <div className="flex justify-between items-center bg-background p-2 rounded-lg border border-border shadow-sm">
+      <h5 className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">{label}</h5>
+      <p className="text-xs font-semibold text-foreground leading-snug text-right">{value}</p>
     </div>
   );
 }

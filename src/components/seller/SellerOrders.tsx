@@ -206,7 +206,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
         return (
             <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200">
                 <Loader2 className="h-10 w-10 animate-spin text-primary/40 mb-4" />
-                <p className="text-slate-400 font-medium">Synchronizing Secure Ledger...</p>
+                <p className="text-muted-foreground font-medium">Synchronizing Secure Ledger...</p>
             </div>
         );
     }
@@ -229,7 +229,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                     ))}
                 </div>
                 <div className="relative group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     <Input
                         placeholder="Search orders..."
                         className="pl-10 w-full md:w-64 bg-white border-slate-200 rounded-full focus:ring-primary shadow-sm"
@@ -240,7 +240,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
             {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border shadow-sm text-center px-6">
                     <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                        <Package className="h-10 w-10 text-slate-200" />
+                        <Package className="h-10 w-10 text-foreground" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">No Active Orders</h3>
                     <p className="text-slate-500 max-w-xs">When customers purchase your items, they will appear here for management and fulfillment.</p>
@@ -255,7 +255,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                     <div className="flex items-start justify-between mb-6">
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-3">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                                     {order.type === 'guest_enquiry' ? 'Enquiry ID' : 'Order ID'}
                                                 </p>
                                                 <Badge variant="outline" className="font-mono text-[10px] bg-slate-50 border-slate-200 text-slate-600 rounded-md">
@@ -263,7 +263,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 </Badge>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                                                 <p className="text-sm font-bold text-slate-600">
                                                     {format(order.createdAt, 'MMM d, yyyy · h:mm a')}
                                                 </p>
@@ -291,7 +291,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                     <div className="space-y-4">
                                         {order.type === 'guest_enquiry' ? (
                                             <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Message Transmission</p>
+                                                <p className="text-[10px] font-black uppercase text-muted-foreground mb-2">Message Transmission</p>
                                                 <p className="text-sm font-medium text-slate-700 italic">"{order.message}"</p>
                                             </div>
                                         ) : order.items?.map((item: any) => (
@@ -309,21 +309,21 @@ export function SellerOrders({ limit }: { limit?: number }) {
 
                                     <div className="mt-8 pt-6 border-t border-slate-50 flex flex-wrap gap-6 items-center">
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                                            <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
                                                 {order.type === 'guest_enquiry' ? 'Enquirer Details' : 'Buyer Instance'}
                                             </p>
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold">
+                                                <div className="w-6 h-6 rounded-full bg-card flex items-center justify-center text-[10px] text-foreground font-bold">
                                                     {order.name?.[0] || order.buyerName?.[0] || 'U'}
                                                 </div>
                                                 <p className="text-xs font-bold text-slate-700">{order.name || order.buyerName}</p>
                                                 {order.type === 'guest_enquiry' && (
-                                                    <span className="text-[10px] text-slate-400 font-medium">({order.email})</span>
+                                                    <span className="text-[10px] text-muted-foreground font-medium">({order.email})</span>
                                                 )}
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Channel</p>
+                                            <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Channel</p>
                                             <div className="flex items-center gap-2">
                                                 {order.type === 'guest_enquiry' ? (
                                                     <MessageSquare className="h-3.5 w-3.5 text-indigo-600" />
@@ -339,7 +339,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                         </div>
                                         {order.totalAmount && (
                                             <div className="space-y-1 ml-auto text-right">
-                                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Profit Impact</p>
+                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Profit Impact</p>
                                                 <p className="text-lg font-black text-slate-900">${formatPrice(order.totalAmount)}</p>
                                             </div>
                                         )}
@@ -348,7 +348,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
 
                                 {/* Right Side: Actions Tab */}
                                 <div className="w-full lg:w-72 bg-slate-50/50 border-l border-slate-100 p-6 flex flex-col gap-3">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Operational Controls</p>
+                                    <p className="text-[10px] font-black uppercase text-muted-foreground mb-2">Operational Controls</p>
 
                                     {order.type === 'guest_enquiry' ? (
                                         <Button
@@ -390,7 +390,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                             {['processing', 'paid'].includes(order.status) && order.shippingMethod !== 'pickup' && (
                                                 <Dialog open={selectedOrder === order.id} onOpenChange={(o) => setSelectedOrder(o ? order.id : null)}>
                                                     <DialogTrigger asChild>
-                                                        <Button className="w-full font-bold rounded-xl gap-2 bg-slate-900 hover:bg-black text-white py-6">
+                                                        <Button className="w-full font-bold rounded-xl gap-2 bg-card hover:bg-background text-foreground py-6">
                                                             <Truck className="h-4 w-4" />
                                                             Initialize Shipment
                                                         </Button>
@@ -404,7 +404,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                         </DialogHeader>
                                                         <div className="space-y-6 py-4">
                                                             <div className="space-y-2">
-                                                                <Label className="text-xs font-bold uppercase text-slate-400">Carrier Authority</Label>
+                                                                <Label className="text-xs font-bold uppercase text-muted-foreground">Carrier Authority</Label>
                                                                 <Input
                                                                     placeholder="e.g. FedEx, UPS, Australia Post"
                                                                     value={trackingCarrier}
@@ -413,7 +413,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                                 />
                                                             </div>
                                                             <div className="space-y-2">
-                                                                <Label className="text-xs font-bold uppercase text-slate-400">Tracking Serial</Label>
+                                                                <Label className="text-xs font-bold uppercase text-muted-foreground">Tracking Serial</Label>
                                                                 <Input
                                                                     placeholder="Enter tracking number"
                                                                     value={trackingNumber}
@@ -457,7 +457,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 Inquire Buyer
                                             </Button>
 
-                                            <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-slate-900">
+                                            <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-muted-foreground hover:text-slate-900">
                                                 <Printer className="h-4 w-4" />
                                                 Print Index Card
                                             </Button>
@@ -465,7 +465,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                             {order.status === 'processing' && (
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full font-bold rounded-xl gap-2 text-slate-400 hover:text-rose-600 mt-auto opacity-50 hover:opacity-100"
+                                                    className="w-full font-bold rounded-xl gap-2 text-muted-foreground hover:text-rose-600 mt-auto opacity-50 hover:opacity-100"
                                                     onClick={() => handleUpdateStatus(order.id, 'cancelled')}
                                                     disabled={isPending}
                                                 >

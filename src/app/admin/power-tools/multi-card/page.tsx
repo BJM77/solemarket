@@ -212,18 +212,18 @@ export default function MultiGenPage() {
                     <ChevronLeft className="h-4 w-4 mr-1" /> Back
                 </Button>
                 <div className="text-xs font-bold tracking-tighter uppercase text-muted-foreground flex items-center gap-1">
-                    <Boxes className="size-3 text-emerald-500" />
+                    <Boxes className="size-3 text-emerald-700" />
                     Fast Card Lister
                 </div>
                 <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className={cn("size-1.5 rounded-full", capturedImages.length >= i ? "bg-emerald-500" : "bg-neutral-200 dark:bg-neutral-800")} />
+                        <div key={i} className={cn("size-1.5 rounded-full", capturedImages.length >= i ? "bg-emerald-700" : "bg-neutral-200 dark:bg-neutral-800")} />
                     ))}
                 </div>
             </div>
 
             {/* Camera Viewport */}
-            <div className="relative flex-1 bg-black overflow-hidden m-2 rounded-2xl shadow-inner">
+            <div className="relative flex-1 bg-background overflow-hidden m-2 rounded-2xl shadow-inner">
                 <video
                     ref={videoRef}
                     autoPlay
@@ -246,7 +246,7 @@ export default function MultiGenPage() {
                                 onClick={() => removeImage(idx)}
                                 className="absolute inset-0 bg-red-500/80 items-center justify-center hidden group-hover/img:flex"
                             >
-                                <Trash2 className="size-4 text-white" />
+                                <Trash2 className="size-4 text-foreground" />
                             </button>
                         </motion.div>
                     ))}
@@ -256,16 +256,16 @@ export default function MultiGenPage() {
                 <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-8">
                     <button
                         onClick={() => setCapturedImages([])}
-                        className="p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white active:scale-90"
+                        className="p-3 bg-muted backdrop-blur-xl border border-border rounded-full text-foreground active:scale-90"
                     >
                         <RotateCcw className="size-5" />
                     </button>
 
                     <button
                         onClick={takePicture}
-                        className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-white/20 backdrop-blur-sm"
+                        className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-muted backdrop-blur-sm"
                     >
-                        <div className="size-16 rounded-full bg-emerald-500 shadow-xl" />
+                        <div className="size-16 rounded-full bg-emerald-700 shadow-xl" />
                     </button>
 
                     <div className="size-11" />
@@ -286,7 +286,7 @@ export default function MultiGenPage() {
                         disabled={capturedImages.length === 0 || isAnalyzing}
                         className={cn(
                             "absolute right-2 top-2 p-2 rounded-lg",
-                            isAnalyzing ? "text-emerald-500 animate-pulse" : "text-muted-foreground hover:text-emerald-500"
+                            isAnalyzing ? "text-emerald-700 animate-pulse" : "text-muted-foreground hover:text-emerald-700"
                         )}
                     >
                         {isAnalyzing ? <Loader2 className="size-6 animate-spin" /> : <Sparkles className="size-6" />}
@@ -296,7 +296,7 @@ export default function MultiGenPage() {
                 <Button
                     onClick={handleSave}
                     disabled={capturedImages.length === 0 || !title || isSaving}
-                    className="h-14 rounded-xl text-lg font-black bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/10"
+                    className="h-14 rounded-xl text-lg font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/10"
                 >
                     {isSaving ? <Loader2 className="size-5 animate-spin" /> : <><Save className="size-5 mr-2" /> SAVE & PUBLISH</>}
                 </Button>

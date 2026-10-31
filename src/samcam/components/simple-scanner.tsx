@@ -137,7 +137,7 @@ export default function SimpleScanner() {
         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${mode === 'ai' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
           {mode === 'ai' ? (
             <>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-pulse"></div>
               AI Mode (Gemini)
             </>
           ) : (
@@ -204,7 +204,7 @@ export default function SimpleScanner() {
       {result && (
         <div className="result-card">
           <div className="result-header">
-            <Check className="text-green-500" />
+            <Check className="text-green-700" />
             <h3>Card Identified!</h3>
             {result.isMock && (
               <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">

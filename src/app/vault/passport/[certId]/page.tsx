@@ -48,14 +48,14 @@ export default async function PassportPage(props: Props) {
     }
 
     return (
-        <div className="bg-black min-h-screen pt-24 pb-20">
+        <div className="bg-background min-h-screen pt-24 pb-20">
             <div className="max-w-4xl mx-auto px-4">
-                <div className="text-center mb-12 border-b border-white/10 pb-8">
-                    <ShieldCheck className="h-16 w-16 text-emerald-500 mx-auto mb-6" />
+                <div className="text-center mb-12 border-b border-border pb-8">
+                    <ShieldCheck className="h-16 w-16 text-emerald-700 mx-auto mb-6" />
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
                         Vault Passport
                     </h1>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-full font-mono text-lg mb-4 border border-emerald-500/20">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-700 rounded-full font-mono text-lg mb-4 border border-emerald-500/20">
                         {record.certId}
                     </div>
                     <p className="text-muted-foreground">
@@ -64,7 +64,7 @@ export default async function PassportPage(props: Props) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <Card className="bg-white/5 border-white/10">
+                    <Card className="bg-muted/60 border-border">
                         <CardHeader>
                             <CardTitle className="text-sm text-muted-foreground uppercase tracking-widest">Item Details</CardTitle>
                         </CardHeader>
@@ -89,28 +89,28 @@ export default async function PassportPage(props: Props) {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 border-emerald-500/30">
+                    <Card className="bg-muted/60 border-emerald-500/30">
                         <CardHeader>
-                            <CardTitle className="text-sm text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                            <CardTitle className="text-sm text-emerald-700 uppercase tracking-widest flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4" /> Cryptographic Proof
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <div className="text-xs text-emerald-500/70 mb-1">Digital Signature (JWT)</div>
-                                <div className="font-mono text-xs text-muted-foreground bg-black/50 p-2 rounded truncate border border-white/5">
+                                <div className="text-xs text-emerald-700/70 mb-1">Digital Signature (JWT)</div>
+                                <div className="font-mono text-xs text-muted-foreground bg-black/50 p-2 rounded truncate border border-border">
                                     {record.jwtSignature}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-xs text-emerald-500/70 mb-1">Photo Provenance Hash (SHA-256)</div>
-                                <div className="font-mono text-xs text-muted-foreground bg-black/50 p-2 rounded truncate border border-white/5 flex items-center gap-2">
+                                <div className="text-xs text-emerald-700/70 mb-1">Photo Provenance Hash (SHA-256)</div>
+                                <div className="font-mono text-xs text-muted-foreground bg-black/50 p-2 rounded truncate border border-border flex items-center gap-2">
                                     <Hash className="h-3 w-3" />
                                     {record.photoHash}
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-emerald-500/20">
-                                <p className="text-xs text-emerald-500/80 leading-relaxed">
+                                <p className="text-xs text-emerald-700/80 leading-relaxed">
                                     This passport is signed with Benched's private Ed25519 key. 
                                     It cannot be forged, altered, or duplicated. 
                                     The photo hash proves the exact physical condition of the item at the moment of verification.

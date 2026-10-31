@@ -17,7 +17,7 @@ const brands = [
 
 export default function BrandLogos() {
   return (
-    <section className="py-12 bg-black border-y border-white/5 overflow-hidden">
+    <section className="py-12 bg-background border-y border-border overflow-hidden">
       <div className="container mx-auto px-4 mb-10">
         <h2 className="text-center text-sm font-bold text-muted-foreground uppercase tracking-widest">
           Featuring Top Brands
@@ -36,7 +36,7 @@ export default function BrandLogos() {
             <Link
               key={`${brand.name}-${i}`}
               href={brand.href}
-              className="relative h-12 md:h-16 w-28 md:w-36 flex items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300 transform hover:scale-110 drop-shadow-[0_0_15px_rgba(242,108,13,0.15)] hover:drop-shadow-[0_0_20px_rgba(242,108,13,0.5)]"
+              className="relative h-12 md:h-16 w-28 md:w-36 flex items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300 transform hover:scale-110 drop-shadow-[0_0_15px_rgba(37, 99, 235,0.15)] hover:drop-shadow-[0_0_20px_rgba(37, 99, 235,0.5)]"
               title={`Shop ${brand.name}`}
             >
               <Image

@@ -209,7 +209,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                                     if (rejectedBids.length > 0) {
                                         const highestRejected = Math.max(...rejectedBids.map(b => b.amount));
                                         return (
-                                            <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-lg text-sm text-orange-700 dark:text-orange-300">
+                                            <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-orange-900/20 border border-blue-100 dark:border-orange-800 rounded-lg text-sm text-blue-700 dark:text-orange-300">
                                                 <Info className="h-4 w-4 shrink-0" />
                                                 <p>Highest rejected offer: <strong>${highestRejected.toLocaleString()}</strong></p>
                                             </div>

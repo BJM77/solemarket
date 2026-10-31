@@ -242,7 +242,7 @@ export default function CameraScanner({
   }, [onAddNameToKeep, scanResult]);
 
   const resultOverlayClasses = cn(
-    "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center transition-opacity duration-300 text-white font-bold text-4xl font-headline tracking-wider",
+    "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center transition-opacity duration-300 text-foreground font-bold text-4xl font-headline tracking-wider",
     {
       "opacity-0 pointer-events-none": !showResult,
       "opacity-100": showResult,
@@ -253,7 +253,7 @@ export default function CameraScanner({
   );
 
   return (
-    <div className="w-full max-w-[12rem] aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : toggleCamera}>
+    <div className="w-full max-w-[12rem] aspect-[9/16] bg-background rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : toggleCamera}>
       <video
         ref={videoRef}
         autoPlay
@@ -266,7 +266,7 @@ export default function CameraScanner({
       {!isCameraActive && (
          <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
             <Camera className="w-16 h-16 text-primary-foreground mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Camera Off</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">Camera Off</h3>
             <p className="text-muted-foreground">Click to start camera</p>
         </div>
       )}
@@ -283,7 +283,7 @@ export default function CameraScanner({
       {cameraError && (
         <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
           <CameraOff className="w-16 h-16 text-destructive mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Camera Error</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Camera Error</h3>
           <p className="text-muted-foreground">{cameraError}</p>
            <Button onClick={toggleCamera} variant="secondary" className="mt-4">Try Again</Button>
         </div>
@@ -320,7 +320,7 @@ export default function CameraScanner({
               handleAddName();
             }}
             variant="outline"
-            className="mt-4 bg-white/20 hover:bg-white/30 text-white border-white"
+            className="mt-4 bg-muted hover:bg-white/30 text-foreground border-white"
           >
             <PlusCircle className="mr-2 h-4 w-4" />
             Add to Keep List
@@ -331,7 +331,7 @@ export default function CameraScanner({
       <div className="absolute top-2 left-2 bg-black/50 p-2 rounded-lg text-white text-xs flex items-center gap-1">
         <Sparkles className="w-4 h-4 text-accent" />
         <span>AI Active</span>
-        <div className={cn("w-2 h-2 rounded-full ml-1", isCameraActive ? "bg-green-500" : "bg-red-500")} />
+        <div className={cn("w-2 h-2 rounded-full ml-1", isCameraActive ? "bg-green-700" : "bg-red-500")} />
       </div>
       {isCameraActive && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">

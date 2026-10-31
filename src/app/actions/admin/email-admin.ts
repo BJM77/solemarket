@@ -45,7 +45,7 @@ export async function sendTestEmail(idToken: string, to: string) {
             subject: 'Benched System Test Email',
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #f26c0d;">Test Successful!</h2>
+                    <h2 style="color: #2563eb;">Test Successful!</h2>
                     <p>This is a test email sent from the <strong>Benched Admin Dashboard</strong>.</p>
                     <p>If you received this, your SendGrid integration is working correctly.</p>
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />

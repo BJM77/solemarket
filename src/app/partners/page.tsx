@@ -232,16 +232,16 @@ export default function PartnersPage() {
 
                     <div className="mt-16 grid md:grid-cols-3 gap-6">
                         <div className="p-6 bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl shadow-xl">
-                            <Sparkles className="w-8 h-8 mb-4 text-white/80" />
+                            <Sparkles className="w-8 h-8 mb-4 text-foreground/80" />
                             <h3 className="text-xl font-bold mb-2">AI Card Grading</h3>
-                            <p className="text-white/80 text-sm">
+                            <p className="text-foreground/80 text-sm">
                                 Proprietary AI analysis that identifies, grades, and values your cards in seconds—a feature generic platforms simply don't offer.
                             </p>
                         </div>
-                        <div className="p-6 bg-slate-800 text-white rounded-2xl shadow-xl">
+                        <div className="p-6 bg-muted text-foreground rounded-2xl shadow-xl">
                             <BarChart3 className="w-8 h-8 mb-4 text-primary" />
                             <h3 className="text-xl font-bold mb-2">The Price Assistant</h3>
-                            <p className="text-slate-300 text-sm">
+                            <p className="text-foreground/80 text-sm">
                                 Real-time market data integration helping you price your inventory for maximum profit and faster turnover.
                             </p>
                         </div>
@@ -257,54 +257,54 @@ export default function PartnersPage() {
             </section>
 
             {/* Premier Feature: Research Service */}
-            <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+            <section className="py-20 bg-card text-foreground relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
                 <div className="container mx-auto max-w-6xl px-6 relative z-10">
                     <div className="flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2">
                             <Badge className="bg-yellow-500 text-black hover:bg-yellow-400 mb-6">New Premium Service</Badge>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-headline mb-6">Benched Research & Valuation</h2>
-                            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+                            <p className="text-foreground/80 text-lg mb-8 leading-relaxed">
                                 Have high-value items but unsure of their market price? Don&apos;t leave money on the table.
                                 <br /><br />
                                 Our expert team, aided by advanced market data tools, will <strong>research, grade, and value your items</strong> for you. We provide a detailed report and listing strategy to ensure you achieve the maximum market rate.
                             </p>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Expert appraisal of rare collectibles</span>
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Data-driven pricing strategy</span>
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Maximize margins on donations/estates</span>
                                 </li>
                             </ul>
                         </div>
-                        <div className="md:w-1/2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                        <div className="md:w-1/2 bg-muted/60 backdrop-blur-sm border border-border rounded-2xl p-8">
                             <div className="text-center space-y-4">
                                 <h3 className="text-2xl font-bold">Maximise Your Inventory</h3>
-                                <p className="text-slate-400 text-sm">Case Study: Vintage Comic Collection</p>
+                                <p className="text-muted-foreground text-sm">Case Study: Vintage Comic Collection</p>
                                 <div className="grid grid-cols-2 gap-4 my-8">
                                     <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                                        <p className="text-xs text-red-400 uppercase font-bold">Store Price</p>
-                                        <p className="text-2xl font-bold text-white">$450</p>
+                                        <p className="text-xs text-red-600 uppercase font-bold">Store Price</p>
+                                        <p className="text-2xl font-bold text-foreground">$450</p>
                                     </div>
                                     <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                        <p className="text-xs text-green-400 uppercase font-bold">Benched Valued</p>
-                                        <p className="text-2xl font-bold text-white">$1,200</p>
+                                        <p className="text-xs text-green-700 uppercase font-bold">Benched Valued</p>
+                                        <p className="text-2xl font-bold text-foreground">$1,200</p>
                                     </div>
                                 </div>
-                                <p className="text-lg font-medium text-green-400">+166% Profit</p>
+                                <p className="text-lg font-medium text-green-700">+166% Profit</p>
                             </div>
                         </div>
                     </div>

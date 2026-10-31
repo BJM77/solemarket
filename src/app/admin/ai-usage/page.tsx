@@ -70,7 +70,7 @@ export default function AIUsagePage() {
                     description="Real-time usage tracking and cost estimation for Benched AI services."
                 />
                 <div className="flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-xl border border-primary/10">
-                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="h-2 w-2 rounded-full bg-emerald-700 animate-pulse" />
                     <span className="text-xs font-bold uppercase tracking-widest text-primary">Live Monitoring Active</span>
                 </div>
             </div>
@@ -80,12 +80,12 @@ export default function AIUsagePage() {
                 <Card className="border-2 border-primary/5 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Total Requests</CardTitle>
-                        <Zap className="h-4 w-4 text-amber-500" />
+                        <Zap className="h-4 w-4 text-amber-700" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black">{stats.totalUnits.toLocaleString()}</div>
                         <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <ArrowUpRight className="h-3 w-3 text-emerald-500" />
+                            <ArrowUpRight className="h-3 w-3 text-emerald-700" />
                             <span>AI Units consumed (30d)</span>
                         </p>
                     </CardContent>
@@ -94,7 +94,7 @@ export default function AIUsagePage() {
                 <Card className="border-2 border-primary/5 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Estimated Cost</CardTitle>
-                        <DollarSign className="h-4 w-4 text-emerald-500" />
+                        <DollarSign className="h-4 w-4 text-emerald-700" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
@@ -121,7 +121,7 @@ export default function AIUsagePage() {
                     <CardContent>
                         <div className="text-3xl font-black">99.8%</div>
                         <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
-                            <div className="bg-emerald-500 h-full w-[99.8%]" />
+                            <div className="bg-emerald-700 h-full w-[99.8%]" />
                         </div>
                     </CardContent>
                 </Card>
@@ -236,23 +236,23 @@ export default function AIUsagePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-slate-900 text-white">
+                    <Card className="bg-card text-foreground">
                         <CardHeader>
                             <div className="flex items-center gap-2">
-                                <Cpu className="h-5 w-5 text-emerald-400" />
-                                <CardTitle className="text-white">Cost Optimization</CardTitle>
+                                <Cpu className="h-5 w-5 text-emerald-700" />
+                                <CardTitle className="text-foreground">Cost Optimization</CardTitle>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
-                                <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Total Project Cost</div>
-                                <div className="text-xl font-black text-emerald-400">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
+                            <div className="flex justify-between items-center bg-muted/60 p-3 rounded-lg border border-border">
+                                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Project Cost</div>
+                                <div className="text-xl font-black text-emerald-700">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
                             </div>
-                            <div className="text-xs text-slate-400 leading-relaxed">
-                                You are currently using <span className="text-emerald-400 font-bold">Gemini 1.5 Flash</span>.
+                            <div className="text-xs text-muted-foreground leading-relaxed">
+                                You are currently using <span className="text-emerald-700 font-bold">Gemini 1.5 Flash</span>.
                                 Its vision capabilities are optimized for low-latency assessment of collector cards and documents.
                                 <br /><br />
-                                <span className="font-bold text-white uppercase tracking-tighter">Recommendation:</span> High success rate observed. No infrastructure changes required.
+                                <span className="font-bold text-foreground uppercase tracking-tighter">Recommendation:</span> High success rate observed. No infrastructure changes required.
                             </div>
                         </CardContent>
                     </Card>

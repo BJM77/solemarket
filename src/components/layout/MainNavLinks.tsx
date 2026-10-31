@@ -14,7 +14,7 @@ const getIcon = (name?: string) => {
   switch (name) {
     case 'Store': return <Store className="h-4 w-4" />;
     case 'TrendingUp': return <TrendingUp className="h-4 w-4 text-primary" />;
-    case 'LayoutGrid': return <LayoutGrid className="h-4 w-4 text-emerald-500" />;
+    case 'LayoutGrid': return <LayoutGrid className="h-4 w-4 text-emerald-700" />;
     case 'ShieldCheck': return <ShieldCheck className="h-4 w-4" />;
     case 'BookOpen': return <BookOpen className="h-4 w-4" />;
     case 'Search': return <Search className="h-4 w-4" />;

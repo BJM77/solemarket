@@ -35,7 +35,7 @@ export default function ConsignPage() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="bg-transparent border-white text-white hover:bg-white/10 hover:text-white font-bold text-lg py-7 px-8"
+                                className="bg-transparent border-white text-foreground hover:bg-muted hover:text-foreground font-bold text-lg py-7 px-8"
                                 onClick={() => document.getElementById('process-section')?.scrollIntoView({ behavior: 'smooth' })}
                             >
                                 How It Works
@@ -65,7 +65,7 @@ export default function ConsignPage() {
                             <span className="font-semibold text-center">Sealed Products</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
-                            <Star className="h-10 w-10 text-yellow-500 mb-3" />
+                            <Star className="h-10 w-10 text-yellow-700 mb-3" />
                             <span className="font-semibold text-center">Grails</span>
                         </div>
                     </div>
@@ -126,11 +126,11 @@ export default function ConsignPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-2 hover:border-orange-500 transition-all shadow-sm hover:shadow-lg">
+                        <Card className="border-2 hover:border-blue-500 transition-all shadow-sm hover:shadow-lg">
                             <CardContent className="p-8">
                                 <div className="flex items-start gap-5">
-                                    <div className="p-3 bg-orange-100 rounded-full">
-                                        <Shield className="h-7 w-7 text-orange-600" />
+                                    <div className="p-3 bg-blue-100 rounded-full">
+                                        <Shield className="h-7 w-7 text-blue-600" />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Peace of Mind with Full Insurance</h3>
@@ -193,11 +193,11 @@ export default function ConsignPage() {
                             <Card className="bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex mb-2">
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
                                     </div>
                                     <p className="text-gray-700 italic mb-4">"The entire process was seamless. I sent my kicks in, and Benched handled the rest. The final sale price exceeded my expectations. Highly recommend for anyone who values their time and privacy."</p>
                                     <p className="font-semibold">- David R., Private Collector</p>
@@ -206,11 +206,11 @@ export default function ConsignPage() {
                             <Card className="bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex mb-2">
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
                                     </div>
                                     <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's coin collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
                                     <p className="font-semibold">- Sarah L., Estate Seller</p>
@@ -259,8 +259,8 @@ export default function ConsignPage() {
 
                 {/* CTA Section */}
                 <div id="enquiry-form" className="relative max-w-6xl mx-auto bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl p-8 md:p-12 overflow-hidden">
-                    <div className="absolute -top-10 -left-10 w-24 h-24 bg-white/10 rounded-full"></div>
-                    <div className="absolute -bottom-12 -right-8 w-32 h-32 bg-white/10 rounded-full"></div>
+                    <div className="absolute -top-10 -left-10 w-24 h-24 bg-muted rounded-full"></div>
+                    <div className="absolute -bottom-12 -right-8 w-32 h-32 bg-muted rounded-full"></div>
 
                     <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
                         <div className="text-left">
@@ -271,7 +271,7 @@ export default function ConsignPage() {
                                 Submit the enquiry form below for a free, no-obligation consultation. Our team will review your collection and get back to you within 24-48 hours.
                             </p>
 
-                            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md">
+                            <div className="bg-muted backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md">
                                 <h3 className="text-2xl font-semibold mb-4">Expert Guidance</h3>
                                 <p className="text-blue-100 italic">
                                     "We treat every collection with the respect it deserves, ensuring you get maximum market value with zero hassle."

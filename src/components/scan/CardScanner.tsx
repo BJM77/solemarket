@@ -115,7 +115,7 @@ export function CardScanner() {
                 <CardCamera onCapture={handleCapture} isLoading={isAnalyzing} />
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="relative aspect-[2.5/3.5] w-full max-w-sm mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white/10 shadow-2xl">
+                    <div className="relative aspect-[2.5/3.5] w-full max-w-sm mx-auto rounded-3xl overflow-hidden bg-card border-4 border-border shadow-2xl">
                         <Image
                             src={imagePreview}
                             alt="Card Scan Preview"
@@ -134,8 +134,8 @@ export function CardScanner() {
                                     <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
                                     
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="bg-slate-900/80 backdrop-blur-md text-white px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest border border-white/20 shadow-2xl flex items-center gap-2">
-                                            <ScanLine className="w-4 h-4 text-indigo-400" />
+                                        <div className="bg-card/80 backdrop-blur-md text-foreground px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest border border-border shadow-2xl flex items-center gap-2">
+                                            <ScanLine className="w-4 h-4 text-indigo-600" />
                                             Is the text sharp?
                                         </div>
                                     </div>
@@ -144,22 +144,22 @@ export function CardScanner() {
                         )}
 
                         {isAnalyzing && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-xl text-white text-center p-6">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/80 backdrop-blur-xl text-foreground text-center p-6">
                                 <div className="relative">
                                     <Loader2 className="w-16 h-16 animate-spin text-indigo-500" strokeWidth={3} />
-                                    <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-white animate-pulse" />
+                                    <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-foreground animate-pulse" />
                                 </div>
                                 <p className="mt-6 font-black text-xl tracking-tight uppercase">
                                     {isRetrying ? "Service Busy..." : "Analyzing Card"}
                                 </p>
-                                <p className="text-slate-400 text-sm mt-2">Checking database for matches...</p>
+                                <p className="text-muted-foreground text-sm mt-2">Checking database for matches...</p>
                             </div>
                         )}
                         
                         {!isAnalyzing && (
                             <button
                                 onClick={resetScan}
-                                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-all border border-white/20"
+                                className="absolute top-4 right-4 bg-muted hover:bg-muted backdrop-blur-md text-foreground p-2 rounded-full transition-all border border-border"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -168,13 +168,13 @@ export function CardScanner() {
 
                     {!userConfirmed && !isAnalyzing && (
                         <div className="max-w-sm mx-auto space-y-4 animate-in slide-in-from-bottom-8 duration-500 pb-[env(safe-area-inset-bottom,1.5rem)]">
-                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-white/5">
+                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-border">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
-                                        <CheckCircle2 className="w-6 h-6 text-indigo-400" />
+                                        <CheckCircle2 className="w-6 h-6 text-indigo-600" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-white leading-none">Verify Photo</h4>
+                                        <h4 className="font-black text-foreground leading-none">Verify Photo</h4>
                                         <p className="text-xs text-muted-foreground mt-1 font-medium">Card should be centered and sharp</p>
                                     </div>
                                 </div>
@@ -182,7 +182,7 @@ export function CardScanner() {
                                 <div className="flex gap-3">
                                     <Button
                                         variant="outline"
-                                        className="flex-1 h-14 rounded-2xl border-2 font-bold text-white hover:bg-white/5"
+                                        className="flex-1 h-14 rounded-2xl border-2 font-bold text-foreground hover:bg-muted/60"
                                         onClick={resetScan}
                                     >
                                         Retake
@@ -200,30 +200,30 @@ export function CardScanner() {
 
                     {analysisResult && (
                         <div className="pb-[env(safe-area-inset-bottom,2rem)]">
-                            <Card className="border border-white/5 shadow-2xl rounded-[32px] overflow-hidden bg-card">
+                            <Card className="border border-border shadow-2xl rounded-[32px] overflow-hidden bg-card">
                             <div className="h-2 w-full bg-indigo-600"></div>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center gap-3 text-indigo-400">
+                                <div className="flex items-center gap-3 text-indigo-600">
                                     <Sparkles className="w-8 h-8" />
-                                    <span className="font-black text-2xl tracking-tight uppercase text-white">Identified!</span>
+                                    <span className="font-black text-2xl tracking-tight uppercase text-foreground">Identified!</span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Player / Set</p>
-                                        <p className="font-black uppercase tracking-tight text-white text-lg leading-tight">{analysisResult.title}</p>
+                                        <p className="font-black uppercase tracking-tight text-foreground text-lg leading-tight">{analysisResult.title}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Card Number</p>
-                                        <p className="font-bold text-white text-lg">{analysisResult.cardNumber || '—'}</p>
+                                        <p className="font-bold text-foreground text-lg">{analysisResult.cardNumber || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Condition</p>
-                                        <p className="font-bold text-white text-lg">{analysisResult.grade || 'Raw'}</p>
+                                        <p className="font-bold text-foreground text-lg">{analysisResult.grade || 'Raw'}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Market Value</p>
-                                        <p className="font-black text-emerald-500 text-2xl">${analysisResult.price}</p>
+                                        <p className="font-black text-emerald-700 text-2xl">${analysisResult.price}</p>
                                     </div>
                                 </div>
 

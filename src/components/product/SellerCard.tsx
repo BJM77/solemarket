@@ -27,19 +27,19 @@ export function SellerCard({
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-12 w-12 border border-white/10">
+          <Avatar className="h-12 w-12 border border-border">
             <AvatarImage src={seller.photoURL || ''} />
             <AvatarFallback>{seller.displayName?.[0]}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h3 className="font-black uppercase tracking-tight text-white flex items-center gap-1">
+            <h3 className="font-black uppercase tracking-tight text-foreground flex items-center gap-1">
               {seller.displayName}
               {seller.isVerified && <ShieldCheck className="h-4 w-4 text-blue-500" />}
             </h3>
             <div className="flex items-center gap-3 mt-1">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-bold text-white">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-700" />
+                <span className="text-sm font-bold text-foreground">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
                 <span className="text-xs text-muted-foreground">({seller.totalSales || 0} sales)</span>
               </div>
             </div>
@@ -61,7 +61,7 @@ export function SellerCard({
               variant={isPhoneRevealed ? "secondary" : "default"}
               size="sm"
               onClick={onRevealPhone}
-              className={cn(isPhoneRevealed ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "")}
+              className={cn(isPhoneRevealed ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20" : "")}
             >
               <Phone className="h-4 w-4 mr-2" />
               {isPhoneRevealed ? seller.phoneNumber : "Show Phone"}

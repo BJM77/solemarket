@@ -152,10 +152,10 @@ export default function CoinPhotoBooth() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white/30">
+    <div className="min-h-screen bg-background text-foreground selection:bg-white/30">
       
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/10 p-4 safe-top">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-border p-4 safe-top">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.push('/home')}>
@@ -163,9 +163,9 @@ export default function CoinPhotoBooth() {
             </Button>
             <div>
               <h1 className="font-bold text-lg flex items-center gap-2">
-                Coincam <Badge variant="secondary" className="bg-white/10 text-[10px] px-1 py-0 h-4">PRO</Badge>
+                Coincam <Badge variant="secondary" className="bg-muted text-[10px] px-1 py-0 h-4">PRO</Badge>
               </h1>
-              <p className="text-xs text-white/50">{camera.deviceProfile.name}</p>
+              <p className="text-xs text-muted-foreground">{camera.deviceProfile.name}</p>
             </div>
           </div>
 
@@ -182,7 +182,7 @@ export default function CoinPhotoBooth() {
                   <Settings className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="bg-zinc-950 border-white/10 rounded-t-3xl max-h-[85vh] overflow-y-auto">
+              <SheetContent side="bottom" className="bg-background border-border rounded-t-3xl max-h-[85vh] overflow-y-auto">
                 <SettingsSheet 
                   isOpen={settingsOpen}
                   setIsOpen={setSettingsOpen}
@@ -224,24 +224,24 @@ export default function CoinPhotoBooth() {
           <div ref={reviewPanelRef} className="p-4 space-y-6 animate-in slide-in-from-bottom-8 duration-500">
             
             {aiScanning ? (
-              <Card className="bg-zinc-900 border-white/10 overflow-hidden shadow-2xl relative">
+              <Card className="bg-card border-border overflow-hidden shadow-2xl relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full border-4 border-white/5 border-t-blue-500 animate-spin" />
+                    <div className="w-24 h-24 rounded-full border-4 border-border border-t-blue-500 animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Gem className="w-8 h-8 text-blue-400 animate-pulse" />
+                      <Gem className="w-8 h-8 text-blue-600 animate-pulse" />
                     </div>
                   </div>
                   <div className="text-center space-y-2">
                     <h3 className="text-xl font-bold tracking-tight">AI Analysis in Progress</h3>
-                    <p className="text-white/60">Scanning coin details and assessing value...</p>
+                    <p className="text-muted-foreground">Scanning coin details and assessing value...</p>
                   </div>
                   
                   {/* Thumbnails preview while scanning */}
                   <div className="flex gap-4 mt-4">
                     {capturedUrls.map((url, i) => (
-                      <div key={i} className="w-16 h-16 rounded-xl bg-zinc-800 border border-white/10 overflow-hidden">
+                      <div key={i} className="w-16 h-16 rounded-xl bg-muted border border-border overflow-hidden">
                         <img src={url} alt={`Captured photo ${i + 1}`} className="w-full h-full object-cover opacity-70" />
                       </div>
                     ))}
@@ -254,102 +254,102 @@ export default function CoinPhotoBooth() {
                 {/* Status Bar */}
                 <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-2">
-                    <Badge className={cn("bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5")}>
+                    <Badge className={cn("bg-green-500/20 text-green-700 border-green-500/30 flex items-center gap-1.5")}>
                       <BadgeCheck className="w-3 h-3" />
                       AI Scan Complete
                     </Badge>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-white/50 hover:text-white">
+                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-muted-foreground hover:text-foreground">
                     <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} />
                     Re-Scan
                   </Button>
                 </div>
 
                 {/* Form Fields */}
-                <Card className="bg-zinc-900 border-white/10 shadow-2xl">
-                  <CardHeader className="border-b border-white/5 pb-4">
+                <Card className="bg-card border-border shadow-2xl">
+                  <CardHeader className="border-b border-border pb-4">
                     <CardTitle className="text-lg">Coin Details</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-4">
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-2 space-y-1.5">
-                        <Label className="text-white/70">Coin Name / Theme</Label>
+                        <Label className="text-muted-foreground">Coin Name / Theme</Label>
                         <Input 
                           value={reviewData.coinName || ''} 
                           onChange={e => setReviewData({...reviewData, coinName: e.target.value})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                         />
                       </div>
                       
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Set Name</Label>
+                        <Label className="text-muted-foreground">Set Name</Label>
                         <Input 
                           value={reviewData.setName || ''} 
                           onChange={e => setReviewData({...reviewData, setName: e.target.value})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                           placeholder="e.g. Lunar Series"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Denomination</Label>
+                        <Label className="text-muted-foreground">Denomination</Label>
                         <Input 
                           value={reviewData.denomination || ''} 
                           onChange={e => setReviewData({...reviewData, denomination: e.target.value})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                           placeholder="e.g. $1"
                         />
                       </div>
                       
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Year</Label>
+                        <Label className="text-muted-foreground">Year</Label>
                         <Input 
                           type="number"
                           value={reviewData.year || ''} 
                           onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                         />
                       </div>
                       
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Mint Mark</Label>
+                        <Label className="text-muted-foreground">Mint Mark</Label>
                         <Input 
                           value={reviewData.mintMark || ''} 
                           onChange={e => setReviewData({...reviewData, mintMark: e.target.value})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Condition</Label>
+                        <Label className="text-muted-foreground">Condition</Label>
                         <Input 
                           value={reviewData.condition || ''} 
                           onChange={e => setReviewData({...reviewData, condition: e.target.value})} 
-                          className="bg-black/50 border-white/10 focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-blue-500"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-white/70">Price (AUD)</Label>
+                        <Label className="text-muted-foreground">Price (AUD)</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                           <Input 
                             type="number"
                             value={reviewData.price || ''} 
                             onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} 
-                            className="bg-black/50 border-white/10 pl-7 focus-visible:ring-blue-500 font-bold text-green-400"
+                            className="bg-black/50 border-border pl-7 focus-visible:ring-blue-500 font-bold text-green-700"
                             placeholder="0.00"
                           />
                         </div>
                       </div>
                       
                       <div className="col-span-2 space-y-1.5">
-                        <Label className="text-white/70">Description</Label>
+                        <Label className="text-muted-foreground">Description</Label>
                         <textarea 
                           value={reviewData.description || ''} 
                           onChange={e => setReviewData({...reviewData, description: e.target.value})} 
-                          className="w-full h-24 bg-black/50 border border-white/10 rounded-md p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none"
+                          className="w-full h-24 bg-black/50 border border-border rounded-md p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none"
                         />
                       </div>
 
@@ -361,7 +361,7 @@ export default function CoinPhotoBooth() {
                 <div className="flex gap-3">
                   <Button 
                     variant="outline" 
-                    className="flex-1 h-14 bg-zinc-900 border-white/10 hover:bg-zinc-800 hover:text-white"
+                    className="flex-1 h-14 bg-card border-border hover:bg-muted hover:text-foreground"
                     onClick={handleSkipAndQueue}
                   >
                     <Layers className="w-5 h-5 mr-2" />

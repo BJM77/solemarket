@@ -127,7 +127,7 @@ export function AuditLogViewer() {
                                         log.status === 'error' ? 'destructive' :
                                             'secondary'
                                 } className={
-                                    log.status === 'success' ? 'bg-green-500 hover:bg-green-600' : ''
+                                    log.status === 'success' ? 'bg-green-700 hover:bg-green-600' : ''
                                 }>
                                     {log.status}
                                 </Badge>

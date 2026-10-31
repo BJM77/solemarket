@@ -260,12 +260,12 @@ export default function SellerDashboard() {
   if (!userProfile?.agreementAccepted) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center p-8 bg-card border-white/5 shadow-2xl">
+        <Card className="max-w-md w-full text-center p-8 bg-card border-border shadow-2xl">
           <div className="bg-primary/10 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
             <Package className="h-10 w-10 text-primary" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-4">Become a Seller</h2>
-          <p className="text-slate-400 mb-8 font-medium">Start your business on Benched today. List your cards, coins, and collectibles to millions of buyers.</p>
+          <h2 className="text-2xl font-black text-foreground mb-4">Become a Seller</h2>
+          <p className="text-muted-foreground mb-8 font-medium">Start your business on Benched today. List your cards, coins, and collectibles to millions of buyers.</p>
           <Button asChild size="lg" className="w-full font-black uppercase rounded-xl shadow-glow">
             <Link href="/seller/agreement">Review Agreement</Link>
           </Button>
@@ -277,13 +277,13 @@ export default function SellerDashboard() {
   if (userProfile?.sellerStatus === 'pending') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center p-8 bg-card border-white/5">
+        <Card className="max-w-md w-full text-center p-8 bg-card border-border">
           <div className="bg-amber-950/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
-            <Clock className="h-10 w-10 text-amber-500" />
+            <Clock className="h-10 w-10 text-amber-700" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-4">Application Pending</h2>
-          <p className="text-slate-400 mb-8 font-medium">We've received your application! Our team is reviewing it. This usually takes 24-48 hours. We'll notify you once you're approved.</p>
-          <Button variant="outline" className="w-full font-bold border-white/10 hover:bg-white/5 rounded-xl" asChild>
+          <h2 className="text-2xl font-black text-foreground mb-4">Application Pending</h2>
+          <p className="text-muted-foreground mb-8 font-medium">We've received your application! Our team is reviewing it. This usually takes 24-48 hours. We'll notify you once you're approved.</p>
+          <Button variant="outline" className="w-full font-bold border-border hover:bg-muted/60 rounded-xl" asChild>
             <Link href="/">Back to Marketplace</Link>
           </Button>
         </Card>
@@ -298,9 +298,9 @@ export default function SellerDashboard() {
           <div className="bg-red-950/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
             <AlertCircle className="h-10 w-10 text-red-500" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-4">Application Declined</h2>
-          <p className="text-slate-400 mb-8 font-medium">Unfortunately, your seller application was not approved at this time. Please contact support for more details.</p>
-          <Button variant="outline" className="w-full font-bold border-white/10 hover:bg-white/5 rounded-xl" asChild>
+          <h2 className="text-2xl font-black text-foreground mb-4">Application Declined</h2>
+          <p className="text-muted-foreground mb-8 font-medium">Unfortunately, your seller application was not approved at this time. Please contact support for more details.</p>
+          <Button variant="outline" className="w-full font-bold border-border hover:bg-muted/60 rounded-xl" asChild>
             <Link href="/contact">Contact Support</Link>
           </Button>
         </Card>
@@ -310,17 +310,17 @@ export default function SellerDashboard() {
 
 
   const statCards = [
-    // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-500 bg-emerald-500/10' },
+    // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-700 bg-emerald-500/10' },
     { label: 'Active Enquiries', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Market Visibility', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-500 bg-indigo-500/10' },
-    { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-500 bg-orange-500/10' },
+    { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-500 bg-purple-500/10' },
-    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-500 bg-amber-500/10' },
+    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-700 bg-amber-500/10' },
   ];
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
-      <div className="bg-card/50 backdrop-blur-md border-b border-white/5 sticky top-0 z-40">
+      <div className="bg-card/50 backdrop-blur-md border-b border-border sticky top-0 z-40">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
@@ -329,10 +329,10 @@ export default function SellerDashboard() {
                   Secure Protocol Active
                 </Badge>
               </div>
-              <h1 className="text-4xl font-black tracking-tighter text-white">
+              <h1 className="text-4xl font-black tracking-tighter text-foreground">
                 Seller <span className="text-primary italic">Terminal</span>
               </h1>
-              <p className="text-slate-400 font-medium text-sm mt-1">Authorized access for {userProfile?.displayName || user?.email}</p>
+              <p className="text-muted-foreground font-medium text-sm mt-1">Authorized access for {userProfile?.displayName || user?.email}</p>
             </div>
             
             <div className="flex items-center gap-3 mt-4 md:mt-0">
@@ -357,7 +357,7 @@ export default function SellerDashboard() {
 
         <Tabs defaultValue="overview" className="space-y-12">
           <div className="flex items-center justify-between overflow-x-auto pb-2 no-scrollbar">
-            <TabsList className="bg-card border border-white/5 p-1.5 rounded-2xl h-14">
+            <TabsList className="bg-card border border-border p-1.5 rounded-2xl h-14">
               <TabsTrigger value="overview" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
                 System Overview
               </TabsTrigger>
@@ -379,29 +379,29 @@ export default function SellerDashboard() {
           <TabsContent value="overview" className="space-y-12">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <Card key={index} className="border border-white/5 bg-card/50 backdrop-blur-sm shadow-2xl transition-all duration-300 hover:border-primary/20">
+                <Card key={index} className="border border-border bg-card/50 backdrop-blur-sm shadow-2xl transition-all duration-300 hover:border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`${stat.color} p-2.5 rounded-xl border border-white/5 shadow-inner`}>
+                      <div className={`${stat.color} p-2.5 rounded-xl border border-border shadow-inner`}>
                         <stat.icon className="h-5 w-5" />
                       </div>
                       {stat.change && <Badge variant="outline" className="text-[10px] uppercase font-black bg-primary/10 text-primary border-primary/20">{stat.change}</Badge>}
                     </div>
-                    <div className="text-3xl font-black mb-1 text-white tabular-nums">{stat.value}</div>
+                    <div className="text-3xl font-black mb-1 text-foreground tabular-nums">{stat.value}</div>
                     <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{stat.label}</div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            <Card className="border border-white/5 bg-card/50 overflow-hidden rounded-2xl shadow-2xl">
-              <CardHeader className="pb-4 bg-slate-900/50 backdrop-blur-md border-b border-white/5">
+            <Card className="border border-border bg-card/50 overflow-hidden rounded-2xl shadow-2xl">
+              <CardHeader className="pb-4 bg-card/50 backdrop-blur-md border-b border-border">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-black text-white uppercase tracking-tight">Listing Capacity Plan</CardTitle>
-                    <CardDescription className="text-slate-400 font-medium">You have consumed {stats.activeListings} of your {listingLimit} authorized units.</CardDescription>
+                    <CardTitle className="text-lg font-black text-foreground uppercase tracking-tight">Listing Capacity Plan</CardTitle>
+                    <CardDescription className="text-muted-foreground font-medium">You have consumed {stats.activeListings} of your {listingLimit} authorized units.</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline" className="text-white border-white/20 hover:bg-white/10 rounded-lg font-bold">
+                  <Button size="sm" variant="outline" className="text-foreground border-border hover:bg-muted rounded-lg font-bold">
                     Upgrade Capability
                   </Button>
                 </div>
@@ -412,7 +412,7 @@ export default function SellerDashboard() {
                     <span className="text-slate-500">Utilization Rate</span>
                     <span className="text-primary">{Math.round(listingProgress)}% deployed</span>
                   </div>
-                  <Progress value={listingProgress} className="h-3 bg-white/5 overflow-hidden rounded-full shadow-inner" />
+                  <Progress value={listingProgress} className="h-3 bg-muted/60 overflow-hidden rounded-full shadow-inner" />
                   <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-2">
                     <span>{stats.activeListings} Allocated</span>
                     <span>{listingLimit} Max capacity</span>
@@ -422,10 +422,10 @@ export default function SellerDashboard() {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <Card className="lg:col-span-2 border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
-                <CardHeader className="border-b border-white/5 bg-slate-900/30">
+              <Card className="lg:col-span-2 border border-border bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+                <CardHeader className="border-b border-border bg-card/30">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-black text-white uppercase">Critical Fulfillment</CardTitle>
+                    <CardTitle className="text-lg font-black text-foreground uppercase">Critical Fulfillment</CardTitle>
                     <Button variant="ghost" size="sm" className="font-bold text-primary hover:bg-primary/10" onClick={() => { }}>Access Full Feed</Button>
                   </div>
                 </CardHeader>
@@ -434,9 +434,9 @@ export default function SellerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
-                <CardHeader className="border-b border-white/5 bg-slate-900/30">
-                  <CardTitle className="text-lg font-black text-white uppercase">Reputation Loop</CardTitle>
+              <Card className="border border-border bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+                <CardHeader className="border-b border-border bg-card/30">
+                  <CardTitle className="text-lg font-black text-foreground uppercase">Reputation Loop</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-8">
                   {reviews && reviews.length > 0 ? (
@@ -451,7 +451,7 @@ export default function SellerDashboard() {
                             </div>
                             <span className="text-[10px] font-bold text-slate-500 uppercase">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d')}</span>
                           </div>
-                          <p className="text-sm font-medium text-slate-300 line-clamp-2 italic leading-relaxed">"{review.comment}"</p>
+                          <p className="text-sm font-medium text-foreground/80 line-clamp-2 italic leading-relaxed">"{review.comment}"</p>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— {review.buyerName}</p>
                         </div>
                       ))}
@@ -468,12 +468,12 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="products">
-            <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
-              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
+            <Card className="border border-border bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+              <CardHeader className="bg-card/30 border-b border-border py-8">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Product Inventory</CardTitle>
-                    <CardDescription className="text-slate-400 font-medium">Global control of your marketplace assets.</CardDescription>
+                    <CardTitle className="text-2xl font-black text-foreground uppercase tracking-tighter">Product Inventory</CardTitle>
+                    <CardDescription className="text-muted-foreground font-medium">Global control of your marketplace assets.</CardDescription>
                   </div>
                   {selectedProducts.length > 0 && (
                     <div className="flex items-center gap-3 bg-red-950/20 border border-red-500/20 p-2.5 px-5 rounded-2xl animate-in fade-in slide-in-from-top-2 shadow-2xl backdrop-blur-sm">
@@ -491,7 +491,7 @@ export default function SellerDashboard() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 font-black uppercase text-[10px] text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                        className="h-9 font-black uppercase text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-all"
                         onClick={() => setSelectedProducts([])}
                       >
                         Abort
@@ -503,21 +503,21 @@ export default function SellerDashboard() {
               <CardContent className="p-0">
                 {products && products.length > 0 ? (
                   <Table>
-                    <TableHeader className="bg-white/5">
-                      <TableRow className="border-white/5">
+                    <TableHeader className="bg-muted/60">
+                      <TableRow className="border-border">
                         <TableHead className="w-12 pl-6">
                           <Checkbox 
                             checked={selectedProducts.length === products.length && products.length > 0}
                             onCheckedChange={toggleAllSelection}
-                            className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:text-black"
                           />
                         </TableHead>
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Product</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Price</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Intelligence</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Status</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase text-slate-400">Timestamp</TableHead>
-                        <TableHead className="text-right pr-6 font-black text-[10px] uppercase text-slate-400">Actions</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-muted-foreground">Product</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-muted-foreground">Price</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-muted-foreground">Intelligence</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-muted-foreground">Status</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase text-muted-foreground">Timestamp</TableHead>
+                        <TableHead className="text-right pr-6 font-black text-[10px] uppercase text-muted-foreground">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -525,19 +525,19 @@ export default function SellerDashboard() {
                         const isStale = product.createdAt && (new Date().getTime() - (product.createdAt instanceof Timestamp ? product.createdAt.toMillis() : new Date(product.createdAt as any).getTime())) > 14 * 24 * 60 * 60 * 1000;
                         return (
                         <TableRow key={product.id} className={cn(
-                          "hover:bg-white/5 transition-colors border-white/5",
+                          "hover:bg-muted/60 transition-colors border-border",
                           selectedProducts.includes(product.id) && "bg-primary/5"
                         )}>
                           <TableCell className="pl-6">
                             <Checkbox 
                               checked={selectedProducts.includes(product.id)}
                               onCheckedChange={() => toggleProductSelection(product.id)}
-                              className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:text-black"
                             />
                           </TableCell>
                           <TableCell className="py-4">
                             <div className="flex items-center gap-4">
-                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/5">
+                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted/60 border border-border">
                                 {product.imageUrls && product.imageUrls.length > 0 ? (
                                   <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
                                 ) : (
@@ -547,23 +547,23 @@ export default function SellerDashboard() {
                                 )}
                               </div>
                                <div className="flex flex-col">
-                                 <span className="font-bold text-white line-clamp-1 max-w-[200px]">{product.title}</span>
+                                 <span className="font-bold text-foreground line-clamp-1 max-w-[200px]">{product.title}</span>
                                  {product.externalUrl && (
-                                   <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
+                                   <Badge className="bg-blue-600/20 text-blue-600 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
                                      FB Import
                                    </Badge>
                                  )}
                                </div>
                             </div>
                           </TableCell>
-                          <TableCell className="font-bold text-white">{formatPrice(product.price)}</TableCell>
+                          <TableCell className="font-bold text-foreground">{formatPrice(product.price)}</TableCell>
                           <TableCell>
                             <div className="flex flex-col gap-1.5">
                               <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
                                 <Eye className="h-3 w-3" />
                                 {(product as any).views || 0} views
                                 {((product as any).views || 0) > 50 && (
-                                  <Badge variant="outline" className="ml-1 bg-orange-500/10 text-orange-500 border-orange-500/20 text-[8px] font-black px-1.5 py-0 uppercase tracking-widest flex-shrink-0">
+                                  <Badge variant="outline" className="ml-1 bg-blue-500/10 text-blue-500 border-blue-500/20 text-[8px] font-black px-1.5 py-0 uppercase tracking-widest flex-shrink-0">
                                     🔥 Hot
                                   </Badge>
                                 )}
@@ -579,7 +579,7 @@ export default function SellerDashboard() {
                               variant="outline"
                               className={cn(
                                 "font-black text-[10px] uppercase tracking-tighter px-3 py-1 border-none",
-                                product.status === 'draft' ? 'bg-slate-800 text-slate-400' : 'bg-emerald-950/40 text-emerald-500'
+                                product.status === 'draft' ? 'bg-muted text-muted-foreground' : 'bg-emerald-950/40 text-emerald-700'
                               )}
                             >
                               {product.status || 'Active'}
@@ -591,11 +591,11 @@ export default function SellerDashboard() {
                           <TableCell className="text-right pr-6">
                             <div className="flex items-center justify-end gap-2">
                               {(product as any).enquiryStatus === 'enquired' || (product as any).enquiryStatus === 'pending' ? (
-                                <div className="flex items-center gap-1 bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/5">
+                                <div className="flex items-center gap-1 bg-muted/60 backdrop-blur-md p-1 rounded-xl border border-border">
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20"
+                                    className="h-7 text-[10px] font-black uppercase bg-amber-500/10 text-amber-700 border-amber-500/20 hover:bg-amber-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'pending')}
                                     disabled={isUpdatingStatus === product.id || (product as any).enquiryStatus === 'pending'}
                                   >
@@ -604,7 +604,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20"
+                                    className="h-7 text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'sold')}
                                     disabled={isUpdatingStatus === product.id}
                                   >
@@ -613,7 +613,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="ghost" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase text-slate-400 hover:text-white hover:bg-white/5"
+                                    className="h-7 text-[10px] font-black uppercase text-muted-foreground hover:text-foreground hover:bg-muted/60"
                                     onClick={() => handleEnquiryAction(product.id, 'available')}
                                     disabled={isUpdatingStatus === product.id}
                                   >
@@ -623,11 +623,11 @@ export default function SellerDashboard() {
                               ) : (
                                 <>
                                   {isStale && product.status !== 'draft' && (
-                                    <Button variant="outline" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-orange-500 border-orange-500/20 bg-orange-500/10 hover:bg-orange-500/20 transition-all" asChild>
+                                    <Button variant="outline" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-blue-500 border-blue-500/20 bg-blue-500/10 hover:bg-blue-500/20 transition-all" asChild>
                                       <Link href={`/sell/create?edit=${product.id}`}>Drop Price</Link>
                                     </Button>
                                   )}
-                                  <Button variant="ghost" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all" asChild>
+                                  <Button variant="ghost" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all" asChild>
                                     <Link href={`/product/${product.id}`}>Inspect</Link>
                                   </Button>
                                 </>
@@ -653,7 +653,7 @@ export default function SellerDashboard() {
                 ) : (
                   <div className="text-center py-32 bg-card/30 backdrop-blur-sm">
                     <Package className="h-20 w-20 mx-auto mb-6 opacity-5 text-primary" />
-                    <p className="font-black text-2xl text-white uppercase tracking-tighter">No Listings Found</p>
+                    <p className="font-black text-2xl text-foreground uppercase tracking-tighter">No Listings Found</p>
                     <p className="text-slate-500 font-medium mt-2 max-w-xs mx-auto">Your inventory is currently empty. Initiate your first market entry to begin operations.</p>
                     <Button className="mt-8 rounded-xl font-black uppercase px-8 h-12 shadow-glow" asChild>
                       <Link href="/sell/create">Deploy New Listing</Link>
@@ -665,10 +665,10 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-8">
-            <Card className="border border-white/5 bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
-              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
-                <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Deal Enquiries</CardTitle>
-                <CardDescription className="text-slate-400 font-medium">Manage your buyer messages and payment arrangements here.</CardDescription>
+            <Card className="border border-border bg-card/50 rounded-2xl overflow-hidden shadow-2xl">
+              <CardHeader className="bg-card/30 border-b border-border py-8">
+                <CardTitle className="text-2xl font-black text-foreground uppercase tracking-tighter">Deal Enquiries</CardTitle>
+                <CardDescription className="text-muted-foreground font-medium">Manage your buyer messages and payment arrangements here.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <PayIdSettings compact />
@@ -685,16 +685,16 @@ export default function SellerDashboard() {
           </TabsContent> */}
 
           <TabsContent value="reviews">
-            <Card className="border border-white/5 shadow-2xl rounded-2xl overflow-hidden bg-card/50">
-              <CardHeader className="bg-slate-900/30 border-b border-white/5 py-8">
-                <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">Identity Reputation</CardTitle>
-                <CardDescription className="text-slate-400 font-medium">Your global trust score across the decentralized marketplace.</CardDescription>
+            <Card className="border border-border shadow-2xl rounded-2xl overflow-hidden bg-card/50">
+              <CardHeader className="bg-card/30 border-b border-border py-8">
+                <CardTitle className="text-2xl font-black text-foreground uppercase tracking-tighter">Identity Reputation</CardTitle>
+                <CardDescription className="text-muted-foreground font-medium">Your global trust score across the decentralized marketplace.</CardDescription>
               </CardHeader>
               <CardContent>
                 {reviews && reviews.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {reviews.map(review => (
-                      <div key={review.id} className="p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-4 hover:border-primary/20 transition-all duration-300">
+                      <div key={review.id} className="p-8 rounded-3xl border border-border bg-card/40 space-y-4 hover:border-primary/20 transition-all duration-300">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
@@ -703,11 +703,11 @@ export default function SellerDashboard() {
                           </div>
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{format(review.createdAt instanceof Timestamp ? review.createdAt.toDate() : new Date(review.createdAt as any), 'MMM d, yyyy')}</span>
                         </div>
-                        <p className="text-slate-300 font-medium italic text-sm leading-relaxed">"{review.comment}"</p>
-                        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                        <p className="text-foreground/80 font-medium italic text-sm leading-relaxed">"{review.comment}"</p>
+                        <div className="pt-4 border-t border-border flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs text-primary font-black uppercase">{review.buyerName[0]}</div>
-                            <span className="text-xs font-bold text-white uppercase tracking-tight">{review.buyerName}</span>
+                            <span className="text-xs font-bold text-foreground uppercase tracking-tight">{review.buyerName}</span>
                           </div>
                           <span className="text-[10px] font-black text-slate-500 uppercase">{review.productTitle}</span>
                         </div>
@@ -716,8 +716,8 @@ export default function SellerDashboard() {
                   </div>
                 ) : (
                   <div className="text-center py-20">
-                    <Star className="h-16 w-16 mx-auto mb-4 opacity-10 text-slate-400" />
-                    <p className="font-bold text-slate-400">No Review Transmissions Received</p>
+                    <Star className="h-16 w-16 mx-auto mb-4 opacity-10 text-muted-foreground" />
+                    <p className="font-bold text-muted-foreground">No Review Transmissions Received</p>
                   </div>
                 )}
               </CardContent>
