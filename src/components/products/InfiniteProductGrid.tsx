@@ -132,6 +132,8 @@ function InfiniteProductGridInner({
       }, userRole as string),
     initialPageParam: undefined,
     initialData: canUseInitialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
+    // Signed-in users switch role key after auth loads; keep showing the server page meanwhile instead of a skeleton.
+    placeholderData: canUseInitialData ? { pages: [initialData!], pageParams: [undefined] } : undefined,
     getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.lastVisibleId : undefined,
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: true,
@@ -450,7 +452,7 @@ function InfiniteProductGridInner({
             const isLastElement = index === products.length - 1;
             return (
               <div
-                className="animate-in fade-in duration-300"
+                className={index < 8 ? undefined : "animate-in fade-in duration-300"}
                 ref={isLastElement ? lastProductElementRef : null}
                 key={`${product.id}-${index}`}
               >
@@ -802,7 +804,7 @@ function InfiniteProductGridInner({
               alt="You've reached the bench"
               fill
               sizes="(max-width: 768px) 90vw, 576px"
-              priority
+              loading="lazy"
               className="object-contain"
             />
           </div>
