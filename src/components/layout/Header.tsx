@@ -15,7 +15,10 @@ import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
 import { MobileNavPills } from './MobileNavPills';
 import { cn } from "@/lib/utils/ui";
-import { InstantSearchModal } from '../search/InstantSearchModal';
+import dynamic from 'next/dynamic';
+import { PrefetchLikelyRoutes } from './PrefetchLikelyRoutes';
+// Search modal is only needed after a tap/shortcut: keep it out of the first-load bundle.
+const InstantSearchModal = dynamic(() => import('../search/InstantSearchModal').then(m => m.InstantSearchModal), { ssr: false });
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
@@ -102,6 +105,7 @@ export default function Header() {
       )}
 
       <InstantSearchModal open={showInstantSearch} onOpenChange={setShowInstantSearch} />
+      <PrefetchLikelyRoutes />
 
       {/* Desktop Ticker Only */}
       {isClient && (

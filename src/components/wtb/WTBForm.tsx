@@ -88,7 +88,14 @@ export function WTBForm({ listing, mode = 'create' }: WTBFormProps) {
         setUploading(true);
         try {
             const fileRef = storageRef(storage, `wtb-images/${Date.now()}_${imageFile.name}`);
-            await uploadBytes(fileRef, imageFile);
+            let toUpload: Blob = imageFile;
+            try {
+                const { default: imageCompression } = await import('browser-image-compression');
+                toUpload = await imageCompression(imageFile, { maxSizeMB: 0.8, maxWidthOrHeight: 1600, useWebWorker: true, fileType: 'image/webp', initialQuality: 0.85 });
+            } catch (e) {
+                console.warn('WTB image compression failed, uploading original', e);
+            }
+            await uploadBytes(fileRef, toUpload, { cacheControl: 'public, max-age=31536000, immutable', contentType: toUpload.type || imageFile.type });
             const downloadURL = await getDownloadURL(fileRef);
             return downloadURL;
         } catch (error) {

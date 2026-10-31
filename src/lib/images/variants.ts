@@ -7,7 +7,7 @@
  * give non-Next consumers (emails, feeds, OG) a cheap thumbnail.
  */
 export const IMAGE_VARIANT_WIDTHS = [400, 1000] as const;
-export const MASTER_MAX_DIMENSION = 2048;
+export const MASTER_MAX_DIMENSION = 1600;
 export const IMAGE_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
 /** Replace the extension of a storage path and add a width suffix: a/b/123-x.jpg -> a/b/123-x-w400.webp */
