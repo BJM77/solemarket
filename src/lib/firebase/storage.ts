@@ -7,14 +7,14 @@ import { IMAGE_VARIANT_WIDTHS, MASTER_MAX_DIMENSION, IMAGE_CACHE_CONTROL, varian
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB (matches storage.rules)
 const COMPRESSION_OPTIONS = {
-  maxSizeMB: 1.5,
+  maxSizeMB: 0.8,
   maxWidthOrHeight: MASTER_MAX_DIMENSION,
   useWebWorker: true,
   fileType: 'image/webp',
   initialQuality: 0.85,
 };
 
-/** Convert to WebP master (<=2048px). Falls back to the original on unsupported browsers. */
+/** Convert to WebP master (<=1600px). Falls back to the original on unsupported browsers. */
 async function toWebp(file: File | Blob, maxWidthOrHeight: number, maxSizeMB: number): Promise<Blob> {
   try {
     const asFile = file instanceof File ? file : new File([file], 'image', { type: file.type || 'image/jpeg' });
@@ -51,11 +51,11 @@ export async function uploadImages(
       throw new Error(`File ${(file as File).name || 'Unknown'} is too large. Max size is 20MB.`);
     }
 
-    // 2. Convert to a WebP master (<=2048px) plus small renditions. Frontend may
+    // 2. Convert to a WebP master (<=1600px) plus small renditions. Frontend may
     // already have compressed for AI analysis; re-encoding here is cheap and
     // guarantees every stored product photo is web-sized.
     const isImage = (file.type || '').startsWith('image/') && !(file.type || '').includes('svg') && !(file.type || '').includes('gif');
-    const master = isImage ? await toWebp(file, MASTER_MAX_DIMENSION, 1.5) : file;
+    const master = isImage ? await toWebp(file, MASTER_MAX_DIMENSION, 0.8) : file;
 
     const filename = isImage
       ? safeWebpFilename((file as File).name)
