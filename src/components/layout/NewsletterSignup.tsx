@@ -45,7 +45,7 @@ export function NewsletterSignup() {
 
     if (state.success) {
          return (
-            <div className="flex items-center gap-2 text-emerald-500 font-medium h-10 p-2 bg-emerald-950/20 rounded-lg border border-emerald-500/20">
+            <div className="flex items-center gap-2 text-emerald-700 font-medium h-10 p-2 bg-emerald-950/20 rounded-lg border border-emerald-500/20">
                 <Check className="h-4 w-4" />
                 <span className="text-sm">Subscribed!</span>
             </div>

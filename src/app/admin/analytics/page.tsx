@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-700"></span>
                             </span>
                             Active operatives currently online
                         </p>

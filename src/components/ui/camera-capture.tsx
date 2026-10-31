@@ -384,7 +384,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                             className="p-1 hover:bg-muted rounded-full transition-colors"
                                             title="Remove Image"
                                         >
-                                            <Trash2 className="w-4 h-4 text-red-400" />
+                                            <Trash2 className="w-4 h-4 text-red-600" />
                                         </button>
                                     </div>
                                     <Badge className="absolute bottom-0 right-0 rounded-none rounded-tl-md bg-indigo-600 px-1 py-0 text-[10px] pointer-events-none">

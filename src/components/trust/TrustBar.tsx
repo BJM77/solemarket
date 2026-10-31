@@ -24,7 +24,7 @@ export default function TrustBar() {
                     </div>
 
                     <div className="flex flex-col items-center text-center p-6 bg-card/60 backdrop-blur-md rounded-2xl border border-border shadow-lg hover:border-primary/40 transition-all group">
-                        <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-700 mb-4 group-hover:scale-110 transition-transform">
                             <CheckCircle className="h-6 w-6" />
                         </div>
                         <h3 className="font-black uppercase tracking-tight text-foreground mb-1.5 text-base">Verified Sellers</h3>
@@ -34,7 +34,7 @@ export default function TrustBar() {
                     </div>
 
                     <div className="flex flex-col items-center text-center p-6 bg-card/60 backdrop-blur-md rounded-2xl border border-border shadow-lg hover:border-primary/40 transition-all group">
-                        <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-700 mb-4 group-hover:scale-110 transition-transform">
                             <Zap className="h-6 w-6" />
                         </div>
                         <h3 className="font-black uppercase tracking-tight text-foreground mb-1.5 text-base">AI Fast Valuation</h3>
@@ -44,7 +44,7 @@ export default function TrustBar() {
                     </div>
 
                     <div className="flex flex-col items-center text-center p-6 bg-card/60 backdrop-blur-md rounded-2xl border border-border shadow-lg hover:border-primary/40 transition-all group">
-                        <div className="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-700 mb-4 group-hover:scale-110 transition-transform">
                             <ShieldCheck className="h-6 w-6" />
                         </div>
                         <h3 className="font-black uppercase tracking-tight text-foreground mb-1.5 text-base">Local AU Shipping</h3>

@@ -43,12 +43,12 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="Mint / Gem Mint" 
                                 description="A perfect card with no visible flaws. Sharp corners, perfect centering, and original gloss." 
-                                icon={<Sparkles className="h-4 w-4 text-yellow-500" />}
+                                icon={<Sparkles className="h-4 w-4 text-yellow-700" />}
                             />
                             <ConditionItem 
                                 label="Near Mint (NM)" 
                                 description="Looks nearly perfect at first glance. May have very minor surface wear or a tiny speck on a corner." 
-                                icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                icon={<CheckCircle2 className="h-4 w-4 text-emerald-700" />}
                             />
                             <ConditionItem 
                                 label="Excellent" 
@@ -72,7 +72,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="New / Deadstock (DS)" 
                                 description="Brand new, never worn, never even tried on. Includes original box and all accessories (extra laces, etc)." 
-                                icon={<ShieldCheck className="h-4 w-4 text-emerald-500" />}
+                                icon={<ShieldCheck className="h-4 w-4 text-emerald-700" />}
                             />
                             <ConditionItem 
                                 label="VNDS (Very Near Deadstock)" 
@@ -87,7 +87,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="Beaters" 
                                 description="Heavily worn. Significant sole wear, deep creases, or marks. Priced for utility rather than collection." 
-                                icon={<Trash2 className="h-4 w-4 text-rose-400" />}
+                                icon={<Trash2 className="h-4 w-4 text-rose-600" />}
                             />
                         </div>
                         <div className="bg-muted p-4 rounded-xl text-xs space-y-2">

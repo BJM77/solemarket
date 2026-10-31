@@ -40,7 +40,7 @@ export default function RarePage() {
             <span className="sr-only">Back</span>
         </Button>
         <h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
-            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+            <Star className="w-6 h-6 text-yellow-700 fill-yellow-400" />
             My Rares
         </h1>
         <div className="w-10"></div>

@@ -200,11 +200,11 @@ export default function SEOPage() {
                                     </div>
                                     <div className="space-y-2 text-sm text-slate-600">
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Requirement:</strong> Verify ownership via DNS TXT record (Add to your domain provider) or HTML File upload.</p>
                                         </div>
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Action:</strong> Submit <code>https://benched.au/sitemap.xml</code> after verification.</p>
                                         </div>
                                     </div>
@@ -230,11 +230,11 @@ export default function SEOPage() {
                                     </div>
                                     <div className="space-y-2 text-sm text-slate-600">
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Requirement:</strong> Can automatically import verification from Google Search Console (Recommended).</p>
                                         </div>
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Note:</strong> Injects your metadata into the Microsoft Search ecosystem.</p>
                                         </div>
                                     </div>
@@ -260,11 +260,11 @@ export default function SEOPage() {
                                     </div>
                                     <div className="space-y-2 text-sm text-slate-600">
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Requirement:</strong> Registered Australian business address (ABN optional but helpful).</p>
                                         </div>
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-emerald-500 mt-1 shrink-0" />
+                                            <CheckCircle className="h-4 w-4 text-emerald-700 mt-1 shrink-0" />
                                             <p><strong>Benefit:</strong> Puts Benched on Apple Maps and enhances Siri search results.</p>
                                         </div>
                                     </div>
@@ -336,13 +336,13 @@ export default function SEOPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Search className="h-5 w-5 text-green-500" />
+                                <Search className="h-5 w-5 text-green-700" />
                                 Robots.txt
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="bg-background p-4 rounded-lg border border-border">
-                                <pre className="text-[10px] text-green-400 font-mono">
+                                <pre className="text-[10px] text-green-700 font-mono">
                                     User-agent: *<br />
                                     Allow: /<br />
                                     Disallow: /admin/<br />

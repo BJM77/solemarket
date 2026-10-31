@@ -19,14 +19,14 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
                             <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 mt-2 font-medium">Fresh finds from verified local rotations.</p>
                         </div>
                     )}
-                    <Link href="/browse" className={`group hidden md:flex text-sm font-black tracking-widest uppercase text-primary hover:text-blue-400 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20 ${!title ? 'ml-auto' : ''}`}>
+                    <Link href="/browse" className={`group hidden md:flex text-sm font-black tracking-widest uppercase text-blue-700 hover:text-blue-800 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20 ${!title ? 'ml-auto' : ''}`}>
                         View Full Roster <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
 
                 <ProductGrid products={products} />
 
-                <Link href="/browse" className="mt-12 md:hidden group text-sm font-black tracking-widest uppercase text-primary hover:text-blue-400 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
+                <Link href="/browse" className="mt-12 md:hidden group text-sm font-black tracking-widest uppercase text-blue-700 hover:text-blue-800 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
                     View Full Roster <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>

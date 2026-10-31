@@ -469,7 +469,7 @@ export default function ProloadPage() {
                           <button
                             type="button"
                             onClick={() => removeProductPhoto(idx)}
-                            className="absolute top-1 right-1 bg-black/75 hover:bg-red-950 text-white hover:text-red-400 p-1.5 rounded-lg border border-border transition-all opacity-0 group-hover:opacity-100"
+                            className="absolute top-1 right-1 bg-black/75 hover:bg-red-950 text-white hover:text-red-600 p-1.5 rounded-lg border border-border transition-all opacity-0 group-hover:opacity-100"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -653,10 +653,10 @@ export default function ProloadPage() {
                   {/* Facebook Marketplace URL */}
                   <div className="space-y-2 pt-2 border-t border-border">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="externalUrl" className="text-emerald-400 font-black uppercase text-[9px] tracking-widest flex items-center gap-1.5">
+                      <Label htmlFor="externalUrl" className="text-emerald-700 font-black uppercase text-[9px] tracking-widest flex items-center gap-1.5">
                         Facebook Marketplace Listing URL (Optional)
                       </Label>
-                      <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[8px] font-black uppercase">
+                      <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 text-[8px] font-black uppercase">
                         3 Methods Supported
                       </Badge>
                     </div>
@@ -688,7 +688,7 @@ export default function ProloadPage() {
                             toast({ title: "Clipboard Access", description: "Permission denied. Please paste manually.", variant: "destructive" });
                           }
                         }}
-                        className="border-emerald-500/30 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/50 font-bold uppercase text-[10px] h-9 px-3 shrink-0"
+                        className="border-emerald-500/30 bg-emerald-950/30 text-emerald-700 hover:bg-emerald-900/50 font-bold uppercase text-[10px] h-9 px-3 shrink-0"
                       >
                         <ClipboardPaste className="w-3.5 h-3.5 mr-1" /> Paste
                       </Button>
@@ -697,15 +697,15 @@ export default function ProloadPage() {
                     {/* 3 Supported Methods Guide */}
                     <div className="grid grid-cols-3 gap-2 pt-1 text-[9px]">
                       <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">1. AI Auto-Detect</span>
+                        <span className="font-bold text-emerald-700">1. AI Auto-Detect</span>
                         <span className="text-muted-foreground text-[8px] mt-0.5">Reads link if address bar is in screenshot</span>
                       </div>
                       <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">2. 1-Tap Paste</span>
+                        <span className="font-bold text-emerald-700">2. 1-Tap Paste</span>
                         <span className="text-muted-foreground text-[8px] mt-0.5">Copy link in FB App & tap Paste above</span>
                       </div>
                       <div className="bg-card/80 p-2 rounded-lg border border-border flex flex-col items-center text-center">
-                        <span className="font-bold text-emerald-400">3. Manual Entry</span>
+                        <span className="font-bold text-emerald-700">3. Manual Entry</span>
                         <span className="text-muted-foreground text-[8px] mt-0.5">Type or edit URL directly into input field</span>
                       </div>
                     </div>

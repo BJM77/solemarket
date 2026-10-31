@@ -25,7 +25,7 @@ export function DealProgressTracker({
             <h2 className="text-xl font-black uppercase tracking-tight mb-4 text-foreground">Your Bundle Progress</h2>
 
             <div className="mb-6">
-                <div className="text-3xl font-black text-emerald-500 mb-1">
+                <div className="text-3xl font-black text-emerald-700 mb-1">
                     ${deal.price.toFixed(2)}
                 </div>
                 <div className="text-sm text-muted-foreground uppercase tracking-widest font-black">
@@ -129,7 +129,7 @@ function TierProgress({
         <div>
             <div className="flex justify-between text-sm mb-1">
                 <span className="font-black uppercase tracking-tight text-foreground">{label}</span>
-                <span className={isComplete ? 'text-emerald-500 font-black' : 'text-muted-foreground'}>
+                <span className={isComplete ? 'text-emerald-700 font-black' : 'text-muted-foreground'}>
                     {current}/{required} {isComplete && '✓'}
                 </span>
             </div>

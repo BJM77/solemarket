@@ -141,7 +141,7 @@ function ConfirmationContent() {
             <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
                 <div className="container mx-auto px-4 w-full max-w-2xl space-y-6">
                     <div className="text-center">
-                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+                        <CheckCircle2 className="w-12 h-12 text-emerald-700 mx-auto mb-4" />
                         <h1 className="text-3xl font-black text-foreground">Order placed</h1>
                         <p className="text-muted-foreground mt-1">Here&apos;s how to pay. Full details are in your purchases.</p>
                     </div>
@@ -170,7 +170,7 @@ function ConfirmationContent() {
             <div className="container mx-auto px-4 w-full">
                 <div className="max-w-2xl mx-auto text-center mb-10">
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+                        <CheckCircle2 className="w-12 h-12 text-emerald-700" />
                     </div>
                     <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">Order Confirmed!</h1>
                     <p className="text-lg text-muted-foreground">Thank you for your purchase. We&apos;ve notified the seller.</p>

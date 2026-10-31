@@ -60,12 +60,12 @@ export function MarketIndexWidget({
           </div>
 
           {isSteal && (
-            <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black px-2.5 py-1">
+            <Badge className="bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 text-xs font-black px-2.5 py-1">
               🔥 {percentDiff}% Below Mkt
             </Badge>
           )}
           {isOverpriced && (
-            <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-black px-2.5 py-1">
+            <Badge className="bg-amber-500/20 text-amber-700 border border-amber-500/30 text-xs font-black px-2.5 py-1">
               {Math.abs(percentDiff)}% Above Mkt
             </Badge>
           )}

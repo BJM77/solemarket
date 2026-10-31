@@ -55,7 +55,7 @@ const powerTools = [
         description: 'Track AI usage, tokens, and estimated costs in real-time',
         icon: Brain,
         href: '/admin/ai-usage',
-        color: 'bg-emerald-500',
+        color: 'bg-emerald-700',
     },
     {
         title: 'Ads Management',
@@ -76,7 +76,7 @@ const powerTools = [
         description: 'Import products from CSV file with images',
         icon: FileSpreadsheet,
         href: '/sell/bulk-csv-lister',
-        color: 'bg-green-500',
+        color: 'bg-green-700',
     },
     {
         title: 'Bulk Editor',
@@ -134,7 +134,7 @@ const powerTools = [
         description: 'Rapid 1:1 capture for coins and currency',
         icon: Zap,
         href: '/admin/power-tools/multi-coin',
-        color: 'bg-amber-500',
+        color: 'bg-amber-700',
     },
     {
         title: 'MultiGen Fast Lister',

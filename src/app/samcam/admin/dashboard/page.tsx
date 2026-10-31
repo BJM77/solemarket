@@ -42,9 +42,9 @@ export default function EnterpriseDashboard() {
       <main className="p-6 max-w-7xl mx-auto w-full space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard title="Total Captures" value={stats.total} icon={<Database className="w-4 h-4" />} />
-          <StatCard title="Success Rate" value={`${stats.successRate}%`} icon={<Zap className="w-4 h-4" />} color="text-yellow-400" />
+          <StatCard title="Success Rate" value={`${stats.successRate}%`} icon={<Zap className="w-4 h-4" />} color="text-yellow-700" />
           <StatCard title="Review Queue" value={stats.pending} icon={<History className="w-4 h-4" />} color="text-primary" />
-          <StatCard title="Verified" value={stats.verified} icon={<CheckCircle2 className="w-4 h-4" />} color="text-green-400" />
+          <StatCard title="Verified" value={stats.verified} icon={<CheckCircle2 className="w-4 h-4" />} color="text-green-700" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -92,7 +92,7 @@ export default function EnterpriseDashboard() {
                        </div>
                        <div className="p-3 bg-background rounded-lg border border-border">
                           <p className="text-[8px] font-black uppercase text-zinc-550">FPS Avg</p>
-                          <p className="text-xs font-black text-green-400">58.2</p>
+                          <p className="text-xs font-black text-green-700">58.2</p>
                        </div>
                     </div>
                   </div>

@@ -110,7 +110,7 @@ export default function SettingsPage() {
             <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
               <div className="mt-1">
                 {envStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
-                 envStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 envStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-700" /> : 
                  <XCircle className="w-6 h-6 text-red-500" />}
               </div>
               <div className="flex-1">
@@ -134,7 +134,7 @@ export default function SettingsPage() {
             <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
               <div className="mt-1">
                 {authStatus === 'pending' || authLoading ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
-                 authStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 authStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-700" /> : 
                  <XCircle className="w-6 h-6 text-red-500" />}
               </div>
               <div className="flex-1">
@@ -159,7 +159,7 @@ export default function SettingsPage() {
             <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border">
               <div className="mt-1">
                 {networkStatus === 'pending' ? <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" /> : 
-                 networkStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : 
+                 networkStatus === 'success' ? <CheckCircle2 className="w-6 h-6 text-green-700" /> : 
                  <XCircle className="w-6 h-6 text-red-500" />}
               </div>
               <div className="flex-1">

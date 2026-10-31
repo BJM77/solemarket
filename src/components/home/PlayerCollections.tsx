@@ -12,7 +12,7 @@ const VAULT_ITEMS = [
         items: [
             { name: 'Michael Jordan', count: '12 available', color: 'bg-red-600' },
             { name: 'LeBron James', count: '34 available', color: 'bg-purple-600' },
-            { name: 'Victor Wembanyama', count: '8 available', color: 'bg-teal-500' },
+            { name: 'Victor Wembanyama', count: '8 available', color: 'bg-teal-700' },
         ],
         href: '/cards?grade=PSA10',
         image: 'https://images.unsplash.com/photo-1621811693633-91ee0a76a591?auto=format&fit=crop&q=80&w=800'
@@ -22,7 +22,7 @@ const VAULT_ITEMS = [
         title: 'Signed & Certified',
         description: 'Autographed memorabilia and on-card signatures from the legends.',
         items: [
-            { name: 'Kobe Bryant', count: '4 available', color: 'bg-amber-500' },
+            { name: 'Kobe Bryant', count: '4 available', color: 'bg-amber-700' },
             { name: 'Stephen Curry', count: '18 available', color: 'bg-blue-600' },
             { name: 'Luka Doncic', count: '22 available', color: 'bg-indigo-500' },
         ],

@@ -128,8 +128,8 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                                     "text-[9px] font-black uppercase px-2 py-0.5 rounded ml-auto border",
                                     product.multiCardTier === 'bronze' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
                                     product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
-                                    product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                    'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                    product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' :
+                                    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
                                 )}>
                                     {product.multiCardTier}
                                 </span>

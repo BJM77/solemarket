@@ -89,7 +89,7 @@ export default function AutomationDashboard() {
             <Card className="border-none shadow-premium-sm overflow-hidden rounded-2xl">
                 <CardHeader className="bg-slate-50/50 border-b">
                     <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-amber-500" />
+                        <Clock className="h-5 w-5 text-amber-700" />
                         Shipped &gt; 3 Days Ago
                     </CardTitle>
                     <CardDescription>

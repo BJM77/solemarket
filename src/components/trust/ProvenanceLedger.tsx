@@ -18,7 +18,7 @@ export function ProvenanceLedger({ data }: { data: ProvenanceData }) {
     <Card className="bg-background border-border rounded-xl overflow-hidden">
       <CardHeader className="bg-muted/60 pb-4 border-b border-border">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Activity className="h-5 w-5 text-emerald-500" />
+          <Activity className="h-5 w-5 text-emerald-700" />
           Provenance Ledger
         </CardTitle>
       </CardHeader>

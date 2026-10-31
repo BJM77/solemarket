@@ -154,10 +154,10 @@ export default function ReviewQueue() {
             onClick={() => setActiveTab('VERIFIED')}
             className={cn(
               "pb-3.5 border-b-2 px-1 transition-all flex items-center gap-1.5",
-              activeTab === 'VERIFIED' ? "border-green-500 text-green-400" : "border-transparent text-muted-foreground hover:text-foreground/80"
+              activeTab === 'VERIFIED' ? "border-green-500 text-green-700" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            Verified <span className="bg-green-950/40 text-green-400 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
+            Verified <span className="bg-green-950/40 text-green-700 rounded px-1.5 py-0.5 text-[8px]">{verifiedCount}</span>
           </button>
 
           <button 
@@ -167,7 +167,7 @@ export default function ReviewQueue() {
               activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            Incomplete <span className="bg-blue-950/40 text-blue-400 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+            Incomplete <span className="bg-blue-950/40 text-blue-600 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
           </button>
         </div>
 
@@ -224,7 +224,7 @@ export default function ReviewQueue() {
                       <Button 
                         size="icon" 
                         variant="destructive"
-                        className="h-8 w-8 hover:bg-red-600 bg-muted text-red-400 hover:text-white"
+                        className="h-8 w-8 hover:bg-red-600 bg-muted text-red-600 hover:text-white"
                         onClick={() => handleDelete(item.id)}
                         disabled={actionId === item.id}
                       >

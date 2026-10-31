@@ -330,7 +330,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
           </Button>
         </form>
         {offPlatformCheck.flagged && (
-          <p role="alert" className="mt-2 text-xs text-amber-500">
+          <p role="alert" className="mt-2 text-xs text-amber-700">
             {OFF_PLATFORM_WARNING} Contact details will be hidden.
           </p>
         )}

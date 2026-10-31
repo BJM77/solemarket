@@ -106,7 +106,7 @@ export default function PayoutDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-amber-500" />
+                        <Clock className="h-5 w-5 text-amber-700" />
                         Awaiting Payments to Sellers
                     </CardTitle>
                     <CardDescription>

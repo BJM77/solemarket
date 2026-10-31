@@ -176,7 +176,7 @@ export default function ScannerCore({
       {cameraError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-red-950/20">
           <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
-          <p className="text-red-400 font-medium text-sm mb-6 max-w-xs">{cameraError}</p>
+          <p className="text-red-600 font-medium text-sm mb-6 max-w-xs">{cameraError}</p>
           <Button onClick={toggleCamera} variant="outline" size="lg" className="rounded-full font-bold px-8">
             Try Again
           </Button>

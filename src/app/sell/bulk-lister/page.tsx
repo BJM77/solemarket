@@ -170,7 +170,7 @@ export default function BulkImageListerPage() {
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles className="mr-2 h-4 w-4 text-yellow-400" />
+                                    <Sparkles className="mr-2 h-4 w-4 text-yellow-700" />
                                     Auto-Draft All with AI
                                 </>
                             )}
@@ -195,8 +195,8 @@ export default function BulkImageListerPage() {
                                             </Button>
                                         )}
                                         {upload.status === 'uploading' && <Loader2 className="h-6 w-6 text-foreground animate-spin" />}
-                                        {upload.status === 'processing' && <Sparkles className="h-6 w-6 text-yellow-400 animate-pulse" />}
-                                        {upload.status === 'success' && <CheckCircle2 className="h-8 w-8 text-emerald-400" />}
+                                        {upload.status === 'processing' && <Sparkles className="h-6 w-6 text-yellow-700 animate-pulse" />}
+                                        {upload.status === 'success' && <CheckCircle2 className="h-8 w-8 text-emerald-700" />}
                                     </div>
 
                                     {/* Progress Bar */}

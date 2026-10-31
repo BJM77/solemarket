@@ -116,22 +116,22 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
                     <div className="w-24 h-24 rounded-full border-4 border-indigo-500/20 flex items-center justify-center">
                         <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
                     </div>
-                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-indigo-400 animate-pulse" />
+                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-indigo-600 animate-pulse" />
                 </div>
                 
                 <h3 className="text-xl font-black uppercase tracking-widest mb-6">Scanning Quality</h3>
                 
                 <div className="w-full space-y-4 text-left max-w-[200px]">
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'size' || currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">File integrity</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Resolution check</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-400" : "text-indigo-400 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Sharpness test</span>
                     </div>
                 </div>

@@ -53,7 +53,7 @@ export function PayIdSettings({ compact = false }: { compact?: boolean }) {
         <form onSubmit={save} className="space-y-4 rounded-2xl border p-5" aria-labelledby="payid-heading" data-testid="payid-settings">
             <div>
                 <h2 id="payid-heading" className="flex items-center gap-2 text-lg font-black">
-                    <ShieldCheck className="h-5 w-5 text-emerald-500" aria-hidden /> Get paid by PayID
+                    <ShieldCheck className="h-5 w-5 text-emerald-700" aria-hidden /> Get paid by PayID
                 </h2>
                 {!compact && (
                     <p className="text-sm text-muted-foreground">

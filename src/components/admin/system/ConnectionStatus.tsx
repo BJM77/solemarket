@@ -76,7 +76,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl, managementUrl
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base font-medium">{serviceName}</CardTitle>
                     {status === 'idle' && <HelpCircle className="h-5 w-5 text-muted-foreground" />}
-                    {status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                    {status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-700" />}
                     {status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
                 </div>
             </CardHeader>
@@ -84,7 +84,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl, managementUrl
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">Status</span>
                     <Badge variant={status === 'success' ? 'default' : status === 'error' ? 'destructive' : 'secondary'}
-                        className={cn(status === 'success' && "bg-green-500 hover:bg-green-600")}>
+                        className={cn(status === 'success' && "bg-green-700 hover:bg-green-600")}>
                         {status === 'idle' ? 'Unknown' : status === 'loading' ? 'Testing...' : status === 'success' ? 'Online' : 'Offline'}
                     </Badge>
                 </div>

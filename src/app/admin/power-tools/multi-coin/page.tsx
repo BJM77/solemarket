@@ -203,12 +203,12 @@ export default function MultiGenPage() {
                     <ChevronLeft className="h-4 w-4 mr-1" /> Back
                 </Button>
                 <div className="text-xs font-bold tracking-tighter uppercase text-muted-foreground flex items-center gap-1">
-                    <Boxes className="size-3 text-emerald-500" />
+                    <Boxes className="size-3 text-emerald-700" />
                     Fast Coin Lister
                 </div>
                 <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className={cn("size-1.5 rounded-full", capturedImages.length >= i ? "bg-emerald-500" : "bg-neutral-200 dark:bg-neutral-800")} />
+                        <div key={i} className={cn("size-1.5 rounded-full", capturedImages.length >= i ? "bg-emerald-700" : "bg-neutral-200 dark:bg-neutral-800")} />
                     ))}
                 </div>
             </div>
@@ -256,7 +256,7 @@ export default function MultiGenPage() {
                         onClick={takePicture}
                         className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-muted backdrop-blur-sm"
                     >
-                        <div className="size-16 rounded-full bg-emerald-500 shadow-xl" />
+                        <div className="size-16 rounded-full bg-emerald-700 shadow-xl" />
                     </button>
 
                     <div className="size-11" />
@@ -277,7 +277,7 @@ export default function MultiGenPage() {
                         disabled={capturedImages.length === 0 || isAnalyzing}
                         className={cn(
                             "absolute right-2 top-2 p-2 rounded-lg",
-                            isAnalyzing ? "text-emerald-500 animate-pulse" : "text-muted-foreground hover:text-emerald-500"
+                            isAnalyzing ? "text-emerald-700 animate-pulse" : "text-muted-foreground hover:text-emerald-700"
                         )}
                     >
                         {isAnalyzing ? <Loader2 className="size-6 animate-spin" /> : <Sparkles className="size-6" />}
@@ -287,7 +287,7 @@ export default function MultiGenPage() {
                 <Button
                     onClick={handleSave}
                     disabled={capturedImages.length === 0 || !title || isSaving}
-                    className="h-14 rounded-xl text-lg font-black bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/10"
+                    className="h-14 rounded-xl text-lg font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/10"
                 >
                     {isSaving ? <Loader2 className="size-5 animate-spin" /> : <><Save className="size-5 mr-2" /> SAVE & PUBLISH</>}
                 </Button>

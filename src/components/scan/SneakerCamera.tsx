@@ -117,15 +117,15 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
                 
                 <div className="w-full space-y-4 text-left max-w-[220px]">
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'size' || currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-400" : "text-primary animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-700" : "text-primary animate-pulse")} />
                         <span className="text-sm font-black uppercase tracking-tight">Format Scan</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-400" : "text-primary animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-700" : "text-primary animate-pulse")} />
                         <span className="text-sm font-black uppercase tracking-tight">Resolution</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-400" : "text-primary animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-700" : "text-primary animate-pulse")} />
                         <span className="text-sm font-black uppercase tracking-tight">Blur Detection</span>
                     </div>
                 </div>

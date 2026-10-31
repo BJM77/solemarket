@@ -46,7 +46,7 @@ export default function AuthenticityPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
                     <Card className="bg-card border-border hover:border-blue-500/50 transition-colors">
                         <CardContent className="p-8">
-                            <SearchCode className="h-12 w-12 text-blue-400 mb-6" />
+                            <SearchCode className="h-12 w-12 text-blue-600 mb-6" />
                             <h3 className="text-xl font-bold text-foreground mb-4">1. AI Vision Pre-Screening</h3>
                             <p className="text-muted-foreground leading-relaxed">
                                 Our listing flow uses advanced AI models to scan every image. If a seller uploads generic images, screenshots, or highly suspicious items lacking physical context, our system flags it for manual review before it ever reaches the public feed.
@@ -56,7 +56,7 @@ export default function AuthenticityPage() {
 
                     <Card className="bg-card border-border hover:border-emerald-500/50 transition-colors">
                         <CardContent className="p-8">
-                            <LockIcon className="h-12 w-12 text-emerald-400 mb-6" />
+                            <LockIcon className="h-12 w-12 text-emerald-700 mb-6" />
                             <h3 className="text-xl font-bold text-foreground mb-4">2. DealSafe Escrow Hub</h3>
                             <p className="text-muted-foreground leading-relaxed">
                                 We hold the buyer's money until the item arrives. Attempting to scam a buyer is pointless because the seller never gets paid if the item is rejected by the buyer for being unauthentic. The financial incentive to scam is removed.
@@ -84,7 +84,7 @@ export default function AuthenticityPage() {
                         While our software and escrow systems provide a steel net, peer-to-peer trading requires vigilance. We encourage all buyers to carefully inspect high-resolution photos provided by sellers, engage in dialogue, and utilize our **DealSafe** service for any significant transaction.
                     </p>
                     <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground">
-                        <CheckCircle className="text-green-400 h-5 w-5" /> All purchases made outside of the DealSafe environment are done at the buyer's own risk.
+                        <CheckCircle className="text-green-700 h-5 w-5" /> All purchases made outside of the DealSafe environment are done at the buyer's own risk.
                     </div>
                 </div>
             </div>

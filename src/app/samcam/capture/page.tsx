@@ -702,10 +702,10 @@ export default function BenchedPhotoBooth() {
   const QualityAlerts = ({ quality }: { quality: QualityMetrics }) => {
     const alerts = [];
     if (quality.brightnessScore < 50) {
-      alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-400 border-yellow-400/20" });
+      alerts.push({ icon: <Sun className="w-3.5 h-3.5" />, text: "Too Dark", color: "text-yellow-700 border-yellow-400/20" });
     }
     if (quality.blurScore < 10) {
-      alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-400 border-red-400/20" });
+      alerts.push({ icon: <Gauge className="w-3.5 h-3.5" />, text: "Blurry Focus", color: "text-red-600 border-red-400/20" });
     }
     if (quality.glarePercentage > 15) {
       alerts.push({ icon: <Target className="w-3.5 h-3.5" />, text: "Glare Detected", color: "text-red-500 border-red-500/20" });
@@ -714,7 +714,7 @@ export default function BenchedPhotoBooth() {
     if (alerts.length === 0) {
       return (
         <div className="absolute bottom-24 left-4 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-1.5 backdrop-blur-md">
-          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" /> Ready to Capture
           </span>
         </div>
@@ -805,7 +805,7 @@ export default function BenchedPhotoBooth() {
           <Sheet>
             <SheetTrigger asChild>
               <button className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full hover:bg-secondary transition-all active:scale-95">
-                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-blue-400 animate-pulse" : "text-zinc-600")} />
+                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-blue-600 animate-pulse" : "text-zinc-600")} />
                 <span className="text-[10px] font-black">
                   {syncQueue.filter(i => i.status === 'PENDING').length} PENDING
                   {syncQueue.filter(i => i.status === 'ERROR').length > 0 && 
@@ -895,8 +895,8 @@ export default function BenchedPhotoBooth() {
                     <div className="flex items-start gap-3">
                       <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                       <div className="flex-grow">
-                        <div className="font-bold text-xs text-red-400">Failed: {item.id}</div>
-                        <div className="text-[10px] font-mono text-red-300 mt-1 break-all">{item.error || "Unknown upload error."}</div>
+                        <div className="font-bold text-xs text-red-600">Failed: {item.id}</div>
+                        <div className="text-[10px] font-mono text-red-600 mt-1 break-all">{item.error || "Unknown upload error."}</div>
                         <div className="text-[8px] text-muted-foreground mt-1 uppercase font-black tracking-widest">
                           Retries: {item.retries} • Created: {new Date(item.createdAt).toLocaleTimeString()}
                         </div>
@@ -904,7 +904,7 @@ export default function BenchedPhotoBooth() {
                     </div>
                     <Button 
                       size="sm" 
-                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                      className="text-[8px] font-black uppercase h-7 bg-red-500/20 text-red-600 hover:bg-red-500/30"
                       onClick={() => {
                         syncStorage.update({ ...item, status: 'PENDING' });
                         setSyncQueue(prev => prev.map(i => i.id === item.id ? { ...i, status: 'PENDING' } : i));
@@ -942,14 +942,14 @@ export default function BenchedPhotoBooth() {
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6 z-10">
                 {focusState === 'focusing' && (
                   <div className="absolute inset-0 border-2 border-yellow-400/50 rounded-2xl animate-pulse">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-yellow-700 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
                       FOCUSING...
                     </div>
                   </div>
                 )}
                 {focusState === 'locked' && (
                   <div className="absolute inset-0 border-2 border-green-400/50 rounded-2xl animate-in fade-in duration-300">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-green-700 px-4 py-2 rounded-full text-xs font-bold shadow-lg">
                       FOCUS LOCKED
                     </div>
                   </div>
@@ -972,56 +972,56 @@ export default function BenchedPhotoBooth() {
                 
                 {isHudCollapsed ? (
                   <div className="flex flex-col items-center justify-center gap-1 opacity-80">
-                    <Gauge className="w-5 h-5 text-emerald-400" />
+                    <Gauge className="w-5 h-5 text-emerald-700" />
                     <span className="font-bold text-[10px] tracking-widest uppercase text-foreground/90">HUD</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-400" /> Device</span>
-                      <span className="font-black text-blue-400 truncate max-w-[100px]">{deviceProfile.name}</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-600" /> Device</span>
+                      <span className="font-black text-blue-600 truncate max-w-[100px]">{deviceProfile.name}</span>
                     </div>
                     
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-400" /> Focus</span>
-                      <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-400" : "text-red-400")}>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Gauge className="w-3 h-3 text-emerald-700" /> Focus</span>
+                      <span className={cn("font-black", lastQuality.blurScore > 15 ? "text-green-700" : "text-red-600")}>
                         {lastQuality.blurScore}
                       </span>
                     </div>
                     
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-500" /> Brightness</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Sun className="w-3 h-3 text-yellow-700" /> Brightness</span>
                       <span className={cn(
                         "font-black",
-                        lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-400" : "text-green-400"
+                        lastQuality.brightnessScore > 180 || lastQuality.brightnessScore < 60 ? "text-red-600" : "text-green-700"
                       )}>
                         {lastQuality.brightnessScore} LUX
                       </span>
                     </div>
                     
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-400" /> Glare</span>
-                      <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-400" : "text-red-400")}>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Target className="w-3 h-3 text-red-600" /> Glare</span>
+                      <span className={cn("font-black", lastQuality.glarePercentage < 15 ? "text-green-700" : "text-red-600")}>
                         {lastQuality.glarePercentage}%
                       </span>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-400" /> Contrast</span>
-                      <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-400" : "text-yellow-400")}>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-600" /> Contrast</span>
+                      <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-700" : "text-yellow-700")}>
                         {lastQuality.contrastScore}%
                       </span>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2 mb-2">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Zap className="w-3 h-3 text-purple-400" /> Sharpness</span>
-                      <span className={cn("font-black", lastQuality.sharpnessScore > 60 ? "text-green-400" : "text-yellow-400")}>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Zap className="w-3 h-3 text-purple-600" /> Sharpness</span>
+                      <span className={cn("font-black", lastQuality.sharpnessScore > 60 ? "text-green-700" : "text-yellow-700")}>
                         {lastQuality.sharpnessScore}%
                       </span>
                     </div>
 
                     <div className="flex justify-between pb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-blue-400" /> Temp</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-blue-600" /> Temp</span>
                       <span className="font-black text-foreground">{lastQuality.colorTemperature}K</span>
                     </div>
 
@@ -1029,8 +1029,8 @@ export default function BenchedPhotoBooth() {
                       <div className="flex items-center justify-between mb-1 text-[8px] font-bold text-muted-foreground uppercase tracking-widest">
                         <span>Quality Score</span>
                         <span className={cn(
-                          lastQuality.overallScore > 80 ? "text-green-400" :
-                          lastQuality.overallScore > 60 ? "text-yellow-400" : "text-red-400"
+                          lastQuality.overallScore > 80 ? "text-green-700" :
+                          lastQuality.overallScore > 60 ? "text-yellow-700" : "text-red-600"
                         )}>
                           {lastQuality.overallScore}%
                         </span>
@@ -1039,7 +1039,7 @@ export default function BenchedPhotoBooth() {
                         <div 
                           className={cn(
                             "h-full transition-all duration-500",
-                            lastQuality.overallScore > 80 ? "bg-green-500" :
+                            lastQuality.overallScore > 80 ? "bg-green-700" :
                             lastQuality.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
                           )}
                           style={{ width: `${lastQuality.overallScore}%` }}
@@ -1079,7 +1079,7 @@ export default function BenchedPhotoBooth() {
                    
                    {/* Micro Tip Box */}
                    <div className="mt-4 p-2 bg-black/60 border border-border rounded-lg text-[8px] font-bold uppercase tracking-wider text-muted-foreground flex gap-1.5 items-start text-left">
-                     <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                     <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                      <span>{getDeviceTips(deviceProfile)}</span>
                    </div>
                 </div>
@@ -1099,7 +1099,7 @@ export default function BenchedPhotoBooth() {
                       key={i}
                       className={cn(
                         "flex-1 rounded-sm transition-all duration-300",
-                        q.overallScore > 80 ? "bg-green-500" :
+                        q.overallScore > 80 ? "bg-green-700" :
                         q.overallScore > 60 ? "bg-yellow-500" : "bg-red-500"
                       )}
                       style={{ height: `${q.overallScore}%` }}
@@ -1214,7 +1214,7 @@ export default function BenchedPhotoBooth() {
                         {reviewData.identificationConfidence > 0 && (
                           <div className="text-right">
                             <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Confidence</p>
-                            <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", reviewData.identificationConfidence > 0.9 ? "text-green-400 bg-green-950/20" : "text-yellow-400 bg-yellow-950/20")}>
+                            <Badge variant="outline" className={cn("text-[9px] font-black uppercase border-none", reviewData.identificationConfidence > 0.9 ? "text-green-700 bg-green-950/20" : "text-yellow-700 bg-yellow-950/20")}>
                               {Math.round(reviewData.identificationConfidence * 100)}% Match
                             </Badge>
                           </div>

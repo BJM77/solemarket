@@ -331,7 +331,7 @@ export default function CameraScanner({
       <div className="absolute top-2 left-2 bg-black/50 p-2 rounded-lg text-white text-xs flex items-center gap-1">
         <Sparkles className="w-4 h-4 text-accent" />
         <span>AI Active</span>
-        <div className={cn("w-2 h-2 rounded-full ml-1", isCameraActive ? "bg-green-500" : "bg-red-500")} />
+        <div className={cn("w-2 h-2 rounded-full ml-1", isCameraActive ? "bg-green-700" : "bg-red-500")} />
       </div>
       {isCameraActive && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">

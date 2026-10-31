@@ -543,7 +543,7 @@ export default function ShoePhotoBooth() {
             <div className="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent">
               <div className="flex items-center justify-between w-full max-w-[320px]">
                 <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-muted/60" onClick={toggleTorch}>
-                  {torchActive ? <Zap className="w-5 h-5 text-yellow-400" /> : <ZapOff className="w-5 h-5" />}
+                  {torchActive ? <Zap className="w-5 h-5 text-yellow-700" /> : <ZapOff className="w-5 h-5" />}
                 </Button>
                 <Button size="icon" disabled={isProcessing} onClick={capture} className="w-20 h-20 rounded-full border-4 border-white bg-muted">
                   <div className="absolute inset-2 bg-white rounded-full transition-transform active:scale-90" />
@@ -571,7 +571,7 @@ export default function ShoePhotoBooth() {
               <Card className="bg-card border-border overflow-hidden shadow-2xl relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent animate-[shimmer_2s_infinite]" />
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
-                  <Gem className="w-8 h-8 text-blue-400 animate-pulse" />
+                  <Gem className="w-8 h-8 text-blue-600 animate-pulse" />
                   <div className="text-center space-y-2">
                     <h3 className="text-xl font-bold">AI Sneaker Check</h3>
                     <p className="text-muted-foreground">Reading box label and confirming model...</p>
@@ -586,7 +586,7 @@ export default function ShoePhotoBooth() {
             ) : reviewData && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
+                  <Badge className="bg-green-500/20 text-green-700 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
                   <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-muted-foreground hover:text-foreground">
                     <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} /> Re-Scan
                   </Button>
@@ -626,7 +626,7 @@ export default function ShoePhotoBooth() {
                         <Label>Price (AUD)</Label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-400 font-bold" />
+                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-700 font-bold" />
                         </div>
                       </div>
                       <div className="col-span-2 space-y-1.5">

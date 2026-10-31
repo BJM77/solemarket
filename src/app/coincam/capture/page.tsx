@@ -230,7 +230,7 @@ export default function CoinPhotoBooth() {
                   <div className="relative">
                     <div className="w-24 h-24 rounded-full border-4 border-border border-t-blue-500 animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Gem className="w-8 h-8 text-blue-400 animate-pulse" />
+                      <Gem className="w-8 h-8 text-blue-600 animate-pulse" />
                     </div>
                   </div>
                   <div className="text-center space-y-2">
@@ -254,7 +254,7 @@ export default function CoinPhotoBooth() {
                 {/* Status Bar */}
                 <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-2">
-                    <Badge className={cn("bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5")}>
+                    <Badge className={cn("bg-green-500/20 text-green-700 border-green-500/30 flex items-center gap-1.5")}>
                       <BadgeCheck className="w-3 h-3" />
                       AI Scan Complete
                     </Badge>
@@ -338,7 +338,7 @@ export default function CoinPhotoBooth() {
                             type="number"
                             value={reviewData.price || ''} 
                             onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} 
-                            className="bg-black/50 border-border pl-7 focus-visible:ring-blue-500 font-bold text-green-400"
+                            className="bg-black/50 border-border pl-7 focus-visible:ring-blue-500 font-bold text-green-700"
                             placeholder="0.00"
                           />
                         </div>

@@ -105,7 +105,7 @@ function StoreRow({ store }: { store: StoreWithProducts }) {
                             </Link>
                             <div className="flex items-center gap-2 mt-2">
                                 <div className="flex items-center gap-1 bg-yellow-400/10 px-2 py-0.5 rounded-full border border-yellow-400/20">
-                                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-700" />
                                     <span className="text-xs font-bold text-yellow-700">{store.rating.toFixed(1)}</span>
                                 </div>
                                 <span className="text-xs text-muted-foreground font-medium">{store.totalSales}+ Sales</span>
@@ -220,7 +220,7 @@ export default function TopStoresPage() {
                         <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">Verified Rankings</h2>
                         <div className="flex gap-4">
                              <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                                <div className="h-2 w-2 rounded-full bg-green-700 animate-pulse" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Stats</span>
                              </div>
                         </div>

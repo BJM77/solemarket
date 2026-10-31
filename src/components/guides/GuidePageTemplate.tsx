@@ -52,7 +52,7 @@ export default function GuidePageTemplate({ content, relatedProducts }: GuidePag
 
                     {/* Investment Profile */}
                     <section className="bg-card rounded-2xl p-8 shadow-sm border border-emerald-500/20 border-l-4 border-l-emerald-500">
-                        <h2 className="text-2xl font-black uppercase tracking-tight mb-4 flex items-center gap-2 text-emerald-400">
+                        <h2 className="text-2xl font-black uppercase tracking-tight mb-4 flex items-center gap-2 text-emerald-700">
                             <TrendingUp className="h-6 w-6" />
                             Investment Profile
                         </h2>
@@ -73,7 +73,7 @@ export default function GuidePageTemplate({ content, relatedProducts }: GuidePag
                                     </div>
                                     <div className="text-right shrink-0">
                                         <div className="text-xs text-muted-foreground uppercase font-black tracking-widest">Est. Value</div>
-                                        <div className="text-lg font-mono font-black text-emerald-500">{item.approxValue}</div>
+                                        <div className="text-lg font-mono font-black text-emerald-700">{item.approxValue}</div>
                                     </div>
                                 </div>
                             ))}

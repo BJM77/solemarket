@@ -594,7 +594,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                                     {user?.uid === product.sellerId && bid.status === 'pending' && (
                                                         <Button size="sm" onClick={() => handleAcceptBid(bid.id)}>Accept</Button>
                                                     )}
-                                                    {bid.status === 'accepted' && <Badge className="bg-green-500 hover:bg-green-600">Accepted</Badge>}
+                                                    {bid.status === 'accepted' && <Badge className="bg-green-700 hover:bg-green-600">Accepted</Badge>}
                                                 </div>
                                             </div>
                                         ))}
@@ -647,7 +647,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                             <h3 className="font-semibold text-gray-900">{seller.displayName}</h3>
                                             <div className="flex items-center gap-3 mt-1">
                                                 <div className="flex items-center gap-1">
-                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-700" />
                                                     <span className="text-sm font-medium">{seller.rating}</span>
                                                     <span className="text-xs text-gray-500">({seller.totalSales} sales)</span>
                                                 </div>

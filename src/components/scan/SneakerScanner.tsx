@@ -183,7 +183,7 @@ export function SneakerScanner() {
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Est. Value</p>
-                                        <p className="font-black text-emerald-500 text-2xl">${analysisResult.price}</p>
+                                        <p className="font-black text-emerald-700 text-2xl">${analysisResult.price}</p>
                                     </div>
                                 </div>
 

@@ -79,7 +79,7 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
                 )}
                 <CardHeader className="pb-8">
                     <CardTitle className="text-2xl font-black flex items-center gap-2">
-                        <Crown className="h-6 w-6 text-amber-400" />
+                        <Crown className="h-6 w-6 text-amber-700" />
                         Elite Syndicate
                     </CardTitle>
                     <div className="flex items-baseline gap-1 mt-2">
@@ -122,7 +122,7 @@ function FeatureItem({ text, active = false }: { text: string, active?: boolean 
         <div className="flex items-center gap-3">
             <div className={cn(
                 "rounded-full p-0.5",
-                active ? "bg-amber-400/20 text-amber-400" : "bg-emerald-100 text-emerald-600"
+                active ? "bg-amber-400/20 text-amber-700" : "bg-emerald-100 text-emerald-600"
             )}>
                 <Check className="h-3.5 w-3.5" />
             </div>

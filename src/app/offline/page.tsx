@@ -70,7 +70,7 @@ export default function OfflinePage() {
           </Button>
 
           {isOnline && (
-            <div className="text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 py-2.5 rounded-xl animate-pulse">
+            <div className="text-xs text-emerald-700 font-bold bg-emerald-500/10 border border-emerald-500/20 py-2.5 rounded-xl animate-pulse">
               Connection restored! You are back online.
             </div>
           )}

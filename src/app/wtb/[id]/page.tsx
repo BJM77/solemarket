@@ -63,7 +63,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                                 </Badge>
                                             )}
                                             {listing.status === 'fulfilled' && (
-                                                <Badge className="bg-green-500 text-primary-foreground font-black italic">FULFILLED</Badge>
+                                                <Badge className="bg-green-700 text-primary-foreground font-black italic">FULFILLED</Badge>
                                             )}
                                         </div>
                                         <CardTitle className="text-4xl md:text-5xl font-black italic tracking-tight">{listing.title}</CardTitle>
@@ -183,7 +183,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                 )}
 
                                 {listing.status === 'fulfilled' && (
-                                    <div className="p-5 bg-green-500/10 rounded-2xl border border-green-500/20 text-sm font-black italic text-center text-green-500 uppercase tracking-widest">
+                                    <div className="p-5 bg-green-500/10 rounded-2xl border border-green-500/20 text-sm font-black italic text-center text-green-700 uppercase tracking-widest">
                                         ✓ This Demand has been met
                                     </div>
                                 )}

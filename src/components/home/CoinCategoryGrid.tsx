@@ -89,7 +89,7 @@ export default function CoinCategoryGrid() {
                         <h2 className="text-2xl md:text-5xl font-black text-foreground tracking-tighter uppercase italic">{title}</h2>
                         <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
-                    <Link href="/coins" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-yellow-500 items-center transition-all bg-yellow-500/10 px-6 py-3 rounded-full hover:bg-yellow-500/20">
+                    <Link href="/coins" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-yellow-700 items-center transition-all bg-yellow-500/10 px-6 py-3 rounded-full hover:bg-yellow-500/20">
                         View All Coins <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -109,7 +109,7 @@ export default function CoinCategoryGrid() {
                                     <div className={cn(
                                         "relative w-12 h-12 md:w-20 md:h-20 flex items-center justify-center rounded-full bg-background border border-border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
                                     )}>
-                                        <Coins className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
+                                        <Coins className="h-6 w-6 md:h-8 md:w-8 text-yellow-700" />
                                     </div>
                                     <span className="font-black text-foreground text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
                                         {cat.name}
@@ -120,7 +120,7 @@ export default function CoinCategoryGrid() {
                     })}
                 </div>
 
-                <Link href="/coins" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-yellow-500 flex justify-center items-center transition-all bg-yellow-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-yellow-500/20 w-full text-center">
+                <Link href="/coins" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-yellow-700 flex justify-center items-center transition-all bg-yellow-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-yellow-500/20 w-full text-center">
                     View All Coins <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>

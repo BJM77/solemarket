@@ -271,19 +271,19 @@ export default function PartnersPage() {
                             </p>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Expert appraisal of rare collectibles</span>
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Data-driven pricing strategy</span>
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
                                         <CheckIcon />
                                     </div>
                                     <span>Maximize margins on donations/estates</span>
@@ -296,15 +296,15 @@ export default function PartnersPage() {
                                 <p className="text-muted-foreground text-sm">Case Study: Vintage Comic Collection</p>
                                 <div className="grid grid-cols-2 gap-4 my-8">
                                     <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                                        <p className="text-xs text-red-400 uppercase font-bold">Store Price</p>
+                                        <p className="text-xs text-red-600 uppercase font-bold">Store Price</p>
                                         <p className="text-2xl font-bold text-foreground">$450</p>
                                     </div>
                                     <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                        <p className="text-xs text-green-400 uppercase font-bold">Benched Valued</p>
+                                        <p className="text-xs text-green-700 uppercase font-bold">Benched Valued</p>
                                         <p className="text-2xl font-bold text-foreground">$1,200</p>
                                     </div>
                                 </div>
-                                <p className="text-lg font-medium text-green-400">+166% Profit</p>
+                                <p className="text-lg font-medium text-green-700">+166% Profit</p>
                             </div>
                         </div>
                     </div>

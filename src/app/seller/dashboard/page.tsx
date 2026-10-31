@@ -279,7 +279,7 @@ export default function SellerDashboard() {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full text-center p-8 bg-card border-border">
           <div className="bg-amber-950/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
-            <Clock className="h-10 w-10 text-amber-500" />
+            <Clock className="h-10 w-10 text-amber-700" />
           </div>
           <h2 className="text-2xl font-black text-foreground mb-4">Application Pending</h2>
           <p className="text-muted-foreground mb-8 font-medium">We've received your application! Our team is reviewing it. This usually takes 24-48 hours. We'll notify you once you're approved.</p>
@@ -310,12 +310,12 @@ export default function SellerDashboard() {
 
 
   const statCards = [
-    // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-500 bg-emerald-500/10' },
+    // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-700 bg-emerald-500/10' },
     { label: 'Active Enquiries', value: stats.orderCount, change: '', icon: Truck, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Market Visibility', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-indigo-500 bg-indigo-500/10' },
     { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-500 bg-purple-500/10' },
-    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-500 bg-amber-500/10' },
+    { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-700 bg-amber-500/10' },
   ];
 
   return (
@@ -549,7 +549,7 @@ export default function SellerDashboard() {
                                <div className="flex flex-col">
                                  <span className="font-bold text-foreground line-clamp-1 max-w-[200px]">{product.title}</span>
                                  {product.externalUrl && (
-                                   <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
+                                   <Badge className="bg-blue-600/20 text-blue-600 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
                                      FB Import
                                    </Badge>
                                  )}
@@ -579,7 +579,7 @@ export default function SellerDashboard() {
                               variant="outline"
                               className={cn(
                                 "font-black text-[10px] uppercase tracking-tighter px-3 py-1 border-none",
-                                product.status === 'draft' ? 'bg-muted text-muted-foreground' : 'bg-emerald-950/40 text-emerald-500'
+                                product.status === 'draft' ? 'bg-muted text-muted-foreground' : 'bg-emerald-950/40 text-emerald-700'
                               )}
                             >
                               {product.status || 'Active'}
@@ -595,7 +595,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20"
+                                    className="h-7 text-[10px] font-black uppercase bg-amber-500/10 text-amber-700 border-amber-500/20 hover:bg-amber-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'pending')}
                                     disabled={isUpdatingStatus === product.id || (product as any).enquiryStatus === 'pending'}
                                   >
@@ -604,7 +604,7 @@ export default function SellerDashboard() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20"
+                                    className="h-7 text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20"
                                     onClick={() => handleEnquiryAction(product.id, 'sold')}
                                     disabled={isUpdatingStatus === product.id}
                                   >

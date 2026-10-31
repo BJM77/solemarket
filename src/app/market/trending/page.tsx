@@ -78,8 +78,8 @@ export default async function MarketTrendingPage() {
                             </div>
                             <ProductCard product={product} />
                             <div className="mt-2 flex items-center gap-2 px-2">
-                                <TrendingUp className="h-3 w-3 text-emerald-500" />
-                                <span className="text-[10px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full tracking-wider">
+                                <TrendingUp className="h-3 w-3 text-emerald-700" />
+                                <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full tracking-wider">
                                     High Demand
                                 </span>
                                 <span className="text-[10px] text-muted-foreground font-bold ml-auto">

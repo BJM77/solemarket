@@ -629,7 +629,7 @@ function CreateListingForm() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-indigo-500/30 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 h-8 rounded-lg text-xs font-semibold" 
+              className="border-indigo-500/30 text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 h-8 rounded-lg text-xs font-semibold" 
               onClick={(e) => {
                 e.preventDefault();
                 setShowRetryModal(true);
@@ -1064,7 +1064,7 @@ function CreateListingForm() {
               <h1 className="text-lg font-bold text-foreground">Create Your Listing</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+              <span className="text-xs bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                 {selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}
               </span>
             </div>
@@ -1081,7 +1081,7 @@ function CreateListingForm() {
               <div className="bg-card p-5 rounded-2xl border border-border flex items-center justify-between shadow-lg">
                 <div>
                   <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Listing Category</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Currently listing in <span className="font-bold text-indigo-400">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Currently listing in <span className="font-bold text-indigo-600">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
                 </div>
                 <Button 
                   variant="outline" 
@@ -1177,7 +1177,7 @@ function CreateListingForm() {
 
             {/* Right Column: Sticky Buyer Live Preview */}
             <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
-              <h3 className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
+              <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
                 <Eye className="h-4 w-4" /> Live Buyer Preview
               </h3>
               
@@ -1213,7 +1213,7 @@ function CreateListingForm() {
                     )}
                     
                     {form.watch('isVault') && (
-                      <div className="absolute top-4 right-4 bg-emerald-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-emerald-400/40 shadow-lg">
+                      <div className="absolute top-4 right-4 bg-emerald-700 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-emerald-400/40 shadow-lg">
                         <ShieldCheck className="h-3.5 w-3.5" /> VAULT
                       </div>
                     )}
@@ -1222,7 +1222,7 @@ function CreateListingForm() {
                   {/* Details Body */}
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                      <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
                         {form.watch('category') || 'Category'}
                       </span>
                       {form.watch('condition') && (
@@ -1273,10 +1273,10 @@ function CreateListingForm() {
                     <div className="pt-4 border-t border-border flex items-center justify-between">
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">Listing Price</p>
-                        <p className="text-2xl font-black text-indigo-400">${form.watch('price') || '0.00'}</p>
+                        <p className="text-2xl font-black text-indigo-600">${form.watch('price') || '0.00'}</p>
                       </div>
                       {form.watch('isNegotiable') && (
-                        <span className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
+                        <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
                           Offers Allowed
                         </span>
                       )}
@@ -1295,7 +1295,7 @@ function CreateListingForm() {
           <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-400" /> Did we get this right?
+                <Sparkles className="w-5 h-5 text-indigo-600" /> Did we get this right?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 The AI found a few possible matches. Please select the correct option below.
@@ -1338,13 +1338,13 @@ function CreateListingForm() {
             <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-col">
               <Button 
                 variant="outline" 
-                className="border-indigo-500/30 text-indigo-300 bg-indigo-500/5 hover:bg-indigo-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
+                className="border-indigo-500/30 text-indigo-600 bg-indigo-500/5 hover:bg-indigo-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
                 onClick={() => {
                   setShowAlternativesModal(false);
                   setShowRetryModal(true);
                 }}
               >
-                <Sparkles className="w-4 h-4 text-indigo-400" />
+                <Sparkles className="w-4 h-4 text-indigo-600" />
                 None of these match (Search Again)
               </Button>
               <Button variant="outline" className="border-border bg-transparent text-foreground w-full hover:bg-muted" onClick={() => setShowAlternativesModal(false)}>
@@ -1359,7 +1359,7 @@ function CreateListingForm() {
           <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" /> Search Again with Hint
+                <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" /> Search Again with Hint
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Type a specific keyword, color parallel, year, or variant (e.g. "Red Wave parallel", "2022 Select", "Bowman Chrome") to help the AI narrow down the correct match.
@@ -1368,7 +1368,7 @@ function CreateListingForm() {
             
             <div className="space-y-4 my-4">
               {previousTitle && (
-                <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-300">
+                <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-600">
                   <span className="font-bold">Avoided previous match:</span> "{previousTitle}"
                 </div>
               )}

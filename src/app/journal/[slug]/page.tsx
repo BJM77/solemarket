@@ -68,7 +68,7 @@ export default async function JournalArticlePage({ params }: Props) {
                 
                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-12">
                     <div className="max-w-4xl mx-auto">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-500 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
                             {article.category}
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-6">

@@ -37,7 +37,7 @@ export function WTBCard({ listing }: WTBCardProps) {
                         </div>
                         {listing.status === 'fulfilled' && (
                             <div className="absolute inset-0 bg-black/80 flex items-center justify-center backdrop-blur-[2px]">
-                                <Badge className="text-xl px-6 py-3 bg-green-500 text-primary-foreground font-black italic">FULFILLED</Badge>
+                                <Badge className="text-xl px-6 py-3 bg-green-700 text-primary-foreground font-black italic">FULFILLED</Badge>
                             </div>
                         )}
                     </div>

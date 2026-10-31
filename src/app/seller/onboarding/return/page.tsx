@@ -49,7 +49,7 @@ export default function StripeReturnPage() {
                 <CardHeader>
                     <div className="mx-auto mb-4">
                         {status === 'loading' && <Loader2 className="h-12 w-12 animate-spin text-primary" />}
-                        {status === 'success' && <CheckCircle className="h-12 w-12 text-green-500" />}
+                        {status === 'success' && <CheckCircle className="h-12 w-12 text-green-700" />}
                         {status === 'error' && <XCircle className="h-12 w-12 text-red-500" />}
                     </div>
                     <CardTitle>

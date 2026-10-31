@@ -65,7 +65,7 @@ export default function ConsignPage() {
                             <span className="font-semibold text-center">Sealed Products</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
-                            <Star className="h-10 w-10 text-yellow-500 mb-3" />
+                            <Star className="h-10 w-10 text-yellow-700 mb-3" />
                             <span className="font-semibold text-center">Grails</span>
                         </div>
                     </div>
@@ -193,11 +193,11 @@ export default function ConsignPage() {
                             <Card className="bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex mb-2">
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
                                     </div>
                                     <p className="text-gray-700 italic mb-4">"The entire process was seamless. I sent my kicks in, and Benched handled the rest. The final sale price exceeded my expectations. Highly recommend for anyone who values their time and privacy."</p>
                                     <p className="font-semibold">- David R., Private Collector</p>
@@ -206,11 +206,11 @@ export default function ConsignPage() {
                             <Card className="bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex mb-2">
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
-                                        <Star className="text-yellow-400" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
+                                        <Star className="text-yellow-700" />
                                     </div>
                                     <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's coin collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
                                     <p className="font-semibold">- Sarah L., Estate Seller</p>

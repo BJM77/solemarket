@@ -12,8 +12,8 @@ interface AdminStatsGridProps {
 
 export function AdminStatsGrid({ stats }: AdminStatsGridProps) {
   const items = [
-    { title: "Revenue", value: `$${stats.revenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
-    { title: "Pending Approvals", value: stats.pendingApprovals, icon: ShieldAlert, color: "text-amber-500" },
+    { title: "Revenue", value: `$${stats.revenue.toLocaleString()}`, icon: DollarSign, color: "text-green-700" },
+    { title: "Pending Approvals", value: stats.pendingApprovals, icon: ShieldAlert, color: "text-amber-700" },
     { title: "Active Sellers", value: stats.sellers, icon: Users, color: "text-blue-500" },
     { title: "Total Items", value: stats.items, icon: Package, color: "text-purple-500" },
   ];

@@ -49,7 +49,7 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
                   <ExternalLink className="h-6 w-6 mr-2" />
                   Message / Buy on Facebook
                 </Button>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-400 font-semibold bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl text-center">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-600 font-semibold bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl text-center">
                   <Badge className="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
                   Opens seller listing in a new window
                 </div>

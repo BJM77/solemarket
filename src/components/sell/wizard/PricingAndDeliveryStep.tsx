@@ -41,7 +41,7 @@ export function PricingAndDeliveryStep({
                             <div className="flex items-center justify-between h-5">
                                 <FormLabel>Price (AUD) <span className="text-red-500">*</span></FormLabel>
                                 {analyzingFields['price'] ? (
-                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 animate-pulse">
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-600 animate-pulse">
                                         AI Estimating...
                                     </div>
                                 ) : isPriceSuggested ? (

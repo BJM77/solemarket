@@ -46,12 +46,12 @@ export default function ConquestingAdminPage() {
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <Zap className="h-5 w-5 text-yellow-500" />
+                            <Zap className="h-5 w-5 text-yellow-700" />
                             Status
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Badge variant="default" className="bg-green-500">Live & Optimizing</Badge>
+                        <Badge variant="default" className="bg-green-700">Live & Optimizing</Badge>
                         <p className="text-xs text-muted-foreground mt-1">SEO dynamic routes active</p>
                     </CardContent>
                 </Card>

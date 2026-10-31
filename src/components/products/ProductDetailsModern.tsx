@@ -1118,7 +1118,7 @@ export default function ProductDetailsModern({
                                                                     Message / Buy on Facebook
                                                                 </Button>
 
-                                                                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-400 font-semibold bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-center">
+                                                                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-600 font-semibold bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-center">
                                                                     <Badge className="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
                                                                     Opens seller listing in a new window
                                                                 </div>
@@ -1436,8 +1436,8 @@ export default function ProductDetailsModern({
                                 "text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border self-start sm:self-auto",
                                 product.multiCardTier === 'bronze' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
                                 product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
-                                product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' :
+                                'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
                             )}>
                                 Eligible Tier: {product.multiCardTier}
                             </span>

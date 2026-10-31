@@ -132,7 +132,7 @@ export default function ResearchPage() {
                                             </a>
                                             <div className="flex items-center gap-4 mb-3">
                                                 <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-                                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                                    <span className="w-2 h-2 rounded-full bg-green-700"></span>
                                                     Sold: {new Date(item.soldDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </div>
                                                 <div className="text-sm text-muted-foreground flex items-center gap-1.5">

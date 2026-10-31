@@ -756,7 +756,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                             <Card className="border border-border bg-card shadow-lg animate-in fade-in slide-in-from-right-4 duration-500">
                                 <CardHeader className="p-6 pb-0">
                                     <div className="flex items-center gap-2">
-                                        <ShieldCheck className="h-5 w-5 text-green-500" />
+                                        <ShieldCheck className="h-5 w-5 text-green-700" />
                                         <CardTitle className="text-foreground">Step 5: Listing Options</CardTitle>
                                     </div>
                                     <CardDescription className="text-muted-foreground">Final settings for your listing.</CardDescription>
@@ -776,14 +776,14 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                                 <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-300">
                                                     <FormField control={form.control} name="autoAcceptPrice" render={({ field: numField }) => (
                                                         <FormItem className="bg-emerald-950/20 p-4 rounded-xl border border-emerald-900/50">
-                                                            <FormLabel className="text-xs font-bold text-emerald-500">Auto-Accept Price</FormLabel>
+                                                            <FormLabel className="text-xs font-bold text-emerald-700">Auto-Accept Price</FormLabel>
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">$</span>
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-700 font-bold">$</span>
                                                                 <FormControl>
                                                                     <Input type="number" placeholder="0.00" className="pl-8 bg-background border-emerald-900/50 text-foreground" {...numField} />
                                                                 </FormControl>
                                                             </div>
-                                                            <FormDescription className="text-[10px] leading-tight text-emerald-500/70">Offers at or above this instantly win.</FormDescription>
+                                                            <FormDescription className="text-[10px] leading-tight text-emerald-700/70">Offers at or above this instantly win.</FormDescription>
                                                         </FormItem>
                                                     )} />
                                                     <FormField control={form.control} name="floorPrice" render={({ field: numField }) => (

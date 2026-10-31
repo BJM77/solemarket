@@ -46,7 +46,7 @@ export function SystemHealth() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded-xl border">
                         <div className="flex items-center gap-2">
-                            <ShieldCheck className={`h-4 w-4 ${status.firebaseAdmin ? 'text-green-500' : 'text-destructive'}`} />
+                            <ShieldCheck className={`h-4 w-4 ${status.firebaseAdmin ? 'text-green-700' : 'text-destructive'}`} />
                             <span className="text-sm font-medium">Firebase Admin SDK</span>
                         </div>
                         {status.firebaseAdmin ? (
@@ -58,7 +58,7 @@ export function SystemHealth() {
 
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded-xl border">
                         <div className="flex items-center gap-2">
-                            <Cpu className={`h-4 w-4 ${status.ai ? 'text-green-500' : 'text-destructive'}`} />
+                            <Cpu className={`h-4 w-4 ${status.ai ? 'text-green-700' : 'text-destructive'}`} />
                             <span className="text-sm font-medium">Genkit AI Pipeline</span>
                         </div>
                         {status.ai ? (

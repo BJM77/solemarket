@@ -108,7 +108,7 @@ export default function DealSafePage() {
                         <CardHeader className="bg-blue-500/5 border-b border-border px-8 py-10">
                             <CardTitle className="flex items-center gap-4 text-2xl font-black italic">
                                 <div className="h-12 w-12 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/20">
-                                    <ShoppingCart className="h-6 w-6 text-blue-400" />
+                                    <ShoppingCart className="h-6 w-6 text-blue-600" />
                                 </div>
                                 Buyer Protection
                             </CardTitle>
@@ -127,7 +127,7 @@ export default function DealSafePage() {
                         <CardHeader className="bg-emerald-500/5 border-b border-border px-8 py-10">
                             <CardTitle className="flex items-center gap-4 text-2xl font-black italic">
                                 <div className="h-12 w-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/20">
-                                    <Handshake className="h-6 w-6 text-emerald-400" />
+                                    <Handshake className="h-6 w-6 text-emerald-700" />
                                 </div>
                                 Seller Protection
                             </CardTitle>

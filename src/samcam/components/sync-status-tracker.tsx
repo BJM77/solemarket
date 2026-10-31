@@ -48,7 +48,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
       >
         <div className="flex items-center gap-3">
           {isComplete ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-700" />
           ) : hasError ? (
             <XCircle className="w-5 h-5 text-red-500" />
           ) : isProcessing ? (
@@ -71,7 +71,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {hasError && onRetry && (
             <button
               onClick={(e) => { e.stopPropagation(); onRetry(status.id); }}
-              className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold hover:bg-blue-500/30 transition"
+              className="px-3 py-1 bg-blue-500/20 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-500/30 transition"
             >
               Retry
             </button>
@@ -79,7 +79,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {isProcessing && onCancel && (
             <button
               onClick={(e) => { e.stopPropagation(); onCancel(status.id); }}
-              className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold hover:bg-red-500/30 transition"
+              className="px-3 py-1 bg-red-500/20 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-500/30 transition"
             >
               Cancel
             </button>
@@ -98,7 +98,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
               {/* Step Icon */}
               <div className="mt-0.5">
                 {step.status === 'success' && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
                 )}
                 {step.status === 'error' && (
                   <XCircle className="w-4 h-4 text-red-500" />
@@ -130,8 +130,8 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                 {step.detail && (
                   <div className={cn(
                     "text-[10px] mt-1 font-mono break-all",
-                    step.status === 'error' ? "text-red-400" :
-                    step.status === 'success' ? "text-emerald-400" :
+                    step.status === 'error' ? "text-red-600" :
+                    step.status === 'success' ? "text-emerald-700" :
                     "text-muted-foreground"
                   )}>
                     {step.detail}
@@ -151,7 +151,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {/* Error Details */}
           {status.error && (
             <div className="mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <div className="text-[10px] text-red-400 font-mono break-all">
+              <div className="text-[10px] text-red-600 font-mono break-all">
                 ❌ {status.error}
               </div>
             </div>

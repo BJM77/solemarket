@@ -221,7 +221,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
               </div>
 
               <div className="flex gap-2 text-[10px] text-muted-foreground pt-2 items-center justify-center">
-                <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                <CheckCircle2 className="h-3 w-3 text-emerald-700" />
                 <span>AI Grade Checked • Review before publishing</span>
               </div>
             </div>

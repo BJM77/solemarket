@@ -72,7 +72,7 @@ export default function ProCamDashboard() {
         </Link>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex bg-muted rounded-full px-4 py-1.5 items-center gap-2 border border-border">
-             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+             <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse" />
              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pro Booth Connected</span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => router.push('/procam/settings')} className="text-muted-foreground hover:text-foreground hover:bg-muted">

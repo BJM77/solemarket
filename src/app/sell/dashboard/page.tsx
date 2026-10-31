@@ -209,7 +209,7 @@ export default function SellerDashboard() {
           <div className="space-y-1">
             <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">Seller Console</h1>
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-emerald-700 animate-pulse" />
               <p className="text-slate-500 font-medium">Market Protocol Active • {user.displayName}</p>
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function SellerDashboard() {
                                      <div className="flex items-center gap-1.5 mt-0.5">
                                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{product.category}</span>
                                        {product.externalUrl && (
-                                         <Badge className="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0">
+                                         <Badge className="bg-blue-600/20 text-blue-600 border border-blue-500/30 text-[8px] font-black uppercase px-1.5 py-0">
                                            FB Import
                                          </Badge>
                                        )}
@@ -326,7 +326,7 @@ export default function SellerDashboard() {
                                       Complete Draft
                                     </Badge>
                                   ) : (
-                                    <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[10px] uppercase px-3 py-1">Active</Badge>
+                                    <Badge className="bg-emerald-500/10 text-emerald-700 border-none font-black text-[10px] uppercase px-3 py-1">Active</Badge>
                                   )}
                                   <div className="h-8 w-px bg-muted/60 mx-2" />
                                   <div className="flex items-center gap-1">
@@ -339,7 +339,7 @@ export default function SellerDashboard() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="h-8 w-8 text-muted-foreground hover:text-emerald-500 hover:bg-muted/60"
+                                      className="h-8 w-8 text-muted-foreground hover:text-emerald-700 hover:bg-muted/60"
                                       title="Mark as Sold"
                                       onClick={() => {
                                         setSelectedProductForSold(product);
@@ -426,7 +426,7 @@ export default function SellerDashboard() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-emerald-500 hover:bg-muted/60"
+                                    className="h-8 w-8 text-muted-foreground hover:text-emerald-700 hover:bg-muted/60"
                                     title="Republish"
                                     onClick={() => handleRepublish(product)}
                                     disabled={actionLoading}

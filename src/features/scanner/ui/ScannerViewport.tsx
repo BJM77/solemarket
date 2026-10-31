@@ -76,7 +76,7 @@ export function ScannerViewport({
       <div className="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent">
         <div className="flex items-center justify-between w-full max-w-[320px]">
           <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-muted/60" onClick={onToggleTorch}>
-            {torchActive ? <Zap className="w-5 h-5 text-yellow-400" /> : <ZapOff className="w-5 h-5" />}
+            {torchActive ? <Zap className="w-5 h-5 text-yellow-700" /> : <ZapOff className="w-5 h-5" />}
           </Button>
           <Button size="icon" disabled={isProcessing} onClick={onCapture} className="w-20 h-20 rounded-full border-4 border-white bg-muted">
             <div className="absolute inset-2 bg-white rounded-full transition-transform active:scale-90" />

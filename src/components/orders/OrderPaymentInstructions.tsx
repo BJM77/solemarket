@@ -54,7 +54,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
         return () => { cancelled = true; };
     }, [orderId]);
 
-    if (err) return <p className="text-sm text-rose-400">{err}</p>;
+    if (err) return <p className="text-sm text-rose-600">{err}</p>;
     if (!d) return <Loader2 className="h-5 w-5 animate-spin" aria-label="Loading payment details" />;
     if (d.status !== 'awaiting_payment') return null;
 
@@ -83,7 +83,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                             <CopyRow label="Reference" value={d.paymentReference} mono />
                         </div>
                     ) : (
-                        <p className="text-sm text-amber-300">The seller&apos;s PayID isn&apos;t available. Please <Link href={reportHref} className="underline">contact us</Link>.</p>
+                        <p className="text-sm text-amber-700">The seller&apos;s PayID isn&apos;t available. Please <Link href={reportHref} className="underline">contact us</Link>.</p>
                     )}
                     <ol className="list-decimal space-y-1 pl-5 text-sm text-foreground/80">
                         <li>Open your banking app and choose Pay to PayID.</li>

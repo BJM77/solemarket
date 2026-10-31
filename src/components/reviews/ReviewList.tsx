@@ -82,7 +82,7 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-white/10'
+                      className={`h-4 w-4 ${i < review.rating ? 'text-yellow-700 fill-yellow-400' : 'text-white/10'
                         }`}
                     />
                   ))}

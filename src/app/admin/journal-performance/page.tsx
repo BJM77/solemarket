@@ -17,7 +17,7 @@ export default function JournalPerformanceDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">1,204</div>
-                        <p className="text-xs text-emerald-500 mt-1">+12% vs last month</p>
+                        <p className="text-xs text-emerald-700 mt-1">+12% vs last month</p>
                     </CardContent>
                 </Card>
                 
@@ -28,7 +28,7 @@ export default function JournalPerformanceDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-emerald-500">84</div>
+                        <div className="text-3xl font-bold text-emerald-700">84</div>
                         <p className="text-xs text-muted-foreground mt-1">7% Click-through Rate</p>
                     </CardContent>
                 </Card>
@@ -40,7 +40,7 @@ export default function JournalPerformanceDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-emerald-500">$3,400</div>
+                        <div className="text-3xl font-bold text-emerald-700">$3,400</div>
                         <p className="text-xs text-muted-foreground mt-1">From 4 successful sales</p>
                     </CardContent>
                 </Card>
@@ -63,8 +63,8 @@ export default function JournalPerformanceDashboard() {
                             <tr className="border-t">
                                 <td className="p-4 font-bold">How to Spot Fake Kobe 6 Protros</td>
                                 <td className="p-4 text-muted-foreground">842</td>
-                                <td className="p-4 font-bold text-emerald-500">62</td>
-                                <td className="p-4 text-emerald-500">3</td>
+                                <td className="p-4 font-bold text-emerald-700">62</td>
+                                <td className="p-4 text-emerald-700">3</td>
                                 <td className="p-4 font-bold">$2,800</td>
                             </tr>
                         </tbody>

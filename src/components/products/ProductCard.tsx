@@ -182,8 +182,8 @@ export default function ProductCard({
     const tiers = {
       bronze: { label: 'B', classes: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
       silver: { label: 'S', classes: 'bg-slate-500/10 text-muted-foreground border-slate-500/20' },
-      gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' },
-      platinum: { label: 'P', classes: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' }
+      gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' },
+      platinum: { label: 'P', classes: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20' }
     };
     
     const tier = tiers[product.multiCardTier as keyof typeof tiers];
@@ -209,13 +209,13 @@ export default function ProductCard({
 
     if (diff > 0) {
       return (
-        <Badge variant="outline" className={cn("bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+        <Badge variant="outline" className={cn("bg-emerald-500/10 text-emerald-700 border-emerald-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
           Great Deal
         </Badge>
       );
     } else {
       return (
-        <Badge variant="outline" className={cn("bg-red-500/10 text-red-400 border-red-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
+        <Badge variant="outline" className={cn("bg-red-500/10 text-red-600 border-red-500/20 text-[9px] sm:text-[10px] uppercase font-black px-1.5 py-0.5 whitespace-nowrap", className)}>
           +{percentDiff}% Mkt
         </Badge>
       );
@@ -246,7 +246,7 @@ export default function ProductCard({
     if (product.isUntimed) {
       return (
         <div className="flex items-center gap-2">
-          <span className="text-sm font-black text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-indigo-500/20">
+          <span className="text-sm font-black text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-indigo-500/20">
             Make Offer
           </span>
           {(isAdmin || isSuperAdmin) && (
@@ -530,7 +530,7 @@ export default function ProductCard({
             {product.category}
           </span>
           {product.grade && (
-            <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded flex-shrink-0 border border-emerald-500/20">
+            <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-700 bg-emerald-500/10 px-1.5 py-0.5 rounded flex-shrink-0 border border-emerald-500/20">
               {product.grade}
             </span>
           )}
@@ -820,7 +820,7 @@ export default function ProductCard({
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
           {product.status === 'pending_approval' && (
-            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-foreground border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
+            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-700 text-foreground border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
               <Clock className="h-3 w-3" />
               WAITING FOR MINUTES
             </Badge>

@@ -38,7 +38,7 @@ export function SellerCard({
             </h3>
             <div className="flex items-center gap-3 mt-1">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-700" />
                 <span className="text-sm font-bold text-foreground">{typeof seller.rating === 'number' ? seller.rating.toFixed(1) : 'N/A'}</span>
                 <span className="text-xs text-muted-foreground">({seller.totalSales || 0} sales)</span>
               </div>
@@ -61,7 +61,7 @@ export function SellerCard({
               variant={isPhoneRevealed ? "secondary" : "default"}
               size="sm"
               onClick={onRevealPhone}
-              className={cn(isPhoneRevealed ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "")}
+              className={cn(isPhoneRevealed ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20" : "")}
             >
               <Phone className="h-4 w-4 mr-2" />
               {isPhoneRevealed ? seller.phoneNumber : "Show Phone"}

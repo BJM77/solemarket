@@ -164,7 +164,7 @@ export default function ShoeReviewDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
+           <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-600 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
              <Trash2 className="w-4 h-4 mr-1" /> Remove
            </Button>
            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
@@ -209,17 +209,17 @@ export default function ShoeReviewDetailPage() {
            
            <Card className="bg-blue-950/20 border-blue-500/20 text-white">
              <CardHeader className="py-3 px-4">
-                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-400">Capture QC Report</CardTitle>
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-blue-600">Capture QC Report</CardTitle>
              </CardHeader>
              <CardContent className="px-4 pb-3">
                 <div className="flex gap-6">
                    <div>
                      <p className="text-[8px] font-bold text-blue-500 uppercase">Sharpness</p>
-                     <p className="text-sm font-black text-blue-300">Passed</p>
+                     <p className="text-sm font-black text-blue-600">Passed</p>
                    </div>
                    <div>
                      <p className="text-[8px] font-bold text-blue-500 uppercase">Luminance</p>
-                     <p className="text-sm font-black text-blue-300">Optimal</p>
+                     <p className="text-sm font-black text-blue-600">Optimal</p>
                    </div>
                    <div className="flex-grow flex justify-end items-center">
                      <Badge className="bg-green-600 font-black text-[8px] uppercase tracking-wider border-none text-white">QC PASSED</Badge>
@@ -364,7 +364,7 @@ export default function ShoeReviewDetailPage() {
             </Card>
 
             <div className="flex items-start gap-3 p-4 bg-yellow-950/20 border border-yellow-500/20 rounded-xl">
-               <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+               <AlertCircle className="w-5 h-5 text-yellow-700 flex-shrink-0 mt-0.5" />
                <p className="text-[10px] text-yellow-200 leading-relaxed font-medium">
                  Ensure the size tag information exactly matches the sneaker brand, model, size, and SKU to verify authenticity.
                </p>

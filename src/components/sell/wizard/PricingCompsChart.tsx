@@ -64,7 +64,7 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
       <div className="flex items-center justify-between mb-3">
         <div className="space-y-0.5">
           <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1">
-            <Sparkles className="h-3 w-3 text-indigo-400" />
+            <Sparkles className="h-3 w-3 text-indigo-600" />
             Market Value Comps
           </h4>
           <p className="text-[9px] text-slate-500">Recent sold listings matching your item specs</p>
@@ -135,7 +135,7 @@ export function PricingCompsChart({ price }: PricingCompsChartProps) {
         {activePoint && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-card/95 backdrop-blur border border-border p-2.5 rounded-xl shadow-2xl animate-in fade-in zoom-in duration-200 z-30 max-w-[200px] pointer-events-none">
             <div className="flex items-center gap-1.5 border-b border-border pb-1 mb-1">
-              <Calendar className="h-3 w-3 text-indigo-400" />
+              <Calendar className="h-3 w-3 text-indigo-600" />
               <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">{activePoint.day}</span>
             </div>
             <div className="space-y-0.5">

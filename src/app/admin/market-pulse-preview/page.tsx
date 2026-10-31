@@ -37,7 +37,7 @@ export default function MarketPulsePreviewPage() {
                         <CardTitle className="text-sm text-muted-foreground">Vault Verified Average</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-emerald-500">${pulseData.vaultVerified.averagePrice}</div>
+                        <div className="text-3xl font-bold text-emerald-700">${pulseData.vaultVerified.averagePrice}</div>
                         <Badge className="mt-2" variant={pulseData.vaultVerified.premiumOverMarket > 0 ? 'default' : 'secondary'}>
                             +{pulseData.vaultVerified.premiumOverMarket}% Premium
                         </Badge>
@@ -65,7 +65,7 @@ export default function MarketPulsePreviewPage() {
                                     <td className="p-4 text-muted-foreground">{sale.soldAt.toLocaleDateString()}</td>
                                     <td className="p-4">
                                         {sale.isVaultVerified ? (
-                                            <Badge className="bg-emerald-500 hover:bg-emerald-600">Vault Verified</Badge>
+                                            <Badge className="bg-emerald-700 hover:bg-emerald-600">Vault Verified</Badge>
                                         ) : (
                                             <Badge variant="secondary">Unverified P2P</Badge>
                                         )}

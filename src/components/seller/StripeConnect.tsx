@@ -48,9 +48,9 @@ function StripeConnectInner({ stripeEnabled = false, stripeAccountId = '' }: { s
                         <div className="flex items-center gap-2">
                             <CardTitle className="text-xl font-black">Financial Gateway</CardTitle>
                             {stripeEnabled ? (
-                                <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[9px] uppercase font-black px-2">Enabled</Badge>
+                                <Badge className="bg-emerald-500/20 text-emerald-700 border-emerald-500/30 text-[9px] uppercase font-black px-2">Enabled</Badge>
                             ) : (
-                                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[9px] uppercase font-black px-2">Action Required</Badge>
+                                <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30 text-[9px] uppercase font-black px-2">Action Required</Badge>
                             )}
                         </div>
                         <CardDescription className="text-muted-foreground">Secure the protocol for automated seller payouts.</CardDescription>

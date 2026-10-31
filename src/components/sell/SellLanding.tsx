@@ -175,17 +175,17 @@ export default function SellLandingPage() {
                                             <p className="text-xs text-muted-foreground">Live Status: Active</p>
                                         </div>
                                     </div>
-                                    <Badge className="bg-green-500/20 text-green-400 border-green-500/50">New Seller</Badge>
+                                    <Badge className="bg-green-50 text-green-800 border-green-200">New Seller</Badge>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="h-4 w-full bg-slate-700 rounded animate-pulse"></div>
-                                    <div className="h-4 w-3/4 bg-slate-700 rounded animate-pulse"></div>
+                                    <div className="h-4 w-full bg-muted rounded animate-pulse"></div>
+                                    <div className="h-4 w-3/4 bg-muted rounded animate-pulse"></div>
                                     <div className="grid grid-cols-2 gap-4 pt-4">
-                                        <div className="h-24 bg-slate-700/50 rounded-xl flex flex-col items-center justify-center">
+                                        <div className="h-24 bg-muted rounded-xl flex flex-col items-center justify-center">
                                             <p className="text-xs text-muted-foreground mb-1">Items Sold</p>
                                             <p className="text-2xl font-bold">0</p>
                                         </div>
-                                        <div className="h-24 bg-slate-700/50 rounded-xl flex flex-col items-center justify-center">
+                                        <div className="h-24 bg-muted rounded-xl flex flex-col items-center justify-center">
                                             <p className="text-xs text-muted-foreground mb-1">Sales</p>
                                             <p className="text-2xl font-bold">$0.00</p>
                                         </div>
@@ -207,24 +207,24 @@ export default function SellLandingPage() {
                         <div className="grid lg:grid-cols-2">
                             <div className="p-8 md:p-16 bg-primary text-primary-foreground">
                                 <h2 className="text-4xl font-bold mb-6 leading-tight">Secure Your Seller Spot Early</h2>
-                                <p className="text-xl mb-8 text-black/80">
+                                <p className="text-xl mb-8 text-white">
                                     The first 100 sellers to register will receive:
                                 </p>
                                 <ul className="space-y-4 mb-10">
                                     <li className="flex items-center gap-3">
-                                        <div className="bg-muted rounded-full p-1"><Check className="h-4 w-4" /></div>
+                                        <div className="bg-white/20 rounded-full p-1"><Check className="h-4 w-4" /></div>
                                         <span>Founder Badge on Profile</span>
                                     </li>
                                     <li className="flex items-center gap-3">
-                                        <div className="bg-muted rounded-full p-1"><Check className="h-4 w-4" /></div>
+                                        <div className="bg-white/20 rounded-full p-1"><Check className="h-4 w-4" /></div>
                                         <span>3 Months of Zero Listing Fees</span>
                                     </li>
                                     <li className="flex items-center gap-3">
-                                        <div className="bg-muted rounded-full p-1"><Check className="h-4 w-4" /></div>
+                                        <div className="bg-white/20 rounded-full p-1"><Check className="h-4 w-4" /></div>
                                         <span>Priority Support Channel</span>
                                     </li>
                                 </ul>
-                                <div className="p-6 bg-muted rounded-2xl backdrop-blur-md">
+                                <div className="p-6 bg-blue-800 text-white rounded-2xl">
                                     <p className="text-sm italic">
                                         &quot;This platform is designed specifically to give Australian sellers and buyers a faster, safer way to trade shoes and cards.&quot;
                                     </p>

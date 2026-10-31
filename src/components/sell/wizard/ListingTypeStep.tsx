@@ -69,12 +69,12 @@ export function ListingTypeStep({
             <Card className="relative overflow-hidden transition-all duration-300 border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-zinc-950 to-zinc-900/50 shadow-lg rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto group">
                 <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
                 <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 text-emerald-400">
+                    <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 text-emerald-700">
                         <Layers className="w-6 h-6" />
                     </div>
                     <div>
                         <h3 className="text-base font-black uppercase text-foreground tracking-wide flex items-center justify-center sm:justify-start gap-2">
-                            PROLOAD <Badge className="bg-emerald-500 hover:bg-emerald-600 text-primary-foreground text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
+                            PROLOAD <Badge className="bg-emerald-700 hover:bg-emerald-600 text-primary-foreground text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
                         </h3>
                         <p className="text-muted-foreground text-xs mt-1 max-w-md">
                             Upload a Facebook Marketplace listing screenshot. Gemini will extract all info and build the listing for you!
@@ -83,7 +83,7 @@ export function ListingTypeStep({
                 </div>
                 <Button 
                     onClick={() => router.push('/sell/proload')}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-primary-foreground font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
+                    className="bg-emerald-700 hover:bg-emerald-600 text-primary-foreground font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
                 >
                     Try Proload <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -125,7 +125,7 @@ export function ListingTypeStep({
                             </div>
                             <div className="space-y-2">
                                 <h3 className="text-xl font-black text-foreground flex items-center justify-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-indigo-400 animate-pulse" /> AI Picture Check Active
+                                    <Sparkles className="h-5 w-5 text-indigo-600 animate-pulse" /> AI Picture Check Active
                                 </h3>
                                 <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs animate-pulse">
                                     {analysisStage || "Analyzing Photos..."}
@@ -152,7 +152,7 @@ export function ListingTypeStep({
                                     Take a photo, upload, or drag-and-drop photos here. The AI will auto-detect the category and pre-fill details in seconds!
                                 </p>
                                 <div className="pt-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] sm:text-xs font-bold text-indigo-300 uppercase tracking-wider">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] sm:text-xs font-bold text-indigo-600 uppercase tracking-wider">
                                         Supports front & back card shots for max accuracy
                                     </span>
                                 </div>
@@ -244,7 +244,7 @@ export function ListingTypeStep({
                 >
                     <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
                         <div className="w-16 h-16 border-2 border-yellow-500 bg-muted/60 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
-                            <GripVertical className="w-8 h-8 text-yellow-500 group-hover:text-foreground transition-colors rotate-90" />
+                            <GripVertical className="w-8 h-8 text-yellow-700 group-hover:text-foreground transition-colors rotate-90" />
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-lg font-bold text-foreground">Coins</h3>

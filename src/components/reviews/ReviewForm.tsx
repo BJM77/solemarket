@@ -116,7 +116,7 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
 
   if (hasReviewed) {
     return (
-        <div className="border border-emerald-500/20 rounded-2xl p-6 text-center bg-emerald-500/10 text-emerald-500">
+        <div className="border border-emerald-500/20 rounded-2xl p-6 text-center bg-emerald-500/10 text-emerald-700">
             <p className="font-black uppercase tracking-tight">Thank you for your review!</p>
         </div>
     )
@@ -141,7 +141,7 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
                         className={cn(
                             'h-8 w-8 cursor-pointer transition-colors',
                             (hoverRating >= star || field.value >= star)
-                            ? 'text-yellow-400 fill-yellow-400'
+                            ? 'text-yellow-700 fill-yellow-400'
                             : 'text-white/10'
                         )}
                         onMouseEnter={() => setHoverRating(star)}

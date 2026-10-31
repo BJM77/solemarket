@@ -27,11 +27,11 @@ export function TrustBadge({ score, className, showLabel = true }: TrustBadgePro
     switch (tier) {
         case 'Guaranteed Trust':
             Icon = Trophy;
-            colorClasses = "bg-amber-500/20 text-amber-500 border border-amber-500/30";
+            colorClasses = "bg-amber-500/20 text-amber-700 border border-amber-500/30";
             break;
         case 'Gold':
             Icon = Award;
-            colorClasses = "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30";
+            colorClasses = "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30";
             break;
         case 'Silver':
             Icon = Medal;

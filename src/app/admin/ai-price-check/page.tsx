@@ -115,7 +115,7 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
 
             <div className="w-full md:w-1/3 flex flex-col items-center justify-center gap-2">
                 {status === 'updated' ? (
-                    <div className="text-emerald-500 font-bold flex items-center gap-2"><Check className="h-4 w-4" /> Updated to ${recommendation?.recommendedPrice}</div>
+                    <div className="text-emerald-700 font-bold flex items-center gap-2"><Check className="h-4 w-4" /> Updated to ${recommendation?.recommendedPrice}</div>
                 ) : status === 'left' ? (
                     <div className="text-muted-foreground font-bold flex items-center gap-2"><X className="h-4 w-4" /> Left as ${product.price}</div>
                 ) : recommendation ? (

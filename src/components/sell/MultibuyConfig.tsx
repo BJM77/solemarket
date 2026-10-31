@@ -117,7 +117,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                         form.setValue('multibuyTiers', tiers);
                                     }}
                                     disabled={(form.getValues('multibuyTiers') || []).length === 1}
-                                    className="mt-5 hover:bg-red-500/10 hover:text-red-400 rounded-lg h-9 w-9 text-muted-foreground"
+                                    className="mt-5 hover:bg-red-500/10 hover:text-red-600 rounded-lg h-9 w-9 text-muted-foreground"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

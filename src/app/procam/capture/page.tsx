@@ -208,7 +208,7 @@ export default function ProPhotoBooth() {
             ) : reviewData && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
+                  <Badge className="bg-green-500/20 text-green-700 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
                   <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-muted-foreground hover:text-foreground">
                     <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} /> Re-Scan
                   </Button>
@@ -244,7 +244,7 @@ export default function ProPhotoBooth() {
                         <Label>Price (AUD)</Label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-400 font-bold" />
+                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-700 font-bold" />
                         </div>
                       </div>
                       <div className="space-y-1.5">

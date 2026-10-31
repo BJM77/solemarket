@@ -75,7 +75,7 @@ export default function VerificationForm() {
     if (user.emailVerified) {
         return (
             <div className="text-center p-8 bg-black/40 border border-border rounded-2xl max-w-md mx-auto">
-                <div className="bg-green-500/20 text-green-400 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                <div className="bg-green-500/20 text-green-700 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
                     <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2 text-foreground">Account Verified!</h2>
@@ -89,7 +89,7 @@ export default function VerificationForm() {
         <Card className="w-full max-w-lg mx-auto shadow-2xl bg-card border-border text-foreground">
             <CardHeader className="text-center pb-2">
                 <div className="mx-auto w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-4">
-                    <Mail className="w-8 h-8 text-indigo-400" />
+                    <Mail className="w-8 h-8 text-indigo-600" />
                 </div>
                 <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
                 <CardDescription className="text-muted-foreground">
@@ -98,9 +98,9 @@ export default function VerificationForm() {
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
                 <Alert className="bg-indigo-500/5 border-indigo-500/20 text-indigo-200">
-                    <AlertCircle className="h-4 w-4 text-indigo-400" />
+                    <AlertCircle className="h-4 w-4 text-indigo-600" />
                     <AlertTitle className="font-bold">Next Steps</AlertTitle>
-                    <AlertDescription className="text-indigo-300/80">
+                    <AlertDescription className="text-indigo-600/80">
                         Once you click the link in your email, refresh this page or click "Check Status" to unlock buying and offering.
                     </AlertDescription>
                 </Alert>

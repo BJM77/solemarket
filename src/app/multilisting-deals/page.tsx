@@ -170,7 +170,7 @@ export default function MultiListingDealsPage() {
                     >
                         <h3 className="font-black uppercase tracking-tight text-lg mb-2 text-foreground">{deal.name}</h3>
                         <p className="text-sm text-muted-foreground mb-3">{deal.description}</p>
-                        <div className="text-2xl font-black text-emerald-500">${deal.price.toFixed(2)}</div>
+                        <div className="text-2xl font-black text-emerald-700">${deal.price.toFixed(2)}</div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
                             {deal.requirements.platinum > 0 && `${deal.requirements.platinum} Platinum + `}
                             {deal.requirements.gold > 0 && `${deal.requirements.gold} Gold + `}
@@ -283,7 +283,7 @@ export default function MultiListingDealsPage() {
                         <div className="container mx-auto flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Bundle Total</span>
-                                <span className="text-lg font-black text-emerald-500">${selectedDeal.price.toFixed(2)}</span>
+                                <span className="text-lg font-black text-emerald-700">${selectedDeal.price.toFixed(2)}</span>
                             </div>
 
                             <Sheet>

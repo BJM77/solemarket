@@ -320,7 +320,7 @@ export default function BrandRefreshPage() {
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          {hasDraft && <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-bold text-amber-300">Unpublished changes</span>}
+          {hasDraft && <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-bold text-amber-700">Unpublished changes</span>}
           <Button
             variant="outline"
             onClick={handleSaveAll}
@@ -788,7 +788,7 @@ export default function BrandRefreshPage() {
                             size="icon"
                             variant="ghost"
                             onClick={() => removeItemFromSection(secIdx, itemIdx)}
-                            className="h-6 w-6 absolute top-2 right-2 text-muted-foreground hover:text-red-400 opacity-80 group-hover:opacity-100"
+                            className="h-6 w-6 absolute top-2 right-2 text-muted-foreground hover:text-red-600 opacity-80 group-hover:opacity-100"
                             title="Remove Card"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -960,7 +960,7 @@ export default function BrandRefreshPage() {
                               size="icon"
                               variant="ghost"
                               onClick={() => deleteMenuItem(mIdx)}
-                              className="h-8 w-8 text-muted-foreground hover:text-red-400"
+                              className="h-8 w-8 text-muted-foreground hover:text-red-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -1025,7 +1025,7 @@ export default function BrandRefreshPage() {
                                     size="icon"
                                     variant="ghost"
                                     onClick={() => deleteMenuItemSubItem(mIdx, sIdx)}
-                                    className="h-8 w-8 text-muted-foreground hover:text-red-400 shrink-0"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-600 shrink-0"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </Button>

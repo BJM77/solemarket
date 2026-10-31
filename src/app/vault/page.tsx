@@ -32,7 +32,7 @@ export default function VaultPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 font-semibold text-sm"
             >
               <ShieldCheck className="h-4 w-4" />
               <span>Official Middle-Man Service</span>
@@ -65,7 +65,7 @@ export default function VaultPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Button size="lg" className="h-14 px-8 text-lg font-bold bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-500/20">
+              <Button size="lg" className="h-14 px-8 text-lg font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-500/20">
                 Start a Vault Transaction
               </Button>
               <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold text-foreground border-slate-600 hover:bg-muted rounded-full">
@@ -239,7 +239,7 @@ export default function VaultPage() {
 function FeatureRow({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 text-foreground">
-      <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+      <CheckCircle2 className="h-5 w-5 text-emerald-700 flex-shrink-0" />
       <span>{text}</span>
     </div>
   );
@@ -271,7 +271,7 @@ function BenefitItem({ title, desc }: { title: string, desc: string }) {
   return (
     <div className="flex gap-4">
       <div className="mt-1 bg-emerald-500/10 p-1.5 rounded-full h-fit w-fit">
-        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+        <CheckCircle2 className="h-5 w-5 text-emerald-700" />
       </div>
       <div>
         <h4 className="font-black uppercase tracking-tight text-lg text-foreground">{title}</h4>
@@ -284,7 +284,7 @@ function BenefitItem({ title, desc }: { title: string, desc: string }) {
 function FAQItem({ question, answer }: { question: string, answer: string }) {
   return (
     <AccordionItem value={question} className="bg-black/40 border border-border rounded-2xl px-6 shadow-sm overflow-hidden mb-4">
-      <AccordionTrigger className="text-lg font-black uppercase tracking-tight text-foreground hover:text-emerald-400 text-left py-6">{question}</AccordionTrigger>
+      <AccordionTrigger className="text-lg font-black uppercase tracking-tight text-foreground hover:text-emerald-700 text-left py-6">{question}</AccordionTrigger>
       <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
         {answer}
       </AccordionContent>

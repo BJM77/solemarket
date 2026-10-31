@@ -284,22 +284,22 @@ export default function CheckoutPage() {
           <h1 className="text-3xl font-black tracking-tight uppercase">Checkout</h1>
 
           {/* Option 4: Inventory Hold Reservation Timer */}
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-400">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-700">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-700"></span>
             </span>
             <span>Item held for:</span>
-            <span className="font-mono text-sm text-amber-300">{formatTimer(timeLeft)}</span>
+            <span className="font-mono text-sm text-amber-700">{formatTimer(timeLeft)}</span>
           </div>
         </div>
 
         {/* Buyer protection */}
-        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-300">
-          <Shield className="h-6 w-6 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-700">
+          <Shield className="h-6 w-6 text-emerald-700 shrink-0 mt-0.5" />
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">Stay safe when you pay</h3>
-            <p className="text-xs text-emerald-400/80 leading-relaxed mt-1">
+            <p className="text-xs text-emerald-700/80 leading-relaxed mt-1">
               You pay the seller directly. Only pay to the PayID shown on your Benched order page, always with your order reference.
               Never pay a PayID or bank account sent to you by message, email or text. Something not right?{' '}
               <Link href="/contact?topic=order-problem" className="underline font-semibold">Report a problem</Link>.
@@ -335,7 +335,7 @@ export default function CheckoutPage() {
                         <MapPin className="h-4 w-4 text-muted-foreground" /> Local Pickup
                       </p>
                       <p className="text-xs text-muted-foreground">Collect in-person directly from the seller.</p>
-                      <p className="text-xs font-semibold text-emerald-400">Free</p>
+                      <p className="text-xs font-semibold text-emerald-700">Free</p>
                     </div>
                   </Label>
 
@@ -483,7 +483,7 @@ export default function CheckoutPage() {
                       <p className="font-bold text-foreground">PayID (bank transfer to the seller)</p>
                       <p className="text-xs text-muted-foreground">After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
                       {sellersWithoutPayId.length > 0 && (
-                        <p className="text-xs text-amber-400 font-semibold">
+                        <p className="text-xs text-amber-700 font-semibold">
                           {sellersWithoutPayId.map(s => s.sellerName || 'A seller').join(', ')} can&apos;t take PayID yet. Pay cash at pickup or remove their items.
                         </p>
                       )}
@@ -560,7 +560,7 @@ export default function CheckoutPage() {
               <CardContent className="space-y-4">
                 <TierNudges pricing={pricing} sellerNames={Object.fromEntries(items.map(i => [i.sellerId, i.sellerName || 'this seller']))} />
                 {pricing.savings > 0.004 && (
-                  <div className="flex justify-between text-sm text-emerald-400 font-semibold">
+                  <div className="flex justify-between text-sm text-emerald-700 font-semibold">
                     <span>Bundle savings</span>
                     <span>-${formatPrice(pricing.savings)}</span>
                   </div>
@@ -575,7 +575,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-emerald-400 font-bold">
+                  <div className="flex justify-between text-sm text-emerald-700 font-bold">
                     <span>Discount ({appliedPromo})</span>
                     <span>-${formatPrice(discountAmount)}</span>
                   </div>
@@ -619,7 +619,7 @@ export default function CheckoutPage() {
                     <p className="text-[10px] text-rose-500 font-bold mt-1.5">{promoError}</p>
                   )}
                   {appliedPromo && (
-                    <p className="text-[10px] text-emerald-400 font-bold mt-1.5">Promo code applied successfully!</p>
+                    <p className="text-[10px] text-emerald-700 font-bold mt-1.5">Promo code applied successfully!</p>
                   )}
                 </div>
 

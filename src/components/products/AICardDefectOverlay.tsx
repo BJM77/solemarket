@@ -75,8 +75,8 @@ export function AICardDefectOverlay({ imageUrl, defects = [], imageIndex }: AICa
         <div className="absolute bottom-4 left-4 right-4 bg-card/90 backdrop-blur border border-red-500/30 p-3 rounded-xl shadow-2xl animate-in slide-in-from-bottom-2 duration-300 flex items-start gap-2.5 z-30">
           <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <h6 className="text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-red-400 animate-pulse" />
+            <h6 className="text-[10px] font-bold text-red-600 uppercase tracking-widest flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-red-600 animate-pulse" />
               AI Defect Detection
             </h6>
             <p className="text-xs font-semibold text-foreground leading-relaxed">{activeDefect.description}</p>

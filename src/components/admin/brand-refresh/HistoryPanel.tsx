@@ -51,7 +51,7 @@ export function HistoryPanel({ refreshKey, onRestored }: { refreshKey: number; o
             {items.map((h, i) => (
               <li key={h.id} className="flex items-center justify-between gap-4 py-3">
                 <div className="text-sm">
-                  <div className="font-bold">{new Date(h.publishedAt).toLocaleString('en-AU')}{i === 0 && <span className="ml-2 rounded bg-green-500/20 px-2 py-0.5 text-xs text-green-300">Live</span>}</div>
+                  <div className="font-bold">{new Date(h.publishedAt).toLocaleString('en-AU')}{i === 0 && <span className="ml-2 rounded bg-green-500/20 px-2 py-0.5 text-xs text-green-700">Live</span>}</div>
                   <div className="text-muted-foreground">{h.restoredFrom ? `Restored from ${h.restoredFrom.slice(0, 6)}` : h.note || 'Published'} · {h.publishedBy?.slice(0, 8)}</div>
                 </div>
                 {i > 0 && (

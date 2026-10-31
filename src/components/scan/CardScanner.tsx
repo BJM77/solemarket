@@ -135,7 +135,7 @@ export function CardScanner() {
                                     
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <div className="bg-card/80 backdrop-blur-md text-foreground px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest border border-border shadow-2xl flex items-center gap-2">
-                                            <ScanLine className="w-4 h-4 text-indigo-400" />
+                                            <ScanLine className="w-4 h-4 text-indigo-600" />
                                             Is the text sharp?
                                         </div>
                                     </div>
@@ -171,7 +171,7 @@ export function CardScanner() {
                             <div className="bg-card rounded-3xl p-6 shadow-xl border border-border">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
-                                        <CheckCircle2 className="w-6 h-6 text-indigo-400" />
+                                        <CheckCircle2 className="w-6 h-6 text-indigo-600" />
                                     </div>
                                     <div>
                                         <h4 className="font-black text-foreground leading-none">Verify Photo</h4>
@@ -203,7 +203,7 @@ export function CardScanner() {
                             <Card className="border border-border shadow-2xl rounded-[32px] overflow-hidden bg-card">
                             <div className="h-2 w-full bg-indigo-600"></div>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center gap-3 text-indigo-400">
+                                <div className="flex items-center gap-3 text-indigo-600">
                                     <Sparkles className="w-8 h-8" />
                                     <span className="font-black text-2xl tracking-tight uppercase text-foreground">Identified!</span>
                                 </div>
@@ -223,7 +223,7 @@ export function CardScanner() {
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Market Value</p>
-                                        <p className="font-black text-emerald-500 text-2xl">${analysisResult.price}</p>
+                                        <p className="font-black text-emerald-700 text-2xl">${analysisResult.price}</p>
                                     </div>
                                 </div>
 

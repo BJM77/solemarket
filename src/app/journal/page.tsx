@@ -21,7 +21,7 @@ export default function JournalIndexPage() {
             <div className="max-w-6xl mx-auto px-4">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
-                        The Benched <span className="text-emerald-500">Journal</span>
+                        The Benched <span className="text-emerald-700">Journal</span>
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                         Authentication deep-dives, market reports, and buying guides built for Australian collectors.
@@ -39,7 +39,7 @@ export default function JournalIndexPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
                             
                             <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full md:w-2/3">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500 text-primary-foreground rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-700 text-primary-foreground rounded-full text-xs font-bold uppercase tracking-widest mb-4">
                                     {featuredArticle.category}
                                 </div>
                                 <h2 className="text-3xl md:text-5xl font-black uppercase text-foreground mb-4 leading-tight group-hover:underline underline-offset-4">
@@ -71,7 +71,7 @@ export default function JournalIndexPage() {
                                             style={{ backgroundImage: `url(${article.coverImage})` }}
                                         />
                                         <CardHeader>
-                                            <div className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">
+                                            <div className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-2">
                                                 {article.category}
                                             </div>
                                             <CardTitle className="text-xl group-hover:underline underline-offset-4">

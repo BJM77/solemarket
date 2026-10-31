@@ -176,7 +176,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                         </Button>
                                     )}
                                     {bid.status === 'accepted' && (
-                                        <Badge className="bg-green-500 text-white border-none text-[10px] font-black h-6 px-3">ACCEPTED</Badge>
+                                        <Badge className="bg-green-700 text-white border-none text-[10px] font-black h-6 px-3">ACCEPTED</Badge>
                                     )}
                                 </div>
                             </motion.div>
