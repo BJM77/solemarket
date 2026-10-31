@@ -124,8 +124,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     subText2: 'Metro Perth Collection or Express Freight Solutions Available',
     buttons: [
       { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#2563eb', textColor: '#ffffff' },
-      { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#0f172a', textColor: '#ffffff' },
-      { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#ca8a04', textColor: '#ffffff' },
+      { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#2563eb', textColor: '#ffffff' },
+      { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#2563eb', textColor: '#ffffff' },
     ],
   },
   sections: [

@@ -1,6 +1,5 @@
 'use client';
 
-import { accessibleTextColor } from "@/lib/utils/contrast";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,20 +34,19 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
                         {hero.buttons && hero.buttons.map((btn) => (
-                            <Link 
+                            <Link
                                 key={btn.id}
-                                href={btn.href} 
-                                style={{ backgroundColor: btn.bgColor, color: accessibleTextColor(btn.bgColor, btn.textColor) }}
-                                className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(37, 99, 235,0.4)] flex items-center justify-center gap-2 text-sm md:text-base"
+                                href={btn.href}
+                                className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-primary border border-blue-200 shadow-sm transition-colors hover:bg-blue-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-blue-300 dark:border-slate-700 dark:hover:bg-slate-800"
                             >
                                 {btn.label}
                             </Link>
                         ))}
-                        <Link 
-                            href="/sell" 
-                            className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(37, 99, 235,0.4)] flex items-center justify-center gap-2 text-sm md:text-base bg-white text-black border-2 border-slate-200 hover:border-white"
+                        <Link
+                            href="/sell"
+                            className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
-                            Sell Now (0% Fees)
+                            Sell Now <span className="font-normal text-blue-100">· 0% fees</span>
                         </Link>
                     </div>
 
