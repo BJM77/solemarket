@@ -12,9 +12,11 @@ import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 export interface ProductGridProps {
   products: Product[];
+  /** How many leading cards load eagerly with high fetch priority. */
+  priorityCount?: number;
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+export default function ProductGrid({ products, priorityCount = 6 }: ProductGridProps) {
   const { canSell } = useUserPermissions();
 
   if (!products || products.length === 0) {
@@ -39,7 +41,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
       className="grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-4 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 xl:gap-x-8 mt-8 max-w-full overflow-hidden"
     >
       {products.map((product, index) => (
-        <ProductCard key={product.id} product={product} priority={index < 6} />
+        <ProductCard key={product.id} product={product} priority={index < priorityCount} />
       ))}
     </div>
   );

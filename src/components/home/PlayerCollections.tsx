@@ -15,7 +15,7 @@ const VAULT_ITEMS = [
             { name: 'Victor Wembanyama', count: '8 available', color: 'bg-teal-700' },
         ],
         href: '/cards?grade=PSA10',
-        image: 'https://images.unsplash.com/photo-1621811693633-91ee0a76a591?auto=format&fit=crop&q=80&w=800'
+        image: 'https://images.unsplash.com/photo-1621811693633-91ee0a76a591?auto=format&fit=crop&q=70&w=640'
     },
     {
         id: 'rare-autos',
@@ -27,7 +27,7 @@ const VAULT_ITEMS = [
             { name: 'Luka Doncic', count: '22 available', color: 'bg-indigo-500' },
         ],
         href: '/cards?type=Autograph',
-        image: 'https://images.unsplash.com/photo-1542157140-1014cc679469?auto=format&fit=crop&q=80&w=800'
+        image: 'https://images.unsplash.com/photo-1542157140-1014cc679469?auto=format&fit=crop&q=70&w=640'
     }
 ];
 
@@ -60,6 +60,8 @@ export function PlayerCollections() {
                             <img
                                 src={collection.image}
                                 alt={collection.title}
+                                loading="lazy"
+                                decoding="async"
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 dark:opacity-40 grayscale group-hover:grayscale-0"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent dark:from-black dark:via-black/60" />
