@@ -15,15 +15,15 @@ export function ProvenanceLedger({ data }: { data: ProvenanceData }) {
   }
 
   return (
-    <Card className="bg-black border-white/10 rounded-xl overflow-hidden">
-      <CardHeader className="bg-white/5 pb-4 border-b border-white/10">
+    <Card className="bg-background border-border rounded-xl overflow-hidden">
+      <CardHeader className="bg-muted/60 pb-4 border-b border-border">
         <CardTitle className="text-lg flex items-center gap-2">
           <Activity className="h-5 w-5 text-emerald-500" />
           Provenance Ledger
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="divide-y divide-white/5 text-sm">
+        <div className="divide-y divide-border text-sm">
 
           <Row icon={<Calendar className="h-4 w-4" />} label="Listed">
             {listedLabel}
@@ -66,7 +66,7 @@ function Row({
         {icon}
         <span>{label}</span>
       </div>
-      <div className="font-medium text-white">{children}</div>
+      <div className="font-medium text-foreground">{children}</div>
     </div>
   );
 }

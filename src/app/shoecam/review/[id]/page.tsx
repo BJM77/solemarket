@@ -144,30 +144,30 @@ export default function ShoeReviewDetailPage() {
   };
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-black">
+    <div className="h-screen flex items-center justify-center bg-background">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
 
-  if (!item) return <div className="h-screen flex items-center justify-center bg-black text-white">Sneaker capture not found.</div>;
+  if (!item) return <div className="h-screen flex items-center justify-center bg-background text-foreground">Sneaker capture not found.</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
-      <header className="flex items-center justify-between p-4 bg-zinc-900 border-b border-white/10 sticky top-0 z-10 shadow-sm">
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <header className="flex items-center justify-between p-4 bg-card border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam/review')} className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/shoecam/review')} className="text-muted-foreground hover:text-foreground hover:bg-muted">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-white">Verification Workspace</h1>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Sneaker Client ID: {item.id.substring(0,8)}</p>
+            <h1 className="text-lg font-black uppercase font-headline tracking-tighter text-foreground">Verification Workspace</h1>
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Sneaker Client ID: {item.id.substring(0,8)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/25 font-bold uppercase text-[10px]" onClick={handleDelete}>
              <Trash2 className="w-4 h-4 mr-1" /> Remove
            </Button>
-           <Button className="bg-primary text-black hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
+           <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-black uppercase text-[10px] px-6" onClick={handleUpdate} disabled={saving}>
              {saving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
              Confirm & Verify
            </Button>
@@ -177,30 +177,30 @@ export default function ShoeReviewDetailPage() {
       <main className="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Visual Evidence Section */}
         <div className="space-y-6">
-           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+           <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
              <History className="w-3.5 h-3.5" /> High-Resolution Evidence
            </h2>
            <div className="grid grid-cols-2 gap-4">
-              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
-                <div className="w-full h-full relative bg-zinc-950">
+              <Card className="overflow-hidden border-2 border-border bg-card aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-background">
                   <Image src={item.front45ImagePath} alt="Front 45" fill className="object-cover" />
                   <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Front 45°</Badge>
                 </div>
               </Card>
-              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
-                <div className="w-full h-full relative bg-zinc-950">
+              <Card className="overflow-hidden border-2 border-border bg-card aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-background">
                   <Image src={item.sideImagePath} alt="Side View" fill className="object-cover" />
                   <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Side View</Badge>
                 </div>
               </Card>
-              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
-                <div className="w-full h-full relative bg-zinc-950">
+              <Card className="overflow-hidden border-2 border-border bg-card aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-background">
                   <Image src={item.topImagePath} alt="Top View" fill className="object-cover" />
                   <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Top View</Badge>
                 </div>
               </Card>
-              <Card className="overflow-hidden border-2 border-white/10 bg-zinc-900 aspect-square rounded-xl">
-                <div className="w-full h-full relative bg-zinc-950">
+              <Card className="overflow-hidden border-2 border-border bg-card aspect-square rounded-xl">
+                <div className="w-full h-full relative bg-background">
                   <Image src={item.labelImagePath} alt="Size Tag" fill className="object-cover" />
                   <Badge className="absolute top-2 left-2 bg-black/80 font-black text-[8px] border-none uppercase text-white px-2 py-0.5">Inner Tag</Badge>
                 </div>
@@ -231,7 +231,7 @@ export default function ShoeReviewDetailPage() {
 
         {/* Metadata Management Section */}
         <div className="space-y-6">
-           <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center justify-between w-full">
+           <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center justify-between w-full">
              <div className="flex items-center gap-2">
                <BadgeCheck className="w-3.5 h-3.5" /> Structured Sneaker Details
              </div>
@@ -247,12 +247,12 @@ export default function ShoeReviewDetailPage() {
              </Button>
            </h2>
            
-           <Card className="bg-zinc-900 border-white/10 text-white shadow-none">
+           <Card className="bg-card border-border text-foreground shadow-none">
              <CardContent className="pt-6">
                   <form className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-lg border border-white/5 mb-6">
+                    <div className="flex items-center justify-between p-3 bg-background rounded-lg border border-border mb-6">
                       <div>
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">ID Source</p>
+                        <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">ID Source</p>
                         <p className="text-[10px] font-black uppercase text-primary flex items-center gap-1">
                           <Gem className="w-3 h-3 text-primary" /> {item.identificationSource || 'PENDING'} 
                         </p>
@@ -261,85 +261,85 @@ export default function ShoeReviewDetailPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5 col-span-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Brand</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Brand</Label>
                         <Input 
                           value={item.brand || ''} 
                           onChange={e => setItem({...item, brand: e.target.value})}
-                          className="font-bold bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-bold bg-background border-border text-foreground focus:ring-primary" 
                         />
                       </div>
                       <div className="space-y-1.5 col-span-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Model Name</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Model Name</Label>
                         <Input 
                           value={item.model || ''} 
                           onChange={e => setItem({...item, model: e.target.value})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Style Code (SKU)</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Style Code (SKU)</Label>
                         <Input 
                           value={item.styleCode || ''} 
                           onChange={e => setItem({...item, styleCode: e.target.value})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Size US</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Size US</Label>
                         <Input 
                           value={item.sizeUs || ''} 
                           onChange={e => setItem({...item, sizeUs: e.target.value})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                         />
                       </div>
                       <div className="space-y-1.5 col-span-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Colorway</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Colorway</Label>
                         <Input 
                           value={item.colorway || ''} 
                           onChange={e => setItem({...item, colorway: e.target.value})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sub-Category</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sub-Category</Label>
                         <Input 
                           value={item.subCategory || ''} 
                           onChange={e => setItem({...item, subCategory: e.target.value})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                           placeholder="e.g. Jordan"
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Release Year</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Release Year</Label>
                         <Input 
                           type="number"
                           value={item.year || ''} 
                           onChange={e => setItem({...item, year: parseInt(e.target.value)})}
-                          className="font-medium bg-zinc-950 border-white/10 text-white focus:ring-primary" 
+                          className="font-medium bg-background border-border text-foreground focus:ring-primary" 
                           placeholder="e.g. 2018"
                         />
                       </div>
 
                       <div className="space-y-1.5 col-span-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">AI Listing Description</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">AI Listing Description</Label>
                         <textarea
                           value={item.description || ''}
                           onChange={e => setItem({...item, description: e.target.value})}
                           placeholder="Gemini is analyzing the sneaker tag..."
-                          className="w-full min-h-[70px] rounded-lg border border-white/10 bg-zinc-950 p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-white placeholder-zinc-600"
+                          className="w-full min-h-[70px] rounded-lg border border-border bg-background p-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none text-foreground placeholder-zinc-600"
                         />
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-white/5">
+                    <div className="pt-4 border-t border-border">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Condition</Label>
                           <Select value={item.condition || 'New'} onValueChange={val => setItem({...item, condition: val})}>
-                            <SelectTrigger className="border-primary/20 bg-zinc-950 text-white font-black uppercase text-[10px]">
+                            <SelectTrigger className="border-primary/20 bg-background text-foreground font-black uppercase text-[10px]">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                            <SelectContent className="bg-card border-border text-foreground">
                               <SelectItem value="New">Brand New / DS</SelectItem>
                               <SelectItem value="Like New">VNDS / Like New</SelectItem>
                               <SelectItem value="Lightly Worn">Lightly Worn</SelectItem>
@@ -354,7 +354,7 @@ export default function ShoeReviewDetailPage() {
                             type="number" 
                             value={item.price || ''} 
                             onChange={e => setItem({...item, price: parseFloat(e.target.value)})}
-                            className="font-black border-primary/20 bg-zinc-950 text-white focus:ring-primary" 
+                            className="font-black border-primary/20 bg-background text-foreground focus:ring-primary" 
                           />
                         </div>
                       </div>

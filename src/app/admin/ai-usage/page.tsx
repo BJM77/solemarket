@@ -236,23 +236,23 @@ export default function AIUsagePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-slate-900 text-white">
+                    <Card className="bg-card text-foreground">
                         <CardHeader>
                             <div className="flex items-center gap-2">
                                 <Cpu className="h-5 w-5 text-emerald-400" />
-                                <CardTitle className="text-white">Cost Optimization</CardTitle>
+                                <CardTitle className="text-foreground">Cost Optimization</CardTitle>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
-                                <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Total Project Cost</div>
+                            <div className="flex justify-between items-center bg-muted/60 p-3 rounded-lg border border-border">
+                                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Project Cost</div>
                                 <div className="text-xl font-black text-emerald-400">${(typeof stats.totalCost === 'number' ? stats.totalCost : Number(stats.totalCost || 0)).toFixed(4)}</div>
                             </div>
-                            <div className="text-xs text-slate-400 leading-relaxed">
+                            <div className="text-xs text-muted-foreground leading-relaxed">
                                 You are currently using <span className="text-emerald-400 font-bold">Gemini 1.5 Flash</span>.
                                 Its vision capabilities are optimized for low-latency assessment of collector cards and documents.
                                 <br /><br />
-                                <span className="font-bold text-white uppercase tracking-tighter">Recommendation:</span> High success rate observed. No infrastructure changes required.
+                                <span className="font-bold text-foreground uppercase tracking-tighter">Recommendation:</span> High success rate observed. No infrastructure changes required.
                             </div>
                         </CardContent>
                     </Card>

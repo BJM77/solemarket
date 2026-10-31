@@ -67,7 +67,7 @@ export default function ModerationPage() {
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Live Moderation Queue */}
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-red-500" />
@@ -83,7 +83,7 @@ export default function ModerationPage() {
               </div>
             ) : (
               queue.map((item) => (
-                <div key={item.id} className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                <div key={item.id} className="p-4 bg-background rounded-xl border border-border flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                   <div>
                     <div className="flex gap-2 items-center mb-1">
                       <Badge variant={item.type === 'Product' ? 'default' : 'secondary'}>{item.type}</Badge>
@@ -104,7 +104,7 @@ export default function ModerationPage() {
         </Card>
 
         {/* AI Testing Sandbox */}
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-500" />
@@ -120,7 +120,7 @@ export default function ModerationPage() {
                 placeholder="Product Name (e.g. Jordan 1 Chicago)"
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
-                className="bg-slate-950 border-slate-800"
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
@@ -128,7 +128,7 @@ export default function ModerationPage() {
                 placeholder="Product Description (Paste questionable description here...)"
                 value={productDescription}
                 onChange={(e) => setProductDescription(e.target.value)}
-                className="min-h-[150px] bg-slate-950 border-slate-800"
+                className="min-h-[150px] bg-background border-border"
               />
             </div>
 

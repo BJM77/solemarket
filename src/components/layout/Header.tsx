@@ -32,7 +32,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-40 bg-black/90 backdrop-blur-md transition-all duration-300 border-b border-white/5">
+      <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-40 bg-background/95 shadow-sm backdrop-blur-md transition-all duration-300 border-b border-border">
         <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between gap-2 lg:gap-8">
           <div className={cn("flex items-center gap-2 lg:gap-8 flex-1", isPinned && "w-full")}>
             {isClient && <MobileNav />}

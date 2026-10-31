@@ -170,7 +170,7 @@ export default function BrandRefreshPage() {
       id: `item_${Date.now()}`,
       name: 'New Category',
       href: '/shoes',
-      color: 'bg-zinc-900',
+      color: 'bg-card',
     };
     updateSection(secIndex, { items: [...sec.items, newItem] });
   };
@@ -306,15 +306,15 @@ export default function BrandRefreshPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8 max-w-7xl mx-auto space-y-8 font-sans">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 max-w-7xl mx-auto space-y-8 font-sans">
       {/* Top Header & Sticky Save Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-900/90 border border-white/10 p-6 rounded-2xl backdrop-blur-md sticky top-4 z-40 shadow-2xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card/90 border border-border p-6 rounded-2xl backdrop-blur-md sticky top-4 z-40 shadow-2xl">
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Brand Refresh & Customizer</h1>
           </div>
-          <p className="text-sm text-zinc-400 font-medium mt-1">
+          <p className="text-sm text-muted-foreground font-medium mt-1">
             Edit colours, logos, fonts, menus, homepage, footer, SEO defaults and the announcement banner. Save a draft, preview it, then publish.
           </p>
         </div>
@@ -325,7 +325,7 @@ export default function BrandRefreshPage() {
             variant="outline"
             onClick={handleSaveAll}
             disabled={isSaving || isPublishing}
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border-border text-foreground hover:bg-muted"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
             Save draft
@@ -334,14 +334,14 @@ export default function BrandRefreshPage() {
             variant="outline"
             onClick={handlePreview}
             disabled={isSaving || isPublishing}
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border-border text-foreground hover:bg-muted"
           >
             <Eye className="w-4 h-4 mr-2" /> Preview draft
           </Button>
           <Button
             onClick={handlePublish}
             disabled={isSaving || isPublishing}
-            className="bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-wider px-6"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-wider px-6"
           >
             {isPublishing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
             Publish
@@ -351,7 +351,7 @@ export default function BrandRefreshPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="theme" className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-7 h-auto bg-zinc-900 border border-white/10 p-1 rounded-xl mb-8">
+        <TabsList className="grid grid-cols-2 md:grid-cols-7 h-auto bg-card border border-border p-1 rounded-xl mb-8">
           <TabsTrigger value="theme" className="data-[state=active]:bg-primary data-[state=active]:text-black font-bold">
             <Palette className="w-4 h-4 mr-2" /> Global Colors & Logo
           </TabsTrigger>
@@ -371,59 +371,59 @@ export default function BrandRefreshPage() {
 
         {/* TAB 1: BRAND COLORS & LOGO */}
         <TabsContent value="theme" className="space-y-6">
-          <Card className="bg-zinc-900 border-white/10 text-white">
+          <Card className="bg-card border-border text-foreground">
             <CardHeader>
               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
                 <Palette className="w-5 h-5" /> Site-Wide Color Palette
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 These colors automatically roll out across all pages, buttons, and navigation tickers on Benched.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               {/* Primary Color */}
-              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-white/5">
-                <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Main Primary Brand Color</Label>
+              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-border">
+                <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Main Primary Brand Color</Label>
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
-                    value={formData.branding.primaryColor.startsWith('#') ? formData.branding.primaryColor : '#f26c0d'}
+                    value={formData.branding.primaryColor.startsWith('#') ? formData.branding.primaryColor : '#2563eb'}
                     onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
                     className="w-12 h-12 rounded-lg cursor-pointer border-0 bg-transparent"
                   />
                   <Input
                     value={formData.branding.primaryColor}
                     onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
-                    placeholder="e.g. 25 90% 50% or #f26c0d"
-                    className="bg-zinc-950 border-white/10 font-mono text-sm"
+                    placeholder="e.g. 25 90% 50% or #2563eb"
+                    className="bg-background border-border font-mono text-sm"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-500">Affects highlights, badges, active links, and brand glows.</p>
+                <p className="text-[10px] text-muted-foreground">Affects highlights, badges, active links, and brand glows.</p>
               </div>
 
               {/* Button Color */}
-              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-white/5">
-                <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Default Button Color</Label>
+              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-border">
+                <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Default Button Color</Label>
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
-                    value={formData.branding.buttonColor.startsWith('#') ? formData.branding.buttonColor : '#f26c0d'}
+                    value={formData.branding.buttonColor.startsWith('#') ? formData.branding.buttonColor : '#2563eb'}
                     onChange={(e) => handleBrandingChange('buttonColor', e.target.value)}
                     className="w-12 h-12 rounded-lg cursor-pointer border-0 bg-transparent"
                   />
                   <Input
                     value={formData.branding.buttonColor}
                     onChange={(e) => handleBrandingChange('buttonColor', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-mono text-sm"
+                    className="bg-background border-border font-mono text-sm"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-500">Sets the background color for main interactive call-to-action buttons.</p>
+                <p className="text-[10px] text-muted-foreground">Sets the background color for main interactive call-to-action buttons.</p>
               </div>
 
               {/* Button Text Color */}
-              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-white/5">
-                <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Button Text Color</Label>
+              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-border">
+                <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Button Text Color</Label>
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
@@ -434,15 +434,15 @@ export default function BrandRefreshPage() {
                   <Input
                     value={formData.branding.buttonTextColor}
                     onChange={(e) => handleBrandingChange('buttonTextColor', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-mono text-sm"
+                    className="bg-background border-border font-mono text-sm"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-500">Sets text color inside main buttons.</p>
+                <p className="text-[10px] text-muted-foreground">Sets text color inside main buttons.</p>
               </div>
 
               {/* Ticker BG Color */}
-              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-white/5">
-                <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Market Ticker Background</Label>
+              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-border">
+                <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Market Ticker Background</Label>
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
@@ -453,15 +453,15 @@ export default function BrandRefreshPage() {
                   <Input
                     value={formData.branding.tickerBgColor}
                     onChange={(e) => handleBrandingChange('tickerBgColor', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-mono text-sm"
+                    className="bg-background border-border font-mono text-sm"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-500">Custom background color for the live top ticker bar.</p>
+                <p className="text-[10px] text-muted-foreground">Custom background color for the live top ticker bar.</p>
               </div>
 
               {/* Ticker Text Color */}
-              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-white/5">
-                <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Market Ticker Text Color</Label>
+              <div className="space-y-2 bg-black/50 p-4 rounded-xl border border-border">
+                <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Market Ticker Text Color</Label>
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
@@ -472,30 +472,30 @@ export default function BrandRefreshPage() {
                   <Input
                     value={formData.branding.tickerTextColor}
                     onChange={(e) => handleBrandingChange('tickerTextColor', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-mono text-sm"
+                    className="bg-background border-border font-mono text-sm"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-500">Custom text color for items scrolling in ticker.</p>
+                <p className="text-[10px] text-muted-foreground">Custom text color for items scrolling in ticker.</p>
               </div>
 
             </CardContent>
           </Card>
 
           {/* Logo Uploader */}
-          <Card className="bg-zinc-900 border-white/10 text-white">
+          <Card className="bg-card border-border text-foreground">
             <CardHeader>
               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
                 <ImageIcon className="w-5 h-5" /> Brand Logo Manager
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Upload and configure the primary website logo and secondary branding assets.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               
               {/* Site Header Logo */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-white/5">
-                <div className="w-32 h-32 bg-zinc-950 border border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
+              <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-border">
+                <div className="w-32 h-32 bg-background border border-border rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
                   <Image
                     src={formData.branding.siteLogoUrl || '/benchedlogo.png'}
                     alt="Website Site Logo"
@@ -508,11 +508,11 @@ export default function BrandRefreshPage() {
                 <div className="space-y-4 flex-grow w-full">
                   <div className="space-y-1">
                     <Label className="font-bold text-sm text-primary uppercase tracking-wider">Website Site Logo</Label>
-                    <p className="text-xs text-zinc-400">This is the main website logo displayed in the header, footer, and navigation. (Max 2MB).</p>
+                    <p className="text-xs text-muted-foreground">This is the main website logo displayed in the header, footer, and navigation. (Max 2MB).</p>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <label className="cursor-pointer bg-primary text-black font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition">
+                    <label className="cursor-pointer bg-primary text-primary-foreground font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition">
                       {isUploadingSiteLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                       {isUploadingSiteLogo ? 'Uploading...' : 'Choose File'}
                       <input
@@ -527,15 +527,15 @@ export default function BrandRefreshPage() {
                       value={formData.branding.siteLogoUrl || ''}
                       onChange={(e) => handleBrandingChange('siteLogoUrl', e.target.value)}
                       placeholder="Or enter image URL (e.g. /benchedlogo.png)"
-                      className="bg-zinc-950 border-white/10 font-mono text-xs flex-grow"
+                      className="bg-background border-border font-mono text-xs flex-grow"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Secondary Brand Image */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-white/5">
-                <div className="w-32 h-32 bg-zinc-950 border border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
+              <div className="flex flex-col sm:flex-row items-center gap-6 bg-black/50 p-6 rounded-2xl border border-border">
+                <div className="w-32 h-32 bg-background border border-border rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0">
                   <Image
                     src={formData.branding.logoUrl || '/benched.png'}
                     alt="Secondary Brand Image"
@@ -547,12 +547,12 @@ export default function BrandRefreshPage() {
 
                 <div className="space-y-4 flex-grow w-full">
                   <div className="space-y-1">
-                    <Label className="font-bold text-sm text-zinc-300 uppercase tracking-wider">Secondary Brand Image</Label>
-                    <p className="text-xs text-zinc-400">Used for secondary branding contexts, court graphics, or generic brand placement. (Max 2MB).</p>
+                    <Label className="font-bold text-sm text-foreground/80 uppercase tracking-wider">Secondary Brand Image</Label>
+                    <p className="text-xs text-muted-foreground">Used for secondary branding contexts, court graphics, or generic brand placement. (Max 2MB).</p>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <label className="cursor-pointer bg-zinc-800 text-white font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-zinc-700 transition">
+                    <label className="cursor-pointer bg-muted text-foreground font-black uppercase text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-secondary transition">
                       {isUploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                       {isUploadingLogo ? 'Uploading...' : 'Choose File'}
                       <input
@@ -567,7 +567,7 @@ export default function BrandRefreshPage() {
                       value={formData.branding.logoUrl || ''}
                       onChange={(e) => handleBrandingChange('logoUrl', e.target.value)}
                       placeholder="Or enter image URL (e.g. /benched.png)"
-                      className="bg-zinc-950 border-white/10 font-mono text-xs flex-grow"
+                      className="bg-background border-border font-mono text-xs flex-grow"
                     />
                   </div>
                 </div>
@@ -579,12 +579,12 @@ export default function BrandRefreshPage() {
 
         {/* TAB 2: HERO SECTION EDITOR */}
         <TabsContent value="hero" className="space-y-6">
-          <Card className="bg-zinc-900 border-white/10 text-white">
+          <Card className="bg-card border-border text-foreground">
             <CardHeader>
               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
                 <Type className="w-5 h-5" /> Front Hero Banner Settings
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Update the main H1 headline, subheadings, and action buttons on the home screen.
               </CardDescription>
             </CardHeader>
@@ -593,20 +593,20 @@ export default function BrandRefreshPage() {
               {/* Headlines */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">H1 Headline Line 1</Label>
+                  <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">H1 Headline Line 1</Label>
                   <Input
                     value={formData.hero.h1TitleLine1}
                     onChange={(e) => handleHeroChange('h1TitleLine1', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-bold"
+                    className="bg-background border-border font-bold"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">H1 Headline Line 2 (Gradient Highlight)</Label>
+                  <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">H1 Headline Line 2 (Gradient Highlight)</Label>
                   <Input
                     value={formData.hero.h1TitleLine2}
                     onChange={(e) => handleHeroChange('h1TitleLine2', e.target.value)}
-                    className="bg-zinc-950 border-white/10 font-bold text-primary"
+                    className="bg-background border-border font-bold text-primary"
                   />
                 </div>
               </div>
@@ -614,36 +614,36 @@ export default function BrandRefreshPage() {
               {/* Subtitles */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Subtitle Line 1</Label>
+                  <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Subtitle Line 1</Label>
                   <Input
                     value={formData.hero.subText1}
                     onChange={(e) => handleHeroChange('subText1', e.target.value)}
-                    className="bg-zinc-950 border-white/10"
+                    className="bg-background border-border"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="font-bold text-xs uppercase tracking-wider text-zinc-300">Subtitle Line 2 (Highlighted Text)</Label>
+                  <Label className="font-bold text-xs uppercase tracking-wider text-foreground/80">Subtitle Line 2 (Highlighted Text)</Label>
                   <Input
                     value={formData.hero.subText2}
                     onChange={(e) => handleHeroChange('subText2', e.target.value)}
-                    className="bg-zinc-950 border-white/10"
+                    className="bg-background border-border"
                   />
                 </div>
               </div>
 
               {/* Hero CTA Buttons */}
-              <div className="space-y-4 pt-4 border-t border-white/5">
+              <div className="space-y-4 pt-4 border-t border-border">
                 <Label className="font-black text-sm uppercase tracking-wider text-primary">Hero CTA Buttons & Links</Label>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {formData.hero.buttons.map((btn, idx) => (
-                    <div key={btn.id || idx} className="bg-black/50 p-4 rounded-xl border border-white/5 space-y-3">
+                    <div key={btn.id || idx} className="bg-black/50 p-4 rounded-xl border border-border space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-xs text-zinc-400">Button #{idx + 1}</span>
+                        <span className="font-bold text-xs text-muted-foreground">Button #{idx + 1}</span>
                         <input
                           type="color"
-                          value={btn.bgColor.startsWith('#') ? btn.bgColor : '#f26c0d'}
+                          value={btn.bgColor.startsWith('#') ? btn.bgColor : '#2563eb'}
                           onChange={(e) => handleHeroButtonChange(idx, 'bgColor', e.target.value)}
                           className="w-6 h-6 rounded cursor-pointer border-0"
                           title="Button Background Color"
@@ -651,20 +651,20 @@ export default function BrandRefreshPage() {
                       </div>
 
                       <div className="space-y-1">
-                        <Label className="text-[10px] uppercase text-zinc-400">Button Label</Label>
+                        <Label className="text-[10px] uppercase text-muted-foreground">Button Label</Label>
                         <Input
                           value={btn.label}
                           onChange={(e) => handleHeroButtonChange(idx, 'label', e.target.value)}
-                          className="bg-zinc-950 border-white/10 text-xs font-bold"
+                          className="bg-background border-border text-xs font-bold"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <Label className="text-[10px] uppercase text-zinc-400">Link Target URL</Label>
+                        <Label className="text-[10px] uppercase text-muted-foreground">Link Target URL</Label>
                         <Input
                           value={btn.href}
                           onChange={(e) => handleHeroButtonChange(idx, 'href', e.target.value)}
-                          className="bg-zinc-950 border-white/10 text-xs font-mono"
+                          className="bg-background border-border text-xs font-mono"
                         />
                       </div>
                     </div>
@@ -678,12 +678,12 @@ export default function BrandRefreshPage() {
 
         {/* TAB 3: DRAG & DROP HOMEPAGE SECTIONS */}
         <TabsContent value="sections" className="space-y-6">
-          <Card className="bg-zinc-900 border-white/10 text-white">
+          <Card className="bg-card border-border text-foreground">
             <CardHeader>
               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
                 <Layers className="w-5 h-5" /> Drag & Re-order Homepage Sections
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Easily modify "Shop the Lineup", "The Card Room", and "The Vault". Update categories, images, links, and layout styling.
               </CardDescription>
             </CardHeader>
@@ -692,10 +692,10 @@ export default function BrandRefreshPage() {
               {formData.sections.map((sec, secIdx) => (
                 <div 
                   key={sec.id || secIdx} 
-                  className="bg-black/60 border border-white/10 rounded-2xl p-6 space-y-6 relative hover:border-white/20 transition shadow-xl"
+                  className="bg-black/60 border border-border rounded-2xl p-6 space-y-6 relative hover:border-border transition shadow-xl"
                 >
                   {/* Section Title & Re-order Controls */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-white/10">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-border">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
                         <Button
@@ -703,7 +703,7 @@ export default function BrandRefreshPage() {
                           variant="ghost"
                           onClick={() => moveSection(secIdx, 'up')}
                           disabled={secIdx === 0}
-                          className="h-8 w-8 text-zinc-400 hover:text-white"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         >
                           <MoveUp className="w-4 h-4" />
                         </Button>
@@ -712,12 +712,12 @@ export default function BrandRefreshPage() {
                           variant="ghost"
                           onClick={() => moveSection(secIdx, 'down')}
                           disabled={secIdx === formData.sections.length - 1}
-                          className="h-8 w-8 text-zinc-400 hover:text-white"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         >
                           <MoveDown className="w-4 h-4" />
                         </Button>
                       </div>
-                      <h3 className="text-lg font-black uppercase text-white flex items-center gap-2">
+                      <h3 className="text-lg font-black uppercase text-foreground flex items-center gap-2">
                         <span>Section #{secIdx + 1}:</span>
                         <span className="text-primary">{sec.title}</span>
                       </h3>
@@ -725,7 +725,7 @@ export default function BrandRefreshPage() {
 
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
-                        <Label className="text-xs text-zinc-400 font-bold uppercase">Section Enabled</Label>
+                        <Label className="text-xs text-muted-foreground font-bold uppercase">Section Enabled</Label>
                         <Switch
                           checked={sec.enabled}
                           onCheckedChange={(checked) => updateSection(secIdx, { enabled: checked })}
@@ -737,38 +737,38 @@ export default function BrandRefreshPage() {
                   {/* Section Metadata Inputs */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-zinc-300">Section Title</Label>
+                      <Label className="text-xs font-bold uppercase text-foreground/80">Section Title</Label>
                       <Input
                         value={sec.title}
                         onChange={(e) => updateSection(secIdx, { title: e.target.value })}
-                        className="bg-zinc-950 border-white/10 font-bold text-sm"
+                        className="bg-background border-border font-bold text-sm"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-zinc-300">Section Subtitle</Label>
+                      <Label className="text-xs font-bold uppercase text-foreground/80">Section Subtitle</Label>
                       <Input
                         value={sec.subtitle || ''}
                         onChange={(e) => updateSection(secIdx, { subtitle: e.target.value })}
-                        className="bg-zinc-950 border-white/10 text-sm"
+                        className="bg-background border-border text-sm"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase text-zinc-300">Custom CSS Classes / Styling</Label>
+                      <Label className="text-xs font-bold uppercase text-foreground/80">Custom CSS Classes / Styling</Label>
                       <Input
                         value={sec.customClasses || ''}
                         onChange={(e) => updateSection(secIdx, { customClasses: e.target.value })}
-                        placeholder="e.g. py-16 bg-black border-t"
-                        className="bg-zinc-950 border-white/10 text-xs font-mono"
+                        placeholder="e.g. py-16 bg-background border-t"
+                        className="bg-background border-border text-xs font-mono"
                       />
                     </div>
                   </div>
 
                   {/* Category Card Items */}
-                  <div className="space-y-4 pt-4 border-t border-white/5">
+                  <div className="space-y-4 pt-4 border-t border-border">
                     <div className="flex justify-between items-center">
-                      <Label className="font-bold text-xs uppercase tracking-wider text-zinc-400">
+                      <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
                         Category Cards ({sec.items.length} Items)
                       </Label>
                       <Button
@@ -783,52 +783,52 @@ export default function BrandRefreshPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {sec.items.map((item, itemIdx) => (
-                        <div key={item.id || itemIdx} className="bg-zinc-950 p-4 rounded-xl border border-white/5 space-y-3 relative group">
+                        <div key={item.id || itemIdx} className="bg-background p-4 rounded-xl border border-border space-y-3 relative group">
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => removeItemFromSection(secIdx, itemIdx)}
-                            className="h-6 w-6 absolute top-2 right-2 text-zinc-500 hover:text-red-400 opacity-80 group-hover:opacity-100"
+                            className="h-6 w-6 absolute top-2 right-2 text-muted-foreground hover:text-red-400 opacity-80 group-hover:opacity-100"
                             title="Remove Card"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
 
                           <div className="space-y-1">
-                            <Label className="text-[10px] uppercase text-zinc-400">Name / Label</Label>
+                            <Label className="text-[10px] uppercase text-muted-foreground">Name / Label</Label>
                             <Input
                               value={item.name}
                               onChange={(e) => updateSectionItem(secIdx, itemIdx, 'name', e.target.value)}
-                              className="bg-black border-white/10 text-xs font-bold"
+                              className="bg-background border-border text-xs font-bold"
                             />
                           </div>
 
                           <div className="space-y-1">
-                            <Label className="text-[10px] uppercase text-zinc-400">Link Target (href)</Label>
+                            <Label className="text-[10px] uppercase text-muted-foreground">Link Target (href)</Label>
                             <Input
                               value={item.href}
                               onChange={(e) => updateSectionItem(secIdx, itemIdx, 'href', e.target.value)}
-                              className="bg-black border-white/10 text-xs font-mono"
+                              className="bg-background border-border text-xs font-mono"
                             />
                           </div>
 
                           <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-1">
-                              <Label className="text-[10px] uppercase text-zinc-400">Logo SVG / Image URL</Label>
+                              <Label className="text-[10px] uppercase text-muted-foreground">Logo SVG / Image URL</Label>
                               <Input
                                 value={item.logo || ''}
                                 onChange={(e) => updateSectionItem(secIdx, itemIdx, 'logo', e.target.value)}
                                 placeholder="/brand-logos/..."
-                                className="bg-black border-white/10 text-[10px] font-mono"
+                                className="bg-background border-border text-[10px] font-mono"
                               />
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-[10px] uppercase text-zinc-400">Icon Name (Lucide)</Label>
+                              <Label className="text-[10px] uppercase text-muted-foreground">Icon Name (Lucide)</Label>
                               <Input
                                 value={item.iconName || ''}
                                 onChange={(e) => updateSectionItem(secIdx, itemIdx, 'iconName', e.target.value)}
                                 placeholder="Coins, Zap..."
-                                className="bg-black border-white/10 text-[10px] font-mono"
+                                className="bg-background border-border text-[10px] font-mono"
                               />
                             </div>
                           </div>
@@ -850,12 +850,12 @@ export default function BrandRefreshPage() {
             
             {/* Quick Add Panel */}
             <div className="space-y-6 lg:col-span-1">
-              <Card className="bg-zinc-900 border-white/10 text-white">
+              <Card className="bg-card border-border text-foreground">
                 <CardHeader>
                   <CardTitle className="text-lg font-black uppercase text-primary flex items-center gap-2">
                     <Plus className="w-5 h-5" /> Quick Add Pages
                   </CardTitle>
-                  <CardDescription className="text-zinc-400">
+                  <CardDescription className="text-muted-foreground">
                     Click to add standard system pages directly to your navigation menu.
                   </CardDescription>
                 </CardHeader>
@@ -874,22 +874,22 @@ export default function BrandRefreshPage() {
                       key={page.href}
                       variant="outline"
                       onClick={() => addMenuItem(page.label, page.href)}
-                      className="w-full justify-start border-white/5 hover:border-primary/50 bg-black/50 hover:bg-primary/5 text-white font-bold uppercase tracking-wider text-xs py-5 rounded-xl"
+                      className="w-full justify-start border-border hover:border-primary/50 bg-black/50 hover:bg-primary/5 text-white font-bold uppercase tracking-wider text-xs py-5 rounded-xl"
                     >
                       <Plus className="w-3.5 h-3.5 mr-2 text-primary" />
-                      {page.label} <span className="ml-auto text-[10px] text-zinc-500 font-mono lowercase">{page.href}</span>
+                      {page.label} <span className="ml-auto text-[10px] text-muted-foreground font-mono lowercase">{page.href}</span>
                     </Button>
                   ))}
                 </CardContent>
               </Card>
 
               {/* Custom Link Form */}
-              <Card className="bg-zinc-900 border-white/10 text-white">
+              <Card className="bg-card border-border text-foreground">
                 <CardHeader>
                   <CardTitle className="text-lg font-black uppercase text-primary flex items-center gap-2">
                     <LinkIcon className="w-5 h-5" /> Custom Menu Link
                   </CardTitle>
-                  <CardDescription className="text-zinc-400">
+                  <CardDescription className="text-muted-foreground">
                     Create a custom navigation link.
                   </CardDescription>
                 </CardHeader>
@@ -901,28 +901,28 @@ export default function BrandRefreshPage() {
 
             {/* Menu Structure List */}
             <div className="lg:col-span-2 space-y-6">
-              <Card className="bg-zinc-900 border-white/10 text-white">
+              <Card className="bg-card border-border text-foreground">
                 <CardHeader>
                   <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-2">
                     <Layers className="w-5 h-5" /> Menu Layout Structure
                   </CardTitle>
-                  <CardDescription className="text-zinc-400">
+                  <CardDescription className="text-muted-foreground">
                     Drag, reorder, show/hide, delete, and add nested sub-items to your navigation links.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {(!formData.menus || formData.menus.length === 0) ? (
-                    <div className="text-center py-12 text-zinc-500 font-bold uppercase tracking-wider text-xs">
+                    <div className="text-center py-12 text-muted-foreground font-bold uppercase tracking-wider text-xs">
                       No Menu Items Configured. Add some links to get started!
                     </div>
                   ) : (
                     formData.menus.map((menu, mIdx) => (
                       <div 
                         key={menu.id || mIdx}
-                        className="bg-black/60 border border-white/10 rounded-2xl p-5 space-y-4 relative hover:border-white/20 transition shadow-lg"
+                        className="bg-black/60 border border-border rounded-2xl p-5 space-y-4 relative hover:border-border transition shadow-lg"
                       >
                         {/* Top Action Bar */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-white/10">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-border">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
                               <Button
@@ -930,7 +930,7 @@ export default function BrandRefreshPage() {
                                 variant="ghost"
                                 onClick={() => moveMenuItem(mIdx, 'up')}
                                 disabled={mIdx === 0}
-                                className="h-8 w-8 text-zinc-400 hover:text-white"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               >
                                 <MoveUp className="w-4 h-4" />
                               </Button>
@@ -939,18 +939,18 @@ export default function BrandRefreshPage() {
                                 variant="ghost"
                                 onClick={() => moveMenuItem(mIdx, 'down')}
                                 disabled={mIdx === formData.menus.length - 1}
-                                className="h-8 w-8 text-zinc-400 hover:text-white"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               >
                                 <MoveDown className="w-4 h-4" />
                               </Button>
                             </div>
-                            <span className="text-zinc-500 font-black text-xs uppercase">Link #{mIdx + 1}:</span>
-                            <span className="font-black uppercase tracking-wider text-white text-sm">{menu.label || 'Unnamed Link'}</span>
+                            <span className="text-muted-foreground font-black text-xs uppercase">Link #{mIdx + 1}:</span>
+                            <span className="font-black uppercase tracking-wider text-foreground text-sm">{menu.label || 'Unnamed Link'}</span>
                           </div>
 
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
-                              <Label className="text-[10px] text-zinc-400 font-bold uppercase">Show in Menu</Label>
+                              <Label className="text-[10px] text-muted-foreground font-bold uppercase">Show in Menu</Label>
                               <Switch
                                 checked={menu.enabled}
                                 onCheckedChange={(checked) => updateMenuItem(mIdx, { enabled: checked })}
@@ -960,7 +960,7 @@ export default function BrandRefreshPage() {
                               size="icon"
                               variant="ghost"
                               onClick={() => deleteMenuItem(mIdx)}
-                              className="h-8 w-8 text-zinc-500 hover:text-red-400"
+                              className="h-8 w-8 text-muted-foreground hover:text-red-400"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -970,27 +970,27 @@ export default function BrandRefreshPage() {
                         {/* Form Inputs */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label className="text-xs font-bold uppercase text-zinc-300">Link Label</Label>
+                            <Label className="text-xs font-bold uppercase text-foreground/80">Link Label</Label>
                             <Input
                               value={menu.label}
                               onChange={(e) => updateMenuItem(mIdx, { label: e.target.value })}
-                              className="bg-zinc-950 border-white/10 font-bold"
+                              className="bg-background border-border font-bold"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-xs font-bold uppercase text-zinc-300">Link Path / URL</Label>
+                            <Label className="text-xs font-bold uppercase text-foreground/80">Link Path / URL</Label>
                             <Input
                               value={menu.href}
                               onChange={(e) => updateMenuItem(mIdx, { href: e.target.value })}
-                              className="bg-zinc-950 border-white/10 font-mono text-xs"
+                              className="bg-background border-border font-mono text-xs"
                             />
                           </div>
                         </div>
 
                         {/* Nested Dropdown Sub-links */}
-                        <div className="space-y-3 pt-3 border-t border-white/5 bg-zinc-950/40 p-4 rounded-xl">
+                        <div className="space-y-3 pt-3 border-t border-border bg-background/40 p-4 rounded-xl">
                           <div className="flex justify-between items-center">
-                            <Label className="font-bold text-xs uppercase tracking-wider text-zinc-400">
+                            <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
                               Sub-Menu Dropdown Items ({menu.subItems?.length || 0})
                             </Label>
                             <Button
@@ -1006,26 +1006,26 @@ export default function BrandRefreshPage() {
                           {menu.subItems && menu.subItems.length > 0 && (
                             <div className="space-y-2">
                               {menu.subItems.map((sub, sIdx) => (
-                                <div key={sIdx} className="flex gap-3 items-center bg-black/60 p-3 rounded-lg border border-white/5">
+                                <div key={sIdx} className="flex gap-3 items-center bg-black/60 p-3 rounded-lg border border-border">
                                   <div className="grid grid-cols-2 gap-3 flex-grow">
                                     <Input
                                       value={sub.label}
                                       onChange={(e) => updateMenuItemSubItem(mIdx, sIdx, 'label', e.target.value)}
                                       placeholder="Sub-Link Label"
-                                      className="bg-zinc-950 border-white/10 text-xs font-bold"
+                                      className="bg-background border-border text-xs font-bold"
                                     />
                                     <Input
                                       value={sub.href}
                                       onChange={(e) => updateMenuItemSubItem(mIdx, sIdx, 'href', e.target.value)}
                                       placeholder="Sub-Link Path (e.g. /browse)"
-                                      className="bg-zinc-950 border-white/10 text-xs font-mono"
+                                      className="bg-background border-border text-xs font-mono"
                                     />
                                   </div>
                                   <Button
                                     size="icon"
                                     variant="ghost"
                                     onClick={() => deleteMenuItemSubItem(mIdx, sIdx)}
-                                    className="h-8 w-8 text-zinc-500 hover:text-red-400 shrink-0"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-400 shrink-0"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </Button>
@@ -1074,28 +1074,28 @@ function CustomLinkForm({ onAdd }: { onAdd: (label: string, href: string) => voi
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
-        <Label className="text-xs font-bold uppercase text-zinc-300">Link Label</Label>
+        <Label className="text-xs font-bold uppercase text-foreground/80">Link Label</Label>
         <Input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="e.g. Help Center"
           required
-          className="bg-zinc-950 border-white/10 font-bold"
+          className="bg-background border-border font-bold"
         />
       </div>
       <div className="space-y-1">
-        <Label className="text-xs font-bold uppercase text-zinc-300">Target Path / URL</Label>
+        <Label className="text-xs font-bold uppercase text-foreground/80">Target Path / URL</Label>
         <Input
           value={href}
           onChange={(e) => setHref(e.target.value)}
           placeholder="e.g. /help"
           required
-          className="bg-zinc-950 border-white/10 font-mono text-xs"
+          className="bg-background border-border font-mono text-xs"
         />
       </div>
       <Button
         type="submit"
-        className="w-full bg-primary text-black font-black uppercase text-xs rounded-xl py-5"
+        className="w-full bg-primary text-primary-foreground font-black uppercase text-xs rounded-xl py-5"
       >
         Add Link to Menu
       </Button>

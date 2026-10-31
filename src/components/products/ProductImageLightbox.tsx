@@ -36,7 +36,7 @@ export function ProductImageLightbox({ images, isOpen, onOpenChange, title }: Pr
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full z-50 h-10 w-10"
+                        className="absolute top-4 right-4 text-foreground hover:bg-muted rounded-full z-50 h-10 w-10"
                         onClick={(e) => {
                             e.stopPropagation();
                             onOpenChange(false);
@@ -50,7 +50,7 @@ export function ProductImageLightbox({ images, isOpen, onOpenChange, title }: Pr
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full h-12 w-12 z-50"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground hover:bg-muted rounded-full h-12 w-12 z-50"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -61,7 +61,7 @@ export function ProductImageLightbox({ images, isOpen, onOpenChange, title }: Pr
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full h-12 w-12 z-50"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground hover:bg-muted rounded-full h-12 w-12 z-50"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));

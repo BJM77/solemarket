@@ -51,7 +51,7 @@ export function PricingAndDeliveryStep({
                                 ) : null}
                             </div>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <FormControl>
                                     <Input 
                                         type="number" 
@@ -108,7 +108,7 @@ export function PricingAndDeliveryStep({
                         control={form.control}
                         name="isNegotiable"
                         render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                            <FormItem className="flex items-center justify-between rounded-lg border border-border bg-muted/60 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Allow Offers</FormLabel>
                                     <FormDescription className="text-[10px]">Buyers can make binding offers on this item.</FormDescription>
@@ -126,7 +126,7 @@ export function PricingAndDeliveryStep({
                         control={form.control}
                         name="isReverseBidding"
                         render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                            <FormItem className="flex items-center justify-between rounded-lg border border-border bg-muted/60 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Reverse Bidding</FormLabel>
                                     <FormDescription className="text-[10px]">Lowest bid wins.</FormDescription>
@@ -144,7 +144,7 @@ export function PricingAndDeliveryStep({
                         control={form.control}
                         name="isDutchAuction"
                         render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                            <FormItem className="flex items-center justify-between rounded-lg border border-border bg-muted/60 p-3">
                                 <div className="space-y-0.5">
                                     <FormLabel>Time-Based Dutch Auction</FormLabel>
                                     <FormDescription className="text-[10px]">Price drops automatically over time to create urgency.</FormDescription>
@@ -160,7 +160,7 @@ export function PricingAndDeliveryStep({
                     />
 
                     {form.watch('isDutchAuction') && (
-                        <div className="space-y-4 p-4 rounded-lg bg-black/20 border border-white/10 animate-in fade-in slide-in-from-top-2">
+                        <div className="space-y-4 p-4 rounded-lg bg-black/20 border border-border animate-in fade-in slide-in-from-top-2">
                             <FormField control={form.control} name="dutchAuctionDropAmount" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Price Drop Amount ($)</FormLabel>

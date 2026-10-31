@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
                         <div class="bg-indigo-50 text-indigo-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">✓</div>
                         <h1 class="text-2xl font-black text-slate-900 mb-4">Success!</h1>
                         <p class="text-slate-600 mb-8 leading-relaxed">${message}</p>
-                        <a href="https://benched.au/seller/dashboard" class="inline-block w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-all">Go to Dashboard</a>
+                        <a href="https://benched.au/seller/dashboard" class="inline-block w-full bg-card text-foreground font-bold py-4 rounded-2xl hover:bg-muted transition-all">Go to Dashboard</a>
                     </div>
                 </body>
             </html>

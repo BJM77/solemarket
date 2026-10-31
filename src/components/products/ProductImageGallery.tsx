@@ -28,7 +28,7 @@ const conditionColors: Record<string, string> = {
   'Near Mint': 'bg-emerald-100 text-emerald-800 border-emerald-200',
   'Excellent': 'bg-blue-100 text-blue-800 border-blue-200',
   'Good': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'Fair': 'bg-orange-100 text-orange-800 border-orange-200',
+  'Fair': 'bg-blue-100 text-blue-800 border-blue-200',
   'Poor': 'bg-red-100 text-red-800 border-red-200',
 };
 
@@ -147,7 +147,7 @@ export default function ProductImageGallery({
 
   if (!media || media.length === 0) {
     return (
-      <div className={cn("relative bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center text-gray-400", aspectRatio)}>
+      <div className={cn("relative bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center text-muted-foreground", aspectRatio)}>
         <div className="flex flex-col items-center">
           <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
           <span className="text-xs font-medium">No Image Available</span>
@@ -161,14 +161,14 @@ export default function ProductImageGallery({
       <div className="space-y-4">
         {/* Main Gallery */}
         {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative w-full bg-slate-950 rounded-2xl overflow-hidden group border border-slate-800 shadow-2xl", aspectRatio)}>
+        <div className={cn("relative w-full bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", aspectRatio)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
               {media.map((item, index) => (
                 <div className="flex-[0_0_100%] min-w-0 relative h-full" key={index}>
                   {item.type === 'video' ? (
-                    <div className="relative w-full h-full bg-black flex items-center justify-center">
+                    <div className="relative w-full h-full bg-background flex items-center justify-center">
                       <video
                         ref={videoRef}
                         src={item.url}
@@ -183,8 +183,8 @@ export default function ProductImageGallery({
                           className="absolute inset-0 flex items-center justify-center bg-black/20 cursor-pointer"
                           onClick={toggleVideo}
                         >
-                          <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
-                            <Play className="w-10 h-10 text-white fill-white ml-1" />
+                          <div className="w-20 h-20 rounded-full bg-muted backdrop-blur-md border border-border flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
+                            <Play className="w-10 h-10 text-foreground fill-white ml-1" />
                           </div>
                         </div>
                       )}
@@ -244,7 +244,7 @@ export default function ProductImageGallery({
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-black/40 backdrop-blur-xl border-white/10 text-white hover:bg-black/60 rounded-full h-12 w-12 z-20 hidden sm:flex"
+                className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-black/40 backdrop-blur-xl border-border text-white hover:bg-black/60 rounded-full h-12 w-12 z-20 hidden sm:flex"
                 onClick={scrollPrev}
               >
                 <ChevronLeft className="w-6 h-6" strokeWidth={3} />
@@ -252,7 +252,7 @@ export default function ProductImageGallery({
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-black/40 backdrop-blur-xl border-white/10 text-white hover:bg-black/60 rounded-full h-12 w-12 z-20 hidden sm:flex"
+                className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-black/40 backdrop-blur-xl border-border text-white hover:bg-black/60 rounded-full h-12 w-12 z-20 hidden sm:flex"
                 onClick={scrollNext}
               >
                 <ChevronRight className="w-6 h-6" strokeWidth={3} />
@@ -277,7 +277,7 @@ export default function ProductImageGallery({
 
           {/* Image Counter (Premium Monospace Style) */}
           <div className="absolute bottom-4 right-4 z-20">
-             <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-3 py-1.5 text-[11px] font-mono font-bold text-white tracking-widest shadow-2xl">
+             <div className="bg-black/60 backdrop-blur-xl border border-border rounded-full px-3 py-1.5 text-[11px] font-mono font-bold text-white tracking-widest shadow-2xl">
                {String(selectedIndex + 1).padStart(2, '0')} : {String(media.length).padStart(2, '0')}
              </div>
           </div>
@@ -287,7 +287,7 @@ export default function ProductImageGallery({
             onClick={() => setIsFullscreen(true)}
             variant="ghost"
             aria-label="Show all photos"
-            className="absolute top-4 right-4 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-white/10 rounded-full px-2.5 sm:px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
+            className="absolute top-4 right-4 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-border rounded-full px-2.5 sm:px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
           >
             <ImageIcon className="w-3.5 h-3.5 sm:mr-2" />
             <span className="hidden sm:inline">Show All Photos</span>
@@ -308,10 +308,10 @@ export default function ProductImageGallery({
                 )}
               >
                 {item.type === 'video' ? (
-                  <div className="relative w-full h-full bg-slate-900">
+                  <div className="relative w-full h-full bg-card">
                     <Image src={item.thumbnail!} alt="Video thumb" fill className="object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                       <Play className="w-6 h-6 text-white fill-white" />
+                       <Play className="w-6 h-6 text-foreground fill-white" />
                     </div>
                   </div>
                 ) : (
@@ -369,7 +369,7 @@ export default function ProductImageGallery({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-6 right-6 text-white/60 hover:bg-white/10 hover:text-white rounded-full h-12 w-12 z-[110] backdrop-blur-md"
+              className="absolute top-6 right-6 text-muted-foreground hover:bg-muted hover:text-foreground rounded-full h-12 w-12 z-[110] backdrop-blur-md"
               onClick={() => setIsFullscreen(false)}
             >
               <X className="w-8 h-8" />
@@ -380,7 +380,7 @@ export default function ProductImageGallery({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white hover:bg-white/5 h-20 w-20 rounded-full z-[105] transition-all"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-foreground hover:bg-muted/60 h-20 w-20 rounded-full z-[105] transition-all"
                   onClick={() => setSelectedIndex(prev => (prev === 0 ? media.length - 1 : prev - 1))}
                 >
                   <ChevronLeft className="w-12 h-12" strokeWidth={3} />
@@ -388,7 +388,7 @@ export default function ProductImageGallery({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white hover:bg-white/5 h-20 w-20 rounded-full z-[105] transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-foreground hover:bg-muted/60 h-20 w-20 rounded-full z-[105] transition-all"
                   onClick={() => setSelectedIndex(prev => (prev === media.length - 1 ? 0 : prev + 1))}
                 >
                   <ChevronRight className="w-12 h-12" strokeWidth={3} />
@@ -396,7 +396,7 @@ export default function ProductImageGallery({
               </>
             )}
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/10 backdrop-blur-2xl rounded-full text-white text-sm font-mono font-bold tracking-widest border border-white/20">
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-muted backdrop-blur-2xl rounded-full text-foreground text-sm font-mono font-bold tracking-widest border border-border">
               {String(selectedIndex + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}
             </div>
           </div>

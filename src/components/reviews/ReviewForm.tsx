@@ -95,7 +95,7 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
 
   if (!user) {
     return (
-      <div className="border border-white/10 rounded-2xl p-6 text-center bg-white/5">
+      <div className="border border-border rounded-2xl p-6 text-center bg-muted/60">
         <p className="text-muted-foreground">
           <Button variant="link" asChild><Link href={`/sign-in?redirect=/product/${productId}`} className="text-primary font-black uppercase tracking-tighter">Sign in</Link></Button> to leave a review.
         </p>
@@ -108,7 +108,7 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
       ? "You can't review your own listing."
       : 'Only verified buyers can review this item. Reviews open once your order is marked delivered.';
     return (
-      <div className="border border-white/10 rounded-2xl p-6 text-center bg-white/5">
+      <div className="border border-border rounded-2xl p-6 text-center bg-muted/60">
         <p className="text-muted-foreground text-sm">{msg}</p>
       </div>
     );
@@ -123,8 +123,8 @@ export default function ReviewForm({ user, productId, productTitle, sellerId }: 
   }
 
   return (
-    <div className="border border-white/5 bg-card rounded-2xl p-8">
-        <h3 className="text-lg font-black uppercase tracking-tight mb-4 text-white">Write a Review</h3>
+    <div className="border border-border bg-card rounded-2xl p-8">
+        <h3 className="text-lg font-black uppercase tracking-tight mb-4 text-foreground">Write a Review</h3>
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

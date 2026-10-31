@@ -128,7 +128,7 @@ export function SellersTable() {
                                         {user.disabled ? (
                                             <Badge variant="destructive">Banned</Badge>
                                         ) : user.onStop ? (
-                                            <Badge variant="destructive" className="bg-orange-600">Suspended</Badge>
+                                            <Badge variant="destructive" className="bg-blue-600">Suspended</Badge>
                                         ) : (
                                             <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Active</Badge>
                                         )}

@@ -141,7 +141,7 @@ export default function MultiListingDealsPage() {
     if (deals.length === 0) {
         return (
             <div className="container mx-auto px-4 py-16 text-center">
-                <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-4">No Active Deals</h1>
+                <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">No Active Deals</h1>
                 <p className="text-muted-foreground">Check back soon for multi-listing bundle deals!</p>
             </div>
         );
@@ -152,7 +152,7 @@ export default function MultiListingDealsPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 bg-background min-h-screen text-foreground">
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-8">Multi-Listing Bundle Deals</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-8">Multi-Listing Bundle Deals</h1>
 
             {/* Deal Selector */}
             <div className="grid md:grid-cols-3 gap-4 mb-8">
@@ -165,10 +165,10 @@ export default function MultiListingDealsPage() {
                         }}
                         className={`p-6 rounded-2xl border-2 text-left transition ${selectedDeal?.id === deal.id
                             ? 'border-primary bg-primary/5'
-                            : 'border-white/5 bg-card hover:border-white/10'
+                            : 'border-border bg-card hover:border-border'
                             }`}
                     >
-                        <h3 className="font-black uppercase tracking-tight text-lg mb-2 text-white">{deal.name}</h3>
+                        <h3 className="font-black uppercase tracking-tight text-lg mb-2 text-foreground">{deal.name}</h3>
                         <p className="text-sm text-muted-foreground mb-3">{deal.description}</p>
                         <div className="text-2xl font-black text-emerald-500">${deal.price.toFixed(2)}</div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
@@ -202,7 +202,7 @@ export default function MultiListingDealsPage() {
                                 <button
                                     onClick={() => setSelectedTier('platinum')}
                                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${selectedTier === 'platinum'
-                                        ? 'bg-cyan-600 text-white'
+                                        ? 'bg-cyan-600 text-foreground'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -213,7 +213,7 @@ export default function MultiListingDealsPage() {
                                 <button
                                     onClick={() => setSelectedTier('gold')}
                                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${selectedTier === 'gold'
-                                        ? 'bg-yellow-500 text-white'
+                                        ? 'bg-yellow-500 text-foreground'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -224,7 +224,7 @@ export default function MultiListingDealsPage() {
                                 <button
                                     onClick={() => setSelectedTier('silver')}
                                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${selectedTier === 'silver'
-                                        ? 'bg-slate-500 text-white'
+                                        ? 'bg-slate-500 text-foreground'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -235,7 +235,7 @@ export default function MultiListingDealsPage() {
                                 <button
                                     onClick={() => setSelectedTier('bronze')}
                                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${selectedTier === 'bronze'
-                                        ? 'bg-orange-700 text-white'
+                                        ? 'bg-blue-700 text-white'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -246,7 +246,7 @@ export default function MultiListingDealsPage() {
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {products.map(product => (
-                                <div key={product.id} className="bg-card rounded-2xl border border-white/5 p-3 sm:p-4">
+                                <div key={product.id} className="bg-card rounded-2xl border border-border p-3 sm:p-4">
                                     <div className="aspect-square relative mb-3">
                                         <img
                                             src={product.imageUrls?.[0] || product.imageUrl || '/wtb-wanted-placeholder.png'}
@@ -259,14 +259,14 @@ export default function MultiListingDealsPage() {
                                             }}
                                         />
                                     </div>
-                                    <h3 className="font-black uppercase tracking-tight mb-2 text-xs sm:text-sm line-clamp-2 h-10 sm:h-auto text-white">{product.title}</h3>
+                                    <h3 className="font-black uppercase tracking-tight mb-2 text-xs sm:text-sm line-clamp-2 h-10 sm:h-auto text-foreground">{product.title}</h3>
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                         <span className="text-muted-foreground line-through text-[10px] sm:text-xs">${product.price}</span>
                                         <button
                                             onClick={() => addToDeal(product)}
                                             disabled={dealCart.has(product.id)}
                                             className={`w-full sm:w-auto px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black uppercase tracking-tight ${dealCart.has(product.id)
-                                                ? 'bg-white/10 text-muted-foreground'
+                                                ? 'bg-muted text-muted-foreground'
                                                 : 'bg-primary text-primary-foreground hover:bg-primary/80'
                                                 }`}
                                         >
@@ -279,7 +279,7 @@ export default function MultiListingDealsPage() {
                     </div>
 
                     {/* Mobile Bottom Bar for Bundle Progress */}
-                    <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/10 p-4 lg:hidden z-40">
+                    <div className="fixed bottom-0 left-0 right-0 bg-background/95 shadow-[0_-4px_12px_rgba(15,23,42,0.08)] backdrop-blur-xl border-t border-border p-4 lg:hidden z-40">
                         <div className="container mx-auto flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Bundle Total</span>

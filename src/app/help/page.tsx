@@ -82,7 +82,7 @@ export default function HelpPage() {
                 </p>
                 <Link 
                     href="/contact" 
-                    className="inline-flex h-14 px-10 items-center justify-center bg-secondary text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
+                    className="inline-flex h-14 px-10 items-center justify-center bg-secondary text-foreground rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
                 >
                     Contact Support
                 </Link>

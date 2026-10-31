@@ -75,7 +75,7 @@ export function ConnectionStatus({ serviceName, endpoint, docsUrl, managementUrl
             <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base font-medium">{serviceName}</CardTitle>
-                    {status === 'idle' && <HelpCircle className="h-5 w-5 text-gray-400" />}
+                    {status === 'idle' && <HelpCircle className="h-5 w-5 text-muted-foreground" />}
                     {status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
                     {status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
                 </div>

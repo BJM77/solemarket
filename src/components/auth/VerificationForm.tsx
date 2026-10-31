@@ -74,11 +74,11 @@ export default function VerificationForm() {
 
     if (user.emailVerified) {
         return (
-            <div className="text-center p-8 bg-black/40 border border-white/10 rounded-2xl max-w-md mx-auto">
+            <div className="text-center p-8 bg-black/40 border border-border rounded-2xl max-w-md mx-auto">
                 <div className="bg-green-500/20 text-green-400 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
                     <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2 text-white">Account Verified!</h2>
+                <h2 className="text-2xl font-bold mb-2 text-foreground">Account Verified!</h2>
                 <p className="text-muted-foreground mb-6">Your email address has been verified. You can now buy and offer on all listings.</p>
                 <Button className="w-full font-black text-lg bg-white text-black hover:bg-gray-200" onClick={() => router.push('/browse')}>Start Browsing</Button>
             </div>
@@ -86,14 +86,14 @@ export default function VerificationForm() {
     }
 
     return (
-        <Card className="w-full max-w-lg mx-auto shadow-2xl bg-card border-white/10 text-white">
+        <Card className="w-full max-w-lg mx-auto shadow-2xl bg-card border-border text-foreground">
             <CardHeader className="text-center pb-2">
                 <div className="mx-auto w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-4">
                     <Mail className="w-8 h-8 text-indigo-400" />
                 </div>
                 <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
                 <CardDescription className="text-muted-foreground">
-                    We've sent a verification link to <span className="text-white font-medium">{user.email}</span>
+                    We've sent a verification link to <span className="text-foreground font-medium">{user.email}</span>
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
@@ -115,7 +115,7 @@ export default function VerificationForm() {
                     
                     <Button 
                         variant="outline" 
-                        className="w-full border-white/10 hover:bg-white/5 h-12 text-white"
+                        className="w-full border-border hover:bg-muted/60 h-12 text-foreground"
                         onClick={handleSendVerification}
                         disabled={isSending || cooldown > 0}
                     >

@@ -149,7 +149,7 @@ export function CartDrawer() {
                                         </svg>
                                     </div>
                                     <div className="text-left">
-                                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
                                             Pay the seller directly
                                         </div>
                                         <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">

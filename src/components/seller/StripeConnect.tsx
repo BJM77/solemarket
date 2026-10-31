@@ -53,9 +53,9 @@ function StripeConnectInner({ stripeEnabled = false, stripeAccountId = '' }: { s
                                 <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[9px] uppercase font-black px-2">Action Required</Badge>
                             )}
                         </div>
-                        <CardDescription className="text-slate-400">Secure the protocol for automated seller payouts.</CardDescription>
+                        <CardDescription className="text-muted-foreground">Secure the protocol for automated seller payouts.</CardDescription>
                     </div>
-                    <div className="p-3 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10">
+                    <div className="p-3 bg-muted/60 rounded-2xl backdrop-blur-md border border-border">
                         <Landmark className="h-6 w-6 text-primary" />
                     </div>
                 </div>
@@ -80,12 +80,12 @@ function StripeConnectInner({ stripeEnabled = false, stripeAccountId = '' }: { s
                 </div>
 
                 {stripeEnabled ? (
-                    <div className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-center justify-between">
+                    <div className="p-4 bg-muted/60 rounded-xl border border-border flex items-center justify-between">
                         <div className="space-y-1">
                             <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Active Account ID</p>
-                            <p className="font-mono text-xs text-slate-300">{stripeAccountId}</p>
+                            <p className="font-mono text-xs text-foreground/80">{stripeAccountId}</p>
                         </div>
-                        <Button variant="ghost" className="text-xs font-bold text-primary hover:bg-white/5 transition-all">
+                        <Button variant="ghost" className="text-xs font-bold text-primary hover:bg-muted/60 transition-all">
                             Manage Dashboard
                             <ArrowRight className="ml-2 h-3 w-3" />
                         </Button>
@@ -112,12 +112,12 @@ function StripeConnectInner({ stripeEnabled = false, stripeAccountId = '' }: { s
 
 function StatusItem({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
     return (
-        <div className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all cursor-default group">
+        <div className="flex gap-4 p-4 rounded-2xl bg-muted/60 border border-border hover:border-border transition-all cursor-default group">
             <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all">
                 <Icon className="h-5 w-5 text-primary" />
             </div>
             <div className="space-y-0.5">
-                <p className="text-sm font-bold text-slate-100">{title}</p>
+                <p className="text-sm font-bold text-foreground">{title}</p>
                 <p className="text-[10px] font-medium text-slate-500 uppercase leading-tight">{desc}</p>
             </div>
         </div>

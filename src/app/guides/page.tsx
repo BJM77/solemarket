@@ -24,12 +24,12 @@ export default function GuidesIndexPage() {
                 ]}
             />
             {/* Header */}
-            <div className="bg-slate-900 text-white py-20">
+            <div className="bg-card text-foreground py-20">
                 <div className="container mx-auto px-4 max-w-5xl">
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
                         Collector Guides
                     </h1>
-                    <p className="text-xl text-slate-300 max-w-2xl leading-relaxed">
+                    <p className="text-xl text-foreground/80 max-w-2xl leading-relaxed">
                         Expert insights, authentication deep-dives, and market analysis for the Australian collecting community.
                     </p>
                 </div>

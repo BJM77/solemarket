@@ -126,7 +126,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                     <Badge variant="secondary" className="rounded-full px-3">{product.bids?.length || 0}</Badge>
                 </div>
                 {product.bids && product.bids.length > 0 && (
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-orange-500 animate-pulse">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 animate-pulse">
                         <Clock className="h-3 w-3" />
                         <span>LIVE UPDATES</span>
                     </div>
@@ -163,7 +163,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                     <div className="flex flex-col items-end">
                                         <span className="font-black text-lg text-indigo-600">${bid.amount.toLocaleString()}</span>
                                         {index === 0 && bid.status === 'pending' && (
-                                            <span className="text-[9px] font-bold text-orange-500 uppercase">Highest Offer</span>
+                                            <span className="text-[9px] font-bold text-blue-500 uppercase">Highest Offer</span>
                                         )}
                                     </div>
                                     {isSeller && bid.status === 'pending' && (
@@ -185,7 +185,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-center p-10 border-2 border-dashed rounded-3xl text-muted-foreground bg-white/20 border-white/40"
+                            className="text-center p-10 border-2 border-dashed rounded-3xl text-muted-foreground bg-muted border-white/40"
                         >
                             <TrendingUp className="h-8 w-8 mx-auto mb-3 opacity-20" />
                             <p className="font-bold text-sm">No offers yet.</p>
@@ -213,11 +213,11 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                 <div className="space-y-3">
                                     <div className="flex gap-3">
                                         <div className="relative flex-1">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 font-black">$</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-black">$</span>
                                             <Input
                                                 type="number"
                                                 placeholder="0.00"
-                                                className="pl-10 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xl font-black rounded-2xl focus-visible:ring-white/30"
+                                                className="pl-10 h-14 bg-muted border-border text-foreground placeholder:text-muted-foreground text-xl font-black rounded-2xl focus-visible:ring-white/30"
                                                 value={bidAmount}
                                                 onChange={(e) => setBidAmount(e.target.value)}
                                             />
@@ -236,11 +236,11 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                             <Input
                                                 type="email"
                                                 placeholder="Your email address"
-                                                className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold rounded-xl focus-visible:ring-white/30"
+                                                className="h-12 bg-muted border-border text-foreground placeholder:text-muted-foreground font-bold rounded-xl focus-visible:ring-white/30"
                                                 value={guestEmail}
                                                 onChange={(e) => setGuestEmail(e.target.value)}
                                             />
-                                            <p className="text-[9px] font-bold text-white/40 mt-1 uppercase tracking-widest pl-1">Guest verification required</p>
+                                            <p className="text-[9px] font-bold text-muted-foreground mt-1 uppercase tracking-widest pl-1">Guest verification required</p>
                                         </div>
                                     )}
                                 </div>
@@ -260,12 +260,12 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                     </div>
                                     <button
                                         onClick={() => setStep('amount')}
-                                        className="text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         Go Back
                                     </button>
                                 </div>
-                                <p className="text-[11px] font-bold text-white/80 leading-snug">
+                                <p className="text-[11px] font-bold text-foreground/80 leading-snug">
                                     A verification code was sent to <strong>{user?.email || guestEmail}</strong>. Enter it below to confirm your offer.
                                 </p>
                                 <div className="flex gap-3">
@@ -274,7 +274,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                             type="text"
                                             placeholder="•••••"
                                             maxLength={5}
-                                            className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xl font-black rounded-2xl focus-visible:ring-white/30 text-center tracking-[8px] uppercase"
+                                            className="h-14 bg-muted border-border text-foreground placeholder:text-muted-foreground text-xl font-black rounded-2xl focus-visible:ring-white/30 text-center tracking-[8px] uppercase"
                                             value={verificationCode}
                                             onChange={(e) => setVerificationCode(e.target.value.substring(0, 5))}
                                             autoFocus
@@ -291,7 +291,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                             </motion.div>
                         )}
                     </AnimatePresence>
-                    <p className="text-[10px] font-bold text-white/50 mt-4 flex items-center gap-1.5 uppercase tracking-tighter">
+                    <p className="text-[10px] font-bold text-muted-foreground mt-4 flex items-center gap-1.5 uppercase tracking-tighter">
                         <InfoIcon className="h-3 w-3" />
                         Offers are binding. Seller will be notified immediately.
                     </p>

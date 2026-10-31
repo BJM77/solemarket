@@ -214,7 +214,7 @@ export default function MultiGenPage() {
             </div>
 
             {/* Camera Viewport */}
-            <div className="relative flex-1 bg-black overflow-hidden m-2 rounded-2xl shadow-inner">
+            <div className="relative flex-1 bg-background overflow-hidden m-2 rounded-2xl shadow-inner">
                 <video
                     ref={videoRef}
                     autoPlay
@@ -237,7 +237,7 @@ export default function MultiGenPage() {
                                 onClick={() => removeImage(idx)}
                                 className="absolute inset-0 bg-red-500/80 items-center justify-center hidden group-hover/img:flex"
                             >
-                                <Trash2 className="size-4 text-white" />
+                                <Trash2 className="size-4 text-foreground" />
                             </button>
                         </motion.div>
                     ))}
@@ -247,14 +247,14 @@ export default function MultiGenPage() {
                 <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-8">
                     <button
                         onClick={() => setCapturedImages([])}
-                        className="p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white active:scale-90"
+                        className="p-3 bg-muted backdrop-blur-xl border border-border rounded-full text-foreground active:scale-90"
                     >
                         <RotateCcw className="size-5" />
                     </button>
 
                     <button
                         onClick={takePicture}
-                        className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-white/20 backdrop-blur-sm"
+                        className="size-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform bg-muted backdrop-blur-sm"
                     >
                         <div className="size-16 rounded-full bg-emerald-500 shadow-xl" />
                     </button>

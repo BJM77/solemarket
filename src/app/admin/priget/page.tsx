@@ -225,7 +225,7 @@ export default function PrigetPage() {
                                                 <div className="text-xs text-gray-500">({product.marketData.sampleSize} sold)</div>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400">-</span>
+                                            <span className="text-muted-foreground">-</span>
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600">

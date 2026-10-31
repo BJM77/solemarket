@@ -10,8 +10,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { FONT_OPTIONS, type CategoryKey, type FontOption, type SiteConfig } from '@/lib/types/site-config';
 
 type Props = { value: SiteConfig; onChange: (next: SiteConfig) => void };
-const cardCls = 'bg-zinc-900 border-white/10 text-white';
-const inputCls = 'bg-black border-white/20 text-white';
+const cardCls = 'bg-card border-border text-foreground';
+const inputCls = 'bg-background border-border text-foreground';
 
 export function FooterFontsSettings({ value, onChange }: Props) {
   const f = value.footer;
@@ -63,7 +63,7 @@ export function FooterFontsSettings({ value, onChange }: Props) {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {f.columns.map((col, i) => (
-              <div key={col.id} className="space-y-2 rounded-xl border border-white/10 p-4">
+              <div key={col.id} className="space-y-2 rounded-xl border border-border p-4">
                 <div className="flex gap-2">
                   <Input aria-label="Column title" className={inputCls} value={col.title} onChange={(e) => setColumn(i, { title: e.target.value })} />
                   <Button variant="ghost" size="icon" aria-label="Remove column" onClick={() => setFooter({ columns: f.columns.filter((_, j) => j !== i) })}><Trash2 className="h-4 w-4" /></Button>
@@ -75,11 +75,11 @@ export function FooterFontsSettings({ value, onChange }: Props) {
                     <Button variant="ghost" size="icon" aria-label="Remove link" onClick={() => setColumn(i, { links: col.links.filter((_, y) => y !== k) })}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="border-white/20" onClick={() => setColumn(i, { links: [...col.links, { label: 'New link', href: '/' }] })}><Plus className="mr-1 h-4 w-4" /> Link</Button>
+                <Button variant="outline" size="sm" className="border-border" onClick={() => setColumn(i, { links: [...col.links, { label: 'New link', href: '/' }] })}><Plus className="mr-1 h-4 w-4" /> Link</Button>
               </div>
             ))}
           </div>
-          <Button variant="outline" className="border-white/20" onClick={() => setFooter({ columns: [...f.columns, { id: `f${Date.now()}`, title: 'New column', links: [] }] })}><Plus className="mr-1 h-4 w-4" /> Column</Button>
+          <Button variant="outline" className="border-border" onClick={() => setFooter({ columns: [...f.columns, { id: `f${Date.now()}`, title: 'New column', links: [] }] })}><Plus className="mr-1 h-4 w-4" /> Column</Button>
         </CardContent>
       </Card>
     </div>

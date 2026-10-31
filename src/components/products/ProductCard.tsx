@@ -180,8 +180,8 @@ export default function ProductCard({
     if (!product.multiCardTier) return null;
     
     const tiers = {
-      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
-      silver: { label: 'S', classes: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
+      bronze: { label: 'B', classes: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+      silver: { label: 'S', classes: 'bg-slate-500/10 text-muted-foreground border-slate-500/20' },
       gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' },
       platinum: { label: 'P', classes: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' }
     };
@@ -820,7 +820,7 @@ export default function ProductCard({
 
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-2 pointer-events-none origin-top-left">
           {product.status === 'pending_approval' && (
-            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-white border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
+            <Badge variant="outline" className="inline-flex items-center gap-1 bg-amber-500 text-foreground border-none font-bold px-2 py-1 rounded-lg shadow-md pointer-events-auto text-[9px] sm:text-xs">
               <Clock className="h-3 w-3" />
               WAITING FOR MINUTES
             </Badge>
@@ -1005,9 +1005,9 @@ export default function ProductCard({
               🔥 Price Drop
             </Badge>
           )}
-          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-white/5 flex-shrink-0">
+          <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border border-border flex-shrink-0">
             <AvatarImage src={product.sellerAvatar || ''} />
-            <AvatarFallback className="text-[8px] sm:text-[10px] bg-white/10">{resolveSellerName(null, product.sellerName).substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-[8px] sm:text-[10px] bg-muted">{resolveSellerName(null, product.sellerName).substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">
             {resolveSellerName(null, product.sellerName)}
@@ -1022,7 +1022,7 @@ export default function ProductCard({
         <div className="flex flex-wrap items-end justify-between mt-1 sm:mt-4 gap-1 sm:gap-2 flex-grow min-w-0">
           <div className="pointer-events-auto min-w-0 max-w-full">
             <p className="text-[8px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
-            <div className="text-sm sm:text-2xl font-black text-white tracking-tight flex flex-wrap items-center gap-1">
+            <div className="text-sm sm:text-2xl font-black text-foreground tracking-tight flex flex-wrap items-center gap-1">
               <PriceDisplay />
               <DealTierBadge />
               <DealIndicator />

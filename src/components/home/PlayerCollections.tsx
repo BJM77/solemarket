@@ -39,9 +39,9 @@ export function PlayerCollections() {
             <div className="max-w-[1440px] mx-auto px-6 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 mb-4 backdrop-blur-sm">
-                            <Lock className="h-3 w-3 text-slate-300" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">The Vault</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50 border border-slate-700/50 mb-4 backdrop-blur-sm">
+                            <Lock className="h-3 w-3 text-foreground/80" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground/80">The Vault</span>
                         </div>
                         <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Premium Graded</h2>
                         <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium max-w-xl">
@@ -65,23 +65,23 @@ export function PlayerCollections() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent dark:from-black dark:via-black/60" />
 
                             <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end">
-                                <h3 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase relative z-10">
+                                <h3 className="text-3xl md:text-5xl font-black text-foreground mb-4 tracking-tighter uppercase relative z-10">
                                     {collection.title}
                                 </h3>
-                                <p className="text-slate-300 text-sm md:text-lg mb-8 max-w-md font-medium leading-relaxed relative z-10">
+                                <p className="text-foreground/80 text-sm md:text-lg mb-8 max-w-md font-medium leading-relaxed relative z-10">
                                     {collection.description}
                                 </p>
 
                                 <div className="flex flex-wrap gap-2 md:gap-3 mb-8 relative z-10">
                                     {collection.items.map((item) => (
-                                        <div key={item.name} className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 px-3 md:px-4 py-2 rounded-xl">
+                                        <div key={item.name} className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-border px-3 md:px-4 py-2 rounded-xl">
                                             <div className={cn("w-2 h-2 rounded-full", item.color)} />
-                                            <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-wider">{item.name}</span>
+                                            <span className="text-[10px] md:text-xs font-black text-foreground uppercase tracking-wider">{item.name}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="inline-flex items-center gap-2 text-white font-black text-xs md:text-sm uppercase tracking-widest group-hover:translate-x-2 transition-transform relative z-10">
+                                <div className="inline-flex items-center gap-2 text-foreground font-black text-xs md:text-sm uppercase tracking-widest group-hover:translate-x-2 transition-transform relative z-10">
                                     Open The Vault <ArrowRight className="h-4 w-4" />
                                 </div>
                             </div>

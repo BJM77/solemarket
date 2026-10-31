@@ -470,8 +470,8 @@ export default function ShoePhotoBooth() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white/30">
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/10 p-4 safe-top">
+    <div className="min-h-screen bg-background text-foreground selection:bg-white/30">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-border p-4 safe-top">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.push('/home')}>
@@ -479,9 +479,9 @@ export default function ShoePhotoBooth() {
             </Button>
             <div>
               <h1 className="font-bold text-lg flex items-center gap-2">
-                Shoecam <Badge variant="secondary" className="bg-white/10 text-[10px] px-1 py-0 h-4">PRO</Badge>
+                Shoecam <Badge variant="secondary" className="bg-muted text-[10px] px-1 py-0 h-4">PRO</Badge>
               </h1>
-              <p className="text-xs text-white/50">{deviceProfile.name}</p>
+              <p className="text-xs text-muted-foreground">{deviceProfile.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -496,7 +496,7 @@ export default function ShoePhotoBooth() {
                   <Settings className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="bg-zinc-950 border-white/10 rounded-t-3xl max-h-[85vh] overflow-y-auto">
+              <SheetContent side="bottom" className="bg-background border-border rounded-t-3xl max-h-[85vh] overflow-y-auto">
                 <SettingsSheet 
                   isOpen={settingsOpen}
                   setIsOpen={setSettingsOpen}
@@ -520,21 +520,21 @@ export default function ShoePhotoBooth() {
 
       <main className="max-w-md mx-auto relative pb-32">
         <div className={cn(
-          "transition-all duration-500 ease-in-out origin-top relative bg-zinc-900",
+          "transition-all duration-500 ease-in-out origin-top relative bg-card",
           cameraCollapsed ? "h-[120px] overflow-hidden rounded-b-3xl opacity-50 scale-[0.98]" : "h-[800px]",
         )}>
           <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" />
           
           {!cameraCollapsed && showHUD && (
             <>
-              {currentSide === 'FRONT45' && <div className="absolute inset-8 border border-white/30 rounded-2xl rotate-3 pointer-events-none" />}
+              {currentSide === 'FRONT45' && <div className="absolute inset-8 border border-border rounded-2xl rotate-3 pointer-events-none" />}
               {currentSide === 'LABEL' && <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-dashed border-white/50 rounded-xl pointer-events-none" />}
               
               <div className="absolute top-6 inset-x-0 flex justify-center gap-2 pointer-events-none z-20">
                 <Badge className="bg-black/50 text-white">
                   {currentSide === 'FRONT45' ? '1. FRONT 45°' : currentSide === 'SIDE' ? '2. SIDE' : currentSide === 'TOP' ? '3. TOP' : '4. BOX LABEL'}
                 </Badge>
-                {isProcessing && <Badge className="bg-yellow-500/80 text-white"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> {labStatus}</Badge>}
+                {isProcessing && <Badge className="bg-yellow-500/80 text-foreground"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> {labStatus}</Badge>}
               </div>
             </>
           )}
@@ -542,14 +542,14 @@ export default function ShoePhotoBooth() {
           {!cameraCollapsed && (
             <div className="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center justify-end bg-gradient-to-t from-black via-black/80 to-transparent">
               <div className="flex items-center justify-between w-full max-w-[320px]">
-                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-white/5" onClick={toggleTorch}>
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-muted/60" onClick={toggleTorch}>
                   {torchActive ? <Zap className="w-5 h-5 text-yellow-400" /> : <ZapOff className="w-5 h-5" />}
                 </Button>
-                <Button size="icon" disabled={isProcessing} onClick={capture} className="w-20 h-20 rounded-full border-4 border-white bg-white/20">
+                <Button size="icon" disabled={isProcessing} onClick={capture} className="w-20 h-20 rounded-full border-4 border-white bg-muted">
                   <div className="absolute inset-2 bg-white rounded-full transition-transform active:scale-90" />
                 </Button>
-                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl bg-white/5" onClick={() => router.push('/shoecam/review')}>
-                  <Layers className="w-5 h-5 text-white/70" />
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl bg-muted/60" onClick={() => router.push('/shoecam/review')}>
+                  <Layers className="w-5 h-5 text-muted-foreground" />
                 </Button>
               </div>
             </div>
@@ -558,7 +558,7 @@ export default function ShoePhotoBooth() {
           {cameraCollapsed && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer" onClick={resetBooth}>
               <div className="flex flex-col items-center gap-2">
-                <Camera className="w-8 h-8 text-white/80" />
+                <Camera className="w-8 h-8 text-foreground/80" />
                 <span className="text-sm">Tap to Resume Camera</span>
               </div>
             </div>
@@ -568,17 +568,17 @@ export default function ShoePhotoBooth() {
         {boothStep !== 'CAPTURE' && (
           <div ref={reviewPanelRef} className="p-4 space-y-6 animate-in slide-in-from-bottom-8 duration-500">
             {aiScanning ? (
-              <Card className="bg-zinc-900 border-white/10 overflow-hidden shadow-2xl relative">
+              <Card className="bg-card border-border overflow-hidden shadow-2xl relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent animate-[shimmer_2s_infinite]" />
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
                   <Gem className="w-8 h-8 text-blue-400 animate-pulse" />
                   <div className="text-center space-y-2">
                     <h3 className="text-xl font-bold">AI Sneaker Check</h3>
-                    <p className="text-white/60">Reading box label and confirming model...</p>
+                    <p className="text-muted-foreground">Reading box label and confirming model...</p>
                   </div>
                   <div className="flex gap-2 mt-4">
                     {Object.values(capturedImages).map((src, i) => (
-                      <img key={i} src={src} alt={`Captured photo ${i + 1}`} className="w-12 h-12 rounded-lg border border-white/10 object-cover" />
+                      <img key={i} src={src} alt={`Captured photo ${i + 1}`} className="w-12 h-12 rounded-lg border border-border object-cover" />
                     ))}
                   </div>
                 </CardContent>
@@ -587,58 +587,58 @@ export default function ShoePhotoBooth() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
                   <Badge className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
-                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-white/50 hover:text-white">
+                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-muted-foreground hover:text-foreground">
                     <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} /> Re-Scan
                   </Button>
                 </div>
 
-                <Card className="bg-zinc-900 border-white/10 shadow-2xl">
-                  <CardHeader className="border-b border-white/5 pb-4">
+                <Card className="bg-card border-border shadow-2xl">
+                  <CardHeader className="border-b border-border pb-4">
                     <CardTitle className="text-lg">Sneaker Details</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-2 space-y-1.5">
                         <Label>Brand</Label>
-                        <Input value={reviewData.brand} onChange={e => setReviewData({...reviewData, brand: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.brand} onChange={e => setReviewData({...reviewData, brand: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="col-span-2 space-y-1.5">
                         <Label>Model</Label>
-                        <Input value={reviewData.model} onChange={e => setReviewData({...reviewData, model: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.model} onChange={e => setReviewData({...reviewData, model: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Style Code / SKU</Label>
-                        <Input value={reviewData.styleCode} onChange={e => setReviewData({...reviewData, styleCode: e.target.value})} className="bg-black/50 border-white/10 font-mono text-sm" />
+                        <Input value={reviewData.styleCode} onChange={e => setReviewData({...reviewData, styleCode: e.target.value})} className="bg-black/50 border-border font-mono text-sm" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Size (US)</Label>
-                        <Input value={reviewData.sizeUs} onChange={e => setReviewData({...reviewData, sizeUs: e.target.value})} className="bg-black/50 border-white/10 font-bold" />
+                        <Input value={reviewData.sizeUs} onChange={e => setReviewData({...reviewData, sizeUs: e.target.value})} className="bg-black/50 border-border font-bold" />
                       </div>
                       <div className="col-span-2 space-y-1.5">
                         <Label>Colorway</Label>
-                        <Input value={reviewData.colorway} onChange={e => setReviewData({...reviewData, colorway: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.colorway} onChange={e => setReviewData({...reviewData, colorway: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Condition</Label>
-                        <Input value={reviewData.condition} onChange={e => setReviewData({...reviewData, condition: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.condition} onChange={e => setReviewData({...reviewData, condition: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Price (AUD)</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
-                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-white/10 pl-7 text-green-400 font-bold" />
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-400 font-bold" />
                         </div>
                       </div>
                       <div className="col-span-2 space-y-1.5">
                         <Label>Description</Label>
-                        <textarea value={reviewData.description} onChange={e => setReviewData({...reviewData, description: e.target.value})} className="w-full h-24 bg-black/50 border border-white/10 rounded-md p-3 text-sm resize-none" />
+                        <textarea value={reviewData.description} onChange={e => setReviewData({...reviewData, description: e.target.value})} className="w-full h-24 bg-black/50 border border-border rounded-md p-3 text-sm resize-none" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1 h-14 bg-zinc-900 border-white/10" onClick={handleSkipAndQueue}>
+                  <Button variant="outline" className="flex-1 h-14 bg-card border-border" onClick={handleSkipAndQueue}>
                     <Layers className="w-5 h-5 mr-2" /> Queue
                   </Button>
                   <Button className="flex-1 h-14 bg-blue-600 text-white" onClick={handleSubmitToBench} disabled={saving}>

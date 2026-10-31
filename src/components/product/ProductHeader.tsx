@@ -38,18 +38,18 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         <Badge variant="outline" className="text-xs">
           {product.category} {product.subCategory && `> ${product.subCategory}`}
         </Badge>
-        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground bg-card px-3 py-1.5 rounded-full border border-white/5 shadow-sm">
-          <div className="flex items-center gap-1.5 text-orange-600">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground bg-card px-3 py-1.5 rounded-full border border-border shadow-sm">
+          <div className="flex items-center gap-1.5 text-blue-600">
             <div className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
             </div>
             <span>{activeViewers} viewing right now</span>
           </div>
           {/* Watching count removed per user request */}
           {/* {product.watchCount ? (
             <>
-              <span className="text-gray-300">|</span>
+              <span className="text-foreground/80">|</span>
               <div className="flex items-center gap-1">
                 <HeartIcon className="w-3 h-3 text-red-500" />
                 <span>{product.watchCount} watching</span>
@@ -59,11 +59,11 @@ export function ProductHeader({ product }: ProductHeaderProps) {
         </div>
       </div>
 
-      <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-3">{product.title}</h1>
+      <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-3">{product.title}</h1>
 
       <div className="flex items-center gap-3 mb-4">
         {!product.isUntimed && (
-          <div className="text-4xl font-black text-white tracking-tighter">
+          <div className="text-4xl font-black text-foreground tracking-tighter">
             ${formatPrice(product.price)}
           </div>
         )}

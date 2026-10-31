@@ -48,7 +48,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
             <div className="flex gap-3 mb-4">
                 {deal.requirements.platinum > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.platinum === deal.requirements.platinum
-                        ? 'bg-neutral-900 text-white border border-neutral-700'
+                        ? 'bg-card text-foreground border border-neutral-700'
                         : 'bg-white text-neutral-900 border border-neutral-300'
                         }`}>
                         Platinum: {progress.platinum}/{deal.requirements.platinum}
@@ -56,7 +56,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 )}
                 {deal.requirements.gold > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.gold === deal.requirements.gold
-                        ? 'bg-yellow-500 text-white'
+                        ? 'bg-yellow-500 text-foreground'
                         : 'bg-yellow-100 text-yellow-800'
                         }`}>
                         Gold: {progress.gold}/{deal.requirements.gold}
@@ -64,7 +64,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 )}
                 {deal.requirements.silver > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.silver === deal.requirements.silver
-                        ? 'bg-slate-500 text-white'
+                        ? 'bg-slate-500 text-foreground'
                         : 'bg-slate-100 text-slate-700'
                         }`}>
                         Silver: {progress.silver}/{deal.requirements.silver}
@@ -72,8 +72,8 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 )}
                 {deal.requirements.bronze > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.bronze === deal.requirements.bronze
-                        ? 'bg-orange-700 text-white'
-                        : 'bg-orange-100 text-orange-800'
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-blue-100 text-blue-800'
                         }`}>
                         Bronze: {progress.bronze}/{deal.requirements.bronze}
                     </div>
@@ -121,7 +121,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 {/* Bronze Cards */}
                 {items.filter(i => i.slot === 'bronze').length > 0 && (
                     <div>
-                        <div className="text-xs font-semibold text-orange-800 mb-2">BRONZE CARDS</div>
+                        <div className="text-xs font-semibold text-blue-800 mb-2">BRONZE CARDS</div>
                         <div className="space-y-2">
                             {items.filter(i => i.slot === 'bronze').map(item => (
                                 <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />
@@ -189,7 +189,7 @@ function DealCartItemRow({
             </div>
             <button
                 onClick={() => onRemove(item.productId)}
-                className="text-gray-400 hover:text-red-600 text-sm"
+                className="text-muted-foreground hover:text-red-600 text-sm"
             >
                 ×
             </button>

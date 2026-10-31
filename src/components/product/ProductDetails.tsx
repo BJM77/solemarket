@@ -296,7 +296,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
         'Near Mint': 'bg-emerald-100 text-emerald-800 border-emerald-200',
         'Excellent': 'bg-blue-100 text-blue-800 border-blue-200',
         'Good': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'Fair': 'bg-orange-100 text-orange-800 border-orange-200',
+        'Fair': 'bg-blue-100 text-blue-800 border-blue-200',
         'Poor': 'bg-red-100 text-red-800 border-red-200',
     };
 
@@ -443,7 +443,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="absolute top-4 right-4 text-white hover:bg-white/10 rounded-full h-10 w-10"
+                                            className="absolute top-4 right-4 text-foreground hover:bg-muted rounded-full h-10 w-10"
                                             onClick={() => setIsLightboxOpen(false)}
                                         >
                                             <CloseIcon className="h-6 w-6" />
@@ -600,7 +600,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center p-6 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
+                                    <div className="text-center p-6 border-2 border-dashed rounded-lg text-muted-foreground bg-gray-50">
                                         <p>No bids yet. Be the first to make an offer!</p>
                                     </div>
                                 )}
@@ -668,7 +668,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         )}
 
                         {/* Trust & Guarantee Card */}
-                        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-white/10 text-white shadow-xl overflow-hidden rounded-2xl">
+                        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-border text-white shadow-xl overflow-hidden rounded-2xl">
                             <CardContent className="p-6 space-y-4">
                                 <h3 className="font-black text-sm uppercase tracking-wider text-primary flex items-center gap-2">
                                     <ShieldCheck className="h-5 w-5" /> Benched DealSafe Guarantee
@@ -680,7 +680,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         </div>
                                         <div className="space-y-0.5">
                                             <p className="text-xs font-bold">Expert Authenticity Verification</p>
-                                            <p className="text-[10px] text-slate-400">All high-value items are processed and inspected by expert hobby grading partners before final dispatch.</p>
+                                            <p className="text-[10px] text-muted-foreground">All high-value items are processed and inspected by expert hobby grading partners before final dispatch.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 items-start">
@@ -689,7 +689,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         </div>
                                         <div className="space-y-0.5">
                                             <p className="text-xs font-bold">Pay the seller directly</p>
-                                            <p className="text-[10px] text-slate-400">Pay by the seller&apos;s PayID (where offered) or cash on pickup in Perth. Benched never holds your money.</p>
+                                            <p className="text-[10px] text-muted-foreground">Pay by the seller&apos;s PayID (where offered) or cash on pickup in Perth. Benched never holds your money.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 items-start">
@@ -698,7 +698,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         </div>
                                         <div className="space-y-0.5">
                                             <p className="text-xs font-bold">Conflict Protocol Protection</p>
-                                            <p className="text-[10px] text-slate-400">Easy claim resolution. If the item doesn't arrive or is not as described, activate the dispute protocol for mediation.</p>
+                                            <p className="text-[10px] text-muted-foreground">Easy claim resolution. If the item doesn't arrive or is not as described, activate the dispute protocol for mediation.</p>
                                         </div>
                                     </div>
                                 </div>

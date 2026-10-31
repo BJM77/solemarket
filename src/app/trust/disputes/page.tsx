@@ -76,7 +76,7 @@ export default function DisputeStatsPage() {
                                 <div className="flex justify-between text-xs font-bold text-slate-500">
                                     <span>Seller Favored</span> <span>28%</span>
                                 </div>
-                                <div className="flex justify-between text-xs font-bold text-slate-400">
+                                <div className="flex justify-between text-xs font-bold text-muted-foreground">
                                     <span>Split</span> <span>11%</span>
                                 </div>
                             </div>

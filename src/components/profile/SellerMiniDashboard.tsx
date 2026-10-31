@@ -54,11 +54,11 @@ export function SellerMiniDashboard() {
   return (
     <div className="grid grid-cols-3 gap-3 mb-6">
       <Link href="/seller/dashboard" className="block">
-        <Card className="border-none shadow-sm bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer group">
+        <Card className="border-none shadow-sm bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer group">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
-            <DollarSign className="h-4 w-4 text-orange-600 mb-1 group-hover:scale-110 transition-transform" />
-            <p className="text-[10px] font-bold text-orange-800 uppercase tracking-tighter">Sales</p>
-            <p className="text-sm font-black text-orange-900">${formatPrice(stats.revenue)}</p>
+            <DollarSign className="h-4 w-4 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
+            <p className="text-[10px] font-bold text-blue-800 uppercase tracking-tighter">Sales</p>
+            <p className="text-sm font-black text-blue-900">${formatPrice(stats.revenue)}</p>
           </CardContent>
         </Card>
       </Link>

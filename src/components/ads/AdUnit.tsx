@@ -57,7 +57,7 @@ export function AdUnit({ placement, className, variant = 'banner' }: AdUnitProps
                     />
                 </div>
                 <div className="p-4">
-                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">{ad.advertiserName}</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase mb-1">{ad.advertiserName}</p>
                     <h3 className="font-bold text-gray-900 dark:text-white leading-tight">{ad.title}</h3>
                     <div className="mt-3 text-sm font-bold text-primary flex items-center gap-1">
                         Learn More <ExternalLink className="w-3 h-3" />
@@ -86,8 +86,8 @@ export function AdUnit({ placement, className, variant = 'banner' }: AdUnitProps
                     className="object-cover group-hover:brightness-95 transition-all"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent p-6 flex flex-col justify-center">
-                    <p className="text-xs font-bold text-white/80 uppercase mb-1">{ad.advertiserName}</p>
-                    <h3 className="text-xl md:text-2xl font-black text-white max-w-md leading-none mb-2">{ad.title}</h3>
+                    <p className="text-xs font-bold text-foreground/80 uppercase mb-1">{ad.advertiserName}</p>
+                    <h3 className="text-xl md:text-2xl font-black text-foreground max-w-md leading-none mb-2">{ad.title}</h3>
                     <button className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold w-fit mt-2 hover:bg-gray-100 transition-colors">
                         Check it out
                     </button>

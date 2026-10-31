@@ -84,7 +84,7 @@ export default function WantedFilterPanel({
                     <Filter className="w-4 h-4" />
                     Filters
                     {activeFilterCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black dark:bg-white dark:text-black border-2 border-white dark:border-black">
+                        <span className="absolute -top-2 -right-2 bg-background text-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black dark:bg-white dark:text-black border-2 border-white dark:border-black">
                             {activeFilterCount}
                         </span>
                     )}
@@ -155,7 +155,7 @@ export default function WantedFilterPanel({
                                             key={opt.value}
                                             variant={isSelected ? "default" : "outline"}
                                             className={`cursor-pointer px-4 py-2 text-sm font-black border-2 transition-all ${isSelected
-                                                    ? 'bg-black text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white'
+                                                    ? 'bg-background text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white'
                                                     : 'hover:border-black dark:hover:border-white'
                                                 }`}
                                             onClick={() => setLocalFilters({ ...localFilters, condition: opt.value })}
@@ -179,7 +179,7 @@ export default function WantedFilterPanel({
                         Reset
                     </Button>
                     <Button
-                        className="flex-[2] h-12 font-black uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:opacity-90"
+                        className="flex-[2] h-12 font-black uppercase tracking-widest bg-background text-foreground dark:bg-white dark:text-black hover:opacity-90"
                         onClick={handleApply}
                     >
                         Apply Filters

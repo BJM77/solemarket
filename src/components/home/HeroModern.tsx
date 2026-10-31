@@ -23,7 +23,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     {/* H1 for SEO & Accessibility */}
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
                         {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"}<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">
                             {hero.h1TitleLine2 || 'MARKETPLACE.'}
                         </span>
                     </h1>
@@ -39,14 +39,14 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                                 key={btn.id}
                                 href={btn.href} 
                                 style={{ backgroundColor: btn.bgColor, color: accessibleTextColor(btn.bgColor, btn.textColor) }}
-                                className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base"
+                                className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(37, 99, 235,0.4)] flex items-center justify-center gap-2 text-sm md:text-base"
                             >
                                 {btn.label}
                             </Link>
                         ))}
                         <Link 
                             href="/sell" 
-                            className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(242,108,13,0.4)] flex items-center justify-center gap-2 text-sm md:text-base bg-white text-black border-2 border-slate-200 hover:border-white"
+                            className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(37, 99, 235,0.4)] flex items-center justify-center gap-2 text-sm md:text-base bg-white text-black border-2 border-slate-200 hover:border-white"
                         >
                             Sell Now (0% Fees)
                         </Link>

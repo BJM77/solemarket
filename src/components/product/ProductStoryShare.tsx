@@ -68,11 +68,11 @@ export function ProductStoryShare({ product }: ProductStoryShareProps) {
                 className="w-full h-full object-cover"
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
-                    <p className="text-white font-black text-lg leading-tight uppercase tracking-tight mb-1">{product.title}</p>
+                <div className="bg-muted backdrop-blur-md p-4 rounded-xl border border-border">
+                    <p className="text-foreground font-black text-lg leading-tight uppercase tracking-tight mb-1">{product.title}</p>
                     <p className="text-primary font-bold text-xl">${product.price}</p>
                     <div className="mt-2 inline-block bg-primary px-3 py-1 rounded-full">
-                        <p className="text-[10px] text-white font-black uppercase tracking-widest">Available at Benched.au</p>
+                        <p className="text-[10px] text-foreground font-black uppercase tracking-widest">Available at Benched.au</p>
                     </div>
                 </div>
              </div>

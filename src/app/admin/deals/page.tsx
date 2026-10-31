@@ -183,7 +183,7 @@ function DealCard({
                 </div>
             )}
             {deal.requirements.bronze > 0 && (
-                <div className="px-3 py-2 bg-orange-100 text-orange-800 rounded">
+                <div className="px-3 py-2 bg-blue-100 text-blue-800 rounded">
                     <span className="font-semibold">{deal.requirements.bronze}</span> Bronze
                 </div>
             )}
@@ -192,7 +192,7 @@ function DealCard({
                 <button
                     onClick={() => onToggle(deal.id)}
                     className={`px-4 py-2 rounded ${deal.isActive
-                        ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                        ? 'bg-yellow-600 text-foreground hover:bg-yellow-700'
                         : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                 >
@@ -272,7 +272,7 @@ function DealForm({
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-background bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white text-gray-900 rounded-lg max-w-2xl w-full p-6">
                 <h2 className="text-2xl font-bold mb-4">
                     {deal ? 'Edit Deal' : 'Create New Deal'}

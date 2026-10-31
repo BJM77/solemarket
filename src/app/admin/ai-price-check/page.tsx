@@ -125,7 +125,7 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
                             {recommendation.reasoning}
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button size="sm" onClick={handleUpdate} disabled={isLoading} className="bg-primary hover:bg-orange-600">
+                            <Button size="sm" onClick={handleUpdate} disabled={isLoading} className="bg-primary hover:bg-blue-600">
                                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update'}
                             </Button>
                             <Button size="sm" variant="outline" onClick={handleLeave} disabled={isLoading}>Leave</Button>
@@ -134,7 +134,7 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
                 ) : error ? (
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-xs text-rose-500 font-bold">{error}</span>
-                        <Button size="sm" variant="ghost" className="h-7 text-xs flex items-center gap-1 text-slate-400 hover:text-white" onClick={() => handleCheckPrice().catch(() => {})}>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground" onClick={() => handleCheckPrice().catch(() => {})}>
                             <RefreshCw className="h-3 w-3" /> Retry
                         </Button>
                     </div>
@@ -262,7 +262,7 @@ export default function AIPriceCheckPage() {
                         <CardTitle>Active Marketplace Listings</CardTitle>
                         <CardDescription>Review all listings. Click "Check Price" to get an AI valuation, then quickly Update or Leave.</CardDescription>
                     </div>
-                    <Button onClick={handleCheckAll} disabled={isCheckingAll || !products || products.length === 0} className="bg-primary hover:bg-orange-600">
+                    <Button onClick={handleCheckAll} disabled={isCheckingAll || !products || products.length === 0} className="bg-primary hover:bg-blue-600">
                         {isCheckingAll ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
                         {isCheckingAll ? "Checking..." : "Check All Prices"}
                     </Button>

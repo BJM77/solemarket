@@ -40,7 +40,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
   const isProcessing = status.steps.some(s => s.status === 'processing');
   
   return (
-    <div className="bg-zinc-900 border border-white/5 rounded-xl overflow-hidden mb-4">
+    <div className="bg-card border border-border rounded-xl overflow-hidden mb-4">
       {/* Header */}
       <div 
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
@@ -54,13 +54,13 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           ) : isProcessing ? (
             <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
           ) : (
-            <Clock className="w-5 h-5 text-zinc-500" />
+            <Clock className="w-5 h-5 text-muted-foreground" />
           )}
           <div>
-            <div className="font-bold text-sm text-white truncate max-w-[160px]">
+            <div className="font-bold text-sm text-foreground truncate max-w-[160px]">
               Sync: {status.id}
             </div>
-            <div className="text-[10px] text-zinc-400">
+            <div className="text-[10px] text-muted-foreground">
               {isComplete ? 'Complete' : hasError ? 'Failed' : isProcessing ? 'Processing...' : 'Pending'}
               {mounted && status.startedAt && ` • ${new Date(status.startedAt).toLocaleTimeString()}`}
             </div>
@@ -84,7 +84,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
               Cancel
             </button>
           )}
-          <div className="text-[10px] font-bold text-zinc-500">
+          <div className="text-[10px] font-bold text-muted-foreground">
             {status.steps.filter(s => s.status === 'success').length}/{status.steps.length}
           </div>
         </div>
@@ -92,7 +92,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
       
       {/* Steps */}
       {expanded && (
-        <div className="border-t border-white/5 p-4 space-y-4 bg-zinc-950/40">
+        <div className="border-t border-border p-4 space-y-4 bg-background/40">
           {status.steps.map((step) => (
             <div key={step.id} className="flex items-start gap-3">
               {/* Step Icon */}
@@ -117,11 +117,11 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
               {/* Step Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium text-xs text-white">
+                  <div className="font-medium text-xs text-foreground">
                     {step.label}
                   </div>
                    {mounted && step.timestamp && (
-                    <div className="text-[8px] text-zinc-500 font-mono">
+                    <div className="text-[8px] text-muted-foreground font-mono">
                       {new Date(step.timestamp).toLocaleTimeString()}
                     </div>
                   )}
@@ -132,7 +132,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                     "text-[10px] mt-1 font-mono break-all",
                     step.status === 'error' ? "text-red-400" :
                     step.status === 'success' ? "text-emerald-400" :
-                    "text-zinc-400"
+                    "text-muted-foreground"
                   )}>
                     {step.detail}
                   </div>
@@ -140,7 +140,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                 
                 {/* Progress bar for active step */}
                 {step.status === 'processing' && (
-                  <div className="mt-2 w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }} />
                   </div>
                 )}
@@ -159,7 +159,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           
           {/* Completion Time */}
           {mounted && status.completedAt && (
-            <div className="text-[8px] text-zinc-500 text-right font-mono">
+            <div className="text-[8px] text-muted-foreground text-right font-mono">
               Completed: {new Date(status.completedAt).toLocaleTimeString()}
             </div>
           )}

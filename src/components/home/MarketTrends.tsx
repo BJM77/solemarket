@@ -29,7 +29,7 @@ export function MarketTrends() {
               </div>
               <div className="text-right">
                 <p className={`text-sm font-bold ${trend.color}`}>{trend.change}</p>
-                <p className="text-[10px] text-gray-400">{trend.volume}</p>
+                <p className="text-[10px] text-muted-foreground">{trend.volume}</p>
               </div>
             </div>
           ))}

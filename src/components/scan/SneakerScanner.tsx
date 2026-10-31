@@ -89,7 +89,7 @@ export function SneakerScanner() {
                 <SneakerCamera onCapture={handleCapture} isLoading={isAnalyzing} />
             ) : (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="relative aspect-video w-full max-w-lg mx-auto rounded-3xl overflow-hidden bg-slate-900 border-4 border-white/10 shadow-2xl">
+                    <div className="relative aspect-video w-full max-w-lg mx-auto rounded-3xl overflow-hidden bg-card border-4 border-border shadow-2xl">
                         <Image
                             src={imagePreview}
                             alt="Scan Preview"
@@ -106,7 +106,7 @@ export function SneakerScanner() {
                                     <div className="absolute -bottom-1 -right-1 w-10 h-10 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
                                     
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="bg-slate-900/80 backdrop-blur-md text-white px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 shadow-2xl flex items-center gap-2">
+                                        <div className="bg-card/80 backdrop-blur-md text-foreground px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest border border-border shadow-2xl flex items-center gap-2">
                                             <ScanLine className="w-5 h-5 text-primary" />
                                             Is the whole shoe visible?
                                         </div>
@@ -116,7 +116,7 @@ export function SneakerScanner() {
                         )}
 
                         {isAnalyzing && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-xl text-white">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/80 backdrop-blur-xl text-foreground">
                                 <Loader2 className="w-16 h-16 animate-spin mb-4 text-primary" strokeWidth={3} />
                                 <p className="font-black text-xl tracking-tight uppercase">Analyzing Sneaker</p>
                             </div>
@@ -125,7 +125,7 @@ export function SneakerScanner() {
                         {!isAnalyzing && (
                             <button
                                 onClick={resetScan}
-                                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-all border border-white/20"
+                                className="absolute top-4 right-4 bg-muted hover:bg-muted backdrop-blur-md text-foreground p-2 rounded-full transition-all border border-border"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -134,15 +134,15 @@ export function SneakerScanner() {
 
                     {!userConfirmed && !isAnalyzing && (
                         <div className="max-w-md mx-auto space-y-4 pb-[env(safe-area-inset-bottom,1.5rem)]">
-                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-white/5">
+                            <div className="bg-card rounded-3xl p-6 shadow-xl border border-border">
                                 <div className="flex items-center gap-3 mb-6 text-center justify-center">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />
-                                    <h4 className="font-black text-white text-lg uppercase tracking-tight">Looks Good?</h4>
+                                    <h4 className="font-black text-foreground text-lg uppercase tracking-tight">Looks Good?</h4>
                                 </div>
                                 <div className="flex gap-4">
                                     <Button
                                         variant="outline"
-                                        className="flex-1 h-16 rounded-2xl border-2 font-bold text-white hover:bg-white/5"
+                                        className="flex-1 h-16 rounded-2xl border-2 font-bold text-foreground hover:bg-muted/60"
                                         onClick={resetScan}
                                     >
                                         Retake
@@ -160,26 +160,26 @@ export function SneakerScanner() {
 
                     {analysisResult && (
                         <div className="pb-[env(safe-area-inset-bottom,2rem)]">
-                            <Card className="border border-white/5 shadow-2xl rounded-[32px] overflow-hidden bg-card max-w-md mx-auto">
+                            <Card className="border border-border shadow-2xl rounded-[32px] overflow-hidden bg-card max-w-md mx-auto">
                             <div className="h-2 w-full bg-primary"></div>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center gap-3 text-primary">
                                     <Sparkles className="w-8 h-8" />
-                                    <span className="font-black text-2xl tracking-tight uppercase text-white">Match Found!</span>
+                                    <span className="font-black text-2xl tracking-tight uppercase text-foreground">Match Found!</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6 bg-white/5 p-6 rounded-3xl border border-white/5">
+                                <div className="grid grid-cols-2 gap-6 bg-muted/60 p-6 rounded-3xl border border-border">
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Model</p>
-                                        <p className="font-black uppercase tracking-tight text-white text-lg">{analysisResult.brand} {analysisResult.model}</p>
+                                        <p className="font-black uppercase tracking-tight text-foreground text-lg">{analysisResult.brand} {analysisResult.model}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Style Code</p>
-                                        <p className="font-bold text-white text-lg">{analysisResult.styleCode || '—'}</p>
+                                        <p className="font-bold text-foreground text-lg">{analysisResult.styleCode || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Colorway</p>
-                                        <p className="font-bold text-white text-lg">{analysisResult.colorway || '—'}</p>
+                                        <p className="font-bold text-foreground text-lg">{analysisResult.colorway || '—'}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Est. Value</p>

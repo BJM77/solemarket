@@ -135,15 +135,15 @@ export default function CollectionPage() {
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-2 text-white w-full">
+                    <div className="absolute bottom-0 left-0 p-2 text-foreground w-full">
                       <p className="font-bold text-sm truncate">{card.name}</p>
-                      <div className="flex justify-between text-xs text-white/80">
+                      <div className="flex justify-between text-xs text-foreground/80">
                         <span>{card.brand}</span>
                         <span>{card.sport}</span>
                       </div>
                     </div>
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center rounded-xl">
-                      <p className="text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">View</p>
+                      <p className="text-foreground font-bold opacity-0 group-hover:opacity-100 transition-opacity">View</p>
                     </div>
                   </div>
                 </DialogTrigger>

@@ -61,7 +61,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 overflow-hidden max-w-2xl bg-zinc-950 border-white/10 shadow-2xl rounded-xl">
+      <DialogContent className="p-0 overflow-hidden max-w-2xl bg-background border-border shadow-2xl rounded-xl">
         <Command 
           className="w-full bg-transparent flex flex-col overflow-hidden" 
           shouldFilter={false} // We use fuse.js instead of cmdk's built-in filtering
@@ -73,24 +73,24 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
             }
           }}
         >
-          <div className="flex items-center border-b border-white/5 px-3">
-            <Search className="mr-2 h-5 w-5 shrink-0 text-zinc-500" />
+          <div className="flex items-center border-b border-border px-3">
+            <Search className="mr-2 h-5 w-5 shrink-0 text-muted-foreground" />
             <Command.Input 
               value={query}
               onValueChange={setQuery}
               placeholder="Search sneakers, cards, coins..." 
-              className="flex h-14 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-zinc-500 disabled:cursor-not-allowed disabled:opacity-50 text-white" 
+              className="flex h-14 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-foreground" 
             />
-            {loading && <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />}
+            {loading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
           </div>
           
           <Command.List className="max-h-[60vh] overflow-y-auto overflow-x-hidden p-2">
-            <Command.Empty className="py-6 text-center text-sm text-zinc-500">
+            <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
               No results found. Press enter to search all listings.
             </Command.Empty>
             
             {results.length > 0 && (
-              <Command.Group heading="Suggestions" className="text-xs font-medium text-zinc-500 px-2 py-1.5 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-zinc-500">
+              <Command.Group heading="Suggestions" className="text-xs font-medium text-muted-foreground px-2 py-1.5 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-muted-foreground">
                 {results.map((product) => (
                   <Command.Item
                     key={product.id}
@@ -98,16 +98,16 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
                     onSelect={() => handleSelect(product.id)}
                     className="relative flex cursor-default select-none items-center rounded-lg px-2 py-3 text-sm outline-none aria-selected:bg-primary/20 aria-selected:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-primary/10 transition-colors text-white mb-1 gap-3"
                   >
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-zinc-900">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-card">
                       {product.imageUrls?.[0] ? (
                         <img src={product.imageUrls[0]} alt="" className="h-full w-full object-cover" />
                       ) : (
-                        <div className="h-full w-full bg-zinc-800" />
+                        <div className="h-full w-full bg-muted" />
                       )}
                     </div>
                     <div className="flex flex-col flex-1 min-w-0">
                       <span className="font-bold truncate">{product.title}</span>
-                      <span className="text-[10px] text-zinc-400 truncate">{product.category} • ${product.price}</span>
+                      <span className="text-[10px] text-muted-foreground truncate">{product.category} • ${product.price}</span>
                     </div>
                   </Command.Item>
                 ))}

@@ -47,7 +47,7 @@ export default async function JournalArticlePage({ params }: Props) {
     }
 
     return (
-        <article className="bg-black min-h-screen pb-20">
+        <article className="bg-background min-h-screen pb-20">
             <ArticleSchema 
                 title={article.title}
                 description={article.excerpt}
@@ -74,8 +74,8 @@ export default async function JournalArticlePage({ params }: Props) {
                         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-6">
                             {article.title}
                         </h1>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground border-t border-white/10 pt-6">
-                            <span className="font-bold text-white">{article.authorName}</span>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground border-t border-border pt-6">
+                            <span className="font-bold text-foreground">{article.authorName}</span>
                             <span>•</span>
                             <span>{new Date(article.datePublished).toLocaleDateString()}</span>
                             <span>•</span>
@@ -91,7 +91,7 @@ export default async function JournalArticlePage({ params }: Props) {
                     <ReactMarkdown>{article.content}</ReactMarkdown>
                 </div>
                 
-                <div className="mt-16 pt-8 border-t border-white/10 text-center">
+                <div className="mt-16 pt-8 border-t border-border text-center">
                     <p className="text-muted-foreground mb-4">Did you find this guide helpful?</p>
                     <div className="flex justify-center gap-4">
                         {/* Future share buttons */}

@@ -13,10 +13,10 @@ type Details = Awaited<ReturnType<typeof getOrderPaymentDetails>>;
 function CopyRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     const [copied, setCopied] = useState(false);
     return (
-        <div className="rounded-xl border border-white/10 bg-slate-900 p-4">
-            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-slate-400">{label}</p>
+        <div className="rounded-xl border border-border bg-card p-4">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
             <div className="flex items-center justify-between gap-3">
-                <p className={`break-all text-xl font-black text-white ${mono ? 'font-mono' : ''}`} data-testid={`pay-${label.toLowerCase().replace(/\s+/g, '-')}`}>{value}</p>
+                <p className={`break-all text-xl font-black text-foreground ${mono ? 'font-mono' : ''}`} data-testid={`pay-${label.toLowerCase().replace(/\s+/g, '-')}`}>{value}</p>
                 <Button
                     type="button"
                     variant="outline"
@@ -68,8 +68,8 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="h-6 w-6 shrink-0 text-primary" aria-hidden />
                         <div>
-                            <h3 className="text-lg font-black text-white">Pay {d.sellerName || 'the seller'} by PayID</h3>
-                            <p className="text-sm text-slate-300">
+                            <h3 className="text-lg font-black text-foreground">Pay {d.sellerName || 'the seller'} by PayID</h3>
+                            <p className="text-sm text-foreground/80">
                                 Transfer the exact amount from your banking app using the PayID and reference below.
                                 {due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
                             </p>
@@ -85,7 +85,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                     ) : (
                         <p className="text-sm text-amber-300">The seller&apos;s PayID isn&apos;t available. Please <Link href={reportHref} className="underline">contact us</Link>.</p>
                     )}
-                    <ol className="list-decimal space-y-1 pl-5 text-sm text-slate-300">
+                    <ol className="list-decimal space-y-1 pl-5 text-sm text-foreground/80">
                         <li>Open your banking app and choose Pay to PayID.</li>
                         <li>Check the name your bank shows matches the account name above before you confirm.</li>
                         <li>Put the reference in the description so the seller can match your payment.</li>
@@ -95,8 +95,8 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
             ) : (
                 <div className="flex items-start gap-3">
                     <MapPin className="h-6 w-6 shrink-0 text-primary" aria-hidden />
-                    <div className="space-y-2 text-sm text-slate-300">
-                        <h3 className="text-lg font-black text-white">Cash on pickup in Perth</h3>
+                    <div className="space-y-2 text-sm text-foreground/80">
+                        <h3 className="text-lg font-black text-foreground">Cash on pickup in Perth</h3>
                         <p>
                             Message {d.sellerName || 'the seller'} to arrange a pickup time and a safe, public place
                             {due ? ` before ${due} (Perth time)` : ' within 72 hours'}. Bring <b>${formatPrice(d.totalAmount)}</b> in cash,

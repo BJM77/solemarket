@@ -23,13 +23,13 @@ export default async function MarketTrendingPage() {
 
     return (
         <div className="min-h-screen bg-background pb-20">
-            <div className="bg-card border-b border-white/5">
+            <div className="bg-card border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 py-16">
                     <div className="flex flex-col items-center text-center">
                         <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
                             <Flame className="h-8 w-8 text-primary" />
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase">
+                        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4 tracking-tighter uppercase">
                             Market Trending
                         </h1>
                         <p className="max-w-xl text-lg text-muted-foreground">
@@ -41,30 +41,30 @@ export default async function MarketTrendingPage() {
 
             <div className="max-w-7xl mx-auto px-4 mt-12">
                 <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-blue-100 dark:bg-blue-950/50 rounded-xl flex items-center justify-center text-blue-600">
                             <BarChart3 className="h-5 w-5" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Market Velocity</p>
+                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Market Velocity</p>
                             <p className="text-xl font-bold">+14% this week</p>
                         </div>
                     </div>
-                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-green-100 dark:bg-green-950/50 rounded-xl flex items-center justify-center text-green-600">
                             <TrendingUp className="h-5 w-5" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Active Buyers</p>
+                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Buyers</p>
                             <p className="text-xl font-bold">1,240 online</p>
                         </div>
                     </div>
-                    <div className="bg-card p-6 rounded-3xl border border-white/5 shadow-sm flex items-center gap-4">
+                    <div className="bg-card p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
                         <div className="h-10 w-10 bg-purple-100 dark:bg-purple-950/50 rounded-xl flex items-center justify-center text-purple-600">
                             <Clock className="h-5 w-5" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Last Updated</p>
+                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Last Updated</p>
                             <p className="text-xl font-bold">Just now</p>
                         </div>
                     </div>
@@ -73,7 +73,7 @@ export default async function MarketTrendingPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {trendingProducts.map((product, index) => (
                         <div key={product.id} className="relative">
-                            <div className="absolute -top-3 -left-3 z-20 h-8 w-8 bg-black text-white rounded-full flex items-center justify-center font-black text-xs border-2 border-white shadow-lg">
+                            <div className="absolute -top-3 -left-3 z-20 h-8 w-8 bg-background text-foreground rounded-full flex items-center justify-center font-black text-xs border-2 border-white shadow-lg">
                                 #{index + 1}
                             </div>
                             <ProductCard product={product} />

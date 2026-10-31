@@ -306,17 +306,17 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         </Button>
                     )}
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl w-full p-0 gap-0 overflow-hidden bg-black border-slate-800">
+                <DialogContent className="max-w-4xl w-full p-0 gap-0 overflow-hidden bg-background border-border">
                     <div className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
-                        <div className="text-white">
+                        <div className="text-foreground">
                             <DialogTitle className="text-lg font-bold">Camera</DialogTitle>
-                            <DialogDescription className="text-white/60 text-xs">
+                            <DialogDescription className="text-muted-foreground text-xs">
                                 {capturedFiles.length} / {maxFiles} photos taken
                             </DialogDescription>
                         </div>
                         {cameras.length > 1 && (
                             <Select value={selectedCamera} onValueChange={(value) => { setSelectedCamera(value); startCamera(value); }} disabled={!hasCameraPermission}>
-                                <SelectTrigger className="w-[140px] h-8 bg-white/10 border-white/20 text-white text-xs backdrop-blur-md">
+                                <SelectTrigger className="w-[140px] h-8 bg-muted border-border text-foreground text-xs backdrop-blur-md">
                                     <SelectValue placeholder="Switch Camera" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -328,10 +328,10 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 </SelectContent>
                             </Select>
                         )}
-                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-white/70 hover:text-white" onClick={() => setIsDialogOpen(false)}><X /></Button>
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-muted-foreground hover:text-foreground" onClick={() => setIsDialogOpen(false)}><X /></Button>
                     </div>
 
-                    <div className="relative w-full h-[60vh] md:h-[70vh] bg-black flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full h-[60vh] md:h-[70vh] bg-background flex items-center justify-center overflow-hidden">
                         <video
                             ref={videoRef}
                             autoPlay
@@ -347,8 +347,8 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         {hasCameraPermission === false && !isCameraLoading && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-6 text-center z-40">
                                 <VideoOff className="h-12 w-12 text-red-500 mb-4" />
-                                <h3 className="text-white font-bold mb-2">Camera Access Denied</h3>
-                                <p className="text-white/60 text-sm">{error || "Please check your browser settings."}</p>
+                                <h3 className="text-foreground font-bold mb-2">Camera Access Denied</h3>
+                                <p className="text-muted-foreground text-sm">{error || "Please check your browser settings."}</p>
                             </div>
                         )}
 
@@ -358,7 +358,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 disabled={!stream || !hasCameraPermission || capturedFiles.length >= maxFiles || isCameraLoading}
                                 className={cn(
                                     "w-20 h-20 rounded-full border-4 border-white flex items-center justify-center transition-all active:scale-95",
-                                    (capturedFiles.length >= maxFiles || isCameraLoading) ? "opacity-50 cursor-not-allowed border-slate-500" : "hover:bg-white/20"
+                                    (capturedFiles.length >= maxFiles || isCameraLoading) ? "opacity-50 cursor-not-allowed border-slate-500" : "hover:bg-muted"
                                 )}
                             >
                                 <div className="w-16 h-16 rounded-full bg-white shadow-lg" />
@@ -366,22 +366,22 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         </div>
                     </div>
 
-                    <div className="bg-slate-950 p-4 border-t border-white/10">
+                    <div className="bg-background p-4 border-t border-border">
                         <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/20">
                             {capturedPreviews.map((url, idx) => (
-                                <div key={url} className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-white/20 group">
+                                <div key={url} className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border group">
                                     <Image src={url} alt={`Capture ${idx}`} className="w-full h-full object-cover" width={64} height={64} style={{ WebkitUserSelect: 'none', WebkitTransform: 'translateZ(0)' }} />
                                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => rotateImage(idx)}
-                                            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                                            className="p-1 hover:bg-muted rounded-full transition-colors"
                                             title="Rotate 90°"
                                         >
-                                            <RotateCw className="w-4 h-4 text-white" />
+                                            <RotateCw className="w-4 h-4 text-foreground" />
                                         </button>
                                         <button
                                             onClick={() => removeCapturedImage(idx)}
-                                            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                                            className="p-1 hover:bg-muted rounded-full transition-colors"
                                             title="Remove Image"
                                         >
                                             <Trash2 className="w-4 h-4 text-red-400" />
@@ -393,7 +393,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 </div>
                             ))}
                             {capturedFiles.length < maxFiles && (
-                                <div className="w-16 h-16 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center text-white/20 text-xs">
+                                <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center text-white/20 text-xs">
                                     {maxFiles - capturedFiles.length} left
                                 </div>
                             )}
@@ -401,7 +401,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         <div className="flex gap-3 mt-2">
                             <Button
                                 variant="outline"
-                                className="flex-1 bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
+                                className="flex-1 bg-transparent border-border text-foreground hover:bg-muted hover:text-foreground"
                                 onClick={() => setIsDialogOpen(false)}
                             >
                                 Cancel

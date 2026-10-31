@@ -38,24 +38,24 @@ export function HistoryPanel({ refreshKey, onRestored }: { refreshKey: number; o
   };
 
   return (
-    <Card className="bg-zinc-900 border-white/10 text-white">
+    <Card className="bg-card border-border text-foreground">
       <CardHeader>
         <CardTitle>Published versions</CardTitle>
         <CardDescription>Every publish is saved here. Restoring makes that version live again (and is itself logged).</CardDescription>
       </CardHeader>
       <CardContent>
         {items === null ? <Loader2 className="h-5 w-5 animate-spin" /> : items.length === 0 ? (
-          <p className="text-sm text-zinc-400">No published versions yet.</p>
+          <p className="text-sm text-muted-foreground">No published versions yet.</p>
         ) : (
-          <ul className="divide-y divide-white/10">
+          <ul className="divide-y divide-border">
             {items.map((h, i) => (
               <li key={h.id} className="flex items-center justify-between gap-4 py-3">
                 <div className="text-sm">
                   <div className="font-bold">{new Date(h.publishedAt).toLocaleString('en-AU')}{i === 0 && <span className="ml-2 rounded bg-green-500/20 px-2 py-0.5 text-xs text-green-300">Live</span>}</div>
-                  <div className="text-zinc-400">{h.restoredFrom ? `Restored from ${h.restoredFrom.slice(0, 6)}` : h.note || 'Published'} · {h.publishedBy?.slice(0, 8)}</div>
+                  <div className="text-muted-foreground">{h.restoredFrom ? `Restored from ${h.restoredFrom.slice(0, 6)}` : h.note || 'Published'} · {h.publishedBy?.slice(0, 8)}</div>
                 </div>
                 {i > 0 && (
-                  <Button size="sm" variant="outline" className="border-white/20" disabled={!!busy} onClick={() => restore(h.id)}>
+                  <Button size="sm" variant="outline" className="border-border" disabled={!!busy} onClick={() => restore(h.id)}>
                     {busy === h.id ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <RotateCcw className="mr-1 h-4 w-4" />} Restore
                   </Button>
                 )}

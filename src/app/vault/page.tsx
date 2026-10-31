@@ -14,7 +14,7 @@ export default function VaultPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-slate-900 text-white overflow-hidden">
+      <section className="relative bg-card text-foreground overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-40">
           <Image
             src="https://images.unsplash.com/photo-1621360841012-3f82413a967e?q=80&w=2070&auto=format&fit=crop"
@@ -54,7 +54,7 @@ export default function VaultPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg md:text-xl text-slate-300 max-w-2xl leading-relaxed"
+              className="text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed"
             >
               We act as the unbiased middle-man. We hold the money, verify the product, and ensure both buyer and seller are 100% protected. No scams. No chargebacks. Just peace of mind.
             </motion.p>
@@ -68,7 +68,7 @@ export default function VaultPage() {
               <Button size="lg" className="h-14 px-8 text-lg font-bold bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-500/20">
                 Start a Vault Transaction
               </Button>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold text-white border-slate-600 hover:bg-white/10 rounded-full">
+              <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold text-foreground border-slate-600 hover:bg-muted rounded-full">
                 How It Works
               </Button>
             </motion.div>
@@ -80,10 +80,10 @@ export default function VaultPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex-1 w-full max-w-md"
           >
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+            <div className="bg-muted/60 backdrop-blur-xl border border-border p-8 rounded-3xl shadow-2xl">
               <div className="flex justify-between items-center mb-6">
-                <div className="text-slate-300 font-medium">Service Fee</div>
-                <div className="text-3xl font-bold text-white">$49.95 <span className="text-sm font-normal text-slate-400">/ transaction</span></div>
+                <div className="text-foreground/80 font-medium">Service Fee</div>
+                <div className="text-3xl font-bold text-foreground">$49.95 <span className="text-sm font-normal text-muted-foreground">/ transaction</span></div>
               </div>
               <div className="space-y-4">
                 <FeatureRow text="Physical Item Authentication" />
@@ -91,8 +91,8 @@ export default function VaultPage() {
                 <FeatureRow text="Insured Shipping" />
                 <FeatureRow text="Dispute Resolution" />
               </div>
-              <div className="mt-8 pt-6 border-t border-white/10 text-center">
-                <p className="text-sm text-slate-400">Available for items valued $250 - $50,000</p>
+              <div className="mt-8 pt-6 border-t border-border text-center">
+                <p className="text-sm text-muted-foreground">Available for items valued $250 - $50,000</p>
               </div>
             </div>
           </motion.div>
@@ -100,7 +100,7 @@ export default function VaultPage() {
       </section>
 
       {/* Trust Stats */}
-      <div className="bg-card border-b border-white/5">
+      <div className="bg-card border-b border-border">
         <div className="container py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
           <StatItem label="Australian Owned" value="100%" />
           <StatItem label="Secure Transactions" value="10k+" />
@@ -112,7 +112,7 @@ export default function VaultPage() {
       {/* How It Works - The Core Value */}
       <section className="py-20 container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase">The "No-Stress" Transaction</h2>
+          <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 uppercase">The "No-Stress" Transaction</h2>
           <p className="text-lg text-muted-foreground">
             We've removed the trust barrier. You don't need to trust the stranger on the internet—you just need to trust Benched.
           </p>
@@ -155,7 +155,7 @@ export default function VaultPage() {
           <Tabs defaultValue="sellers" className="w-full">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-black uppercase mb-8">Why use the Vault?</h2>
-              <TabsList className="bg-black p-1 rounded-full border border-white/10 shadow-sm">
+              <TabsList className="bg-background p-1 rounded-full border border-border shadow-sm">
                 <TabsTrigger value="sellers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all">For Sellers</TabsTrigger>
                 <TabsTrigger value="buyers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all">For Buyers</TabsTrigger>
               </TabsList>
@@ -222,10 +222,10 @@ export default function VaultPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-slate-900 text-white text-center">
+      <section className="py-24 bg-card text-foreground text-center">
         <div className="container max-w-4xl">
           <h2 className="text-4xl md:text-5xl font-black mb-6">Ready to trade with confidence?</h2>
-          <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">Join thousands of Australians who trust Benched Vault for their high-value collectibles.</p>
+          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">Join thousands of Australians who trust Benched Vault for their high-value collectibles.</p>
           <Button size="lg" className="h-16 px-12 text-xl font-bold bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 border-0 rounded-full shadow-2xl shadow-emerald-500/20">
             Get Started Now
           </Button>
@@ -238,7 +238,7 @@ export default function VaultPage() {
 // Sub-components for cleaner code
 function FeatureRow({ text }: { text: string }) {
   return (
-    <div className="flex items-center gap-3 text-slate-200">
+    <div className="flex items-center gap-3 text-foreground">
       <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0" />
       <span>{text}</span>
     </div>
@@ -248,7 +248,7 @@ function FeatureRow({ text }: { text: string }) {
 function StatItem({ label, value }: { label: string, value: string }) {
   return (
     <div className="text-center">
-      <div className="text-3xl md:text-4xl font-black text-white mb-1 tracking-tighter uppercase">{value}</div>
+      <div className="text-3xl md:text-4xl font-black text-foreground mb-1 tracking-tighter uppercase">{value}</div>
       <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{label}</div>
     </div>
   )
@@ -256,12 +256,12 @@ function StatItem({ label, value }: { label: string, value: string }) {
 
 function ProcessStep({ number, title, desc, icon }: { number: string, title: string, desc: string, icon: React.ReactNode }) {
   return (
-    <div className="relative bg-black p-6 rounded-2xl shadow-xl border border-white/5 flex flex-col items-center text-center z-10 hover:-translate-y-1 transition-transform duration-300">
-      <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10 shadow-sm">
+    <div className="relative bg-background p-6 rounded-2xl shadow-xl border border-border flex flex-col items-center text-center z-10 hover:-translate-y-1 transition-transform duration-300">
+      <div className="w-12 h-12 bg-muted/60 rounded-full flex items-center justify-center mb-4 border border-border shadow-sm">
         {icon}
       </div>
       <div className="absolute top-4 right-4 text-4xl font-black text-white/5 -z-10">{number}</div>
-      <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">{title}</h3>
+      <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
     </div>
   )
@@ -274,7 +274,7 @@ function BenefitItem({ title, desc }: { title: string, desc: string }) {
         <CheckCircle2 className="h-5 w-5 text-emerald-500" />
       </div>
       <div>
-        <h4 className="font-black uppercase tracking-tight text-lg text-white">{title}</h4>
+        <h4 className="font-black uppercase tracking-tight text-lg text-foreground">{title}</h4>
         <p className="text-muted-foreground leading-relaxed">{desc}</p>
       </div>
     </div>
@@ -283,8 +283,8 @@ function BenefitItem({ title, desc }: { title: string, desc: string }) {
 
 function FAQItem({ question, answer }: { question: string, answer: string }) {
   return (
-    <AccordionItem value={question} className="bg-black/40 border border-white/5 rounded-2xl px-6 shadow-sm overflow-hidden mb-4">
-      <AccordionTrigger className="text-lg font-black uppercase tracking-tight text-white hover:text-emerald-400 text-left py-6">{question}</AccordionTrigger>
+    <AccordionItem value={question} className="bg-black/40 border border-border rounded-2xl px-6 shadow-sm overflow-hidden mb-4">
+      <AccordionTrigger className="text-lg font-black uppercase tracking-tight text-foreground hover:text-emerald-400 text-left py-6">{question}</AccordionTrigger>
       <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
         {answer}
       </AccordionContent>

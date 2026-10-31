@@ -36,7 +36,7 @@ export function BottomNav() {
                 href={item.href}
                 className="relative -top-6 flex flex-col items-center group tap-haptic"
               >
-                <div className="bg-primary text-black p-4 rounded-full shadow-2xl shadow-primary/40 transition-all duration-300 hover:scale-105 ring-[4px] ring-background group-hover:shadow-primary/60 pulse-glow">
+                <div className="bg-primary text-primary-foreground p-4 rounded-full shadow-2xl shadow-primary/40 transition-all duration-300 hover:scale-105 ring-[4px] ring-background group-hover:shadow-primary/60 pulse-glow">
                   <item.icon className="h-6 w-6" strokeWidth={3} />
                 </div>
                 <span className={cn(

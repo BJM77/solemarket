@@ -142,7 +142,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
                                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                                     <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Current / Manual Price</p>
                                     <div className="flex gap-2 items-center mt-1">
-                                        <span className="text-slate-400">$</span>
+                                        <span className="text-muted-foreground">$</span>
                                         <Input
                                             value={manualPrice}
                                             onChange={(e) => setManualPrice(e.target.value)}

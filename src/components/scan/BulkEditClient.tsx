@@ -170,10 +170,10 @@ export function BulkEditClient() {
                                             src={card.localPreview || '/placeholder.png'} 
                                             alt={card.title || 'Product Image'}
                                             fill
-                                            className="object-cover rounded-md border border-white/10 group-hover:scale-110 transition-transform"
+                                            className="object-cover rounded-md border border-border group-hover:scale-110 transition-transform"
                                         />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
-                                            <Eye className="h-4 w-4 text-white" />
+                                            <Eye className="h-4 w-4 text-foreground" />
                                         </div>
                                     </Link>
                                 </TableCell>

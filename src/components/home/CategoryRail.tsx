@@ -5,7 +5,7 @@ import { Sparkles, Zap, Trophy, Flame, Star } from 'lucide-react';
 
 const TRENDING_SEARCHES = [
     { name: 'Jordan 1 High', icon: Flame, href: '/browse?q=Jordan+1+High', color: 'bg-red-100 text-red-600' },
-    { name: 'Nike Dunk Low', icon: Zap, href: '/browse?q=Nike+Dunk+Low', color: 'bg-orange-100 text-orange-600' },
+    { name: 'Nike Dunk Low', icon: Zap, href: '/browse?q=Nike+Dunk+Low', color: 'bg-blue-100 text-blue-600' },
     { name: 'Yeezy Boost 350', icon: Star, href: '/browse?q=Yeezy+Boost+350', color: 'bg-gray-100 text-gray-600' },
     { name: 'New Balance 2002R', icon: Trophy, href: '/browse?q=New+Balance+2002R', color: 'bg-green-100 text-green-600' },
     { name: 'Adidas Samba', icon: Sparkles, href: '/browse?q=Adidas+Samba', color: 'bg-blue-100 text-blue-600' },

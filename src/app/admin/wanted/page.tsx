@@ -191,7 +191,7 @@ export default function AdminWantedManager() {
                         ) : criteria.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-24 text-center px-6">
                                 <div className="h-20 w-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700">
-                                    <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+                                    <Inbox className="h-10 w-10 text-foreground/80 dark:text-slate-600" />
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Active Watches</h3>
                                 <p className="text-slate-500 max-w-sm">You haven&apos;t added any personal wanted items to your watch list yet.</p>
@@ -233,7 +233,7 @@ export default function AdminWantedManager() {
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => handleDelete(item.id)}
-                                                    className="text-slate-400 hover:text-rose-600 rounded-full"
+                                                    className="text-muted-foreground hover:text-rose-600 rounded-full"
                                                     disabled={isPending}
                                                 >
                                                     <Trash2 className="h-4 w-4" />

@@ -52,14 +52,14 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                 )}
             />
             {form.watch('multibuyEnabled') && (
-                <div className="border border-white/10 rounded-2xl p-5 space-y-4 bg-slate-950/40 backdrop-blur-md shadow-2xl">
+                <div className="border border-border rounded-2xl p-5 space-y-4 bg-background/40 backdrop-blur-md shadow-2xl">
                     <div className="flex items-center justify-between ">
-                        <Label className="text-sm font-bold text-slate-300">Discount Tiers</Label>
+                        <Label className="text-sm font-bold text-foreground/80">Discount Tiers</Label>
                         <Button
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg text-xs font-semibold h-8"
+                            className="border-border bg-muted/60 text-foreground/80 hover:bg-muted hover:text-foreground rounded-lg text-xs font-semibold h-8"
                             onClick={() => {
                                 const currentTiers = form.getValues('multibuyTiers') || [];
                                 const lastTier = currentTiers[currentTiers.length - 1];
@@ -78,9 +78,9 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                     
                     <div className="space-y-2">
                         {(form.watch('multibuyTiers') || []).map((tier: MultibuyTier, index: number) => (
-                            <div key={index} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/10 text-white animate-in fade-in slide-in-from-top-1 duration-200">
+                            <div key={index} className="flex items-center gap-4 bg-muted/60 p-3 rounded-xl border border-border text-foreground animate-in fade-in slide-in-from-top-1 duration-200">
                                 <div className="flex-1">
-                                    <Label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Min Qty</Label>
+                                    <Label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Min Qty</Label>
                                     <Input
                                         type="number"
                                         min="2"
@@ -90,11 +90,11 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                             tiers[index].minQuantity = parseInt(e.target.value) || 2;
                                             form.setValue('multibuyTiers', tiers);
                                         }}
-                                        className="mt-1 h-9 bg-slate-900/60 border-white/10 text-white focus-visible:ring-indigo-500 rounded-lg text-xs"
+                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-indigo-500 rounded-lg text-xs"
                                     />
                                 </div>
                                 <div className="flex-1">
-                                    <Label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Discount %</Label>
+                                    <Label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Discount %</Label>
                                     <Input
                                         type="number"
                                         min="1"
@@ -105,7 +105,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                             tiers[index].discountPercent = Math.min(90, Math.max(1, parseInt(e.target.value) || 1));
                                             form.setValue('multibuyTiers', tiers);
                                         }}
-                                        className="mt-1 h-9 bg-slate-900/60 border-white/10 text-white focus-visible:ring-indigo-500 rounded-lg text-xs"
+                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-indigo-500 rounded-lg text-xs"
                                     />
                                 </div>
                                 <Button
@@ -117,7 +117,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                         form.setValue('multibuyTiers', tiers);
                                     }}
                                     disabled={(form.getValues('multibuyTiers') || []).length === 1}
-                                    className="mt-5 hover:bg-red-500/10 hover:text-red-400 rounded-lg h-9 w-9 text-slate-400"
+                                    className="mt-5 hover:bg-red-500/10 hover:text-red-400 rounded-lg h-9 w-9 text-muted-foreground"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

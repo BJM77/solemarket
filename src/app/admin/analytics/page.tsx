@@ -120,7 +120,7 @@ export default function AnalyticsPage() {
                             </ResponsiveContainer>
                         ) : (
                             <EmptyState
-                                icon={<BarChartIcon className="h-12 w-12 text-slate-300" />}
+                                icon={<BarChartIcon className="h-12 w-12 text-foreground/80" />}
                                 title="No Transactional Intelligence"
                                 description="Data streams will initialize once the first sales are detected on the protocol."
                                 className="h-[300px]"
@@ -161,7 +161,7 @@ export default function AnalyticsPage() {
                             </ResponsiveContainer>
                         ) : (
                             <EmptyState
-                                icon={<PieChartIcon className="h-12 w-12 text-slate-300" />}
+                                icon={<PieChartIcon className="h-12 w-12 text-foreground/80" />}
                                 title="No Asset Data Found"
                                 description="The matrix requires more listings to generate a meaningful distribution map."
                                 className="h-[300px]"

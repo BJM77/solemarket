@@ -96,7 +96,7 @@ export function DetailsStep({
 
     return (
         <div className="space-y-6">
-            <div className="pt-2 border-t border-white/10 my-4" />
+            <div className="pt-2 border-t border-border my-4" />
 
             <Card className="border-0 shadow-md bg-card">
                 <CardHeader><CardTitle>Core Information</CardTitle></CardHeader>
@@ -193,9 +193,9 @@ export function DetailsStep({
                         )} />
 
                         <FormField control={form.control} name="allowLocalPickup" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 p-4 shadow-sm bg-white/5 md:col-span-2">
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border p-4 shadow-sm bg-muted/60 md:col-span-2">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-sm font-bold text-white">Enable Buy & Collect</FormLabel>
+                                    <FormLabel className="text-sm font-bold text-foreground">Enable Buy & Collect</FormLabel>
                                     <FormDescription className="text-[10px]">Allow buyers to see your number and arrange local cash pickup.</FormDescription>
                                 </div>
                                 <FormControl>

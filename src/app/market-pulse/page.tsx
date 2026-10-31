@@ -24,7 +24,7 @@ const TOP_MARKETS = [
 
 export default function MarketPulseIndexPage() {
     return (
-        <div className="bg-black min-h-screen pt-24 pb-20">
+        <div className="bg-background min-h-screen pt-24 pb-20">
             <DatasetSchema 
                 name="Benched AU Market Pulse Index"
                 description="Aggregated data index of authentic Australian collectibles sales prices."
@@ -45,7 +45,7 @@ export default function MarketPulseIndexPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-                    <Card className="bg-white/5 border-white/10">
+                    <Card className="bg-muted/60 border-border">
                         <CardHeader>
                             <CardTitle className="text-emerald-500 flex items-center gap-2">
                                 <ShieldCheck className="h-5 w-5" />
@@ -53,13 +53,13 @@ export default function MarketPulseIndexPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-white/70">
-                                Across our platform, Vault-verified items command an average <span className="text-white font-bold">+18% price premium</span> compared to unverified peer-to-peer sales. Trust pays.
+                            <p className="text-sm text-muted-foreground">
+                                Across our platform, Vault-verified items command an average <span className="text-foreground font-bold">+18% price premium</span> compared to unverified peer-to-peer sales. Trust pays.
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 border-white/10">
+                    <Card className="bg-muted/60 border-border">
                         <CardHeader>
                             <CardTitle className="text-emerald-500 flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
@@ -67,13 +67,13 @@ export default function MarketPulseIndexPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-white/70">
+                            <p className="text-sm text-muted-foreground">
                                 Our index filters out statistical anomalies (using IQR) and false sales, providing you with the exact market value for items trading hands in Australia today.
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 border-white/10">
+                    <Card className="bg-muted/60 border-border">
                         <CardHeader>
                             <CardTitle className="text-emerald-500 flex items-center gap-2">
                                 <Activity className="h-5 w-5" />
@@ -81,7 +81,7 @@ export default function MarketPulseIndexPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-white/70">
+                            <p className="text-sm text-muted-foreground">
                                 This dataset is completely open for AI researchers and market analysts. Check our JSON feeds to integrate Benched pricing into your own tools.
                             </p>
                         </CardContent>
@@ -92,7 +92,7 @@ export default function MarketPulseIndexPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {TOP_MARKETS.map(market => (
                         <Link key={market.slug} href={`/market-pulse/${market.slug}`}>
-                            <div className="p-6 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                            <div className="p-6 rounded-lg border border-border bg-muted/60 hover:bg-muted transition-colors cursor-pointer group">
                                 <div className="text-xs uppercase tracking-widest text-emerald-500 mb-2">{market.category}</div>
                                 <h3 className="text-xl font-bold group-hover:underline underline-offset-4">{market.title}</h3>
                                 <div className="mt-4 flex items-center text-sm text-muted-foreground gap-2">

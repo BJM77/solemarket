@@ -18,7 +18,7 @@ const CATEGORIES = [
         name: 'Nike',
         logo: '/brand-logos/svg/nike.svg',
         href: '/shoes?subCategory=Nike&brand=Nike',
-        color: 'bg-orange-50/50 dark:bg-orange-950/10'
+        color: 'bg-blue-50/50 dark:bg-orange-950/10'
     },
     {
         name: 'Adidas',
@@ -101,7 +101,7 @@ export default function CategoryGrid() {
                         <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">{title}</h2>
                         <p className="text-xs md:text-lg text-slate-500 dark:text-slate-400 mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
-                    <Link href="/browse" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-primary hover:text-orange-400 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20">
+                    <Link href="/browse" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-primary hover:text-blue-400 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20">
                         View All Market <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -115,7 +115,7 @@ export default function CategoryGrid() {
                                 href={cat.href}
                                 className="group block"
                             >
-                                <div className="relative h-full bg-card border border-white/5 rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(242,108,13,0.15)] hover:-translate-y-1 hover:scale-[1.02] active:scale-95 overflow-hidden">
+                                <div className="relative h-full bg-card border border-border rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(37, 99, 235,0.15)] hover:-translate-y-1 hover:scale-[1.02] active:scale-95 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                     <div className={cn(
@@ -143,7 +143,7 @@ export default function CategoryGrid() {
                     })}
                 </div>
 
-                <Link href="/browse" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-primary hover:text-orange-400 flex justify-center items-center transition-all bg-primary/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-primary/20 w-full text-center">
+                <Link href="/browse" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-primary hover:text-blue-400 flex justify-center items-center transition-all bg-primary/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-primary/20 w-full text-center">
                     View All Market <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>

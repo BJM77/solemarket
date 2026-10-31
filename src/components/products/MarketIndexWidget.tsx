@@ -42,7 +42,7 @@ export function MarketIndexWidget({
     : null;
 
   return (
-    <Card className="bg-card/70 backdrop-blur-md border border-white/10 overflow-hidden shadow-xl my-4">
+    <Card className="bg-card/70 backdrop-blur-md border border-border overflow-hidden shadow-xl my-4">
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ export function MarketIndexWidget({
               <BarChart3 className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-black uppercase tracking-wider text-white">
+              <div className="text-xs font-black uppercase tracking-wider text-foreground">
                 Market Index
               </div>
               <div className="text-[11px] text-muted-foreground">
@@ -70,25 +70,25 @@ export function MarketIndexWidget({
             </Badge>
           )}
           {!isSteal && !isOverpriced && (
-            <Badge variant="outline" className="text-xs font-bold border-white/20 text-slate-300">
+            <Badge variant="outline" className="text-xs font-bold border-border text-foreground/80">
               Fair Market Value
             </Badge>
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5">
-          <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border">
+          <div className="p-2.5 rounded-xl bg-black/40 border border-border">
             <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Listing Price</div>
-            <div className="text-base sm:text-lg font-black text-white mt-0.5">${formatPrice(currentPrice)}</div>
+            <div className="text-base sm:text-lg font-black text-foreground mt-0.5">${formatPrice(currentPrice)}</div>
           </div>
-          <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
+          <div className="p-2.5 rounded-xl bg-black/40 border border-border">
             <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Median Sold</div>
             <div className="text-base sm:text-lg font-black text-primary mt-0.5">${formatPrice(marketValue)}</div>
           </div>
         </div>
 
         {marketData.comparables && marketData.comparables.length > 0 && (
-          <div className="mt-3.5 pt-3 border-t border-white/5">
+          <div className="mt-3.5 pt-3 border-t border-border">
             <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-2">
               Recent Sales Evidence
             </div>
@@ -99,12 +99,12 @@ export function MarketIndexWidget({
                   href={comp.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between text-xs py-1 px-2 -mx-2 rounded hover:bg-white/5 group"
+                  className="flex items-center justify-between text-xs py-1 px-2 -mx-2 rounded hover:bg-muted/60 group"
                 >
-                  <span className="truncate text-slate-300 group-hover:text-white max-w-[70%]">
+                  <span className="truncate text-foreground/80 group-hover:text-foreground max-w-[70%]">
                     {comp.title}
                   </span>
-                  <span className="font-mono font-bold text-white shrink-0 ml-2">
+                  <span className="font-mono font-bold text-foreground shrink-0 ml-2">
                     ${formatPrice(comp.price)}
                     <ExternalLink className="inline h-3 w-3 ml-1 opacity-40" />
                   </span>
@@ -114,8 +114,8 @@ export function MarketIndexWidget({
           </div>
         )}
 
-        <div className="mt-3.5 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1 text-slate-400">
+        <div className="mt-3.5 pt-3 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1 text-muted-foreground">
             <AlertCircle className="w-3.5 h-3.5" />
             Source: {marketData.source || 'eBay AU'}
           </span>

@@ -51,7 +51,7 @@ export default function ResearchPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <div className="container mx-auto py-12 px-4">
                 <PageHeader
                     title="Market Research"
@@ -59,15 +59,15 @@ export default function ResearchPage() {
                 />
 
                 <div className="mt-12 max-w-5xl mx-auto">
-                    <Card className="bg-slate-900/40 border-white/10 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden">
-                        <CardHeader className="border-b border-white/5 bg-white/5 p-8">
+                    <Card className="bg-card/40 border-border backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden">
+                        <CardHeader className="border-b border-border bg-muted/60 p-8">
                             <div className="flex items-center gap-4">
                                 <div className="bg-primary/20 text-primary p-4 rounded-2xl shadow-inner border border-primary/10">
                                     <ShoppingCart className="w-8 h-8" />
                                 </div>
                                 <div className="text-left">
                                     <CardTitle className="text-2xl font-black italic">eBay Market Data</CardTitle>
-                                    <CardDescription className="text-slate-400">Search Australian sales history to calculate fair market price.</CardDescription>
+                                    <CardDescription className="text-muted-foreground">Search Australian sales history to calculate fair market price.</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
@@ -79,7 +79,7 @@ export default function ResearchPage() {
                                         placeholder="e.g. Jordan 1 High Chicago Lost and Found"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-12 h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary focus:border-primary text-lg"
+                                        className="pl-12 h-14 bg-muted/60 border-border rounded-xl focus:ring-primary focus:border-primary text-lg"
                                     />
                                 </div>
                                 <Button type="submit" disabled={isSearching} size="lg" className="h-14 px-10 text-lg font-black italic rounded-xl shadow-lg shadow-primary/20">
@@ -89,11 +89,11 @@ export default function ResearchPage() {
 
                             {hasSearched && !isSearching && searchResults.length > 0 && (
                                 <div className="flex flex-col md:flex-row justify-between items-center mb-10 p-6 bg-primary/10 rounded-2xl border border-primary/20 gap-4">
-                                    <div className="text-sm text-slate-300">
+                                    <div className="text-sm text-foreground/80">
                                         <strong className="text-primary uppercase tracking-wider text-xs block mb-1">Market Insight</strong>
                                         Showing real-time API matches. For 100% historical deep-dives, check eBay's official Sold archive.
                                     </div>
-                                    <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 whitespace-nowrap" asChild>
+                                    <Button variant="outline" size="sm" className="bg-muted/60 border-border text-foreground hover:bg-muted whitespace-nowrap" asChild>
                                         <a
                                             href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1`}
                                             target="_blank"
@@ -107,7 +107,7 @@ export default function ResearchPage() {
                             )}
 
                             {hasSearched && searchResults.length === 0 && !isSearching && (
-                                <div className="text-center text-slate-500 py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                                <div className="text-center text-slate-500 py-20 bg-muted/60 rounded-3xl border border-dashed border-border">
                                     <Search className="w-16 h-16 mx-auto mb-4 opacity-10" />
                                     <p className="text-xl">No verified sales found for "<span className="text-white italic">{searchQuery}</span>"</p>
                                     <p className="text-sm mt-2">Try adjusting your keywords or search directly on eBay.</p>
@@ -116,8 +116,8 @@ export default function ResearchPage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
                                 {searchResults.map((item, index) => (
-                                    <div key={index} className="group flex gap-6 p-6 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/10 transition-all duration-300 transform hover:-translate-y-1">
-                                        <div className="w-28 h-28 bg-slate-800 rounded-xl flex-shrink-0 overflow-hidden border border-white/5 shadow-inner">
+                                    <div key={index} className="group flex gap-6 p-6 bg-muted/60 border border-border rounded-2xl hover:bg-muted hover:border-border transition-all duration-300 transform hover:-translate-y-1">
+                                        <div className="w-28 h-28 bg-muted rounded-xl flex-shrink-0 overflow-hidden border border-border shadow-inner">
                                             {item.image ? (
                                                 <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                             ) : (
@@ -127,15 +127,15 @@ export default function ResearchPage() {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-white hover:text-primary transition-colors line-clamp-1 mb-2">
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-foreground hover:text-primary transition-colors line-clamp-1 mb-2">
                                                 {item.title}
                                             </a>
                                             <div className="flex items-center gap-4 mb-3">
-                                                <div className="text-sm text-slate-400 flex items-center gap-1.5">
+                                                <div className="text-sm text-muted-foreground flex items-center gap-1.5">
                                                     <span className="w-2 h-2 rounded-full bg-green-500"></span>
                                                     Sold: {new Date(item.soldDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </div>
-                                                <div className="text-sm text-slate-400 flex items-center gap-1.5">
+                                                <div className="text-sm text-muted-foreground flex items-center gap-1.5">
                                                     <ExternalLink className="w-3 h-3" />
                                                     Verified Sale
                                                 </div>
@@ -147,9 +147,9 @@ export default function ResearchPage() {
                                             </div>
                                         </div>
                                         <div className="self-center hidden sm:block">
-                                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/10" asChild>
+                                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" asChild>
                                                 <a href={item.link} target="_blank" rel="noopener noreferrer">
-                                                    <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-white" />
+                                                    <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
                                                 </a>
                                             </Button>
                                         </div>

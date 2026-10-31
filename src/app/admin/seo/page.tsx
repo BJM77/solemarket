@@ -311,7 +311,7 @@ export default function SEOPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileCode className="h-5 w-5 text-orange-500" />
+                                <FileCode className="h-5 w-5 text-blue-500" />
                                 Sitemap
                             </CardTitle>
                         </CardHeader>
@@ -341,7 +341,7 @@ export default function SEOPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="bg-zinc-950 p-4 rounded-lg border border-white/10">
+                            <div className="bg-background p-4 rounded-lg border border-border">
                                 <pre className="text-[10px] text-green-400 font-mono">
                                     User-agent: *<br />
                                     Allow: /<br />

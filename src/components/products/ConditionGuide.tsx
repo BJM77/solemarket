@@ -58,7 +58,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="Good / Fair" 
                                 description="Visible wear, including soft corners, creases, or significant surface scuffing. Still a great collection piece." 
-                                icon={<Info className="h-4 w-4 text-slate-400" />}
+                                icon={<Info className="h-4 w-4 text-muted-foreground" />}
                             />
                         </div>
                         <div className="bg-muted p-4 rounded-xl text-xs space-y-2">
@@ -82,7 +82,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="Used / Good" 
                                 description="Worn regularly but well maintained. Minor creasing or slight sole wear. No major smells or damage." 
-                                icon={<Info className="h-4 w-4 text-slate-400" />}
+                                icon={<Info className="h-4 w-4 text-muted-foreground" />}
                             />
                             <ConditionItem 
                                 label="Beaters" 

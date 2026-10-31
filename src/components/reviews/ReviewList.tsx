@@ -38,9 +38,9 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground border border-dashed border-white/10 rounded-[2rem] bg-white/5">
+      <div className="text-center py-16 text-muted-foreground border border-dashed border-border rounded-[2rem] bg-muted/60">
         <MessageSquare className="h-12 w-12 mx-auto mb-4 text-white/10" />
-        <h3 className="text-lg font-black uppercase tracking-tight text-white">No reviews yet</h3>
+        <h3 className="text-lg font-black uppercase tracking-tight text-foreground">No reviews yet</h3>
         <p className="text-sm">Be the first to share your thoughts on this item.</p>
       </div>
     );
@@ -58,7 +58,7 @@ export default function ReviewList({ reviews, isLoading }: ReviewListProps) {
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-black uppercase tracking-tight text-white">{review.buyerName}</h4>
+                  <h4 className="font-black uppercase tracking-tight text-foreground">{review.buyerName}</h4>
                   <span className="text-xs text-muted-foreground">
                     {(() => {
                       if (!review.createdAt) return '';

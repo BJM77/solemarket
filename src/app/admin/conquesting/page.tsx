@@ -116,17 +116,17 @@ export default function ConquestingAdminPage() {
                         <Target className="h-32 w-32" />
                     </div>
                     <h3 className="text-2xl font-black mb-4 relative z-10 italic">Premium Strategy</h3>
-                    <p className="text-slate-300 mb-8 relative z-10">
+                    <p className="text-foreground/80 mb-8 relative z-10">
                         Current strategy is focused on "Sell-to-Buy" psychology, targeting high-intent shoppers at major Australian retailers.
                     </p>
                     <div className="flex items-center gap-4 relative z-10">
-                        <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
-                            <span className="block text-xs uppercase font-bold text-slate-400 mb-1">Targeting</span>
+                        <div className="p-3 bg-muted rounded-xl backdrop-blur-md border border-border">
+                            <span className="block text-xs uppercase font-bold text-muted-foreground mb-1">Targeting</span>
                             <span className="font-bold">AU Retailers</span>
                         </div>
                         <ArrowRight className="text-slate-500" />
-                        <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
-                            <span className="block text-xs uppercase font-bold text-slate-400 mb-1">Conversion</span>
+                        <div className="p-3 bg-muted rounded-xl backdrop-blur-md border border-border">
+                            <span className="block text-xs uppercase font-bold text-muted-foreground mb-1">Conversion</span>
                             <span className="font-bold">Zero Fee Promo</span>
                         </div>
                     </div>

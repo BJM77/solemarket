@@ -13,7 +13,7 @@ export default function DonatePage() {
     return (
         <div className="bg-white min-h-screen">
             {/* Hero Mission Section */}
-            <div className="relative bg-slate-900 py-20 lg:py-32 overflow-hidden">
+            <div className="relative bg-card py-20 lg:py-32 overflow-hidden">
                 <div className="absolute inset-0 opacity-20">
                     <img
                         src="https://images.unsplash.com/photo-1546514714-df0ccc50d7bf?auto=format&fit=crop&q=80&w=2000"
@@ -28,11 +28,11 @@ export default function DonatePage() {
                         <Heart className="h-4 w-4 fill-primary" />
                         <span className="text-xs font-black uppercase tracking-widest">The Second Half Mission</span>
                     </div>
-                    <h1 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tight uppercase leading-[0.9]">
+                    <h1 className="text-4xl md:text-7xl font-black text-foreground mb-6 tracking-tight uppercase leading-[0.9]">
                         Greatness has <br />
                         <span className="text-primary italic">No Zip Code.</span>
                     </h1>
-                    <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-10">
+                    <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed mb-10">
                         We love basketball. But not everyone has the gear to play it.
                         Donate your shoes & cards to help less privileged hoopers chase their goals.
                     </p>
@@ -44,7 +44,7 @@ export default function DonatePage() {
                     {/* How it Works Cards */}
                     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
                         <CardHeader className="bg-primary text-primary-foreground p-8">
-                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
                                 <Footprints className="h-6 w-6" />
                             </div>
                             <CardTitle className="text-2xl font-black uppercase">1. Donate Gear</CardTitle>
@@ -57,8 +57,8 @@ export default function DonatePage() {
                     </Card>
 
                     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
-                        <CardHeader className="bg-slate-800 text-white p-8">
-                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                        <CardHeader className="bg-muted text-foreground p-8">
+                            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
                                 <Trophy className="h-6 w-6 text-primary" />
                             </div>
                             <CardTitle className="text-2xl font-black uppercase">2. We Distribute</CardTitle>
@@ -72,7 +72,7 @@ export default function DonatePage() {
 
                     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
                         <CardHeader className="bg-primary text-primary-foreground p-8">
-                            <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
                                 <Camera className="h-6 w-6" />
                             </div>
                             <CardTitle className="text-2xl font-black uppercase">3. See the Impact</CardTitle>
@@ -114,11 +114,11 @@ export default function DonatePage() {
                 </div>
 
                 {/* Impact Story Quote */}
-                <div className="mt-32 bg-slate-900 rounded-[3rem] p-12 text-center text-white relative overflow-hidden">
+                <div className="mt-32 bg-card rounded-[3rem] p-12 text-center text-foreground relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10">
                         <div className="grid grid-cols-6 h-full">
                             {[...Array(6)].map((_, i) => (
-                                <div key={i} className="border-r border-white/20 h-full"></div>
+                                <div key={i} className="border-r border-border h-full"></div>
                             ))}
                         </div>
                     </div>

@@ -94,7 +94,7 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
                     </Button>
                     <button 
                         onClick={() => setValidationError(null)}
-                        className="text-slate-400 text-xs font-black uppercase tracking-widest hover:text-slate-900 transition-colors"
+                        className="text-muted-foreground text-xs font-black uppercase tracking-widest hover:text-slate-900 transition-colors"
                     >
                         Dismiss
                     </button>
@@ -105,7 +105,7 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
 
     if (isValidating) {
         return (
-            <div className="w-full aspect-[4/3] max-w-md mx-auto border-2 border-primary/20 bg-slate-900 rounded-[32px] flex flex-col items-center justify-center p-8 text-white text-center shadow-2xl">
+            <div className="w-full aspect-[4/3] max-w-md mx-auto border-2 border-primary/20 bg-card rounded-[32px] flex flex-col items-center justify-center p-8 text-foreground text-center shadow-2xl">
                 <div className="relative mb-10">
                     <div className="w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center">
                         <Loader2 className="w-12 h-12 text-primary animate-spin" />
@@ -160,7 +160,7 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
                 
                 <div>
                     <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase italic">Scan Kicks</h3>
-                    <p className="text-sm text-slate-400 mt-4 font-black uppercase tracking-[0.2em]">Sneaker Authenticator</p>
+                    <p className="text-sm text-muted-foreground mt-4 font-black uppercase tracking-[0.2em]">Sneaker Authenticator</p>
                 </div>
 
                 <div className="w-full space-y-4 text-left bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
@@ -188,7 +188,7 @@ export function SneakerCamera({ onCapture, isLoading }: SneakerCameraProps) {
                 
                 <button 
                     onClick={() => inputRef.current?.click()}
-                    className="text-xs text-slate-400 font-black uppercase tracking-[0.15em] hover:text-primary transition-colors"
+                    className="text-xs text-muted-foreground font-black uppercase tracking-[0.15em] hover:text-primary transition-colors"
                 >
                     Photo Library
                 </button>

@@ -100,7 +100,7 @@ export default async function ComparisonPage({ params }: Props) {
                                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                     <div className="absolute top-4 left-4">
-                                        <span className="bg-black text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                                        <span className="bg-background text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
                                             {item.brand}
                                         </span>
                                     </div>
@@ -125,7 +125,7 @@ export default async function ComparisonPage({ params }: Props) {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50">
-                                        <th className="p-6 text-sm font-black text-slate-400 uppercase tracking-widest w-1/3">Feature</th>
+                                        <th className="p-6 text-sm font-black text-muted-foreground uppercase tracking-widest w-1/3">Feature</th>
                                         <th className="p-6 text-sm font-black text-slate-900 uppercase tracking-widest">{comparison.itemA.name}</th>
                                         <th className="p-6 text-sm font-black text-slate-900 uppercase tracking-widest">{comparison.itemB.name}</th>
                                     </tr>
@@ -156,11 +156,11 @@ export default async function ComparisonPage({ params }: Props) {
                             </p>
                             
                             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-                                <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                                <div className="flex items-center gap-3 bg-muted p-4 rounded-2xl backdrop-blur-sm border border-border">
                                     <ShieldCheck className="w-6 h-6 text-primary" />
                                     <span className="text-sm font-bold">DealSafe Protected</span>
                                 </div>
-                                <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                                <div className="flex items-center gap-3 bg-muted p-4 rounded-2xl backdrop-blur-sm border border-border">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />
                                     <span className="text-sm font-bold">AI Verified Data</span>
                                 </div>

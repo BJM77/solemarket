@@ -40,9 +40,9 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
         : listing.desiredCondition.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
     return (
-        <div className="min-h-screen bg-black text-white py-12">
+        <div className="min-h-screen bg-background text-foreground py-12">
             <div className="container mx-auto max-w-6xl px-6">
-                <Button variant="ghost" asChild className="mb-10 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <Button variant="ghost" asChild className="mb-10 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all">
                     <Link href="/wtb">
                         <ArrowLeft className="mr-3 h-5 w-5" />
                         Back to requests
@@ -52,25 +52,25 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                 <div className="grid lg:grid-cols-3 gap-10">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-10">
-                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+                        <Card className="bg-muted/60 border-border backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
                             <CardHeader className="p-8 pb-4">
                                 <div className="flex flex-col gap-6 mb-8">
                                     <div className="space-y-4">
                                         <div className="flex flex-wrap gap-2">
                                             {listing.category && (
-                                                <Badge className="bg-primary text-black font-black italic rounded-lg tracking-tighter">
+                                                <Badge className="bg-primary text-primary-foreground font-black italic rounded-lg tracking-tighter">
                                                     {listing.category.toUpperCase()}
                                                 </Badge>
                                             )}
                                             {listing.status === 'fulfilled' && (
-                                                <Badge className="bg-green-500 text-black font-black italic">FULFILLED</Badge>
+                                                <Badge className="bg-green-500 text-primary-foreground font-black italic">FULFILLED</Badge>
                                             )}
                                         </div>
                                         <CardTitle className="text-4xl md:text-5xl font-black italic tracking-tight">{listing.title}</CardTitle>
                                     </div>
                                 </div>
 
-                                <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] bg-slate-900 border border-white/5">
+                                <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] bg-card border border-border">
                                     <Image
                                         src={imageUrl}
                                         alt={listing.title}
@@ -85,12 +85,12 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                             <CardContent className="p-8 pt-4 space-y-10">
                                 <div>
                                     <h3 className="text-xl font-black italic mb-4 text-primary uppercase tracking-widest">Description.</h3>
-                                    <p className="text-slate-300 text-lg leading-relaxed whitespace-pre-wrap font-medium">
+                                    <p className="text-foreground/80 text-lg leading-relaxed whitespace-pre-wrap font-medium">
                                         {listing.description}
                                     </p>
                                 </div>
 
-                                <div className="grid sm:grid-cols-2 gap-6 p-8 bg-white/5 rounded-[2rem] border border-white/5 shadow-inner">
+                                <div className="grid sm:grid-cols-2 gap-6 p-8 bg-muted/60 rounded-[2rem] border border-border shadow-inner">
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
                                             <DollarSign className="h-6 w-6 text-primary" />
@@ -137,12 +137,12 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
 
                     {/* Sidebar */}
                     <div className="space-y-10">
-                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem]">
+                        <Card className="bg-muted/60 border-border backdrop-blur-xl rounded-[2.5rem]">
                             <CardHeader className="p-8">
-                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-slate-400">Buyer Profile.</CardTitle>
+                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-muted-foreground">Buyer Profile.</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 pt-0 space-y-8">
-                                <div className="flex items-center gap-5 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <div className="flex items-center gap-5 p-4 bg-muted/60 rounded-2xl border border-border">
                                     {listing.userPhotoURL ? (
                                         <Image
                                             src={listing.userPhotoURL}
@@ -167,7 +167,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-900/40 p-3 rounded-lg border border-white/5">
+                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-widest bg-card/40 p-3 rounded-lg border border-border">
                                     <Calendar className="h-4 w-4 text-primary" />
                                     <span>
                                         Demanded {listing.createdAt && typeof listing.createdAt === 'object' && 'toDate' in listing.createdAt
@@ -190,9 +190,9 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-white/5 border-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border-dashed">
+                        <Card className="bg-muted/60 border-border backdrop-blur-xl rounded-[2.5rem] overflow-hidden border-dashed">
                             <CardHeader className="p-8">
-                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-slate-400">Protocols.</CardTitle>
+                                <CardTitle className="text-xl font-black italic tracking-widest uppercase text-muted-foreground">Protocols.</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 pt-0 text-[11px] text-slate-500 font-bold uppercase tracking-[0.2em] space-y-4">
                                 <div className="flex gap-4">

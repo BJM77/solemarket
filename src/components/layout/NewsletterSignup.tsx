@@ -56,7 +56,7 @@ export function NewsletterSignup() {
         <form ref={formRef} action={formAction} className="flex gap-2">
             <Input 
                 name="email" 
-                className="flex-1 rounded-lg border-white/10 bg-white/5 text-sm" 
+                className="flex-1 rounded-lg border-border bg-muted/60 text-sm" 
                 placeholder="Email" 
                 type="email" 
                 required

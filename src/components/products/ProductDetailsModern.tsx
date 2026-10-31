@@ -732,7 +732,7 @@ export default function ProductDetailsModern({
                     </div>
                     <DialogFooter className="sm:justify-center">
                         <Button 
-                            className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg"
+                            className="w-full h-12 rounded-2xl bg-card text-foreground font-bold text-lg"
                             onClick={handleRevealContact}
                             disabled={isEnquiring}
                         >
@@ -784,13 +784,13 @@ export default function ProductDetailsModern({
                                 maxLength={5}
                             />
                         </div>
-                        <p className="text-[10px] text-slate-400 text-center font-medium leading-relaxed">
+                        <p className="text-[10px] text-muted-foreground text-center font-medium leading-relaxed">
                             By verifying, you agree to our terms. This interaction will be logged for safety.
                         </p>
                     </div>
                     <DialogFooter className="sm:justify-center">
                         <Button 
-                            className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 transition-all active:scale-[0.98]"
+                            className="w-full h-12 rounded-2xl bg-card text-foreground font-bold text-lg hover:bg-muted transition-all active:scale-[0.98]"
                             onClick={handleGuestVerifyAndReveal}
                             disabled={verifyingGuest || !guestEmail || !guestCode}
                         >
@@ -805,13 +805,13 @@ export default function ProductDetailsModern({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 lg:mb-3 gap-2 sm:gap-4">
                     <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto pb-1 min-w-0">
                         <Link href="/" className="hover:text-primary transition-colors pr-1">Home</Link>
-                        <span className="text-gray-300">/</span>
+                        <span className="text-foreground/80">/</span>
                         <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors px-1">
                             {product.category}
                         </Link>
                         {product.subCategory && (
                             <>
-                                <span className="text-gray-300">/</span>
+                                <span className="text-foreground/80">/</span>
                                 <span className="text-gray-900 dark:text-gray-100 pl-1">{product.subCategory}</span>
                             </>
                         )}
@@ -904,7 +904,7 @@ export default function ProductDetailsModern({
                                                         </div>
                                                     )}
                                                     <div>
-                                                        {product.seoDescription && <span className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-0.5">Seller Notes:</span>}
+                                                        {product.seoDescription && <span className="block text-[10px] uppercase tracking-wider font-bold text-muted-foreground dark:text-slate-500 mb-0.5">Seller Notes:</span>}
                                                         <p className="whitespace-pre-line">
                                                             {product.description}
                                                         </p>
@@ -1210,7 +1210,7 @@ export default function ProductDetailsModern({
                                                                         size={120}
                                                                         level="H"
                                                                     />
-                                                                    <span className="text-[9px] font-black uppercase text-slate-400">Proof of Sale</span>
+                                                                    <span className="text-[9px] font-black uppercase text-muted-foreground">Proof of Sale</span>
                                                                 </div>
 
                                                                 <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-xl" asChild>
@@ -1337,7 +1337,7 @@ export default function ProductDetailsModern({
                                                             Cancel
                                                         </Button>
                                                         <Button
-                                                            className="flex-1 rounded-2xl h-12 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold"
+                                                            className="flex-1 rounded-2xl h-12 bg-card hover:bg-muted dark:bg-slate-100 dark:hover:bg-slate-200 text-foreground dark:text-slate-900 font-bold"
                                                             onClick={handleUpdateCategory}
                                                             disabled={isSavingCategory}
                                                         >
@@ -1434,8 +1434,8 @@ export default function ProductDetailsModern({
                         {product.multiCardTier && (
                             <span className={cn(
                                 "text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border self-start sm:self-auto",
-                                product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
-                                product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-slate-400 border-slate-500/20' :
+                                product.multiCardTier === 'bronze' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
                                 product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
                                 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
                             )}>
@@ -1485,7 +1485,7 @@ export default function ProductDetailsModern({
                                                     description: `${item.title} is ready for multibuy!`,
                                                 });
                                             }}
-                                            className="w-full h-8 text-[10px] font-bold tracking-wider uppercase bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 rounded-xl mt-2.5"
+                                            className="w-full h-8 text-[10px] font-bold tracking-wider uppercase bg-card text-foreground hover:bg-muted dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 rounded-xl mt-2.5"
                                         >
                                             + Add to Cart
                                         </Button>

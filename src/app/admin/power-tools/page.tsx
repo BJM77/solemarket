@@ -41,7 +41,7 @@ const powerTools = [
         description: 'Professional high-speed camera scanning, AI card identification, and verification workspace',
         icon: Camera,
         href: '/samcam',
-        color: 'bg-primary text-black',
+        color: 'bg-primary text-primary-foreground',
     },
     {
         title: 'AI Price Checker',
@@ -90,7 +90,7 @@ const powerTools = [
         description: 'Automatically match lowest prices in categories',
         icon: TrendingUp,
         href: '/admin/auto-repricing',
-        color: 'bg-orange-500',
+        color: 'bg-blue-500',
     },
     {
         title: 'Inventory Alerts',
@@ -203,7 +203,7 @@ export default function PowerToolsPage() {
 
                             <CardHeader>
                                 <div className="flex items-start justify-between">
-                                    <div className={`p-3 rounded-lg ${tool.color} text-white`}>
+                                    <div className={`p-3 rounded-lg ${tool.color} text-foreground`}>
                                         <Icon className="h-6 w-6" />
                                     </div>
                                     {tool.comingSoon && (

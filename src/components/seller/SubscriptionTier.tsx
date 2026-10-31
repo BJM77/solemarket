@@ -36,7 +36,7 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
                 currentPlan === 'base' ? "border-slate-900 shadow-xl scale-105 z-10" : "border-slate-100 opacity-80"
             )}>
                 {currentPlan === 'base' && (
-                    <div className="absolute top-0 right-0 bg-slate-900 text-white text-[10px] font-black px-4 py-1 uppercase tracking-widest rounded-bl-xl">
+                    <div className="absolute top-0 right-0 bg-card text-foreground text-[10px] font-black px-4 py-1 uppercase tracking-widest rounded-bl-xl">
                         Active Plan
                     </div>
                 )}
@@ -44,7 +44,7 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
                     <CardTitle className="text-2xl font-black">Standard Agent</CardTitle>
                     <div className="flex items-baseline gap-1 mt-2">
                         <span className="text-4xl font-black">$0</span>
-                        <span className="text-slate-400 font-bold uppercase text-xs">/ month</span>
+                        <span className="text-muted-foreground font-bold uppercase text-xs">/ month</span>
                     </div>
                     <CardDescription className="mt-4 font-semibold text-slate-500">
                         Essential tools for casual collectors and start-up sellers.
@@ -65,7 +65,7 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
             </Card>
 
             <Card className={cn(
-                "relative overflow-hidden border-2 transition-all duration-300 bg-slate-900 text-white",
+                "relative overflow-hidden border-2 transition-all duration-300 bg-card text-foreground",
                 currentPlan === 'pro' ? "border-primary shadow-xl scale-105 z-10" : "border-transparent shadow-lg"
             )}>
                 {currentPlan === 'pro' ? (
@@ -84,9 +84,9 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
                     </CardTitle>
                     <div className="flex items-baseline gap-1 mt-2">
                         <span className="text-4xl font-black">$20</span>
-                        <span className="text-slate-400 font-bold uppercase text-xs">/ month</span>
+                        <span className="text-muted-foreground font-bold uppercase text-xs">/ month</span>
                     </div>
-                    <CardDescription className="mt-4 font-semibold text-slate-300">
+                    <CardDescription className="mt-4 font-semibold text-foreground/80">
                         High-volume operational features for professional merchants.
                     </CardDescription>
                 </CardHeader>
@@ -103,7 +103,7 @@ export function SubscriptionTier({ currentPlan = 'base' }: { currentPlan?: strin
                         className={cn(
                             "w-full h-12 font-black rounded-xl transition-all duration-300",
                             currentPlan === 'pro'
-                                ? "bg-slate-800 text-slate-400"
+                                ? "bg-muted text-muted-foreground"
                                 : "bg-gradient-to-r from-amber-400 to-amber-600 text-slate-900 hover:scale-105"
                         )}
                         onClick={handleUpgrade}
@@ -128,7 +128,7 @@ function FeatureItem({ text, active = false }: { text: string, active?: boolean 
             </div>
             <span className={cn(
                 "text-sm font-bold",
-                active ? "text-slate-200" : "text-slate-600"
+                active ? "text-foreground" : "text-slate-600"
             )}>{text}</span>
         </div>
     );

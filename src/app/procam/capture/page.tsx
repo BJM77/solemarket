@@ -139,8 +139,8 @@ export default function ProPhotoBooth() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white/30">
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/10 p-4 safe-top">
+    <div className="min-h-screen bg-background text-foreground selection:bg-white/30">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-border p-4 safe-top">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.push('/home')}>
@@ -148,9 +148,9 @@ export default function ProPhotoBooth() {
             </Button>
             <div>
               <h1 className="font-bold text-lg flex items-center gap-2">
-                Procam <Badge variant="secondary" className="bg-white/10 text-[10px] px-1 py-0 h-4">PRO</Badge>
+                Procam <Badge variant="secondary" className="bg-muted text-[10px] px-1 py-0 h-4">PRO</Badge>
               </h1>
-              <p className="text-xs text-white/50">{camera.deviceProfile.name}</p>
+              <p className="text-xs text-muted-foreground">{camera.deviceProfile.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function ProPhotoBooth() {
                   <Settings className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="bg-zinc-950 border-white/10 rounded-t-3xl max-h-[85vh] overflow-y-auto">
+              <SheetContent side="bottom" className="bg-background border-border rounded-t-3xl max-h-[85vh] overflow-y-auto">
                 <SettingsSheet 
                   isOpen={settingsOpen}
                   setIsOpen={setSettingsOpen}
@@ -209,58 +209,58 @@ export default function ProPhotoBooth() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
                   <Badge className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1.5"><BadgeCheck className="w-3 h-3" /> AI Scan Complete</Badge>
-                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-white/50 hover:text-white">
+                  <Button variant="ghost" size="sm" onClick={handleAiCheck} disabled={aiScanning} className="h-8 text-xs text-muted-foreground hover:text-foreground">
                     <RefreshCw className={cn("w-3 h-3 mr-2", aiScanning && "animate-spin")} /> Re-Scan
                   </Button>
                 </div>
 
-                <Card className="bg-zinc-900 border-white/10 shadow-2xl">
-                  <CardHeader className="border-b border-white/5 pb-4">
+                <Card className="bg-card border-border shadow-2xl">
+                  <CardHeader className="border-b border-border pb-4">
                     <CardTitle className="text-lg">Product Details</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-2 space-y-1.5">
                         <Label>Title / Name</Label>
-                        <Input value={reviewData.title} onChange={e => setReviewData({...reviewData, title: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.title} onChange={e => setReviewData({...reviewData, title: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Brand / Maker</Label>
-                        <Input value={reviewData.brand} onChange={e => setReviewData({...reviewData, brand: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.brand} onChange={e => setReviewData({...reviewData, brand: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Model</Label>
-                        <Input value={reviewData.model} onChange={e => setReviewData({...reviewData, model: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.model} onChange={e => setReviewData({...reviewData, model: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Category</Label>
-                        <Input value={reviewData.category} onChange={e => setReviewData({...reviewData, category: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.category} onChange={e => setReviewData({...reviewData, category: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Condition</Label>
-                        <Input value={reviewData.condition} onChange={e => setReviewData({...reviewData, condition: e.target.value})} className="bg-black/50 border-white/10" />
+                        <Input value={reviewData.condition} onChange={e => setReviewData({...reviewData, condition: e.target.value})} className="bg-black/50 border-border" />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Price (AUD)</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
-                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-white/10 pl-7 text-green-400 font-bold" />
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                          <Input type="number" value={reviewData.price || ''} onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border pl-7 text-green-400 font-bold" />
                         </div>
                       </div>
                       <div className="space-y-1.5">
                         <Label>Year</Label>
-                        <Input type="number" value={reviewData.year || ''} onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})} className="bg-black/50 border-white/10" />
+                        <Input type="number" value={reviewData.year || ''} onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})} className="bg-black/50 border-border" />
                       </div>
                       <div className="col-span-2 space-y-1.5">
                         <Label>Description</Label>
-                        <textarea value={reviewData.description} onChange={e => setReviewData({...reviewData, description: e.target.value})} className="w-full h-24 bg-black/50 border border-white/10 rounded-md p-3 text-sm resize-none" />
+                        <textarea value={reviewData.description} onChange={e => setReviewData({...reviewData, description: e.target.value})} className="w-full h-24 bg-black/50 border border-border rounded-md p-3 text-sm resize-none" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1 h-14 bg-zinc-900 border-white/10" onClick={handleSkipAndQueue}>
+                  <Button variant="outline" className="flex-1 h-14 bg-card border-border" onClick={handleSkipAndQueue}>
                     <Layers className="w-5 h-5 mr-2" /> Queue
                   </Button>
                   <Button className="flex-1 h-14 bg-blue-600 text-white" onClick={handleSubmitToBench} disabled={saving}>

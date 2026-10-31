@@ -19,9 +19,9 @@ export function WTBCard({ listing }: WTBCardProps) {
 
     return (
         <Link href={`/wtb/${listing.id}`}>
-            <Card className="group bg-white/5 border-white/5 hover:border-primary/50 hover:bg-white/10 transition-all duration-500 h-full flex flex-col overflow-hidden backdrop-blur-sm rounded-3xl">
+            <Card className="group bg-muted/60 border-border hover:border-primary/50 hover:bg-muted transition-all duration-500 h-full flex flex-col overflow-hidden backdrop-blur-sm rounded-3xl">
                 <CardHeader className="p-0">
-                    <div className="relative aspect-square w-full overflow-hidden bg-slate-900">
+                    <div className="relative aspect-square w-full overflow-hidden bg-card">
                         <Image
                             src={imageUrl}
                             alt={listing.title}
@@ -31,13 +31,13 @@ export function WTBCard({ listing }: WTBCardProps) {
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                         <div className="absolute top-4 left-4">
-                            <Badge className="bg-primary text-black font-black italic border-none shadow-lg">
+                            <Badge className="bg-primary text-primary-foreground font-black italic border-none shadow-lg">
                                 WTB
                             </Badge>
                         </div>
                         {listing.status === 'fulfilled' && (
                             <div className="absolute inset-0 bg-black/80 flex items-center justify-center backdrop-blur-[2px]">
-                                <Badge className="text-xl px-6 py-3 bg-green-500 text-black font-black italic">FULFILLED</Badge>
+                                <Badge className="text-xl px-6 py-3 bg-green-500 text-primary-foreground font-black italic">FULFILLED</Badge>
                             </div>
                         )}
                     </div>
@@ -47,24 +47,24 @@ export function WTBCard({ listing }: WTBCardProps) {
                         <CardTitle className="text-xl font-bold italic line-clamp-1 group-hover:text-primary transition-colors duration-300">
                             {listing.title}
                         </CardTitle>
-                        <p className="text-sm text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
                             {listing.description}
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-2">
                         {listing.category && (
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-tighter border-white/10 text-slate-500">
+                            <Badge variant="outline" className="text-[10px] uppercase tracking-tighter border-border text-slate-500">
                                 {listing.category}
                             </Badge>
                         )}
-                        <Badge variant="outline" className="text-[10px] uppercase tracking-tighter border-white/10 text-slate-500">
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-tighter border-border text-slate-500">
                             <Star className="w-3 h-3 mr-1 text-primary" />
                             {conditionLabel}
                         </Badge>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
                         <div className="flex items-center text-slate-500 text-xs font-bold uppercase tracking-widest">
                             <MapPin className="w-3 h-3 mr-1.5 text-primary" />
                             <span>{listing.location}</span>

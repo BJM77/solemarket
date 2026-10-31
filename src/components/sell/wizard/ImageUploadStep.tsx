@@ -154,45 +154,45 @@ export function ImageUploadStep({
                         <div className="bg-primary/20 p-4 rounded-full animate-bounce">
                             <Upload className="h-10 w-10 text-primary" />
                         </div>
-                        <p className="text-sm font-bold text-white mt-4">Drop your photos here</p>
-                        <p className="text-xs text-slate-400 mt-1">Release to instantly add up to 8 photos</p>
+                        <p className="text-sm font-bold text-foreground mt-4">Drop your photos here</p>
+                        <p className="text-xs text-muted-foreground mt-1">Release to instantly add up to 8 photos</p>
                     </div>
                 )}
-                <CardHeader className="bg-white/5 border-b border-white/10 text-white p-5 rounded-t-xl">
+                <CardHeader className="bg-muted/60 border-b border-border text-foreground p-5 rounded-t-xl">
                     <CardTitle className="text-lg flex items-center gap-2"><ImagePlus className="h-5 w-5" /> Gallery</CardTitle>
-                    <CardDescription className="text-slate-400">Add up to 8 photos. Drag and drop, select files, or take pictures directly.</CardDescription>
+                    <CardDescription className="text-muted-foreground">Add up to 8 photos. Drag and drop, select files, or take pictures directly.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                     <div className="grid grid-cols-3 gap-3">
                         <div
                              onClick={() => fileInputRef.current?.click()}
-                             className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                             className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary hover:bg-muted/60 cursor-pointer flex flex-col items-center justify-center transition-all group"
                         >
                             <div className="bg-primary/20 p-3 rounded-full group-hover:scale-110 transition-transform">
                                 <Upload className="h-6 w-6 text-primary" />
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400">Upload</span>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-muted-foreground">Upload</span>
                             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div
                              onClick={() => nativeCameraInputRef.current?.click()}
-                             className="aspect-square rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                             className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary hover:bg-muted/60 cursor-pointer flex flex-col items-center justify-center transition-all group"
                         >
                             <div className="bg-indigo-500/20 p-3 rounded-full group-hover:scale-110 transition-transform">
                                 <Smartphone className="h-6 w-6 text-indigo-400" />
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-slate-400 text-center">Native<br className="sm:hidden" /> Camera</span>
+                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-muted-foreground text-center">Native<br className="sm:hidden" /> Camera</span>
                             <input ref={nativeCameraInputRef} type="file" multiple accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div className="aspect-square relative">
                             <CameraCapture onCapture={processFiles} captureMode={captureMode} variant="hero" maxFiles={8 - imageFiles.length} />
-                            <span className="absolute bottom-2 left-0 right-0 text-center text-[10px] sm:text-xs font-medium text-slate-400 pointer-events-none hidden group-hover:block">Web Camera</span>
+                            <span className="absolute bottom-2 left-0 right-0 text-center text-[10px] sm:text-xs font-medium text-muted-foreground pointer-events-none hidden group-hover:block">Web Camera</span>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
                         {imagePreviews.map((p, i) => (
-                            <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-white/10 group">
+                            <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
                                 <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     {onRotateImage && (
@@ -202,7 +202,7 @@ export function ImageUploadStep({
                                             type="button"
                                             title="Rotate 90°"
                                         >
-                                            <RotateCw className="h-4 w-4 text-white" />
+                                            <RotateCw className="h-4 w-4 text-foreground" />
                                         </button>
                                     )}
                                     <button
@@ -211,7 +211,7 @@ export function ImageUploadStep({
                                         type="button"
                                         title="Remove Image"
                                     >
-                                        <Trash2 className="h-4 w-4 text-white" />
+                                        <Trash2 className="h-4 w-4 text-foreground" />
                                     </button>
                                 </div>
                             </div>
@@ -271,7 +271,7 @@ export function ImageUploadStep({
                             </Button>
                         </CardHeader>
                         {showing3D && (
-                            <CardContent className="p-4 bg-slate-950/40">
+                            <CardContent className="p-4 bg-background/40">
                                 <ThreeSixtyViewer imageUrls={imagePreviews} />
                             </CardContent>
                         )}

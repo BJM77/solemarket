@@ -60,7 +60,7 @@ export function ListingTypeStep({
                 <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
                     Create a New Listing
                 </h1>
-                <p className="text-slate-400 max-w-md mx-auto text-sm sm:text-base">
+                <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
                     Let our AI automatically build your listing, or select a category below to list manually.
                 </p>
             </div>
@@ -73,17 +73,17 @@ export function ListingTypeStep({
                         <Layers className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="text-base font-black uppercase text-white tracking-wide flex items-center justify-center sm:justify-start gap-2">
-                            PROLOAD <Badge className="bg-emerald-500 hover:bg-emerald-600 text-black text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
+                        <h3 className="text-base font-black uppercase text-foreground tracking-wide flex items-center justify-center sm:justify-start gap-2">
+                            PROLOAD <Badge className="bg-emerald-500 hover:bg-emerald-600 text-primary-foreground text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
                         </h3>
-                        <p className="text-zinc-400 text-xs mt-1 max-w-md">
+                        <p className="text-muted-foreground text-xs mt-1 max-w-md">
                             Upload a Facebook Marketplace listing screenshot. Gemini will extract all info and build the listing for you!
                         </p>
                     </div>
                 </div>
                 <Button 
                     onClick={() => router.push('/sell/proload')}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-black font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-primary-foreground font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
                 >
                     Try Proload <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -119,18 +119,18 @@ export function ListingTypeStep({
                         <div className="space-y-6 py-6 animate-pulse">
                             <div className="relative flex justify-center">
                                 <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-ping w-20 h-20 mx-auto" />
-                                <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 p-5 rounded-full border border-white/20 shadow-2xl flex items-center justify-center">
-                                    <Loader2 className="h-10 w-10 text-white animate-spin" />
+                                <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 p-5 rounded-full border border-border shadow-2xl flex items-center justify-center">
+                                    <Loader2 className="h-10 w-10 text-foreground animate-spin" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <h3 className="text-xl font-black text-white flex items-center justify-center gap-2">
+                                <h3 className="text-xl font-black text-foreground flex items-center justify-center gap-2">
                                     <Sparkles className="h-5 w-5 text-indigo-400 animate-pulse" /> AI Picture Check Active
                                 </h3>
                                 <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs animate-pulse">
                                     {analysisStage || "Analyzing Photos..."}
                                 </p>
-                                <p className="text-slate-400 text-xs max-w-xs mx-auto">
+                                <p className="text-muted-foreground text-xs max-w-xs mx-auto">
                                     Our vision models are identifying details, conditions, and catalog numbers.
                                 </p>
                             </div>
@@ -139,16 +139,16 @@ export function ListingTypeStep({
                         <div className="space-y-6 py-4 w-full">
                             <div className="relative flex items-center justify-center">
                                 <div className="absolute inset-0 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all w-24 h-24 pointer-events-none" />
-                                <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl border border-white/20 shadow-xl group-hover:scale-110 transition-transform duration-500">
-                                    <Sparkles className="h-10 w-10 text-white" />
+                                <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl border border-border shadow-xl group-hover:scale-110 transition-transform duration-500">
+                                    <Sparkles className="h-10 w-10 text-foreground" />
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">
+                                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
                                     ✨ AI Picture Check (Recommended)
                                 </h3>
-                                <p className="text-slate-300 text-sm max-w-sm mx-auto font-medium">
+                                <p className="text-foreground/80 text-sm max-w-sm mx-auto font-medium">
                                     Take a photo, upload, or drag-and-drop photos here. The AI will auto-detect the category and pre-fill details in seconds!
                                 </p>
                                 <div className="pt-2">
@@ -178,7 +178,7 @@ export function ListingTypeStep({
                                     size="lg"
                                     variant="outline"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex-1 border-white/20 bg-white/5 hover:bg-white/10 text-white backdrop-blur-sm"
+                                    className="flex-1 border-border bg-muted/60 hover:bg-muted text-foreground backdrop-blur-sm"
                                 >
                                     <Upload className="w-5 h-5 mr-2" />
                                     Upload Images
@@ -191,9 +191,9 @@ export function ListingTypeStep({
 
             {/* Manual Entry Divider */}
             <div className="relative flex py-4 items-center max-w-md mx-auto">
-                <div className="flex-grow border-t border-white/10"></div>
+                <div className="flex-grow border-t border-border"></div>
                 <span className="flex-shrink mx-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Or List Manually</span>
-                <div className="flex-grow border-t border-white/10"></div>
+                <div className="flex-grow border-t border-border"></div>
             </div>
 
             {/* Manual Fallbacks */}
@@ -202,15 +202,15 @@ export function ListingTypeStep({
                     className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
                         selectedType === 'sneakers'
                             ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-white/10 hover:border-white/30 bg-card'
+                            : 'border-border hover:border-border bg-card'
                     }`}
                     onClick={() => onSelect('sneakers')}
                 >
                     <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className={`w-12 h-12 border-2 rounded bg-white/5 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
+                        <div className={`w-12 h-12 border-2 rounded bg-muted/60 ${selectedType === 'sneakers' ? 'border-white' : 'border-blue-600 group-hover:border-white'}`} />
                         <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-white">Sneakers</h3>
-                            <p className="text-xs text-slate-400">Jordan, Yeezy, Nike, etc.</p>
+                            <h3 className="text-lg font-bold text-foreground">Sneakers</h3>
+                            <p className="text-xs text-muted-foreground">Jordan, Yeezy, Nike, etc.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -219,17 +219,17 @@ export function ListingTypeStep({
                     className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
                         selectedType === 'collector-cards'
                             ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-white/10 hover:border-white/30 bg-card'
+                            : 'border-border hover:border-border bg-card'
                     }`}
                     onClick={() => onSelect('collector-cards')}
                 >
                     <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className="w-12 h-16 border-2 border-indigo-600 bg-white/5 rounded flex items-center justify-center group-hover:border-white transition-colors">
-                            <Scan className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" />
+                        <div className="w-12 h-16 border-2 border-indigo-600 bg-muted/60 rounded flex items-center justify-center group-hover:border-white transition-colors">
+                            <Scan className="w-6 h-6 text-indigo-600 group-hover:text-foreground transition-colors" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-white">Collector Cards</h3>
-                            <p className="text-xs text-slate-400">NBA & Basketball sets.</p>
+                            <h3 className="text-lg font-bold text-foreground">Collector Cards</h3>
+                            <p className="text-xs text-muted-foreground">NBA & Basketball sets.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -238,17 +238,17 @@ export function ListingTypeStep({
                     className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
                         selectedType === 'coins'
                             ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-white/10 hover:border-white/30 bg-card'
+                            : 'border-border hover:border-border bg-card'
                     }`}
                     onClick={() => onSelect('coins')}
                 >
                     <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className="w-16 h-16 border-2 border-yellow-500 bg-white/5 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
-                            <GripVertical className="w-8 h-8 text-yellow-500 group-hover:text-white transition-colors rotate-90" />
+                        <div className="w-16 h-16 border-2 border-yellow-500 bg-muted/60 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
+                            <GripVertical className="w-8 h-8 text-yellow-500 group-hover:text-foreground transition-colors rotate-90" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-white">Coins</h3>
-                            <p className="text-xs text-slate-400">Rare Coins & Banknotes.</p>
+                            <h3 className="text-lg font-bold text-foreground">Coins</h3>
+                            <p className="text-xs text-muted-foreground">Rare Coins & Banknotes.</p>
                         </div>
                     </CardContent>
                 </Card>

@@ -35,11 +35,11 @@ export function TrustBadge({ score, className, showLabel = true }: TrustBadgePro
             break;
         case 'Silver':
             Icon = Medal;
-            colorClasses = "bg-slate-300/20 text-slate-300 border border-slate-300/30";
+            colorClasses = "bg-slate-300/20 text-foreground/80 border border-slate-300/30";
             break;
         case 'Bronze':
             Icon = Medal;
-            colorClasses = "bg-orange-700/20 text-orange-600 border border-orange-700/30";
+            colorClasses = "bg-blue-700/20 text-blue-600 border border-blue-700/30";
             break;
     }
 

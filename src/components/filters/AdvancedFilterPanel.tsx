@@ -323,7 +323,7 @@ export default function AdvancedFilterPanel({
                                                 className={cn(
                                                     "h-12 rounded-md border text-sm font-medium transition-all",
                                                     isSelected
-                                                        ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
+                                                        ? "border-black bg-background text-foreground dark:border-white dark:bg-white dark:text-black"
                                                         : "border-gray-200 bg-white text-gray-900 hover:border-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:border-gray-100"
                                                 )}
                                             >
@@ -464,7 +464,7 @@ export default function AdvancedFilterPanel({
                                             htmlFor={`tier-${tier.value}`}
                                             className={cn(
                                                 "text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1.5",
-                                                tier.value === 'bronze' && "text-orange-700",
+                                                tier.value === 'bronze' && "text-blue-700",
                                                 tier.value === 'silver' && "text-slate-500",
                                                 tier.value === 'gold' && "text-yellow-600",
                                                 tier.value === 'platinum' && "text-indigo-600"

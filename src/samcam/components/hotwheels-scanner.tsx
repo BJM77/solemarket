@@ -189,7 +189,7 @@ export default function HotWheelsScanner({
   }, [isProcessing, toast, onError, isCameraActive]);
 
   const resultOverlayClasses = cn(
-    "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center transition-opacity duration-300 text-white font-bold text-4xl font-headline tracking-wider",
+    "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center transition-opacity duration-300 text-foreground font-bold text-4xl font-headline tracking-wider",
     {
       "opacity-0 pointer-events-none": !showResult,
       "opacity-100": showResult,
@@ -199,7 +199,7 @@ export default function HotWheelsScanner({
   );
 
   return (
-    <div className="w-full max-w-[12rem] aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : toggleCamera}>
+    <div className="w-full max-w-[12rem] aspect-[9/16] bg-background rounded-xl overflow-hidden shadow-2xl relative border-4 border-primary/50 cursor-pointer" onClick={isCameraActive ? scan : toggleCamera}>
       <video
         ref={videoRef}
         autoPlay
@@ -212,7 +212,7 @@ export default function HotWheelsScanner({
       {!isCameraActive && (
          <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
             <Camera className="w-16 h-16 text-primary-foreground mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Camera Off</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">Camera Off</h3>
             <p className="text-muted-foreground">Click to start camera</p>
         </div>
       )}
@@ -229,7 +229,7 @@ export default function HotWheelsScanner({
       {cameraError && (
         <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center text-center p-4 z-20">
           <CameraOff className="w-12 h-12 text-destructive mb-3" />
-          <h3 className="text-sm font-bold text-white mb-1">Camera Inaccessible</h3>
+          <h3 className="text-sm font-bold text-foreground mb-1">Camera Inaccessible</h3>
           <p className="text-xs text-muted-foreground mb-4 leading-tight">{cameraError}</p>
           <label 
             htmlFor="hotwheels-photo-upload" 
