@@ -49,7 +49,11 @@ const nextConfig = {
     // Firebase App Hosting disables Next image optimisation unless this is explicitly false.
     // Without it, raw 2-3 MB Storage originals were shipped to phones (Lighthouse: -13 MB).
     unoptimized: false,
-    formats: ['image/avif', 'image/webp'],
+    // WebP only: AVIF encodes several times slower in sharp, so every uncached
+    // thumbnail took ~1.3-1.7 s on first view. WebP is near-instant to encode.
+    formats: ['image/webp'],
+    // 480 gives phones (2-col grid, ~200 CSS px at 2-3x DPR) a closer fit than 640.
+    deviceSizes: [480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     qualities: [25, 50, 75, 80, 90, 100],
     minimumCacheTTL: 2592000, // 30 days - product photo URLs are immutable (tokenised)
     remotePatterns: [

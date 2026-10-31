@@ -8,10 +8,13 @@ PAGES="/ /cards /coins /shoes /browse /multibuy"
 for p in $PAGES; do
   html=$(curl -s -A "$UA" "$BASE$p") || continue
   echo "page $p $(printf %s "$html" | wc -c) bytes"
-  # The first ~30 optimised image URLs on the page (src + srcset), decoded &amp;.
-  printf %s "$html" | grep -oE '/_next/image\?url=[^" ,]+' | sed 's/&amp;/\&/g' | sort -u | head -60 |
+  # Every optimised image on the page, but only the widths phones/tablets/laptops
+  # actually pick (srcsets list 16 widths per image; warming them all wasted the
+  # budget on a few images and left most phone-size thumbnails cold).
+  printf %s "$html" | grep -oE '/_next/image\?url=[^" ,]+' | sed 's/&amp;/\&/g' |
+    grep -E '&w=(96|128|256|384|480|640|750|828)&' | sort -u | head -300 |
   while read -r u; do
-    for fmt in image/avif image/webp; do
+    for fmt in image/webp; do
       curl -s -o /dev/null -A "$UA" -H "Accept: $fmt,image/*" -w "%{http_code} %{time_total}s $fmt $u\n" "$BASE$u" | cut -c1-120
     done
   done

@@ -31,7 +31,7 @@ async function NewArrivalsSection() {
   const featuredIds = new Set((featured || []).map((p: { id: string }) => p.id));
   const fresh = (latest || []).filter((p: { id: string }) => !featuredIds.has(p.id));
   const products = (fresh.length >= 4 ? fresh : latest || []).slice(0, 12);
-  return <TrendingGrid products={products} title="Just Listed" className="bg-background pt-8 pb-16 relative overflow-hidden" />;
+  return <TrendingGrid products={products} title="Just Listed" priorityCount={4} className="bg-background pt-8 pb-16 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
