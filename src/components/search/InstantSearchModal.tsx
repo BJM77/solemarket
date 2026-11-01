@@ -61,7 +61,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 overflow-hidden max-w-2xl bg-background border-border shadow-2xl rounded-xl">
+      <DialogContent className="p-0 overflow-hidden w-[calc(100%-2rem)] max-w-2xl bg-background border-border shadow-2xl rounded-2xl sm:rounded-2xl [&>button]:top-6 [&>button]:right-5">
         <Command 
           className="w-full bg-transparent flex flex-col overflow-hidden" 
           shouldFilter={false} // We use fuse.js instead of cmdk's built-in filtering
@@ -73,13 +73,13 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
             }
           }}
         >
-          <div className="flex items-center border-b border-border px-3">
+          <div className="flex items-center border-b border-border px-4 pt-4 pb-3 pr-12">
             <Search className="mr-2 h-5 w-5 shrink-0 text-muted-foreground" />
             <Command.Input 
               value={query}
               onValueChange={setQuery}
               placeholder="Search sneakers, cards, coins..." 
-              className="flex h-14 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-foreground" 
+              className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-foreground" 
             />
             {loading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
           </div>
