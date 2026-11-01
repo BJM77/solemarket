@@ -25,7 +25,7 @@ export function MarketPulseTeaser() {
                     
                     <div className="flex-shrink-0">
                         <Link href="/market-pulse">
-                            <Button size="lg" className="bg-emerald-700 hover:bg-emerald-600 text-primary-foreground font-bold px-8 h-14 rounded-full uppercase tracking-wider">
+                            <Button size="lg" className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-8 h-14 rounded-full uppercase tracking-wider">
                                 View Pulse Index &rarr;
                             </Button>
                         </Link>

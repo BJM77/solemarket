@@ -144,14 +144,14 @@ export default async function ComparisonPage({ params }: Props) {
                     </div>
 
                     {/* Verdict */}
-                    <div className="bg-indigo-900 rounded-[3rem] p-8 md:p-16 text-white shadow-2xl relative overflow-hidden">
+                    <div className="bg-orange-900 rounded-[3rem] p-8 md:p-16 text-white shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32" />
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-8">
                                 <TrendingUp className="w-8 h-8 text-primary" />
                                 <h2 className="text-3xl md:text-4xl font-black tracking-tight">The Benched Verdict</h2>
                             </div>
-                            <p className="text-xl md:text-2xl leading-relaxed font-medium mb-12 text-indigo-100">
+                            <p className="text-xl md:text-2xl leading-relaxed font-medium mb-12 text-orange-100">
                                 "{comparison.verdict}"
                             </p>
                             

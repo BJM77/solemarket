@@ -80,7 +80,7 @@ export default function ShippingLabelsPage() {
                 description="Manage pending orders, generate shipping labels via Shippo, and dispatch items."
             />
 
-            <Alert className="bg-blue-50/50 text-blue-800 border-blue-200">
+            <Alert className="bg-orange-50/50 text-orange-800 border-orange-200">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>API Integration Pending</AlertTitle>
                 <AlertDescription>

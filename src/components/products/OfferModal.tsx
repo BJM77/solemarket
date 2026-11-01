@@ -174,7 +174,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 {trigger || (
-                    <Button variant="outline" className="w-full gap-2 border-indigo-200 hover:bg-indigo-50 text-indigo-700">
+                    <Button variant="outline" className="w-full gap-2 border-orange-200 hover:bg-orange-50 text-orange-700">
                         Make an Offer
                     </Button>
                 )}
@@ -195,7 +195,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                     {step === 'amount' ? (
                         <>
                             <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+                                <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-lg text-sm text-orange-700 dark:text-orange-300">
                                     <Info className="h-4 w-4 shrink-0" />
                                     {isUntimed ? (
                                         <p>This item is mainly open to offers. Please submit your best offer.</p>
@@ -209,7 +209,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                                     if (rejectedBids.length > 0) {
                                         const highestRejected = Math.max(...rejectedBids.map(b => b.amount));
                                         return (
-                                            <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-orange-900/20 border border-blue-100 dark:border-orange-800 rounded-lg text-sm text-blue-700 dark:text-orange-300">
+                                            <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-lg text-sm text-orange-700 dark:text-orange-300">
                                                 <Info className="h-4 w-4 shrink-0" />
                                                 <p>Highest rejected offer: <strong>${highestRejected.toLocaleString()}</strong></p>
                                             </div>
@@ -253,7 +253,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
 
                             {isValidAmount && isUntimed && (
                                 <div className="pt-2 border-t">
-                                    <div className="bg-indigo-50 p-4 rounded-xl text-indigo-800 text-xs font-bold text-center border border-indigo-100">
+                                    <div className="bg-orange-50 p-4 rounded-xl text-orange-800 text-xs font-bold text-center border border-orange-100">
                                         Offers are non-binding expressions of interest. You can negotiate terms with the seller after submitting.
                                     </div>
                                 </div>
@@ -279,7 +279,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                                     autoFocus
                                 />
                                 <button
-                                    className="text-[10px] text-indigo-600 font-bold uppercase mt-1 hover:underline disabled:opacity-50"
+                                    className="text-[10px] text-orange-700 font-bold uppercase mt-1 hover:underline disabled:opacity-50"
                                     onClick={handleSendVerification}
                                     disabled={isSubmitting}
                                 >
@@ -290,12 +290,12 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                     )}
 
                     {!isUntimed && (
-                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-lg">
-                            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold mb-1">
+                        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-lg">
+                            <div className="flex items-center gap-2 text-orange-700 dark:text-orange-300 font-bold mb-1">
                                 <ShieldCheck className="h-4 w-4" />
                                 <span className="text-xs uppercase tracking-wider">Expression of Interest</span>
                             </div>
-                            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 leading-tight">
+                            <p className="text-[11px] text-orange-700 dark:text-orange-700 leading-tight">
                                 By submitting, you are notifying the seller of your interest at this price. This is not a binding purchase.
                             </p>
                         </div>
@@ -312,7 +312,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                             {step === 'amount' ? 'Cancel' : 'Back'}
                         </Button>
                         <Button
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-8 shadow-lg shadow-indigo-100"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 px-8 shadow-lg shadow-orange-100"
                             onClick={() => handlePlaceOffer()}
                             disabled={isSubmitting || (step === 'amount' && !isValidAmount) || (step === 'verify' && verificationCode.length < 5)}
                         >

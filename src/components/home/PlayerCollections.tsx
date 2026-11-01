@@ -23,8 +23,8 @@ const VAULT_ITEMS = [
         description: 'Autographed memorabilia and on-card signatures from the legends.',
         items: [
             { name: 'Kobe Bryant', count: '4 available', color: 'bg-amber-700' },
-            { name: 'Stephen Curry', count: '18 available', color: 'bg-blue-600' },
-            { name: 'Luka Doncic', count: '22 available', color: 'bg-indigo-500' },
+            { name: 'Stephen Curry', count: '18 available', color: 'bg-orange-600' },
+            { name: 'Luka Doncic', count: '22 available', color: 'bg-orange-500' },
         ],
         href: '/cards?type=Autograph',
         image: 'https://images.unsplash.com/photo-1542157140-1014cc679469?auto=format&fit=crop&q=70&w=640'

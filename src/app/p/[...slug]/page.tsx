@@ -86,7 +86,7 @@ export default async function ProgrammaticSeoPage(props: Props) {
                             <div className="bg-muted/60 border border-border rounded-lg p-12 text-center">
                                 <h3 className="text-xl font-bold mb-2">No Active Listings</h3>
                                 <p className="text-muted-foreground mb-6">There are currently no active listings for {title}. Be the first to list yours!</p>
-                                <Link href="/sell" className="px-6 py-3 bg-emerald-700 text-primary-foreground font-bold uppercase tracking-wider rounded-full hover:bg-emerald-600 transition-colors">
+                                <Link href="/sell" className="px-6 py-3 bg-emerald-700 text-white font-bold uppercase tracking-wider rounded-full hover:bg-emerald-600 transition-colors">
                                     Sell Yours Now
                                 </Link>
                             </div>

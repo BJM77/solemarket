@@ -97,7 +97,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-indigo-500" />
+                        <TrendingUp className="h-5 w-5 text-orange-700" />
                         Pricing Assistant: {product.title}
                     </DialogTitle>
                     <DialogDescription>
@@ -126,13 +126,13 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
                     {results.length > 0 && (
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
-                                    <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider">Suggested Market Price</p>
-                                    <p className="text-2xl font-bold text-indigo-900">${suggestedPrice?.toFixed(2)} AUD</p>
+                                <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                                    <p className="text-xs font-medium text-orange-700 uppercase tracking-wider">Suggested Market Price</p>
+                                    <p className="text-2xl font-bold text-orange-900">${suggestedPrice?.toFixed(2)} AUD</p>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="mt-2 w-full bg-white hover:bg-indigo-600 hover:text-white border-indigo-200 transition-colors"
+                                        className="mt-2 w-full bg-white hover:bg-primary hover:text-primary-foreground border-orange-200 transition-colors"
                                         onClick={() => handleUpdatePrice(suggestedPrice || 0)}
                                         disabled={loading || success}
                                     >
@@ -180,7 +180,7 @@ export default function PriceAssistantModal({ isOpen, onClose, product }: PriceA
                                                     href={item.itemUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
+                                                    className="text-xs text-orange-700 hover:underline flex items-center gap-1"
                                                 >
                                                     View <ExternalLink className="h-2.5 w-2.5" />
                                                 </a>

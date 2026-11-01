@@ -136,13 +136,13 @@ function ReviewPageContent() {
                   </span>
                 )}
                 {isNegotiable && (
-                  <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-indigo-200">
+                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-orange-200">
                     <DollarSign className="h-3 w-3" />
                     NEGOTIABLE
                   </span>
                 )}
                 {isReverseBidding && (
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-blue-200">
+                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 border border-orange-200">
                     <ArrowLeft className="h-3 w-3" />
                     REVERSE BIDDING
                   </span>

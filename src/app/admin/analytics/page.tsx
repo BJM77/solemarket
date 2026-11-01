@@ -103,9 +103,9 @@ export default function AnalyticsPage() {
                                         type="monotone"
                                         name="Revenue ($)"
                                         dataKey="revenue"
-                                        stroke="#2563eb"
+                                        stroke="#f26c0d"
                                         strokeWidth={3}
-                                        dot={{ r: 4, fill: '#2563eb' }}
+                                        dot={{ r: 4, fill: '#f26c0d' }}
                                         activeDot={{ r: 6, strokeWidth: 0 }}
                                     />
                                     <Line

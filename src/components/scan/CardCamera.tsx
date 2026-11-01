@@ -111,27 +111,27 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
 
     if (isValidating) {
         return (
-            <div className="w-full aspect-[2.5/3.5] max-w-sm mx-auto border-2 border-indigo-500/20 bg-card rounded-3xl flex flex-col items-center justify-center p-8 text-foreground text-center shadow-2xl">
+            <div className="w-full aspect-[2.5/3.5] max-w-sm mx-auto border-2 border-orange-500/20 bg-card rounded-3xl flex flex-col items-center justify-center p-8 text-foreground text-center shadow-2xl">
                 <div className="relative mb-10">
-                    <div className="w-24 h-24 rounded-full border-4 border-indigo-500/20 flex items-center justify-center">
-                        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+                    <div className="w-24 h-24 rounded-full border-4 border-orange-500/20 flex items-center justify-center">
+                        <Loader2 className="w-12 h-12 text-orange-700 animate-spin" />
                     </div>
-                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-indigo-600 animate-pulse" />
+                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-orange-700 animate-pulse" />
                 </div>
                 
                 <h3 className="text-xl font-black uppercase tracking-widest mb-6">Scanning Quality</h3>
                 
                 <div className="w-full space-y-4 text-left max-w-[200px]">
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'size' || currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-700" : "text-indigo-600 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", currentStep !== 'size' ? "text-green-700" : "text-orange-700 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">File integrity</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'resolution' || currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep !== 'size' && currentStep !== 'resolution') ? "text-green-700" : "text-orange-700 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Resolution check</span>
                     </div>
                     <div className={cn("flex items-center gap-3 transition-opacity duration-300", (currentStep === 'sharpness' || currentStep === 'finalizing') ? "opacity-100" : "opacity-20")}>
-                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-700" : "text-indigo-600 animate-pulse")} />
+                        <CheckCircle2 className={cn("w-5 h-5", (currentStep === 'finalizing') ? "text-green-700" : "text-orange-700 animate-pulse")} />
                         <span className="text-sm font-bold tracking-tight">Sharpness test</span>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
         <div
             className={cn(
                 "relative flex flex-col items-center justify-center w-full aspect-[2.5/3.5] max-w-sm mx-auto border-4 border-dashed rounded-[32px] transition-all overflow-hidden",
-                isDragging ? "border-indigo-500 bg-indigo-500/5" : "border-slate-200 bg-slate-50",
+                isDragging ? "border-orange-500 bg-orange-500/5" : "border-slate-200 bg-slate-50",
                 isLoading && "opacity-50 pointer-events-none"
             )}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -192,7 +192,7 @@ export function CardCamera({ onCapture, isLoading }: CardCameraProps) {
 
                 <Button 
                     onClick={() => inputRef.current?.click()} 
-                    className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl rounded-2xl shadow-xl shadow-indigo-100 mt-4"
+                    className="w-full h-16 bg-primary hover:bg-primary/90 text-primary-foreground font-black text-xl rounded-2xl shadow-xl shadow-orange-100 mt-4"
                 >
                     <Camera className="mr-3 h-6 w-6" />
                     Take Photo

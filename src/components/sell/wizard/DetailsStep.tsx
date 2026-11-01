@@ -87,8 +87,8 @@ export function DetailsStep({
     const AIAnalyzingIndicator = ({ fieldName }: { fieldName: string }) => {
         if (!analyzingFields[fieldName]) return null;
         return (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-600 animate-pulse duration-1000">
-                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-indigo-600" />
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-700 animate-pulse duration-1000">
+                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-orange-700" />
                 <span>AI ANALYZING...</span>
             </div>
         );
@@ -121,7 +121,7 @@ export function DetailsStep({
                                         }}
                                         className={cn(
                                             suggestedFields.includes('title') && "bg-primary/5 border-primary/30 shadow-[0_0_10px_rgba(var(--primary),0.05)]",
-                                            analyzingFields['title'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['title'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -154,7 +154,7 @@ export function DetailsStep({
                                         <FormControl>
                                             <SelectTrigger className={cn(
                                                 suggestedFields.includes('subCategory') && "bg-primary/5 border-primary/30",
-                                                analyzingFields['subCategory'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
+                                                analyzingFields['subCategory'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                             )}>
                                                 <SelectValue placeholder="Select sub-category" />
                                             </SelectTrigger>
@@ -226,7 +226,7 @@ export function DetailsStep({
                                     <FormControl>
                                         <SelectTrigger className={cn(
                                             suggestedFields.includes('condition') && "bg-primary/5 border-primary/30",
-                                            analyzingFields['condition'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
+                                            analyzingFields['condition'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                         )}>
                                             <SelectValue placeholder="Select condition" />
                                         </SelectTrigger>
@@ -254,7 +254,7 @@ export function DetailsStep({
                                 </div>
                                 <div className={cn(
                                     "grid grid-cols-2 sm:grid-cols-3 gap-2 p-1 rounded-xl transition-all duration-300",
-                                    analyzingFields['brand'] && "animate-pulse bg-indigo-500/5 border border-dashed border-indigo-500/30"
+                                    analyzingFields['brand'] && "animate-pulse bg-orange-500/5 border border-dashed border-orange-500/30"
                                 )}>
                                     {['Jordan', 'Nike', 'Adidas', 'Yeezy', 'New Balance', 'Puma', 'Reebok', 'Under Armour', 'Converse', 'ANTA'].map((brand) => (
                                         <Button
@@ -330,7 +330,7 @@ export function DetailsStep({
                                             }}
                                             className={cn(
                                                 suggestedFields.includes('brand') && "bg-primary/5 border-primary/30",
-                                                analyzingFields['brand'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                                analyzingFields['brand'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                             )}
                                         />
                                     </FormControl>
@@ -353,7 +353,7 @@ export function DetailsStep({
                                                 onFieldChange?.('year');
                                             }}
                                             className={cn(
-                                                analyzingFields['year'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                                analyzingFields['year'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                             )}
                                         />
                                     </FormControl>
@@ -391,7 +391,7 @@ export function DetailsStep({
                                 >
                                     <FormControl>
                                         <SelectTrigger className={cn(
-                                            analyzingFields['gradingCompany'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 text-indigo-600"
+                                            analyzingFields['gradingCompany'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                         )}>
                                             <SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} />
                                         </SelectTrigger>
@@ -419,7 +419,7 @@ export function DetailsStep({
                                             onFieldChange?.('grade');
                                         }}
                                         className={cn(
-                                            analyzingFields['grade'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['grade'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -440,7 +440,7 @@ export function DetailsStep({
                                             onFieldChange?.('certNumber');
                                         }}
                                         className={cn(
-                                            analyzingFields['certNumber'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['certNumber'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -461,7 +461,7 @@ export function DetailsStep({
                                             onFieldChange?.('cardNumber');
                                         }}
                                         className={cn(
-                                            analyzingFields['cardNumber'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['cardNumber'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -488,7 +488,7 @@ export function DetailsStep({
                                             onFieldChange?.('size');
                                         }}
                                         className={cn(
-                                            analyzingFields['size'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['size'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -513,7 +513,7 @@ export function DetailsStep({
                                         }}
                                         className={cn(
                                             suggestedFields.includes('styleCode') && "bg-primary/5 border-primary/30",
-                                            analyzingFields['styleCode'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['styleCode'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -534,7 +534,7 @@ export function DetailsStep({
                                             onFieldChange?.('colorway');
                                         }}
                                         className={cn(
-                                            analyzingFields['colorway'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['colorway'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>
@@ -556,7 +556,7 @@ export function DetailsStep({
                                             onFieldChange?.('year');
                                         }}
                                         className={cn(
-                                            analyzingFields['year'] && "animate-pulse border-indigo-500/30 bg-indigo-500/5 placeholder-indigo-400/20"
+                                            analyzingFields['year'] && "animate-pulse border-orange-500/30 bg-orange-500/5 placeholder-orange-400/20"
                                         )}
                                     />
                                 </FormControl>

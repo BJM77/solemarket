@@ -190,8 +190,8 @@ export default function SEOPage() {
                             <div className="flex flex-col md:flex-row gap-6 p-6 rounded-xl border bg-white shadow-sm border-emerald-100">
                                 <div className="flex-grow space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <Globe className="h-6 w-6 text-blue-600" />
+                                        <div className="p-2 bg-orange-100 rounded-lg">
+                                            <Globe className="h-6 w-6 text-orange-700" />
                                         </div>
                                         <div>
                                             <h4 className="font-black text-lg text-slate-900 leading-tight">Google Search Console</h4>
@@ -208,7 +208,7 @@ export default function SEOPage() {
                                             <p><strong>Action:</strong> Submit <code>https://benched.au/sitemap.xml</code> after verification.</p>
                                         </div>
                                     </div>
-                                    <Button variant="default" className="bg-blue-600 hover:bg-blue-700 font-bold" asChild>
+                                    <Button variant="default" className="bg-orange-600 hover:bg-orange-700 font-bold" asChild>
                                         <a href="https://search.google.com/search-console" target="_blank">
                                             Open Google Console <ExternalLink className="ml-2 h-4 w-4" />
                                         </a>
@@ -290,14 +290,14 @@ export default function SEOPage() {
                 </div>
 
                 <div className="lg:col-span-4 space-y-6">
-                    <Card className="bg-blue-50/30 border-blue-100">
+                    <Card className="bg-orange-50/30 border-orange-100">
                         <CardHeader>
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <Sparkles className="h-4 w-4 text-blue-500" />
+                                <Sparkles className="h-4 w-4 text-orange-700" />
                                 SEO Best Practice
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="text-sm text-blue-900/80 space-y-2">
+                        <CardContent className="text-sm text-orange-900/80 space-y-2">
                             <p>For Australia-specific focus:</p>
                             <ul className="list-disc pl-4 space-y-1">
                                 <li>Use "Australia" in the page titles.</li>
@@ -311,7 +311,7 @@ export default function SEOPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileCode className="h-5 w-5 text-blue-500" />
+                                <FileCode className="h-5 w-5 text-orange-700" />
                                 Sitemap
                             </CardTitle>
                         </CardHeader>

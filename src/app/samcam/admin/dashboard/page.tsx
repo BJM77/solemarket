@@ -65,7 +65,7 @@ export default function EnterpriseDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge className={cn("text-[8px] font-black uppercase border-none text-foreground", item.status === 'VERIFIED' ? "bg-green-600" : "bg-blue-600")}>
+                    <Badge className={cn("text-[8px] font-black uppercase border-none text-foreground", item.status === 'VERIFIED' ? "bg-green-600" : "bg-orange-600")}>
                       {item.status}
                     </Badge>
                     <p className="text-[8px] font-bold text-zinc-650 mt-1 uppercase">{new Date(item.createdAt).toLocaleTimeString()}</p>

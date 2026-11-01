@@ -26,9 +26,9 @@ interface ProductImageGalleryProps {
 const conditionColors: Record<string, string> = {
   'Mint': 'bg-green-100 text-green-800 border-green-200',
   'Near Mint': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  'Excellent': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Excellent': 'bg-orange-100 text-orange-800 border-orange-200',
   'Good': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'Fair': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Fair': 'bg-orange-100 text-orange-800 border-orange-200',
   'Poor': 'bg-red-100 text-red-800 border-red-200',
 };
 
@@ -275,7 +275,7 @@ export default function ProductImageGallery({
               </Badge>
             )}
             {isAuthenticated && (
-              <Badge className="bg-blue-600/90 text-white border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider">
+              <Badge className="bg-primary/90 text-primary-foreground border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
                 Auth Verified
               </Badge>

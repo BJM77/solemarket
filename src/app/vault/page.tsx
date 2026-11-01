@@ -157,7 +157,7 @@ export default function VaultPage() {
               <h2 className="text-3xl font-black uppercase mb-8">Why use the Vault?</h2>
               <TabsList className="bg-background p-1 rounded-full border border-border shadow-sm">
                 <TabsTrigger value="sellers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all">For Sellers</TabsTrigger>
-                <TabsTrigger value="buyers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all">For Buyers</TabsTrigger>
+                <TabsTrigger value="buyers" className="rounded-full px-8 py-3 text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">For Buyers</TabsTrigger>
               </TabsList>
             </div>
 
@@ -185,12 +185,12 @@ export default function VaultPage() {
                   <BenefitItem title="Professional Inspection" desc="We check corners, edges, and surface conditions for cards, and authenticity for coins/memorabilia." />
                   <BenefitItem title="Secure Shipping" desc="We repackage the item in professional-grade protection for the final leg of the journey." />
                   <div className="pt-4">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8">Browse Vault Items</Button>
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8">Browse Vault Items</Button>
                   </div>
                 </div>
                 <div className="order-1 md:order-2 relative h-[400px] rounded-2xl overflow-hidden shadow-2xl">
                   <Image src="https://images.unsplash.com/photo-1561414927-6d86591d0c4f?q=80&w=1973&auto=format&fit=crop" alt="Buyer happy" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-blue-900/10" />
+                  <div className="absolute inset-0 bg-orange-900/10" />
                 </div>
               </div>
             </TabsContent>

@@ -248,12 +248,12 @@ export default function AdminWantedManager() {
                 </Card>
             </div>
 
-            <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 p-6 rounded-2xl">
-                <h4 className="font-bold text-indigo-800 dark:text-indigo-400 mb-2 flex items-center gap-2 uppercase tracking-widest text-xs">
+            <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 p-6 rounded-2xl">
+                <h4 className="font-bold text-orange-800 dark:text-orange-700 mb-2 flex items-center gap-2 uppercase tracking-widest text-xs">
                     <Tag className="h-4 w-4" />
                     How the Watch List works
                 </h4>
-                <ul className="text-sm text-indigo-700 dark:text-indigo-300 space-y-2 list-disc list-inside">
+                <ul className="text-sm text-orange-700 dark:text-orange-300 space-y-2 list-disc list-inside">
                     <li>When any user attempts to <strong>Publish</strong> a listing, our system cross-checks the title against your keywords.</li>
                     <li>If a match is found, the listing is immediately placed <strong>On Hold</strong> instead of going live.</li>
                     <li>You will be able to find these matching listings in the <strong>Escrow Ledger</strong> or <strong>Products</strong> section with the reason &quot;Personal Wanted Match&quot;.</li>

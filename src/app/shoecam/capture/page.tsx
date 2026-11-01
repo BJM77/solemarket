@@ -569,9 +569,9 @@ export default function ShoePhotoBooth() {
           <div ref={reviewPanelRef} className="p-4 space-y-6 animate-in slide-in-from-bottom-8 duration-500">
             {aiScanning ? (
               <Card className="bg-card border-border overflow-hidden shadow-2xl relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent animate-[shimmer_2s_infinite]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/10 to-transparent animate-[shimmer_2s_infinite]" />
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
-                  <Gem className="w-8 h-8 text-blue-600 animate-pulse" />
+                  <Gem className="w-8 h-8 text-orange-700 animate-pulse" />
                   <div className="text-center space-y-2">
                     <h3 className="text-xl font-bold">AI Sneaker Check</h3>
                     <p className="text-muted-foreground">Reading box label and confirming model...</p>
@@ -641,7 +641,7 @@ export default function ShoePhotoBooth() {
                   <Button variant="outline" className="flex-1 h-14 bg-card border-border" onClick={handleSkipAndQueue}>
                     <Layers className="w-5 h-5 mr-2" /> Queue
                   </Button>
-                  <Button className="flex-1 h-14 bg-blue-600 text-white" onClick={handleSubmitToBench} disabled={saving}>
+                  <Button className="flex-1 h-14 bg-primary text-primary-foreground" onClick={handleSubmitToBench} disabled={saving}>
                     {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Send className="w-5 h-5 mr-2" />} Submit to Bench
                   </Button>
                 </div>

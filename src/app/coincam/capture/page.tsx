@@ -225,12 +225,12 @@ export default function CoinPhotoBooth() {
             
             {aiScanning ? (
               <Card className="bg-card border-border overflow-hidden shadow-2xl relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 min-h-[300px]">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full border-4 border-border border-t-blue-500 animate-spin" />
+                    <div className="w-24 h-24 rounded-full border-4 border-border border-t-orange-500 animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Gem className="w-8 h-8 text-blue-600 animate-pulse" />
+                      <Gem className="w-8 h-8 text-orange-700 animate-pulse" />
                     </div>
                   </div>
                   <div className="text-center space-y-2">
@@ -278,7 +278,7 @@ export default function CoinPhotoBooth() {
                         <Input 
                           value={reviewData.coinName || ''} 
                           onChange={e => setReviewData({...reviewData, coinName: e.target.value})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                         />
                       </div>
                       
@@ -287,7 +287,7 @@ export default function CoinPhotoBooth() {
                         <Input 
                           value={reviewData.setName || ''} 
                           onChange={e => setReviewData({...reviewData, setName: e.target.value})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                           placeholder="e.g. Lunar Series"
                         />
                       </div>
@@ -297,7 +297,7 @@ export default function CoinPhotoBooth() {
                         <Input 
                           value={reviewData.denomination || ''} 
                           onChange={e => setReviewData({...reviewData, denomination: e.target.value})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                           placeholder="e.g. $1"
                         />
                       </div>
@@ -308,7 +308,7 @@ export default function CoinPhotoBooth() {
                           type="number"
                           value={reviewData.year || ''} 
                           onChange={e => setReviewData({...reviewData, year: parseInt(e.target.value) || undefined})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                         />
                       </div>
                       
@@ -317,7 +317,7 @@ export default function CoinPhotoBooth() {
                         <Input 
                           value={reviewData.mintMark || ''} 
                           onChange={e => setReviewData({...reviewData, mintMark: e.target.value})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                         />
                       </div>
 
@@ -326,7 +326,7 @@ export default function CoinPhotoBooth() {
                         <Input 
                           value={reviewData.condition || ''} 
                           onChange={e => setReviewData({...reviewData, condition: e.target.value})} 
-                          className="bg-black/50 border-border focus-visible:ring-blue-500"
+                          className="bg-black/50 border-border focus-visible:ring-orange-500"
                         />
                       </div>
 
@@ -338,7 +338,7 @@ export default function CoinPhotoBooth() {
                             type="number"
                             value={reviewData.price || ''} 
                             onChange={e => setReviewData({...reviewData, price: parseInt(e.target.value) || undefined})} 
-                            className="bg-black/50 border-border pl-7 focus-visible:ring-blue-500 font-bold text-green-700"
+                            className="bg-black/50 border-border pl-7 focus-visible:ring-orange-500 font-bold text-green-700"
                             placeholder="0.00"
                           />
                         </div>
@@ -349,7 +349,7 @@ export default function CoinPhotoBooth() {
                         <textarea 
                           value={reviewData.description || ''} 
                           onChange={e => setReviewData({...reviewData, description: e.target.value})} 
-                          className="w-full h-24 bg-black/50 border border-border rounded-md p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 resize-none"
+                          className="w-full h-24 bg-black/50 border border-border rounded-md p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 resize-none"
                         />
                       </div>
 
@@ -368,7 +368,7 @@ export default function CoinPhotoBooth() {
                     Skip & Queue
                   </Button>
                   <Button 
-                    className="flex-1 h-14 bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-500/20"
+                    className="flex-1 h-14 bg-primary hover:bg-primary text-primary-foreground shadow-xl shadow-orange-500/20"
                     onClick={handleSubmitToBench}
                     disabled={saving}
                   >

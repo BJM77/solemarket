@@ -35,7 +35,7 @@ export interface HeroConfig {
 }
 
 export interface BrandingTheme {
-  primaryColor: string; // HSL or Hex string (e.g. '25 90% 50%' or '#2563eb')
+  primaryColor: string; // HSL or Hex string (e.g. '25 90% 50%' or '#f26c0d')
   buttonColor: string;
   buttonTextColor: string;
   tickerBgColor: string;
@@ -108,8 +108,8 @@ export interface SiteConfig {
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   branding: {
-    primaryColor: '221 83% 53%',
-    buttonColor: '#2563eb',
+    primaryColor: '25 89% 50%',
+    buttonColor: '#f26c0d',
     buttonTextColor: '#ffffff',
     tickerBgColor: '#18181b',
     tickerTextColor: '#ffffff',
@@ -123,9 +123,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     subText1: 'Buy Footwear, Collector Cards and Australian Coins & Notes.',
     subText2: '',
     buttons: [
-      { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#2563eb', textColor: '#ffffff' },
-      { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#2563eb', textColor: '#ffffff' },
-      { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#2563eb', textColor: '#ffffff' },
+      { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#f26c0d', textColor: '#ffffff' },
+      { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#f26c0d', textColor: '#ffffff' },
+      { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#f26c0d', textColor: '#ffffff' },
     ],
   },
   sections: [
@@ -139,11 +139,11 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       customClasses: 'py-16 bg-background',
       items: [
         { id: 'l1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/shoes?subCategory=Jordan&brand=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
-        { id: 'l2', name: 'Nike', logo: '/brand-logos/svg/nike.svg', href: '/shoes?subCategory=Nike&brand=Nike', color: 'bg-blue-50/50 dark:bg-orange-950/10' },
-        { id: 'l3', name: 'Adidas', logo: '/brand-logos/svg/adidas.svg', href: '/shoes?subCategory=Adidas&brand=Adidas', color: 'bg-blue-50/50 dark:bg-blue-950/10' },
+        { id: 'l2', name: 'Nike', logo: '/brand-logos/svg/nike.svg', href: '/shoes?subCategory=Nike&brand=Nike', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
+        { id: 'l3', name: 'Adidas', logo: '/brand-logos/svg/adidas.svg', href: '/shoes?subCategory=Adidas&brand=Adidas', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
         { id: 'l4', name: 'New Balance', logo: '/brand-logos/svg/new-balance.svg', href: '/shoes?subCategory=New%20Balance&brand=New%20Balance', color: 'bg-green-50/50 dark:bg-green-950/10' },
         { id: 'l5', name: 'Under Armour', logo: '/brand-logos/svg/under-armour.svg', href: '/shoes?subCategory=Under%20Armour&brand=Under%20Armour', color: 'bg-slate-100/50 dark:bg-slate-800/10' },
-        { id: 'l6', name: 'Reebok', logo: '/brand-logos/svg/reebok.svg', href: '/shoes?subCategory=Reebok&brand=Reebok', color: 'bg-blue-50/50 dark:bg-blue-950/10' },
+        { id: 'l6', name: 'Reebok', logo: '/brand-logos/svg/reebok.svg', href: '/shoes?subCategory=Reebok&brand=Reebok', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
         { id: 'l7', name: 'Puma', logo: '/brand-logos/svg/puma.svg', href: '/shoes?subCategory=Puma&brand=Puma', color: 'bg-yellow-50/50 dark:bg-yellow-950/10' },
         { id: 'l8', name: 'Converse', logo: '/brand-logos/svg/converse.svg', href: '/shoes?subCategory=Converse&brand=Converse', color: 'bg-zinc-100/50 dark:bg-zinc-800/10' },
         { id: 'l9', name: 'Kobe', logo: '/brand-logos/svg/kobe.svg', href: '/shoes?subCategory=Kobe&brand=Kobe', color: 'bg-purple-50/50 dark:bg-purple-950/10' },
@@ -160,9 +160,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       items: [
         { id: 'c1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/cards?subCategory=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
         { id: 'c2', name: 'Kobe', logo: '/brand-logos/svg/kobe.svg', href: '/cards?subCategory=Kobe', color: 'bg-purple-50/50 dark:bg-purple-950/10' },
-        { id: 'c3', name: 'Curry', logo: '/brand-logos/svg/curry.svg', href: '/cards?subCategory=Curry', color: 'bg-blue-50/50 dark:bg-blue-950/10' },
+        { id: 'c3', name: 'Curry', logo: '/brand-logos/svg/curry.svg', href: '/cards?subCategory=Curry', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
         { id: 'c4', name: 'Pokemon', iconName: 'Zap', href: '/cards?subCategory=Pok%C3%A9mon', color: 'bg-yellow-50 dark:bg-yellow-950/20' },
-        { id: 'c5', name: 'Top 100', iconName: 'Medal', href: '/cards?subCategory=Top%20100', color: 'bg-blue-50 dark:bg-blue-950/20' },
+        { id: 'c5', name: 'Top 100', iconName: 'Medal', href: '/cards?subCategory=Top%20100', color: 'bg-orange-50 dark:bg-orange-950/20' },
         { id: 'c6', name: 'Wembanyama', iconName: 'Trophy', href: '/cards?subCategory=Wembanyama', color: 'bg-emerald-50 dark:bg-emerald-950/20' },
       ]
     },
@@ -243,7 +243,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' },
     coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' },
   },
-  announcement: { enabled: false, text: '', href: '', bgColor: '#2563eb', textColor: '#ffffff' },
+  announcement: { enabled: false, text: '', href: '', bgColor: '#f26c0d', textColor: '#ffffff' },
 };
 
 /** Fill any missing keys from defaults (older documents predate the newer sections). */
@@ -285,11 +285,11 @@ const FONT_VARS: Record<FontOption, string> = {
 /** CSS applied server-side so the first paint already uses the published brand. */
 export function siteConfigCss(c: SiteConfig): string {
   const vars: string[] = [];
-  // Legacy orange brand values saved in the CMS map to the new marketplace blue.
-  const LEGACY = ['25 90% 50%', '#f26c0d', '#F26C0D'];
-  const raw = LEGACY.includes((c.branding.primaryColor || '').trim()) ? '221 83% 53%' : c.branding.primaryColor;
+  // Older saved brand values (old orange HSL, interim marketplace blue) map to the logo orange.
+  const LEGACY = ['25 90% 50%', '#f26c0d', '#F26C0D', '221 83% 53%', '#2563eb', '#2563EB'];
+  const raw = LEGACY.includes((c.branding.primaryColor || '').trim()) ? '25 89% 50%' : c.branding.primaryColor;
   const primary = safeColor(raw);
-  if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`, `--accent:${primary}`);
+  if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`);
   const pairs: [string, string | undefined][] = [
     ['--btn-primary-bg', c.branding.buttonColor],
     ['--btn-primary-text', c.branding.buttonTextColor],

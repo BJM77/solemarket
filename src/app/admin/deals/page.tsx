@@ -76,7 +76,7 @@ export default function DealsPage() {
                 </div>
                 <button
                     onClick={() => setShowCreateForm(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                     + Create New Deal
                 </button>
@@ -183,7 +183,7 @@ function DealCard({
                 </div>
             )}
             {deal.requirements.bronze > 0 && (
-                <div className="px-3 py-2 bg-blue-100 text-blue-800 rounded">
+                <div className="px-3 py-2 bg-orange-100 text-orange-800 rounded">
                     <span className="font-semibold">{deal.requirements.bronze}</span> Bronze
                 </div>
             )}
@@ -200,7 +200,7 @@ function DealCard({
                 </button>
                 <button
                     onClick={() => onEdit(deal)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                     Edit
                 </button>
@@ -285,7 +285,7 @@ function DealForm({
                             type="text"
                             value={formData.code}
                             onChange={e => setFormData({ ...formData, code: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                             placeholder="STARTER-PACK"
                             required
                         />
@@ -297,7 +297,7 @@ function DealForm({
                             type="text"
                             value={formData.name}
                             onChange={e => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                             placeholder="The Collector's Starter Pack"
                             required
                         />
@@ -308,7 +308,7 @@ function DealForm({
                         <textarea
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                             rows={3}
                             placeholder="Perfect for new collectors..."
                             required
@@ -322,7 +322,7 @@ function DealForm({
                             step="0.01"
                             value={formData.price}
                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                             required
                         />
                     </div>
@@ -334,7 +334,7 @@ function DealForm({
                                 type="number"
                                 value={formData.bronze}
                                 onChange={e => setFormData({ ...formData, bronze: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 min="0"
                             />
                         </div>
@@ -344,7 +344,7 @@ function DealForm({
                                 type="number"
                                 value={formData.silver}
                                 onChange={e => setFormData({ ...formData, silver: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 min="0"
                             />
                         </div>
@@ -354,7 +354,7 @@ function DealForm({
                                 type="number"
                                 value={formData.gold}
                                 onChange={e => setFormData({ ...formData, gold: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 min="0"
                             />
                         </div>
@@ -364,7 +364,7 @@ function DealForm({
                                 type="number"
                                 value={formData.platinum}
                                 onChange={e => setFormData({ ...formData, platinum: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 min="0"
                             />
                         </div>
@@ -384,7 +384,7 @@ function DealForm({
                     <div className="flex gap-2 pt-4">
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                         >
                             {deal ? 'Update Deal' : 'Create Deal'}
                         </button>

@@ -65,11 +65,11 @@ export default function SystemPage() {
             />
           </div>
 
-          <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl dark:bg-blue-900/20 dark:border-blue-800">
-            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+          <div className="p-6 bg-orange-50 border border-orange-100 rounded-2xl dark:bg-orange-900/20 dark:border-orange-800">
+            <h3 className="text-lg font-bold text-orange-900 dark:text-orange-100 mb-2 flex items-center gap-2">
               <Activity className="h-5 w-5" /> Manual Facebook Sync
             </h3>
-            <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed max-w-2xl">
+            <p className="text-sm text-orange-800 dark:text-orange-300 leading-relaxed max-w-2xl">
               To instantly push new products to your Facebook Shop and Advantage+ Ads:
               <br/>
               1. Copy this URL: <code className="bg-white dark:bg-black/40 px-2 py-0.5 rounded font-mono text-xs select-all">https://benched.au/api/feeds/facebook</code>

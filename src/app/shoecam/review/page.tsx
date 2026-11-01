@@ -163,7 +163,7 @@ export default function ShoeReviewQueue() {
               activeTab === 'NEEDS_REVIEW' ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground/80"
             )}
           >
-            Incomplete <span className="bg-blue-950/40 text-blue-600 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
+            Incomplete <span className="bg-orange-950/40 text-orange-700 rounded px-1.5 py-0.5 text-[8px]">{incompleteCount}</span>
           </button>
         </div>
 
@@ -175,9 +175,9 @@ export default function ShoeReviewQueue() {
                  
                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                    <Badge className={cn("text-[8px] font-black uppercase gap-1 px-2 border-none", 
-                      item.status === 'VERIFIED' ? "bg-green-600 text-primary-foreground" : 
+                      item.status === 'VERIFIED' ? "bg-green-600 text-white" : 
                       item.status === 'NEEDS_REVIEW' ? "bg-primary text-primary-foreground" : 
-                      "bg-blue-600 text-primary-foreground"
+                      "bg-orange-600 text-primary-foreground"
                    )}>
                      {item.status === 'VERIFIED' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
                      {item.status}

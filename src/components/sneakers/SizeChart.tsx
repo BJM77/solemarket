@@ -49,8 +49,8 @@ export function SizeChart({ brand = 'nike' }: { brand?: string }) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="mt-4">
-                    <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-4">
-                        <p className="text-sm text-blue-900 dark:text-blue-100">
+                    <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg mb-4">
+                        <p className="text-sm text-orange-900 dark:text-orange-100">
                             <strong>Tip:</strong> Sizes may vary slightly between brands and models. When in doubt, measure your foot in centimeters and use the CM column.
                         </p>
                     </div>

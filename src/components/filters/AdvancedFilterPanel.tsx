@@ -464,10 +464,10 @@ export default function AdvancedFilterPanel({
                                             htmlFor={`tier-${tier.value}`}
                                             className={cn(
                                                 "text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1.5",
-                                                tier.value === 'bronze' && "text-blue-700",
+                                                tier.value === 'bronze' && "text-orange-700",
                                                 tier.value === 'silver' && "text-slate-500",
                                                 tier.value === 'gold' && "text-yellow-600",
-                                                tier.value === 'platinum' && "text-indigo-600"
+                                                tier.value === 'platinum' && "text-orange-700"
                                             )}
                                         >
                                             {tier.label}

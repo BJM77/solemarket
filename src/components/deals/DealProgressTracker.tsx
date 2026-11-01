@@ -119,7 +119,7 @@ function TierProgress({
     const isComplete = current >= required;
 
     const colorClasses = {
-        orange: 'bg-blue-500',
+        orange: 'bg-orange-500',
         slate: 'bg-slate-500',
         yellow: 'bg-yellow-500',
         cyan: 'bg-cyan-500',

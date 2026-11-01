@@ -90,7 +90,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                             tiers[index].minQuantity = parseInt(e.target.value) || 2;
                                             form.setValue('multibuyTiers', tiers);
                                         }}
-                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-indigo-500 rounded-lg text-xs"
+                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-orange-500 rounded-lg text-xs"
                                     />
                                 </div>
                                 <div className="flex-1">
@@ -105,7 +105,7 @@ export function MultibuyConfig({ form }: MultibuyConfigProps) {
                                             tiers[index].discountPercent = Math.min(90, Math.max(1, parseInt(e.target.value) || 1));
                                             form.setValue('multibuyTiers', tiers);
                                         }}
-                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-indigo-500 rounded-lg text-xs"
+                                        className="mt-1 h-9 bg-card/60 border-border text-foreground focus-visible:ring-orange-500 rounded-lg text-xs"
                                     />
                                 </div>
                                 <Button

@@ -39,7 +39,7 @@ export default function JournalIndexPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
                             
                             <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full md:w-2/3">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-700 text-primary-foreground rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-700 text-white rounded-full text-xs font-bold uppercase tracking-widest mb-4">
                                     {featuredArticle.category}
                                 </div>
                                 <h2 className="text-3xl md:text-5xl font-black uppercase text-foreground mb-4 leading-tight group-hover:underline underline-offset-4">

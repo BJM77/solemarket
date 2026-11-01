@@ -44,9 +44,9 @@ export default function AuthenticityPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-                    <Card className="bg-card border-border hover:border-blue-500/50 transition-colors">
+                    <Card className="bg-card border-border hover:border-orange-500/50 transition-colors">
                         <CardContent className="p-8">
-                            <SearchCode className="h-12 w-12 text-blue-600 mb-6" />
+                            <SearchCode className="h-12 w-12 text-orange-700 mb-6" />
                             <h3 className="text-xl font-bold text-foreground mb-4">1. AI Vision Pre-Screening</h3>
                             <p className="text-muted-foreground leading-relaxed">
                                 Our listing flow uses advanced AI models to scan every image. If a seller uploads generic images, screenshots, or highly suspicious items lacking physical context, our system flags it for manual review before it ever reaches the public feed.

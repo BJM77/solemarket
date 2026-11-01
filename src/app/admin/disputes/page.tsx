@@ -106,7 +106,7 @@ export default function DisputesPage() {
                                                             variant="outline" 
                                                             size="sm"
                                                             onClick={() => handleResolve(dispute.id, 'resolved_seller')}
-                                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                            className="text-orange-700 hover:text-orange-700 hover:bg-orange-50"
                                                         >
                                                             <UserX className="w-4 h-4 mr-1" />
                                                             Favor Seller

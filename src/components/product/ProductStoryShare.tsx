@@ -84,7 +84,7 @@ export function ProductStoryShare({ product }: ProductStoryShareProps) {
                 <span className="text-[10px] font-bold uppercase">Instagram</span>
             </Button>
             <Button variant="outline" className="flex flex-col h-20 gap-2 rounded-2xl border-2 hover:border-primary/50 hover:bg-primary/5 transition-all" onClick={handleWebShare}>
-                <Facebook className="h-6 w-6 text-blue-600" />
+                <Facebook className="h-6 w-6 text-orange-700" />
                 <span className="text-[10px] font-bold uppercase">Facebook</span>
             </Button>
             <Button variant="outline" className="flex flex-col h-20 gap-2 rounded-2xl border-2 hover:border-primary/50 hover:bg-primary/5 transition-all" onClick={copyToClipboard}>

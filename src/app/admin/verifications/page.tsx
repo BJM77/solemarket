@@ -114,7 +114,7 @@ export default function AdminVerificationsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Verification Requests</h1>
                     <p className="text-muted-foreground">Review user IDs and approve access.</p>
                 </div>
-                <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                <div className="bg-orange-50 text-orange-700 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
                     <Shield className="w-4 h-4" />
                     {requests.length} Pending
                 </div>
@@ -149,7 +149,7 @@ export default function AdminVerificationsPage() {
                                     <Label className="text-xs text-muted-foreground uppercase">Submitted Documents</Label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {request.documentUrls.map((url, idx) => (
-                                            <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block group relative aspect-video bg-gray-100 rounded-md overflow-hidden border hover:border-blue-500 transition-all">
+                                            <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block group relative aspect-video bg-gray-100 rounded-md overflow-hidden border hover:border-orange-500 transition-all">
                                                 <img src={url} alt={`Doc ${idx + 1}`} className="object-cover w-full h-full" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-all">
                                                     <ExternalLink className="w-6 h-6 text-foreground opacity-0 group-hover:opacity-100 drop-shadow-md" />

@@ -25,7 +25,7 @@ export default function SellerAnalyticsPage() {
       value: 45,
       change: '+4.3%',
       icon: ShoppingBag,
-      color: 'text-blue-600 bg-blue-100',
+      color: 'text-orange-700 bg-orange-100',
     },
     {
       title: 'Conversion Rate',
@@ -39,7 +39,7 @@ export default function SellerAnalyticsPage() {
       value: 1205,
       change: '+24%',
       icon: Users,
-      color: 'text-blue-600 bg-blue-100',
+      color: 'text-orange-700 bg-orange-100',
     },
   ];
 

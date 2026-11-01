@@ -14,7 +14,7 @@ export function TierNudges({ pricing, sellerNames }: { pricing: CartPricing; sel
                 const applied = pricing.tierBundles.find(b => b.key === n.key);
                 const saved = applied ? applied.originalValue - applied.price : 0;
                 return (
-                    <div key={n.key} className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs ${n.remaining === 0 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300'}`}>
+                    <div key={n.key} className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs ${n.remaining === 0 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300'}`}>
                         <Layers className="w-3.5 h-3.5 mt-0.5 shrink-0" aria-hidden />
                         <div>
                             <p className="font-semibold" data-testid="tier-nudge">{n.message}</p>

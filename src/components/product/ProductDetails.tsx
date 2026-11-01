@@ -294,9 +294,9 @@ export default function ProductDetails({ productId, initialProduct }: { productI
     const conditionColors: Record<string, string> = {
         'Mint': 'bg-green-100 text-green-800 border-green-200',
         'Near Mint': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-        'Excellent': 'bg-blue-100 text-blue-800 border-blue-200',
+        'Excellent': 'bg-orange-100 text-orange-800 border-orange-200',
         'Good': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'Fair': 'bg-blue-100 text-blue-800 border-blue-200',
+        'Fair': 'bg-orange-100 text-orange-800 border-orange-200',
         'Poor': 'bg-red-100 text-red-800 border-red-200',
     };
 
@@ -405,7 +405,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                     {product.condition}
                                 </Badge>
                                 {(product as any).authentication?.isAuthenticated && (
-                                    <Badge className="bg-blue-100 text-blue-800 border-blue-200 border-none">
+                                    <Badge className="bg-orange-100 text-orange-800 border-orange-200 border-none">
                                         <ShieldCheck className="h-3 w-3 mr-1" />
                                         Authenticated
                                     </Badge>
@@ -556,7 +556,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 <div className="flex flex-col gap-3">
                                     <Button
                                         size="lg"
-                                        className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+                                        className="w-full h-16 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
                                         onClick={handleStartConversation}
                                         disabled={!product.quantity || product.quantity === 0}
                                     >
@@ -627,7 +627,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
+                                    <div className="p-4 bg-orange-50 text-orange-800 rounded-lg text-sm border border-orange-100 flex items-center gap-2">
                                         <InfoIcon className="w-4 h-4" />
                                         <span>You are the seller. You can accept offers from the list above.</span>
                                     </div>
@@ -770,7 +770,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         </Button>
                     ) : (
                         <Button 
-                            className="flex-1 h-12 font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className="flex-1 h-12 font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
                             onClick={handleStartConversation}
                             disabled={!product.quantity || product.quantity === 0}
                         >

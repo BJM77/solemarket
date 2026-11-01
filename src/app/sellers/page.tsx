@@ -54,7 +54,7 @@ export default async function SellersPage() {
                                                 {seller.storeName || seller.displayName}
                                             </h3>
                                             {seller.isVerified && (
-                                                <ShieldCheck className="h-4 w-4 text-blue-500 shrink-0" aria-label="Verified Seller" />
+                                                <ShieldCheck className="h-4 w-4 text-orange-700 shrink-0" aria-label="Verified Seller" />
                                             )}
                                         </div>
                                         {seller.storeName && seller.displayName && (
@@ -103,7 +103,7 @@ export default async function SellersPage() {
                                         <ShoppingBag className="w-4 h-4 mr-1.5 text-muted-foreground/60" />
                                         <span>{seller.productCount}+ items</span>
                                     </div>
-                                    <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800 text-white">
+                                    <Button asChild size="sm" className="bg-orange-700 hover:bg-orange-800 text-white">
                                         <Link href={`/seller/${seller.id}`}>
                                             Visit Shop
                                         </Link>

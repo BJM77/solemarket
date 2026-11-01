@@ -68,7 +68,7 @@ export default function DealSafePage() {
                 {/* The Non-Biased Pillar */}
                 <div className="bg-card/50 backdrop-blur-sm border border-border rounded-[2.5rem] p-8 md:p-16 text-foreground mb-24 overflow-hidden relative shadow-2xl">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-primary opacity-20 blur-[120px] -mr-48 -mt-48 transition-all animate-pulse"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 opacity-10 blur-[100px] -ml-32 -mb-32"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500 opacity-10 blur-[100px] -ml-32 -mb-32"></div>
 
                     <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div className="text-left">
@@ -104,11 +104,11 @@ export default function DealSafePage() {
 
                 {/* Mutual Benefits */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-24">
-                    <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden group hover:border-blue-500/30 transition-all duration-500 rounded-[2rem]">
-                        <CardHeader className="bg-blue-500/5 border-b border-border px-8 py-10">
+                    <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden group hover:border-orange-500/30 transition-all duration-500 rounded-[2rem]">
+                        <CardHeader className="bg-orange-500/5 border-b border-border px-8 py-10">
                             <CardTitle className="flex items-center gap-4 text-2xl font-black italic">
-                                <div className="h-12 w-12 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/20">
-                                    <ShoppingCart className="h-6 w-6 text-blue-600" />
+                                <div className="h-12 w-12 bg-orange-500/20 rounded-2xl flex items-center justify-center border border-orange-500/20">
+                                    <ShoppingCart className="h-6 w-6 text-orange-700" />
                                 </div>
                                 Buyer Protection
                             </CardTitle>
@@ -116,7 +116,7 @@ export default function DealSafePage() {
                         <CardContent className="p-8 space-y-8">
                             {buyerBenefits.map(b => (
                                 <div key={b.title} className="group/item">
-                                    <h4 className="font-bold text-foreground text-lg mb-2 group-hover/item:text-blue-400 transition-colors">{b.title}</h4>
+                                    <h4 className="font-bold text-foreground text-lg mb-2 group-hover/item:text-orange-700 transition-colors">{b.title}</h4>
                                     <p className="text-muted-foreground leading-relaxed">{b.description}</p>
                                 </div>
                             ))}

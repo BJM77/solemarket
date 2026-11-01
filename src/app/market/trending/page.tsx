@@ -42,7 +42,7 @@ export default async function MarketTrendingPage() {
             <div className="max-w-7xl mx-auto px-4 mt-12">
                 <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-card p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
-                        <div className="h-10 w-10 bg-blue-100 dark:bg-blue-950/50 rounded-xl flex items-center justify-center text-blue-600">
+                        <div className="h-10 w-10 bg-orange-100 dark:bg-orange-950/50 rounded-xl flex items-center justify-center text-orange-700">
                             <BarChart3 className="h-5 w-5" />
                         </div>
                         <div>
