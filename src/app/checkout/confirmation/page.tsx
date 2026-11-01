@@ -44,7 +44,7 @@ const steps = [
 
 export default function ConfirmationPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
             <ConfirmationContent />
         </Suspense>
     );
@@ -129,7 +129,7 @@ function ConfirmationContent() {
 
     if (!loaded) {
         return (
-            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" aria-label="Loading your order" />
             </div>
         );
@@ -138,7 +138,7 @@ function ConfirmationContent() {
     // Opened in a new tab / after refresh: no session copy, but we know the order ids.
     if (orders.length === 0 && orderIdsFromUrl.length > 0) {
         return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
+            <div className="min-h-screen bg-background flex flex-col items-center py-12">
                 <div className="container mx-auto px-4 w-full max-w-2xl space-y-6">
                     <div className="text-center">
                         <CheckCircle2 className="w-12 h-12 text-emerald-700 mx-auto mb-4" />
@@ -166,7 +166,7 @@ function ConfirmationContent() {
     }
 
     return (
-        <div className="min-h-screen bg-[#020617] flex flex-col items-center py-12">
+        <div className="min-h-screen bg-background flex flex-col items-center py-12">
             <div className="container mx-auto px-4 w-full">
                 <div className="max-w-2xl mx-auto text-center mb-10">
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -186,7 +186,7 @@ function ConfirmationContent() {
                     ))}
 
                     {orders.map((order, idx) => (
-                        <Card key={order.id || idx} className="border-border bg-[#0c1120] backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
+                        <Card key={order.id || idx} className="border-border bg-card shadow-sm overflow-hidden rounded-2xl">
                             <CardHeader className="bg-[#1e293b] text-foreground py-4 px-6 border-b border-border">
                                 <div className="flex justify-between items-center">
                                     <div className="space-y-1">
@@ -228,8 +228,8 @@ function ConfirmationContent() {
                                                             isCompleted 
                                                                 ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(37, 99, 235,0.3)]' 
                                                                 : isActive 
-                                                                ? 'bg-[#020617] border-2 border-primary text-primary animate-pulse' 
-                                                                : 'bg-[#020617] border-2 border-border text-slate-500'
+                                                                ? 'bg-background border-2 border-primary text-primary animate-pulse' 
+                                                                : 'bg-background border-2 border-border text-slate-500'
                                                         }`}
                                                     >
                                                         {sIdx + 1}
@@ -298,7 +298,7 @@ function ConfirmationContent() {
                                     <Button
                                         variant="default"
                                         size="sm"
-                                        className="gap-2 h-auto py-1 px-3 bg-[#0070BA] hover:bg-[#003087] text-foreground font-bold ml-auto"
+                                        className="gap-2 h-auto py-1 px-3 bg-[#0070BA] hover:bg-[#003087] text-white font-bold ml-auto"
                                         asChild
                                     >
                                         <Link href={`${order.sellerPaypalMeLink}/${order.totalAmount}`} target="_blank" rel="noopener noreferrer">

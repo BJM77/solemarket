@@ -140,7 +140,7 @@ export default function CheckoutPage() {
 
   if (isUserLoading) {
     return (
-      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <p className="text-muted-foreground">Loading your profile...</p>
       </div>
@@ -149,7 +149,7 @@ export default function CheckoutPage() {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center gap-3 px-4">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center gap-3 px-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-foreground/80 font-medium">Order placed. Loading your confirmation…</p>
       </div>
@@ -158,8 +158,8 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#020617] text-foreground flex flex-col items-center justify-center px-4">
-        <Card className="max-w-md w-full bg-[#0c1120] border-border p-8 text-center space-y-6">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4">
+        <Card className="max-w-md w-full bg-card border-border p-8 text-center space-y-6">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
             <ShoppingBag className="h-8 w-8 text-primary" />
           </div>
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-foreground pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         <Button variant="ghost" onClick={() => router.back()} className="mb-6 hover:bg-muted/60 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="h-4 w-4 mr-2" />
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Delivery Method */}
-            <Card className="bg-[#0c1120] border-border">
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <Truck className="h-5 w-5 text-primary" />
@@ -325,7 +325,7 @@ export default function CheckoutPage() {
                 >
                   <Label
                     htmlFor="pickup"
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-muted/50 ${
                       shippingMethod === 'pickup' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
@@ -341,7 +341,7 @@ export default function CheckoutPage() {
 
                   <Label
                     htmlFor="shipping"
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-muted/50 ${
                       shippingMethod === 'shipping' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
@@ -366,7 +366,7 @@ export default function CheckoutPage() {
                         type="email"
                         required 
                         autoComplete="email"
-                        className="bg-[#020617] border-border" 
+                        className="bg-background border-input" 
                         placeholder="you@example.com"
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                           id="fullName" 
                           required 
                           autoComplete="name"
-                          className="bg-[#020617] border-border" 
+                          className="bg-background border-input" 
                           placeholder="John Doe"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
@@ -396,7 +396,7 @@ export default function CheckoutPage() {
                         <Input 
                           id="phone" 
                           autoComplete="tel"
-                          className="bg-[#020617] border-border" 
+                          className="bg-background border-input" 
                           placeholder="e.g. 0400 000 000"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
@@ -408,7 +408,7 @@ export default function CheckoutPage() {
                           id="street" 
                           required 
                           autoComplete="street-address"
-                          className="bg-[#020617] border-border" 
+                          className="bg-background border-input" 
                           placeholder="123 Example Street"
                           value={street}
                           onChange={(e) => setStreet(e.target.value)}
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
                           id="city" 
                           required 
                           autoComplete="address-level2"
-                          className="bg-[#020617] border-border" 
+                          className="bg-background border-input" 
                           placeholder="Melbourne"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
@@ -433,7 +433,7 @@ export default function CheckoutPage() {
                             id="state" 
                             required 
                             autoComplete="address-level1"
-                            className="bg-[#020617] border-border" 
+                            className="bg-background border-input" 
                             placeholder="VIC"
                             value={state}
                             onChange={(e) => setState(e.target.value)}
@@ -445,7 +445,7 @@ export default function CheckoutPage() {
                             id="zip" 
                             required 
                             autoComplete="postal-code"
-                            className="bg-[#020617] border-border" 
+                            className="bg-background border-input" 
                             placeholder="3000"
                             value={zip}
                             onChange={(e) => setZip(e.target.value)}
@@ -459,7 +459,7 @@ export default function CheckoutPage() {
             </Card>
 
             {/* Payment Method */}
-            <Card className="bg-[#0c1120] border-border">
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <CreditCard className="h-5 w-5 text-primary" />
@@ -492,7 +492,7 @@ export default function CheckoutPage() {
 
                   <Label
                     htmlFor="cash"
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-white/5 ${
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:bg-muted/50 ${
                       paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
@@ -521,7 +521,7 @@ export default function CheckoutPage() {
             </Card>
 
             {/* Order Items */}
-            <Card className="bg-[#0c1120] border-border">
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
                   <ShoppingBag className="h-5 w-5 text-primary" />
@@ -553,7 +553,7 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="space-y-6">
-            <Card className="bg-[#0c1120] border-border sticky top-24">
+            <Card className="bg-card border-border sticky top-24">
               <CardHeader>
                 <CardTitle className="text-xl font-bold text-foreground">Summary</CardTitle>
               </CardHeader>
@@ -592,7 +592,7 @@ export default function CheckoutPage() {
                       onChange={(e) => setPromoCode(e.target.value)}
                       disabled={!!appliedPromo || isValidatingPromo}
                       placeholder="e.g. WELCOME10"
-                      className="bg-[#020617] border-border text-xs h-9 uppercase"
+                      className="bg-background border-input text-xs h-9 uppercase"
                     />
                     {appliedPromo ? (
                       <Button
