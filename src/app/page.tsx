@@ -6,6 +6,7 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 import CardCategoryGrid from "@/components/home/CardCategoryGrid";
 import CoinCategoryGrid from "@/components/home/CoinCategoryGrid";
 import TrendingGrid from "@/components/home/TrendingGrid";
+import ClubsSection from "@/components/home/ClubsSection";
 import TrustBar from "@/components/trust/TrustBar";
 import { PlayerCollections } from "@/components/home/PlayerCollections";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,6 +82,9 @@ export default async function HomePage() {
       <CategoryGrid />
       <CardCategoryGrid />
       <CoinCategoryGrid />
+      <Suspense fallback={null}>
+        <ClubsSection />
+      </Suspense>
       <TrustBar />
       <section className="py-24 bg-background border-t border-border">
         <div className="max-w-4xl mx-auto px-4 text-center">

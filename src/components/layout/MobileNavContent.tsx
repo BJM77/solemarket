@@ -283,20 +283,20 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         {activeMenus.map((menu) => {
                             if (menu.subItems && menu.subItems.length > 0) return null; // Render dropdowns in the accordion below
                             
-                            const isFundraising = menu.label.toLowerCase().includes('fundraising');
+                            const isFundraising = /fundraising|club/.test(menu.label.toLowerCase());
                             return (
                                 <Button
                                     key={menu.id}
                                     variant="outline"
                                     className={cn(
                                         "w-full justify-start font-bold h-12 border-primary/20",
-                                        isFundraising ? "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20" : "text-primary hover:bg-primary/5"
+                                        isFundraising ? "text-primary hover:bg-primary/5" : "text-primary hover:bg-primary/5"
                                     )}
                                     onClick={() => handleLinkClick(menu.href)}
                                 >
                                     <div className={cn(
                                         "p-1.5 rounded-lg mr-3",
-                                        isFundraising ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"
+                                        isFundraising ? "bg-primary/10 text-primary" : "bg-primary/10 text-primary"
                                     )}>
                                         {menu.label.toLowerCase().includes('shoe') && <Footprints className="h-4 w-4" />}
                                         {menu.label.toLowerCase().includes('card') && <Gem className="h-4 w-4" />}

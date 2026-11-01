@@ -60,7 +60,7 @@ export function MainNavLinks() {
             className={cn(
               buttonVariants({ variant: "ghost" }),
               "h-10 text-sm font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 px-3 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-              menu.label.toLowerCase() === 'fundraising' && "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+              ['fundraising', 'clubs'].includes(menu.label.toLowerCase()) && "text-primary hover:text-primary/80"
             )}
           >
             {menu.label}
