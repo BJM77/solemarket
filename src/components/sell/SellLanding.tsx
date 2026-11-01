@@ -207,7 +207,7 @@ export default function SellLandingPage() {
                         <div className="grid lg:grid-cols-2">
                             <div className="p-8 md:p-16 bg-primary text-primary-foreground">
                                 <h2 className="text-4xl font-bold mb-6 leading-tight">Secure Your Seller Spot Early</h2>
-                                <p className="text-xl mb-8 text-white">
+                                <p className="text-xl mb-8">
                                     The first 100 sellers to register will receive:
                                 </p>
                                 <ul className="space-y-4 mb-10">
