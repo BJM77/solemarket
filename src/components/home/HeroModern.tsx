@@ -15,45 +15,45 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
     }, []);
 
     return (
-        <section className="relative flex items-start pt-16 lg:pt-24 pb-8 overflow-hidden">
-            <div className="container mx-auto px-6 relative z-10 pt-4">
+        <section className="relative flex items-start pt-5 md:pt-16 lg:pt-24 pb-4 md:pb-8 overflow-hidden">
+            <div className="container mx-auto px-4 md:px-6 relative z-10 md:pt-4">
                 <div className="max-w-4xl mx-auto text-center">
 
                     {/* H1 for SEO & Accessibility */}
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
+                    <h1 className="text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-2 md:mb-6 leading-[0.9] slide-up">
                         {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"}<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
                             {hero.h1TitleLine2 || 'MARKETPLACE.'}
                         </span>
                     </h1>
 
-                    <div className="text-sm md:text-xl text-slate-600 dark:text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
+                    <div className="text-sm md:text-xl text-slate-600 dark:text-slate-400 mb-4 md:mb-10 max-w-2xl mx-auto font-medium slide-up space-y-1.5 md:space-y-2" style={{ animationDelay: '0.2s' }}>
                         <p className="text-slate-900 dark:text-white">{hero.subText1}</p>
                         {hero.subText2 && !/metro perth collection/i.test(hero.subText2) && (
                             <p className="text-primary font-black">{hero.subText2}</p>
                         )}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 slide-up mb-12 md:mb-16" style={{ animationDelay: '0.3s' }}>
+                    <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:items-center sm:justify-center md:gap-4 slide-up mb-2 md:mb-16" style={{ animationDelay: '0.3s' }}>
                         {hero.buttons && hero.buttons.map((btn) => (
                             <Link
                                 key={btn.id}
                                 href={btn.href}
-                                className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-primary border border-orange-200 shadow-sm transition-colors hover:bg-orange-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-orange-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                                className="w-full sm:w-auto px-2 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-xs sm:text-sm md:text-base text-center leading-tight flex items-center justify-center gap-2 bg-white text-primary border border-orange-200 shadow-sm transition-colors hover:bg-orange-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-orange-300 dark:border-slate-700 dark:hover:bg-slate-800"
                             >
                                 {btn.label}
                             </Link>
                         ))}
                         <Link
                             href="/sell"
-                            className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-primary text-primary-foreground shadow-md shadow-orange-600/20 transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            className="col-span-3 w-full sm:w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-primary text-primary-foreground shadow-md shadow-orange-600/20 transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                             Sell Now <span className="font-normal">· 0% fees</span>
                         </Link>
                     </div>
 
                     {/* Metrics Section */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-6 md:pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
+                    <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto slide-up pt-6 md:pt-8 border-t border-slate-200 dark:border-white/10" style={{ animationDelay: '0.4s' }}>
                         <div className="text-center">
                             <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-0.5 md:mb-1">Local</div>
                             <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Verified Auth</div>
