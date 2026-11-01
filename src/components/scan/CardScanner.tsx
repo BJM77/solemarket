@@ -126,16 +126,16 @@ export function CardScanner() {
                         {/* FULL OVERLAY FRAME */}
                         {!userConfirmed && !isAnalyzing && (
                             <div className="absolute inset-0 pointer-events-none p-8">
-                                <div className="w-full h-full border-2 border-indigo-400/30 rounded-xl relative">
+                                <div className="w-full h-full border-2 border-orange-400/30 rounded-xl relative">
                                     {/* Corners */}
-                                    <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-lg"></div>
-                                    <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-lg"></div>
-                                    <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-indigo-500 rounded-bl-lg"></div>
-                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
+                                    <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-orange-500 rounded-tl-lg"></div>
+                                    <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-orange-500 rounded-tr-lg"></div>
+                                    <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-orange-500 rounded-bl-lg"></div>
+                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-orange-500 rounded-br-lg"></div>
                                     
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <div className="bg-card/80 backdrop-blur-md text-foreground px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest border border-border shadow-2xl flex items-center gap-2">
-                                            <ScanLine className="w-4 h-4 text-indigo-600" />
+                                            <ScanLine className="w-4 h-4 text-orange-600" />
                                             Is the text sharp?
                                         </div>
                                     </div>
@@ -146,7 +146,7 @@ export function CardScanner() {
                         {isAnalyzing && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/80 backdrop-blur-xl text-foreground text-center p-6">
                                 <div className="relative">
-                                    <Loader2 className="w-16 h-16 animate-spin text-indigo-500" strokeWidth={3} />
+                                    <Loader2 className="w-16 h-16 animate-spin text-orange-500" strokeWidth={3} />
                                     <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-foreground animate-pulse" />
                                 </div>
                                 <p className="mt-6 font-black text-xl tracking-tight uppercase">
@@ -170,8 +170,8 @@ export function CardScanner() {
                         <div className="max-w-sm mx-auto space-y-4 animate-in slide-in-from-bottom-8 duration-500 pb-[env(safe-area-inset-bottom,1.5rem)]">
                             <div className="bg-card rounded-3xl p-6 shadow-xl border border-border">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
-                                        <CheckCircle2 className="w-6 h-6 text-indigo-600" />
+                                    <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
+                                        <CheckCircle2 className="w-6 h-6 text-orange-600" />
                                     </div>
                                     <div>
                                         <h4 className="font-black text-foreground leading-none">Verify Photo</h4>
@@ -188,7 +188,7 @@ export function CardScanner() {
                                         Retake
                                     </Button>
                                     <Button
-                                        className="flex-[2] h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black text-lg shadow-lg shadow-indigo-500/10"
+                                        className="flex-[2] h-14 rounded-2xl bg-orange-600 hover:bg-orange-700 font-black text-lg shadow-lg shadow-orange-500/10"
                                         onClick={handleAnalyze}
                                     >
                                         Analyze Card
@@ -201,9 +201,9 @@ export function CardScanner() {
                     {analysisResult && (
                         <div className="pb-[env(safe-area-inset-bottom,2rem)]">
                             <Card className="border border-border shadow-2xl rounded-[32px] overflow-hidden bg-card">
-                            <div className="h-2 w-full bg-indigo-600"></div>
+                            <div className="h-2 w-full bg-orange-600"></div>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center gap-3 text-indigo-600">
+                                <div className="flex items-center gap-3 text-orange-600">
                                     <Sparkles className="w-8 h-8" />
                                     <span className="font-black text-2xl tracking-tight uppercase text-foreground">Identified!</span>
                                 </div>
@@ -228,7 +228,7 @@ export function CardScanner() {
                                 </div>
 
                                 <Button
-                                    className="w-full h-16 text-xl font-black bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 rounded-2xl"
+                                    className="w-full h-16 text-xl font-black bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-100 rounded-2xl"
                                     onClick={handleCreateListing}
                                 >
                                     Create Listing <ArrowRight className="ml-2 h-6 w-6" />

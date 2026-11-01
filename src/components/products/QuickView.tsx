@@ -176,7 +176,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 h-9 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2"
+                    className="flex-1 h-9 text-orange-600 border-orange-200 hover:bg-orange-50 gap-2"
                     asChild
                   >
                     <a
@@ -192,7 +192,7 @@ export function QuickView({ product, trigger }: QuickViewProps) {
                   {/* <EbaySearchModal
                     defaultQuery={getEbayQuery()}
                     trigger={
-                      <Button variant="outline" size="sm" className="flex-1 h-9 text-blue-600 border-blue-200 hover:bg-blue-50 gap-2" title="Check eBay Prices (In-App)">
+                      <Button variant="outline" size="sm" className="flex-1 h-9 text-orange-600 border-orange-200 hover:bg-orange-50 gap-2" title="Check eBay Prices (In-App)">
                         <Search className="h-4 w-4" />
                         eBay Check
                       </Button>

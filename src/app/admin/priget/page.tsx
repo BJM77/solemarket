@@ -150,7 +150,7 @@ export default function PrigetPage() {
                 <button
                     onClick={handleGetPrices}
                     disabled={processing || selectedIds.size === 0}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400"
                 >
                     {processing ? `Processing ${progress.current}/${progress.total}...` : `Get Prices (${selectedIds.size})`}
                 </button>
@@ -240,7 +240,7 @@ export default function PrigetPage() {
                         px-2 py-1 rounded text-sm font-medium
                         ${priceFlag.status === 'overpriced' ? 'bg-red-100 text-red-700' : ''}
                         ${priceFlag.status === 'underpriced' ? 'bg-green-100 text-green-700' : ''}
-                        ${priceFlag.status === 'competitive' ? 'bg-blue-100 text-blue-700' : ''}
+                        ${priceFlag.status === 'competitive' ? 'bg-orange-100 text-orange-700' : ''}
                       `}>
                                                 {priceFlag.percentage > 0 ? '+' : ''}{priceFlag.percentage}%
                                             </span>
@@ -250,7 +250,7 @@ export default function PrigetPage() {
                                         {product.marketData && (
                                             <button
                                                 onClick={() => handleMatchPrice(product.id, product.marketData!.suggestedPrice)}
-                                                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                                                className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700"
                                             >
                                                 Match ${product.marketData.suggestedPrice.toFixed(2)}
                                             </button>

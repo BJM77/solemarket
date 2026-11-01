@@ -22,7 +22,7 @@ const initialState: ConsignmentState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6" disabled={pending}>
+        <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-6" disabled={pending}>
             {pending ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -46,7 +46,7 @@ export function ConsignmentForm() {
     }, [state.success]);
 
     return (
-        <Card className="w-full max-w-xl mx-auto shadow-lg border-2 border-blue-100">
+        <Card className="w-full max-w-xl mx-auto shadow-lg border-2 border-orange-100">
             <CardContent className="p-8">
                 <h3 className="text-2xl font-bold mb-6 text-center">Get Your Free Valuation</h3>
 

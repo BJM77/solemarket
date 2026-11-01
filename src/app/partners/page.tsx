@@ -58,13 +58,13 @@ export default function PartnersPage() {
                                                 <p className="text-xs text-green-700">Average partner growth in month 1</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                        <div className="flex items-center gap-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                            <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
                                                 <Sparkles className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-blue-900">AI Listing Enabled</p>
-                                                <p className="text-xs text-blue-700">List items in seconds, not minutes</p>
+                                                <p className="text-sm font-medium text-orange-900">AI Listing Enabled</p>
+                                                <p className="text-xs text-orange-700">List items in seconds, not minutes</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
@@ -127,9 +127,9 @@ export default function PartnersPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-blue-500">
+                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-orange-500">
                         <CardHeader>
-                            <Search className="w-10 h-10 text-blue-500 mb-4" />
+                            <Search className="w-10 h-10 text-orange-500 mb-4" />
                             <CardTitle>SEO Domination</CardTitle>
                             <CardDescription>Get found by the world.</CardDescription>
                         </CardHeader>

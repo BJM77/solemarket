@@ -44,8 +44,8 @@ export function AnalyticsCharts() {
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#f26c0d" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#f26c0d" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
@@ -64,7 +64,7 @@ export function AnalyticsCharts() {
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#2563eb"
+                  stroke="#f26c0d"
                   fillOpacity={1}
                   fill="url(#colorRevenue)"
                   strokeWidth={2}
@@ -92,7 +92,7 @@ export function AnalyticsCharts() {
                   formatter={(value: number) => [formatPrice(value), 'Sales']}
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
                 />
-                <Bar dataKey="sales" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={32} />
+                <Bar dataKey="sales" fill="#f97316" radius={[0, 4, 4, 0]} barSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>

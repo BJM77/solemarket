@@ -52,9 +52,9 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     </div>
                 )}
                 {recentViews > 5 && (
-                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-blue-100 dark:border-orange-900/50 animation-pulse-subtle">
-                        <TrendingUp className="h-3.5 w-3.5 text-blue-600 dark:text-orange-400" />
-                        <span className="text-xs font-bold text-blue-700 dark:text-orange-300">
+                    <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-950/30 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50 animation-pulse-subtle">
+                        <TrendingUp className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                        <span className="text-xs font-bold text-orange-700 dark:text-orange-300">
                             {recentViews} people viewed this
                         </span>
                     </div>
@@ -68,10 +68,10 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     <Badge variant="outline" className={cn(
                         "text-xs font-bold uppercase tracking-wider px-2.5 py-1 shrink-0",
                         product.condition.toLowerCase().includes('mint') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        product.condition.toLowerCase().includes('excellent') ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                        product.condition.toLowerCase().includes('excellent') ? 'bg-orange-50 text-orange-700 border-orange-200' :
                         product.condition.toLowerCase().includes('good') || product.condition.toLowerCase().includes('played') ? 'bg-amber-50 text-amber-700 border-amber-200' :
                         product.condition.toLowerCase().includes('fair') || product.condition.toLowerCase().includes('poor') || product.condition.toLowerCase().includes('damaged') ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                        'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        'bg-orange-50 text-orange-700 border-orange-200'
                     )}>
                         {product.condition}
                     </Badge>
@@ -83,7 +83,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     {product.isDutchAuction ? (
                         user ? (
                             <div className="flex flex-col">
-                                <span className="text-3xl md:text-4xl font-black text-indigo-600 dark:text-indigo-400">
+                                <span className="text-3xl md:text-4xl font-black text-orange-600 dark:text-orange-400">
                                     ${formatPrice(calculateDutchAuctionPrice(
                                         product.price,
                                         product.dutchAuctionDropAmount || 0,
@@ -92,14 +92,14 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                                         product.dutchAuctionStartTime || product.createdAt
                                     ))}
                                 </span>
-                                <span className="text-xs text-indigo-600/70 dark:text-indigo-400/70 font-bold uppercase tracking-wider">
+                                <span className="text-xs text-orange-600/70 dark:text-orange-400/70 font-bold uppercase tracking-wider">
                                     Current Live Price (Dutch Auction)
                                 </span>
                             </div>
                         ) : (
                             <Button 
                                 onClick={() => router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`)}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-indigo-600/20"
+                                className="bg-orange-600 hover:bg-orange-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-orange-600/20"
                             >
                                 <Lock className="h-4 w-4 mr-2" /> Sign In to View Live Price
                             </Button>
@@ -119,17 +119,17 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                 {product.multibuyEnabled && product.multibuyTiers && product.multibuyTiers.length > 0 && (
                     <div className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 mt-1">
                         <div className="flex items-center gap-2 mb-2.5">
-                            <Tag className="h-4 w-4 text-indigo-500" />
+                            <Tag className="h-4 w-4 text-orange-500" />
                             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                                 Seller Multibuy Discount
                             </span>
                             {product.multiCardTier && (
                                 <span className={cn(
                                     "text-[9px] font-black uppercase px-2 py-0.5 rounded ml-auto border",
-                                    product.multiCardTier === 'bronze' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                    product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
                                     product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
                                     product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' :
-                                    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
+                                    'bg-orange-500/10 text-orange-600 border-orange-500/20'
                                 )}>
                                     {product.multiCardTier}
                                 </span>
@@ -144,7 +144,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                                         className="bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-sm"
                                     >
                                         <span className="text-[8px] sm:text-[9px] font-bold text-muted-foreground dark:text-slate-500 uppercase tracking-wider">Buy {tier.minQuantity}+</span>
-                                        <span className="text-xs sm:text-sm font-black text-indigo-600 dark:text-indigo-400 mt-0.5">{tier.discountPercent}% Off</span>
+                                        <span className="text-xs sm:text-sm font-black text-orange-600 dark:text-orange-400 mt-0.5">{tier.discountPercent}% Off</span>
                                     </div>
                                 ))
                             }

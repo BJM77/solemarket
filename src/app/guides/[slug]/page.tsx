@@ -146,12 +146,12 @@ export default async function GuideArticlePage({ params }: Props) {
                     </div>
 
                     <div className="max-w-3xl mx-auto mt-16 pt-8 border-t border-gray-200">
-                        <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-3xl p-8 text-center sm:text-left sm:flex items-center justify-between border border-indigo-100 dark:border-indigo-900/50">
+                        <div className="bg-orange-50 dark:bg-orange-950/30 rounded-3xl p-8 text-center sm:text-left sm:flex items-center justify-between border border-orange-100 dark:border-orange-900/50">
                             <div>
-                                <h3 className="text-2xl font-black tracking-tight mb-2 text-indigo-950 dark:text-white">Ready to start buying safely?</h3>
-                                <p className="text-indigo-800/70 dark:text-indigo-200/70 font-medium mb-6 sm:mb-0">Find verified items with DealSafe protection.</p>
+                                <h3 className="text-2xl font-black tracking-tight mb-2 text-orange-950 dark:text-white">Ready to start buying safely?</h3>
+                                <p className="text-orange-800/70 dark:text-orange-200/70 font-medium mb-6 sm:mb-0">Find verified items with DealSafe protection.</p>
                             </div>
-                            <Link href="/browse" className="inline-flex h-14 items-center justify-center rounded-2xl bg-indigo-600 px-8 text-sm font-bold text-white shadow-lg transition-colors hover:bg-indigo-700 w-full sm:w-auto shrink-0">
+                            <Link href="/browse" className="inline-flex h-14 items-center justify-center rounded-2xl bg-orange-600 px-8 text-sm font-bold text-white shadow-lg transition-colors hover:bg-orange-700 w-full sm:w-auto shrink-0">
                                 Explore the Marketplace
                             </Link>
                         </div>

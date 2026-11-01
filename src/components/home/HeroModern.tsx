@@ -22,7 +22,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     {/* H1 for SEO & Accessibility */}
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6 leading-[0.9] slide-up">
                         {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"}<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
                             {hero.h1TitleLine2 || 'MARKETPLACE.'}
                         </span>
                     </h1>
@@ -37,14 +37,14 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             <Link
                                 key={btn.id}
                                 href={btn.href}
-                                className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-primary border border-blue-200 shadow-sm transition-colors hover:bg-blue-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-blue-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                                className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-primary border border-orange-200 shadow-sm transition-colors hover:bg-orange-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-orange-300 dark:border-slate-700 dark:hover:bg-slate-800"
                             >
                                 {btn.label}
                             </Link>
                         ))}
                         <Link
                             href="/sell"
-                            className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            className="w-full sm:w-auto px-7 py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base flex items-center justify-center gap-2 bg-primary text-white shadow-md shadow-orange-600/20 transition-colors hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                             Sell Now <span className="font-normal text-white">· 0% fees</span>
                         </Link>

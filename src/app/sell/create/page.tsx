@@ -629,7 +629,7 @@ function CreateListingForm() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-indigo-500/30 text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 h-8 rounded-lg text-xs font-semibold" 
+              className="border-orange-500/30 text-orange-600 bg-orange-500/10 hover:bg-orange-500/20 h-8 rounded-lg text-xs font-semibold" 
               onClick={(e) => {
                 e.preventDefault();
                 setShowRetryModal(true);
@@ -1064,7 +1064,7 @@ function CreateListingForm() {
               <h1 className="text-lg font-bold text-foreground">Create Your Listing</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+              <span className="text-xs bg-orange-500/10 text-orange-600 border border-orange-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                 {selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}
               </span>
             </div>
@@ -1081,7 +1081,7 @@ function CreateListingForm() {
               <div className="bg-card p-5 rounded-2xl border border-border flex items-center justify-between shadow-lg">
                 <div>
                   <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Listing Category</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Currently listing in <span className="font-bold text-indigo-600">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Currently listing in <span className="font-bold text-orange-600">{selectedType === 'sneakers' ? 'Sneakers' : selectedType === 'coins' ? 'Coins' : 'Collector Cards'}</span></p>
                 </div>
                 <Button 
                   variant="outline" 
@@ -1147,7 +1147,7 @@ function CreateListingForm() {
                 <Button 
                   onClick={(e) => { e.preventDefault(); handleSubmit(false); }} 
                   disabled={isSubmitting} 
-                  className="w-full md:w-auto min-w-[180px] bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-black rounded-xl h-14 text-sm shadow-lg shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full md:w-auto min-w-[180px] bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white font-black rounded-xl h-14 text-sm shadow-lg shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : <Send className="h-4 w-4" />}
                   Publish Listing
@@ -1156,7 +1156,7 @@ function CreateListingForm() {
                 <Button 
                   onClick={(e) => { e.preventDefault(); handleSubmit(true); }} 
                   disabled={isSubmitting} 
-                  className="w-full md:w-auto min-w-[180px] bg-white text-indigo-950 hover:bg-slate-100 font-black rounded-xl h-14 text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full md:w-auto min-w-[180px] bg-white text-orange-950 hover:bg-slate-100 font-black rounded-xl h-14 text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
                   Publish & Add New
@@ -1177,12 +1177,12 @@ function CreateListingForm() {
 
             {/* Right Column: Sticky Buyer Live Preview */}
             <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
-              <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
+              <h3 className="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-1.5 px-1 animate-pulse">
                 <Eye className="h-4 w-4" /> Live Buyer Preview
               </h3>
               
               {/* Interactive Live Preview Card */}
-              <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl shadow-black/80 hover:border-indigo-500/30 transition-all duration-300">
+              <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl shadow-black/80 hover:border-orange-500/30 transition-all duration-300">
                 <div className="flex flex-col">
                   {/* Photo Section */}
                   <div className="aspect-square bg-background relative flex items-center justify-center overflow-hidden border-b border-border">
@@ -1222,7 +1222,7 @@ function CreateListingForm() {
                   {/* Details Body */}
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                      <span className="bg-orange-500/10 text-orange-600 border border-orange-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">
                         {form.watch('category') || 'Category'}
                       </span>
                       {form.watch('condition') && (
@@ -1260,7 +1260,7 @@ function CreateListingForm() {
                           { id: 'bronze', label: 'Bronze Discount', color: 'bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 border border-amber-600/30 text-amber-100' },
                           { id: 'silver', label: 'Silver Discount', color: 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600 border border-slate-300/30 text-white' },
                           { id: 'gold', label: 'Gold Discount', color: 'bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 border border-yellow-400/30 text-amber-950 font-black' },
-                          { id: 'platinum', label: 'Platinum Discount', color: 'bg-gradient-to-r from-slate-100 via-indigo-100 to-slate-200 border border-indigo-200/30 text-indigo-950 font-black' }
+                          { id: 'platinum', label: 'Platinum Discount', color: 'bg-gradient-to-r from-slate-100 via-orange-100 to-slate-200 border border-orange-200/30 text-orange-950 font-black' }
                         ].map((t) => form.watch('multiCardTier') === t.id && (
                           <span key={t.id} className={`px-2.5 py-0.5 rounded-full text-[9px] uppercase font-black tracking-wider ${t.color}`}>
                             {t.label}
@@ -1273,10 +1273,10 @@ function CreateListingForm() {
                     <div className="pt-4 border-t border-border flex items-center justify-between">
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">Listing Price</p>
-                        <p className="text-2xl font-black text-indigo-600">${form.watch('price') || '0.00'}</p>
+                        <p className="text-2xl font-black text-orange-600">${form.watch('price') || '0.00'}</p>
                       </div>
                       {form.watch('isNegotiable') && (
-                        <span className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
+                        <span className="bg-orange-500/10 text-orange-600 border border-orange-500/20 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
                           Offers Allowed
                         </span>
                       )}
@@ -1295,7 +1295,7 @@ function CreateListingForm() {
           <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-600" /> Did we get this right?
+                <Sparkles className="w-5 h-5 text-orange-600" /> Did we get this right?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 The AI found a few possible matches. Please select the correct option below.
@@ -1313,14 +1313,14 @@ function CreateListingForm() {
                     setPendingAlternatives([]);
                     setPendingAiData(null);
                   }}
-                  className="p-4 rounded-xl border border-border hover:border-indigo-500 bg-muted/60 hover:bg-indigo-500/10 cursor-pointer transition-all group flex gap-3 items-start relative"
+                  className="p-4 rounded-xl border border-border hover:border-orange-500 bg-muted/60 hover:bg-orange-500/10 cursor-pointer transition-all group flex gap-3 items-start relative"
                 >
                   {alt.isPrimary && (
-                    <div className="absolute top-0 right-0 bg-indigo-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+                    <div className="absolute top-0 right-0 bg-orange-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
                       Best Match
                     </div>
                   )}
-                  <div className="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-600 transition-colors">
                     <CheckCircle2 className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
                   </div>
                   <div className="space-y-1">
@@ -1338,13 +1338,13 @@ function CreateListingForm() {
             <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-col">
               <Button 
                 variant="outline" 
-                className="border-indigo-500/30 text-indigo-600 bg-indigo-500/5 hover:bg-indigo-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
+                className="border-orange-500/30 text-orange-600 bg-orange-500/5 hover:bg-orange-500/10 w-full font-bold flex items-center justify-center gap-1.5" 
                 onClick={() => {
                   setShowAlternativesModal(false);
                   setShowRetryModal(true);
                 }}
               >
-                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <Sparkles className="w-4 h-4 text-orange-600" />
                 None of these match (Search Again)
               </Button>
               <Button variant="outline" className="border-border bg-transparent text-foreground w-full hover:bg-muted" onClick={() => setShowAlternativesModal(false)}>
@@ -1359,7 +1359,7 @@ function CreateListingForm() {
           <DialogContent className="max-w-md bg-background border-border text-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" /> Search Again with Hint
+                <Sparkles className="w-5 h-5 text-orange-600 animate-pulse" /> Search Again with Hint
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Type a specific keyword, color parallel, year, or variant (e.g. "Red Wave parallel", "2022 Select", "Bowman Chrome") to help the AI narrow down the correct match.
@@ -1380,7 +1380,7 @@ function CreateListingForm() {
                   value={retryHint} 
                   onChange={(e) => setRetryHint(e.target.value)}
                   placeholder="e.g. Pink Ice parallel, rookie card, etc."
-                  className="w-full h-11 bg-muted/60 border border-border focus:border-indigo-500 rounded-xl px-4 text-sm text-foreground focus:outline-none transition-colors"
+                  className="w-full h-11 bg-muted/60 border border-border focus:border-orange-500 rounded-xl px-4 text-sm text-foreground focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -1390,7 +1390,7 @@ function CreateListingForm() {
                 Cancel
               </Button>
               <Button 
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold" 
+                className="bg-orange-600 hover:bg-orange-500 text-white font-bold" 
                 onClick={() => {
                   setShowRetryModal(false);
                   handleAutoFill(retryHint);

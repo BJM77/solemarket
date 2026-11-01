@@ -29,7 +29,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                             BUNDLE DEAL
                         </span>
                         {isComplete && (
-                            <span className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded">
+                            <span className="px-2 py-0.5 bg-orange-600 text-white text-xs rounded">
                                 ✓ Complete
                             </span>
                         )}
@@ -72,8 +72,8 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 )}
                 {deal.requirements.bronze > 0 && (
                     <div className={`px-3 py-1 rounded text-sm ${progress.bronze === deal.requirements.bronze
-                        ? 'bg-blue-700 text-white'
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'bg-orange-700 text-white'
+                        : 'bg-orange-100 text-orange-800'
                         }`}>
                         Bronze: {progress.bronze}/{deal.requirements.bronze}
                     </div>
@@ -121,7 +121,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                 {/* Bronze Cards */}
                 {items.filter(i => i.slot === 'bronze').length > 0 && (
                     <div>
-                        <div className="text-xs font-semibold text-blue-800 mb-2">BRONZE CARDS</div>
+                        <div className="text-xs font-semibold text-orange-800 mb-2">BRONZE CARDS</div>
                         <div className="space-y-2">
                             {items.filter(i => i.slot === 'bronze').map(item => (
                                 <DealCartItemRow key={item.productId} item={item} onRemove={onRemoveItem} />

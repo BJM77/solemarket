@@ -27,7 +27,7 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
         case 'admin':
             return <Badge className="bg-purple-600 hover:bg-purple-700 gap-1"><BadgeCheck className="h-3 w-3" /> Admin</Badge>;
         case 'seller':
-            return <Badge variant="secondary" className="text-blue-600 bg-blue-100 hover:bg-blue-200 gap-1"><Store className="h-3 w-3" /> Seller</Badge>;
+            return <Badge variant="secondary" className="text-orange-600 bg-orange-100 hover:bg-orange-200 gap-1"><Store className="h-3 w-3" /> Seller</Badge>;
         default:
             return <Badge variant="outline" className="gap-1"><Eye className="h-3 w-3" /> Viewer</Badge>;
     }
@@ -82,7 +82,7 @@ export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn
                                         </div>
                                     )}
                                     {user.warningCount && user.warningCount > 0 && (
-                                        <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                                        <span className="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/20">
                                             {user.warningCount} Warning{user.warningCount > 1 ? 's' : ''}
                                         </span>
                                     )}
@@ -115,7 +115,7 @@ export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn
                                             {!user.disabled ? <><Ban className="mr-2 h-4 w-4" /> Ban User</> : "Unban User"}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="text-blue-600"
+                                            className="text-orange-600"
                                             onClick={() => onWarn(user.id)}
                                         >
                                             <Shield className="mr-2 h-4 w-4" /> Issue Warning

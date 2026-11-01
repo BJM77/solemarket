@@ -42,15 +42,15 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
               <div className="space-y-3">
                 <Button
                   size="lg"
-                  className="w-full h-16 text-lg font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-900/20"
+                  className="w-full h-16 text-lg font-extrabold bg-gradient-to-r from-orange-600 to-orange-600 hover:from-orange-700 hover:to-orange-700 text-white shadow-lg shadow-orange-900/20"
                   onClick={() => window.open(product.externalUrl, '_blank', 'noopener,noreferrer')}
                   disabled={!product.quantity || product.quantity === 0}
                 >
                   <ExternalLink className="h-6 w-6 mr-2" />
                   Message / Buy on Facebook
                 </Button>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-600 font-semibold bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl text-center">
-                  <Badge className="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-600 font-semibold bg-orange-500/10 border border-orange-500/20 p-2.5 rounded-xl text-center">
+                  <Badge className="bg-orange-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
                   Opens seller listing in a new window
                 </div>
               </div>
@@ -58,7 +58,7 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
               <>
                 <Button
                   size="lg"
-                  className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="w-full h-16 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white"
                   onClick={() => {
                     const messageButton = document.querySelector('[data-message-seller-btn]') as HTMLButtonElement;
                     if (messageButton) messageButton.click();

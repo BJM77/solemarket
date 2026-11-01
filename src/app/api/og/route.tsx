@@ -34,15 +34,15 @@ export async function GET(request: Request) {
               fontSize: 32,
               fontWeight: 900,
               letterSpacing: '-0.05em',
-              color: '#3b82f6', // primary blue
+              color: '#f97316', // primary blue
               textTransform: 'uppercase'
             }}>
               BENCHED
             </div>
             <div style={{ 
               marginLeft: '12px',
-              backgroundColor: '#3b82f620',
-              color: '#3b82f6',
+              backgroundColor: '#f9731620',
+              color: '#f97316',
               padding: '4px 12px',
               borderRadius: '99px',
               fontSize: 16,

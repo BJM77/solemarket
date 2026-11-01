@@ -161,8 +161,8 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                     <div>
                                         <p className="font-black text-lg italic">{listing.userDisplayName}</p>
                                         <div className="flex items-center gap-1.5 mt-1">
-                                            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                            <p className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Verified Member</p>
+                                            <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                            <p className="text-[10px] font-black tracking-widest text-orange-500 uppercase">Verified Member</p>
                                         </div>
                                     </div>
                                 </div>

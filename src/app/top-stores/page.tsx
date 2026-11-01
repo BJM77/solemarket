@@ -100,7 +100,7 @@ function StoreRow({ store }: { store: StoreWithProducts }) {
                             <Link href={shopUrl} className="hover:underline decoration-primary decoration-2 underline-offset-4">
                                 <h3 className="text-2xl font-black uppercase tracking-tighter leading-none flex items-center gap-1">
                                     {store.displayName}
-                                    <ShieldCheck className="h-5 w-5 text-blue-500 shrink-0" />
+                                    <ShieldCheck className="h-5 w-5 text-orange-500 shrink-0" />
                                 </h3>
                             </Link>
                             <div className="flex items-center gap-2 mt-2">

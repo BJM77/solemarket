@@ -53,7 +53,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="Excellent" 
                                 description="Minor visible wear. May have slight whitening on edges or very light surface scratches." 
-                                icon={<CheckCircle2 className="h-4 w-4 text-blue-500" />}
+                                icon={<CheckCircle2 className="h-4 w-4 text-orange-500" />}
                             />
                             <ConditionItem 
                                 label="Good / Fair" 
@@ -77,7 +77,7 @@ export function ConditionGuide({ trigger }: { trigger?: React.ReactNode }) {
                             <ConditionItem 
                                 label="VNDS (Very Near Deadstock)" 
                                 description="Worn once or twice indoors. No visible star loss on soles, no creases, looks brand new." 
-                                icon={<CheckCircle2 className="h-4 w-4 text-blue-500" />}
+                                icon={<CheckCircle2 className="h-4 w-4 text-orange-500" />}
                             />
                             <ConditionItem 
                                 label="Used / Good" 

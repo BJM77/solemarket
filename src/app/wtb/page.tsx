@@ -47,7 +47,7 @@ export default function WTBBrowsePage() {
             {/* Hero Section */}
             <section className="relative py-20 overflow-hidden border-b border-border bg-card/40 backdrop-blur-sm">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary opacity-10 blur-[120px] -mr-48 -mt-48 transition-all animate-pulse"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 opacity-5 blur-[100px] -ml-32 -mb-32"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500 opacity-5 blur-[100px] -ml-32 -mb-32"></div>
 
                 <div className="container mx-auto max-w-screen-2xl px-6 relative z-10">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-10">

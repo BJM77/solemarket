@@ -345,7 +345,7 @@ export default function ProductDetailsClient({
                                         <EbaySearchModal
                                             defaultQuery={product.title}
                                             trigger={
-                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-600" title="Check eBay Prices">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-orange-600" title="Check eBay Prices">
                                                     <Search className="h-5 w-5" />
                                                 </Button>
                                             }

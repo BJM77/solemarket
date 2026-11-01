@@ -111,7 +111,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                     {!product.isUntimed && (
                         <Button
                             size="lg"
-                            className={cn("flex-1 font-bold h-12", product.externalUrl ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" : "")}
+                            className={cn("flex-1 font-bold h-12", product.externalUrl ? "bg-gradient-to-r from-orange-600 to-orange-600 text-white" : "")}
                             onClick={handleBuyNow}
                         >
                             {product.externalUrl ? (
@@ -138,7 +138,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                                     variant={product.isUntimed ? "default" : "outline"}
                                     className={cn(
                                         "flex-1 font-bold h-12",
-                                        product.isUntimed && "bg-indigo-600 hover:bg-indigo-700 text-white"
+                                        product.isUntimed && "bg-orange-600 hover:bg-orange-700 text-white"
                                     )}
                                 >
                                     <DollarSign className="h-5 w-5 mr-2" />

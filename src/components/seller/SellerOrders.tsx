@@ -273,9 +273,9 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                             <Badge
                                                 className={cn(
                                                     "px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-tighter border-none",
-                                                    order.type === 'guest_enquiry' ? "bg-indigo-100 text-indigo-700" :
+                                                    order.type === 'guest_enquiry' ? "bg-orange-100 text-orange-700" :
                                                     order.status === 'processing' ? "bg-amber-100 text-amber-700" :
-                                                    order.status === 'shipped' ? "bg-blue-100 text-blue-700" :
+                                                    order.status === 'shipped' ? "bg-orange-100 text-orange-700" :
                                                     order.status === 'delivered' ? "bg-emerald-100 text-emerald-700" :
                                                     "bg-slate-100 text-slate-700"
                                                 )}
@@ -283,7 +283,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 {order.type === 'guest_enquiry' ? 'Guest Enquiry' : order.status}
                                             </Badge>
                                             {order.type === 'guest_enquiry' && (
-                                                <p className="text-[10px] font-bold text-indigo-600 animate-pulse uppercase tracking-wider">New Transmission</p>
+                                                <p className="text-[10px] font-bold text-orange-600 animate-pulse uppercase tracking-wider">New Transmission</p>
                                             )}
                                         </div>
                                     </div>
@@ -326,7 +326,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                             <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Channel</p>
                                             <div className="flex items-center gap-2">
                                                 {order.type === 'guest_enquiry' ? (
-                                                    <MessageSquare className="h-3.5 w-3.5 text-indigo-600" />
+                                                    <MessageSquare className="h-3.5 w-3.5 text-orange-600" />
                                                 ) : order.shippingMethod === 'shipping' ? (
                                                     <Truck className="h-3.5 w-3.5 text-slate-600" />
                                                 ) : (
@@ -352,7 +352,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
 
                                     {order.type === 'guest_enquiry' ? (
                                         <Button
-                                            className="w-full font-bold rounded-xl gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-6"
+                                            className="w-full font-bold rounded-xl gap-2 bg-orange-600 hover:bg-orange-700 text-white py-6"
                                             asChild
                                         >
                                             <a href={`mailto:${order.email}?subject=Re: Enquiry for ${order.productTitle}`}>

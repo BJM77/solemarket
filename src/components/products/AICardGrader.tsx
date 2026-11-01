@@ -104,7 +104,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
     <div className="w-full mx-auto border border-border shadow-xl overflow-hidden rounded-2xl bg-card mb-6">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <div className="bg-indigo-600 p-2 rounded-lg">
+          <div className="bg-orange-600 p-2 rounded-lg">
             <Sparkles className="h-5 w-5 text-foreground" />
           </div>
           <div>
@@ -115,7 +115,7 @@ export default function AICardGrader({ onGradeComplete, onApplySuggestions, imag
 
         <Button
           size="lg"
-          className="w-full h-12 text-md font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/10 transition-all rounded-xl"
+          className="w-full h-12 text-md font-bold bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-500/10 transition-all rounded-xl"
           onClick={handleGrade}
           disabled={isPending || imageFiles.length === 0}
         >

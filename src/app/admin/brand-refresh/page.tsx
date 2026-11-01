@@ -388,14 +388,14 @@ export default function BrandRefreshPage() {
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
-                    value={formData.branding.primaryColor.startsWith('#') ? formData.branding.primaryColor : '#2563eb'}
+                    value={formData.branding.primaryColor.startsWith('#') ? formData.branding.primaryColor : '#f26c0d'}
                     onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
                     className="w-12 h-12 rounded-lg cursor-pointer border-0 bg-transparent"
                   />
                   <Input
                     value={formData.branding.primaryColor}
                     onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
-                    placeholder="e.g. 25 90% 50% or #2563eb"
+                    placeholder="e.g. 25 90% 50% or #f26c0d"
                     className="bg-background border-border font-mono text-sm"
                   />
                 </div>
@@ -408,7 +408,7 @@ export default function BrandRefreshPage() {
                 <div className="flex gap-3 items-center">
                   <input
                     type="color"
-                    value={formData.branding.buttonColor.startsWith('#') ? formData.branding.buttonColor : '#2563eb'}
+                    value={formData.branding.buttonColor.startsWith('#') ? formData.branding.buttonColor : '#f26c0d'}
                     onChange={(e) => handleBrandingChange('buttonColor', e.target.value)}
                     className="w-12 h-12 rounded-lg cursor-pointer border-0 bg-transparent"
                   />
@@ -643,7 +643,7 @@ export default function BrandRefreshPage() {
                         <span className="font-bold text-xs text-muted-foreground">Button #{idx + 1}</span>
                         <input
                           type="color"
-                          value={btn.bgColor.startsWith('#') ? btn.bgColor : '#2563eb'}
+                          value={btn.bgColor.startsWith('#') ? btn.bgColor : '#f26c0d'}
                           onChange={(e) => handleHeroButtonChange(idx, 'bgColor', e.target.value)}
                           className="w-6 h-6 rounded cursor-pointer border-0"
                           title="Button Background Color"

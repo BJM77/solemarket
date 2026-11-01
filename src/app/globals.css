@@ -12,8 +12,8 @@
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;             /* #2563eb */
-    --primary-foreground: 0 0% 100%;    /* white on #2563eb = 5.2:1 */
+    --primary: 25 89% 50%;              /* #f26c0d (logo orange) */
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96%;           /* #f1f5f9 */
     --secondary-foreground: 222 47% 11%;
     --sneaker-cream: 210 40% 98%;
@@ -21,15 +21,15 @@
     --deep-black: 222 47% 11%;
     --muted: 210 40% 96%;               /* #f1f5f9 */
     --muted-foreground: 215 19% 35%;    /* #475569, 7.6:1 on white */
-    --accent: 214 100% 97%;             /* #eff6ff */
-    --accent-foreground: 224 76% 40%;   /* #1e40af-ish */
+    --accent: 33 100% 96%;             /* #fff7ed */
+    --accent-foreground: 17 88% 40%;   /* #c2410c */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --eco-green: 147 50% 36%;
     --eco-green-foreground: 0 0% 100%;
     --border: 214 32% 91%;              /* #e2e8f0 */
     --input: 214 32% 85%;
-    --ring: 221 83% 53%;
+    --ring: 25 89% 50%;
     --radius: 1rem;
     --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
     --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08);
@@ -115,11 +115,11 @@
   
   /* Gradients */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-orange-600 to-secondary bg-clip-text text-transparent;
   }
   
   .gradient-bg-primary {
-    @apply bg-gradient-to-br from-primary via-primary to-blue-700;
+    @apply bg-gradient-to-br from-primary via-primary to-orange-700;
   }
   
   .gradient-bg-eco {

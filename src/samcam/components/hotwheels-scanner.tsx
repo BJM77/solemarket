@@ -194,7 +194,7 @@ export default function HotWheelsScanner({
       "opacity-0 pointer-events-none": !showResult,
       "opacity-100": showResult,
       "bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500": showResult && scanResult?.isSpecialEdition,
-      "bg-blue-500/80": showResult && !scanResult?.isSpecialEdition,
+      "bg-orange-500/80": showResult && !scanResult?.isSpecialEdition,
     }
   );
 

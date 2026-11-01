@@ -68,7 +68,7 @@ export default function MembersDirectoryClient() {
         switch (role) {
             case 'superadmin': return 'border-red-500 text-red-700 bg-red-50';
             case 'admin': return 'border-purple-500 text-purple-700 bg-purple-50';
-            case 'seller': return 'border-blue-500 text-blue-700 bg-blue-50';
+            case 'seller': return 'border-orange-500 text-orange-700 bg-orange-50';
             default: return 'border-gray-300 text-gray-700 bg-gray-50';
         }
     };

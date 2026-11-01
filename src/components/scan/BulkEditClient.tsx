@@ -109,7 +109,7 @@ export function BulkEditClient() {
         }
     };
 
-    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin w-12 h-12 text-indigo-600" /></div>;
+    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin w-12 h-12 text-orange-600" /></div>;
     
     if (cards.length === 0) {
         return (
@@ -129,14 +129,14 @@ export function BulkEditClient() {
                         <ArrowLeft className="w-6 h-6" />
                     </Button>
                     <h1 className="text-3xl font-black tracking-tight">Bulk Review</h1>
-                    <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         {cards.length} Items
                     </span>
                 </div>
                 <Button 
                     variant="default" 
                     size="lg" 
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 md:h-14 px-4 md:px-10 text-sm md:text-base font-black shadow-xl"
+                    className="bg-orange-600 hover:bg-orange-700 text-white h-10 md:h-14 px-4 md:px-10 text-sm md:text-base font-black shadow-xl"
                     onClick={handleSaveAll}
                     disabled={isSaving}
                 >
@@ -149,7 +149,7 @@ export function BulkEditClient() {
                 </Button>
             </div>
 
-            <Card className="overflow-hidden border-2 border-indigo-500/10 shadow-2xl">
+            <Card className="overflow-hidden border-2 border-orange-500/10 shadow-2xl">
                 <Table>
                     <TableHeader className="bg-gray-100 dark:bg-gray-800">
                         <TableRow>
@@ -163,7 +163,7 @@ export function BulkEditClient() {
                     </TableHeader>
                     <TableBody>
                         {cards.map((card, idx) => (
-                            <TableRow key={card.id} className="hover:bg-indigo-50/30 transition-colors">
+                            <TableRow key={card.id} className="hover:bg-orange-50/30 transition-colors">
                                 <TableCell>
                                     <Link href={card.localPreview || '#'} target="_blank" className="block relative h-16 w-16 group">
                                         <Image 

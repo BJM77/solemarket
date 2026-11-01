@@ -52,7 +52,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           ) : hasError ? (
             <XCircle className="w-5 h-5 text-red-500" />
           ) : isProcessing ? (
-            <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+            <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
           ) : (
             <Clock className="w-5 h-5 text-muted-foreground" />
           )}
@@ -71,7 +71,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
           {hasError && onRetry && (
             <button
               onClick={(e) => { e.stopPropagation(); onRetry(status.id); }}
-              className="px-3 py-1 bg-blue-500/20 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-500/30 transition"
+              className="px-3 py-1 bg-orange-500/20 text-orange-600 rounded-lg text-[10px] font-bold hover:bg-orange-500/30 transition"
             >
               Retry
             </button>
@@ -104,7 +104,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                   <XCircle className="w-4 h-4 text-red-500" />
                 )}
                 {step.status === 'processing' && (
-                  <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                  <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
                 )}
                 {step.status === 'pending' && (
                   <Circle className="w-4 h-4 text-zinc-600" />
@@ -141,7 +141,7 @@ export function SyncStatusTracker({ status, onRetry, onCancel }: SyncStatusTrack
                 {/* Progress bar for active step */}
                 {step.status === 'processing' && (
                   <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+                    <div className="h-full bg-orange-500 rounded-full animate-pulse" style={{ width: '60%' }} />
                   </div>
                 )}
               </div>

@@ -743,7 +743,7 @@ export default function BenchedPhotoBooth() {
         
         <div className="flex gap-2 items-center">
           {boothStep === 'CAPTURE' ? (
-            <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-blue-500")}>
+            <Badge className={cn("text-[9px] font-black uppercase tracking-widest", currentSide === 'FRONT' ? "bg-primary" : "bg-orange-500")}>
               {currentSide === 'FRONT' ? 'Capture Front' : 'Flip for Back'}
             </Badge>
           ) : (
@@ -805,7 +805,7 @@ export default function BenchedPhotoBooth() {
           <Sheet>
             <SheetTrigger asChild>
               <button className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full hover:bg-secondary transition-all active:scale-95">
-                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-blue-600 animate-pulse" : "text-zinc-600")} />
+                <Flame className={cn("w-3.5 h-3.5", syncQueue.length > 0 ? "text-orange-600 animate-pulse" : "text-zinc-600")} />
                 <span className="text-[10px] font-black">
                   {syncQueue.filter(i => i.status === 'PENDING').length} PENDING
                   {syncQueue.filter(i => i.status === 'ERROR').length > 0 && 
@@ -978,8 +978,8 @@ export default function BenchedPhotoBooth() {
                 ) : (
                   <>
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-blue-600" /> Device</span>
-                      <span className="font-black text-blue-600 truncate max-w-[100px]">{deviceProfile.name}</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Smartphone className="w-3 h-3 text-orange-600" /> Device</span>
+                      <span className="font-black text-orange-600 truncate max-w-[100px]">{deviceProfile.name}</span>
                     </div>
                     
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
@@ -1007,7 +1007,7 @@ export default function BenchedPhotoBooth() {
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2 mb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-indigo-600" /> Contrast</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Contrast className="w-3 h-3 text-orange-600" /> Contrast</span>
                       <span className={cn("font-black", lastQuality.contrastScore > 50 ? "text-green-700" : "text-yellow-700")}>
                         {lastQuality.contrastScore}%
                       </span>
@@ -1021,7 +1021,7 @@ export default function BenchedPhotoBooth() {
                     </div>
 
                     <div className="flex justify-between pb-2 items-center">
-                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-blue-600" /> Temp</span>
+                      <span className="text-muted-foreground flex gap-1.5 uppercase font-bold"><Thermometer className="w-3 h-3 text-orange-600" /> Temp</span>
                       <span className="font-black text-foreground">{lastQuality.colorTemperature}K</span>
                     </div>
 
@@ -1075,11 +1075,11 @@ export default function BenchedPhotoBooth() {
               )}>
                 <div className="text-center px-4">
                    <Badge className="bg-card/90 px-6 py-2 uppercase tracking-[0.3em] font-black text-[10px] border border-border mb-4">{labStatus}</Badge>
-                   {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-blue-500 animate-bounce" />}
+                   {currentSide === 'BACK' && <Layers className="w-12 h-12 mx-auto text-orange-500 animate-bounce" />}
                    
                    {/* Micro Tip Box */}
                    <div className="mt-4 p-2 bg-black/60 border border-border rounded-lg text-[8px] font-bold uppercase tracking-wider text-muted-foreground flex gap-1.5 items-start text-left">
-                     <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                     <Info className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                      <span>{getDeviceTips(deviceProfile)}</span>
                    </div>
                 </div>

@@ -243,7 +243,7 @@ export default function UserOrdersPage() {
                                 <Badge className={cn(
                                     "px-3 py-1 rounded-full font-black text-[10px] uppercase border-none",
                                     order.status === 'processing' ? "bg-amber-100 text-amber-700" :
-                                        order.status === 'shipped' ? "bg-blue-100 text-blue-700" :
+                                        order.status === 'shipped' ? "bg-orange-100 text-orange-700" :
                                             order.status === 'delivered' ? "bg-emerald-100 text-emerald-700" :
                                                 "bg-slate-100 text-slate-700"
                                 )}>

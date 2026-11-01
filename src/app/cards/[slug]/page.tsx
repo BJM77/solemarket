@@ -56,15 +56,15 @@ export default async function CardTopicPage({ params }: Props) {
     return (
         <div className="min-h-screen pb-20">
             <TopicSchema topic={topic} urlPath={`/cards/${topic.slug}`} />
-            <div className="bg-indigo-950 text-white py-16 lg:py-24 mb-12">
+            <div className="bg-orange-950 text-white py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
-                    <div className="bg-indigo-500/20 w-fit px-4 py-1 rounded-full text-indigo-600 text-xs font-black uppercase tracking-widest mb-6">
+                    <div className="bg-orange-500/20 w-fit px-4 py-1 rounded-full text-orange-600 text-xs font-black uppercase tracking-widest mb-6">
                         Premium Collectibles
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6">
                         {topic.h1}
                     </h1>
-                    <p className="text-xl text-indigo-100/80 max-w-3xl leading-relaxed">
+                    <p className="text-xl text-orange-100/80 max-w-3xl leading-relaxed">
                         {topic.description}
                     </p>
                 </div>
@@ -94,7 +94,7 @@ export default async function CardTopicPage({ params }: Props) {
                     </p>
                 </div>
 
-                <div className="max-w-4xl bg-indigo-50/50 dark:bg-card p-8 rounded-2xl">
+                <div className="max-w-4xl bg-orange-50/50 dark:bg-card p-8 rounded-2xl">
                     <h3 className="text-2xl font-bold mb-6">Frequently Asked Questions</h3>
                     <div className="space-y-6">
                         <div>

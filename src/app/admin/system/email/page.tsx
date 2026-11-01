@@ -167,7 +167,7 @@ export default function EmailManagementPage() {
                         </CardContent>
                         <CardFooter>
                             <Button 
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
+                                className="w-full bg-orange-600 hover:bg-orange-700 text-white" 
                                 onClick={handleSendTest}
                                 disabled={sendingTest || !testEmail}
                             >

@@ -12,22 +12,22 @@ export default function ConsignPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
             {/* Hero Section */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-800 text-white">
+            <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white">
                 <div className="container mx-auto px-4 py-20 md:py-28">
                     <div className="max-w-4xl mx-auto text-center">
                         <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
                             Turn Your Kicks into Cash, Effortlessly
                         </h1>
-                        <p className="text-xl md:text-2xl mb-8 text-blue-100 font-light">
+                        <p className="text-xl md:text-2xl mb-8 text-orange-100 font-light">
                             Maximize Your Returns, Minimize Your Effort.
                         </p>
-                        <p className="text-lg text-blue-100 mb-10">
+                        <p className="text-lg text-orange-100 mb-10">
                             Our premier consignment service handles everything, so you can sell your collection discreetly and profitably.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button
                                 size="lg"
-                                className="bg-white text-indigo-700 hover:bg-indigo-50 font-bold text-lg py-7 px-8"
+                                className="bg-white text-orange-700 hover:bg-orange-50 font-bold text-lg py-7 px-8"
                                 onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
                             >
                                 Get a Free Valuation
@@ -53,7 +53,7 @@ export default function ConsignPage() {
                     <p className="text-lg text-gray-600 mb-12">We specialize in a wide range of high-value items. If you have heat, we can sell it.</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
-                            <Gem className="h-10 w-10 text-blue-600 mb-3" />
+                            <Gem className="h-10 w-10 text-orange-600 mb-3" />
                             <span className="font-semibold text-center">Sneakers</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
@@ -78,11 +78,11 @@ export default function ConsignPage() {
                     </h2>
 
                     <div className="grid md:grid-cols-2 gap-8">
-                        <Card className="border-2 hover:border-blue-500 transition-all shadow-sm hover:shadow-lg">
+                        <Card className="border-2 hover:border-orange-500 transition-all shadow-sm hover:shadow-lg">
                             <CardContent className="p-8">
                                 <div className="flex items-start gap-5">
-                                    <div className="p-3 bg-blue-100 rounded-full">
-                                        <Eye className="h-7 w-7 text-blue-600" />
+                                    <div className="p-3 bg-orange-100 rounded-full">
+                                        <Eye className="h-7 w-7 text-orange-600" />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Sell Discreetly & Confidentially</h3>
@@ -126,11 +126,11 @@ export default function ConsignPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-2 hover:border-blue-500 transition-all shadow-sm hover:shadow-lg">
+                        <Card className="border-2 hover:border-orange-500 transition-all shadow-sm hover:shadow-lg">
                             <CardContent className="p-8">
                                 <div className="flex items-start gap-5">
-                                    <div className="p-3 bg-blue-100 rounded-full">
-                                        <Shield className="h-7 w-7 text-blue-600" />
+                                    <div className="p-3 bg-orange-100 rounded-full">
+                                        <Shield className="h-7 w-7 text-orange-600" />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Peace of Mind with Full Insurance</h3>
@@ -154,21 +154,21 @@ export default function ConsignPage() {
                         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-200" aria-hidden="true"></div>
                         <div className="space-y-12">
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">1</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">1</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">Initial Consultation</h3>
                                     <p className="text-gray-600 text-lg">Submit an enquiry to discuss your collection. We'll provide a free, no-obligation assessment and valuation estimate.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">2</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">2</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">Agree on Your Rate</h3>
                                     <p className="text-gray-600 text-lg">We offer fair, transparent, and flexible commission rates tailored to the value of your items and our partnership.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">3</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">3</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">We Take Over</h3>
                                     <p className="text-gray-600 text-lg">Sit back as we manage every detail: professional photography, compelling listings, buyer inquiries, and secure shipping.</p>
@@ -258,7 +258,7 @@ export default function ConsignPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div id="enquiry-form" className="relative max-w-6xl mx-auto bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl p-8 md:p-12 overflow-hidden">
+                <div id="enquiry-form" className="relative max-w-6xl mx-auto bg-gradient-to-r from-orange-700 to-orange-800 text-white rounded-2xl p-8 md:p-12 overflow-hidden">
                     <div className="absolute -top-10 -left-10 w-24 h-24 bg-muted rounded-full"></div>
                     <div className="absolute -bottom-12 -right-8 w-32 h-32 bg-muted rounded-full"></div>
 
@@ -267,13 +267,13 @@ export default function ConsignPage() {
                             <h2 className="text-4xl md:text-5xl font-bold mb-4">
                                 Ready to Unlock the Value of Your Collection?
                             </h2>
-                            <p className="text-xl mb-8 text-blue-100">
+                            <p className="text-xl mb-8 text-orange-100">
                                 Submit the enquiry form below for a free, no-obligation consultation. Our team will review your collection and get back to you within 24-48 hours.
                             </p>
 
                             <div className="bg-muted backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md">
                                 <h3 className="text-2xl font-semibold mb-4">Expert Guidance</h3>
-                                <p className="text-blue-100 italic">
+                                <p className="text-orange-100 italic">
                                     "We treat every collection with the respect it deserves, ensuring you get maximum market value with zero hassle."
                                 </p>
                             </div>

@@ -27,7 +27,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                         blurDataURL="data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAgAAUAmJaQAA3AA/v79ggAA"
                     />
                 ) : (
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-purple-500 to-pink-500 opacity-80" />
                 )}
             </div>
 
@@ -60,7 +60,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
                             </h1>
                             <div className="flex gap-2">
                                 {profile.isVerified && (
-                                    <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100 border-none flex items-center gap-1">
+                                    <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none flex items-center gap-1">
                                         <ShieldCheck className="h-3 w-3" /> Verified
                                     </Badge>
                                 )}
@@ -101,7 +101,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
 
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-background rounded-lg shadow-sm">
-                            <Calendar className="h-4 w-4 text-indigo-500" />
+                            <Calendar className="h-4 w-4 text-orange-500" />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1">Member Since</p>

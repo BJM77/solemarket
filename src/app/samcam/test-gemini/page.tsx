@@ -56,13 +56,13 @@ export default function TestGeminiPage() {
           <div className="flex gap-4">
             <button
               onClick={() => setTestType('simple')}
-              className={`px-4 py-2 rounded ${testType === 'simple' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded ${testType === 'simple' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
             >
               Simple Text Test
             </button>
             <button
               onClick={() => setTestType('vision')}
-              className={`px-4 py-2 rounded ${testType === 'vision' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded ${testType === 'vision' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
             >
               Vision Model Test
             </button>

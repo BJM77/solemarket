@@ -295,7 +295,7 @@ export default function ProfileDetailsPage() {
 
               <div className="pt-6 border-t space-y-4">
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                  <ExternalLink className="h-5 w-5 text-blue-600" />
+                  <ExternalLink className="h-5 w-5 text-orange-600" />
                   Escrow Payout Details
                 </h3>
                 <p className="text-sm text-muted-foreground">

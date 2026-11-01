@@ -102,13 +102,13 @@ export default function DonatePage() {
                             <Button className="w-full h-14 rounded-2xl font-bold text-lg">Donate Kicks</Button>
                         </div>
 
-                        <div className="group relative bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center transition-all hover:border-indigo-500 hover:bg-white hover:shadow-xl">
+                        <div className="group relative bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center transition-all hover:border-orange-500 hover:bg-white hover:shadow-xl">
                             <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">
-                                <Library className="h-10 w-10 text-indigo-600" />
+                                <Library className="h-10 w-10 text-orange-600" />
                             </div>
                             <h3 className="text-2xl font-black uppercase mb-4">Collector Cards</h3>
                             <p className="text-muted-foreground mb-8">NBA and basketball cards. Helping kids start their collection and love for the hobby.</p>
-                            <Button className="w-full h-14 rounded-2xl font-bold text-lg bg-indigo-600 hover:bg-indigo-700 border-none">Donate Cards</Button>
+                            <Button className="w-full h-14 rounded-2xl font-bold text-lg bg-orange-600 hover:bg-orange-700 border-none">Donate Cards</Button>
                         </div>
                     </div>
                 </div>

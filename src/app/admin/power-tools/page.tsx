@@ -34,7 +34,7 @@ const powerTools = [
         description: 'Auto-capture straight, cropped front and back card photos on a plain background',
         icon: ScanLine,
         href: '/autocard',
-        color: 'bg-sky-500',
+        color: 'bg-orange-500',
     },
     {
         title: 'SamCam Studio',
@@ -69,7 +69,7 @@ const powerTools = [
         description: 'Upload multiple images and let AI create listings',
         icon: Upload,
         href: '/sell/bulk-lister',
-        color: 'bg-blue-500',
+        color: 'bg-orange-500',
     },
     {
         title: 'Bulk CSV Lister',
@@ -90,7 +90,7 @@ const powerTools = [
         description: 'Automatically match lowest prices in categories',
         icon: TrendingUp,
         href: '/admin/auto-repricing',
-        color: 'bg-blue-500',
+        color: 'bg-orange-500',
     },
     {
         title: 'Inventory Alerts',
@@ -104,7 +104,7 @@ const powerTools = [
         description: 'View performance metrics and best selling times',
         icon: BarChart3,
         href: '/admin/analytics',
-        color: 'bg-indigo-500',
+        color: 'bg-orange-500',
     },
     {
         title: 'QR Codes',
@@ -127,7 +127,7 @@ const powerTools = [
         description: 'Super-fast 5:7 capture for trading cards',
         icon: Zap,
         href: '/admin/power-tools/multi-card',
-        color: 'bg-indigo-600',
+        color: 'bg-orange-600',
     },
     {
         title: 'MultiCoin Fast Lister',

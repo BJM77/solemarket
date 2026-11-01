@@ -158,7 +158,7 @@ export default function PayoutDashboard() {
                                                             href={order.sellerPaypalMeLink.startsWith('http') ? order.sellerPaypalMeLink : `https://${order.sellerPaypalMeLink}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                                                            className="text-xs text-orange-500 hover:text-orange-700 flex items-center gap-1"
                                                         >
                                                             PayPal.Me <ExternalLink className="h-3 w-3" />
                                                         </a>

@@ -60,7 +60,7 @@ export function UserRoleDialog({ isOpen, onClose, currentRole, userId, userName,
                                 </SelectItem>
                                 <SelectItem value="seller">
                                     <div className="flex items-center gap-2">
-                                        <Store className="h-4 w-4 text-blue-500" />
+                                        <Store className="h-4 w-4 text-orange-500" />
                                         <span>Seller</span>
                                     </div>
                                 </SelectItem>

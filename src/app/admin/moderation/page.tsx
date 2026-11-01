@@ -107,7 +107,7 @@ export default function ModerationPage() {
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-500" />
+              <Sparkles className="w-5 h-5 text-orange-500" />
               AI Listing Analyzer Sandbox
             </CardTitle>
             <CardDescription>
@@ -135,7 +135,7 @@ export default function ModerationPage() {
             <Button
               onClick={handleAnalyze}
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-orange-600 hover:bg-orange-700"
             >
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

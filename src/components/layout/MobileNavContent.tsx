@@ -132,7 +132,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         <AccordionItem value="sneakers" className="border-b-0">
                             <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group">
                                 <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary">
-                                    <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                    <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <Footprints className="h-5 w-5" />
                                     </div>
                                     Sneakers
@@ -151,7 +151,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         <AccordionItem value="cards" className="border-b-0">
                             <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group">
                                 <div className="flex items-center text-base font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary">
-                                    <div className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                    <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 p-2 rounded-lg mr-3 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                                         <Gem className="h-5 w-5" />
                                     </div>
                                     Collector Cards

@@ -263,7 +263,7 @@ export default function ProPhotoBooth() {
                   <Button variant="outline" className="flex-1 h-14 bg-card border-border" onClick={handleSkipAndQueue}>
                     <Layers className="w-5 h-5 mr-2" /> Queue
                   </Button>
-                  <Button className="flex-1 h-14 bg-blue-600 text-white" onClick={handleSubmitToBench} disabled={saving}>
+                  <Button className="flex-1 h-14 bg-orange-600 text-white" onClick={handleSubmitToBench} disabled={saving}>
                     {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Send className="w-5 h-5 mr-2" />} Submit to Bench
                   </Button>
                 </div>

@@ -88,8 +88,8 @@ export default function VerificationForm() {
     return (
         <Card className="w-full max-w-lg mx-auto shadow-2xl bg-card border-border text-foreground">
             <CardHeader className="text-center pb-2">
-                <div className="mx-auto w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-4">
-                    <Mail className="w-8 h-8 text-indigo-600" />
+                <div className="mx-auto w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mb-4">
+                    <Mail className="w-8 h-8 text-orange-600" />
                 </div>
                 <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
                 <CardDescription className="text-muted-foreground">
@@ -97,17 +97,17 @@ export default function VerificationForm() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
-                <Alert className="bg-indigo-500/5 border-indigo-500/20 text-indigo-200">
-                    <AlertCircle className="h-4 w-4 text-indigo-600" />
+                <Alert className="bg-orange-500/5 border-orange-500/20 text-orange-200">
+                    <AlertCircle className="h-4 w-4 text-orange-600" />
                     <AlertTitle className="font-bold">Next Steps</AlertTitle>
-                    <AlertDescription className="text-indigo-600/80">
+                    <AlertDescription className="text-orange-600/80">
                         Once you click the link in your email, refresh this page or click "Check Status" to unlock buying and offering.
                     </AlertDescription>
                 </Alert>
 
                 <div className="space-y-3">
                     <Button 
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 font-bold transition-all"
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white h-12 font-bold transition-all"
                         onClick={() => window.location.reload()}
                     >
                         Check Status & Refresh

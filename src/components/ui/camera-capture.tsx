@@ -341,7 +341,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         />
                         {isCameraLoading && (
                             <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/50">
-                                <Loader2 className="h-12 w-12 text-indigo-500 animate-spin" />
+                                <Loader2 className="h-12 w-12 text-orange-500 animate-spin" />
                             </div>
                         )}
                         {hasCameraPermission === false && !isCameraLoading && (
@@ -387,7 +387,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                             <Trash2 className="w-4 h-4 text-red-600" />
                                         </button>
                                     </div>
-                                    <Badge className="absolute bottom-0 right-0 rounded-none rounded-tl-md bg-indigo-600 px-1 py-0 text-[10px] pointer-events-none">
+                                    <Badge className="absolute bottom-0 right-0 rounded-none rounded-tl-md bg-orange-600 px-1 py-0 text-[10px] pointer-events-none">
                                         {idx + 1}
                                     </Badge>
                                 </div>
@@ -407,7 +407,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 Cancel
                             </Button>
                             <Button
-                                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
+                                className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold"
                                 onClick={handleDone}
                                 disabled={capturedFiles.length === 0}
                             >

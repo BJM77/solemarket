@@ -22,7 +22,7 @@ const CARD_CATEGORIES = [
         name: 'Curry',
         logo: '/brand-logos/svg/curry.svg',
         href: '/cards?subCategory=Curry',
-        color: 'bg-blue-50/50 dark:bg-blue-950/10'
+        color: 'bg-orange-50/50 dark:bg-orange-950/10'
     },
     {
         name: 'Pokemon',
@@ -34,13 +34,13 @@ const CARD_CATEGORIES = [
         name: 'Top 100',
         icon: Medal,
         href: '/cards?subCategory=Top%20100',
-        color: 'bg-blue-50 dark:bg-blue-950/20'
+        color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
         name: 'Wembanyama',
         icon: Sparkles,
         href: '/cards?subCategory=Wembanyama',
-        color: 'bg-indigo-50 dark:bg-indigo-950/20'
+        color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
         name: 'Rookies',
@@ -64,7 +64,7 @@ const CARD_CATEGORIES = [
         name: 'Basketball Cards',
         icon: Library,
         href: '/cards?subCategory=Basketball%20Cards',
-        color: 'bg-blue-50 dark:bg-orange-950/20'
+        color: 'bg-orange-50 dark:bg-orange-950/20'
     },
     {
         name: 'View All',
@@ -95,7 +95,7 @@ export default function CardCategoryGrid() {
                         <h2 className="text-2xl md:text-5xl font-black text-foreground tracking-tighter uppercase italic">{title}</h2>
                         <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
-                    <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 items-center transition-all bg-indigo-500/10 px-6 py-3 rounded-full hover:bg-indigo-500/20">
+                    <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-orange-600 dark:text-orange-400 items-center transition-all bg-orange-500/10 px-6 py-3 rounded-full hover:bg-orange-500/20">
                         View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -109,8 +109,8 @@ export default function CardCategoryGrid() {
                                 href={cat.href}
                                 className="group block"
                             >
-                                <div className="relative h-full bg-card border border-border rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="relative h-full bg-card border border-border rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 md:gap-6 transition-all duration-500 hover:border-orange-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:-translate-y-2 overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                     <div className={cn(
                                         "relative w-12 h-12 md:w-24 md:h-24 flex items-center justify-center p-2 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
@@ -137,7 +137,7 @@ export default function CardCategoryGrid() {
                     })}
                 </div>
 
-                <Link href="/cards" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 flex justify-center items-center transition-all bg-indigo-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-indigo-500/20 w-full text-center">
+                <Link href="/cards" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-orange-600 dark:text-orange-400 flex justify-center items-center transition-all bg-orange-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-orange-500/20 w-full text-center">
                     View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>
