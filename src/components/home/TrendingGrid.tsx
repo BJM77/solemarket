@@ -12,11 +12,10 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
     return (
         <section className={className}>
             <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-10 relative z-10 max-w-full overflow-hidden">
-                <div className={`flex flex-col md:flex-row ${title ? 'items-end' : 'items-end justify-end'} justify-between mb-12 gap-4`}>
+                <div className={`flex flex-col md:flex-row ${title ? 'items-start md:items-end' : 'items-end justify-end'} justify-between mb-4 md:mb-12 gap-4`}>
                     {title && (
                         <div>
-                            <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">{title}</h2>
-                            <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 mt-2 font-medium">Fresh finds from verified local rotations.</p>
+                            <h2 className="text-left text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">{title}</h2>
                         </div>
                     )}
                     <Link href="/browse" className={`group hidden md:flex text-sm font-black tracking-widest uppercase text-orange-700 hover:text-orange-800 items-center transition-all bg-primary/10 px-6 py-3 rounded-full hover:bg-primary/20 ${!title ? 'ml-auto' : ''}`}>
