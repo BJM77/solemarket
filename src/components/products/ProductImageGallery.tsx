@@ -46,7 +46,12 @@ export default function ProductImageGallery({
   imageAltTexts = []
 }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    skipSnaps: false,
+    // On touch screens, dragging is reserved for the magnifier; photos change via the arrow buttons.
+    watchDrag: (_api, evt) => !(evt.type.startsWith('touch') || (evt as PointerEvent).pointerType === 'touch'),
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPos, setMagnifierPos] = useState({ x: 0, y: 0 });
@@ -208,7 +213,7 @@ export default function ProductImageGallery({
                       onPointerMove={handlePointerMove}
                       onPointerEnter={handlePointerEnter}
                       onPointerLeave={handlePointerLeave}
-                      onClick={() => setIsFullscreen(true)}
+                      onClick={() => { if (!isTouch.current) setIsFullscreen(true); }}
                     >
                       <Image
                         src={item.url!}
@@ -264,6 +269,30 @@ export default function ProductImageGallery({
               >
                 <ChevronRight className="w-6 h-6" strokeWidth={3} />
               </Button>
+            </>
+          )}
+
+          {/* Mobile arrows: sit in the side inset so they never cover the magnifier area */}
+          {media.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous photo"
+                className="sm:hidden absolute left-0.5 top-1/2 -translate-y-1/2 z-20 flex h-8 w-5 items-center justify-center rounded-full bg-background/90 border border-border text-foreground shadow-sm active:scale-95"
+                onClick={scrollPrev}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <ChevronLeft className="w-4 h-4" strokeWidth={2.5} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next photo"
+                className="sm:hidden absolute right-0.5 top-1/2 -translate-y-1/2 z-20 flex h-8 w-5 items-center justify-center rounded-full bg-background/90 border border-border text-foreground shadow-sm active:scale-95"
+                onClick={scrollNext}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+              </button>
             </>
           )}
 
