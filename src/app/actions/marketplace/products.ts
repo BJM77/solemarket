@@ -352,20 +352,26 @@ export const getFeaturedProducts = unstable_cache(
         try {
             // Newest available listings first. There used to be a 60-day createdAt
             // cutoff here; once no listing was newer than 60 days the home page's
-            // "Ending Soon" rail rendered empty (products: []) even with 76 live
+            // "Popular Listings" (formerly Ending Soon) rail rendered empty (products: []) even with 76 live
             // listings. Ordering + limit already favours fresh stock.
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
                     .orderBy('createdAt', 'desc')
-                    .limit(limitCount)
+                    .limit(Math.max(limitCount * 4, 48))
                     .get();
 
                 if (!snapshot.empty) {
-                    return snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    // "Popular Listings": rank a recent pool by view count (newest wins ties).
+                    const pool = snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[];
+                    return pool
+                        .map((p, i) => ({ p, i, v: Number((p as any).views) || 0 }))
+                        .sort((a, b) => b.v - a.v || a.i - b.i)
+                        .slice(0, limitCount)
+                        .map(x => x.p);
                 }
             } catch (indexError: any) {
                 console.warn("Featured products optimal query failed, falling back.");
@@ -417,14 +423,20 @@ export const getActiveProducts = unstable_cache(
                     .where('category', 'in', ACTIVE_CATEGORIES)
                     .where('status', '==', 'available')
                     .orderBy('createdAt', 'desc')
-                    .limit(limitCount)
+                    .limit(Math.max(limitCount * 4, 48))
                     .get();
 
                 if (!snapshot.empty) {
-                    return snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    // "Popular Listings": rank a recent pool by view count (newest wins ties).
+                    const pool = snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[];
+                    return pool
+                        .map((p, i) => ({ p, i, v: Number((p as any).views) || 0 }))
+                        .sort((a, b) => b.v - a.v || a.i - b.i)
+                        .slice(0, limitCount)
+                        .map(x => x.p);
                 }
             } catch (indexError) {
                 console.warn("Active products optimal query failed, falling back.");
