@@ -26,16 +26,16 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
                 console.warn("Primary Gemini Vision Model failed or overloaded. Initiating model fallback chain...", error.message || error);
                 
                 try {
-                    // 2. Secondary Attempt: Fallback to high-capacity Gemini 1.5 Pro
+                    // 2. Secondary Attempt: Fallback to pinned stable Gemini 3.6 Flash (1.5 Pro was retired by Google)
                     const { output } = await suggestListingDetailsPrompt(validatedInput, {
-                        model: 'googleai/gemini-1.5-pro-latest'
+                        model: 'googleai/gemini-3.6-flash'
                     });
                     if (output) {
-                        console.log("AI workflow successfully recovered using Gemini 1.5 Pro.");
+                        console.log("AI workflow successfully recovered using Gemini 3.6 Flash.");
                         return output;
                     }
                 } catch (fallbackError: any) {
-                    console.error("Secondary Gemini 1.5 Pro fallback also failed:", fallbackError.message || fallbackError);
+                    console.error("Secondary Gemini 3.6 Flash fallback also failed:", fallbackError.message || fallbackError);
                 }
 
                 // If fallback chain is exhausted, re-throw the original error to activate workflow retries / graceful UI degradation
@@ -57,7 +57,6 @@ const suggestListingDetailsPrompt = ai.definePrompt({
     output: { schema: suggestListingDetailsOutputSchema },
     config: {
         maxOutputTokens: 2000,
-        temperature: 0.1,
     },
     prompt: `Act as a world-class grading expert, numismatist, and sneaker specialist. Analyze the provided images or title text to output extremely precise marketplace listing metadata.
 

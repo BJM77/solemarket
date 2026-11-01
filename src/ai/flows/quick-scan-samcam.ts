@@ -33,7 +33,6 @@ export async function quickScan(
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       generationConfig: {
-        temperature: 0.1,
         maxOutputTokens: 300,
       },
     });

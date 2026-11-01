@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import AutoCardCapture from '@/components/autocard/AutoCardCapture';
 
 export const metadata: Metadata = {
@@ -14,6 +15,13 @@ export default function AutoCardPage() {
       <p className="text-sm text-muted-foreground mb-4">
         Lay the card upright on a plain white or black surface. AutoCard takes the photo automatically once the card is
         lined up, steady and sharp. Front first, then the back.
+      </p>
+      <p className="text-sm mb-4 rounded-lg border border-border bg-muted/40 px-3 py-2">
+        Prefer the quick way?{' '}
+        <Link href="/sell/create" className="font-semibold text-primary underline underline-offset-2">
+          Pick photos from your gallery and let AI fill the listing
+        </Link>
+        .
       </p>
       <AutoCardCapture />
     </main>

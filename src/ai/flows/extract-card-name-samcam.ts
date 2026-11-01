@@ -41,7 +41,6 @@ export async function extractCardName(
     const model = genAI.getGenerativeModel({ 
       model: modelName,
       generationConfig: {
-        temperature: 0.1,
         topP: 0.8,
         topK: 40,
       },

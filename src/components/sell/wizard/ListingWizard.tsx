@@ -103,7 +103,11 @@ export default function ListingWizard() {
     setAiBusy(true);
     try {
       const idToken = (await getCurrentUserIdToken()) || '';
-      const s: any = await suggestListingDetails({ photoDataUris: urls, category: draft.category, idToken });
+      const res: any = await suggestListingDetails({ photoDataUris: urls, category: draft.category, idToken });
+      // suggestListingDetails returns { data, error } from runAIWorkflow — unwrap it.
+      if (res?.error) throw new Error(res.error);
+      const s: any = res?.data;
+      if (!s) throw new Error('AI did not return any details.');
       update({
         title: draft.title || s?.title || '',
         brand: draft.brand || s?.brand || '',
@@ -204,7 +208,6 @@ export default function ListingWizard() {
                     <input
                       type="file"
                       accept="image/*"
-                      capture="environment"
                       className="sr-only"
                       aria-label={`${url ? 'Replace' : 'Add'} ${s.label} photo`}
                       onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
