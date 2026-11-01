@@ -121,7 +121,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     h1TitleLine1: "AUSTRALIA'S PREMIER",
     h1TitleLine2: 'MARKETPLACE.',
     subText1: 'Buy Footwear, Collector Cards and Australian Coins & Notes.',
-    subText2: 'Metro Perth Collection or Express Freight Solutions Available',
+    subText2: '',
     buttons: [
       { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#f26c0d', textColor: '#ffffff' },
       { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#f26c0d', textColor: '#ffffff' },
