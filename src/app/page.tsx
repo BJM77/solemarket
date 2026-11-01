@@ -23,7 +23,7 @@ export const revalidate = 60;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Popular Listings" />;
+  return <TrendingGrid products={products} title="Popular Listings" className="bg-background pt-2 pb-12 md:pt-16 md:pb-24 relative overflow-hidden" />;
 }
 
 async function NewArrivalsSection() {
@@ -32,7 +32,7 @@ async function NewArrivalsSection() {
   const featuredIds = new Set((featured || []).map((p: { id: string }) => p.id));
   const fresh = (latest || []).filter((p: { id: string }) => !featuredIds.has(p.id));
   const products = (fresh.length >= 4 ? fresh : latest || []).slice(0, 12);
-  return <TrendingGrid products={products} title="Just Listed" priorityCount={4} className="bg-background pt-4 md:pt-8 pb-16 relative overflow-hidden" />;
+  return <TrendingGrid products={products} title="Just Listed" priorityCount={4} className="bg-background pt-4 md:pt-8 pb-4 md:pb-16 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
