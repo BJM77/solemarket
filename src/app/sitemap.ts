@@ -76,6 +76,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     '/scan',
     '/drops',
     '/about',
+    '/clubs',
     '/how-it-works',
     '/safety-tips',
     '/donate',

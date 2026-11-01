@@ -145,6 +145,12 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
     }
 
+    // Club / stadium microsites: public read of active clubs; writes via admin server actions.
+    match /clubs/{clubId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
     // Settings & Site Config
     match /settings/{settingId} {
       allow read: if true;

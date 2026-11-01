@@ -864,7 +864,7 @@ export default function BrandRefreshPage() {
                     { label: 'Shoes', href: '/shoes' },
                     { label: 'Cards', href: '/cards' },
                     { label: 'Coins', href: '/coins' },
-                    { label: 'Fundraising', href: '/club-fundraising' },
+                    { label: 'Clubs', href: '/clubs' },
                     { label: 'Browse All', href: '/browse' },
                     { label: 'Top 10 Stores', href: '/top-stores' },
                     { label: 'Multi-Listing Deals', href: '/multilisting-deals' },
