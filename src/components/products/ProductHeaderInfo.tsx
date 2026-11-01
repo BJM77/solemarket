@@ -1,5 +1,7 @@
 'use client';
 
+import type React from 'react';
+
 import { TierOfferBadge } from '@/components/products/TierOfferBadge';
 import { getProductUrl } from '@/lib/utils/url';
 import { resolveSellerName } from '@/lib/utils/seller-name';
@@ -24,9 +26,11 @@ interface ProductHeaderInfoProps {
     user?: any;
     /** Only one rendered header should be the page H1 (mobile and desktop both render this). */
     headingAs?: 'h1' | 'h2';
+    /** Optional small controls shown next to the title (e.g. admin edit/delete icons). */
+    titleActions?: React.ReactNode;
 }
 
-export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1' }: ProductHeaderInfoProps) {
+export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions }: ProductHeaderInfoProps) {
     const Heading = headingAs;
     const router = useRouter();
     const getRelativeTime = (date: any) => {
@@ -64,6 +68,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
             <div className="flex items-center gap-2.5 flex-wrap">
                 <Heading className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
                 {product.title}</Heading>
+                {titleActions}
                 {product.condition && (
                     <Badge variant="outline" className={cn(
                         "text-xs font-bold uppercase tracking-wider px-2.5 py-1 shrink-0",
