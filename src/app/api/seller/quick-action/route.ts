@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
                 </head>
                 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 font-sans text-center">
                     <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full border border-slate-100">
-                        <div class="bg-orange-50 text-orange-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">✓</div>
+                        <div class="bg-orange-50 text-orange-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">✓</div>
                         <h1 class="text-2xl font-black text-slate-900 mb-4">Success!</h1>
                         <p class="text-slate-600 mb-8 leading-relaxed">${message}</p>
                         <a href="https://benched.au/seller/dashboard" class="inline-block w-full bg-card text-foreground font-bold py-4 rounded-2xl hover:bg-muted transition-all">Go to Dashboard</a>

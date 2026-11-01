@@ -230,7 +230,7 @@ export default function CoinPhotoBooth() {
                   <div className="relative">
                     <div className="w-24 h-24 rounded-full border-4 border-border border-t-orange-500 animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Gem className="w-8 h-8 text-orange-600 animate-pulse" />
+                      <Gem className="w-8 h-8 text-orange-700 animate-pulse" />
                     </div>
                   </div>
                   <div className="text-center space-y-2">
@@ -368,7 +368,7 @@ export default function CoinPhotoBooth() {
                     Skip & Queue
                   </Button>
                   <Button 
-                    className="flex-1 h-14 bg-orange-600 hover:bg-orange-500 text-white shadow-xl shadow-orange-500/20"
+                    className="flex-1 h-14 bg-primary hover:bg-primary text-primary-foreground shadow-xl shadow-orange-500/20"
                     onClick={handleSubmitToBench}
                     disabled={saving}
                   >

@@ -150,7 +150,7 @@ export default function PrigetPage() {
                 <button
                     onClick={handleGetPrices}
                     disabled={processing || selectedIds.size === 0}
-                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
                 >
                     {processing ? `Processing ${progress.current}/${progress.total}...` : `Get Prices (${selectedIds.size})`}
                 </button>
@@ -250,7 +250,7 @@ export default function PrigetPage() {
                                         {product.marketData && (
                                             <button
                                                 onClick={() => handleMatchPrice(product.id, product.marketData!.suggestedPrice)}
-                                                className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700"
+                                                className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded hover:bg-primary/90"
                                             >
                                                 Match ${product.marketData.suggestedPrice.toFixed(2)}
                                             </button>

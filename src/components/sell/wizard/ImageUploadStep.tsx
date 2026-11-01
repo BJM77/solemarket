@@ -179,7 +179,7 @@ export function ImageUploadStep({
                              className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary hover:bg-muted/60 cursor-pointer flex flex-col items-center justify-center transition-all group"
                         >
                             <div className="bg-orange-500/20 p-3 rounded-full group-hover:scale-110 transition-transform">
-                                <Smartphone className="h-6 w-6 text-orange-600" />
+                                <Smartphone className="h-6 w-6 text-orange-700" />
                             </div>
                             <span className="text-[10px] sm:text-xs font-medium mt-2 text-muted-foreground text-center">Native<br className="sm:hidden" /> Camera</span>
                             <input ref={nativeCameraInputRef} type="file" multiple accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
@@ -253,15 +253,15 @@ export function ImageUploadStep({
                     <Card className="border border-orange-500/20 bg-orange-950/20 overflow-hidden shadow-sm rounded-2xl">
                         <CardHeader className="p-4 bg-orange-500/10 border-b border-orange-500/20 flex flex-row items-center justify-between">
                             <div className="space-y-0.5">
-                                <CardTitle className="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-1.5">
+                                <CardTitle className="text-xs font-black text-orange-700 uppercase tracking-widest flex items-center gap-1.5">
                                     <Sparkles className="h-3.5 w-3.5" /> 360° Rotate Preview
                                 </CardTitle>
-                                <CardDescription className="text-[10px] text-orange-600/60">Drag or swipe to rotate listing photos in 3D.</CardDescription>
+                                <CardDescription className="text-[10px] text-orange-700/60">Drag or swipe to rotate listing photos in 3D.</CardDescription>
                             </div>
                             <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="h-7 text-[10px] font-bold border-orange-500/30 text-orange-600 bg-orange-500/5 hover:bg-orange-500/10 rounded-lg"
+                                className="h-7 text-[10px] font-bold border-orange-500/30 text-orange-700 bg-orange-500/5 hover:bg-orange-500/10 rounded-lg"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setShowing3D(!showing3D);

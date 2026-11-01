@@ -95,7 +95,7 @@ export default function CardCategoryGrid() {
                         <h2 className="text-2xl md:text-5xl font-black text-foreground tracking-tighter uppercase italic">{title}</h2>
                         <p className="text-xs md:text-lg text-muted-foreground mt-1 md:mt-2 font-medium">{subtitle}</p>
                     </div>
-                    <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-orange-600 dark:text-orange-400 items-center transition-all bg-orange-500/10 px-6 py-3 rounded-full hover:bg-orange-500/20">
+                    <Link href="/cards" className="group hidden md:flex text-sm font-black tracking-widest uppercase text-orange-700 dark:text-orange-700 items-center transition-all bg-orange-500/10 px-6 py-3 rounded-full hover:bg-orange-500/20">
                         View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -137,7 +137,7 @@ export default function CardCategoryGrid() {
                     })}
                 </div>
 
-                <Link href="/cards" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-orange-600 dark:text-orange-400 flex justify-center items-center transition-all bg-orange-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-orange-500/20 w-full text-center">
+                <Link href="/cards" className="mt-6 md:mt-8 md:hidden group text-xs md:text-sm font-black tracking-widest uppercase text-orange-700 dark:text-orange-700 flex justify-center items-center transition-all bg-orange-500/10 px-4 py-3 md:px-6 md:py-4 rounded-full hover:bg-orange-500/20 w-full text-center">
                     View All Cards <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>

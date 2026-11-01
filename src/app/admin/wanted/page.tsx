@@ -249,7 +249,7 @@ export default function AdminWantedManager() {
             </div>
 
             <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 p-6 rounded-2xl">
-                <h4 className="font-bold text-orange-800 dark:text-orange-400 mb-2 flex items-center gap-2 uppercase tracking-widest text-xs">
+                <h4 className="font-bold text-orange-800 dark:text-orange-700 mb-2 flex items-center gap-2 uppercase tracking-widest text-xs">
                     <Tag className="h-4 w-4" />
                     How the Watch List works
                 </h4>

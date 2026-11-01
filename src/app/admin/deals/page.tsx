@@ -76,7 +76,7 @@ export default function DealsPage() {
                 </div>
                 <button
                     onClick={() => setShowCreateForm(true)}
-                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                     + Create New Deal
                 </button>
@@ -200,7 +200,7 @@ function DealCard({
                 </button>
                 <button
                     onClick={() => onEdit(deal)}
-                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                     Edit
                 </button>
@@ -384,7 +384,7 @@ function DealForm({
                     <div className="flex gap-2 pt-4">
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
                         >
                             {deal ? 'Update Deal' : 'Create Deal'}
                         </button>

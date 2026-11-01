@@ -187,7 +187,7 @@ export default function SellerPage() {
                 </div>
 
                 {seller.isVerified && (
-                  <div className="flex items-center gap-2 mt-2 text-orange-600">
+                  <div className="flex items-center gap-2 mt-2 text-orange-700">
                     <ShieldCheck className="h-5 w-5" />
                     <span className="text-sm font-medium">Verified Seller</span>
                   </div>

@@ -72,7 +72,7 @@ export default function JournalPerformanceDashboard() {
                 </CardContent>
             </Card>
             
-            <div className="mt-8 bg-orange-500/10 text-orange-500 p-4 rounded-md text-sm">
+            <div className="mt-8 bg-orange-500/10 text-orange-700 p-4 rounded-md text-sm">
                 <p className="font-bold mb-1">Attribution Logic</p>
                 <p>Sales are attributed to the Journal if the buyer clicked a link with <code className="bg-black/20 px-1 py-0.5 rounded text-white">?ref=journal&article=[slug]</code> and completed a purchase within 24 hours.</p>
             </div>

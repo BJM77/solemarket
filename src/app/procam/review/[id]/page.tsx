@@ -192,17 +192,17 @@ export default function ProReviewDetailPage() {
            
            <Card className="bg-orange-950/20 border-orange-500/20 text-white">
              <CardHeader className="py-3 px-4">
-                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-orange-600">Capture QC Report</CardTitle>
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-orange-700">Capture QC Report</CardTitle>
              </CardHeader>
              <CardContent className="px-4 pb-3">
                 <div className="flex gap-6">
                    <div>
-                     <p className="text-[8px] font-bold text-orange-500 uppercase">Sharpness</p>
-                     <p className="text-sm font-black text-orange-600">Passed</p>
+                     <p className="text-[8px] font-bold text-orange-700 uppercase">Sharpness</p>
+                     <p className="text-sm font-black text-orange-700">Passed</p>
                    </div>
                    <div>
-                     <p className="text-[8px] font-bold text-orange-500 uppercase">Luminance</p>
-                     <p className="text-sm font-black text-orange-600">Optimal</p>
+                     <p className="text-[8px] font-bold text-orange-700 uppercase">Luminance</p>
+                     <p className="text-sm font-black text-orange-700">Optimal</p>
                    </div>
                    <div className="flex-grow flex justify-end items-center">
                      <Badge className="bg-green-600 font-black text-[8px] uppercase tracking-wider border-none text-white">QC PASSED</Badge>

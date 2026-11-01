@@ -63,7 +63,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                                 </Badge>
                                             )}
                                             {listing.status === 'fulfilled' && (
-                                                <Badge className="bg-green-700 text-primary-foreground font-black italic">FULFILLED</Badge>
+                                                <Badge className="bg-green-700 text-white font-black italic">FULFILLED</Badge>
                                             )}
                                         </div>
                                         <CardTitle className="text-4xl md:text-5xl font-black italic tracking-tight">{listing.title}</CardTitle>
@@ -162,7 +162,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                         <p className="font-black text-lg italic">{listing.userDisplayName}</p>
                                         <div className="flex items-center gap-1.5 mt-1">
                                             <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                            <p className="text-[10px] font-black tracking-widest text-orange-500 uppercase">Verified Member</p>
+                                            <p className="text-[10px] font-black tracking-widest text-orange-700 uppercase">Verified Member</p>
                                         </div>
                                     </div>
                                 </div>

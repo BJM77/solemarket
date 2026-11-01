@@ -162,9 +162,9 @@ export default function SellerDashboard() {
   }
 
   const statCards = [
-    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '', icon: DollarSign, color: 'text-orange-600 bg-orange-100' },
+    { label: 'Potential Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '', icon: DollarSign, color: 'text-orange-700 bg-orange-100' },
     { label: 'Total Earnings', value: `$${formatPrice(stats.actualRevenue)}`, change: '', icon: DollarSign, color: 'text-green-600 bg-green-100' },
-    { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-orange-600 bg-orange-100' },
+    { label: 'Active Listings', value: stats.activeListings, change: '', icon: Package, color: 'text-orange-700 bg-orange-100' },
     { label: 'Seller Rating', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} reviews)`, icon: Star, color: 'text-yellow-600 bg-yellow-100' },
   ];
 
@@ -298,7 +298,7 @@ export default function SellerDashboard() {
                                      <div className="flex items-center gap-1.5 mt-0.5">
                                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{product.category}</span>
                                        {product.externalUrl && (
-                                         <Badge className="bg-orange-600/20 text-orange-600 border border-orange-500/30 text-[8px] font-black uppercase px-1.5 py-0">
+                                         <Badge className="bg-orange-600/20 text-orange-700 border border-orange-500/30 text-[8px] font-black uppercase px-1.5 py-0">
                                            FB Import
                                          </Badge>
                                        )}

@@ -132,7 +132,7 @@ export default function SellLandingPage() {
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                                Designed Specifically for <span className="text-primary">Grails</span> and <span className="text-orange-500">Heavy Hitters</span>
+                                Designed Specifically for <span className="text-primary">Grails</span> and <span className="text-orange-700">Heavy Hitters</span>
                             </h2>
                             <ul className="space-y-6">
                                 <li className="flex items-start gap-4">

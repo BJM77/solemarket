@@ -74,7 +74,7 @@ export function ListingTypeStep({
                     </div>
                     <div>
                         <h3 className="text-base font-black uppercase text-foreground tracking-wide flex items-center justify-center sm:justify-start gap-2">
-                            PROLOAD <Badge className="bg-emerald-700 hover:bg-emerald-600 text-primary-foreground text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
+                            PROLOAD <Badge className="bg-emerald-700 hover:bg-emerald-600 text-white text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
                         </h3>
                         <p className="text-muted-foreground text-xs mt-1 max-w-md">
                             Upload a Facebook Marketplace listing screenshot. Gemini will extract all info and build the listing for you!
@@ -83,7 +83,7 @@ export function ListingTypeStep({
                 </div>
                 <Button 
                     onClick={() => router.push('/sell/proload')}
-                    className="bg-emerald-700 hover:bg-emerald-600 text-primary-foreground font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
+                    className="bg-emerald-700 hover:bg-emerald-600 text-white font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
                 >
                     Try Proload <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -125,7 +125,7 @@ export function ListingTypeStep({
                             </div>
                             <div className="space-y-2">
                                 <h3 className="text-xl font-black text-foreground flex items-center justify-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-orange-600 animate-pulse" /> AI Picture Check Active
+                                    <Sparkles className="h-5 w-5 text-orange-700 animate-pulse" /> AI Picture Check Active
                                 </h3>
                                 <p className="text-orange-200 font-bold uppercase tracking-widest text-xs animate-pulse">
                                     {analysisStage || "Analyzing Photos..."}
@@ -152,7 +152,7 @@ export function ListingTypeStep({
                                     Take a photo, upload, or drag-and-drop photos here. The AI will auto-detect the category and pre-fill details in seconds!
                                 </p>
                                 <div className="pt-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-[10px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-[10px] sm:text-xs font-bold text-orange-700 uppercase tracking-wider">
                                         Supports front & back card shots for max accuracy
                                     </span>
                                 </div>
@@ -167,7 +167,7 @@ export function ListingTypeStep({
                                     <Button 
                                         type="button" 
                                         size="lg"
-                                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-900/20"
+                                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-orange-900/20"
                                     >
                                         <Camera className="w-5 h-5 mr-2" />
                                         Take Photo
@@ -225,7 +225,7 @@ export function ListingTypeStep({
                 >
                     <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
                         <div className="w-12 h-16 border-2 border-orange-600 bg-muted/60 rounded flex items-center justify-center group-hover:border-white transition-colors">
-                            <Scan className="w-6 h-6 text-orange-600 group-hover:text-foreground transition-colors" />
+                            <Scan className="w-6 h-6 text-orange-700 group-hover:text-foreground transition-colors" />
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-lg font-bold text-foreground">Collector Cards</h3>

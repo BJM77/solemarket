@@ -341,7 +341,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                         />
                         {isCameraLoading && (
                             <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/50">
-                                <Loader2 className="h-12 w-12 text-orange-500 animate-spin" />
+                                <Loader2 className="h-12 w-12 text-orange-700 animate-spin" />
                             </div>
                         )}
                         {hasCameraPermission === false && !isCameraLoading && (
@@ -407,7 +407,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                                 Cancel
                             </Button>
                             <Button
-                                className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold"
+                                className="flex-1 bg-primary hover:bg-primary text-primary-foreground font-bold"
                                 onClick={handleDone}
                                 disabled={capturedFiles.length === 0}
                             >

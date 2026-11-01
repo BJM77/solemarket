@@ -107,7 +107,7 @@ export default function ModerationPage() {
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-orange-500" />
+              <Sparkles className="w-5 h-5 text-orange-700" />
               AI Listing Analyzer Sandbox
             </CardTitle>
             <CardDescription>

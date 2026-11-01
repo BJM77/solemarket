@@ -191,7 +191,7 @@ export default function SEOPage() {
                                 <div className="flex-grow space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-orange-100 rounded-lg">
-                                            <Globe className="h-6 w-6 text-orange-600" />
+                                            <Globe className="h-6 w-6 text-orange-700" />
                                         </div>
                                         <div>
                                             <h4 className="font-black text-lg text-slate-900 leading-tight">Google Search Console</h4>
@@ -293,7 +293,7 @@ export default function SEOPage() {
                     <Card className="bg-orange-50/30 border-orange-100">
                         <CardHeader>
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <Sparkles className="h-4 w-4 text-orange-500" />
+                                <Sparkles className="h-4 w-4 text-orange-700" />
                                 SEO Best Practice
                             </CardTitle>
                         </CardHeader>
@@ -311,7 +311,7 @@ export default function SEOPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileCode className="h-5 w-5 text-orange-500" />
+                                <FileCode className="h-5 w-5 text-orange-700" />
                                 Sitemap
                             </CardTitle>
                         </CardHeader>

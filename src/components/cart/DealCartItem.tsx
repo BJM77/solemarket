@@ -29,7 +29,7 @@ export function DealCartItem({ dealGroup, onRemoveItem, onRemoveDeal }: DealCart
                             BUNDLE DEAL
                         </span>
                         {isComplete && (
-                            <span className="px-2 py-0.5 bg-orange-600 text-white text-xs rounded">
+                            <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded">
                                 ✓ Complete
                             </span>
                         )}

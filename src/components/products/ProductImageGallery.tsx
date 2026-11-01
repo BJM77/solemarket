@@ -275,7 +275,7 @@ export default function ProductImageGallery({
               </Badge>
             )}
             {isAuthenticated && (
-              <Badge className="bg-orange-600/90 text-white border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider">
+              <Badge className="bg-primary/90 text-primary-foreground border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
                 Auth Verified
               </Badge>

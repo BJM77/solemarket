@@ -122,7 +122,7 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false,
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-orange-600"
+                    className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-orange-700"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -136,7 +136,7 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false,
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-orange-600"
+                  className="h-6 w-6 p-0 bg-white/80 hover:bg-white text-orange-700"
                   asChild
                 >
                   <Link href={`/sell/create?edit=${product.id}`}>

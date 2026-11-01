@@ -138,7 +138,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
                                     variant={product.isUntimed ? "default" : "outline"}
                                     className={cn(
                                         "flex-1 font-bold h-12",
-                                        product.isUntimed && "bg-orange-600 hover:bg-orange-700 text-white"
+                                        product.isUntimed && "bg-primary hover:bg-primary/90 text-primary-foreground"
                                     )}
                                 >
                                     <DollarSign className="h-5 w-5 mr-2" />

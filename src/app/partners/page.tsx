@@ -59,7 +59,7 @@ export default function PartnersPage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                                            <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                                            <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-700">
                                                 <Sparkles className="w-5 h-5" />
                                             </div>
                                             <div>
@@ -129,7 +129,7 @@ export default function PartnersPage() {
 
                     <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-orange-500">
                         <CardHeader>
-                            <Search className="w-10 h-10 text-orange-500 mb-4" />
+                            <Search className="w-10 h-10 text-orange-700 mb-4" />
                             <CardTitle>SEO Domination</CardTitle>
                             <CardDescription>Get found by the world.</CardDescription>
                         </CardHeader>

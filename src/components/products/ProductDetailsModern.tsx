@@ -745,7 +745,7 @@ export default function ProductDetailsModern({
                 <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
                     <DialogHeader className="text-center pt-4">
                         <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                            <Mail className="h-8 w-8 text-orange-600" />
+                            <Mail className="h-8 w-8 text-orange-700" />
                         </div>
                         <DialogTitle className="text-2xl font-black text-slate-900">Guest Verification</DialogTitle>
                         <DialogDescription className="text-slate-500 font-medium">
@@ -1118,15 +1118,15 @@ export default function ProductDetailsModern({
                                                                     Message / Buy on Facebook
                                                                 </Button>
 
-                                                                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-600 font-semibold bg-orange-500/10 border border-orange-500/20 p-3 rounded-2xl text-center">
-                                                                    <Badge className="bg-orange-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
+                                                                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-700 font-semibold bg-orange-500/10 border border-orange-500/20 p-3 rounded-2xl text-center">
+                                                                    <Badge className="bg-primary text-primary-foreground text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
                                                                     Opens seller listing in a new window
                                                                 </div>
                                                             </div>
                                                         ) : (
                                                             <>
                                                                 <Button
-                                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-orange-600/25 bg-orange-600 hover:bg-orange-700 text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-orange-600/25 bg-primary hover:bg-primary/90 text-primary-foreground transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                                                     onClick={handleBuyNow}
                                                                 >
                                                                     <ShoppingCart className="h-5 w-5" />
@@ -1143,7 +1143,7 @@ export default function ProductDetailsModern({
                                                                 </Button>
 
                                                                 <div className="flex items-start gap-3 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100/50 dark:border-orange-900/30 p-4 rounded-2xl text-left mt-2">
-                                                                    <ShieldCheck className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                                                                    <ShieldCheck className="h-5 w-5 text-orange-700 dark:text-orange-700 shrink-0 mt-0.5" />
                                                                     <div>
                                                                         <p className="text-xs font-bold text-orange-900 dark:text-orange-200 uppercase tracking-wide">
                                                                             {seller?.payIdReady ? 'PayID or cash pickup (Perth)' : 'Cash pickup (Perth)'}
@@ -1213,7 +1213,7 @@ export default function ProductDetailsModern({
                                                                     <span className="text-[9px] font-black uppercase text-muted-foreground">Proof of Sale</span>
                                                                 </div>
 
-                                                                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold h-10 rounded-xl" asChild>
+                                                                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-10 rounded-xl" asChild>
                                                                     <a href={`tel:${(product as any).phoneNumber || seller?.phoneNumber}`}>
                                                                         Call Seller Now
                                                                     </a>
@@ -1235,7 +1235,7 @@ export default function ProductDetailsModern({
 
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-orange-50 text-orange-600" title="Share to Facebook" aria-label="Share to Facebook">
+                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-orange-50 text-orange-700" title="Share to Facebook" aria-label="Share to Facebook">
                                                             {isPostingFB ? <Loader2 className="h-6 w-6 animate-spin" /> : <Share2 className="h-6 w-6" />}
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -1247,7 +1247,7 @@ export default function ProductDetailsModern({
                                                             Create Marketplace Listing
                                                         </DropdownMenuItem>
                                                         {(isSuperAdmin || user?.uid === product.sellerId) && (
-                                                            <DropdownMenuItem onClick={handleOfficialFBPost} className="cursor-pointer text-orange-600 font-medium">
+                                                            <DropdownMenuItem onClick={handleOfficialFBPost} className="cursor-pointer text-orange-700 font-medium">
                                                                 Send to Benched Page
                                                             </DropdownMenuItem>
                                                         )}
@@ -1273,7 +1273,7 @@ export default function ProductDetailsModern({
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 text-orange-600 hover:bg-orange-50 gap-1 font-bold"
+                                        className="h-8 text-orange-700 hover:bg-orange-50 gap-1 font-bold"
                                         asChild
                                     >
                                         <a
@@ -1350,7 +1350,7 @@ export default function ProductDetailsModern({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-8 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 gap-1 font-bold"
+                                                className="h-8 text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950/30 gap-1 font-bold"
                                                 onClick={() => {
                                                     setAdminSelectedCategory(product?.category || initialProduct.category || 'Sneakers');
                                                     setAdminSelectedSubCategory(product?.subCategory || initialProduct.subCategory || '');
@@ -1424,7 +1424,7 @@ export default function ProductDetailsModern({
                     <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4 mb-6">
                         <div>
                             <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-white flex items-center gap-2">
-                                <Tag className="h-5 w-5 text-orange-500 fill-orange-500/10" />
+                                <Tag className="h-5 w-5 text-orange-700 fill-orange-500/10" />
                                 Mix & Match Multibuy Deals
                             </h2>
                             <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -1434,10 +1434,10 @@ export default function ProductDetailsModern({
                         {product.multiCardTier && (
                             <span className={cn(
                                 "text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border self-start sm:self-auto",
-                                product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
+                                product.multiCardTier === 'bronze' ? 'bg-orange-500/10 text-orange-700 border-orange-500/20' :
                                 product.multiCardTier === 'silver' ? 'bg-slate-500/10 text-muted-foreground border-slate-500/20' :
                                 product.multiCardTier === 'gold' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' :
-                                'bg-orange-500/10 text-orange-600 border-orange-500/20'
+                                'bg-orange-500/10 text-orange-700 border-orange-500/20'
                             )}>
                                 Eligible Tier: {product.multiCardTier}
                             </span>
@@ -1470,7 +1470,7 @@ export default function ProductDetailsModern({
                                             <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 group-hover:text-primary transition-colors leading-tight">
                                                 {item.title}
                                             </h4>
-                                            <p className="text-xs font-black text-orange-600 dark:text-orange-400 mt-0.5">
+                                            <p className="text-xs font-black text-orange-700 dark:text-orange-700 mt-0.5">
                                                 ${formatPrice(item.price)}
                                             </p>
                                         </div>

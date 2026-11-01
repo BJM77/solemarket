@@ -105,11 +105,11 @@ export default function AIUsagePage() {
                 <Card className="border-2 border-primary/5 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Avg. Latency</CardTitle>
-                        <Clock className="h-4 w-4 text-orange-500" />
+                        <Clock className="h-4 w-4 text-orange-700" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black">1.2s</div>
-                        <p className="text-xs text-muted-foreground mt-1 text-orange-600 font-medium font-mono">Gemini 1.5 Flash</p>
+                        <p className="text-xs text-muted-foreground mt-1 text-orange-700 font-medium font-mono">Gemini 1.5 Flash</p>
                     </CardContent>
                 </Card>
 

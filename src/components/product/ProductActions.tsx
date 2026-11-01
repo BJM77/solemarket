@@ -49,8 +49,8 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
                   <ExternalLink className="h-6 w-6 mr-2" />
                   Message / Buy on Facebook
                 </Button>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-600 font-semibold bg-orange-500/10 border border-orange-500/20 p-2.5 rounded-xl text-center">
-                  <Badge className="bg-orange-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-700 font-semibold bg-orange-500/10 border border-orange-500/20 p-2.5 rounded-xl text-center">
+                  <Badge className="bg-primary text-primary-foreground text-[9px] font-black uppercase px-1.5 py-0.5">Facebook</Badge>
                   Opens seller listing in a new window
                 </div>
               </div>
@@ -58,7 +58,7 @@ export function ProductActions({ product, user, onAddToCart, onAcceptBid }: Prod
               <>
                 <Button
                   size="lg"
-                  className="w-full h-16 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white"
+                  className="w-full h-16 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
                   onClick={() => {
                     const messageButton = document.querySelector('[data-message-seller-btn]') as HTMLButtonElement;
                     if (messageButton) messageButton.click();

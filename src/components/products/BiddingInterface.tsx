@@ -126,7 +126,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                     <Badge variant="secondary" className="rounded-full px-3">{product.bids?.length || 0}</Badge>
                 </div>
                 {product.bids && product.bids.length > 0 && (
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-orange-500 animate-pulse">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-orange-700 animate-pulse">
                         <Clock className="h-3 w-3" />
                         <span>LIVE UPDATES</span>
                     </div>
@@ -152,7 +152,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                     <div className="font-bold flex items-center gap-2 text-sm">
                                         {bid.bidderName}
                                         {bid.bidderId === user?.uid && (
-                                            <Badge variant="outline" className="text-[9px] h-4 px-1.5 uppercase font-black bg-orange-50 text-orange-600 border-orange-100">You</Badge>
+                                            <Badge variant="outline" className="text-[9px] h-4 px-1.5 uppercase font-black bg-orange-50 text-orange-700 border-orange-100">You</Badge>
                                         )}
                                     </div>
                                     <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
@@ -161,9 +161,9 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="flex flex-col items-end">
-                                        <span className="font-black text-lg text-orange-600">${bid.amount.toLocaleString()}</span>
+                                        <span className="font-black text-lg text-orange-700">${bid.amount.toLocaleString()}</span>
                                         {index === 0 && bid.status === 'pending' && (
-                                            <span className="text-[9px] font-bold text-orange-500 uppercase">Highest Offer</span>
+                                            <span className="text-[9px] font-bold text-orange-700 uppercase">Highest Offer</span>
                                         )}
                                     </div>
                                     {isSeller && bid.status === 'pending' && (
@@ -196,7 +196,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
             </div>
 
             {!isSeller && product.status !== 'sold' && (
-                <div className="p-6 rounded-3xl bg-orange-600 shadow-xl shadow-orange-500/20 text-white relative overflow-hidden">
+                <div className="p-6 rounded-3xl bg-primary shadow-xl shadow-orange-500/20 text-primary-foreground relative overflow-hidden">
                     <AnimatePresence mode="wait">
                         {step === 'amount' ? (
                             <motion.div
@@ -225,7 +225,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                         <Button
                                             onClick={handlePlaceBid}
                                             disabled={loading || !bidAmount}
-                                            className="h-14 px-8 bg-white text-orange-600 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
+                                            className="h-14 px-8 bg-white text-orange-700 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
                                         >
                                             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : user ? "SEND OFFER" : "NEXT"}
                                         </Button>
@@ -283,7 +283,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
                                     <Button
                                         onClick={handlePlaceBid}
                                         disabled={loading || verificationCode.length < 5}
-                                        className="h-14 px-8 bg-white text-orange-600 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
+                                        className="h-14 px-8 bg-white text-orange-700 hover:bg-white/90 rounded-2xl font-black text-sm transition-transform active:scale-95"
                                     >
                                         {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "VERIFY & BID"}
                                     </Button>
@@ -300,7 +300,7 @@ export function BiddingInterface({ product, user, onAcceptBid }: BiddingInterfac
 
             {isSeller && (
                 <div className="p-4 rounded-2xl bg-orange-50 border border-orange-100 flex items-center gap-3">
-                    <div className="bg-orange-600 p-2 rounded-xl text-white">
+                    <div className="bg-primary p-2 rounded-xl text-primary-foreground">
                         <InfoIcon className="h-4 w-4" />
                     </div>
                     <div className="text-xs font-bold text-orange-900 leading-tight">

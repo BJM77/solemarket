@@ -101,7 +101,7 @@ export function SellerStorefrontHeader({ profile }: SellerStorefrontHeaderProps)
 
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-background rounded-lg shadow-sm">
-                            <Calendar className="h-4 w-4 text-orange-500" />
+                            <Calendar className="h-4 w-4 text-orange-700" />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1">Member Since</p>

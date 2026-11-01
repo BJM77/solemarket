@@ -279,7 +279,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                                     autoFocus
                                 />
                                 <button
-                                    className="text-[10px] text-orange-600 font-bold uppercase mt-1 hover:underline disabled:opacity-50"
+                                    className="text-[10px] text-orange-700 font-bold uppercase mt-1 hover:underline disabled:opacity-50"
                                     onClick={handleSendVerification}
                                     disabled={isSubmitting}
                                 >
@@ -295,7 +295,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                                 <ShieldCheck className="h-4 w-4" />
                                 <span className="text-xs uppercase tracking-wider">Expression of Interest</span>
                             </div>
-                            <p className="text-[11px] text-orange-600 dark:text-orange-400 leading-tight">
+                            <p className="text-[11px] text-orange-700 dark:text-orange-700 leading-tight">
                                 By submitting, you are notifying the seller of your interest at this price. This is not a binding purchase.
                             </p>
                         </div>
@@ -312,7 +312,7 @@ export function OfferModal({ product, user, trigger }: OfferModalProps) {
                             {step === 'amount' ? 'Cancel' : 'Back'}
                         </Button>
                         <Button
-                            className="bg-orange-600 hover:bg-orange-700 text-white gap-2 px-8 shadow-lg shadow-orange-100"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 px-8 shadow-lg shadow-orange-100"
                             onClick={() => handlePlaceOffer()}
                             disabled={isSubmitting || (step === 'amount' && !isValidAmount) || (step === 'verify' && verificationCode.length < 5)}
                         >

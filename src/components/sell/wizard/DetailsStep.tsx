@@ -87,8 +87,8 @@ export function DetailsStep({
     const AIAnalyzingIndicator = ({ fieldName }: { fieldName: string }) => {
         if (!analyzingFields[fieldName]) return null;
         return (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-600 animate-pulse duration-1000">
-                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-orange-600" />
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-700 animate-pulse duration-1000">
+                <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5 text-orange-700" />
                 <span>AI ANALYZING...</span>
             </div>
         );
@@ -154,7 +154,7 @@ export function DetailsStep({
                                         <FormControl>
                                             <SelectTrigger className={cn(
                                                 suggestedFields.includes('subCategory') && "bg-primary/5 border-primary/30",
-                                                analyzingFields['subCategory'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-600"
+                                                analyzingFields['subCategory'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                             )}>
                                                 <SelectValue placeholder="Select sub-category" />
                                             </SelectTrigger>
@@ -226,7 +226,7 @@ export function DetailsStep({
                                     <FormControl>
                                         <SelectTrigger className={cn(
                                             suggestedFields.includes('condition') && "bg-primary/5 border-primary/30",
-                                            analyzingFields['condition'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-600"
+                                            analyzingFields['condition'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                         )}>
                                             <SelectValue placeholder="Select condition" />
                                         </SelectTrigger>
@@ -391,7 +391,7 @@ export function DetailsStep({
                                 >
                                     <FormControl>
                                         <SelectTrigger className={cn(
-                                            analyzingFields['gradingCompany'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-600"
+                                            analyzingFields['gradingCompany'] && "animate-pulse border-orange-500/30 bg-orange-500/5 text-orange-700"
                                         )}>
                                             <SelectValue placeholder={isCoinCategory(category) ? "PCGS, NGC, ANACS..." : "PSA, BGS, SGC..."} />
                                         </SelectTrigger>

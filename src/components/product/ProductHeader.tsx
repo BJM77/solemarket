@@ -39,7 +39,7 @@ export function ProductHeader({ product }: ProductHeaderProps) {
           {product.category} {product.subCategory && `> ${product.subCategory}`}
         </Badge>
         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-muted-foreground bg-card px-3 py-1.5 rounded-full border border-border shadow-sm">
-          <div className="flex items-center gap-1.5 text-orange-600">
+          <div className="flex items-center gap-1.5 text-orange-700">
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>

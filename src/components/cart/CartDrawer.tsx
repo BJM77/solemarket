@@ -177,7 +177,7 @@ function CartLinePrice({ line, unitPrice }: { line?: PricedLine; unitPrice: numb
         <p className="text-sm font-bold text-primary mt-1 flex items-baseline gap-1.5" data-testid="cart-line-price">
             {discounted ? (
                 <>
-                    <span className="text-orange-600 dark:text-orange-400">${formatPrice(each)}{line.quantity > 1 ? ' ea' : ''}</span>
+                    <span className="text-orange-700 dark:text-orange-700">${formatPrice(each)}{line.quantity > 1 ? ' ea' : ''}</span>
                     <span className="text-xs text-muted-foreground line-through font-normal">${formatPrice(unitPrice)}</span>
                 </>
             ) : (
@@ -202,7 +202,7 @@ function CartLineOffers({ item, line, progress, groupedQuantity }: { item: any; 
             {tierBadge}
             {progress.map(p => (
                 <span key={p.bundle.id} data-testid="cart-bundle-progress"
-                    className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${p.remaining === p.bundle.quantity && p.eligibleInCart > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-600 border-orange-500/20'}`}>
+                    className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${p.remaining === p.bundle.quantity && p.eligibleInCart > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-700 border-orange-500/20'}`}>
                     <Package className="w-2.5 h-2.5" aria-hidden />
                     {p.bundle.name}: {p.label}
                 </span>
@@ -214,7 +214,7 @@ function CartLineOffers({ item, line, progress, groupedQuantity }: { item: any; 
                 </span>
             )}
             {nextTier && (
-                <p className="text-[10px] font-semibold text-orange-600 flex items-center gap-1 mt-1">
+                <p className="text-[10px] font-semibold text-orange-700 flex items-center gap-1 mt-1">
                     <Tag className="w-3 h-3" aria-hidden />
                     Add {nextTier.minQuantity - groupedQuantity} more for {Math.min(90, nextTier.discountPercent)}% off!
                 </p>

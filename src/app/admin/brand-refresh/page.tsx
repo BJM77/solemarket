@@ -874,7 +874,7 @@ export default function BrandRefreshPage() {
                       key={page.href}
                       variant="outline"
                       onClick={() => addMenuItem(page.label, page.href)}
-                      className="w-full justify-start border-border hover:border-primary/50 bg-black/50 hover:bg-primary/5 text-white font-bold uppercase tracking-wider text-xs py-5 rounded-xl"
+                      className="w-full justify-start border-border hover:border-primary/50 bg-black/50 hover:bg-primary/5 text-primary-foreground font-bold uppercase tracking-wider text-xs py-5 rounded-xl"
                     >
                       <Plus className="w-3.5 h-3.5 mr-2 text-primary" />
                       {page.label} <span className="ml-auto text-[10px] text-muted-foreground font-mono lowercase">{page.href}</span>

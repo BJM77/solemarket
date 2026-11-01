@@ -201,7 +201,7 @@ export function GuestMessageDialog({ isOpen, onClose, sellerId, productId, produ
                         </>
                     ) : (
                         <div className="space-y-4 text-center">
-                            <div className="mx-auto w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-orange-600">
+                            <div className="mx-auto w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-orange-700">
                                 <Mail className="h-6 w-6" />
                             </div>
                             <div className="space-y-2">
@@ -221,7 +221,7 @@ export function GuestMessageDialog({ isOpen, onClose, sellerId, productId, produ
                             <Button 
                                 type="button" 
                                 variant="link" 
-                                className="text-xs text-orange-600"
+                                className="text-xs text-orange-700"
                                 onClick={handleSendCode}
                                 disabled={isSendingCode}
                             >

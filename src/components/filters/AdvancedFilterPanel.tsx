@@ -467,7 +467,7 @@ export default function AdvancedFilterPanel({
                                                 tier.value === 'bronze' && "text-orange-700",
                                                 tier.value === 'silver' && "text-slate-500",
                                                 tier.value === 'gold' && "text-yellow-600",
-                                                tier.value === 'platinum' && "text-orange-600"
+                                                tier.value === 'platinum' && "text-orange-700"
                                             )}
                                         >
                                             {tier.label}

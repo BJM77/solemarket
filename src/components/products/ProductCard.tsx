@@ -180,10 +180,10 @@ export default function ProductCard({
     if (!product.multiCardTier) return null;
     
     const tiers = {
-      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
+      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-700 border-orange-500/20' },
       silver: { label: 'S', classes: 'bg-slate-500/10 text-muted-foreground border-slate-500/20' },
       gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' },
-      platinum: { label: 'P', classes: 'bg-orange-500/10 text-orange-600 border-orange-500/20' }
+      platinum: { label: 'P', classes: 'bg-orange-500/10 text-orange-700 border-orange-500/20' }
     };
     
     const tier = tiers[product.multiCardTier as keyof typeof tiers];
@@ -246,7 +246,7 @@ export default function ProductCard({
     if (product.isUntimed) {
       return (
         <div className="flex items-center gap-2">
-          <span className="text-sm font-black text-orange-600 bg-orange-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-orange-500/20">
+          <span className="text-sm font-black text-orange-700 bg-orange-500/10 px-2 py-0.5 rounded uppercase tracking-wider border border-orange-500/20">
             Make Offer
           </span>
           {(isAdmin || isSuperAdmin) && (
@@ -285,7 +285,7 @@ export default function ProductCard({
           <Button
             size="icon"
             variant="ghost"
-            className="h-6 w-6 ml-1 text-orange-500 hover:text-orange-700 hover:bg-orange-50 relative z-30"
+            className="h-6 w-6 ml-1 text-orange-700 hover:text-orange-700 hover:bg-orange-50 relative z-30"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -546,7 +546,7 @@ export default function ProductCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 text-orange-600 hover:bg-orange-50"
+                  className="h-9 w-9 text-orange-700 hover:bg-orange-50"
                   onClick={handleRenew}
                   disabled={isRenewing}
                   title="Renew"
@@ -574,7 +574,7 @@ export default function ProductCard({
                 <EbaySearchModal
                   defaultQuery={getEbayQuery()}
                   trigger={
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-orange-600 hover:bg-orange-50" title="Check eBay Prices">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-orange-700 hover:bg-orange-50" title="Check eBay Prices">
                       <Search className="h-4 w-4" />
                     </Button>
                   }
@@ -781,7 +781,7 @@ export default function ProductCard({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0 text-orange-600 border-orange-100 hover:bg-orange-50"
+                className="h-8 w-8 p-0 text-orange-700 border-orange-100 hover:bg-orange-50"
                 onClick={handleRenew}
                 disabled={isRenewing}
                 title="Renew Listing"
@@ -874,7 +874,7 @@ export default function ProductCard({
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 rounded-full bg-white/90 text-orange-600 hover:bg-white shadow-sm border border-slate-200"
+                      className="h-8 w-8 rounded-full bg-white/90 text-orange-700 hover:bg-white shadow-sm border border-slate-200"
                       asChild
                       title="eBay Sold Items"
                     >
@@ -889,7 +889,7 @@ export default function ProductCard({
                     <EbaySearchModal
                       defaultQuery={getEbayQuery()}
                       trigger={
-                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-orange-600 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices (In-App)">
+                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 text-orange-700 hover:bg-white shadow-sm border border-slate-200" title="Check eBay Prices (In-App)">
                           <Search className="h-4 w-4" />
                         </Button>
                       }
@@ -992,7 +992,7 @@ export default function ProductCard({
           </h3>
           <div className="flex flex-col items-end gap-1 shrink-0">
             {!isCardCategory(product.category) && product.size && (
-              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
+              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-700 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
                 US {product.size.replace('US ', '')}
               </span>
             )}
@@ -1013,7 +1013,7 @@ export default function ProductCard({
             {resolveSellerName(null, product.sellerName)}
           </span>
           {product.sellerVerified ? (
-            <BadgeCheck className="h-3 w-3 text-orange-500 shrink-0" />
+            <BadgeCheck className="h-3 w-3 text-orange-700 shrink-0" />
           ) : (
             <ShieldCheck className="h-3 w-3 text-primary/80 shrink-0" />
           )}
@@ -1067,7 +1067,7 @@ export default function ProductCard({
             <Button
               variant="secondary"
               size="sm"
-              className="h-9 w-9 p-0 text-orange-600"
+              className="h-9 w-9 p-0 text-orange-700"
               onClick={handleRenew}
               disabled={isRenewing}
               title="Renew Listing"

@@ -142,7 +142,7 @@ export default async function ConquestingPage({ params }: Props) {
 
             <div className="bg-background border border-border/50 p-10 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6">
-                <Repeat className="h-8 w-8 text-orange-500" />
+                <Repeat className="h-8 w-8 text-orange-700" />
               </div>
               <h3 className="text-2xl font-bold mb-4">Eco-Friendly</h3>
               <p className="text-muted-foreground leading-relaxed">

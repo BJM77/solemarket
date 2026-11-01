@@ -311,9 +311,9 @@ export default function SellerDashboard() {
 
   const statCards = [
     // { label: 'Realized Revenue', value: `$${formatPrice(stats.totalRevenue)}`, change: '+8.2%', icon: DollarSign, color: 'text-emerald-700 bg-emerald-500/10' },
-    { label: 'Active Enquiries', value: stats.orderCount, change: '', icon: Truck, color: 'text-orange-500 bg-orange-500/10' },
-    { label: 'Market Visibility', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-orange-500 bg-orange-500/10' },
-    { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-500 bg-orange-500/10' },
+    { label: 'Active Enquiries', value: stats.orderCount, change: '', icon: Truck, color: 'text-orange-700 bg-orange-500/10' },
+    { label: 'Market Visibility', value: stats.totalViews.toLocaleString(), change: '', icon: Eye, color: 'text-orange-700 bg-orange-500/10' },
+    { label: 'Engagement Rate', value: `${stats.conversionRate.toFixed(1)}%`, change: '', icon: TrendingUp, color: 'text-orange-700 bg-orange-500/10' },
     { label: 'Active Inventory', value: stats.activeListings, change: '', icon: Package, color: 'text-purple-500 bg-purple-500/10' },
     { label: 'Network Reputation', value: `${typeof stats.averageRating === 'number' ? stats.averageRating.toFixed(1) : '0.0'}/5`, change: `(${stats.totalReviews} ratings)`, icon: Star, color: 'text-amber-700 bg-amber-500/10' },
   ];
@@ -549,7 +549,7 @@ export default function SellerDashboard() {
                                <div className="flex flex-col">
                                  <span className="font-bold text-foreground line-clamp-1 max-w-[200px]">{product.title}</span>
                                  {product.externalUrl && (
-                                   <Badge className="bg-orange-600/20 text-orange-600 border border-orange-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
+                                   <Badge className="bg-orange-600/20 text-orange-700 border border-orange-500/30 text-[8px] font-black uppercase px-1.5 py-0 w-max mt-0.5">
                                      FB Import
                                    </Badge>
                                  )}
@@ -563,7 +563,7 @@ export default function SellerDashboard() {
                                 <Eye className="h-3 w-3" />
                                 {(product as any).views || 0} views
                                 {((product as any).views || 0) > 50 && (
-                                  <Badge variant="outline" className="ml-1 bg-orange-500/10 text-orange-500 border-orange-500/20 text-[8px] font-black px-1.5 py-0 uppercase tracking-widest flex-shrink-0">
+                                  <Badge variant="outline" className="ml-1 bg-orange-500/10 text-orange-700 border-orange-500/20 text-[8px] font-black px-1.5 py-0 uppercase tracking-widest flex-shrink-0">
                                     🔥 Hot
                                   </Badge>
                                 )}
@@ -623,7 +623,7 @@ export default function SellerDashboard() {
                               ) : (
                                 <>
                                   {isStale && product.status !== 'draft' && (
-                                    <Button variant="outline" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-orange-500 border-orange-500/20 bg-orange-500/10 hover:bg-orange-500/20 transition-all" asChild>
+                                    <Button variant="outline" size="sm" className="h-7 font-bold text-[10px] uppercase rounded-lg text-orange-700 border-orange-500/20 bg-orange-500/10 hover:bg-orange-500/20 transition-all" asChild>
                                       <Link href={`/sell/create?edit=${product.id}`}>Drop Price</Link>
                                     </Button>
                                   )}

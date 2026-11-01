@@ -34,7 +34,7 @@ export function SellerCard({
           <div className="flex-1">
             <h3 className="font-black uppercase tracking-tight text-foreground flex items-center gap-1">
               {seller.displayName}
-              {seller.isVerified && <ShieldCheck className="h-4 w-4 text-orange-500" />}
+              {seller.isVerified && <ShieldCheck className="h-4 w-4 text-orange-700" />}
             </h3>
             <div className="flex items-center gap-3 mt-1">
               <div className="flex items-center gap-1">

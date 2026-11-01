@@ -556,7 +556,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                 <div className="flex flex-col gap-3">
                                     <Button
                                         size="lg"
-                                        className="w-full h-16 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-lg"
+                                        className="w-full h-16 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
                                         onClick={handleStartConversation}
                                         disabled={!product.quantity || product.quantity === 0}
                                     >
@@ -770,7 +770,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         </Button>
                     ) : (
                         <Button 
-                            className="flex-1 h-12 font-bold bg-orange-600 hover:bg-orange-700 text-white"
+                            className="flex-1 h-12 font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
                             onClick={handleStartConversation}
                             disabled={!product.quantity || product.quantity === 0}
                         >

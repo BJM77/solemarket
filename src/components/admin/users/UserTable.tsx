@@ -27,7 +27,7 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
         case 'admin':
             return <Badge className="bg-purple-600 hover:bg-purple-700 gap-1"><BadgeCheck className="h-3 w-3" /> Admin</Badge>;
         case 'seller':
-            return <Badge variant="secondary" className="text-orange-600 bg-orange-100 hover:bg-orange-200 gap-1"><Store className="h-3 w-3" /> Seller</Badge>;
+            return <Badge variant="secondary" className="text-orange-700 bg-orange-100 hover:bg-orange-200 gap-1"><Store className="h-3 w-3" /> Seller</Badge>;
         default:
             return <Badge variant="outline" className="gap-1"><Eye className="h-3 w-3" /> Viewer</Badge>;
     }
@@ -115,7 +115,7 @@ export function UserTable({ users, onEditRole, onToggleBan, onToggleStop, onWarn
                                             {!user.disabled ? <><Ban className="mr-2 h-4 w-4" /> Ban User</> : "Unban User"}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="text-orange-600"
+                                            className="text-orange-700"
                                             onClick={() => onWarn(user.id)}
                                         >
                                             <Shield className="mr-2 h-4 w-4" /> Issue Warning

@@ -39,7 +39,7 @@ export function TrustBadge({ score, className, showLabel = true }: TrustBadgePro
             break;
         case 'Bronze':
             Icon = Medal;
-            colorClasses = "bg-orange-700/20 text-orange-600 border border-orange-700/30";
+            colorClasses = "bg-orange-700/20 text-orange-700 border border-orange-700/30";
             break;
     }
 

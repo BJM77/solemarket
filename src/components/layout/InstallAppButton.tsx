@@ -58,7 +58,7 @@ export function InstallAppButton() {
     <Button
       variant="outline"
       size="sm"
-      className="hidden md:flex items-center gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+      className="hidden md:flex items-center gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary-foreground font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
       onClick={handleInstallClick}
     >
       <Download className="h-3.5 w-3.5" />

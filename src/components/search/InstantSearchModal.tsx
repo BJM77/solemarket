@@ -96,7 +96,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
                     key={product.id}
                     value={product.id}
                     onSelect={() => handleSelect(product.id)}
-                    className="relative flex cursor-default select-none items-center rounded-lg px-2 py-3 text-sm outline-none aria-selected:bg-primary/20 aria-selected:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-primary/10 transition-colors text-white mb-1 gap-3"
+                    className="relative flex cursor-default select-none items-center rounded-lg px-2 py-3 text-sm outline-none aria-selected:bg-primary/20 aria-selected:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-primary/10 transition-colors text-primary-foreground mb-1 gap-3"
                   >
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-card">
                       {product.imageUrls?.[0] ? (

@@ -54,7 +54,7 @@ export default async function SellersPage() {
                                                 {seller.storeName || seller.displayName}
                                             </h3>
                                             {seller.isVerified && (
-                                                <ShieldCheck className="h-4 w-4 text-orange-500 shrink-0" aria-label="Verified Seller" />
+                                                <ShieldCheck className="h-4 w-4 text-orange-700 shrink-0" aria-label="Verified Seller" />
                                             )}
                                         </div>
                                         {seller.storeName && seller.displayName && (

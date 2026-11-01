@@ -53,7 +53,7 @@ export default function ConsignPage() {
                     <p className="text-lg text-gray-600 mb-12">We specialize in a wide range of high-value items. If you have heat, we can sell it.</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
-                            <Gem className="h-10 w-10 text-orange-600 mb-3" />
+                            <Gem className="h-10 w-10 text-orange-700 mb-3" />
                             <span className="font-semibold text-center">Sneakers</span>
                         </div>
                         <div className="flex flex-col items-center p-4 bg-gray-100 rounded-xl">
@@ -82,7 +82,7 @@ export default function ConsignPage() {
                             <CardContent className="p-8">
                                 <div className="flex items-start gap-5">
                                     <div className="p-3 bg-orange-100 rounded-full">
-                                        <Eye className="h-7 w-7 text-orange-600" />
+                                        <Eye className="h-7 w-7 text-orange-700" />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Sell Discreetly & Confidentially</h3>
@@ -130,7 +130,7 @@ export default function ConsignPage() {
                             <CardContent className="p-8">
                                 <div className="flex items-start gap-5">
                                     <div className="p-3 bg-orange-100 rounded-full">
-                                        <Shield className="h-7 w-7 text-orange-600" />
+                                        <Shield className="h-7 w-7 text-orange-700" />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Peace of Mind with Full Insurance</h3>
@@ -154,21 +154,21 @@ export default function ConsignPage() {
                         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-200" aria-hidden="true"></div>
                         <div className="space-y-12">
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">1</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl z-10">1</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">Initial Consultation</h3>
                                     <p className="text-gray-600 text-lg">Submit an enquiry to discuss your collection. We'll provide a free, no-obligation assessment and valuation estimate.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">2</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl z-10">2</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">Agree on Your Rate</h3>
                                     <p className="text-gray-600 text-lg">We offer fair, transparent, and flexible commission rates tailored to the value of your items and our partnership.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-8">
-                                <div className="flex-shrink-0 w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-2xl z-10">3</div>
+                                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl z-10">3</div>
                                 <div className="flex-1 pt-2">
                                     <h3 className="text-2xl font-semibold mb-2">We Take Over</h3>
                                     <p className="text-gray-600 text-lg">Sit back as we manage every detail: professional photography, compelling listings, buyer inquiries, and secure shipping.</p>

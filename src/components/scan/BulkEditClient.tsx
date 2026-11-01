@@ -109,7 +109,7 @@ export function BulkEditClient() {
         }
     };
 
-    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin w-12 h-12 text-orange-600" /></div>;
+    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin w-12 h-12 text-orange-700" /></div>;
     
     if (cards.length === 0) {
         return (
@@ -129,14 +129,14 @@ export function BulkEditClient() {
                         <ArrowLeft className="w-6 h-6" />
                     </Button>
                     <h1 className="text-3xl font-black tracking-tight">Bulk Review</h1>
-                    <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
                         {cards.length} Items
                     </span>
                 </div>
                 <Button 
                     variant="default" 
                     size="lg" 
-                    className="bg-orange-600 hover:bg-orange-700 text-white h-10 md:h-14 px-4 md:px-10 text-sm md:text-base font-black shadow-xl"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 md:h-14 px-4 md:px-10 text-sm md:text-base font-black shadow-xl"
                     onClick={handleSaveAll}
                     disabled={isSaving}
                 >

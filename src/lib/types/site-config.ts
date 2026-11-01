@@ -108,7 +108,7 @@ export interface SiteConfig {
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   branding: {
-    primaryColor: '221 83% 53%',
+    primaryColor: '25 89% 50%',
     buttonColor: '#f26c0d',
     buttonTextColor: '#ffffff',
     tickerBgColor: '#18181b',
@@ -285,11 +285,11 @@ const FONT_VARS: Record<FontOption, string> = {
 /** CSS applied server-side so the first paint already uses the published brand. */
 export function siteConfigCss(c: SiteConfig): string {
   const vars: string[] = [];
-  // Legacy orange brand values saved in the CMS map to the new marketplace blue.
-  const LEGACY = ['25 90% 50%', '#f26c0d', '#F26C0D'];
-  const raw = LEGACY.includes((c.branding.primaryColor || '').trim()) ? '221 83% 53%' : c.branding.primaryColor;
+  // Older saved brand values (old orange HSL, interim marketplace blue) map to the logo orange.
+  const LEGACY = ['25 90% 50%', '#f26c0d', '#F26C0D', '221 83% 53%', '#2563eb', '#2563EB'];
+  const raw = LEGACY.includes((c.branding.primaryColor || '').trim()) ? '25 89% 50%' : c.branding.primaryColor;
   const primary = safeColor(raw);
-  if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`, `--accent:${primary}`);
+  if (primary) vars.push(`--primary:${primary}`, `--ring:${primary}`);
   const pairs: [string, string | undefined][] = [
     ['--btn-primary-bg', c.branding.buttonColor],
     ['--btn-primary-text', c.branding.buttonTextColor],
