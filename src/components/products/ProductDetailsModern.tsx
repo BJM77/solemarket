@@ -88,7 +88,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { CategoryPills } from './CategoryPills';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
@@ -706,39 +705,37 @@ export default function ProductDetailsModern({
         return parts.join(' ');
     };
 
+    const adminTitleActions = isSuperAdmin ? (
+        <div className="flex items-center gap-1 shrink-0">
+            <Button asChild size="icon" variant="outline" className="h-8 w-8 rounded-full" title="Edit listing" aria-label="Edit listing">
+                <Link href={`/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
+                    <Pencil className="h-3.5 w-3.5" />
+                </Link>
+            </Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" disabled={isDeleting} title="Delete listing" aria-label="Delete listing" data-testid="admin-delete-listing">
+                        {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-[calc(100%-2rem)] rounded-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            &ldquo;{product?.title || initialProduct.title}&rdquo; will be removed from the site and the seller notified.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2">
+                        <AlertDialogCancel className="h-11">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="h-11 bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    ) : null;
+
     return (
         <main className="min-h-screen bg-background pb-16">
-            {isSuperAdmin && (
-                <div className="border-b border-orange-200 bg-orange-50">
-                    <div className="container mx-auto flex items-center gap-2 px-4 py-2">
-                        <span className="mr-auto text-xs font-bold uppercase tracking-wide text-orange-800">Admin</span>
-                        <Button asChild size="sm" variant="outline" className="h-10 min-w-[96px] gap-1.5 bg-white font-bold">
-                            <Link href={`/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
-                                <Pencil className="h-4 w-4" /> Edit
-                            </Link>
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="destructive" className="h-10 min-w-[96px] gap-1.5 font-bold" disabled={isDeleting} data-testid="admin-delete-listing">
-                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Delete
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="w-[calc(100%-2rem)] rounded-2xl">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        &ldquo;{product?.title || initialProduct.title}&rdquo; will be removed from the site and the seller notified.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter className="gap-2">
-                                    <AlertDialogCancel className="h-11">Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete} className="h-11 bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                </div>
-            )}
             <Dialog open={isSafetyModalOpen} onOpenChange={setIsSafetyModalOpen}>
                 <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
                     <DialogHeader className="text-center pt-4">
@@ -862,10 +859,6 @@ export default function ProductDetailsModern({
                     </Button>
                 </div>
 
-                <div className="mb-4 lg:mb-4">
-                    <CategoryPills />
-                </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                     {/* Left Column: Gallery & Description */}
                     <div className="lg:col-span-5 space-y-4">
@@ -890,6 +883,7 @@ export default function ProductDetailsModern({
                                 seller={seller}
                                 recentViews={recentViews}
                                 user={user}
+                                titleActions={adminTitleActions}
                             />
                         </div>
                     </div>
@@ -908,6 +902,7 @@ export default function ProductDetailsModern({
                                         seller={seller}
                                         recentViews={recentViews}
                                         user={user}
+                                        titleActions={adminTitleActions}
                                     />
                                 </div>
                                 <ProductBundleOffers product={product} />
