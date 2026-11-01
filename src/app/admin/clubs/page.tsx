@@ -11,8 +11,8 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { adminListClubs, adminSaveClub, adminDeleteClub } from '@/app/actions/clubs';
 import type { Club } from '@/lib/types/club';
 
-type Form = { name: string; slug: string; active: boolean; logoUrl: string; tagline: string; location: string; sellerIds: string; sortOrder: string };
-const empty: Form = { name: '', slug: '', active: true, logoUrl: '', tagline: '', location: '', sellerIds: '', sortOrder: '0' };
+type Form = { name: string; slug: string; active: boolean; logoUrl: string; tagline: string; location: string; sellerIds: string; adminEmails: string; sortOrder: string };
+const empty: Form = { name: '', slug: '', active: true, logoUrl: '', tagline: '', location: '', sellerIds: '', adminEmails: '', sortOrder: '0' };
 
 export default function AdminClubsPage() {
   const { toast } = useToast();
@@ -31,7 +31,7 @@ export default function AdminClubsPage() {
 
   const edit = (c: Club) => {
     setEditingId(c.id);
-    setForm({ name: c.name, slug: c.slug, active: c.active, logoUrl: c.logoUrl || '', tagline: c.tagline || '', location: c.location || '', sellerIds: c.sellerIds.join('\n'), sortOrder: String(c.sortOrder ?? 0) });
+    setForm({ name: c.name, slug: c.slug, active: c.active, logoUrl: c.logoUrl || '', tagline: c.tagline || '', location: c.location || '', sellerIds: c.sellerIds.join('\n'), adminEmails: (c.adminEmails || []).join('\n'), sortOrder: String(c.sortOrder ?? 0) });
   };
 
   const save = async () => {
@@ -41,11 +41,15 @@ export default function AdminClubsPage() {
     const res = await adminSaveClub(token, editingId, {
       ...form,
       sellerIds: form.sellerIds.split(/[\s,]+/),
+      adminEmails: form.adminEmails.split(/[\s,]+/),
       sortOrder: Number(form.sortOrder) || 0,
     });
     setBusy(false);
     if (!res.success) { toast({ title: 'Save failed', description: res.error, variant: 'destructive' }); return; }
     toast({ title: 'Club saved' });
+    if (res.setupLinks?.length) {
+      alert('New stadium admin account(s) created. Send each person their set-password link:\n\n' + res.setupLinks.map((l) => `${l.email}\n${l.link}`).join('\n\n'));
+    }
     setEditingId(null); setForm(empty); load();
   };
 
@@ -78,6 +82,7 @@ export default function AdminClubsPage() {
           <div><Label htmlFor="c-logo">Logo URL (https)</Label><Input id="c-logo" value={form.logoUrl} onChange={set('logoUrl')} /></div>
           <div className="sm:col-span-2"><Label htmlFor="c-tag">Tagline</Label><Input id="c-tag" value={form.tagline} onChange={set('tagline')} /></div>
           <div className="sm:col-span-2"><Label htmlFor="c-sellers">Seller IDs</Label><Textarea id="c-sellers" rows={3} value={form.sellerIds} onChange={set('sellerIds')} /></div>
+          <div className="sm:col-span-2"><Label htmlFor="c-admins">Stadium admin emails</Label><Textarea id="c-admins" rows={2} value={form.adminEmails} onChange={set('adminEmails')} placeholder="one per line — existing accounts are linked, new ones are created" /><p className="text-xs text-muted-foreground mt-1">Stadium admins can manage this club&apos;s seller list at /club-admin. They can&apos;t create clubs.</p></div>
           <div><Label htmlFor="c-sort">Sort order</Label><Input id="c-sort" type="number" value={form.sortOrder} onChange={set('sortOrder')} /></div>
           <label className="flex items-center gap-2 mt-6 text-sm">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />

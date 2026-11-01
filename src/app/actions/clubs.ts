@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidateTag, unstable_cache } from 'next/cache';
-import { firestoreDb } from '@/lib/firebase/admin';
+import { firestoreDb, auth } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { serializeFirestoreData } from '@/lib/utils/serialization';
 import { slugifyClub } from '@/lib/clubs/slug';
@@ -26,6 +26,8 @@ function toClub(id: string, d: any): Club {
     tagline: d.tagline || undefined,
     location: d.location || undefined,
     sellerIds: Array.isArray(d.sellerIds) ? d.sellerIds.filter((s: unknown) => typeof s === 'string') : [],
+    adminUserIds: Array.isArray(d.adminUserIds) ? d.adminUserIds.filter((s: unknown) => typeof s === 'string') : [],
+    adminEmails: Array.isArray(d.adminEmails) ? d.adminEmails.filter((s: unknown) => typeof s === 'string') : [],
     sortOrder: typeof d.sortOrder === 'number' ? d.sortOrder : 0,
   };
 }
@@ -100,10 +102,31 @@ export interface ClubInput {
   tagline?: string;
   location?: string;
   sellerIds: string[];
+  /** Stadium admin emails. Existing accounts are linked; missing ones are created (site admin only). */
+  adminEmails?: string[];
   sortOrder?: number;
 }
 
-export async function adminSaveClub(idToken: string, id: string | null, input: ClubInput): Promise<{ success: boolean; error?: string; id?: string }> {
+async function resolveStadiumAdmins(emails: string[]) {
+  const clean = Array.from(new Set(emails.map((e) => e.trim().toLowerCase()).filter(Boolean))).slice(0, 10);
+  const uids: string[] = [];
+  const setupLinks: { email: string; link: string }[] = [];
+  for (const email of clean) {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error(`Invalid stadium admin email: ${email}`);
+    let user;
+    try {
+      user = await auth.getUserByEmail(email);
+    } catch (e: any) {
+      if (e?.code !== 'auth/user-not-found') throw e;
+      user = await auth.createUser({ email });
+      try { setupLinks.push({ email, link: await auth.generatePasswordResetLink(email) }); } catch { /* admin can use Forgot password */ }
+    }
+    uids.push(user.uid);
+  }
+  return { emails: clean, uids, setupLinks };
+}
+
+export async function adminSaveClub(idToken: string, id: string | null, input: ClubInput): Promise<{ success: boolean; error?: string; id?: string; setupLinks?: { email: string; link: string }[] }> {
   try {
     await requireAdmin(idToken);
     const name = input.name.trim();
@@ -118,7 +141,10 @@ export async function adminSaveClub(idToken: string, id: string | null, input: C
     const logoUrl = input.logoUrl?.trim();
     if (logoUrl && !/^https:\/\//.test(logoUrl)) return { success: false, error: 'Logo URL must start with https://' };
 
+    const admins = await resolveStadiumAdmins(input.adminEmails || []);
     const data = {
+      adminUserIds: admins.uids,
+      adminEmails: admins.emails,
       name,
       slug,
       active: !!input.active,
@@ -132,7 +158,7 @@ export async function adminSaveClub(idToken: string, id: string | null, input: C
     const ref = id ? firestoreDb.collection('clubs').doc(id) : firestoreDb.collection('clubs').doc();
     await ref.set(id ? data : { ...data, createdAt: Date.now() }, { merge: true });
     revalidateTag(CLUBS_TAG);
-    return { success: true, id: ref.id };
+    return { success: true, id: ref.id, setupLinks: admins.setupLinks };
   } catch (e: any) {
     return { success: false, error: e?.message || 'Failed to save club' };
   }
@@ -146,5 +172,30 @@ export async function adminDeleteClub(idToken: string, id: string): Promise<{ su
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e?.message || 'Failed to delete club' };
+  }
+}
+
+/** Clubs the signed-in user is a stadium admin of. Stadium admins cannot create clubs. */
+export async function stadiumListMyClubs(idToken: string): Promise<Club[]> {
+  const decoded: any = await verifyIdToken(idToken);
+  const snap = await firestoreDb.collection('clubs').where('adminUserIds', 'array-contains', decoded.uid).get();
+  return snap.docs.map((d: any) => toClub(d.id, d.data()));
+}
+
+/** Stadium admin: update only the seller list of a club they administer. */
+export async function stadiumUpdateSellers(idToken: string, clubId: string, sellerIds: string[]): Promise<{ success: boolean; error?: string }> {
+  try {
+    const decoded: any = await verifyIdToken(idToken);
+    const ref = firestoreDb.collection('clubs').doc(clubId);
+    const doc = await ref.get();
+    if (!doc.exists) return { success: false, error: 'Club not found' };
+    const adminIds: string[] = doc.data()?.adminUserIds || [];
+    if (!adminIds.includes(decoded.uid)) return { success: false, error: 'Not a stadium admin for this club' };
+    const ids = Array.from(new Set(sellerIds.map((s) => s.trim()).filter(Boolean))).slice(0, 30);
+    await ref.update({ sellerIds: ids, updatedAt: Date.now() });
+    revalidateTag(CLUBS_TAG);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Failed to update sellers' };
   }
 }

@@ -53,7 +53,7 @@ export default async function ClubsPage() {
         <h2 className="text-2xl font-bold text-slate-900 mb-4">How it works</h2>
         <ol className="list-decimal pl-5 space-y-2 text-slate-700">
           <li>Contact us with your club or stadium name and logo.</li>
-          <li>We set up your page and link your club’s seller accounts.</li>
+          <li>The Benched team creates your page and your stadium admin account, and links your club’s seller accounts.</li>
           <li>Your club appears on the Benched home page and gets its own link to share.</li>
           <li>Members list items as normal, and they show on your club page.</li>
         </ol>
