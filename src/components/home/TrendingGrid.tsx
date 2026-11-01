@@ -14,7 +14,7 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
             <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-10 relative z-10 max-w-full overflow-hidden">
                 <div className={`flex flex-col md:flex-row ${title ? 'items-start md:items-end' : 'items-end justify-end'} justify-between mb-4 md:mb-12 gap-4`}>
                     {title && (
-                        <div>
+                        <div className="w-full text-left">
                             <h2 className="text-left text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">{title}</h2>
                         </div>
                     )}
@@ -25,7 +25,7 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
 
                 <ProductGrid products={products} priorityCount={priorityCount} />
 
-                <Link href="/browse" className="mt-12 md:hidden group text-sm font-black tracking-widest uppercase text-orange-700 hover:text-orange-800 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
+                <Link href="/browse" className="mt-6 md:hidden group text-sm font-black tracking-widest uppercase text-orange-700 hover:text-orange-800 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
                     View Full Roster <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
             </div>
