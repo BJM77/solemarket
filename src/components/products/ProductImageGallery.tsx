@@ -198,8 +198,9 @@ export default function ProductImageGallery({
                       </Button>
                     </div>
                   ) : (
+                    <div className="relative w-full h-full px-6 py-4 sm:p-0">
                     <div
-                      className="relative w-full h-full overflow-hidden cursor-crosshair touch-none"
+                      className="relative w-full h-full cursor-crosshair touch-none"
                       onPointerMove={handlePointerMove}
                       onPointerEnter={handlePointerEnter}
                       onPointerLeave={handlePointerLeave}
@@ -223,14 +224,16 @@ export default function ProductImageGallery({
                             width: '200px',
                             height: '200px',
                             // Offset vertical position on touch devices to avoid finger obstruction
-                            top: `${magnifierPos.y - (isTouch.current ? 150 : 100)}px`,
-                            left: `${magnifierPos.x - 100}px`,
+                            // Clamp so the lens stays fully visible even when inspecting the card's edges
+                            top: `${Math.min(Math.max(magnifierPos.y - (isTouch.current ? 150 : 100), 0), Math.max(imgSize.height - 200, 0))}px`,
+                            left: `${Math.min(Math.max(magnifierPos.x - 100, 0), Math.max(imgSize.width - 200, 0))}px`,
                             backgroundImage: `url(${item.url})`,
                             backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`,
                             backgroundSize: `${imgSize.width * 2.5}px ${imgSize.height * 2.5}px`,
                           }}
                         />
                       )}
+                    </div>
                     </div>
                   )}
                 </div>
