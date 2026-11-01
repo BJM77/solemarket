@@ -105,6 +105,10 @@ export default function ProductImageGallery({
   };
 
   const aspectRatio = getAspectRatio(category);
+  // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height (≈68% on desktop).
+  const heightCap = aspectRatio === 'aspect-[5/7]'
+    ? 'max-w-[calc(50svh*5/7)] lg:max-w-[calc(68vh*5/7)]'
+    : 'max-w-[50svh] lg:max-w-[68vh]';
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -161,7 +165,7 @@ export default function ProductImageGallery({
       <div className="space-y-4">
         {/* Main Gallery */}
         {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative w-full bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", aspectRatio)}>
+        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", aspectRatio, heightCap)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
