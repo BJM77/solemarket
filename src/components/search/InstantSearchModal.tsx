@@ -61,7 +61,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 overflow-hidden w-[calc(100%-2rem)] max-w-2xl bg-background border-border shadow-2xl rounded-2xl sm:rounded-2xl [&>button]:top-6 [&>button]:right-5">
+      <DialogContent className="top-[max(0.75rem,env(safe-area-inset-top))] translate-y-0 data-[state=closed]:slide-out-to-top-[2%] data-[state=open]:slide-in-from-top-[2%] sm:top-[10vh] p-0 overflow-hidden w-[calc(100%-2rem)] max-w-2xl bg-background border-border shadow-2xl rounded-2xl sm:rounded-2xl [&>button]:top-6 [&>button]:right-5">
         <Command 
           className="w-full bg-transparent flex flex-col overflow-hidden" 
           shouldFilter={false} // We use fuse.js instead of cmdk's built-in filtering
@@ -84,7 +84,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
             {loading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
           </div>
           
-          <Command.List className="max-h-[60vh] overflow-y-auto overflow-x-hidden p-2">
+          <Command.List className="max-h-[45dvh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden p-2">
             <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
               No results found. Press enter to search all listings.
             </Command.Empty>
