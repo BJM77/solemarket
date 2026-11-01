@@ -364,19 +364,25 @@ export default function AutoCardCapture() {
       // Auto capture never falls back to a blind centre crop (that produced zoomed, cut-off
       // shots). If the full-res card fails the shape/context checks, keep searching.
       const reject = (msg: string) => { gateRef.current.reset(); setGate({ ok: false, reason: 'shape', message: msg, progress: 0 }); };
+      // The live gate already validated the analysis-res quad, so if the stricter full-res
+      // re-check fails we fall back to that validated quad instead of silently dropping the
+      // shot (previously: green tick, then nothing saved and no advance to the back).
+      const gateQuad = !f.isPhoto && q ? scaleQuad(q, f.w / aw, f.h / ah) : hint;
       let fq: Quad;
-      if (loc) fq = loc.quad;
-      else if (manual) fq = hint ?? centreQuad(f.w, f.h);
-      else { reject('Move back so the whole card is visible'); return; }
-      if (!manual) {
-        if (isClipped(fq, f.w, f.h)) { reject('Move back so the whole card is visible'); return; }
-        if (shapeCheck(fq, sleeve === 'soft' ? { ...DEFAULT_SHAPE, aspectTol: 0.04 } : DEFAULT_SHAPE)) { reject('Hold the phone flat and square above the card'); return; }
+      let strictOk = !!loc;
+      if (loc && !manual) {
+        strictOk = !isClipped(loc.quad, f.w, f.h)
+          && !shapeCheck(loc.quad, sleeve === 'soft' ? { ...DEFAULT_SHAPE, aspectTol: 0.04 } : DEFAULT_SHAPE);
       }
+      if (loc && (strictOk || manual)) fq = loc.quad;
+      else if (manual) fq = hint ?? centreQuad(f.w, f.h);
+      else if (gateQuad && !isClipped(gateQuad, f.w, f.h)) fq = gateQuad;
+      else { reject('Move back so the whole card is visible'); return; }
       const out = warpQuad(src.data, f.w, f.h, fq, OUTPUT_W, OUTPUT_H);
       // Post-warp sanity at low res: uniform border on all sides, and the back must differ from the front.
       const SW = 252, SH = 352;
       const small = toGray(warpQuad(src.data, f.w, f.h, fq, SW, SH), SW, SH);
-      if (!manual && !borderBandOk(small, SW, SH)) { reject('Move back so the whole card border is visible'); return; }
+      if (!manual && strictOk && !borderBandOk(small, SW, SH)) { reject('Move back so the whole card border is visible'); return; }
       const sig = cardSignature(small, SW, SH);
       if (side === 'back' && frontSigRef.current && signatureDistance(sig, frontSigRef.current) < SAME_FACE_DISTANCE) {
         reject('Flip the card over'); toast({ title: 'Flip the card over', description: 'That looks like the front again. Turn the card over to scan the back.' }); return;
@@ -394,6 +400,9 @@ export default function AutoCardCapture() {
       // Corner micro-blur check on the chosen frame (auto captures only).
       const cs = !manual && best!.quad ? cornerSharpness(best!.g, best!.sw, best!.sh, best!.quad) : null;
       setCornerWarn(cs?.blurry ? side : null);
+      toast(side === 'front'
+        ? { title: 'Front saved ✓', description: 'Now flip the card over to capture the back.' }
+        : { title: 'Back saved ✓', description: 'Both sides captured.' });
       setSide((cur) => (cur === 'front' ? 'back' : cur));
       gateRef.current.reset();
       guideRef.current.reset();
