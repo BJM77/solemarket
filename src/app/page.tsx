@@ -23,7 +23,7 @@ export const revalidate = 60;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Ending Soon" />;
+  return <TrendingGrid products={products} title="Popular Listings" />;
 }
 
 async function NewArrivalsSection() {
