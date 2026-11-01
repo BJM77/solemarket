@@ -7,6 +7,8 @@ import { resolveSellerName } from '@/lib/utils/seller-name';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Pencil } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -157,7 +159,8 @@ export default function ProductDetailsModern({
     const viewRecordedRef = useRef<string | null>(null);
 
     // Super admin check
-    const isSuperAdmin = (user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email));
+    const { isAdmin: hasAdminRole } = useUserPermissions();
+    const isSuperAdmin = Boolean((user?.uid && SUPER_ADMIN_UIDS.includes(user.uid)) || (user?.email && SUPER_ADMIN_EMAILS.includes(user.email)) || hasAdminRole);
     useEffect(() => {
         const fetchRecentViews = async () => {
             try {
@@ -705,6 +708,37 @@ export default function ProductDetailsModern({
 
     return (
         <main className="min-h-screen bg-background pb-16">
+            {isSuperAdmin && (
+                <div className="border-b border-orange-200 bg-orange-50">
+                    <div className="container mx-auto flex items-center gap-2 px-4 py-2">
+                        <span className="mr-auto text-xs font-bold uppercase tracking-wide text-orange-800">Admin</span>
+                        <Button asChild size="sm" variant="outline" className="h-10 min-w-[96px] gap-1.5 bg-white font-bold">
+                            <Link href={`/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
+                                <Pencil className="h-4 w-4" /> Edit
+                            </Link>
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive" className="h-10 min-w-[96px] gap-1.5 font-bold" disabled={isDeleting} data-testid="admin-delete-listing">
+                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Delete
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="w-[calc(100%-2rem)] rounded-2xl">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        &ldquo;{product?.title || initialProduct.title}&rdquo; will be removed from the site and the seller notified.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="gap-2">
+                                    <AlertDialogCancel className="h-11">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete} className="h-11 bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </div>
+            )}
             <Dialog open={isSafetyModalOpen} onOpenChange={setIsSafetyModalOpen}>
                 <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
                     <DialogHeader className="text-center pt-4">
