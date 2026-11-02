@@ -70,6 +70,15 @@ export default function SellLandingPage() {
                                 See How It Works
                             </Button>
                         </div>
+                        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center" data-testid="bulk-sell-buttons">
+                            <Button size="lg" className="bg-primary hover:bg-orange-600 text-slate-900 font-bold h-12 px-6 rounded-xl" asChild>
+                                <Link href="/sell/fast-bulk">Fast Bulk</Link>
+                            </Button>
+                            <Button size="lg" className="bg-primary hover:bg-orange-600 text-slate-900 font-bold h-12 px-6 rounded-xl" asChild>
+                                <Link href="/sell/autofast">Autofast</Link>
+                            </Button>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-500">Listing lots of cards? Fast Bulk turns a batch of photos into drafts; Autofast scans card after card with your camera.</p>
                     </div>
                 </div>
 

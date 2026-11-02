@@ -158,7 +158,7 @@ function GuidanceOverlay({ guidance, zoom, holding, progress, glare }: { guidanc
   );
 }
 
-export default function AutoCardCapture() {
+export default function AutoCardCapture({ rapid = false, onPair }: { rapid?: boolean; onPair?: (front: Blob, back: Blob) => void } = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const analysisRef = useRef<HTMLCanvasElement | null>(null);
   const gateRef = useRef(new CaptureGate());
@@ -541,6 +541,19 @@ export default function AutoCardCapture() {
   };
 
   const nextProduct = () => { setCornerWarn(null); (['front', 'back'] as Side[]).forEach((s) => shots[s] && URL.revokeObjectURL(shots[s]!.url)); setShots({}); setSide('front'); frontSigRef.current = null; gateRef.current.reset(); guideRef.current.reset(); smoothRef.current.reset(); };
+
+  // Autofast: hand the pair off to the background queue and reset for the next card.
+  const handedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!rapid || !onPair || !shots.front || !shots.back) return;
+    const key = `${shots.front.url}|${shots.back.url}`;
+    if (handedRef.current === key) return;
+    handedRef.current = key;
+    onPair(shots.front.blob, shots.back.blob);
+    toast({ title: 'Card saved ✓', description: 'Next card: scan the front.' });
+    nextProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rapid, onPair, shots]);
 
   const ready = gate?.ok || (gate?.reason === 'unstable' && gate.progress > 0);
   const stroke = gate?.ok ? '#22c55e' : ready ? '#facc15' : '#ef4444';

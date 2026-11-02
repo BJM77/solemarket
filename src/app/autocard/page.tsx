@@ -21,7 +21,9 @@ export default function AutoCardPage() {
         <Link href="/sell/create" className="font-semibold text-primary underline underline-offset-2">
           Pick photos from your gallery and let AI fill the listing
         </Link>
-        .
+        . Lots of cards?{' '}
+        <Link href="/sell/fast-bulk" className="font-semibold text-primary underline underline-offset-2">Fast Bulk</Link> or{' '}
+        <Link href="/sell/autofast" className="font-semibold text-primary underline underline-offset-2">Autofast</Link>.
       </p>
       <AutoCardCapture />
     </main>
