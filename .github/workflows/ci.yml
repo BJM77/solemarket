@@ -86,14 +86,26 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci
+      # Pages read Firestore at build time, so the emulators must be up before the build.
+      - name: Start emulators
+        run: |
+          nohup npx -y firebase-tools@latest emulators:start --config firebase.e2e.json \
+            --only auth,firestore,storage --project demo-benched > emulators.log 2>&1 &
+          for i in $(seq 1 90); do
+            curl -sf http://127.0.0.1:8080 >/dev/null && curl -sf http://127.0.0.1:9099 >/dev/null && exit 0
+            sleep 2
+          done
+          cat emulators.log; exit 1
+      - name: Seed emulators
+        run: node e2e/flows/seed.mjs
       - name: Build (emulator config)
         run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Run flows against emulators
-        run: >-
-          npx -y firebase-tools@latest emulators:exec --config firebase.e2e.json
-          --only auth,firestore,storage --project demo-benched
-          "node e2e/flows/seed.mjs && E2E_EMULATORS=true PLAYWRIGHT_BASE_URL=http://localhost:9007 npx playwright test e2e/flows --project chromium"
+        run: npx playwright test e2e/flows --project chromium
+        env:
+          E2E_EMULATORS: 'true'
+          PLAYWRIGHT_BASE_URL: http://localhost:9007
       - name: Upload flows report
         if: always()
         uses: actions/upload-artifact@v4
