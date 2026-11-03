@@ -4,11 +4,10 @@ import { headers } from 'next/headers';
 /**
  * Two-tier rate limiting for server actions and route handlers.
  *
- * Tier 1 (always): in-memory sliding window per server instance - free and fast,
- *   stops bursts/scripted abuse. With maxInstances>1 the effective limit is
- *   limit x instances, which is acceptable for burst protection.
- * Tier 2 (opt-in, `persistent: true`): Firestore-backed global limiter from
- *   ./rate-limiter for expensive or abuse-prone actions (AI calls, listing creation).
+ * Limits are enforced globally (shared across all server instances) with the
+ * Firestore fixed-window limiter in ./rate-limiter. The in-memory limiter is
+ * only a fallback used when Firestore is unreachable, so the site keeps
+ * working (per-instance limits) instead of failing every request.
  */
 
 type Bucket = number[];
@@ -54,20 +53,18 @@ export interface RateLimitOptions {
   windowSeconds: number;
   /** Identify by this (e.g. uid) instead of IP. */
   identifier?: string;
-  /** Also enforce globally via Firestore (costs one transaction per call). */
+  /** @deprecated All limits are now Firestore-backed; kept for compatibility. */
   persistent?: boolean;
 }
 
-/** Returns true if allowed. */
+/** Returns true if allowed. Shared across instances via Firestore. */
 export async function checkRateLimit(action: string, opts: RateLimitOptions): Promise<boolean> {
   const id = opts.identifier || (await clientIp());
-  if (!memoryRateLimit(`${action}:${id}`, opts.limit, opts.windowSeconds * 1000)) return false;
-  if (opts.persistent) {
-    const { rateLimit } = await import('./rate-limiter');
-    const r = await rateLimit(id.replace(/[^a-zA-Z0-9_.:-]/g, '_'), action, opts.limit, opts.windowSeconds);
-    return r.success;
-  }
-  return true;
+  const { tryRateLimit } = await import('./rate-limiter');
+  const r = await tryRateLimit(id, action, opts.limit, opts.windowSeconds);
+  if (r) return r.success;
+  // Firestore unavailable: degrade to the per-instance limiter.
+  return memoryRateLimit(`${action}:${id}`, opts.limit, opts.windowSeconds * 1000);
 }
 
 /** Throws RateLimitError when the caller is over the limit. */

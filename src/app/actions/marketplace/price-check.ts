@@ -2,7 +2,7 @@
 
 import { firestoreDb } from '@/lib/firebase/admin';
 import { ensureActionAuth } from '@/lib/action-utils';
-import { memoryRateLimit } from '@/lib/rate-limit-guard';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
 import { runPriceCheck } from '@/lib/price-intel/service';
 import { classifyListing } from '@/lib/price-intel/stats';
 import type { PriceSuggestion } from '@/lib/price-intel/types';
@@ -15,7 +15,7 @@ function productQuery(p: any): string {
 export async function priceCheckAction(idToken: string, input: { query: string; category?: string; condition?: string; productId?: string }): Promise<{ success: true; result: PriceSuggestion } | { success: false; error: string }> {
     try {
         const { uid } = await ensureActionAuth(idToken);
-        if (!memoryRateLimit(`price-check:${uid}`, 30, 10 * 60_000)) {
+        if (!(await checkRateLimit('price-check', { limit: 30, windowSeconds: 600, identifier: uid }))) {
             return { success: false, error: 'Too many price checks. Try again in a few minutes.' };
         }
         const result = await runPriceCheck({ query: input.query, category: input.category, condition: input.condition, excludeProductId: input.productId });
