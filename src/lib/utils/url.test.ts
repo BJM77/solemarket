@@ -3,7 +3,7 @@ import { getProductUrl, slugify } from './url';
 
 describe('slugify', () => {
   it('transliterates accented letters instead of dropping them', () => {
-    expect(slugify('2023 Pokémon Crown Zenith Pikachu #160/159')).toBe('2023-pokemon-crown-zenith-pikachu-160159');
+    expect(slugify('2023 Pokémon Crown Zenith Pikachu #160/159')).toBe('2023-pokemon-crown-zenith-pikachu-160-159');
     expect(slugify('Café Crème')).toBe('cafe-creme');
   });
 
@@ -26,5 +26,16 @@ describe('slugify', () => {
 describe('getProductUrl', () => {
   it('builds the canonical pretty URL', () => {
     expect(getProductUrl({ id: 'abc', title: 'Pokémon Pikachu', category: 'Collector Cards' })).toBe('/cards/pokemon-pikachu/abc');
+  });
+});
+
+describe('slugify separators', () => {
+  it('turns / \\ and | into hyphens', () => {
+    expect(slugify('2015 Pokemon XY Primal Clash Kingdra #108/160')).toBe('2015-pokemon-xy-primal-clash-kingdra-108-160');
+    expect(slugify('A\\B | C')).toBe('a-b-c');
+  });
+  it('builds the canonical card URL with the new slug', () => {
+    expect(getProductUrl({ id: 'qQvt', title: '2015 Pokemon XY Primal Clash Kingdra #108/160', category: 'Collector Cards' }))
+      .toBe('/cards/2015-pokemon-xy-primal-clash-kingdra-108-160/qQvt');
   });
 });

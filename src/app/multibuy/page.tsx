@@ -5,7 +5,7 @@ import { getProducts } from '@/services/product-service';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTierSettings } from '@/app/actions/marketplace/tier-actions';
-import { BUNDLE_TIERS, TIER_LABEL, isBundleTier, tierOfferText } from '@/lib/tier-bundles';
+import { BUNDLE_TIERS, TIER_LABEL, isBundleTier, multibuyFilterState, tierOfferText } from '@/lib/tier-bundles';
 
 export const metadata: Metadata = {
     title: 'Multibuy Deals',
@@ -36,8 +36,7 @@ export default async function MultibuyPage({
             sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
             page: 1,
             limit: 24,
-            multibuyEnabled: true, // FORCE MULTIBUY ITEMS ONLY
-            ...(tier ? { multiCardTiers: [tier] } : {}),
+            ...multibuyFilterState(tier),
         } as any);
     } catch (error) {
         console.error("Initial fetch failed:", error);
@@ -74,8 +73,7 @@ export default async function MultibuyPage({
             initialFilterState={{
                 q: searchTerm,
                 category: typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined,
-                multibuyEnabled: true, // Pass this to client component if it supports it
-                ...(tier ? { multiCardTiers: [tier] } : {}),
+                ...multibuyFilterState(tier),
             } as any}
             initialData={initialProductsData}
         />
