@@ -924,7 +924,7 @@ export default function ProductDetailsModern({
                         <div className="space-y-4">
                             {/* The "Back Button" was moved up to the Header Row (Breadcrumbs) to align the top of the buy box with the image gallery */}
 
-                            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
+                            <div className="lg:flex lg:flex-col bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
 
                                 {/* Desktop Product Header (Title/Price) */}
                                 <div className="hidden lg:block">
@@ -938,6 +938,7 @@ export default function ProductDetailsModern({
                                 </div>
                                 <ProductBundleOffers product={product} />
 
+                                <div className="lg:order-2">
                                     {/* Consolidated Product Description & Specs inside compact Tabs */}
                                     <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
                                         <Tabs defaultValue="details" className="w-full">
@@ -1108,8 +1109,9 @@ export default function ProductDetailsModern({
                                         <ProvenanceLedger data={provenanceData} />
                                     )}
                                 </div>
+                                </div>
 
-                                <div className="space-y-4">
+                                <div className="space-y-4 lg:order-1 lg:mt-3">
                                     {/* Stock Status */}
                                     {(!product.quantity || product.quantity === 0) && (
                                         <div className="mb-4 flex items-center gap-3 border border-destructive/20 bg-destructive/5 text-destructive p-4 rounded-lg">
@@ -1163,7 +1165,7 @@ export default function ProductDetailsModern({
                                                 }
 
                                                 return (
-                                                    <div className="space-y-3">
+                                                    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-2">
                                                         {product.externalUrl ? (
                                                             <div className="space-y-3">
                                                                 <Button
@@ -1186,7 +1188,7 @@ export default function ProductDetailsModern({
                                                         ) : (
                                                             <>
                                                                 <Button
-                                                                    className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-orange-600/25 bg-primary hover:bg-primary/90 text-primary-foreground transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                                    className="w-full h-14 text-lg lg:h-9 lg:text-sm lg:rounded-xl font-bold rounded-2xl shadow-lg shadow-orange-600/25 bg-primary hover:bg-primary/90 text-primary-foreground transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                                                     onClick={handleBuyNow}
                                                                 >
                                                                     <ShoppingCart className="h-5 w-5" />
@@ -1195,14 +1197,14 @@ export default function ProductDetailsModern({
 
                                                                 <Button
                                                                     variant="outline"
-                                                                    className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                                    className="w-full h-14 text-lg lg:h-9 lg:text-sm lg:rounded-xl lg:border font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
                                                                     onClick={handleStartConversation}
                                                                 >
                                                                     <MessageSquare className="h-5 w-5" />
                                                                     Message Seller
                                                                 </Button>
 
-                                                                <div className="flex items-start gap-3 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100/50 dark:border-orange-900/30 p-4 rounded-2xl text-left mt-2">
+                                                                <div className="flex items-start gap-3 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100/50 dark:border-orange-900/30 p-4 lg:p-3 rounded-2xl text-left mt-2 lg:mt-0 lg:col-span-2 lg:order-last">
                                                                     <ShieldCheck className="h-5 w-5 text-orange-700 dark:text-orange-700 shrink-0 mt-0.5" />
                                                                     <div>
                                                                         <p className="text-xs font-bold text-orange-900 dark:text-orange-200 uppercase tracking-wide">
@@ -1226,7 +1228,7 @@ export default function ProductDetailsModern({
                                                                 trigger={
                                                                     <Button
                                                                         variant="outline"
-                                                                        className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
+                                                                        className="w-full h-14 text-lg lg:h-9 lg:text-sm lg:rounded-xl lg:border font-bold rounded-2xl border-2 border-primary/20 hover:bg-primary/5 gap-2"
                                                                     >
                                                                         <DollarSign className="h-5 w-5" />
                                                                         Make an Offer
@@ -1237,7 +1239,7 @@ export default function ProductDetailsModern({
 
                                                         <Button
                                                             variant="secondary"
-                                                            className="w-full h-14 text-lg font-bold rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                            className="w-full h-14 text-lg lg:h-9 lg:text-sm lg:rounded-xl font-bold rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                                             asChild
                                                         >
                                                             <a
@@ -1251,7 +1253,7 @@ export default function ProductDetailsModern({
                                                         </Button>
 
                                                         {(isPhoneRevealed || (isCurrentlyHeld && heldByMe)) && (
-                                                            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                                                            <div className="lg:col-span-2 lg:order-last bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
                                                                 <p className="text-orange-900 dark:text-orange-100 font-bold text-sm mb-1 flex justify-between items-center">
                                                                     <span>Next Steps:</span>
                                                                     {isCurrentlyHeld && (
@@ -1329,7 +1331,7 @@ export default function ProductDetailsModern({
                                     )}
 
                                 {/* Controls (eBay Search / Admin Delete) */}
-                                <div className="flex justify-center w-full gap-2 mt-4 text-sm whitespace-nowrap overflow-x-auto pb-1">
+                                <div className="lg:order-2 flex justify-center w-full gap-2 mt-4 text-sm whitespace-nowrap overflow-x-auto pb-1">
                                     <Button
                                         variant="ghost"
                                         size="sm"
