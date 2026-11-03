@@ -136,7 +136,7 @@ export default async function ConquestingPage({ params }: Props) {
               </div>
               <h3 className="text-2xl font-bold mb-4">Safe & Secure</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Our Australian-based escrow system protects both buyers and sellers. Get paid as soon as items arrive.
+                Buyers pay sellers directly by PayID or cash on pickup in Perth, with no middle-man fees. Sellers keep every dollar.
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export default async function ConquestingPage({ params }: Props) {
                 Love shopping at {competitor.name} but want to make your hobby more sustainable? Benched is the premier Australian marketplace designed to help you trade your way up. By selling your pre-loved sneakers and collector cards on our platform, you can fund your next big purchase at {competitor.name} without the burden of high seller fees found on other platforms.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-                Our local, peer-to-peer model ensures that Aussie collectors keep more of their hard-earned money. With DealSafe escrow protection and a community-first approach, Benched is the safest and fastest way to refresh your rotation in Melbourne, Sydney, Brisbane, and beyond.
+                Our local, peer-to-peer model ensures that Aussie collectors keep more of their hard-earned money. With direct PayID or cash-on-pickup payments and a community-first approach, Benched is the safest and fastest way to refresh your rotation in Melbourne, Sydney, Brisbane, and beyond.
             </p>
         </div>
       </section>

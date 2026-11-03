@@ -29,7 +29,7 @@ export const SEO_GUIDES: Guide[] = [
       <p>When viewed from directly behind, an authentic Air Jordan 1 will have a distinct "hourglass" shape: wider at the top, curving in at the middle, and widening slightly at the base. Many fakes are completely straight and rigid.</p>
 
       <h2>Buying with Confidence on Benched</h2>
-      <p>At Benched, we protect Australian buyers with our rigorous DealSafe escrow system, ensuring you never get burned on a high-value transaction.</p>
+      <p>On Benched you pay the seller directly by PayID or cash on pickup. For high-value pairs, meet in Perth and inspect them in person before you pay cash, and only ever pay the PayID shown on your Benched order page.</p>
     `,
         coverImage: 'https://images.unsplash.com/photo-1597045566677-8cf032ed6634?q=80&w=2600&auto=format&fit=crop',
         date: '2024-03-15',

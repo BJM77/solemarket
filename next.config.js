@@ -87,6 +87,7 @@ const nextConfig = {
   async redirects() {
     return [
       // Routes that previously fell through to the generic category template.
+      { source: '/dealsafe', destination: '/help#how-payment-works', permanent: true },
       { source: '/sell/guide', destination: '/sell', permanent: true },
       { source: '/profile/settings', destination: '/profile', permanent: false },
       { source: '/search', has: [{ type: 'query', key: 'q' }], destination: '/browse', permanent: true },

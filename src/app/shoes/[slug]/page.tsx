@@ -84,7 +84,7 @@ export default async function ShoeTopicPage({ params }: Props) {
                 <div className="max-w-4xl mb-12">
                     <h2 className="text-3xl font-black mb-6 uppercase">Buying {topic.searchQuery} in Australia</h2>
                     <p className="text-muted-foreground leading-relaxed mb-4 text-lg">
-                        Looking for authentic {topic.searchQuery} sneakers? At Benched, we specialize in high-performance basketball footwear and rare collectibles. Every pair listed on our marketplace is verified by our community and protected by DealSafe escrow.
+                        Looking for authentic {topic.searchQuery} sneakers? At Benched, we specialize in high-performance basketball footwear and rare collectibles. Every pair listed on our marketplace is listed by our community, and you pay the seller directly by PayID or cash on pickup in Perth.
                     </p>
                     <p className="text-muted-foreground leading-relaxed text-lg">
                         Whether you are in Melbourne, Sydney, Brisbane or anywhere in Australia, we provide the safest way to upgrade your rotation with the most sought-after {topic.searchQuery} colorways without the excessive middle-man fees.
@@ -96,7 +96,7 @@ export default async function ShoeTopicPage({ params }: Props) {
                     <div className="space-y-6">
                         <div>
                             <h4 className="font-bold text-lg mb-2">Are the {topic.searchQuery} shoes here authentic?</h4>
-                            <p className="text-muted-foreground">Yes. Every transaction on Benched goes through our verified peer-to-peer network. Funds are securely locked in DealSafe escrow until the buyer confirms the item matches the condition described.</p>
+                            <p className="text-muted-foreground">Yes. Benched is a peer-to-peer marketplace. You pay the seller directly by PayID (shown on your Benched order page) or cash on pickup in Perth, where you can inspect the item before you pay.</p>
                         </div>
                         <div>
                             <h4 className="font-bold text-lg mb-2">How much are selling fees for {topic.searchQuery}?</h4>
@@ -112,7 +112,7 @@ export default async function ShoeTopicPage({ params }: Props) {
                 <FAQSchema questions={[
                     {
                         question: `Are the ${topic.searchQuery} shoes here authentic?`,
-                        answer: `Yes. Every transaction on Benched goes through our verified peer-to-peer network. Funds are securely locked in DealSafe escrow until the buyer confirms the item matches the condition described.`
+                        answer: `Yes. Benched is a peer-to-peer marketplace. You pay the seller directly by PayID (shown on your Benched order page) or cash on pickup in Perth, where you can inspect the item before you pay.`
                     },
                     {
                         question: `How much are selling fees for ${topic.searchQuery}?`,

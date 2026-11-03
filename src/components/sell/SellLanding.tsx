@@ -180,9 +180,9 @@ export default function SellLandingPage() {
                                 <div className="p-3 bg-orange-100 rounded-xl w-fit mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Shield className="h-6 w-6" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">DealSafe™ Protection</h3>
+                                <h3 className="text-xl font-bold mb-3">Get Paid Directly</h3>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Never worry about getting ghosted or scammed. Our DealSafe system ensures you get paid before you ship.
+                                    Buyers pay you directly by PayID, or cash on pickup in Perth. Ship only once the PayID payment is in your account.
                                 </p>
                             </CardContent>
                         </Card>
@@ -223,7 +223,7 @@ export default function SellLandingPage() {
                                     </div>
                                     <div>
                                         <span className="font-bold block text-xl">Secure Payments</span>
-                                        <p className="text-muted-foreground">Multiple payout options including Stripe, PayID, and secure escrow.</p>
+                                        <p className="text-muted-foreground">Get paid by PayID or cash on pickup, with no fees taken.</p>
                                     </div>
                                 </li>
                             </ul>

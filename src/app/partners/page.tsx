@@ -122,7 +122,7 @@ export default function PartnersPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                Every buyer is verified with Government ID. We gate high-value transactions to ensure you only deal with serious, legitimate collectors. Secure payments via Stripe mean you get paid fast.
+                                Every buyer is verified with Government ID. We gate high-value transactions to ensure you only deal with serious, legitimate collectors. Buyers pay you directly by PayID or cash on pickup, so you get paid fast with no processing fees.
                             </p>
                         </CardContent>
                     </Card>
@@ -186,7 +186,7 @@ export default function PartnersPage() {
                                 },
                                 {
                                     title: "Seamless Payments",
-                                    desc: "Integrated Stripe processing for secure checkouts, Apple Pay, and Google Pay, without the complexity of manual setup.",
+                                    desc: "Direct PayID and cash-on-pickup payments, with no card processing fees or setup.",
                                     icon: <ShieldCheck className="w-5 h-5 text-primary" />
                                 },
                                 {
