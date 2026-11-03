@@ -289,16 +289,21 @@ export async function publishListing(draftId: string, idToken: string): Promise<
 }
 
 /**
- * Publishes a batch of draft listings on the server in one request.
- * Continues on the server even if the user closes the browser tab after triggering.
+ * Publishes up to 50 draft listings in one request. The client sends larger sets in chunks
+ * and must stay open until every chunk finishes.
  */
 export async function publishBatchListingsAction(
     draftIds: string[],
     idToken: string
 ): Promise<{ published: string[]; errors: Record<string, string> }> {
+    if (!Array.isArray(draftIds) || draftIds.length === 0 || !draftIds.every((id) => typeof id === 'string' && id.length > 0)) {
+        throw new Error('draftIds must be a non-empty array of ids.');
+    }
+    if (typeof idToken !== 'string' || !idToken) throw new Error('Not signed in.');
+    const ids = [...new Set(draftIds)].slice(0, 50);
     const published: string[] = [];
     const errors: Record<string, string> = {};
-    for (const id of draftIds) {
+    for (const id of ids) {
         try {
             await publishListing(id, idToken);
             published.push(id);

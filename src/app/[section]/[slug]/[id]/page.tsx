@@ -39,9 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : product.condition || null,
   ].filter(Boolean);
 
-  const enrichedTitle = specBits.length > 0
-    ? `${product.title} (${specBits.slice(0, 3).join(' ')}) | ${product.category}`
-    : `${product.title} | ${product.category}`;
+  // Keep the <title> around 60 chars: trim the product part, keep the category suffix.
+  const titleSuffix = ` | ${product.category}`;
+  const titleCore = specBits.length > 0 ? `${product.title} (${specBits.slice(0, 3).join(' ')})` : String(product.title);
+  const maxCore = Math.max(20, 60 - titleSuffix.length);
+  const enrichedTitle = (titleCore.length > maxCore ? `${titleCore.slice(0, maxCore - 1).trimEnd()}…` : titleCore) + titleSuffix;
 
   const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Verified local sellers, PayID & secure local collection.`;
   const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;

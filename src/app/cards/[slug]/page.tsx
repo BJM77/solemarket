@@ -90,7 +90,7 @@ export default async function CardTopicPage({ params }: Props) {
                         Discover the finest {topic.searchQuery} cards on Benched. Our platform connects serious Australian collectors with rare NBA and basketball cards. From graded singles to unopened wax, find exactly what you need to elevate your personal collection.
                     </p>
                     <p className="text-muted-foreground leading-relaxed text-lg">
-                        All high-value transactions are secured via DealSafe, ensuring that both buyers and sellers are protected in the Australian hobby community.
+                        Buyers pay the seller directly by PayID or cash on pickup, so there are no middleman fees for the Australian hobby community.
                     </p>
                 </div>
 
@@ -99,7 +99,7 @@ export default async function CardTopicPage({ params }: Props) {
                     <div className="space-y-6">
                         <div>
                             <h4 className="font-bold text-lg mb-2">Are the {topic.searchQuery} cards here authentic?</h4>
-                            <p className="text-muted-foreground">Yes. Many cards on Benched are already PSA or BGS graded. For raw cards, every transaction goes through our verified peer-to-peer network. Funds are securely locked in DealSafe escrow until the buyer confirms the item matches the condition described.</p>
+                            <p className="text-muted-foreground">Yes. Many cards on Benched are already PSA or BGS graded. For raw cards, check the photos and condition notes, message the seller with any questions, and pay directly by PayID or cash on pickup.</p>
                         </div>
                         <div>
                             <h4 className="font-bold text-lg mb-2">How much are selling fees for {topic.searchQuery} cards?</h4>
@@ -115,7 +115,7 @@ export default async function CardTopicPage({ params }: Props) {
                 <FAQSchema questions={[
                     {
                         question: `Are the ${topic.searchQuery} cards here authentic?`,
-                        answer: `Yes. Many cards on Benched are already PSA or BGS graded. For raw cards, every transaction goes through our verified peer-to-peer network. Funds are securely locked in DealSafe escrow until the buyer confirms the item matches the condition described.`
+                        answer: `Yes. Many cards on Benched are already PSA or BGS graded. For raw cards, check the photos and condition notes, message the seller with any questions, and pay directly by PayID or cash on pickup.`
                     },
                     {
                         question: `How much are selling fees for ${topic.searchQuery} cards?`,

@@ -15,7 +15,7 @@ export async function generateMetadata({
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
   let title = 'Buy Trading Cards in Australia | Pokémon, NBA & Sports Cards';
-  let description = 'Buy and sell Pokémon, NBA and sports trading cards in Australia, raw and graded. Verified sellers, DealSafe escrow and Australia-wide shipping.';
+  let description = 'Buy and sell Pokémon, NBA and sports trading cards in Australia, raw and graded. Pay sellers directly by PayID or cash on pickup.';
 
   if (q && category) {
     title = `Buy ${q} Cards in ${category}`;

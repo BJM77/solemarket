@@ -28,24 +28,40 @@ const fakeCamera = (mode: 'card' | 'empty') => `
   })();
 `;
 
-test('AutoCard auto-captures front then back and offers a draft', async ({ page }) => {
-  await page.addInitScript(fakeCamera('card'));
+/** /sell/autofast is a signed-in seller page; set E2E_SESSION_COOKIE (a Firebase session cookie) to run the capture tests. */
+const session = process.env.E2E_SESSION_COOKIE;
+const signIn = async (page: import('@playwright/test').Page, baseURL?: string) => {
+  await page.context().addCookies([{ name: '__session', value: session!, url: baseURL || 'http://localhost:9007' }]);
+};
+
+test('/autocard redirects to Autofast, which requires sign-in', async ({ page }) => {
   await page.goto('/autocard');
-  await expect(page.getByRole('heading', { name: 'AutoCard' })).toBeVisible({ timeout: 15000 });
-  await expect(page.getByTestId('autocard-outline')).toBeVisible({ timeout: 15000 });
-  await expect(page.getByTestId('autocard-front')).toBeVisible({ timeout: 15000 });
-  await expect(page.getByTestId('autocard-back')).toBeVisible({ timeout: 15000 });
-  const size = await page.getByTestId('autocard-front').evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]);
-  expect(size).toEqual([1260, 1760]);
-  await expect(page.getByRole('button', { name: 'Create listing draft' })).toBeVisible();
-  await page.getByRole('button', { name: 'Retake back' }).click();
-  await expect(page.getByTestId('autocard-guidance').first()).toBeVisible();
+  await expect(page).toHaveURL(/\/sign-in\?redirect=%2Fsell%2Fautofast/, { timeout: 15000 });
 });
 
-test('AutoCard shows guidance and manual shutter when no card is present', async ({ page }) => {
-  await page.addInitScript(fakeCamera('empty'));
-  await page.goto('/autocard');
-  await expect(page.getByTestId('autocard-guidance').filter({ hasText: /Place (a )?card|background/i }).first()).toBeVisible({ timeout: 15000 });
-  await page.getByRole('button', { name: /Take photo manually/ }).click();
-  await expect(page.getByTestId('autocard-front')).toBeVisible();
+test.describe('Autofast capture', () => {
+  test.skip(!session, 'needs E2E_SESSION_COOKIE');
+
+  test('auto-captures front then back and hands the card off', async ({ page, baseURL }) => {
+    await signIn(page, baseURL);
+    await page.addInitScript(fakeCamera('card'));
+    await page.goto('/sell/autofast');
+    await expect(page.getByRole('heading', { name: 'Autofast' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('autocard-outline')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('autocard-front')).toBeVisible({ timeout: 15000 });
+    const size = await page.getByTestId('autocard-front').evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]);
+    expect(size).toEqual([1260, 1760]);
+    // Rapid mode saves the pair in the background and resets for the next card.
+    await expect(page.getByText('Card saved ✓').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('autofast-status')).toBeVisible();
+  });
+
+  test('shows guidance and manual shutter when no card is present', async ({ page, baseURL }) => {
+    await signIn(page, baseURL);
+    await page.addInitScript(fakeCamera('empty'));
+    await page.goto('/sell/autofast');
+    await expect(page.getByTestId('autocard-guidance').filter({ hasText: /Place (a )?card|background/i }).first()).toBeVisible({ timeout: 15000 });
+    await page.getByRole('button', { name: /Take photo manually/ }).click();
+    await expect(page.getByTestId('autocard-front')).toBeVisible();
+  });
 });
