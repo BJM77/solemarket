@@ -2,6 +2,7 @@
 import { assertRateLimit } from '@/lib/rate-limit-guard';
 
 import { ai } from '@/ai/genkit';
+import { VISION_MODEL_CHAIN, runPromptWithFallback } from '@/ai/utils/model-fallback';
 import { 
     bulkSuggestCardsInputSchema, 
     bulkSuggestCardsOutputSchema, 
@@ -19,21 +20,21 @@ export async function bulkSuggestCards(input: BulkSuggestCardsInput): Promise<an
     return await runAIWorkflow<BulkSuggestCardsOutput>(
         input,
         async (validatedInput) => {
-            const { output } = await bulkSuggestCardsPrompt(validatedInput);
+            const { output } = await runPromptWithFallback(bulkSuggestCardsPrompt as any, validatedInput, { label: 'bulkSuggestCards', timeoutMs: 60_000 });
             if (!output) throw new Error("AI failed to return valid metadata for the batch.");
-            return output;
+            return output as any;
         },
         {
             feature: 'bulk-card-suggestion',
             usageType: 'vision_analysis',
-            maxRetries: 3
+            maxRetries: 1
         }
     );
 }
 
 const bulkSuggestCardsPrompt = ai.definePrompt({
     name: 'bulkSuggestCardsPrompt',
-    model: 'googleai/gemini-3.6-flash',
+    model: VISION_MODEL_CHAIN[0],
     input: { schema: bulkSuggestCardsInputSchema },
     output: { schema: bulkSuggestCardsOutputSchema },
     prompt: `You are a world-class expert at identifying and valuing sports and collector cards. 
