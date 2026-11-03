@@ -1,5 +1,6 @@
 import 'server-only';
 import * as admin from 'firebase-admin';
+import { resolveAdminCredential } from './admin-credential';
 
 // Re-export admin for convenience
 export { admin };
@@ -48,82 +49,22 @@ function initializeFirebaseAdmin() {
             });
         }
 
-        // Priority 2: Service Account JSON from Environment Variable (Generic/GCP)
-        const saJson = process.env.SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-        if (saJson) {
-            try {
-                const serviceAccount = JSON.parse(saJson);
-                if (serviceAccount.private_key) {
-                    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-                }
-                return admin.initializeApp({
-                    ...config,
-                    credential: admin.credential.cert(serviceAccount),
-                });
-            } catch (error: any) {
-                console.warn('⚠️ Firebase Admin: SERVICE_ACCOUNT_JSON parsing failed:', error.message);
-            }
+        // Priority 2: env-var service account (validated). Falls back to ADC
+        // (App Hosting's runtime service account) when absent or invalid.
+        const resolved = resolveAdminCredential();
+        if (resolved.kind === 'cert') {
+            console.log(`✅ Firebase Admin: using service-account credential from ${resolved.from}`);
+            return admin.initializeApp({
+                ...config,
+                credential: admin.credential.cert({
+                    projectId: resolved.projectId || projectId,
+                    clientEmail: resolved.clientEmail,
+                    privateKey: resolved.privateKey,
+                }),
+            });
         }
 
-        // Priority 2: Individual Secret Environment Variables (App Hosting/Secrets)
-        const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
-        const pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY;
-
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('DIAGNOSTICS:', { hasClientEmail: !!clientEmail, hasPk: !!pk });
-        }
-
-        if (pk && clientEmail) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.log('✅ Firebase Admin: Using Individual Secrets');
-            }
-            try {
-                // Formatting Fixes for Private Key
-                let privateKey = pk.trim();
-
-                // Handle literal string "\n"
-                if (privateKey.includes('\\n')) {
-                    privateKey = privateKey.replace(/\\n/g, '\n');
-                }
-
-                // Ensure newlines are restored if they were stripped (common in some UI dashboards)
-                // PEM keys must have newlines between lines.
-                if (!privateKey.includes('\n')) {
-                    if (process.env.NODE_ENV !== 'production') {
-                        console.log('🔧 Firebase Admin: Single-line private key detected, attempting to restore PEM formatting.');
-                    }
-                    // Standard PEM line length is 64 chars, but we only really care about the wrap
-                    privateKey = privateKey
-                        .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
-                        .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----\n');
-
-                    // We can't easily guess where the internal newlines should be if they are gone, 
-                    // but usually modern Google SDKs can handle long lines IF the header/footer are on their own lines.
-                }
-
-                // Strip extra quotes
-                if (privateKey.startsWith('"') && privateKey.endsWith('"')) privateKey = privateKey.slice(1, -1);
-                if (privateKey.startsWith("'") && privateKey.endsWith("'")) privateKey = privateKey.slice(1, -1);
-
-                console.log(`✅ Firebase Admin: Initialized for project ${process.env.FIREBASE_ADMIN_PROJECT_ID || projectId}`);
-                return admin.initializeApp({
-                    ...config,
-                    credential: admin.credential.cert({
-                        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || projectId,
-                        clientEmail: clientEmail.trim(),
-                        privateKey: privateKey,
-                    }),
-                });
-            } catch (error: any) {
-                console.error('❌ Firebase Admin: Failed to initialize with individual secrets:', error.message);
-            }
-        }
-
-        // Priority 3: Default ADC Fallback (Production/GCP)
-        // This works automatically on Google Cloud without manual file checks
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('ℹ️ Firebase Admin: Falling back to Application Default Credentials');
-        }
+        console.log(`ℹ️ Firebase Admin: using Application Default Credentials (${resolved.reason}).`);
         return admin.initializeApp({
             ...config,
             credential: admin.credential.applicationDefault(),
