@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { getDraftListing, publishBatchListingsAction, publishListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { getDraftListing, publishListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { startBulkPublishJobAction, getBulkPublishJobAction } from '@/app/actions/seller/publish-jobs';
+
+const JOB_KEY = 'picksy:bulk-publish-job';
 import { priceCheckAction } from '@/app/actions/marketplace/price-check';
 import { loadDraftIds, removeDraftIds } from '@/lib/bulk/draft-store';
 import { CONDITIONS } from '@/lib/listing-wizard/steps';
@@ -162,60 +165,66 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
     if (!targetRows.length) { setPublishing(false); return; }
     targetRows.forEach((r) => patch(r.id, { busy: true, error: undefined }));
 
-    // Chunk publishing into batches of 50 to prevent network/server timeouts
-    const BATCH_SIZE = 50;
-    const allPublished: string[] = [];
-    const allErrors: Record<string, string> = {};
-
-    const chunks: Row[][] = [];
-    for (let i = 0; i < targetRows.length; i += BATCH_SIZE) {
-      chunks.push(targetRows.slice(i, i + BATCH_SIZE));
+    let jobId: string;
+    try {
+      ({ jobId } = await startBulkPublishJobAction(targetRows.map((r) => r.id), token));
+    } catch (err: any) {
+      targetRows.forEach((r) => patch(r.id, { busy: false, error: err?.message || 'Could not start publishing' }));
+      setPublishing(false);
+      return;
     }
-
+    try { localStorage.setItem(JOB_KEY, jobId); } catch { /* ignore */ }
     toast({
-      title: `Publishing ${targetRows.length} listing${targetRows.length === 1 ? '' : 's'}…`,
-      description: chunks.length > 1
-        ? `Processing ${chunks.length} batches of up to ${BATCH_SIZE}. Keep this tab open until finished.`
-        : 'Publishing batch to marketplace. Keep tab open until finished.',
+      title: `Publishing ${targetRows.length} listing${targetRows.length === 1 ? '' : 's'} in the background`,
+      description: 'You can leave this page; publishing carries on. Come back to see results.',
     });
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      try {
-        const { published, errors } = await publishBatchListingsAction(chunk.map((r) => r.id), token);
-        allPublished.push(...published);
-        Object.assign(allErrors, errors);
-      } catch (err: any) {
-        chunk.forEach((r) => {
-          allErrors[r.id] = err?.message || 'Batch request failed';
-        });
-      }
-
-      // Mark finished chunk state in UI progressively
-      chunk.forEach((r) => {
-        if (!allErrors[r.id]) {
-          patch(r.id, { busy: false, error: undefined });
-        } else {
-          patch(r.id, { busy: false, error: allErrors[r.id] });
-        }
-      });
-    }
-
-    if (allPublished.length) {
-      removeDraftIds(allPublished);
-      setRows((rs) => rs.filter((r) => !allPublished.includes(r.id)));
-      setSelected((s) => {
-        const next = new Set(s);
-        allPublished.forEach((id) => next.delete(id));
-        return next;
-      });
-    }
-    setPublishing(false);
-    toast({
-      title: `Published ${allPublished.length} of ${targetRows.length}`,
-      description: allPublished.length < targetRows.length ? 'Some need fixing (e.g. price > $0), see red notes.' : 'All selected cards are now live!',
-    });
+    setJobId(jobId);
   };
+
+  // Poll the background job and reflect progress in the grid.
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobProgress, setJobProgress] = useState<{ processed: number; total: number } | null>(null);
+  useEffect(() => {
+    if (jobId) return;
+    try { const saved = localStorage.getItem(JOB_KEY); if (saved) { setJobId(saved); setPublishing(true); } } catch { /* ignore */ }
+  }, [jobId]);
+  useEffect(() => {
+    if (!jobId || isUserLoading || !user) return;
+    let stopped = false;
+    const seen = new Set<string>();
+    const tick = async () => {
+      if (stopped) return;
+      try {
+        const token = (await getCurrentUserIdToken()) ?? '';
+        const job = await getBulkPublishJobAction(jobId, token);
+        if (stopped) return;
+        if (!job) { try { localStorage.removeItem(JOB_KEY); } catch { /* ignore */ } setJobId(null); setJobProgress(null); setPublishing(false); return; }
+        setJobProgress({ processed: job.processed, total: job.total });
+        const fresh = job.published.filter((id) => !seen.has(id));
+        fresh.forEach((id) => seen.add(id));
+        if (fresh.length) {
+          removeDraftIds(fresh);
+          setRows((rs) => rs.filter((r) => !fresh.includes(r.id)));
+          setSelected((s) => { const next = new Set(s); fresh.forEach((id) => next.delete(id)); return next; });
+        }
+        Object.entries(job.errors).forEach(([id, msg]) => patch(id, { busy: false, error: msg }));
+        if (job.status === 'done' || job.status === 'failed') {
+          try { localStorage.removeItem(JOB_KEY); } catch { /* ignore */ }
+          setJobId(null); setJobProgress(null); setPublishing(false);
+          const failed = Object.keys(job.errors).length;
+          toast({
+            title: `Published ${job.published.length} of ${job.total}`,
+            description: failed ? 'Some need fixing (e.g. price > $0), see red notes.' : 'All selected cards are now live!',
+          });
+          return;
+        }
+      } catch { /* transient; retry */ }
+      setTimeout(tick, 2500);
+    };
+    void tick();
+    return () => { stopped = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobId, isUserLoading, user]);
 
   if (!isUserLoading && !user) return <p className="text-sm"><Link href="/sign-in?redirect=/sell/drafts-review" className="text-primary underline">Sign in</Link> to review your drafts.</p>;
   if (loading) return <p className="text-sm text-muted-foreground">Loading drafts…</p>;
@@ -223,6 +232,11 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
 
   return (
     <div className="space-y-4" data-testid="draft-review-grid">
+      {jobProgress && (
+        <div role="status" className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm text-slate-800" data-testid="bulk-publish-progress">
+          Publishing in the background: {jobProgress.processed} of {jobProgress.total} done. You can leave this page.
+        </div>
+      )}
       <div className="rounded-xl border border-border bg-white p-3 flex flex-wrap items-end gap-2">
         <label className="text-xs font-medium">Price (AUD)
           <Input className="w-28 h-9" inputMode="decimal" value={batchPrice} onChange={(e) => setBatchPrice(e.target.value)} placeholder="e.g. 5" />
