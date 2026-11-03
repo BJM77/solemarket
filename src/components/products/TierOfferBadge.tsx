@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { Layers, ArrowRight } from 'lucide-react';
+import { Layers } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTierSettings } from '@/hooks/use-tier-settings';
 import { TIER_LABEL, groupNoun, isBundleTier, tierGroupFor, tierOfferText } from '@/lib/tier-bundles';
 import { TIER_STYLE } from '@/components/sell/BundleTierPicker';
@@ -27,21 +28,22 @@ export function TierOfferBadge({ tier, category, sellerId }: { tier?: string | n
     const remainder = totalWithCurrent % rule.quantity;
     const neededMore = remainder === 0 ? 0 : rule.quantity - remainder;
 
+    const fullText = neededMore === 0
+        ? `${TIER_LABEL[tier]} Multibuy: eligible for the $${rule.price} ${TIER_LABEL[tier]} bundle with this item (${totalWithCurrent} ${groupNoun(group, totalWithCurrent)})`
+        : `${TIER_LABEL[tier]} Multibuy: Add ${neededMore} more in ${TIER_LABEL[tier]} for $${rule.price} (${tierOfferText(rule).replace(' for ', ` ${groupNoun(group, rule.quantity)} for `)})`;
+
     return (
-        <Link href={sellerId ? `/multibuy?tier=${tier}&seller=${sellerId}` : `/multibuy?tier=${tier}`} data-testid="tier-offer-badge"
-            className={`flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold w-full transition-all hover:opacity-90 ${TIER_STYLE[tier]}`}>
-            <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 shrink-0" aria-hidden />
-                <span>
-                    <span className="font-black uppercase tracking-wider">{TIER_LABEL[tier]} Multibuy:</span>{' '}
-                    {neededMore === 0 ? (
-                        <>Eligible for <b>${rule.price}</b> {TIER_LABEL[tier]} bundle with this item ({totalWithCurrent} cards)!</>
-                    ) : (
-                        <>Add <b>{neededMore} more</b> in {TIER_LABEL[tier]} for <b>${rule.price}</b> ({tierOfferText(rule).replace(' for ', ` ${groupNoun(group, rule.quantity)} for `)})</>
-                    )}
-                </span>
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-70" />
-        </Link>
+        <TooltipProvider delayDuration={150}>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Link href={`/multibuy?tier=${tier}`} data-testid="tier-offer-badge" aria-label={fullText} title={fullText}
+                        className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider transition-all hover:opacity-90 ${TIER_STYLE[tier]}`}>
+                        <Layers className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                        {TIER_LABEL[tier]}
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">{fullText}</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     );
 }
