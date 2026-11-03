@@ -87,6 +87,10 @@ const nextConfig = {
   async redirects() {
     return [
       // Routes that previously fell through to the generic category template.
+      // Retired scanner tools (consolidated into Fast Bulk / Autofast).
+      { source: '/scan', destination: '/sell/fast-bulk', permanent: true },
+      { source: '/card-scan', destination: '/sell/fast-bulk', permanent: true },
+      { source: '/sell/bulk-lister', destination: '/sell/fast-bulk', permanent: true },
       { source: '/dealsafe', destination: '/help#how-payment-works', permanent: true },
       { source: '/sell/guide', destination: '/sell', permanent: true },
       { source: '/profile/settings', destination: '/profile', permanent: false },
