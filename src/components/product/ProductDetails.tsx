@@ -671,7 +671,7 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                         <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-border text-white shadow-xl overflow-hidden rounded-2xl">
                             <CardContent className="p-6 space-y-4">
                                 <h3 className="font-black text-sm uppercase tracking-wider text-primary flex items-center gap-2">
-                                    <ShieldCheck className="h-5 w-5" /> Benched DealSafe Guarantee
+                                    <ShieldCheck className="h-5 w-5" /> How buying works on Benched
                                 </h3>
                                 <div className="space-y-3">
                                     <div className="flex gap-3 items-start">
@@ -679,8 +679,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                             <ShieldCheck className="h-4 w-4 text-primary" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-xs font-bold">Expert Authenticity Verification</p>
-                                            <p className="text-[10px] text-muted-foreground">All high-value items are processed and inspected by expert hobby grading partners before final dispatch.</p>
+                                            <p className="text-xs font-bold">Check before you pay</p>
+                                            <p className="text-[10px] text-muted-foreground">Ask the seller for extra photos or meet in Perth to inspect the item before handing over money.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 items-start">
@@ -697,8 +697,8 @@ export default function ProductDetails({ productId, initialProduct }: { productI
                                             <CheckCircle className="h-4 w-4 text-primary" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-xs font-bold">Conflict Protocol Protection</p>
-                                            <p className="text-[10px] text-muted-foreground">Easy claim resolution. If the item doesn't arrive or is not as described, activate the dispute protocol for mediation.</p>
+                                            <p className="text-xs font-bold">Report a problem</p>
+                                            <p className="text-[10px] text-muted-foreground">If an item isn&apos;t as described, contact us through the Help page and we&apos;ll review the seller.</p>
                                         </div>
                                     </div>
                                 </div>

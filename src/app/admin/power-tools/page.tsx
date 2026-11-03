@@ -65,10 +65,10 @@ const powerTools = [
         color: 'bg-pink-600',
     },
     {
-        title: 'Bulk Image Lister',
+        title: 'Fast Bulk Lister',
         description: 'Upload multiple images and let AI create listings',
         icon: Upload,
-        href: '/sell/bulk-lister',
+        href: '/sell/fast-bulk',
         color: 'bg-orange-500',
     },
     {
