@@ -6,7 +6,7 @@ import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export const metadata: Metadata = {
   title: 'Buy Collector Cards & NBA Trading Cards',
-  description: 'Shop the finest collection of NBA, Pokémon, and rare collector cards in Australia. Verified authentic, hobby-focused marketplace with secure DealSafe protection.',
+  description: 'Shop the finest collection of NBA, Pokémon, and rare collector cards in Australia. Verified authentic, hobby-focused marketplace with PayID or cash-on-pickup payments.',
   keywords: ['collector cards', 'nba cards', 'pokemon cards', 'panini', 'topps', 'australia'],
 };
 
@@ -71,7 +71,7 @@ export default async function CollectorCardsPage({
                 Benched is the premier Australian destination for serious card collectors and hobbyists. We specialize in providing a safe, hobby-first marketplace for NBA, Pokémon, and high-value trading cards. Whether you are searching for a Victor Wembanyama rookie card to complete your set or hunting for a rare Pokémon 151 booster box, Benched connects you with authentic listings from across the country.
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-                Our platform features zero seller fees, ensuring that collectors can grow their portfolios without losing value to high commissions. Every high-value card transaction is secured via our DealSafe escrow system, providing the most reliable way to buy and sell premium collectibles in Melbourne, Sydney, Perth, and beyond.
+                Our platform features zero seller fees, ensuring that collectors can grow their portfolios without losing value to high commissions. Buyers pay sellers directly by PayID or cash on pickup, the simplest way to buy and sell premium collectibles in Melbourne, Sydney, Perth, and beyond.
             </p>
         </div>
       </div>

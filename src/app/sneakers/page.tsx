@@ -71,7 +71,7 @@ export default async function SneakersPage({
                 Benched is the premier Australian destination for sneakerheads and basketball players. We specialize in providing a safe, transparent, and local marketplace for performance footwear. Whether you are hunting for the latest Jordan 1 Retro or looking for a performance pair of Kobe 6s to take to the court, Benched connects you with authentic listings from thousands of local collectors.
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-                By focusing on a peer-to-peer model with zero seller fees, we ensure that collectors keep more of their money while browsers find the best deals in Australia. Every transaction is protected by our DealSafe security, giving you peace of mind from Perth to Sydney and everywhere in between.
+                By focusing on a peer-to-peer model with zero seller fees, we ensure that collectors keep more of their money while browsers find the best deals in Australia. Buyers pay sellers directly by PayID or cash on pickup, keeping things simple from Perth to Sydney and everywhere in between.
             </p>
         </div>
       </div>

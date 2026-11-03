@@ -15,7 +15,7 @@ export async function generateMetadata({
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Sneakers';
 
   let title = 'Buy Sneakers Online in Australia | Authentic Kicks';
-  let description = 'Buy and sell authentic sneakers in Australia: Nike, Jordan, adidas, New Balance and more. Verified sellers, DealSafe escrow and Australia-wide shipping.';
+  let description = 'Buy and sell authentic sneakers in Australia: Nike, Jordan, adidas, New Balance and more. Verified sellers, PayID or cash on pickup, and Australia-wide shipping.';
 
   if (q && category) {
     title = `Buy ${q} Sneakers in ${category}`;

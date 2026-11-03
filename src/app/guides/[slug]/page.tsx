@@ -149,7 +149,7 @@ export default async function GuideArticlePage({ params }: Props) {
                         <div className="bg-orange-50 dark:bg-orange-950/30 rounded-3xl p-8 text-center sm:text-left sm:flex items-center justify-between border border-orange-100 dark:border-orange-900/50">
                             <div>
                                 <h3 className="text-2xl font-black tracking-tight mb-2 text-orange-950 dark:text-white">Ready to start buying safely?</h3>
-                                <p className="text-orange-800/70 dark:text-orange-200/70 font-medium mb-6 sm:mb-0">Find verified items with DealSafe protection.</p>
+                                <p className="text-orange-800/70 dark:text-orange-200/70 font-medium mb-6 sm:mb-0">Find verified items and pay by PayID or cash on pickup.</p>
                             </div>
                             <Link href="/browse" className="inline-flex h-14 items-center justify-center rounded-2xl bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 w-full sm:w-auto shrink-0">
                                 Explore the Marketplace

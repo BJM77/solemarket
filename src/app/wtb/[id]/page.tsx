@@ -209,7 +209,7 @@ export default async function WTBDetailPage({ params }: { params: Promise<{ id: 
                                 </div>
                                 <div className="flex gap-4">
                                     <span className="text-primary">04</span>
-                                    <p>Escrow payment via DealSafe is recommended.</p>
+                                    <p>Pay by PayID shown on your Benched order page, or cash when you inspect in person.</p>
                                 </div>
                             </CardContent>
                         </Card>

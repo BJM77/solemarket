@@ -158,7 +158,7 @@ export default async function ComparisonPage({ params }: Props) {
                             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                                 <div className="flex items-center gap-3 bg-muted p-4 rounded-2xl backdrop-blur-sm border border-border">
                                     <ShieldCheck className="w-6 h-6 text-primary" />
-                                    <span className="text-sm font-bold">DealSafe Protected</span>
+                                    <span className="text-sm font-bold">PayID or Cash Pickup</span>
                                 </div>
                                 <div className="flex items-center gap-3 bg-muted p-4 rounded-2xl backdrop-blur-sm border border-border">
                                     <CheckCircle2 className="w-6 h-6 text-primary" />

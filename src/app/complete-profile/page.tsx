@@ -69,7 +69,7 @@ export default function CompleteProfilePage() {
             location: '',
             storeName: '',
             storeDescription: '',
-            acceptsStripe: true,
+            acceptsStripe: false,
             acceptsCOD: false,
             acceptsPayID: false,
             agreedToTerms: false,

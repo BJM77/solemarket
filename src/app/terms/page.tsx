@@ -32,7 +32,7 @@ export default function TermsPage() {
         <h2>3. Fees and Payments</h2>
         <p>
           You agree to pay the fees for using the Service as described on our Fees page. All fees are in Australian Dollars (AUD).
-          We use third-party payment processors (Stripe/PayPal) to handle secure transactions.
+          Buyers pay sellers directly by PayID or cash on pickup. Benched does not hold or process payments.
         </p>
 
         <h2>4. Shipping and Delivery</h2>

@@ -149,7 +149,7 @@ export default async function BrowsePage({
                 Explore the full lineup of authentic sneakers and collector cards on Benched. Our marketplace is designed specifically for the Australian hobby community, offering a secure peer-to-peer platform where buyers and sellers can trade with confidence. From deadstock grails and performance basketball shoes to PSA-graded trading cards, our selection is curated by local enthusiasts.
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-                By eliminating seller fees and implementing our DealSafe escrow protection, Benched provides the most transparent way to upgrade your collection. Based in Perth and serving all of Australia, we pride ourselves on being the fastest and safest secondary market for the modern collector.
+                By eliminating seller fees and letting buyers pay sellers directly by PayID or cash on pickup, Benched provides the most transparent way to upgrade your collection. Based in Perth and serving all of Australia, we pride ourselves on being the fastest and safest secondary market for the modern collector.
             </p>
         </div>
       </Suspense>

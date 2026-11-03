@@ -96,7 +96,7 @@ function SignUpFormInner() {
         : "buyer",
       storeName: "",
       storeDescription: "",
-      acceptsStripe: true,
+      acceptsStripe: false,
       acceptsCOD: false,
       acceptsPayID: false,
       agreedToTerms: false,

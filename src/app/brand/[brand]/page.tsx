@@ -44,7 +44,7 @@ export default async function BrandPage({ params }: Props) {
       <InfiniteProductGrid
         pageTitle={displayBrand}
         pageDescription={`Explore all authenticated ${displayBrand} items available on Benched.`}
-        intro={`Shop authentic ${displayBrand} from verified Australian sellers, with DealSafe escrow and Australia-wide shipping.`}
+        intro={`Shop authentic ${displayBrand} from verified Australian sellers, paying by PayID or cash on pickup, with Australia-wide shipping.`}
         initialFilterState={{ subCategory: displayBrand, brand: displayBrand }}
         titleAsH1
       />

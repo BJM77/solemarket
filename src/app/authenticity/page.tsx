@@ -7,7 +7,7 @@ import FAQSchema from "@/components/seo/FAQSchema";
 const authenticityFaqs = [
   {
     question: "Does Benched authenticate items?",
-    answer: "No single authority can physically authenticate every item traded online instantly. Instead, Benched utilizes a multi-layered trust approach: AI Vision pre-screening during listing, DealSafe escrow protection for funds, and a strict seller penalty system for counterfeits."
+    answer: "No single authority can physically authenticate every item traded online instantly. Instead, Benched utilizes a multi-layered trust approach: AI Vision pre-screening during listing, direct PayID or cash-on-pickup payments so buyers can inspect before paying in person, and a strict seller penalty system for counterfeits."
   },
   {
     question: "What is AI Pre-Screening?",
@@ -15,11 +15,11 @@ const authenticityFaqs = [
   },
   {
     question: "What happens if I receive a fake item?",
-    answer: "If you purchase an item using DealSafe, your funds are held in escrow. If the item arrives and is demonstrably fake or severely misrepresented, you report it to our integrity team before releasing the funds. Upon review, you return the item, and your money is refunded in full."
+    answer: "Benched doesn't hold payments, so for high-value items we recommend cash on pickup in Perth, where you inspect the item before paying. If a PayID purchase arrives fake or severely misrepresented, report it to us from your order page. We investigate, remove the listing and ban sellers who sell replicas."
   },
   {
     question: "Can anyone sell on Benched?",
-    answer: "Yes, we are a peer-to-peer marketplace. However, sellers who abuse the platform or attempt to sell replicas are permanently banned, and their held DealSafe funds may be forfeited to compensate injured parties."
+    answer: "Yes, we are a peer-to-peer marketplace. However, sellers who abuse the platform or attempt to sell replicas are permanently banned, and we cooperate with police and banks on fraud reports."
   }
 ];
 
@@ -57,9 +57,9 @@ export default function AuthenticityPage() {
                     <Card className="bg-card border-border hover:border-emerald-500/50 transition-colors">
                         <CardContent className="p-8">
                             <LockIcon className="h-12 w-12 text-emerald-700 mb-6" />
-                            <h3 className="text-xl font-bold text-foreground mb-4">2. DealSafe Escrow Hub</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-4">2. Inspect Before You Pay</h3>
                             <p className="text-muted-foreground leading-relaxed">
-                                We hold the buyer's money until the item arrives. Attempting to scam a buyer is pointless because the seller never gets paid if the item is rejected by the buyer for being unauthentic. The financial incentive to scam is removed.
+                                Cash on pickup in Perth lets you check the item in person before any money changes hands. For PayID orders, only pay the PayID shown on your Benched order page, with your order reference.
                             </p>
                         </CardContent>
                     </Card>
@@ -81,10 +81,10 @@ export default function AuthenticityPage() {
                         Buyer Responsibility
                     </h2>
                     <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-                        While our software and escrow systems provide a steel net, peer-to-peer trading requires vigilance. We encourage all buyers to carefully inspect high-resolution photos provided by sellers, engage in dialogue, and utilize our **DealSafe** service for any significant transaction.
+                        While our software and seller checks help, peer-to-peer trading requires vigilance. We encourage all buyers to carefully inspect high-resolution photos provided by sellers, engage in dialogue, and inspect in person with cash on pickup for any significant purchase.
                     </p>
                     <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground">
-                        <CheckCircle className="text-green-700 h-5 w-5" /> All purchases made outside of the DealSafe environment are done at the buyer's own risk.
+                        <CheckCircle className="text-green-700 h-5 w-5" /> Never pay a PayID or bank account sent to you by message, email or text.
                     </div>
                 </div>
             </div>
