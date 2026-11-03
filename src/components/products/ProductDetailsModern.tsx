@@ -1282,7 +1282,7 @@ export default function ProductDetailsModern({
                                                         )}
 
                                                         <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
-                                                            Payments are processed via our secure DealSafe Escrow system. Your funds are protected and only released when you confirm receipt.
+                                                            Pay the seller directly by PayID or cash on pickup.
                                                         </p>
                                                     </div>
                                                 );

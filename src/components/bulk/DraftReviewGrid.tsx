@@ -150,9 +150,16 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
     const token = (await getCurrentUserIdToken()) ?? '';
     // Save any unsaved edits first
     const dirtyTargets = targetRows.filter((r) => r.dirty);
+    const saveFailed = new Set<string>();
     if (dirtyTargets.length) {
-      await Promise.all(dirtyTargets.map((r) => saveRow(r, token).catch((e) => patch(r.id, { error: e?.message }))));
+      await Promise.all(dirtyTargets.map((r) => saveRow(r, token).catch((e) => {
+        saveFailed.add(r.id);
+        patch(r.id, { error: `Save failed, not published: ${e?.message || 'unknown error'}` });
+      })));
     }
+    // Don't publish a row whose edits failed to save (it would go live with stale details).
+    targetRows = targetRows.filter((r) => !saveFailed.has(r.id));
+    if (!targetRows.length) { setPublishing(false); return; }
     targetRows.forEach((r) => patch(r.id, { busy: true, error: undefined }));
 
     // Chunk publishing into batches of 50 to prevent network/server timeouts
