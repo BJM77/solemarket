@@ -101,7 +101,14 @@ if (typeof window !== 'undefined') {
     const useEmulators = process.env.NEXT_PUBLIC_USE_EMULATORS === 'true';
     const isProduction = process.env.NODE_ENV === 'production';
 
-    if (isProduction && useEmulators) {
+    // E2E only: a production build made for CI flow tests (never set in apphosting.yaml).
+    const e2eEmulators = useEmulators && process.env.NEXT_PUBLIC_E2E_EMULATORS === 'true';
+
+    if (e2eEmulators) {
+      connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+      connectFirestoreEmulator(db, "127.0.0.1", 8080);
+      connectStorageEmulator(storage, "127.0.0.1", 9199);
+    } else if (isProduction && useEmulators) {
       console.error('❌ CRITICAL: Emulator mode is enabled in production! This should never happen.');
     } else if (isProduction) {
       console.log('✅ Firebase running in PRODUCTION mode (emulators disabled)');
