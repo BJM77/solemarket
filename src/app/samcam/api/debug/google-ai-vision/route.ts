@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function GET() {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     
     if (!apiKey) {
       return NextResponse.json({
@@ -16,7 +16,7 @@ export async function GET() {
     const genAI = new GoogleGenerativeAI(apiKey);
     
     // Test 1: Simple text model
-    const textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const textPrompt = 'What is 2+2? Answer in one word.';
     
     const textResult = await textModel.generateContent(textPrompt);
@@ -24,7 +24,7 @@ export async function GET() {
     const text = textResponse.text();
 
     // Test 2: Try to use vision (with a simple base64 image or description)
-    const visionModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     // Use a simple base64 encoded 1x1 white pixel
     const testImageBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
@@ -51,12 +51,12 @@ export async function GET() {
         firstChars: apiKey.substring(0, 8) + '...'
       },
       textModelTest: {
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         prompt: textPrompt,
         response: text.trim()
       },
       visionModelTest: {
-        model: 'gemini-1.5-flash (vision)',
+        model: 'gemini-2.5-flash (vision)',
         prompt: visionPrompt,
         response: visionText.trim(),
         note: 'Used a 1x1 white pixel for vision test'
@@ -75,7 +75,7 @@ export async function GET() {
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
       timestamp: new Date().toISOString(),
-      suggestion: 'Check that: 1) API key is valid, 2) Billing is enabled, 3) gemini-1.5-flash model is available in your region'
+      suggestion: 'Check that: 1) API key is valid, 2) Billing is enabled, 3) gemini-2.5-flash model is available in your region'
     }, { status: 500 });
   }
 }

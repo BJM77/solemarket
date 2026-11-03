@@ -7,15 +7,30 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { getDraftListing, publishListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { getDraftListing, publishBatchListingsAction, publishListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { priceCheckAction } from '@/app/actions/marketplace/price-check';
 import { loadDraftIds, removeDraftIds } from '@/lib/bulk/draft-store';
 import { CONDITIONS } from '@/lib/listing-wizard/steps';
+import { TrendingUp, Loader2, Sparkles } from 'lucide-react';
 
 const CARD_CONDITIONS = CONDITIONS['Collector Cards'];
 
-interface Row { id: string; title: string; price: number; condition: string; image?: string; status: string; dirty?: boolean; error?: string; busy?: boolean }
+interface Row {
+  id: string;
+  title: string;
+  price: number;
+  condition: string;
+  image?: string;
+  status: string;
+  dirty?: boolean;
+  error?: string;
+  busy?: boolean;
+  suggestedPrice?: number | null;
+  compSampleSize?: number;
+  checkingPrice?: boolean;
+}
 
-/** Review grid for Fast Bulk / Autofast drafts: inline edit, batch defaults, publish selected. */
+/** Review grid for Fast Bulk / Autofast drafts: inline edit, sold-comp price suggestions, batch defaults, background publish. */
 export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[] }) {
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
@@ -25,6 +40,7 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
   const [batchPrice, setBatchPrice] = useState('');
   const [batchCondition, setBatchCondition] = useState('');
   const [publishing, setPublishing] = useState(false);
+  const [checkingAllPrices, setCheckingAllPrices] = useState(false);
   const idKey = extraIds.join(',');
 
   const load = useCallback(async () => {
@@ -51,6 +67,36 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const allSelected = rows.length > 0 && selected.size === rows.length;
 
+  const suggestPriceForRow = async (r: Row) => {
+    if (!r.title || r.title.trim().length < 3) return;
+    patch(r.id, { checkingPrice: true });
+    try {
+      const token = (await getCurrentUserIdToken()) ?? '';
+      const res = await priceCheckAction(token, { query: r.title, category: 'Collector Cards', condition: r.condition, productId: r.id });
+      if (res.success && res.result.median != null) {
+        patch(r.id, {
+          suggestedPrice: res.result.median,
+          compSampleSize: res.result.sampleSize,
+          ...(r.price <= 0 ? { price: res.result.median, dirty: true } : {}),
+        });
+      } else {
+        patch(r.id, { suggestedPrice: null, compSampleSize: 0 });
+      }
+    } catch {
+      patch(r.id, { suggestedPrice: null });
+    } finally {
+      patch(r.id, { checkingPrice: false });
+    }
+  };
+
+  const suggestAllPrices = async () => {
+    setCheckingAllPrices(true);
+    const targets = selected.size ? rows.filter((r) => selected.has(r.id)) : rows;
+    await Promise.all(targets.map((r) => suggestPriceForRow(r)));
+    setCheckingAllPrices(false);
+    toast({ title: 'Sold-price check complete', description: 'Suggested prices from recent comps have been loaded.' });
+  };
+
   const applyBatch = () => {
     const price = parseFloat(batchPrice);
     const target = selected.size ? selected : new Set(rows.map((r) => r.id));
@@ -73,27 +119,38 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
     toast({ title: `Saved ${dirty.length} draft${dirty.length === 1 ? '' : 's'}` });
   };
 
-  const publishSelected = async () => {
+  const publishBatch = async (targetRows: Row[]) => {
+    if (!targetRows.length) return;
     setPublishing(true);
     const token = (await getCurrentUserIdToken()) ?? '';
-    const chosen = rows.filter((r) => selected.has(r.id));
-    const ok: string[] = [];
-    // Sequential: publish checks the seller's listing limit.
-    for (const r of chosen) {
-      patch(r.id, { busy: true, error: undefined });
-      try {
-        if (r.dirty) await saveRow(r, token);
-        await publishListing(r.id, token);
-        ok.push(r.id);
-      } catch (e: any) {
-        patch(r.id, { error: e?.message || 'Publish failed' });
-      } finally { patch(r.id, { busy: false }); }
+    // Save any unsaved edits first
+    const dirtyTargets = targetRows.filter((r) => r.dirty);
+    if (dirtyTargets.length) {
+      await Promise.all(dirtyTargets.map((r) => saveRow(r, token).catch((e) => patch(r.id, { error: e?.message }))));
     }
-    removeDraftIds(ok);
-    setRows((rs) => rs.filter((r) => !ok.includes(r.id)));
-    setSelected(new Set());
+    targetRows.forEach((r) => patch(r.id, { busy: true, error: undefined }));
+    toast({
+      title: `Publishing ${targetRows.length} listing${targetRows.length === 1 ? '' : 's'} in background…`,
+      description: 'Server is processing your batch — safe to switch or close the tab.',
+    });
+
+    const { published, errors } = await publishBatchListingsAction(targetRows.map((r) => r.id), token);
+    targetRows.forEach((r) => patch(r.id, { busy: false, error: errors[r.id] }));
+
+    if (published.length) {
+      removeDraftIds(published);
+      setRows((rs) => rs.filter((r) => !published.includes(r.id)));
+      setSelected((s) => {
+        const next = new Set(s);
+        published.forEach((id) => next.delete(id));
+        return next;
+      });
+    }
     setPublishing(false);
-    toast({ title: `Published ${ok.length} of ${chosen.length}`, description: ok.length < chosen.length ? 'Some need fixing, see the red notes.' : undefined });
+    toast({
+      title: `Published ${published.length} of ${targetRows.length}`,
+      description: published.length < targetRows.length ? 'Some need fixing (e.g. price > $0), see the red notes.' : 'All selected cards are now live!',
+    });
   };
 
   if (!isUserLoading && !user) return <p className="text-sm"><Link href="/sign-in?redirect=/sell/drafts-review" className="text-primary underline">Sign in</Link> to review your drafts.</p>;
@@ -113,26 +170,42 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
           </select>
         </label>
         <Button variant="outline" size="sm" onClick={applyBatch}>Apply to {selected.size ? 'selected' : 'all'}</Button>
-        <span className="text-xs text-muted-foreground">Category: Collector Cards</span>
+        <Button variant="outline" size="sm" onClick={suggestAllPrices} disabled={checkingAllPrices} data-testid="suggest-sold-prices-btn">
+          {checkingAllPrices ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <TrendingUp className="h-3.5 w-3.5 mr-1.5 text-primary" />}
+          Suggest prices from sold comps
+        </Button>
+        <span className="text-xs text-muted-foreground ml-auto">Category: Collector Cards</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => setSelected(allSelected ? new Set() : new Set(rows.map((r) => r.id)))}>{allSelected ? 'Clear selection' : 'Select all'}</Button>
         <Button variant="outline" size="sm" onClick={saveAll} disabled={!rows.some((r) => r.dirty)}>Save changes</Button>
-        <Button size="sm" className="text-slate-900 font-semibold" onClick={publishSelected} disabled={!selected.size || publishing}>
-          {publishing ? 'Publishing…' : `Publish selected (${selected.size})`}
+        {selected.size > 0 && (
+          <Button size="sm" variant="secondary" className="font-semibold" onClick={() => publishBatch(rows.filter((r) => selected.has(r.id)))} disabled={publishing}>
+            {publishing ? 'Publishing…' : `Publish selected (${selected.size})`}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="bg-primary hover:bg-orange-700 text-primary-foreground font-bold"
+          onClick={() => publishBatch(rows)}
+          disabled={publishing || !rows.length}
+          data-testid="publish-all-background-btn"
+        >
+          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+          {publishing ? 'Publishing in background…' : `Publish All (${rows.length})`}
         </Button>
         <span className="text-xs text-muted-foreground">{rows.length} draft{rows.length === 1 ? '' : 's'}</span>
       </div>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((r) => (
-          <li key={r.id} className={`rounded-xl border bg-white p-2 flex gap-2 ${selected.has(r.id) ? 'border-primary ring-1 ring-primary' : 'border-border'}`}>
+          <li key={r.id} className={`rounded-xl border bg-white p-2.5 flex gap-2.5 ${selected.has(r.id) ? 'border-primary ring-1 ring-primary' : 'border-border'}`}>
             <div className="flex flex-col items-center gap-1">
               <input type="checkbox" aria-label="Select" checked={selected.has(r.id)} onChange={() => toggle(r.id)} className="h-4 w-4 accent-[#f26c0d]" />
               {r.image
                 ? <img src={r.image} alt="" className="h-24 w-[68px] rounded object-cover bg-muted" loading="lazy" />
                 : <div className="h-24 w-[68px] rounded bg-muted" />}
             </div>
-            <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex-1 min-w-0 space-y-1.5">
               <Input className="h-8 text-sm" value={r.title} onChange={(e) => patch(r.id, { title: e.target.value, dirty: true })} aria-label="Title" />
               <div className="flex gap-1">
                 <Input className="h-8 w-20 text-sm" inputMode="decimal" value={r.price || ''} placeholder="$" onChange={(e) => patch(r.id, { price: parseFloat(e.target.value) || 0, dirty: true })} aria-label="Price" />
@@ -141,10 +214,29 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
                   {CARD_CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <Link href={`/sell/create?edit=${r.id}`} className="text-primary underline">Full edit</Link>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                {r.suggestedPrice != null ? (
+                  <button
+                    type="button"
+                    onClick={() => patch(r.id, { price: r.suggestedPrice!, dirty: true })}
+                    className="text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 font-semibold hover:bg-emerald-100"
+                    title="Click to apply suggested price from sold comps"
+                  >
+                    Sold median: ${r.suggestedPrice.toFixed(2)} ({r.compSampleSize} comps) — Use
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => suggestPriceForRow(r)}
+                    disabled={r.checkingPrice || !r.title}
+                    className="text-slate-600 hover:text-primary underline"
+                  >
+                    {r.checkingPrice ? 'Checking comps…' : 'Suggest price'}
+                  </button>
+                )}
+                <Link href={`/sell/create?edit=${r.id}`} className="text-primary underline ml-auto">Full edit</Link>
                 {r.dirty && <span className="text-muted-foreground">unsaved</span>}
-                {r.busy && <span className="text-muted-foreground">working…</span>}
+                {r.busy && <span className="text-muted-foreground">publishing…</span>}
               </div>
               {r.error && <p className="text-xs text-red-600">{r.error}</p>}
             </div>

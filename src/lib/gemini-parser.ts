@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { withRetry } from '@/ai/utils/retry';
 
-const apiKey = process.env.GOOGLE_AI_API_KEY || '';
+const apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export interface StructuredPricingResult {
@@ -16,11 +16,11 @@ export interface StructuredPricingResult {
 
 export async function parseWithGemini(scrapeResult: any): Promise<StructuredPricingResult[]> {
     if (!apiKey) {
-        console.warn('GOOGLE_AI_API_KEY not found. Returning raw data.');
+        console.warn('Gemini API key not found. Returning raw data.');
         return [];
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const itemsSummary = scrapeResult.items?.slice(0, 15).map((item: any) => ({
         t: item.title,

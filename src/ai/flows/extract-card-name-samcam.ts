@@ -23,7 +23,7 @@ export async function extractCardName(
   console.log('[AI] extractCardName called');
   
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       console.error('[AI] GOOGLE_API_KEY is not set');
       throw new Error("GOOGLE_API_KEY environment variable is not set.");
@@ -33,9 +33,9 @@ export async function extractCardName(
     const genAI = new GoogleGenerativeAI(apiKey);
     
     // Choose model based on device characteristics
-    let modelName = 'gemini-1.5-flash';
+    let modelName = 'gemini-2.5-flash';
     if (deviceProfile?.isHighEnd) {
-      modelName = 'gemini-1.5-pro';
+      modelName = 'gemini-2.5-pro';
     }
 
     const model = genAI.getGenerativeModel({ 

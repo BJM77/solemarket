@@ -20,7 +20,7 @@ export async function quickScan(
   console.log('[AI] quickScan called');
 
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       console.error('[AI] GOOGLE_API_KEY is not set');
       throw new Error("GOOGLE_API_KEY environment variable is not set.");
@@ -31,7 +31,7 @@ export async function quickScan(
 
     // Use gemini-2.5-flash which supports vision
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         maxOutputTokens: 300,
       },

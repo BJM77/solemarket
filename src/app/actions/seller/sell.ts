@@ -288,6 +288,27 @@ export async function publishListing(draftId: string, idToken: string): Promise<
     }
 }
 
+/**
+ * Publishes a batch of draft listings on the server in one request.
+ * Continues on the server even if the user closes the browser tab after triggering.
+ */
+export async function publishBatchListingsAction(
+    draftIds: string[],
+    idToken: string
+): Promise<{ published: string[]; errors: Record<string, string> }> {
+    const published: string[] = [];
+    const errors: Record<string, string> = {};
+    for (const id of draftIds) {
+        try {
+            await publishListing(id, idToken);
+            published.push(id);
+        } catch (e: any) {
+            errors[id] = e?.message || 'Publish failed';
+        }
+    }
+    return { published, errors };
+}
+
 /** Tiers of the admin's default multibuy template (empty if none). */
 async function getDefaultMultibuyTiers() {
     try {

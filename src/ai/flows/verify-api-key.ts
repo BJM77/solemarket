@@ -11,13 +11,13 @@ export type VerifyApiKeyOutput = z.infer<typeof VerifyApiKeyOutputSchema>;
 
 export async function verifyApiKey(): Promise<VerifyApiKeyOutput> {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
-        return { isValid: false, error: "GOOGLE_API_KEY environment variable is not set." };
+        return { isValid: false, error: "GOOGLE_GENAI_API_KEY, GEMINI_API_KEY, or GOOGLE_API_KEY environment variable is not set." };
     }
     
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {

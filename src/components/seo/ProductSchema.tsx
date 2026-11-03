@@ -13,21 +13,32 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
     : 5;
 
+  const additionalProperty = [
+    product.year ? { '@type': 'PropertyValue', name: 'Year', value: String(product.year) } : null,
+    (product as any).set ? { '@type': 'PropertyValue', name: 'Set', value: String((product as any).set) } : null,
+    product.cardNumber ? { '@type': 'PropertyValue', name: 'Card Number', value: String(product.cardNumber) } : null,
+    product.gradingCompany ? { '@type': 'PropertyValue', name: 'Grading Company', value: String(product.gradingCompany) } : null,
+    product.grade ? { '@type': 'PropertyValue', name: 'Grade', value: String(product.grade) } : null,
+    product.condition ? { '@type': 'PropertyValue', name: 'Condition', value: String(product.condition) } : null,
+  ].filter(Boolean);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
     image: product.imageUrls,
-    description: product.description,
+    description: product.seoDescription || product.description || `${product.title} available on Benched Australia`,
     sku: product.id,
-    // mpn is the manufacturer's part number (e.g. a sneaker style code); never our listing ID.
-    ...(product.styleCode && { mpn: product.styleCode }),
+    category: product.category,
+    // mpn is the manufacturer's part number (e.g. a sneaker style code or card number); never our listing ID.
+    ...((product.styleCode || product.cardNumber) && { mpn: String(product.styleCode || product.cardNumber) }),
     ...((product.brand || product.manufacturer) && {
       brand: {
         '@type': 'Brand',
         name: product.brand || product.manufacturer,
       }
     }),
+    ...(additionalProperty.length > 0 && { additionalProperty }),
     ...(reviews.length > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',

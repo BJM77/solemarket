@@ -29,9 +29,9 @@ export async function scanHotWheels(
 ): Promise<ScanHotWheelsOutput> {
     await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
-        throw new Error("GOOGLE_API_KEY environment variable is not set.");
+        throw new Error("GOOGLE_GENAI_API_KEY, GEMINI_API_KEY, or GOOGLE_API_KEY environment variable is not set.");
     }
     
     const base64Data = input.imageDataUri.split(',')[1];
@@ -45,7 +45,7 @@ Return ONLY a valid JSON object with the keys "carName" and "year".
 Example response: {"carName": "Bone Shaker", "year": 2009}`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {

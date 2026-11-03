@@ -23,22 +23,6 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     const { toast } = useToast();
     const router = useRouter();
 
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            // Show sticky footer when user scrolls past 300px
-            if (window.scrollY > 300) {
-                setIsVisible(true);
-            } else {
-                setIsVisible(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     if (product.isDraft) return null;
 
     // Logic from ProductDetailsClient
@@ -79,22 +63,22 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     };
 
     // If seller is viewing their own item, or if it's reverse bidding, hide standard buy buttons
-    // Consistent with ProductDetailsClient logic
     const userId = user?.id || (user as any)?.uid;
     if (product.isReverseBidding || userId === product.sellerId) {
         return null;
     }
 
-    // If out of stock, hide
-    if (!product.quantity || product.quantity <= 0) {
+    // If explicitly out of stock or sold, hide
+    const qty = product.quantity ?? 1;
+    if (qty <= 0 || product.status === 'sold') {
         return null;
     }
 
     return (
-        <div className={cn(
-            "fixed bottom-0 left-0 right-0 z-50 bg-background/95 shadow-[0_-4px_12px_rgba(15,23,42,0.08)] backdrop-blur-xl border-t border-border p-4 lg:hidden safe-area-pb transition-transform duration-300",
-            isVisible ? "translate-y-0" : "translate-y-full"
-        )}>
+        <div
+            data-testid="sticky-product-footer"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 shadow-[0_-4px_16px_rgba(15,23,42,0.12)] backdrop-blur-xl border-t border-border p-3.5 lg:hidden safe-area-pb"
+        >
             <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
                 <div className="flex flex-col">
                     {!product.isUntimed && (

@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function GET() {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     
     if (!apiKey) {
       return NextResponse.json({
@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const textPrompt = 'What is 2+2? Answer in one word.';
     
     const textResult = await textModel.generateContent(textPrompt);
@@ -22,7 +22,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       textModelTest: {
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         prompt: textPrompt,
         response: text.trim()
       }

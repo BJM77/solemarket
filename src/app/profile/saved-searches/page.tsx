@@ -2,17 +2,21 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bell, BellOff, Loader2, Search, Trash2 } from 'lucide-react';
+import { Bell, BellOff, BellPlus, Loader2, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { listSavedSearches, deleteSavedSearch, setSavedSearchAlerts, type SavedSearch } from '@/app/actions/saved-search/saved-search';
+import { listSavedSearches, deleteSavedSearch, setSavedSearchAlerts, saveSearch, type SavedSearch } from '@/app/actions/saved-search/saved-search';
 import { criteriaToQueryString, describeCriteria } from '@/lib/saved-search/match';
 
 export default function SavedSearchesPage() {
   const { user, isUserLoading } = useUser();
   const [items, setItems] = useState<SavedSearch[] | null>(null);
+  const [newQuery, setNewQuery] = useState('');
+  const [newMaxPrice, setNewMaxPrice] = useState('');
+  const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
     const token = await getCurrentUserIdToken();
@@ -21,6 +25,28 @@ export default function SavedSearchesPage() {
   }, []);
 
   useEffect(() => { if (user) load().catch(() => setItems([])); }, [user, load]);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newQuery.trim()) return;
+    setCreating(true);
+    try {
+      const token = await getCurrentUserIdToken();
+      if (!token) return;
+      const max = parseFloat(newMaxPrice);
+      const params: Record<string, any> = { q: newQuery.trim() };
+      if (max > 0) params.priceRange = [0, max];
+      const name = `${newQuery.trim()}${max > 0 ? ` under $${max}` : ''}`;
+      const res = await saveSearch(token, params, name);
+      if (res.success) {
+        setNewQuery('');
+        setNewMaxPrice('');
+        await load();
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const toggle = async (s: SavedSearch, enabled: boolean) => {
     setItems((cur) => cur?.map((x) => (x.id === s.id ? { ...x, alertsEnabled: enabled } : x)) ?? null);
@@ -43,9 +69,35 @@ export default function SavedSearchesPage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-2xl font-black tracking-tight">Saved searches</h1>
-        <p className="text-sm text-muted-foreground">Get notified when new listings match. Save a search from any browse or search results page.</p>
+        <h1 className="text-2xl font-black tracking-tight">Saved Searches &amp; Price Alerts</h1>
+        <p className="text-sm text-muted-foreground">Tell us when a specific card or shoe under your target price is listed, or save a search from any browse page.</p>
       </header>
+
+      <form onSubmit={handleCreate} className="rounded-2xl border bg-slate-50/60 dark:bg-slate-900/40 p-4 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-end" data-testid="quick-create-alert-form">
+        <label className="flex-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Keyword (e.g. Charizard, Jordan 4)
+          <Input
+            className="mt-1 bg-white dark:bg-slate-950"
+            placeholder="e.g. Charizard"
+            value={newQuery}
+            onChange={(e) => setNewQuery(e.target.value)}
+          />
+        </label>
+        <label className="w-full sm:w-40 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Under $ (AUD)
+          <Input
+            className="mt-1 bg-white dark:bg-slate-950"
+            inputMode="decimal"
+            placeholder="e.g. 50"
+            value={newMaxPrice}
+            onChange={(e) => setNewMaxPrice(e.target.value)}
+          />
+        </label>
+        <Button type="submit" disabled={creating || !newQuery.trim()} className="h-10 font-bold shrink-0">
+          {creating ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <BellPlus className="h-4 w-4 mr-1.5" />}
+          Create Alert
+        </Button>
+      </form>
       {items!.length === 0 ? (
         <div className="rounded-2xl border p-8 text-center">
           <Search className="mx-auto mb-3 h-8 w-8 text-muted-foreground" aria-hidden />

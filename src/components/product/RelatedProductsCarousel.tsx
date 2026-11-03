@@ -6,7 +6,13 @@ import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function RelatedProductsCarousel({ products }: { products: Product[] }) {
+export function RelatedProductsCarousel({
+    products,
+    title = "Similar Cards & Collectibles"
+}: {
+    products: Product[];
+    title?: string;
+}) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -20,10 +26,10 @@ export function RelatedProductsCarousel({ products }: { products: Product[] }) {
     if (products.length === 0) return null;
 
     return (
-        <div className="w-full relative py-12 border-t mt-12 bg-slate-50/50">
+        <div className="w-full relative py-10 border-t mt-8 bg-slate-50/50 dark:bg-slate-900/20">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">You May Also Like</h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight">{title}</h2>
 
                     <div className="flex items-center gap-2">
                         <Button

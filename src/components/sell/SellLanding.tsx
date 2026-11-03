@@ -15,7 +15,10 @@ import {
   Clock,
   Star,
   Gem,
-  Check
+  Check,
+  Camera,
+  Images,
+  Sparkles
 } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -34,51 +37,103 @@ export default function SellLandingPage() {
         <main className="min-h-screen bg-white text-slate-900">
             {/* Announcement Banner */}
             <div className="bg-primary text-primary-foreground py-3 text-center text-sm font-medium">
-                🚀 Benched.au is live - list your first pair or card in minutes.
+                🚀 Benched.au is live across Australia — list your sneakers or cards in seconds.
             </div>
 
-            {/* Hero Section */}
-            <section className="relative overflow-hidden pt-16 pb-24 lg:pt-32 lg:pb-40 bg-gradient-to-br from-slate-50 to-white">
+            {/* Hero & 3-Choice Sell Hub */}
+            <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-br from-slate-50 to-white">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-orange-100 text-orange-700 mb-6">
-                            <Clock className="h-4 w-4 mr-2" />
-                            Launch Countdown: 14 Days
+                        <div className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 mb-6">
+                            <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                            Zero Upfront Listing Fees • Local Perth & Australia-Wide
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-slate-900">
-                            The Easiest Way to Sell <span className="text-primary">Shoes</span> & <span className="text-primary/80">Collector Cards</span>
+                        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-slate-900">
+                            How would you like to <span className="text-primary">sell today?</span>
                         </h1>
-                        <p className="text-xl md:text-2xl mb-10 text-slate-600 font-light leading-relaxed">
-                            Benched.au is designed for the modern collector. List in seconds, reach thousands, and get paid securely. Australia&apos;s premier marketplace is almost here.
+                        <p className="text-lg md:text-xl mb-10 text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto">
+                            Pick the workflow that matches what&apos;s in front of you. Both bulk modes funnel into the same fast review grid with sold-price suggestions.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button
-                                size="lg"
-                                className="bg-primary hover:bg-orange-700 text-primary-foreground font-bold text-lg h-14 px-8 rounded-xl shadow-lg shadow-orange-200"
-                                asChild
-                            >
-                                <Link href="/sign-up?accountType=seller">
-                                    Start Selling Now <ArrowRight className="ml-2 h-5 w-5" />
-                                </Link>
-                            </Button>
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-lg h-14 px-8 rounded-xl"
+
+                        {/* Three Clear Selling Doors */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto" data-testid="sell-three-choices">
+                            {/* Choice 1: One Card / Sneaker */}
+                            <Card className="border-2 border-slate-200 hover:border-primary transition-all shadow-sm hover:shadow-xl rounded-2xl flex flex-col justify-between bg-white">
+                                <CardContent className="p-6 flex flex-col h-full justify-between space-y-6">
+                                    <div>
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-100 text-primary flex items-center justify-center mb-4">
+                                            <Sparkles className="h-6 w-6" />
+                                        </div>
+                                        <span className="text-[11px] font-black uppercase tracking-wider text-primary">Option 1 • Single Item</span>
+                                        <h2 className="text-2xl font-extrabold mt-1 mb-2 text-slate-900">One Card or Pair</h2>
+                                        <p className="text-sm text-slate-600 leading-relaxed">
+                                            Best for grails, graded slabs, or sneakers. AI fills in the details from your photo while you control every field.
+                                        </p>
+                                    </div>
+                                    <Button size="lg" className="w-full font-bold h-12 rounded-xl bg-primary hover:bg-orange-700 text-primary-foreground" asChild>
+                                        <Link href="/sell/create">
+                                            List Single Item <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+
+                            {/* Choice 2: Stack of Photos (Fast Bulk) */}
+                            <Card className="border-2 border-slate-200 hover:border-primary transition-all shadow-sm hover:shadow-xl rounded-2xl flex flex-col justify-between bg-white">
+                                <CardContent className="p-6 flex flex-col h-full justify-between space-y-6">
+                                    <div>
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-100 text-primary flex items-center justify-center mb-4">
+                                            <Images className="h-6 w-6" />
+                                        </div>
+                                        <span className="text-[11px] font-black uppercase tracking-wider text-primary">Option 2 • Fast Bulk</span>
+                                        <h2 className="text-2xl font-extrabold mt-1 mb-2 text-slate-900">A Stack of Photos</h2>
+                                        <p className="text-sm text-slate-600 leading-relaxed">
+                                            Already took photos? Drop up to 50 front-and-back photos from your camera roll and we&apos;ll pair &amp; draft them automatically.
+                                        </p>
+                                    </div>
+                                    <Button size="lg" className="w-full font-bold h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white" asChild>
+                                        <Link href="/sell/fast-bulk">
+                                            Upload Photo Stack <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+
+                            {/* Choice 3: Scan As I Go (Autofast) */}
+                            <Card className="border-2 border-slate-200 hover:border-primary transition-all shadow-sm hover:shadow-xl rounded-2xl flex flex-col justify-between bg-white">
+                                <CardContent className="p-6 flex flex-col h-full justify-between space-y-6">
+                                    <div>
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-100 text-primary flex items-center justify-center mb-4">
+                                            <Camera className="h-6 w-6" />
+                                        </div>
+                                        <span className="text-[11px] font-black uppercase tracking-wider text-primary">Option 3 • Autofast</span>
+                                        <h2 className="text-2xl font-extrabold mt-1 mb-2 text-slate-900">Scan As I Go</h2>
+                                        <p className="text-sm text-slate-600 leading-relaxed">
+                                            Point your phone camera at card after card. Auto-shutter captures front &amp; back hands-free while drafts build in the background.
+                                        </p>
+                                    </div>
+                                    <Button size="lg" className="w-full font-bold h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white" asChild>
+                                        <Link href="/sell/autofast">
+                                            Launch Live Scanner <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm">
+                            <Link href="/sell/drafts-review" className="font-bold text-primary hover:underline flex items-center gap-1">
+                                Review saved bulk drafts <ArrowRight className="h-4 w-4" />
+                            </Link>
+                            <span className="text-slate-300">•</span>
+                            <button
+                                type="button"
                                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="text-slate-600 hover:text-slate-900 font-medium"
                             >
-                                See How It Works
-                            </Button>
+                                New to Benched? See how selling works
+                            </button>
                         </div>
-                        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center" data-testid="bulk-sell-buttons">
-                            <Button size="lg" className="bg-primary hover:bg-orange-600 text-slate-900 font-bold h-12 px-6 rounded-xl" asChild>
-                                <Link href="/sell/fast-bulk">Fast Bulk</Link>
-                            </Button>
-                            <Button size="lg" className="bg-primary hover:bg-orange-600 text-slate-900 font-bold h-12 px-6 rounded-xl" asChild>
-                                <Link href="/sell/autofast">Autofast</Link>
-                            </Button>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-500">Listing lots of cards? Fast Bulk turns a batch of photos into drafts; Autofast scans card after card with your camera.</p>
                     </div>
                 </div>
 
@@ -199,8 +254,8 @@ export default function SellLandingPage() {
                                             <p className="text-2xl font-bold">$0.00</p>
                                         </div>
                                     </div>
-                                    <Button className="w-full bg-primary hover:bg-orange-700 text-primary-foreground mt-4" disabled>
-                                        Inventory Launching Soon
+                                    <Button className="w-full bg-primary hover:bg-orange-700 text-primary-foreground mt-4" asChild>
+                                        <Link href="/sell/create">Create New Listing</Link>
                                     </Button>
                                 </div>
                             </div>

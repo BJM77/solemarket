@@ -28,7 +28,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductById(id);
   if (!product) return { title: 'Product Not Found', robots: { index: false } };
 
-  const description = metaDescription(product.description) || `Buy ${product.title} on Benched.`;
+  // Build a rich, collector-friendly SEO title and description with set, year, card number, and grade.
+  const specBits = [
+    product.year ? String(product.year) : null,
+    product.brand || product.manufacturer || null,
+    (product as any).set || null,
+    product.cardNumber ? `#${String(product.cardNumber).replace(/^#/, '')}` : null,
+    product.gradingCompany && product.gradingCompany !== 'Raw'
+      ? `${product.gradingCompany} ${product.grade || ''}`.trim()
+      : product.condition || null,
+  ].filter(Boolean);
+
+  const enrichedTitle = specBits.length > 0
+    ? `${product.title} (${specBits.slice(0, 3).join(' ')}) — $${product.price} AUD`
+    : `${product.title} — $${product.price} AUD | ${product.category}`;
+
+  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} for $${product.price} AUD on Benched Australia. Verified local sellers, PayID & DealSafe protection.`;
+  const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;
   const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category })}`;
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
@@ -47,14 +63,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     type: 'image/png',
   };
 
+  const keywords = [
+    product.title,
+    product.brand,
+    product.manufacturer,
+    (product as any).set,
+    product.cardNumber ? `#${product.cardNumber}` : undefined,
+    product.gradingCompany,
+    product.category,
+    product.subCategory,
+    'Buy in Australia',
+    'Benched.au',
+  ].filter((k): k is string => Boolean(k));
+
   return {
-    title: `${product.title} | ${product.category}`,
+    title: enrichedTitle,
     description,
+    keywords,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: product.title,
+      title: enrichedTitle,
       description,
       url: canonicalUrl,
       type: 'website',
@@ -63,11 +93,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     other: {
       'product:price:amount': String(product.price ?? ''),
       'product:price:currency': 'AUD',
-      ...(product.condition ? { 'product:condition': /new/i.test(product.condition) ? 'new' : 'used' } : {}),
+      ...(product.condition ? { 'product:condition': /new|mint/i.test(product.condition) ? 'new' : 'used' } : {}),
     },
     twitter: {
       card: 'summary_large_image',
-      title: product.title,
+      title: enrichedTitle,
       description,
       images: [proxyUrl],
     }

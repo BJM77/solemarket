@@ -73,6 +73,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductCard from '@/components/products/ProductCard';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 import ProductImageGallery from '@/components/products/ProductImageGallery';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
@@ -147,6 +148,7 @@ export default function ProductDetailsModern({
     const [recentViews, setRecentViews] = useState<number>(0);
     const [sellerMultibuyProducts, setSellerMultibuyProducts] = useState<Product[]>([]);
     const [loadingSellerMultibuy, setLoadingSellerMultibuy] = useState(false);
+    const [moreFromSeller, setMoreFromSeller] = useState<Product[]>([]);
 
     // Initial load of guest data
     useEffect(() => {
@@ -211,6 +213,35 @@ export default function ProductDetailsModern({
 
         fetchSellerMultibuy();
     }, [product?.sellerId, product?.category, productId, product?.multibuyEnabled]);
+
+    useEffect(() => {
+        if (!product?.sellerId) {
+            setMoreFromSeller([]);
+            return;
+        }
+        let cancelled = false;
+        const fetchMoreFromSeller = async () => {
+            try {
+                const { db, fs: { collection, query, where, getDocs, limit } } = await loadFirebase();
+                const q = query(
+                    collection(db, 'products'),
+                    where('sellerId', '==', product.sellerId),
+                    where('status', '==', 'available'),
+                    limit(8)
+                );
+                const snap = await getDocs(q);
+                if (cancelled) return;
+                const items = snap.docs
+                    .filter(d => d.id !== productId)
+                    .map(d => ({ id: d.id, ...d.data() })) as Product[];
+                setMoreFromSeller(items.slice(0, 6));
+            } catch (err) {
+                console.error("Error fetching more from seller:", err);
+            }
+        };
+        fetchMoreFromSeller();
+        return () => { cancelled = true; };
+    }, [product?.sellerId, productId]);
 
     // Shoe-size labels and the size guide only make sense for footwear.
     const isShoeListing = facetCategory(product?.category) === 'sneakers';
@@ -1526,9 +1557,38 @@ export default function ProductDetailsModern({
                 </section>
             )}
 
-            {/* Related Items (Server Side Rendered for SEO) */}
+            {/* More From This Seller */}
+            {moreFromSeller.length > 0 && (
+                <section className="max-w-7xl mx-auto px-4 mt-10 mb-6" data-testid="more-from-seller-section">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-5">
+                        <div>
+                            <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+                                More from {sellerDisplayName}
+                            </h2>
+                            <p className="text-xs font-medium text-slate-500">
+                                Combine shipping or bundle items from the same seller
+                            </p>
+                        </div>
+                        <Button variant="ghost" size="sm" asChild className="font-bold text-primary">
+                            <Link href={`/seller/${product.sellerId}`}>
+                                View Storefront <ChevronRight className="h-4 w-4 ml-1" />
+                            </Link>
+                        </Button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {moreFromSeller.map((item) => (
+                            <ProductCard key={item.id} product={item} />
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* Similar Cards / Items */}
             {initialRelatedProducts && initialRelatedProducts.length > 0 && (
-                <RelatedProductsCarousel products={initialRelatedProducts} />
+                <RelatedProductsCarousel
+                    products={initialRelatedProducts}
+                    title={product.category === 'Collector Cards' ? 'Similar Cards' : 'Similar Listings'}
+                />
             )}
 
             {/* Trust Bar */}
