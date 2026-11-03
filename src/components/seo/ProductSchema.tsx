@@ -30,8 +30,8 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     description: product.seoDescription || product.description || `${product.title} available on Benched Australia`,
     sku: product.id,
     category: product.category,
-    // mpn is the manufacturer's part number (e.g. a sneaker style code or card number); never our listing ID.
-    ...((product.styleCode || product.cardNumber) && { mpn: String(product.styleCode || product.cardNumber) }),
+    // mpn is the manufacturer's part number (e.g. a sneaker style code); never our listing ID or card number.
+    ...(product.styleCode && { mpn: String(product.styleCode) }),
     ...((product.brand || product.manufacturer) && {
       brand: {
         '@type': 'Brand',

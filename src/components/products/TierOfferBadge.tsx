@@ -18,8 +18,14 @@ export function TierOfferBadge({ tier, category, sellerId }: { tier?: string | n
         .filter((it) => it.multiCardTier === tier && tierGroupFor(it.category) === group && (!sellerId || it.sellerId === sellerId))
         .reduce((sum, it) => sum + (it.quantity || 1), 0);
 
-    const rem = rule.quantity - (matchingInCart % rule.quantity);
-    const neededIfIncludeCurrent = matchingInCart > 0 ? rem : Math.max(1, rule.quantity - 1);
+    // If the shopper adds the item currently being viewed, how many MORE would they need to hit the bundle threshold?
+    // e.g. If bundle requires 5 cards:
+    // With 0 in cart: adding this card means they need 4 more to hit 5.
+    // With 1 in cart: total with this card would be 2, needing 3 more.
+    // If they already have a full bundle (e.g. 5 in cart), starting a new bundle with this card needs (5 - 1) = 4 more.
+    const totalWithCurrent = matchingInCart + 1;
+    const remainder = totalWithCurrent % rule.quantity;
+    const neededMore = remainder === 0 ? 0 : rule.quantity - remainder;
 
     return (
         <Link href={sellerId ? `/multibuy?tier=${tier}&seller=${sellerId}` : `/multibuy?tier=${tier}`} data-testid="tier-offer-badge"
@@ -28,10 +34,10 @@ export function TierOfferBadge({ tier, category, sellerId }: { tier?: string | n
                 <Layers className="w-4 h-4 shrink-0" aria-hidden />
                 <span>
                     <span className="font-black uppercase tracking-wider">{TIER_LABEL[tier]} Multibuy:</span>{' '}
-                    {matchingInCart > 0 ? (
-                        <>Add <b>{rem} more</b> in {TIER_LABEL[tier]} for <b>${rule.price}</b> ({matchingInCart} in cart)</>
+                    {neededMore === 0 ? (
+                        <>Eligible for <b>${rule.price}</b> {TIER_LABEL[tier]} bundle with this item ({totalWithCurrent} cards)!</>
                     ) : (
-                        <>Add <b>{neededIfIncludeCurrent} more</b> in {TIER_LABEL[tier]} for <b>${rule.price}</b> (any {tierOfferText(rule).replace(' for ', ` ${groupNoun(group, rule.quantity)} for `)})</>
+                        <>Add <b>{neededMore} more</b> in {TIER_LABEL[tier]} for <b>${rule.price}</b> ({tierOfferText(rule).replace(' for ', ` ${groupNoun(group, rule.quantity)} for `)})</>
                     )}
                 </span>
             </div>

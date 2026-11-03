@@ -30,10 +30,10 @@ import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const powerTools = [
     {
-        title: 'AutoCard',
+        title: 'Autofast (AutoCard)',
         description: 'Auto-capture straight, cropped front and back card photos on a plain background',
         icon: ScanLine,
-        href: '/autocard',
+        href: '/sell/autofast',
         color: 'bg-orange-500',
     },
     {

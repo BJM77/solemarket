@@ -40,10 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ].filter(Boolean);
 
   const enrichedTitle = specBits.length > 0
-    ? `${product.title} (${specBits.slice(0, 3).join(' ')}) — $${product.price} AUD`
-    : `${product.title} — $${product.price} AUD | ${product.category}`;
+    ? `${product.title} (${specBits.slice(0, 3).join(' ')}) | ${product.category}`
+    : `${product.title} | ${product.category}`;
 
-  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} for $${product.price} AUD on Benched Australia. Verified local sellers, PayID & DealSafe protection.`;
+  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Verified local sellers, PayID & secure local collection.`;
   const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;
   const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category })}`;
   const primaryImage = product.imageUrls[0];

@@ -67,8 +67,8 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const allSelected = rows.length > 0 && selected.size === rows.length;
 
-  const suggestPriceForRow = async (r: Row) => {
-    if (!r.title || r.title.trim().length < 3) return;
+  const suggestPriceForRow = async (r: Row): Promise<{ ok: boolean; rateLimited?: boolean }> => {
+    if (!r.title || r.title.trim().length < 3) return { ok: true };
     patch(r.id, { checkingPrice: true });
     try {
       const token = (await getCurrentUserIdToken()) ?? '';
@@ -79,11 +79,15 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
           compSampleSize: res.result.sampleSize,
           ...(r.price <= 0 ? { price: res.result.median, dirty: true } : {}),
         });
+        return { ok: true };
       } else {
-        patch(r.id, { suggestedPrice: null, compSampleSize: 0 });
+        const isRate = !res.success && /too many/i.test(res.error || '');
+        patch(r.id, { suggestedPrice: null, compSampleSize: 0, ...(isRate ? { error: 'Rate limit reached' } : {}) });
+        return { ok: !isRate, rateLimited: isRate };
       }
     } catch {
       patch(r.id, { suggestedPrice: null });
+      return { ok: false };
     } finally {
       patch(r.id, { checkingPrice: false });
     }
@@ -92,9 +96,30 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
   const suggestAllPrices = async () => {
     setCheckingAllPrices(true);
     const targets = selected.size ? rows.filter((r) => selected.has(r.id)) : rows;
-    await Promise.all(targets.map((r) => suggestPriceForRow(r)));
+    let hitRateLimit = false;
+
+    // Process with a small delay between calls so we don't burst the price check rate limit
+    for (const r of targets) {
+      if (hitRateLimit) break;
+      const res = await suggestPriceForRow(r);
+      if (res.rateLimited) {
+        hitRateLimit = true;
+        break;
+      }
+      // 150ms pacing between requests
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+
     setCheckingAllPrices(false);
-    toast({ title: 'Sold-price check complete', description: 'Suggested prices from recent comps have been loaded.' });
+    if (hitRateLimit) {
+      toast({
+        title: 'Price check rate limit reached',
+        description: 'Checked as many comps as allowed. Try checking the remaining items in a few minutes.',
+        variant: 'destructive',
+      });
+    } else {
+      toast({ title: 'Sold-price check complete', description: 'Suggested prices from recent comps have been loaded.' });
+    }
   };
 
   const applyBatch = () => {
@@ -129,27 +154,59 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
       await Promise.all(dirtyTargets.map((r) => saveRow(r, token).catch((e) => patch(r.id, { error: e?.message }))));
     }
     targetRows.forEach((r) => patch(r.id, { busy: true, error: undefined }));
+
+    // Chunk publishing into batches of 50 to prevent network/server timeouts
+    const BATCH_SIZE = 50;
+    const allPublished: string[] = [];
+    const allErrors: Record<string, string> = {};
+
+    const chunks: Row[][] = [];
+    for (let i = 0; i < targetRows.length; i += BATCH_SIZE) {
+      chunks.push(targetRows.slice(i, i + BATCH_SIZE));
+    }
+
     toast({
-      title: `Publishing ${targetRows.length} listing${targetRows.length === 1 ? '' : 's'} in background…`,
-      description: 'Server is processing your batch — safe to switch or close the tab.',
+      title: `Publishing ${targetRows.length} listing${targetRows.length === 1 ? '' : 's'}…`,
+      description: chunks.length > 1
+        ? `Processing ${chunks.length} batches of up to ${BATCH_SIZE}. Keep this tab open until finished.`
+        : 'Publishing batch to marketplace. Keep tab open until finished.',
     });
 
-    const { published, errors } = await publishBatchListingsAction(targetRows.map((r) => r.id), token);
-    targetRows.forEach((r) => patch(r.id, { busy: false, error: errors[r.id] }));
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      try {
+        const { published, errors } = await publishBatchListingsAction(chunk.map((r) => r.id), token);
+        allPublished.push(...published);
+        Object.assign(allErrors, errors);
+      } catch (err: any) {
+        chunk.forEach((r) => {
+          allErrors[r.id] = err?.message || 'Batch request failed';
+        });
+      }
 
-    if (published.length) {
-      removeDraftIds(published);
-      setRows((rs) => rs.filter((r) => !published.includes(r.id)));
+      // Mark finished chunk state in UI progressively
+      chunk.forEach((r) => {
+        if (!allErrors[r.id]) {
+          patch(r.id, { busy: false, error: undefined });
+        } else {
+          patch(r.id, { busy: false, error: allErrors[r.id] });
+        }
+      });
+    }
+
+    if (allPublished.length) {
+      removeDraftIds(allPublished);
+      setRows((rs) => rs.filter((r) => !allPublished.includes(r.id)));
       setSelected((s) => {
         const next = new Set(s);
-        published.forEach((id) => next.delete(id));
+        allPublished.forEach((id) => next.delete(id));
         return next;
       });
     }
     setPublishing(false);
     toast({
-      title: `Published ${published.length} of ${targetRows.length}`,
-      description: published.length < targetRows.length ? 'Some need fixing (e.g. price > $0), see the red notes.' : 'All selected cards are now live!',
+      title: `Published ${allPublished.length} of ${targetRows.length}`,
+      description: allPublished.length < targetRows.length ? 'Some need fixing (e.g. price > $0), see red notes.' : 'All selected cards are now live!',
     });
   };
 
@@ -192,7 +249,7 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
           data-testid="publish-all-background-btn"
         >
           <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-          {publishing ? 'Publishing in background…' : `Publish All (${rows.length})`}
+          {publishing ? 'Publishing…' : `Publish All (${rows.length})`}
         </Button>
         <span className="text-xs text-muted-foreground">{rows.length} draft{rows.length === 1 ? '' : 's'}</span>
       </div>

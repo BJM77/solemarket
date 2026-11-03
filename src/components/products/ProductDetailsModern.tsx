@@ -766,7 +766,7 @@ export default function ProductDetailsModern({
     ) : null;
 
     return (
-        <main className="min-h-screen bg-background pb-16">
+        <main className="min-h-screen bg-background pb-36 lg:pb-16">
             <Dialog open={isSafetyModalOpen} onOpenChange={setIsSafetyModalOpen}>
                 <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-3xl">
                     <DialogHeader className="text-center pt-4">

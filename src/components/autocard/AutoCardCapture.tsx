@@ -472,7 +472,7 @@ export default function AutoCardCapture({ rapid = false, onPair }: { rapid?: boo
 
   const save = async () => {
     if (!shots.front || !shots.back) return;
-    if (!user) { router.push('/sign-in?redirect=/autocard'); return; }
+    if (!user) { router.push('/sign-in?redirect=/sell/autofast'); return; }
     setSaving(true);
     try {
       const files = [
@@ -518,7 +518,7 @@ export default function AutoCardCapture({ rapid = false, onPair }: { rapid?: boo
   /** Optional: identify the card with AI and open eBay AU sold listings. Never scrapes eBay. */
   const checkEbaySold = async () => {
     if (!shots.front || !shots.back || ebay.busy) return;
-    if (!user) { router.push('/sign-in?redirect=/autocard'); return; }
+    if (!user) { router.push('/sign-in?redirect=/sell/autofast'); return; }
     // Open the window synchronously on tap so popup blockers allow it; navigate it later.
     const win = window.open('about:blank', '_blank');
     try { if (win) { win.opener = null; win.document.title = 'Identifying card…'; win.document.body.innerHTML = '<p style="font-family:sans-serif;padding:24px">Identifying your card… eBay sold listings will open here.</p>'; } } catch { /* cross-origin guard */ }

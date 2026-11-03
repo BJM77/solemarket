@@ -56,7 +56,7 @@ const navItems = [
     { href: "/admin/deals", icon: Sparkles, label: "Deals" },
     { href: "/admin/clubs", icon: Users, label: "Clubs" },
     { href: "/admin/price-check", icon: Sparkles, label: "Price Check" },
-    { href: "/autocard", icon: Sparkles, label: "AutoCard" },
+    { href: "/sell/autofast", icon: Sparkles, label: "Autofast" },
     { href: "/admin/management", icon: ListChecks, label: "Management" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/members", icon: Users, label: "Members Directory" },

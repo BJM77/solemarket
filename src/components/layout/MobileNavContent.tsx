@@ -199,7 +199,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/scan')}>Kicks Scanner</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/autocard')}>AutoCard</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/autofast')}>Autofast (Cards)</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/card-scan')}>Card Scanner</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/coincam')}>CoinCam</Button>
@@ -419,8 +419,8 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/admin/power-tools')}>
                                             <Zap className="mr-3 h-4 w-4 text-amber-700" /> Power Tools
                                         </Button>
-                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/autocard')}>
-                                            <ScanLine className="mr-3 h-4 w-4" /> AutoCard
+                                        <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/sell/autofast')}>
+                                            <ScanLine className="mr-3 h-4 w-4" /> Autofast (AutoCard)
                                         </Button>
                                         <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl text-primary mb-1" onClick={() => handleLinkClick('/samcam')}>
                                             <Camera className="mr-3 h-4 w-4" /> SamCam Studio

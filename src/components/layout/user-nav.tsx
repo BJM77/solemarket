@@ -156,10 +156,10 @@ export function UserNav() {
                 <span className="font-medium">Power Tools</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/autocard') && "bg-accent text-primary")}>
-              <Link href="/autocard" className="flex items-center">
+            <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/sell/autofast') && "bg-accent text-primary")}>
+              <Link href="/sell/autofast" className="flex items-center">
                 <ScanLine className="mr-3 h-4 w-4" />
-                <span className="font-medium">AutoCard</span>
+                <span className="font-medium">Autofast (Cards)</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg text-primary hover:text-primary mb-1", isActive('/samcam') && "bg-accent text-primary")}>
