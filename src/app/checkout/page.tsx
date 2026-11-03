@@ -295,11 +295,11 @@ export default function CheckoutPage() {
         </div>
 
         {/* Buyer protection */}
-        <div className="mb-8 flex items-start gap-3 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-2xl text-emerald-700">
-          <Shield className="h-6 w-6 text-emerald-700 shrink-0 mt-0.5" />
+        <div className="mb-8 flex items-start gap-3 bg-orange-50 border border-orange-200 p-4 rounded-2xl text-slate-800">
+          <Shield className="h-6 w-6 text-orange-700 shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-sm uppercase tracking-wider text-emerald-200">Stay safe when you pay</h3>
-            <p className="text-xs text-emerald-700/80 leading-relaxed mt-1">
+            <h3 className="font-bold text-sm uppercase tracking-wider text-slate-900">Stay safe when you pay</h3>
+            <p className="text-xs text-slate-700 leading-relaxed mt-1">
               You pay the seller directly. Only pay to the PayID shown on your Benched order page, always with your order reference.
               Never pay a PayID or bank account sent to you by message, email or text. Something not right?{' '}
               <Link href="/contact?topic=order-problem" className="underline font-semibold">Report a problem</Link>.
@@ -474,16 +474,16 @@ export default function CheckoutPage() {
                 >
                   <Label
                     htmlFor="payid"
-                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${payIdAvailable ? 'cursor-pointer hover:bg-muted/60' : 'opacity-50 cursor-not-allowed'} ${
+                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${payIdAvailable ? 'cursor-pointer hover:bg-muted/60' : 'bg-slate-50 cursor-not-allowed'} ${
                       paymentMethod === 'payid' ? 'border-primary bg-primary/5' : 'border-border'
                     }`}
                   >
                     <RadioGroupItem value="payid" id="payid" className="mt-1" disabled={!payIdAvailable} />
                     <div className="space-y-1">
-                      <p className="font-bold text-foreground">PayID (bank transfer to the seller)</p>
-                      <p className="text-xs text-muted-foreground">After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
+                      <p className={`font-bold ${payIdAvailable ? 'text-foreground' : 'text-slate-600'}`}>PayID (bank transfer to the seller)</p>
+                      <p className={`text-xs ${payIdAvailable ? 'text-muted-foreground' : 'text-slate-600'}`}>After you place the order you&apos;ll see the seller&apos;s PayID, the amount and your reference. Pay within 48 hours or the items are released.</p>
                       {sellersWithoutPayId.length > 0 && (
-                        <p className="text-xs text-amber-700 font-semibold">
+                        <p className="text-xs text-orange-800 font-semibold">
                           {sellersWithoutPayId.map(s => s.sellerName || 'A seller').join(', ')} can&apos;t take PayID yet. Pay cash at pickup or remove their items.
                         </p>
                       )}
@@ -504,15 +504,17 @@ export default function CheckoutPage() {
                   </Label>
                 </RadioGroup>
                 {paymentMethod === 'cash' && (
-                  <label className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-200">
+                  <label className="mt-4 flex items-start gap-3 rounded-xl border border-amber-400 bg-amber-50 p-4 text-sm text-slate-800 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="mt-1 h-5 w-5"
+                      className="mt-1 h-5 w-5 accent-[#f26c0d]"
+                      required
                       checked={perthPickupConfirmed}
                       onChange={e => setPerthPickupConfirmed(e.target.checked)}
                       aria-describedby="cash-note"
                     />
                     <span id="cash-note">
+                      <span className="block text-xs font-bold uppercase tracking-wide text-orange-800 mb-1">Required before you can confirm</span>
                       I&apos;m in Perth and will collect in person. I&apos;ll message the seller to arrange a safe, public meeting place and pay cash on collection.
                     </span>
                   </label>
@@ -633,7 +635,7 @@ export default function CheckoutPage() {
               <div className="p-6 space-y-4">
                 <Button 
                   type="submit" 
-                  className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg"
+                  className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg bg-[#f26c0d] text-slate-950 hover:bg-[#e05f05] disabled:opacity-100 disabled:bg-slate-100 disabled:text-slate-500 disabled:shadow-none"
                   disabled={isSubmitting || (paymentMethod === 'cash' && !perthPickupConfirmed)}
                 >
                   {isSubmitting ? (
@@ -644,8 +646,11 @@ export default function CheckoutPage() {
                     'Confirm Purchase'
                   )}
                 </Button>
-                <p className="text-[10px] text-center text-slate-500">
-                  By completing your purchase, you agree to our Terms of Service and escrow transaction protocols.
+                {paymentMethod === 'cash' && !perthPickupConfirmed && (
+                  <p className="text-xs text-center font-semibold text-orange-800">Tick the Perth pickup box to confirm your purchase.</p>
+                )}
+                <p className="text-xs text-center text-slate-600">
+                  By completing your purchase, you agree to our <Link href="/terms" className="underline">Terms of Service</Link>.
                 </p>
               </div>
             </Card>
