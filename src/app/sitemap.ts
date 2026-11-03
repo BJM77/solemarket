@@ -73,7 +73,6 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     '/cards',
     '/coins',
     '/sell',
-    '/scan',
     '/drops',
     '/about',
     '/clubs',
