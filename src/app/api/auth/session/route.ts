@@ -30,8 +30,14 @@ export async function POST(request: NextRequest) {
         if (existingSessionCookie) {
             try {
                 // If they already have a valid session, just return 200 and skip recreating it
-                await authAdmin.verifySessionCookie(existingSessionCookie, true);
-                return NextResponse.json({ status: "success" }, { status: 200 });
+                const existing = await authAdmin.verifySessionCookie(existingSessionCookie, true);
+                const incoming = await authAdmin.verifyIdToken(idToken);
+                // Only reuse the cookie if it belongs to the same user AND carries the
+                // same role claim. Otherwise a cookie minted before the role claim was
+                // set (e.g. new admin) would block /admin in middleware for 5 days.
+                if (existing.uid === incoming.uid && (existing as any).role === (incoming as any).role) {
+                    return NextResponse.json({ status: "success" }, { status: 200 });
+                }
             } catch (err) {
                 // Session expired or invalid, we will try to create a new one below if the ID token is fresh
             }
@@ -61,7 +67,12 @@ export async function POST(request: NextRequest) {
         // Trigger user sync (claims, holds, role) safely on the server side
         try {
             const { syncUserOnLogin } = await import('@/app/actions/auth/auth');
-            await syncUserOnLogin(idToken);
+            const sync: any = await syncUserOnLogin(idToken);
+            // The cookie above was minted from a token without the freshly-set role
+            // claim. Ask the client to refresh its ID token and call us again.
+            if (sync?.success && sync.role && sync.role !== sync.tokenRole) {
+                return NextResponse.json({ status: "success", refreshToken: true }, { status: 200 });
+            }
         } catch (syncErr) {
             console.warn('[Session API] User sync warning:', syncErr);
         }

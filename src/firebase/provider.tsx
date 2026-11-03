@@ -145,14 +145,8 @@ export const FirebaseProvider: React.FC<{
               const safeUser = getSafeUser(firebaseUser, role);
               setUserAuthState({ user: safeUser, isUserLoading: false, userError: null, role });
 
-              const token = await firebaseUser.getIdToken();
-              // 1. Sync Session Cookie & User Claims via dedicated API Route
-              // (The session API route already runs syncUserOnLogin internally on the server side)
-              await fetch("/api/auth/session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idToken: token }),
-              });
+              const { syncSessionCookie } = await import('@/lib/auth/sync-session');
+              await syncSessionCookie(firebaseUser);
             } catch (err) {
               console.error("Failed to sync session/user:", err);
               // Fallback to basic safe user without role if claim fetch fails

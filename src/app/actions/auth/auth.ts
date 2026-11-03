@@ -85,7 +85,7 @@ export async function syncUserOnLogin(idToken: string) {
             });
         }
 
-        return { success: true };
+        return { success: true, role, tokenRole: (decodedToken as any).role as string | undefined };
     } catch (error: any) {
         console.error("Error syncing user:", error);
         return { success: false, error: error.message };

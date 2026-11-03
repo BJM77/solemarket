@@ -65,12 +65,8 @@ function SignInFormInner() {
       try {
         const { auth } = await import("@/lib/firebase/config");
         if (auth?.currentUser) {
-          const idToken = await auth.currentUser.getIdToken();
-          await fetch("/api/auth/session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idToken }),
-          });
+          const { syncSessionCookie } = await import("@/lib/auth/sync-session");
+          await syncSessionCookie(auth.currentUser);
         }
       } catch (e) {
         console.error("Failed to set session cookie", e);
@@ -133,12 +129,8 @@ function SignInFormInner() {
       try {
         const { auth } = await import("@/lib/firebase/config");
         if (auth?.currentUser) {
-          const idToken = await auth.currentUser.getIdToken();
-          await fetch("/api/auth/session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idToken }),
-          });
+          const { syncSessionCookie } = await import("@/lib/auth/sync-session");
+          await syncSessionCookie(auth.currentUser);
         }
       } catch (e) {
         console.error("Failed to set session cookie", e);
