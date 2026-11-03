@@ -9,6 +9,7 @@ import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 import { getProductUrl } from "@/lib/utils/url";
 import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
+import { listingSeoState } from "@/lib/seo/listing-status";
 
 // ISR: product pages are cached for 5 minutes instead of rendered on every
 // visit. Price/status stay live because ProductDetailsModern subscribes to the
@@ -82,6 +83,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: enrichedTitle,
     description,
     keywords,
+    // Sold/draft pages stay reachable for buyers and links but drop out of search.
+    ...((!listingSeoState(product.status).indexable || (product as any).isDraft === true) && { robots: { index: false, follow: true } }),
     alternates: {
       canonical: canonicalUrl,
     },
