@@ -1,0 +1,27 @@
+name: Uptime
+
+# Free monitoring: pings production /api/health every 15 minutes.
+# A failed run makes GitHub email the repo owner (default notification settings).
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check https://benched.au/api/health
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o body.json -w '%{http_code}' --max-time 20 https://benched.au/api/health || echo 000)
+            echo "Attempt $i: HTTP $code"; cat body.json 2>/dev/null; echo
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 20
+          done
+          echo "::error::benched.au health check failed"
+          exit 1
