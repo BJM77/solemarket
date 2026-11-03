@@ -4,7 +4,7 @@ import { assertRateLimit } from '@/lib/rate-limit-guard';
 import { ai } from '@/ai/genkit';
 import { suggestListingDetailsInputSchema, suggestListingDetailsOutputSchema, type SuggestListingDetailsInput, type SuggestListingDetailsOutput } from './schemas';
 import { runAIWorkflow } from '../workflow-engine';
-import { AI_CONFIG } from '@/config/ai';
+import { VISION_MODEL_CHAIN, runPromptWithFallback } from '@/ai/utils/model-fallback';
 
 /**
  * Main Vision flow for generating listing suggestions from photos.
@@ -17,42 +17,23 @@ export async function suggestListingDetails(input: SuggestListingDetailsInput): 
         async (validatedInput) => {
             // Note: validatedInput.photoDataUris can contain either public URLs or Data URIs.
             
-            try {
-                // 1. Primary Attempt: Use default high-performance flash vision model
-                const { output } = await suggestListingDetailsPrompt(validatedInput);
-                if (!output) throw new Error("AI failed to return valid metadata.");
-                return output;
-            } catch (error: any) {
-                console.warn("Primary Gemini Vision Model failed or overloaded. Initiating model fallback chain...", error.message || error);
-                
-                try {
-                    // 2. Secondary Attempt: Fallback to pinned stable Gemini 3.6 Flash (1.5 Pro was retired by Google)
-                    const { output } = await suggestListingDetailsPrompt(validatedInput, {
-                        model: 'googleai/gemini-3.6-flash'
-                    });
-                    if (output) {
-                        console.log("AI workflow successfully recovered using Gemini 3.6 Flash.");
-                        return output;
-                    }
-                } catch (fallbackError: any) {
-                    console.error("Secondary Gemini 3.6 Flash fallback also failed:", fallbackError.message || fallbackError);
-                }
-
-                // If fallback chain is exhausted, re-throw the original error to activate workflow retries / graceful UI degradation
-                throw error;
-            }
+            const { output } = await runPromptWithFallback(suggestListingDetailsPrompt as any, validatedInput, {
+                label: 'suggestListingDetails',
+                config: { maxOutputTokens: 2000 },
+            });
+            return output as SuggestListingDetailsOutput;
         },
         {
             feature: 'listing-details-suggester',
             usageType: 'vision_analysis',
-            maxRetries: 2
+            maxRetries: 1
         }
     );
 }
 
 const suggestListingDetailsPrompt = ai.definePrompt({
     name: 'suggestListingDetailsPrompt',
-    model: AI_CONFIG.DEFAULT_VISION_MODEL,
+    model: VISION_MODEL_CHAIN[0],
     input: { schema: suggestListingDetailsInputSchema },
     output: { schema: suggestListingDetailsOutputSchema },
     config: {

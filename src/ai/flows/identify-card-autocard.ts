@@ -1,6 +1,7 @@
 'use server';
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
+import { VISION_MODEL_CHAIN, runPromptWithFallback } from '@/ai/utils/model-fallback';
 import { assertRateLimit } from '@/lib/rate-limit-guard';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { buildEbayQuery, type CardIdentity } from '@/lib/autocard/ebay';
@@ -24,7 +25,7 @@ const IdentitySchema = z.object({
 
 const identifyPrompt = ai.definePrompt({
   name: 'autocardIdentifyPrompt',
-  model: 'googleai/gemini-3.6-flash',
+  model: VISION_MODEL_CHAIN[0],
   input: { schema: z.object({ front: z.string(), back: z.string() }) },
   output: { schema: IdentitySchema },
   prompt: `You are an expert trading card identifier (sports cards, Pokémon, TCG).
@@ -51,7 +52,7 @@ export async function identifyCardForEbay(idToken: string, front: string, back: 
     await assertRateLimit('ai', { limit: 60, windowSeconds: 600, persistent: true });
     const isImg = (s: string) => typeof s === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(s) && s.length < 4_000_000;
     if (!isImg(front) || !isImg(back)) return { ok: false, error: 'Invalid images.' };
-    const { output } = await identifyPrompt({ front, back });
+    const { output } = await runPromptWithFallback(identifyPrompt as any, { front, back }, { label: 'autocardIdentify' }) as { output: z.infer<typeof IdentitySchema> };
     if (!output) return { ok: false, error: 'Could not identify this card.' };
     const query = buildEbayQuery(output);
     if (!query) return { ok: false, error: 'Could not read enough detail from the card.' };
