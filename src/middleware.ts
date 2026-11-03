@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { jwtVerify, decodeProtectedHeader, importX509 } from 'jose';
+import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
 
 // Cache keys in memory during Edge function execution
@@ -98,7 +98,16 @@ export async function middleware(request: NextRequest) {
       const token = session.value;
       const header = decodeProtectedHeader(token);
 
-      if (header.kid) {
+      // E2E only: emulator session cookies are unsigned. Accepted solely in builds made with
+      // NEXT_PUBLIC_E2E_EMULATORS=true against a demo-* project (never set in apphosting.yaml).
+      const e2eProject = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '';
+      if (!header.kid && process.env.NEXT_PUBLIC_E2E_EMULATORS === 'true' && e2eProject.startsWith('demo-')) {
+        const payload = decodeJwt(token);
+        if (payload.aud === e2eProject && payload.exp && payload.exp > Date.now() / 1000) {
+          isAuth = true;
+          userRole = 'user';
+        }
+      } else if (header.kid) {
         const publicKeys = await getFirebasePublicKeys();
         const pem = publicKeys[header.kid];
 
