@@ -239,9 +239,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     ogImageUrl: '',
   },
   categoryHeaders: {
-    shoes: { title: 'All Sneakers', intro: 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Every sale is covered by DealSafe escrow and ships Australia-wide.' },
-    cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay safely with DealSafe escrow and get tracked shipping.' },
-    coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay safely with DealSafe escrow.' },
+    shoes: { title: 'All Sneakers', intro: 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Pay sellers directly by PayID or cash on pickup in Perth.' },
+    cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay sellers directly by PayID or cash on pickup in Perth.' },
+    coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay sellers directly by PayID or cash on pickup.' },
   },
   announcement: { enabled: false, text: '', href: '', bgColor: '#f26c0d', textColor: '#ffffff' },
 };
