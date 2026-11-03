@@ -141,3 +141,14 @@ describe('server order pricing uses product tier, not client', () => {
         expect(r.lineTotals.reduce((a, b) => a + b, 0)).toBeCloseTo(30, 2);
     });
 });
+
+import { multibuyFilterState as mbf } from './tier-bundles';
+describe('multibuyFilterState', () => {
+    it('pins status so admins hit the indexed query shape', () => {
+        expect(mbf('bronze')).toEqual({ status: 'available', multibuyEnabled: true, multiCardTiers: ['bronze'] });
+    });
+    it('All deals filters on every tier (indexed), not multibuyEnabled alone', () => {
+        expect(mbf(undefined).multiCardTiers).toEqual(['bronze', 'silver', 'gold']);
+        expect(mbf(undefined).status).toBe('available');
+    });
+});

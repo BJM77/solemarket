@@ -165,3 +165,17 @@ export function tierNudge(sellerId: string, group: TierGroup, tier: BundleTier, 
         : `Add ${rem} more ${label} ${groupNoun(group, rem)} to get ${offer}`;
     return { key: `${sellerId}::${group}::${tier}`, sellerId, group, tier, inCart, completeSets: Math.floor(inCart / n), remaining: rem, rule, message };
 }
+
+/**
+ * Filter state for /multibuy. Always pins status 'available' (admins otherwise drop the status
+ * filter, producing a query shape with no composite index -> empty list) and always filters on
+ * multiCardTier so the query is served by the deployed
+ * (multibuyEnabled, multiCardTier, status, createdAt) index.
+ */
+export function multibuyFilterState(tier?: BundleTier) {
+    return {
+        status: 'available' as const,
+        multibuyEnabled: true,
+        multiCardTiers: tier ? [tier] : [...BUNDLE_TIERS],
+    };
+}
