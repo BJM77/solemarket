@@ -55,3 +55,61 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # Signed-in flows (checkout, background bulk publish) against local Firebase emulators.
+  # Uses a demo-* project: no credentials, no cloud calls, free.
+  e2e-flows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_PUBLIC_USE_EMULATORS: 'true'
+      NEXT_PUBLIC_E2E_EMULATORS: 'true'
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-benched
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: demo-benched.appspot.com
+      NEXT_PUBLIC_FIREBASE_API_KEY: demo-key
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: demo-benched.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+      NEXT_PUBLIC_SITE_URL: http://localhost:9007
+      FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
+      FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
+      FIREBASE_STORAGE_EMULATOR_HOST: 127.0.0.1:9199
+      GCLOUD_PROJECT: demo-benched
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      # Pages read Firestore at build time, so the emulators must be up before the build.
+      - name: Start emulators
+        run: |
+          nohup npx -y firebase-tools@latest emulators:start --config firebase.e2e.json \
+            --only auth,firestore,storage --project demo-benched > emulators.log 2>&1 &
+          for i in $(seq 1 90); do
+            curl -sf http://127.0.0.1:8080 >/dev/null && curl -sf http://127.0.0.1:9099 >/dev/null && exit 0
+            sleep 2
+          done
+          cat emulators.log; exit 1
+      - name: Seed emulators
+        run: node e2e/flows/seed.mjs
+      - name: Build (emulator config)
+        run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Run flows against emulators
+        run: npx playwright test e2e/flows --project chromium
+        env:
+          E2E_EMULATORS: 'true'
+          PLAYWRIGHT_BASE_URL: http://localhost:9007
+      - name: Upload flows report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-flows-report
+          path: playwright-report/
+          retention-days: 7
