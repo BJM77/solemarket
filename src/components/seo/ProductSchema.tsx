@@ -1,5 +1,6 @@
 import type { Product, Review } from '@/lib/types'
 import { getProductUrl } from "@/lib/utils/url";
+import { listingSeoState } from '@/lib/seo/listing-status';
 import { schemaItemCondition } from "@/lib/seo/item-condition";
 
 type Props = {
@@ -52,7 +53,7 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
       price: product.price,
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
       ...(schemaItemCondition(product.condition) && { itemCondition: schemaItemCondition(product.condition) }),
-      availability: (product.status === 'available' || product.status === 'on_hold') ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: listingSeoState(product.status).availability,
       url: `${siteUrl}${getProductUrl(product)}`,
       seller: {
         '@type': 'Organization',
