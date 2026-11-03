@@ -8,6 +8,7 @@ export function slugify(text: string): string {
     .toLowerCase()
     .trim()
     .replace(/&/g, '-and-')
+    .replace(/[\/\\|]+/g, '-') // Separators like #108/160 -> 108-160, not 108160
     .replace(/\s+/g, '-') // Replace spaces with -
     .replace(/[^\w-]+/g, '') // Remove all non-word chars
     .replace(/--+/g, '-') // Replace multiple - with single -
