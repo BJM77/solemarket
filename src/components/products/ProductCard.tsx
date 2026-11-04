@@ -880,10 +880,37 @@ export default function ProductCard({
     );
   }
 
+  // Mobile-only minimal tile: uniform 3:4 image with title overlay, whole tile links to listing
+  const mobileTile = !selectable ? (
+    <Link
+      href={getProductUrl(product)}
+      title={product.title}
+      className="md:hidden relative block w-full aspect-[3/4] overflow-hidden rounded-lg bg-muted"
+      data-testid="mobile-product-tile"
+    >
+      {product.imageUrls?.[0] && (
+        <Image
+          src={product.imageUrls[0]}
+          alt={product.title}
+          fill
+          sizes="50vw"
+          priority={priority}
+          className="object-cover"
+        />
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-2 pb-2 pt-8">
+        <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-white">{product.title}</h3>
+      </div>
+    </Link>
+  ) : null;
+
   // Grid View (default) - new style
   return (
+    <>
+    {mobileTile}
     <div className={cn(
       "group relative flex flex-col dark:bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-500 h-full hover-lift max-w-full w-full",
+      !selectable && "hidden md:flex",
       selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
     )} onClick={() => selectable && onToggleSelect?.()}>
       <div className={cn("bg-muted/30 relative overflow-hidden shrink-0 w-full", imageAspectRatio)}>
@@ -1184,6 +1211,7 @@ export default function ProductCard({
         onOpenChange={setIsLightboxOpen}
         title={product.title}
       />
-    </div >
+    </div>
+    </>
   );
 }
