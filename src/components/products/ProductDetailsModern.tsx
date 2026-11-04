@@ -9,6 +9,7 @@ import { useMobileNav } from '@/context/MobileNavContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil } from 'lucide-react';
+import { deleteListing } from '@/app/actions/seller/seller-actions';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -653,14 +654,18 @@ export default function ProductDetailsModern({
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.preventDefault();
-        if (!isSuperAdmin) return;
+        const isListingOwner = Boolean(user?.uid && product?.sellerId === user.uid);
+        if (!isSuperAdmin && !isListingOwner) return;
         setIsDeleting(true);
         try {
             const idToken = await getCurrentUserIdToken();
             if (!idToken) throw new Error("Authentication session expired.");
-            const result = await deleteProductByAdmin(productId, idToken);
+            // Server re-checks: admin action requires admin, deleteListing requires owner/admin.
+            const result: any = isSuperAdmin
+                ? await deleteProductByAdmin(productId, idToken)
+                : await deleteListing(idToken, productId);
             if (!result.success) throw new Error(result.error);
-            toast({ title: "Product Deleted", description: result.message });
+            toast({ title: "Product Deleted", description: result.message || "Listing removed." });
             router.push('/browse');
         } catch (error: any) {
             toast({ variant: "destructive", title: "Deletion Failed", description: error.message || "An error occurred." });
@@ -752,7 +757,8 @@ export default function ProductDetailsModern({
         return parts.join(' ');
     };
 
-    const adminTitleActions = isSuperAdmin ? (
+    const canManageListing = isSuperAdmin || Boolean(user?.uid && product?.sellerId === user.uid);
+    const adminTitleActions = canManageListing ? (
         <div className="flex items-center gap-1 shrink-0">
             <Button asChild size="icon" variant="outline" className="h-8 w-8 rounded-full" title="Edit listing" aria-label="Edit listing">
                 <Link href={`/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
@@ -931,7 +937,7 @@ export default function ProductDetailsModern({
                                 seller={seller}
                                 recentViews={recentViews}
                                 user={user}
-                                titleActions={adminTitleActions}
+                                priceActions={adminTitleActions}
                             />
                         </div>
                     </div>
@@ -939,7 +945,7 @@ export default function ProductDetailsModern({
                     {/* Right Column: Buy Box (starts level with the Back/breadcrumb row) */}
                     <div className="relative min-w-0">
                         <div className="space-y-4">
-                            <div className="lg:flex lg:flex-col bg-white dark:bg-gray-800 rounded-3xl p-5 lg:p-6 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
+                            <div className="lg:flex lg:flex-col bg-white dark:bg-gray-800 rounded-3xl p-3 md:p-5 lg:p-6 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
 
                                 {/* Desktop Product Header (Title/Price) */}
                                 <div className="hidden lg:block">
@@ -948,14 +954,14 @@ export default function ProductDetailsModern({
                                         seller={seller}
                                         recentViews={recentViews}
                                         user={user}
-                                        titleActions={adminTitleActions}
+                                        priceActions={adminTitleActions}
                                     />
                                 </div>
                                 <ProductBundleOffers product={product} />
 
                                 <div className="lg:order-2">
                                     {/* Consolidated Product Description & Specs inside compact Tabs */}
-                                    <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
+                                    <div className="pt-2 mt-0 md:pt-4 md:mt-4 border-t-0 md:border-t border-gray-100 dark:border-gray-700">
                                         <Tabs defaultValue="details" className="w-full">
                                             <TabsList className="grid grid-cols-2 w-full mb-3 bg-gray-100 dark:bg-gray-900/60 p-1 rounded-xl">
                                                 <TabsTrigger value="details" className="text-xs font-bold py-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm">

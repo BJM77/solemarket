@@ -77,7 +77,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
     return (
         <div
             data-testid="sticky-product-footer"
-            className="fixed bottom-[4.5rem] left-0 right-0 z-40 bg-background/95 shadow-[0_-4px_16px_rgba(15,23,42,0.12)] backdrop-blur-xl border-t border-border p-3 lg:hidden"
+            className="fixed bottom-[4.5rem] left-0 right-0 z-40 bg-background/95 shadow-[0_-4px_16px_rgba(15,23,42,0.12)] backdrop-blur-xl border-t border-border p-3 hidden md:block lg:hidden"
         >
             <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
                 <div className="flex flex-col">

@@ -29,9 +29,11 @@ interface ProductHeaderInfoProps {
     headingAs?: 'h1' | 'h2';
     /** Optional small controls shown next to the title (e.g. admin edit/delete icons). */
     titleActions?: React.ReactNode;
+    /** Small manage buttons shown inline beside the price (admins / listing owner only). */
+    priceActions?: React.ReactNode;
 }
 
-export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions }: ProductHeaderInfoProps) {
+export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions, priceActions }: ProductHeaderInfoProps) {
     const Heading = headingAs;
     const router = useRouter();
     return (
@@ -97,9 +99,10 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     {product.isNegotiable && !product.isDutchAuction && (
                         <Badge variant="outline" className="text-primary border-primary">Negotiable</Badge>
                     )}
+                    {priceActions}
 
                 {/* Key fact chips sit beside the price */}
-                <div className="flex flex-wrap items-center gap-1.5 min-w-0" data-testid="product-fact-chips">
+                <div className="hidden md:flex flex-wrap items-center gap-1.5 min-w-0" data-testid="product-fact-chips">
                     {product.condition && (
                         <Badge variant="outline" className={cn(
                             "text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 shrink-0",
