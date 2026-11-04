@@ -6,17 +6,28 @@ interface MobileNavContextType {
   isPinned: boolean;
   setIsPinned: (value: boolean) => void;
   isVisible: boolean; // For scroll-based showing/hiding when unpinned
+  /** Set by a listing detail page so the centre nav button becomes Buy. */
+  buyAction: BuyAction | null;
+  setBuyAction: (action: BuyAction | null) => void;
+}
+
+export interface BuyAction {
+  onBuy: () => void;
+  disabled: boolean;
 }
 
 const MobileNavContext = createContext<MobileNavContextType>({
   isPinned: false,
   setIsPinned: () => {},
   isVisible: true,
+  buyAction: null,
+  setBuyAction: () => {},
 });
 
 export const MobileNavProvider = ({ children }: { children: React.ReactNode }) => {
   const [isPinned, setIsPinned] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [buyAction, setBuyAction] = useState<BuyAction | null>(null);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
@@ -52,7 +63,7 @@ export const MobileNavProvider = ({ children }: { children: React.ReactNode }) =
   }, [isPinned, lastScrollY]);
 
   return (
-    <MobileNavContext.Provider value={{ isPinned, setIsPinned, isVisible }}>
+    <MobileNavContext.Provider value={{ isPinned, setIsPinned, isVisible, buyAction, setBuyAction }}>
       {children}
     </MobileNavContext.Provider>
   );

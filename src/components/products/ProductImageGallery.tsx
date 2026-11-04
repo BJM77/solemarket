@@ -116,8 +116,8 @@ export default function ProductImageGallery({
   // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height.
   // With side thumbnails the desktop photo may use the whole viewport below the site header.
   const heightCap = aspectRatio === 'aspect-[5/7]'
-    ? cn('max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-[calc((100vh-9rem)*5/7)]' : 'lg:max-w-[calc(68vh*5/7)]')
-    : cn('max-w-[50svh]', thumbnailsSide ? 'lg:max-w-[calc(100vh-9rem)]' : 'lg:max-w-[68vh]');
+    ? cn('md:max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-[calc((100vh-9rem)*5/7)]' : 'lg:max-w-[calc(68vh*5/7)]')
+    : cn('md:max-w-[50svh]', thumbnailsSide ? 'lg:max-w-[calc(100vh-9rem)]' : 'lg:max-w-[68vh]');
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -171,10 +171,10 @@ export default function ProductImageGallery({
 
   return (
     <>
-      <div className={cn("space-y-4", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
+      <div className={cn("space-y-4", thumbnailsSide && "max-md:space-y-0 max-md:flex max-md:flex-row max-md:items-start max-md:gap-2", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
         {/* Main Gallery */}
         {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
+        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "max-md:flex-1 max-md:min-w-0 max-md:rounded-r-none max-md:border-r-0", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -339,6 +339,7 @@ export default function ProductImageGallery({
         {media.length > 1 && (
           <div className={cn(
             "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+            thumbnailsSide && "max-md:order-first max-md:flex-col max-md:shrink-0 max-md:overflow-x-hidden max-md:overflow-y-auto max-md:p-0.5 max-md:pb-0.5 max-md:max-h-[70svh]",
             thumbnailsSide && "lg:order-first lg:flex-col lg:shrink-0 lg:overflow-x-hidden lg:overflow-y-auto lg:p-1 lg:pb-1 lg:max-h-[calc(100vh-9rem)]"
           )}>
             {media.map((item, index) => (
@@ -346,7 +347,7 @@ export default function ProductImageGallery({
                 key={index}
                 onClick={() => goToSlide(index)}
                 className={cn(
-                  "relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all duration-300",
+                  "relative flex-shrink-0 w-12 h-12 md:w-20 md:h-20 rounded-lg md:rounded-2xl overflow-hidden border-2 transition-all duration-300",
                   index === selectedIndex ? 'border-primary scale-105 ring-4 ring-primary/10 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
                 )}
               >
