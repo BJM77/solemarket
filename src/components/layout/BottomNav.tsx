@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, PlusCircle, Bell, User } from 'lucide-react';
+import { Home, Search, PlusCircle, Bell, User, ShoppingBag } from 'lucide-react';
 import { cn } from "@/lib/utils/ui";
 import { useUser } from '@/firebase';
 import { useMobileNav } from '@/context/MobileNavContext';
@@ -10,7 +10,7 @@ import { useMobileNav } from '@/context/MobileNavContext';
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
-  const { isVisible } = useMobileNav();
+  const { isVisible, buyAction } = useMobileNav();
 
   const navItems = [
     { label: 'Home', href: '/', icon: Home },
@@ -28,6 +28,27 @@ export function BottomNav() {
       <div className="flex items-center justify-around h-full max-w-lg mx-auto relative">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+
+          if (item.primary && buyAction) {
+            return (
+              <button
+                key="buy"
+                type="button"
+                onClick={() => { if (!buyAction.disabled) buyAction.onBuy(); }}
+                disabled={buyAction.disabled}
+                aria-label="Buy this listing"
+                data-testid="bottom-nav-buy"
+                className="relative -top-6 flex flex-col items-center group tap-haptic disabled:opacity-50"
+              >
+                <div className="bg-slate-900 text-white p-4 rounded-full shadow-2xl shadow-slate-900/40 transition-all duration-300 hover:scale-105 ring-[4px] ring-background">
+                  <ShoppingBag className="h-6 w-6" strokeWidth={2.5} />
+                </div>
+                <span className="text-[11px] font-black mt-1 uppercase tracking-widest text-foreground">
+                  {buyAction.disabled ? 'Sold' : 'Buy'}
+                </span>
+              </button>
+            );
+          }
 
           if (item.primary) {
             return (

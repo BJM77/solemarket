@@ -5,6 +5,7 @@ import { getProductUrl } from '@/lib/utils/url';
 import { facetCategory } from '@/lib/filters/params';
 import { resolveSellerName } from '@/lib/utils/seller-name';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useMobileNav } from '@/context/MobileNavContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil } from 'lucide-react';
@@ -692,6 +693,21 @@ export default function ProductDetailsModern({
 
     const isLoading = isProductLoading || isSellerLoading;
 
+    // Mobile bottom nav: centre button becomes Buy on this listing (not for the seller's own listing).
+    const { setBuyAction } = useMobileNav();
+    const buyNowRef = useRef(handleBuyNow);
+    buyNowRef.current = handleBuyNow;
+    const navHoldExpiresAt = (product as any)?.holdExpiresAt?.toDate?.();
+    const navHeldByOther = !!navHoldExpiresAt && navHoldExpiresAt > new Date() && (product as any)?.heldBy !== user?.uid;
+    const navIsOwner = !!user && user.uid === product?.sellerId;
+    const navBuyable = !!product && !navIsOwner && !product.isReverseBidding && !product.isUntimed;
+    const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther;
+    useEffect(() => {
+        if (!navBuyable) { setBuyAction(null); return; }
+        setBuyAction({ onBuy: () => buyNowRef.current(), disabled: navBuyDisabled });
+        return () => setBuyAction(null);
+    }, [navBuyable, navBuyDisabled, setBuyAction]);
+
     if (isLoading && !product) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -895,7 +911,7 @@ export default function ProductDetailsModern({
 
                         {/* Image Gallery */}
                         {/* Phones keep a capped, centred photo; desktop gets the full 65% column with thumbnails beside the photo */}
-                        <div className="mx-auto w-full max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
+                        <div className="-mr-4 w-[calc(100%+1rem)] md:mr-auto md:mx-auto md:w-full md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
                                 title={product.title}
