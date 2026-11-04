@@ -314,6 +314,56 @@ export default function ProductCard({
     });
   };
 
+  // Buy Now straight from the listing grid: same rules as the product page's Buy Now,
+  // but skips the listing page and goes to checkout.
+  const buyerId = user?.uid;
+  const canBuyNow =
+    !selectable &&
+    !isAdmin &&
+    product.status === 'available' &&
+    !product.isDraft &&
+    !product.isUntimed &&
+    !product.isReverseBidding &&
+    (product.quantity ?? 1) > 0 &&
+    (!mounted || !buyerId || buyerId !== product.sellerId);
+
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (product.externalUrl) {
+      let url = product.externalUrl.trim();
+      if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (!user) {
+      router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`);
+      return;
+    }
+
+    // Established buyers/sellers and staff bypass the email check, matching the product page.
+    const role = (user as any).role;
+    const isExempt = ['admin', 'superadmin', 'buyer', 'seller'].includes(role);
+    if (!isExempt && !(user as any).emailVerified) {
+      toast({
+        title: 'Email Verification Required',
+        description: 'Please verify your email address to buy items.',
+        variant: 'destructive',
+      });
+      router.push('/verify');
+      return;
+    }
+
+    addItem(product, 1);
+    toast({
+      title: 'Added to Cart!',
+      description: `${product.title} is in your cart. Heading to checkout...`,
+    });
+    router.push('/checkout');
+  };
+
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -586,6 +636,18 @@ export default function ProductCard({
               <DealIndicator />
               <PriceDisplay />
             </div>
+            {canBuyNow && (
+              <Button
+                size="sm"
+                data-testid="card-buy-now"
+                className="h-8 text-xs font-bold pointer-events-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={handleBuyNow}
+                aria-label={`Buy ${product.title} now`}
+              >
+                <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                Buy Now
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
@@ -771,6 +833,20 @@ export default function ProductCard({
               {product.description}
             </p>
           </div>
+          {canBuyNow && (
+            <div className="mt-3 pointer-events-auto">
+              <Button
+                size="sm"
+                data-testid="card-buy-now"
+                className="h-9 font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={handleBuyNow}
+                aria-label={`Buy ${product.title} now`}
+              >
+                <ShoppingCart className="h-4 w-4 mr-1.5" />
+                Buy Now
+              </Button>
+            </div>
+          )}
           {(isAdmin || isSuperAdmin) && (
             <div className="flex items-center gap-2 mt-4 pt-4 border-t pointer-events-auto" onClick={(e) => e.stopPropagation()}>
               <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0" title="Edit">
@@ -1040,18 +1116,34 @@ export default function ProductCard({
                 Approve
               </Button>
             )}
+            {canBuyNow && (
+              <Button
+                size="sm"
+                data-testid="card-buy-now"
+                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={handleBuyNow}
+                aria-label={`Buy ${product.title} now`}
+              >
+                <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                Buy Now
+              </Button>
+            )}
             {!(product.status === 'pending_approval' && isSuperAdmin) && (
               <Button
                 size="sm"
-                className="h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
+                variant={canBuyNow ? 'outline' : 'default'}
+                className={cn(
+                  "h-7 sm:h-10 font-bold py-1 px-2.5 sm:px-4 rounded-lg text-[10px] sm:text-sm transition-all active:scale-95",
+                  !canBuyNow && "bg-primary hover:bg-primary/90 text-primary-foreground"
+                )}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   router.push(getProductUrl(product));
                 }}
               >
-                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                Details
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                <span className={cn(canBuyNow && "sr-only sm:not-sr-only")}>Details</span>
               </Button>
             )}
           </div>

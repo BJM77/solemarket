@@ -33,21 +33,10 @@ interface ProductHeaderInfoProps {
 export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions }: ProductHeaderInfoProps) {
     const Heading = headingAs;
     const router = useRouter();
-    const getRelativeTime = (date: any) => {
-        if (!date) return '';
-        const d = date.toDate ? date.toDate() : new Date(date);
-        const now = new Date();
-        const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
-
-        if (diffInSeconds < 60) return `Just now`;
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mins ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-        return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    };
-
     return (
         <div className={cn("space-y-4", className)}>
-            {/* Seller Badge & Social Proof */}
+            {/* Seller Badge & Social Proof (only rendered when there is something to show) */}
+            {(seller?.isVerified || recentViews > 5) && (
             <div className="flex flex-wrap items-center gap-3">
                 {seller?.isVerified && (
                     <div className="flex items-center gap-2">
@@ -64,61 +53,12 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     </div>
                 )}
             </div>
+            )}
 
             <div className="flex items-center gap-2.5 flex-wrap">
                 <Heading className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
                 {product.title}</Heading>
                 {titleActions}
-            </div>
-
-            {/* Key Fact Chips Under Title */}
-            <div className="flex flex-wrap items-center gap-1.5" data-testid="product-fact-chips">
-                {product.condition && (
-                    <Badge variant="outline" className={cn(
-                        "text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 shrink-0",
-                        product.condition.toLowerCase().includes('mint') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        product.condition.toLowerCase().includes('excellent') ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                        product.condition.toLowerCase().includes('good') || product.condition.toLowerCase().includes('played') ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                        product.condition.toLowerCase().includes('fair') || product.condition.toLowerCase().includes('poor') || product.condition.toLowerCase().includes('damaged') ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                        'bg-orange-50 text-orange-700 border-orange-200'
-                    )}>
-                        {product.condition}
-                    </Badge>
-                )}
-                {product.gradingCompany && product.gradingCompany !== 'Raw' ? (
-                    <Badge variant="secondary" className="text-[11px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5">
-                        {product.gradingCompany} {product.grade || 'Graded'}
-                    </Badge>
-                ) : product.category === 'Collector Cards' ? (
-                    <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        Raw Card
-                    </Badge>
-                ) : null}
-                {(product.brand || product.manufacturer) && (
-                    <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        {product.brand || product.manufacturer}
-                    </Badge>
-                )}
-                {(product as any).set && (
-                    <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        {(product as any).set}
-                    </Badge>
-                )}
-                {product.year && (
-                    <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        {product.year}
-                    </Badge>
-                )}
-                {product.cardNumber && (
-                    <Badge variant="secondary" className="text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        #{String(product.cardNumber).replace(/^#/, '')}
-                    </Badge>
-                )}
-                {product.size && (
-                    <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
-                        Size {product.size}
-                    </Badge>
-                )}
             </div>
 
             <div className="flex flex-col gap-3">
@@ -156,6 +96,56 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     {product.isNegotiable && !product.isDutchAuction && (
                         <Badge variant="outline" className="text-primary border-primary">Negotiable</Badge>
                     )}
+
+                {/* Key fact chips sit beside the price */}
+                <div className="flex flex-wrap items-center gap-1.5 min-w-0" data-testid="product-fact-chips">
+                    {product.condition && (
+                        <Badge variant="outline" className={cn(
+                            "text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 shrink-0",
+                            product.condition.toLowerCase().includes('mint') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            product.condition.toLowerCase().includes('excellent') ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                            product.condition.toLowerCase().includes('good') || product.condition.toLowerCase().includes('played') ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            product.condition.toLowerCase().includes('fair') || product.condition.toLowerCase().includes('poor') || product.condition.toLowerCase().includes('damaged') ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                            'bg-orange-50 text-orange-700 border-orange-200'
+                        )}>
+                            {product.condition}
+                        </Badge>
+                    )}
+                    {product.gradingCompany && product.gradingCompany !== 'Raw' ? (
+                        <Badge variant="secondary" className="text-[11px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5">
+                            {product.gradingCompany} {product.grade || 'Graded'}
+                        </Badge>
+                    ) : product.category === 'Collector Cards' ? (
+                        <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            Raw Card
+                        </Badge>
+                    ) : null}
+                    {(product.brand || product.manufacturer) && (
+                        <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            {product.brand || product.manufacturer}
+                        </Badge>
+                    )}
+                    {(product as any).set && (
+                        <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            {(product as any).set}
+                        </Badge>
+                    )}
+                    {product.year && (
+                        <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            {product.year}
+                        </Badge>
+                    )}
+                    {product.cardNumber && (
+                        <Badge variant="secondary" className="text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            #{String(product.cardNumber).replace(/^#/, '')}
+                        </Badge>
+                    )}
+                    {product.size && (
+                        <Badge variant="secondary" className="text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5">
+                            Size {product.size}
+                        </Badge>
+                    )}
+                </div>
                 </div>
 
                 {/* Trust Signals Strip Near Price */}
@@ -220,14 +210,6 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                         </p>
                     </div>
                 )}
-            </div>
-
-            <div className="flex items-center gap-2 text-gray-500 text-sm pb-4 border-b border-gray-100 dark:border-gray-700">
-                <MapPin className="h-4 w-4" />
-                <span>Australia</span>
-                <span className="mx-2">•</span>
-                <Clock className="h-4 w-4" />
-                <span>Posted {getRelativeTime(product.createdAt)}</span>
             </div>
         </div>
     );

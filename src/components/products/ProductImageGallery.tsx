@@ -21,6 +21,8 @@ interface ProductImageGalleryProps {
   isAuthenticated?: boolean;
   category?: string;
   imageAltTexts?: string[];
+  /** Desktop only: show the thumbnails in a vertical column beside the main photo instead of below it. */
+  thumbnailsSide?: boolean;
 }
 
 const conditionColors: Record<string, string> = {
@@ -43,7 +45,8 @@ export default function ProductImageGallery({
   condition, 
   isAuthenticated, 
   category,
-  imageAltTexts = []
+  imageAltTexts = [],
+  thumbnailsSide = false
 }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -110,10 +113,11 @@ export default function ProductImageGallery({
   };
 
   const aspectRatio = getAspectRatio(category);
-  // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height (≈68% on desktop).
+  // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height.
+  // With side thumbnails the desktop photo may use the whole viewport below the site header.
   const heightCap = aspectRatio === 'aspect-[5/7]'
-    ? 'max-w-[calc(50svh*5/7)] lg:max-w-[calc(68vh*5/7)]'
-    : 'max-w-[50svh] lg:max-w-[68vh]';
+    ? cn('max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-[calc((100vh-9rem)*5/7)]' : 'lg:max-w-[calc(68vh*5/7)]')
+    : cn('max-w-[50svh]', thumbnailsSide ? 'lg:max-w-[calc(100vh-9rem)]' : 'lg:max-w-[68vh]');
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -167,10 +171,10 @@ export default function ProductImageGallery({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className={cn("space-y-4", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
         {/* Main Gallery */}
         {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", aspectRatio, heightCap)}>
+        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -224,7 +228,7 @@ export default function ProductImageGallery({
                         fetchPriority={index === 0 ? "high" : "auto"}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
-                        sizes="(max-width: 768px) 70vw, 560px"
+                        sizes="(max-width: 1023px) 70vw, 760px"
                       />
                       {showMagnifier && index === selectedIndex && (
                         <div
@@ -333,7 +337,10 @@ export default function ProductImageGallery({
 
         {/* Thumbnail Strip */}
         {media.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className={cn(
+            "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+            thumbnailsSide && "lg:order-first lg:flex-col lg:shrink-0 lg:overflow-x-hidden lg:overflow-y-auto lg:p-1 lg:pb-1 lg:max-h-[calc(100vh-9rem)]"
+          )}>
             {media.map((item, index) => (
               <button
                 key={index}

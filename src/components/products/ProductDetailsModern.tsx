@@ -862,40 +862,40 @@ export default function ProductDetailsModern({
                 </DialogContent>
             </Dialog>
 
-            <div className="max-w-7xl mx-auto px-4 pt-3 lg:pt-4">
-                {/* Header Row: Breadcrumbs & Back Button */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 lg:mb-3 gap-2 sm:gap-4">
-                    <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto pb-1 min-w-0">
-                        <Link href="/" className="hover:text-primary transition-colors pr-1">Home</Link>
-                        <span className="text-foreground/80">/</span>
-                        <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors px-1">
-                            {product.category}
-                        </Link>
-                        {product.subCategory && (
-                            <>
+            <div className="max-w-[1440px] mx-auto px-4 pt-2 lg:pt-3">
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-4 lg:gap-6 items-start">
+                    {/* Left Column: Back + Breadcrumbs, Gallery */}
+                    <div className="space-y-2 lg:space-y-3 min-w-0">
+                        {/* Header Row: Back button next to the breadcrumbs */}
+                        <div className="flex items-center gap-1 sm:gap-3">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-500 hover:text-gray-900 dark:hover:text-white shrink-0 -ml-3 sm:ml-0 h-8 px-2"
+                                onClick={() => router.back()}
+                            >
+                                <ChevronLeft className="h-4 w-4 mr-1" />
+                                Back
+                            </Button>
+                            <span className="text-foreground/30 hidden sm:inline" aria-hidden>|</span>
+                            <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto min-w-0" aria-label="Breadcrumb">
+                                <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                                 <span className="text-foreground/80">/</span>
-                                <span className="text-gray-900 dark:text-gray-100 pl-1">{product.subCategory}</span>
-                            </>
-                        )}
-                    </nav>
-                    
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-500 hover:text-gray-900 dark:hover:text-white shrink-0 self-start sm:self-auto -ml-3 sm:ml-0"
-                        onClick={() => router.back()}
-                    >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
-                        Back to previous
-                    </Button>
-                </div>
+                                <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors">
+                                    {product.category}
+                                </Link>
+                                {product.subCategory && (
+                                    <>
+                                        <span className="text-foreground/80">/</span>
+                                        <span className="text-gray-900 dark:text-gray-100">{product.subCategory}</span>
+                                    </>
+                                )}
+                            </nav>
+                        </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-                    {/* Left Column: Gallery & Description */}
-                    <div className="lg:col-span-5 space-y-4">
                         {/* Image Gallery */}
-                        {/* Scaled dynamically to fit within viewport height above the fold */}
-                        <div className="mx-auto w-full max-w-[420px] rounded-2xl">
+                        {/* Phones keep a capped, centred photo; desktop gets the full 65% column with thumbnails beside the photo */}
+                        <div className="mx-auto w-full max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
                                 title={product.title}
@@ -903,6 +903,7 @@ export default function ProductDetailsModern({
                                 category={product.category}
                                 condition={product.condition}
                                 imageAltTexts={product.imageAltTexts}
+                                thumbnailsSide
                             />
                         </div>
 
@@ -919,12 +920,10 @@ export default function ProductDetailsModern({
                         </div>
                     </div>
 
-                    {/* Right Column: Sticky Buy Box */}
-                    <div className="lg:col-span-7 relative">
+                    {/* Right Column: Buy Box (starts level with the Back/breadcrumb row) */}
+                    <div className="relative min-w-0">
                         <div className="space-y-4">
-                            {/* The "Back Button" was moved up to the Header Row (Breadcrumbs) to align the top of the buy box with the image gallery */}
-
-                            <div className="lg:flex lg:flex-col bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
+                            <div className="lg:flex lg:flex-col bg-white dark:bg-gray-800 rounded-3xl p-5 lg:p-6 border border-gray-100 dark:border-gray-700 shadow-xl shadow-primary/5">
 
                                 {/* Desktop Product Header (Title/Price) */}
                                 <div className="hidden lg:block">
