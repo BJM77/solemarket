@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, PlusCircle, Bell, User, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Home, Search, PlusCircle, Bell, User, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { captureListingClick, listingIdFromPath, neighboursFromList, readListingContext } from '@/lib/listing-nav';
+import { getCategoryNeighbours } from '@/app/actions/marketplace/listing-neighbours';
 import { cn } from "@/lib/utils/ui";
 import { useUser } from '@/firebase';
 import { useMobileNav } from '@/context/MobileNavContext';
@@ -11,12 +14,36 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
   const { isVisible, buyAction } = useMobileNav();
+  const listingId = listingIdFromPath(pathname);
+  const [adjacent, setAdjacent] = useState<{ id: string; prev: string | null; next: string | null } | null>(null);
 
-  const navItems = [
+  // Remember which grid/list a listing tile was tapped from.
+  useEffect(() => {
+    document.addEventListener('click', captureListingClick, true);
+    return () => document.removeEventListener('click', captureListingClick, true);
+  }, []);
+
+  useEffect(() => {
+    if (!listingId) return;
+    const fromContext = neighboursFromList(readListingContext(), listingId);
+    if (fromContext) { setAdjacent({ id: listingId, ...fromContext }); return; }
+    let cancelled = false;
+    setAdjacent({ id: listingId, prev: null, next: null });
+    getCategoryNeighbours(listingId).then((n) => { if (!cancelled) setAdjacent({ id: listingId, ...n }); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [listingId]);
+
+  const nav = listingId && adjacent?.id === listingId ? adjacent : null;
+
+  const navItems: { label: string; href: string | null; icon: any; primary?: boolean; testId?: string }[] = [
     { label: 'Home', href: '/', icon: Home },
-    { label: 'Lineup', href: '/browse', icon: Search },
+    listingId
+      ? { label: 'Previous', href: nav?.prev ?? null, icon: ChevronLeft, testId: 'bottom-nav-prev' }
+      : { label: 'Lineup', href: '/browse', icon: Search },
     { label: 'Sell', href: '/sell/wizard', icon: PlusCircle, primary: true },
-    { label: 'Activity', href: '/profile/orders', icon: Bell },
+    listingId
+      ? { label: 'Next', href: nav?.next ?? null, icon: ChevronRight, testId: 'bottom-nav-next' }
+      : { label: 'Activity', href: '/profile/orders', icon: Bell },
     { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
   ];
 
@@ -27,7 +54,21 @@ export function BottomNav() {
     )}>
       <div className="flex items-center justify-around h-full max-w-lg mx-auto relative">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+          const isActive = !!item.href && (pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href)));
+
+          if (!item.href) {
+            return (
+              <span
+                key={item.label}
+                aria-disabled="true"
+                data-testid={item.testId}
+                className="flex flex-col items-center justify-center flex-1 min-h-11 min-w-11 text-muted-foreground opacity-40"
+              >
+                <div className="p-1 rounded-xl"><item.icon className="h-5 w-5" /></div>
+                <span className="text-[11px] font-bold mt-1 uppercase tracking-tighter">{item.label}</span>
+              </span>
+            );
+          }
 
           if (item.primary && buyAction) {
             return (
@@ -53,7 +94,7 @@ export function BottomNav() {
           if (item.primary) {
             return (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 className="relative -top-6 flex flex-col items-center group tap-haptic"
               >
@@ -73,8 +114,10 @@ export function BottomNav() {
 
           return (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
+              data-testid={item.testId}
+              aria-label={item.testId ? `${item.label} listing` : undefined}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 min-h-11 min-w-11 transition-all duration-300 tap-haptic-subtle group relative",
                 isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
