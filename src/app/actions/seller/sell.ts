@@ -202,6 +202,15 @@ export async function publishListing(draftId: string, idToken: string): Promise<
     const userId = await requireUidFromToken(idToken);
     const { publishListingAs } = await import('@/lib/listings/publish-core');
     await publishListingAs(draftId, userId);
+    await kickAlerts();
+}
+
+/** Nudge the saved-search alerts worker (best effort, never throws). */
+async function kickAlerts() {
+    try {
+        const { kickSavedSearchAlerts } = await import('@/lib/jobs/saved-search-alerts');
+        await kickSavedSearchAlerts();
+    } catch { /* the scheduled run picks it up */ }
 }
 
 /**
@@ -219,14 +228,17 @@ export async function publishBatchListingsAction(
     const ids = [...new Set(draftIds)].slice(0, 50);
     const published: string[] = [];
     const errors: Record<string, string> = {};
+    const userId = await requireUidFromToken(idToken);
+    const { publishListingAs } = await import('@/lib/listings/publish-core');
     for (const id of ids) {
         try {
-            await publishListing(id, idToken);
+            await publishListingAs(id, userId);
             published.push(id);
         } catch (e: any) {
             errors[id] = e?.message || 'Publish failed';
         }
     }
+    if (published.length) await kickAlerts();
     return { published, errors };
 }
 

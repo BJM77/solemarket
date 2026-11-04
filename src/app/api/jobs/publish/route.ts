@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runPublishSlice, kickPublishJob } from '@/lib/jobs/publish-job';
+import { kickSavedSearchAlerts } from '@/lib/jobs/saved-search-alerts';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
     try {
         const more = await runPublishSlice(jobId, runToken);
         if (more) await kickPublishJob(jobId, runToken);
+        else await kickSavedSearchAlerts();
         return NextResponse.json({ ok: true, more });
     } catch (e: any) {
         console.error('[publish-job] slice failed', jobId, e?.message);

@@ -74,6 +74,7 @@ export async function publishListingAs(draftId: string, userId: string): Promise
             status: 'available',
             isDraft: false,
             updatedAt: FieldValue.serverTimestamp(),
+            publishedAt: FieldValue.serverTimestamp(),
             sellerName: resolveSellerName(userData as any, data?.sellerName),
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,

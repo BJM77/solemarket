@@ -34,6 +34,8 @@ export default function CheckoutPage() {
     shippingAddress, 
     setShippingAddress,
     shippingCost,
+    shippingSellerCount,
+    freeShippingThreshold,
     pricing
   } = useCart();
 
@@ -575,6 +577,11 @@ export default function CheckoutPage() {
                   <span>Shipping</span>
                   <span className="text-foreground">{shippingMethod === 'pickup' ? 'Free' : `$${formatPrice(shippingCost)}`}</span>
                 </div>
+                {shippingMethod === 'shipping' && items.length > 0 && (
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300" data-testid="combined-shipping-note">
+                    Combined shipping: one fee per seller{shippingSellerCount > 1 ? ` (${shippingSellerCount} sellers)` : ''}. Extra items from the same seller ship free{freeShippingThreshold > 0 ? `, and shipping is free on $${formatPrice(freeShippingThreshold)}+ from one seller` : ''}.
+                  </p>
+                )}
 
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-emerald-700 font-bold">

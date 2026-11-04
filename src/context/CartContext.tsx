@@ -20,6 +20,8 @@ import { cartItemsToLines } from '@/lib/order-pricing';
 import { getActiveBundlesForSellers } from '@/app/actions/marketplace/bundle-actions';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { useTierSettings } from '@/hooks/use-tier-settings';
+import { calculateCombinedShipping, DEFAULT_SHIPPING_SETTINGS, type ShippingSettings } from '@/lib/pricing';
+import { getShippingSettings } from '@/app/actions/marketplace/shipping-settings';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -46,6 +48,9 @@ interface CartContextType {
   shippingAddress: ShippingAddress | null;
   setShippingAddress: (address: ShippingAddress) => void;
   shippingCost: number;
+  /** Number of sellers in the cart (one combined shipping fee each). */
+  shippingSellerCount: number;
+  freeShippingThreshold: number;
 }
 
 export interface ShippingAddress {
@@ -206,7 +211,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const pricing = React.useMemo(() => priceCart(cartItemsToLines(items as any), bundles, { tierSettings }), [items, bundles, tierSettings]);
   const cartSubtotal = pricing.subtotal;
 
-  const shippingCost = shippingMethod === 'shipping' ? 12.00 : 0;
+  // Combined shipping: one fee per seller (same rule as createOrderAction).
+  const [shipSettings, setShipSettings] = useState<ShippingSettings>(DEFAULT_SHIPPING_SETTINGS);
+  useEffect(() => {
+    let cancelled = false;
+    getShippingSettings().then(s => { if (!cancelled) setShipSettings(s); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+  const shipping = React.useMemo(() => calculateCombinedShipping(
+    pricing.lines.map(l => ({ sellerId: items[l.index]?.sellerId, total: l.total })),
+    shippingMethod,
+    shipSettings,
+  ), [pricing, items, shippingMethod, shipSettings]);
+  const shippingCost = shipping.total;
+  const shippingSellerCount = shipping.sellerCount;
   const cartTotal = cartSubtotal + shippingCost;
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
 
@@ -230,7 +248,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setShippingMethod,
         shippingAddress,
         setShippingAddress,
-        shippingCost
+        shippingCost,
+        shippingSellerCount,
+        freeShippingThreshold: shipSettings.freeShippingThreshold,
       }}
     >
       {children}
