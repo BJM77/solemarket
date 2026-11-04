@@ -899,7 +899,7 @@ export default function ProductCard({
         />
       )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-2 pb-2 pt-8">
-        <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-white">{product.title}</h3>
+        <p className="line-clamp-2 text-xs font-semibold leading-tight text-white" aria-hidden="true">{product.title}</p>
       </div>
     </Link>
   ) : null;
