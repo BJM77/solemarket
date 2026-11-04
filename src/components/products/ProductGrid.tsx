@@ -38,7 +38,7 @@ export default function ProductGrid({ products, priorityCount = 6 }: ProductGrid
 
   return (
     <div
-      className="grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-4 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 xl:gap-x-8 mt-8 max-w-full overflow-hidden"
+      className="grid grid-cols-2 gap-3 md:gap-x-4 md:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 xl:gap-x-8 mt-4 md:mt-8 max-w-full overflow-hidden"
     >
       {products.map((product, index) => (
         <ProductCard key={product.id} product={product} priority={index < priorityCount} />

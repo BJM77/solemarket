@@ -11,7 +11,7 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
 
     return (
         <section className={className}>
-            <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-10 relative z-10 max-w-full overflow-hidden">
+            <div className="max-w-[1440px] mx-auto px-3 md:px-6 md:px-10 relative z-10 max-w-full overflow-hidden">
                 <div className={`flex flex-col md:flex-row ${title ? 'items-start md:items-end' : 'items-end justify-end'} justify-between mb-4 md:mb-12 gap-4`}>
                     {title && (
                         <div className="w-full text-left">
