@@ -409,7 +409,7 @@ function InfiniteProductGridInner({
 
     if ((products.length === 0 && (isLoading || isPending)) || (isClient && products.length === 0 && !data)) {
       return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8">
+        <div className="w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8">
           {[...Array(12)].map((_, i) => (
             <ProductCardSkeleton key={i} aspectRatio={skeletonAspectRatio} />
           ))}
@@ -510,7 +510,7 @@ function InfiniteProductGridInner({
 
     // Default grid view
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8 max-w-full overflow-hidden">
+      <div className="w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8 overflow-hidden">
         {products.map((product, index) => {
           const isLastElement = index === products.length - 1;
 
