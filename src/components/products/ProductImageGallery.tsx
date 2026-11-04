@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from "@/lib/utils/ui";
+import { GALLERY_SIZES } from '@/lib/listing-nav';
 import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 
 interface ProductImageGalleryProps {
@@ -171,10 +172,37 @@ export default function ProductImageGallery({
 
   return (
     <>
-      <div className={cn("space-y-4", thumbnailsSide && "max-md:space-y-0 max-md:flex max-md:flex-row max-md:items-start max-md:gap-2", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
+      <div className={cn("space-y-4 max-md:space-y-0", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
+        {/* Phones: condition badge + icon-sized thumbnails on one row above the photo */}
+        {(condition || media.length > 1) && (
+          <div className="md:hidden flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-hide" data-testid="mobile-thumb-row">
+            {condition && (
+              <Badge className={cn("shrink-0 border-none py-1 px-2.5 text-[11px] font-bold uppercase tracking-wider", conditionColors[condition] || 'bg-slate-100 text-slate-900')}>
+                {condition}
+              </Badge>
+            )}
+            {media.length > 1 && media.map((item, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => goToSlide(index)}
+                aria-label={`Show photo ${index + 1}`}
+                aria-current={index === selectedIndex ? 'true' : undefined}
+                className={cn(
+                  "relative shrink-0 w-[34px] h-[34px] rounded-md overflow-hidden border border-border transition-all",
+                  index === selectedIndex ? "ring-2 ring-orange-500 ring-offset-1 ring-offset-background" : "opacity-70"
+                )}
+              >
+                <Image src={(item.type === 'video' ? item.thumbnail : item.url)!} alt="" fill className="object-cover" sizes="36px" />
+                {item.type === 'video' && <Play className="absolute inset-0 m-auto w-3 h-3 text-white fill-white" />}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Main Gallery */}
         {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
-        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "max-md:flex-1 max-md:min-w-0 max-md:rounded-r-none max-md:border-r-0", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
+        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -228,7 +256,7 @@ export default function ProductImageGallery({
                         fetchPriority={index === 0 ? "high" : "auto"}
                         placeholder="blur"
                         blurDataURL={BLUR_DATA_URL}
-                        sizes="(max-width: 1023px) 70vw, 760px"
+                        sizes={GALLERY_SIZES}
                       />
                       {showMagnifier && index === selectedIndex && (
                         <div
@@ -303,7 +331,7 @@ export default function ProductImageGallery({
           {/* Premium Overlays */}
           <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none z-20">
             {condition && (
-              <Badge className={cn("border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider", conditionColors[condition] || 'bg-white/90 text-slate-900')}>
+              <Badge className={cn("max-md:hidden border-none shadow-lg backdrop-blur-md py-1 px-3 text-xs font-bold uppercase tracking-wider", conditionColors[condition] || 'bg-white/90 text-slate-900')}>
                 {condition}
               </Badge>
             )}
@@ -338,8 +366,7 @@ export default function ProductImageGallery({
         {/* Thumbnail Strip */}
         {media.length > 1 && (
           <div className={cn(
-            "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
-            thumbnailsSide && "max-md:order-first max-md:flex-col max-md:shrink-0 max-md:overflow-x-hidden max-md:overflow-y-auto max-md:p-0.5 max-md:pb-0.5 max-md:max-h-[70svh]",
+            "max-md:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
             thumbnailsSide && "lg:order-first lg:flex-col lg:shrink-0 lg:overflow-x-hidden lg:overflow-y-auto lg:p-1 lg:pb-1 lg:max-h-[calc(100vh-9rem)]"
           )}>
             {media.map((item, index) => (

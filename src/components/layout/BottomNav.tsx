@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { getImageProps } from 'next/image';
 import { useEffect, useState } from 'react';
 import { Home, Search, PlusCircle, Bell, User, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
-import { captureListingClick, listingIdFromPath, neighboursFromList, readListingContext } from '@/lib/listing-nav';
+import { GALLERY_SIZES, type ListingNeighbours, captureListingClick, listingIdFromPath, neighboursFromList, readListingContext } from '@/lib/listing-nav';
 import { getCategoryNeighbours } from '@/app/actions/marketplace/listing-neighbours';
 import { cn } from "@/lib/utils/ui";
 import { useUser } from '@/firebase';
@@ -15,7 +16,7 @@ export function BottomNav() {
   const { user } = useUser();
   const { isVisible, buyAction } = useMobileNav();
   const listingId = listingIdFromPath(pathname);
-  const [adjacent, setAdjacent] = useState<{ id: string; prev: string | null; next: string | null } | null>(null);
+  const [adjacent, setAdjacent] = useState<({ id: string } & ListingNeighbours) | null>(null);
 
   // Remember which grid/list a listing tile was tapped from.
   useEffect(() => {
@@ -34,6 +35,27 @@ export function BottomNav() {
   }, [listingId]);
 
   const nav = listingId && adjacent?.id === listingId ? adjacent : null;
+  const router = useRouter();
+
+  // Warm the Next (then Previous) listing: route payload + its main photo at the gallery's srcset.
+  useEffect(() => {
+    if (!nav) return;
+    const targets: [string | null, string | null | undefined][] = [[nav.next, nav.nextImage], [nav.prev, nav.prevImage]];
+    for (const [href, image] of targets) {
+      if (!href) continue;
+      try { router.prefetch(href); } catch { /* ignore */ }
+      if (image) {
+        try {
+          const { props } = getImageProps({ src: image, alt: '', fill: true, sizes: GALLERY_SIZES });
+          const img = new window.Image();
+          img.fetchPriority = href === nav.next ? 'high' : 'low';
+          if (props.sizes) img.sizes = props.sizes;
+          if (props.srcSet) img.srcset = props.srcSet;
+          img.src = props.src;
+        } catch { /* ignore */ }
+      }
+    }
+  }, [nav, router]);
 
   const navItems: { label: string; href: string | null; icon: any; primary?: boolean; testId?: string }[] = [
     { label: 'Home', href: '/', icon: Home },

@@ -917,7 +917,7 @@ export default function ProductDetailsModern({
 
                         {/* Image Gallery */}
                         {/* Phones keep a capped, centred photo; desktop gets the full 65% column with thumbnails beside the photo */}
-                        <div className="-mr-4 w-[calc(100%+1rem)] md:mr-auto md:mx-auto md:w-full md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
+                        <div className="w-full mx-auto md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
                                 title={product.title}

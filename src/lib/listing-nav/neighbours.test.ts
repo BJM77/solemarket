@@ -10,9 +10,9 @@ describe('listing nav', () => {
   });
   it('finds neighbours and ends', () => {
     const l = [{ id: 'a', url: '/u/a' }, { id: 'b', url: '/u/b' }, { id: 'c', url: '/u/c' }];
-    expect(neighboursFromList(l, 'a')).toEqual({ prev: null, next: '/u/b' });
-    expect(neighboursFromList(l, 'b')).toEqual({ prev: '/u/a', next: '/u/c' });
-    expect(neighboursFromList(l, 'c')).toEqual({ prev: '/u/b', next: null });
+    expect(neighboursFromList(l, 'a')).toMatchObject({ prev: null, next: '/u/b' });
+    expect(neighboursFromList(l, 'b')).toMatchObject({ prev: '/u/a', next: '/u/c' });
+    expect(neighboursFromList(l, 'c')).toMatchObject({ prev: '/u/b', next: null });
     expect(neighboursFromList(l, 'z')).toBeNull();
   });
 });
