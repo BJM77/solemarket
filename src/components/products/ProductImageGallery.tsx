@@ -404,7 +404,7 @@ export default function ProductImageGallery({
 
       {/* Fullscreen Viewer */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-[100vw] w-full h-[100vh] p-0 bg-black/95 backdrop-blur-2xl border-none shadow-none flex flex-col focus:outline-none z-[100]">
+        <DialogContent className="max-w-[100vw] w-full h-[100vh] p-0 bg-black/95 backdrop-blur-2xl border-none shadow-none flex flex-col focus:outline-none z-[100] [&>button:last-child]:hidden">
           <DialogTitle className="sr-only">Full-screen view of {title}</DialogTitle>
           <DialogDescription className="sr-only">Viewing media {selectedIndex + 1} of {media.length}.</DialogDescription>
 
@@ -437,14 +437,15 @@ export default function ProductImageGallery({
               )}
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-6 right-6 text-muted-foreground hover:bg-muted hover:text-foreground rounded-full h-12 w-12 z-[110] backdrop-blur-md"
-              onClick={() => setIsFullscreen(false)}
+            <button
+              type="button"
+              aria-label="Close photo viewer"
+              data-testid="lightbox-close"
+              className="fixed right-4 z-[130] flex h-12 w-12 min-h-11 min-w-11 items-center justify-center rounded-full bg-black/70 text-white ring-1 ring-white/40 shadow-xl backdrop-blur-md active:scale-95 top-[calc(env(safe-area-inset-top,0px)+1.25rem)] md:top-6 md:right-6"
+              onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
             >
-              <X className="w-8 h-8" />
-            </Button>
+              <X className="h-7 w-7" strokeWidth={2.75} />
+            </button>
 
             {media.length > 1 && (
               <>
