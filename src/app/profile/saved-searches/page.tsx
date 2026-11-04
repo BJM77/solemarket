@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { listSavedSearches, deleteSavedSearch, setSavedSearchAlerts, saveSearch, type SavedSearch } from '@/app/actions/saved-search/saved-search';
+import { listSavedSearches, deleteSavedSearch, setSavedSearchAlerts, saveSearch, getSavedSearchAlertPrefs, setSavedSearchAlertPrefs, type SavedSearch, type SavedSearchAlertPrefs } from '@/app/actions/saved-search/saved-search';
 import { criteriaToQueryString, describeCriteria } from '@/lib/saved-search/match';
 
 export default function SavedSearchesPage() {
@@ -17,12 +17,20 @@ export default function SavedSearchesPage() {
   const [newQuery, setNewQuery] = useState('');
   const [newMaxPrice, setNewMaxPrice] = useState('');
   const [creating, setCreating] = useState(false);
+  const [prefs, setPrefs] = useState<SavedSearchAlertPrefs | null>(null);
 
   const load = useCallback(async () => {
     const token = await getCurrentUserIdToken();
     if (!token) return setItems([]);
     setItems(await listSavedSearches(token));
+    getSavedSearchAlertPrefs(token).then(setPrefs).catch(() => {});
   }, []);
+
+  const updatePrefs = async (next: Partial<SavedSearchAlertPrefs>) => {
+    setPrefs((cur) => (cur ? { ...cur, ...next } : cur));
+    const token = await getCurrentUserIdToken();
+    if (token) await setSavedSearchAlertPrefs(token, next);
+  };
 
   useEffect(() => { if (user) load().catch(() => setItems([])); }, [user, load]);
 
@@ -72,6 +80,19 @@ export default function SavedSearchesPage() {
         <h1 className="text-2xl font-black tracking-tight">Saved Searches &amp; Price Alerts</h1>
         <p className="text-sm text-muted-foreground">Tell us when a specific card or shoe under your target price is listed, or save a search from any browse page.</p>
       </header>
+
+      {prefs && (
+        <div className="rounded-2xl border p-4 space-y-3" data-testid="saved-search-alert-prefs">
+          <label className="flex items-center justify-between gap-4 text-sm font-semibold text-foreground">
+            <span>New listing alerts for my saved searches<span className="block text-xs font-normal text-slate-600 dark:text-slate-300">In-app notification when a matching listing goes live (max 20 a day).</span></span>
+            <Switch checked={prefs.alertsOn} onCheckedChange={(v) => updatePrefs({ alertsOn: v })} aria-label="Saved search alerts" />
+          </label>
+          <label className="flex items-center justify-between gap-4 text-sm font-semibold text-foreground">
+            <span>Also email me</span>
+            <Switch checked={prefs.emailOn} disabled={!prefs.alertsOn} onCheckedChange={(v) => updatePrefs({ emailOn: v })} aria-label="Email saved search alerts" />
+          </label>
+        </div>
+      )}
 
       <form onSubmit={handleCreate} className="rounded-2xl border bg-slate-50/60 dark:bg-slate-900/40 p-4 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-end" data-testid="quick-create-alert-form">
         <label className="flex-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">

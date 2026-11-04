@@ -69,3 +69,21 @@ export async function deleteSavedSearch(idToken: string, id: string) {
   await col(uid).doc(id).delete();
   return { success: true };
 }
+
+export interface SavedSearchAlertPrefs { alertsOn: boolean; emailOn: boolean }
+
+/** Account-wide saved-search alert switches (stored on users/{uid}). */
+export async function getSavedSearchAlertPrefs(idToken: string): Promise<SavedSearchAlertPrefs> {
+  const { uid } = await ensureActionAuth(idToken);
+  const d = (await firestoreDb.collection('users').doc(uid).get()).data() || {};
+  return { alertsOn: d.savedSearchAlertsOptOut !== true, emailOn: d.savedSearchEmailOptOut !== true };
+}
+
+export async function setSavedSearchAlertPrefs(idToken: string, prefs: Partial<SavedSearchAlertPrefs>) {
+  const { uid } = await ensureActionAuth(idToken);
+  const update: Record<string, boolean> = {};
+  if (typeof prefs.alertsOn === 'boolean') update.savedSearchAlertsOptOut = !prefs.alertsOn;
+  if (typeof prefs.emailOn === 'boolean') update.savedSearchEmailOptOut = !prefs.emailOn;
+  if (Object.keys(update).length) await firestoreDb.collection('users').doc(uid).set(update, { merge: true });
+  return { success: true };
+}

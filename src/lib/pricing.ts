@@ -107,3 +107,32 @@ export function calculateDutchAuctionPrice(
     // Ensure it doesn't go below the floor price
     return Math.max(currentPrice, floorPrice);
 }
+
+export interface ShippingSettings { freightCharge: number; freeShippingThreshold: number }
+export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = { freightCharge: 12, freeShippingThreshold: 150 };
+
+/**
+ * Combined shipping: ONE shipping fee per seller per order, no matter how many items
+ * come from that seller (free once that seller's subtotal reaches the threshold).
+ * Uses the same rule as the server's per-seller order split (calculateShipping), so the
+ * cart total matches what createOrderAction charges.
+ */
+export function calculateCombinedShipping(
+    lines: Array<{ sellerId?: string | null; total: number }>,
+    method: 'pickup' | 'shipping',
+    settings: ShippingSettings = DEFAULT_SHIPPING_SETTINGS,
+): { total: number; perSeller: Record<string, number>; sellerCount: number } {
+    const subtotals: Record<string, number> = {};
+    for (const l of lines) {
+        const key = l.sellerId || 'unknown';
+        subtotals[key] = Math.round(((subtotals[key] || 0) + (Number(l.total) || 0)) * 100) / 100;
+    }
+    const perSeller: Record<string, number> = {};
+    let total = 0;
+    for (const [sellerId, sub] of Object.entries(subtotals)) {
+        const fee = calculateShipping(sub, method, settings);
+        perSeller[sellerId] = fee;
+        total += fee;
+    }
+    return { total: Math.round(total * 100) / 100, perSeller, sellerCount: Object.keys(subtotals).length };
+}

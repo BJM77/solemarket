@@ -3,6 +3,7 @@
 import type React from 'react';
 
 import { TierOfferBadge } from '@/components/products/TierOfferBadge';
+import { CombinedShippingBadge } from '@/components/products/CombinedShippingBadge';
 import { getProductUrl } from '@/lib/utils/url';
 import { resolveSellerName } from '@/lib/utils/seller-name';
 import { Badge } from '@/components/ui/badge';
@@ -171,7 +172,10 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     </span>
                 </div>
 
-                <TierOfferBadge tier={product.multiCardTier} category={product.category} sellerId={product.sellerId} />
+                <div className="flex flex-wrap items-center gap-2">
+                    <TierOfferBadge tier={product.multiCardTier} category={product.category} sellerId={product.sellerId} />
+                    {product.status === 'available' && <CombinedShippingBadge sellerId={product.sellerId} productId={product.id} />}
+                </div>
                 {product.multibuyEnabled && product.multibuyTiers && product.multibuyTiers.length > 0 && (
                     <div className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 mt-1">
                         <div className="flex items-center gap-2 mb-2.5">

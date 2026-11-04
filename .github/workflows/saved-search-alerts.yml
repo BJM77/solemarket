@@ -1,0 +1,22 @@
+name: Saved search alerts
+
+# Free scheduler: nudges the alerts worker every 15 minutes as a safety net
+# (listings published through the site trigger it straight away).
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST https://benched.au/api/jobs/saved-search-alerts
+        run: |
+          code=$(curl -s -o body.json -w '%{http_code}' -X POST --max-time 120 https://benched.au/api/jobs/saved-search-alerts || echo 000)
+          echo "HTTP $code"; cat body.json 2>/dev/null; echo
+          [ "$code" = "200" ]
