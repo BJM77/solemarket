@@ -1,4 +1,6 @@
 /** Client helpers for mobile Previous/Next listing navigation. */
+/** Main gallery image `sizes`; shared with the next-listing preloader so the srcset matches. */
+export const GALLERY_SIZES = '(max-width: 767px) 100vw, (max-width: 1023px) 70vw, 760px';
 export const LISTING_NAV_KEY = 'benched_listing_nav';
 const LISTING_PATH = /^\/(?:(?:shoes|cards|coins)\/[^/]+|product)\/([^/?#]+)\/?$/;
 
@@ -8,7 +10,7 @@ export function listingIdFromPath(pathname: string | null | undefined): string |
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-export interface ListingNavEntry { id: string; url: string }
+export interface ListingNavEntry { id: string; url: string; image?: string }
 
 /** Collect distinct listing links inside `root`, in DOM order. */
 export function collectListingLinks(root: ParentNode): ListingNavEntry[] {
@@ -18,9 +20,24 @@ export function collectListingLinks(root: ParentNode): ListingNavEntry[] {
     let path: string;
     try { path = new URL(a.href, window.location.origin).pathname; } catch { return; }
     const id = listingIdFromPath(path);
-    if (id && !seen.has(id)) { seen.add(id); out.push({ id, url: path }); }
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      // Original image URL for the tile (next/image keeps it in the ?url= param).
+      const tile = a.closest('article, li, [data-product-card]') || a;
+      const img = (a.querySelector('img') || tile.querySelector('img')) as HTMLImageElement | null;
+      out.push({ id, url: path, image: originalImageUrl(img?.currentSrc || img?.src) });
+    }
   });
   return out;
+}
+
+export function originalImageUrl(src?: string | null): string | undefined {
+  if (!src || src.startsWith('data:')) return undefined;
+  try {
+    const u = new URL(src, window.location.origin);
+    if (u.pathname.startsWith('/_next/image')) return u.searchParams.get('url') || undefined;
+    return u.href;
+  } catch { return undefined; }
 }
 
 export function saveListingContext(entries: ListingNavEntry[]) {
@@ -35,10 +52,12 @@ export function readListingContext(): ListingNavEntry[] {
   } catch { return []; }
 }
 
-export function neighboursFromList(list: ListingNavEntry[], id: string): { prev: string | null; next: string | null } | null {
+export interface ListingNeighbours { prev: string | null; next: string | null; prevImage?: string | null; nextImage?: string | null }
+
+export function neighboursFromList(list: ListingNavEntry[], id: string): ListingNeighbours | null {
   const i = list.findIndex((e) => e.id === id);
   if (i < 0) return null;
-  return { prev: list[i - 1]?.url ?? null, next: list[i + 1]?.url ?? null };
+  return { prev: list[i - 1]?.url ?? null, next: list[i + 1]?.url ?? null, prevImage: list[i - 1]?.image ?? null, nextImage: list[i + 1]?.image ?? null };
 }
 
 /**
