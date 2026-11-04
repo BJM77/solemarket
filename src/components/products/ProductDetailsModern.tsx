@@ -884,7 +884,7 @@ export default function ProductDetailsModern({
                 </DialogContent>
             </Dialog>
 
-            <div className="max-w-[1440px] mx-auto px-4 pt-2 lg:pt-3">
+            <div className="max-w-[1440px] mx-auto px-4 pt-1 md:pt-2 lg:pt-3">
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-4 lg:gap-6 items-start">
                     {/* Left Column: Back + Breadcrumbs, Gallery */}
                     <div className="space-y-2 lg:space-y-3 min-w-0">

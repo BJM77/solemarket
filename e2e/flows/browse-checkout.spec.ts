@@ -26,4 +26,16 @@ test.describe('browse → checkout (PayID / cash)', () => {
 
     await expect(page).toHaveURL(/\/checkout\/confirmation/, { timeout: 45_000 });
   });
+
+  test.describe('mobile bottom nav', () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+    test('signed-in non-owner sees Buy in the centre slot', async ({ page }) => {
+      await signIn(page, 'buyer@e2e.test');
+      await page.goto('/product/e2e-live-1');
+      await expect(page.getByRole('heading', { name: /E2E Charizard Test Card/i }).first()).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId('bottom-nav-buy')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('bottom-nav-prev')).toBeVisible();
+    });
+  });
 });
