@@ -14,6 +14,8 @@ interface MobileNavContextType {
 export interface BuyAction {
   onBuy: () => void;
   disabled: boolean;
+  /** When set (owner viewing own listing), centre button becomes EDIT linking here. */
+  editHref?: string;
 }
 
 const MobileNavContext = createContext<MobileNavContextType>({
