@@ -13,7 +13,6 @@ import { Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
-import { MobileNavPills } from './MobileNavPills';
 import { cn } from "@/lib/utils/ui";
 import dynamic from 'next/dynamic';
 import { PrefetchLikelyRoutes } from './PrefetchLikelyRoutes';
@@ -43,13 +42,6 @@ export default function Header() {
             <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
               <Logo className="h-[60px] md:h-12 lg:h-14" priority />
             </Link>
-
-            {/* Mobile Nav Pills when pinned - replacing ticker */}
-            {isClient && isPinned && !isMarketplacePage && (
-              <div className="flex-1 md:hidden overflow-hidden h-9 bg-transparent border-0 ml-2">
-                <MobileNavPills onSearchClick={() => setShowInstantSearch(true)} />
-              </div>
-            )}
 
             <div onClick={() => setShowInstantSearch(true)} className="hidden lg:flex flex-1 max-w-2xl h-10 group cursor-text">
               {isClient && <SearchBar className="pointer-events-none" />}
@@ -95,14 +87,6 @@ export default function Header() {
         Home Navigation Pills (Mobile Only)
         Replacing the scrolling ticker with discovery pills
       */}
-      {isClient && !isMarketplacePage && (
-        <div className={cn(
-          "transition-all duration-300 md:hidden",
-          isPinned ? "hidden" : "block"
-        )}>
-          <MobileNavPills onSearchClick={() => setShowInstantSearch(true)} />
-        </div>
-      )}
 
       <InstantSearchModal open={showInstantSearch} onOpenChange={setShowInstantSearch} />
       <PrefetchLikelyRoutes />
