@@ -698,7 +698,7 @@ export default function ProductDetailsModern({
 
     const isLoading = isProductLoading || isSellerLoading;
 
-    // Mobile bottom nav: centre button becomes Buy on this listing (not for the seller's own listing).
+    // Mobile bottom nav: centre button is BUY for buyers, EDIT for the listing owner, SELL elsewhere.
     const { setBuyAction } = useMobileNav();
     const buyNowRef = useRef(handleBuyNow);
     buyNowRef.current = handleBuyNow;
@@ -708,10 +708,14 @@ export default function ProductDetailsModern({
     const navBuyable = !!product && !navIsOwner && !product.isReverseBidding && !product.isUntimed;
     const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther;
     useEffect(() => {
+        if (navIsOwner && productId) {
+            setBuyAction({ onBuy: () => {}, disabled: false, editHref: `/sell/create?edit=${productId}` });
+            return () => setBuyAction(null);
+        }
         if (!navBuyable) { setBuyAction(null); return; }
         setBuyAction({ onBuy: () => buyNowRef.current(), disabled: navBuyDisabled });
         return () => setBuyAction(null);
-    }, [navBuyable, navBuyDisabled, setBuyAction]);
+    }, [navIsOwner, productId, navBuyable, navBuyDisabled, setBuyAction]);
 
     if (isLoading && !product) {
         return (

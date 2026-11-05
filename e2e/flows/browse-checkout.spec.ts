@@ -20,6 +20,15 @@ test.describe('browse → checkout (PayID / cash)', () => {
       await expect(page.getByTestId('bottom-nav-buy')).toBeEnabled();
       await expect(page.getByTestId('bottom-nav-prev')).toBeVisible();
     });
+
+    test('listing owner sees Edit (not Buy) in the centre slot', async ({ page }) => {
+      await signIn(page, 'seller@e2e.test');
+      await page.goto('/product/e2e-live-1');
+      const edit = page.getByTestId('bottom-nav-edit');
+      await expect(edit).toBeVisible({ timeout: 45_000 });
+      await expect(edit).toHaveAttribute('href', '/sell/create?edit=e2e-live-1');
+      await expect(page.getByTestId('bottom-nav-buy')).toHaveCount(0);
+    });
   });
 
   test('buyer finds a listing and places a cash-on-pickup order', async ({ page }) => {

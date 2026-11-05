@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getImageProps } from 'next/image';
 import { useEffect, useState } from 'react';
-import { Home, Search, PlusCircle, Bell, User, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Search, PlusCircle, Bell, User, ShoppingBag, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
 import { GALLERY_SIZES, type ListingNeighbours, captureListingClick, listingIdFromPath, neighboursFromList, readListingContext } from '@/lib/listing-nav';
 import { getCategoryNeighbours } from '@/app/actions/marketplace/listing-neighbours';
 import { cn } from "@/lib/utils/ui";
@@ -89,6 +89,23 @@ export function BottomNav() {
                 <div className="p-1 rounded-xl"><item.icon className="h-5 w-5" /></div>
                 <span className="text-[11px] font-bold mt-1 uppercase tracking-tighter">{item.label}</span>
               </span>
+            );
+          }
+
+          if (item.primary && buyAction?.editHref) {
+            return (
+              <Link
+                key="edit"
+                href={buyAction.editHref}
+                aria-label="Edit this listing"
+                data-testid="bottom-nav-edit"
+                className="relative -top-6 flex flex-col items-center group tap-haptic"
+              >
+                <div className="bg-primary text-primary-foreground p-4 rounded-full shadow-2xl shadow-primary/40 transition-all duration-300 hover:scale-105 ring-[4px] ring-background">
+                  <Pencil className="h-6 w-6" strokeWidth={2.5} />
+                </div>
+                <span className="text-[11px] font-black mt-1 uppercase tracking-widest text-foreground">Edit</span>
+              </Link>
             );
           }
 
