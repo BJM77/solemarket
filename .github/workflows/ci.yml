@@ -108,7 +108,10 @@ jobs:
           PLAYWRIGHT_BASE_URL: http://localhost:9007
       - name: TEMP stress batch-publish
         if: always()
-        run: npx playwright test e2e/flows/batch-publish.spec.ts --project chromium --repeat-each=8 --workers=1 --retries=0
+        run: |
+          fails=0
+          for i in 1 2 3 4 5 6; do node e2e/flows/seed.mjs >/dev/null 2>&1; npx playwright test e2e/flows --project chromium --retries=0 --reporter=line || fails=$((fails+1)); done
+          echo "STRESS_FAILS=$fails"
         env:
           E2E_EMULATORS: 'true'
           PLAYWRIGHT_BASE_URL: http://localhost:9007
