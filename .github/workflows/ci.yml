@@ -106,6 +106,12 @@ jobs:
         env:
           E2E_EMULATORS: 'true'
           PLAYWRIGHT_BASE_URL: http://localhost:9007
+      - name: TEMP stress batch-publish
+        if: always()
+        run: npx playwright test e2e/flows/batch-publish.spec.ts --project chromium --repeat-each=8 --workers=1 --retries=0
+        env:
+          E2E_EMULATORS: 'true'
+          PLAYWRIGHT_BASE_URL: http://localhost:9007
       - name: Upload flows report
         if: always()
         uses: actions/upload-artifact@v4
