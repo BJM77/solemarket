@@ -1,10 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { flowsEnabled, signIn } from './helpers';
+import { flowsEnabled, signIn, resetDrafts } from './helpers';
 
 test.describe('bulk draft review → background publish', () => {
   // Production CSP only allows Google endpoints; the emulators live on 127.0.0.1.
   test.use({ bypassCSP: true });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
+
+  // Each attempt (incl. CI retries) starts from fresh drafts; a prior attempt may have published them.
+  test.beforeEach(async () => { await resetDrafts(); });
 
   test('seller publishes all drafts as a background job', async ({ page }) => {
     test.setTimeout(150_000);

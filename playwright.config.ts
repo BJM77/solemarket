@@ -32,6 +32,9 @@ export default defineConfig({
     url: 'http://localhost:9007',
     reuseExistingServer: false,
     timeout: 120 * 1000,
+    // Surface server logs in CI so flaky failures can be diagnosed.
+    stdout: 'pipe',
+    stderr: 'pipe',
   } : {
     command: 'npm run dev',
     url: 'http://localhost:9007',
