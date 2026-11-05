@@ -43,8 +43,11 @@ export const getProductById = cache(async (id: string): Promise<Product | null> 
         }
         return null;
     } catch (e: any) {
+        // Rethrow: returning null here makes the ISR page call notFound(), and Next caches
+        // that 404 for the revalidate window (5 min) even though the listing exists.
+        // Throwing serves an uncached error instead and keeps any previously cached page.
         console.error(`Failed to fetch product ${id}:`, e.message);
-        return null;
+        throw e;
     }
 });
 
