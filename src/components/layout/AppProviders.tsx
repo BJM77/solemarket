@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { FirebaseProvider } from '@/firebase/provider';
 import QueryProvider from '@/providers/QueryProvider';
 import { SiteConfigProvider } from '@/providers/SiteConfigProvider';
+import { StorefrontProvider } from '@/context/StorefrontContext';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
 import { MobileNavProvider } from '@/context/MobileNavContext';
 import { CartProvider } from '@/context/CartContext';
@@ -17,6 +18,7 @@ export function AppProviders({ children, siteConfig }: { children: React.ReactNo
     <ErrorBoundary>
       <FirebaseProvider>
         <SiteConfigProvider initialConfig={siteConfig}>
+          <StorefrontProvider>
           <QueryProvider>
             <SidebarProvider>
               <MobileNavProvider>
@@ -28,6 +30,7 @@ export function AppProviders({ children, siteConfig }: { children: React.ReactNo
               </MobileNavProvider>
             </SidebarProvider>
           </QueryProvider>
+          </StorefrontProvider>
         </SiteConfigProvider>
       </FirebaseProvider>
       <StaleDeployGuard />

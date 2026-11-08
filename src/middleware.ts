@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
+import { STOREFRONT_HEADER, resolveStorefrontId } from '@/config/storefronts';
 
 // Cache keys in memory during Edge function execution
 let cachedPublicKeys: Record<string, string> | null = null;
@@ -45,6 +46,8 @@ export async function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('Content-Security-Policy', cspHeader);
+  // Multi-storefront: tell server code which storefront this host serves (never trust a client-sent value).
+  requestHeaders.set(STOREFRONT_HEADER, resolveStorefrontId(request.headers.get('x-forwarded-host') || request.headers.get('host')));
 
   // 1. Security Headers (Always Safe & Recommended)
   requestHeaders.set('X-Frame-Options', 'DENY');
