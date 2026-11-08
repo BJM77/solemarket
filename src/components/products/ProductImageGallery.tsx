@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import type React from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon, ShieldCheck, Play, Pause } from 'lucide-react';
@@ -24,6 +25,8 @@ interface ProductImageGalleryProps {
   imageAltTexts?: string[];
   /** Desktop only: show the thumbnails in a vertical column beside the main photo instead of below it. */
   thumbnailsSide?: boolean;
+  /** Phones only: listing title shown at the start of the row above the photo. */
+  mobileTitle?: React.ReactNode;
 }
 
 const conditionColors: Record<string, string> = {
@@ -47,7 +50,8 @@ export default function ProductImageGallery({
   isAuthenticated, 
   category,
   imageAltTexts = [],
-  thumbnailsSide = false
+  thumbnailsSide = false,
+  mobileTitle
 }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -174,8 +178,10 @@ export default function ProductImageGallery({
     <>
       <div className={cn("space-y-4 max-md:space-y-0", thumbnailsSide && "lg:space-y-0 lg:flex lg:flex-row lg:items-start lg:gap-4")}>
         {/* Phones: condition badge + icon-sized thumbnails on one row above the photo */}
-        {(condition || media.length > 1) && (
-          <div className="md:hidden flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-hide" data-testid="mobile-thumb-row">
+        {(mobileTitle || condition || media.length > 1) && (
+          <div className="md:hidden flex items-center gap-1.5 mb-2" data-testid="mobile-thumb-row">
+            {mobileTitle && <div className="flex-1 min-w-0">{mobileTitle}</div>}
+            <div className="flex items-center gap-1.5 shrink-0 max-w-[60%] overflow-x-auto scrollbar-hide p-0.5">
             {condition && (
               <Badge className={cn("shrink-0 border-none py-1 px-2.5 text-[11px] font-bold uppercase tracking-wider", conditionColors[condition] || 'bg-slate-100 text-slate-900')}>
                 {condition}
@@ -197,6 +203,7 @@ export default function ProductImageGallery({
                 {item.type === 'video' && <Play className="absolute inset-0 m-auto w-3 h-3 text-white fill-white" />}
               </button>
             ))}
+            </div>
           </div>
         )}
 

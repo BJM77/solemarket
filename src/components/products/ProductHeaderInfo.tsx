@@ -31,13 +31,15 @@ interface ProductHeaderInfoProps {
     titleActions?: React.ReactNode;
     /** Small manage buttons shown inline beside the price (admins / listing owner only). */
     priceActions?: React.ReactNode;
+    /** Phone layout: title is shown above the photo, payment terms sit beside the price and the seller strip is hidden. */
+    mobileLayout?: boolean;
 }
 
-export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions, priceActions }: ProductHeaderInfoProps) {
+export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions, priceActions, mobileLayout = false }: ProductHeaderInfoProps) {
     const Heading = headingAs;
     const router = useRouter();
     return (
-        <div className={cn("space-y-4", className)}>
+        <div className={cn(mobileLayout ? "space-y-3" : "space-y-4", className)}>
             {/* Seller Badge & Social Proof (only rendered when there is something to show) */}
             {(seller?.isVerified || recentViews > 5) && (
             <div className="flex flex-wrap items-center gap-3">
@@ -58,11 +60,13 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
             </div>
             )}
 
+            {!mobileLayout && (
             <div className="flex items-center gap-2.5 flex-wrap">
                 <Heading className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
                 {product.title}</Heading>
                 {titleActions}
             </div>
+            )}
 
             <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-4 flex-wrap">
@@ -98,6 +102,12 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                     
                     {product.isNegotiable && !product.isDutchAuction && (
                         <Badge variant="outline" className="text-primary border-primary">Negotiable</Badge>
+                    )}
+                    {mobileLayout && (
+                        <span className="flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full" data-testid="price-payment-terms">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                            {seller?.payIdReady ? 'PayID or Cash Pickup' : 'Cash on Pickup'}
+                        </span>
                     )}
                     {priceActions}
 
@@ -153,6 +163,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                 </div>
 
                 {/* Trust Signals Strip Near Price */}
+                {!mobileLayout && (
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 px-3 py-2 rounded-xl" data-testid="trust-signals-strip">
                     <Link href={`/seller/${product.sellerId}`} className="flex items-center gap-1 hover:text-primary transition-colors">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -174,6 +185,7 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                         {seller?.payIdReady ? 'PayID or Cash Pickup' : 'Cash on Pickup'}
                     </span>
                 </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-2">
                     <TierOfferBadge tier={product.multiCardTier} category={product.category} sellerId={product.sellerId} />
