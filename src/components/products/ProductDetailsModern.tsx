@@ -930,6 +930,11 @@ export default function ProductDetailsModern({
                                 condition={product.condition}
                                 imageAltTexts={product.imageAltTexts}
                                 thumbnailsSide
+                                mobileTitle={
+                                    <h2 className="text-base font-extrabold leading-tight text-gray-900 dark:text-white line-clamp-2" data-testid="mobile-listing-title">
+                                        {product.title}
+                                    </h2>
+                                }
                             />
                         </div>
 
@@ -937,6 +942,7 @@ export default function ProductDetailsModern({
                         <div className="lg:hidden">
                             <ProductHeaderInfo
                                 headingAs="h2"
+                                mobileLayout
                                 product={product}
                                 seller={seller}
                                 recentViews={recentViews}
