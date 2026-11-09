@@ -6,7 +6,7 @@ describe('site config', () => {
     const c = mergeSiteConfig({ branding: { ...DEFAULT_SITE_CONFIG.branding, primaryColor: '#123456' } } as any);
     expect(c.branding.primaryColor).toBe('#123456');
     expect(c.footer.columns.length).toBeGreaterThan(0);
-    expect(c.categoryHeaders.cards.title).toBe('All Collector Cards');
+    expect(c.categoryHeaders.cards.title).toBe('Basketball Cards');
     expect(c.announcement.enabled).toBe(false);
   });
 

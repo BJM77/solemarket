@@ -25,9 +25,9 @@ const CARD_CATEGORIES = [
         color: 'bg-orange-50/50 dark:bg-orange-950/10'
     },
     {
-        name: 'Pokemon',
+        name: 'Rookies',
         icon: Zap,
-        href: '/cards?subCategory=Pok%C3%A9mon',
+        href: '/cards?subCategory=Rookies',
         color: 'bg-yellow-50 dark:bg-yellow-950/20'
     },
     {
@@ -83,7 +83,7 @@ export default function CardCategoryGrid() {
     if (section && !section.enabled) return null;
 
     const title = section?.title || 'The Card Room';
-    const subtitle = section?.subtitle || 'Rare wax, graded singles, and the newest sets.';
+    const subtitle = section?.subtitle || 'Basketball wax, graded singles, and the newest sets.';
     const categories = section?.items && section.items.length > 0 ? section.items : CARD_CATEGORIES;
     const containerClasses = section?.customClasses || 'bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden';
 

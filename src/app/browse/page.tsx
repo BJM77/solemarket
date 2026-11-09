@@ -24,8 +24,8 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Shop the Full Marketplace | Sneakers, Cards & Coins';
-  let description = 'Browse every listing on Benched: authentic sneakers, Pokémon and sports trading cards, and rare coins from verified Australian sellers.';
+  let title = 'Shop Basketball Cards & Sneakers | Benched';
+  let description = 'Browse basketball cards and sneakers on Benched from verified Australian sellers.';
 
   if (q && category) {
     title = `Buy ${q} in ${category}`;

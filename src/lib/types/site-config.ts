@@ -120,12 +120,12 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   hero: {
     h1TitleLine1: "AUSTRALIA'S PREMIER",
     h1TitleLine2: 'MARKETPLACE.',
-    subText1: 'Buy Footwear, Collector Cards and Australian Coins & Notes.',
+    subText1: 'Buy and sell basketball cards and sneakers.',
     subText2: '',
     buttons: [
       { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#f26c0d', textColor: '#ffffff' },
       { id: '2', label: 'Shop Cards', href: '/cards', bgColor: '#f26c0d', textColor: '#ffffff' },
-      { id: '3', label: 'Shop Coins', href: '/coins', bgColor: '#f26c0d', textColor: '#ffffff' },
+      { id: '3', label: 'Card Drops', href: '/card-drops', bgColor: '#f26c0d', textColor: '#ffffff' },
     ],
   },
   sections: [
@@ -153,7 +153,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       id: 'sec-card-room',
       type: 'card_room',
       title: 'The Card Room',
-      subtitle: 'Explore high-value trading cards, grails & PSA slabs',
+      subtitle: 'Basketball cards, rookies, grails & PSA slabs',
       enabled: true,
       order: 2,
       customClasses: 'py-16 bg-background/60 border-t border-border',
@@ -161,33 +161,15 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { id: 'c1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/cards?subCategory=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
         { id: 'c2', name: 'Kobe', logo: '/brand-logos/svg/kobe.svg', href: '/cards?subCategory=Kobe', color: 'bg-purple-50/50 dark:bg-purple-950/10' },
         { id: 'c3', name: 'Curry', logo: '/brand-logos/svg/curry.svg', href: '/cards?subCategory=Curry', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
-        { id: 'c4', name: 'Pokemon', iconName: 'Zap', href: '/cards?subCategory=Pok%C3%A9mon', color: 'bg-yellow-50 dark:bg-yellow-950/20' },
+        { id: 'c4', name: 'Rookies', iconName: 'Zap', href: '/cards?subCategory=Rookies', color: 'bg-yellow-50 dark:bg-yellow-950/20' },
         { id: 'c5', name: 'Top 100', iconName: 'Medal', href: '/cards?subCategory=Top%20100', color: 'bg-orange-50 dark:bg-orange-950/20' },
         { id: 'c6', name: 'Wembanyama', iconName: 'Trophy', href: '/cards?subCategory=Wembanyama', color: 'bg-emerald-50 dark:bg-emerald-950/20' },
       ]
     },
-    {
-      id: 'sec-vault',
-      type: 'vault',
-      title: 'The Vault',
-      subtitle: 'Rare Australian decimal coins, gold, silver & bank notes',
-      enabled: true,
-      order: 3,
-      customClasses: 'py-16 bg-background border-t border-border',
-      items: [
-        { id: 'v1', name: 'Australian Coins', iconName: 'Coins', href: '/coins?subCategory=Australian+Coins' },
-        { id: 'v2', name: 'World Coins', iconName: 'Globe', href: '/coins?subCategory=World+Coins' },
-        { id: 'v3', name: 'Gold', iconName: 'Flame', href: '/coins?subCategory=Gold' },
-        { id: 'v4', name: 'Silver', iconName: 'Circle', href: '/coins?subCategory=Silver' },
-        { id: 'v5', name: 'Proof Sets', iconName: 'Box', href: '/coins?subCategory=Proof+Sets' },
-        { id: 'v6', name: 'Bank Notes', iconName: 'Banknote', href: '/coins?subCategory=Banknotes' },
-      ]
-    }
   ],
   menus: [
     { id: 'm1', label: 'Shoes', href: '/shoes', enabled: true, order: 1 },
     { id: 'm2', label: 'Cards', href: '/cards', enabled: true, order: 2 },
-    { id: 'm3', label: 'Coins', href: '/coins', enabled: true, order: 3 },
     { 
       id: 'm5', 
       label: 'The Lineup', 
@@ -202,21 +184,21 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     }
   ],
   footer: {
-    tagline: 'The Premier Marketplace for Collectors in Australia',
+    tagline: "Australia's Basketball Card & Sneaker Marketplace",
     copyright: '',
     showNewsletter: true,
     columns: [
       { id: 'f1', title: 'Marketplace', links: [
         { label: 'New Arrivals', href: '/browse?sort=newest' },
         { label: 'Sneakers', href: '/shoes' },
-        { label: 'Collector Cards', href: '/cards' },
-        { label: 'Coins', href: '/coins' },
+        { label: 'Basketball Cards', href: '/cards' },
+        { label: 'Card Drops', href: '/card-drops' },
       ] },
       { id: 'f2', title: 'Brands', links: [
         { label: 'Nike', href: '/brand/nike' },
         { label: 'Jordan', href: '/brand/jordan' },
         { label: 'Adidas', href: '/brand/adidas' },
-        { label: 'Pokémon', href: '/brand/pokemon' },
+        { label: 'Panini', href: '/brand/panini' },
       ] },
       { id: 'f3', title: 'Support', links: [
         { label: 'Buyer Guides', href: '/guides' },
@@ -230,17 +212,22 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { label: 'Terms', href: '/terms' },
         { label: 'Privacy', href: '/privacy' },
       ] },
+      { id: 'f5', title: 'Also on Benched', links: [
+        { label: 'Coins & Bullion', href: '/coins' },
+        { label: 'Pokémon', href: '/pokemon' },
+        { label: 'Seller Hub', href: '/sellers' },
+      ] },
     ],
   },
   fonts: { body: 'Outfit', heading: 'Outfit' },
   seo: {
-    defaultTitle: 'Benched | Sneakers, Collector Cards & Rare Coins',
-    defaultDescription: 'The premier Australian marketplace for authentic sneakers, collector cards, and rare coins. Your collection, upgraded.',
+    defaultTitle: 'Benched | Basketball Cards & Sneakers Australia',
+    defaultDescription: "Australia's marketplace for basketball cards and sneakers. Buy and sell NBA cards, graded slabs and basketball shoes from Australian collectors.",
     ogImageUrl: '',
   },
   categoryHeaders: {
     shoes: { title: 'All Sneakers', intro: 'Buy and sell authentic sneakers from Australian collectors: Jordan, Nike, adidas, New Balance and more. Pay sellers directly by PayID or cash on pickup in Perth.' },
-    cards: { title: 'All Collector Cards', intro: 'Pokémon, NBA and sports trading cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay sellers directly by PayID or cash on pickup in Perth.' },
+    cards: { title: 'Basketball Cards', intro: 'NBA, WNBA and NBL basketball cards, raw and graded (PSA, BGS, CGC), from verified Australian sellers. Pay sellers directly by PayID or cash on pickup in Perth.' },
     coins: { title: 'All Rare Coins', intro: 'Rare Australian and world coins, banknotes and bullion from local collectors. Check grades and certificates on each listing, and pay sellers directly by PayID or cash on pickup.' },
   },
   announcement: { enabled: false, text: '', href: '', bgColor: '#f26c0d', textColor: '#ffffff' },

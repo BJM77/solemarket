@@ -9,7 +9,7 @@ export async function GET() {
     (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px', background: '#0a0a0a', color: 'white' }}>
         <div style={{ fontSize: 120, fontWeight: 900, letterSpacing: '-4px', color: '#f26c0d' }}>{SITE_NAME.toUpperCase()}</div>
-        <div style={{ fontSize: 44, fontWeight: 700, marginTop: 24 }}>Sneakers · Collector Cards · Rare Coins</div>
+        <div style={{ fontSize: 44, fontWeight: 700, marginTop: 24 }}>Basketball Cards · Sneakers</div>
         <div style={{ fontSize: 30, marginTop: 16, color: '#a3a3a3' }}>Australia&apos;s marketplace for collectors</div>
       </div>
     ),
