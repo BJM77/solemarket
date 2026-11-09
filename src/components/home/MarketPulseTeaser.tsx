@@ -19,7 +19,7 @@ export function MarketPulseTeaser() {
                             Check the <span className="text-emerald-700">Market Pulse</span>
                         </h2>
                         <p className="text-muted-foreground max-w-xl text-lg">
-                            Track real-time prices, volume, and the Vault-verified premium for the hottest sneakers, cards, and coins in Australia.
+                            Track real-time prices, volume, and the hottest basketball cards and sneakers in Australia.
                         </p>
                     </div>
                     

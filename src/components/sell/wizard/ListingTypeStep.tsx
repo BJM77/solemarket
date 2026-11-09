@@ -248,7 +248,7 @@ export function ListingTypeStep({
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-lg font-bold text-foreground">Coins</h3>
-                            <p className="text-xs text-muted-foreground">Rare Coins & Banknotes.</p>
+                            <p className="text-xs text-muted-foreground">Listed in the Coins & Bullion section.</p>
                         </div>
                     </CardContent>
                 </Card>

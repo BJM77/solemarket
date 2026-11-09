@@ -204,13 +204,6 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/clubs') && "bg-accent text-accent-foreground")}>
-            <Link href="/clubs" className="flex items-center">
-              <Heart className="mr-3 h-4 w-4 text-primary" />
-              <span className="font-medium text-primary">Free Club Pages</span>
-            </Link>
-          </DropdownMenuItem>
-
           {canSell && (
             <DropdownMenuItem asChild className={cn("cursor-pointer w-full py-2.5 rounded-lg mb-1", isActive('/sell/dashboard') && "bg-accent text-accent-foreground")}>
               <Link href="/sell/dashboard" className="flex items-center">

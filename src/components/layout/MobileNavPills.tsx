@@ -21,7 +21,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
         { label: 'Home', href: '/', icon: Home },
         { label: 'Sneakers', href: '/shoes', icon: ShoppingBag },
         { label: 'Cards', href: '/cards', icon: CreditCard },
-        { label: 'Coins', href: '/coins', icon: Star },
+        { label: 'Drops', href: '/card-drops', icon: Star },
     ];
 
     if (isSneakerPage) {
@@ -35,7 +35,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
         navItems = [
             { label: 'Home', href: '/', icon: Home },
             { label: 'NBA', href: '/cards?subCategory=Basketball%20Cards', icon: Flame },
-            { label: 'Pokémon', href: '/cards?subCategory=Pok%C3%A9mon', icon: Star },
+            { label: 'Drops', href: '/card-drops', icon: Star },
             { label: 'Rookies', href: '/cards?subCategory=Rookies', icon: History },
         ];
     } else if (pathname === '/coins' || pathname.includes('category=Coins')) {

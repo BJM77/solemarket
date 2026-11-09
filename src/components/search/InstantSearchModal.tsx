@@ -78,7 +78,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
             <Command.Input 
               value={query}
               onValueChange={setQuery}
-              placeholder="Search sneakers, cards, coins..." 
+              placeholder="Search basketball cards, sneakers..." 
               className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-foreground" 
             />
             {loading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}

@@ -14,8 +14,8 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Buy Trading Cards in Australia | Pokémon, NBA & Sports Cards';
-  let description = 'Buy and sell Pokémon, NBA and sports trading cards in Australia, raw and graded. Pay sellers directly by PayID or cash on pickup.';
+  let title = 'Buy Basketball Cards in Australia | NBA, WNBA & NBL Cards';
+  let description = 'Buy and sell NBA, WNBA and NBL basketball cards in Australia, raw and graded. Pay sellers directly by PayID or cash on pickup.';
 
   if (q && category) {
     title = `Buy ${q} Cards in ${category}`;
@@ -88,7 +88,7 @@ export default async function CardsBrowsePage({
         <InfiniteProductGrid
           key={categoryParam}
           pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : header.title || 'All Collector Cards'}
-          pageDescription="Browse the rarest cards from thousands of collectors."
+          pageDescription="Browse basketball cards from Australian collectors."
           intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{
             q: searchTerm,

@@ -96,6 +96,9 @@ const nextConfig = {
       { source: '/profile/settings', destination: '/profile', permanent: false },
       { source: '/search', has: [{ type: 'query', key: 'q' }], destination: '/browse', permanent: true },
       { source: '/search', destination: '/browse', permanent: true },
+      // One main address per section on the basketball site.
+      { source: '/sneakers', destination: '/shoes', permanent: true },
+      { source: '/collector-cards', destination: '/cards', permanent: true },
     ];
   },
   async headers() {

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 /** Likely next taps from each section, Marketplace-style. */
 const NEXT_ROUTES: Record<string, string[]> = {
-  '/': ['/cards', '/browse', '/shoes', '/coins'],
+  '/': ['/cards', '/browse', '/shoes'],
   '/cards': ['/browse', '/multibuy'],
   '/shoes': ['/browse'],
   '/coins': ['/browse', '/multibuy'],

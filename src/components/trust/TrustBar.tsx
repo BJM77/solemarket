@@ -39,7 +39,7 @@ export default function TrustBar() {
                         </div>
                         <h3 className="font-black uppercase tracking-tight text-foreground mb-1.5 text-base">AI Fast Valuation</h3>
                         <p className="text-muted-foreground text-xs leading-relaxed">
-                            Instant AI card, shoe, and coin scanning with live Australian market sales comps and zero hidden seller listing fees.
+                            Instant AI card and shoe scanning with live Australian market sales comps and zero hidden seller listing fees.
                         </p>
                     </div>
 
