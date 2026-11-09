@@ -192,6 +192,8 @@ export type Product = {
 
 export type ProductSearchParams = {
   [key: string]: any;
+  /** Main-site feeds hide Pokémon listings unless this is set (admin tools) or the filter asks for Pokémon. */
+  includePokemon?: boolean;
   q?: string;
   category?: string;
   subCategory?: string;

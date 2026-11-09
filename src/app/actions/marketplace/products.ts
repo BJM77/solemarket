@@ -11,6 +11,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
+import { isPokemonListing, withoutPokemon } from "@/lib/pokemon-listings";
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -319,20 +320,24 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
             return { prevId: null, nextId: null };
         }
 
+        // Stay within the same section: Pokémon listings step to Pokémon, everything else skips them.
+        const currentSnap = await productsRef.doc(currentId).get();
+        const currentIsPokemon = isPokemonListing(currentSnap.data() as any);
+
         const prevSnap = await productsRef
             .where('createdAt', '>', timestamp)
             .orderBy('createdAt', 'asc')
-            .limit(5)
+            .limit(15)
             .get();
 
         const nextSnap = await productsRef
             .where('createdAt', '<', timestamp)
             .orderBy('createdAt', 'desc')
-            .limit(5)
+            .limit(15)
             .get();
 
         const findFirstAvailable = (docs: admin.firestore.QueryDocumentSnapshot[]) => {
-            const match = docs.find(doc => doc.data().status === 'available');
+            const match = docs.find(doc => doc.data().status === 'available' && isPokemonListing(doc.data() as any) === currentIsPokemon);
             return match ? match.id : null;
         };
 
@@ -363,10 +368,10 @@ export const getFeaturedProducts = unstable_cache(
 
                 if (!snapshot.empty) {
                     // "Popular Listings": rank a recent pool by view count (newest wins ties).
-                    const pool = snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    const pool = withoutPokemon(snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
-                    })) as Product[];
+                    })) as Product[]);
                     return pool
                         .map((p, i) => ({ p, i, v: Number((p as any).views) || 0 }))
                         .sort((a, b) => b.v - a.v || a.i - b.i)
@@ -382,10 +387,10 @@ export const getFeaturedProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+            return withoutPokemon(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
-            })) as Product[];
+            })) as Product[]);
         } catch (error) {
             console.error("Error fetching featured products:", error);
             return [];
@@ -428,10 +433,10 @@ export const getActiveProducts = unstable_cache(
 
                 if (!snapshot.empty) {
                     // "Popular Listings": rank a recent pool by view count (newest wins ties).
-                    const pool = snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    const pool = withoutPokemon(snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
-                    })) as Product[];
+                    })) as Product[]);
                     return pool
                         .map((p, i) => ({ p, i, v: Number((p as any).views) || 0 }))
                         .sort((a, b) => b.v - a.v || a.i - b.i)
@@ -446,10 +451,10 @@ export const getActiveProducts = unstable_cache(
                     .where('status', '==', 'available')
                     .limit(limitCount)
                     .get();
-                return fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+                return withoutPokemon(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                     id: doc.id,
                     ...doc.data(),
-                })) as Product[];
+                })) as Product[]);
             }
         } catch (error) {
             console.error("Error fetching active products:", error);
