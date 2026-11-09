@@ -1028,7 +1028,7 @@ function CreateListingForm() {
 
   if (currentStep === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex flex-col items-center px-4 pt-6 pb-28 sm:justify-center sm:py-10">
         <div className="max-w-4xl w-full">
           <ListingTypeStep 
             onSelect={handleTypeSelect} 

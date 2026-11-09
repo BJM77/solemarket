@@ -3,7 +3,7 @@
 import { useRef, useState, DragEvent, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { GripVertical, Scan, Sparkles, Upload, Loader2, Camera, ArrowRight, Layers } from 'lucide-react';
+import { Sparkles, Upload, Loader2, Camera, Layers, ChevronRight, Footprints, RectangleVertical, Coins } from 'lucide-react';
 import { cn } from "@/lib/utils/ui";
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { Button } from '@/components/ui/button';
@@ -54,204 +54,152 @@ export function ListingTypeStep({
         }
     };
 
+    const categories = [
+        { type: 'sneakers' as const, label: 'Sneakers', note: 'Jordan, Nike, adidas and more', Icon: Footprints },
+        { type: 'collector-cards' as const, label: 'Basketball Cards', note: 'Raw and graded NBA, WNBA, NBL', Icon: RectangleVertical },
+        { type: 'coins' as const, label: 'Coins & Bullion', note: 'Listed in the Coins section', Icon: Coins },
+    ];
+
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center space-y-2">
-                <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                    Create a New Listing
+        <div className="mx-auto max-w-2xl space-y-6 animate-in fade-in duration-300">
+            <div className="space-y-1 text-center sm:text-left">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    Create a listing
                 </h1>
-                <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
-                    Let our AI automatically build your listing, or select a category below to list manually.
+                <p className="text-sm text-muted-foreground">
+                    Add photos and we&apos;ll fill in the details, or pick a category to list manually.
                 </p>
             </div>
 
-            {/* Proload Banner */}
-            <Card className="relative overflow-hidden transition-all duration-300 border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-zinc-950 to-zinc-900/50 shadow-lg rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto group">
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-                <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 text-emerald-700">
-                        <Layers className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="text-base font-black uppercase text-foreground tracking-wide flex items-center justify-center sm:justify-start gap-2">
-                            PROLOAD <Badge className="bg-emerald-700 hover:bg-emerald-600 text-white text-[9px] font-black h-4 px-1.5 uppercase">NEW</Badge>
-                        </h3>
-                        <p className="text-muted-foreground text-xs mt-1 max-w-md">
-                            Upload a Facebook Marketplace listing screenshot. Gemini will extract all info and build the listing for you!
-                        </p>
-                    </div>
-                </div>
-                <Button 
-                    onClick={() => router.push('/sell/proload')}
-                    className="bg-emerald-700 hover:bg-emerald-600 text-white font-black uppercase text-xs tracking-wider px-6 h-10 w-full sm:w-auto"
-                >
-                    Try Proload <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-            </Card>
-
-            {/* AI Picture Check Hero Card */}
-            <Card 
+            {/* AI photo listing (primary) */}
+            <Card
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                    "relative overflow-hidden transition-all duration-500 border-2 border-dashed bg-gradient-to-br from-orange-950/40 via-purple-950/20 to-slate-950/60 shadow-2xl rounded-3xl group",
-                    isDragging ? "border-primary scale-[1.01] bg-primary/5 ring-4 ring-primary/10" : "border-orange-500/30 hover:border-orange-400/50 hover:shadow-orange-900/20",
-                    isAnalyzing && "pointer-events-none border-purple-500/50"
+                    "rounded-2xl border bg-card shadow-sm transition-colors",
+                    isDragging ? "border-primary ring-2 ring-primary/20" : "border-border",
+                    isAnalyzing && "pointer-events-none"
                 )}
             >
-                {/* Glowing neon background elements */}
-                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all duration-700 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700 pointer-events-none" />
-
-                <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-6">
-                    <input 
-                        ref={fileInputRef} 
-                        type="file" 
-                        multiple 
-                        accept="image/*" 
-                        onChange={handleFileSelect} 
-                        className="hidden" 
+                <CardContent className="p-5 sm:p-6">
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
                         disabled={isAnalyzing}
                     />
 
                     {isAnalyzing ? (
-                        <div className="space-y-6 py-6 animate-pulse">
-                            <div className="relative flex justify-center">
-                                <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-ping w-20 h-20 mx-auto" />
-                                <div className="relative bg-gradient-to-r from-orange-500 to-purple-600 p-5 rounded-full border border-border shadow-2xl flex items-center justify-center">
-                                    <Loader2 className="h-10 w-10 text-foreground animate-spin" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-black text-foreground flex items-center justify-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-orange-700 animate-pulse" /> AI Picture Check Active
-                                </h3>
-                                <p className="text-orange-200 font-bold uppercase tracking-widest text-xs animate-pulse">
-                                    {analysisStage || "Analyzing Photos..."}
-                                </p>
-                                <p className="text-muted-foreground text-xs max-w-xs mx-auto">
-                                    Our vision models are identifying details, conditions, and catalog numbers.
-                                </p>
+                        <div className="flex flex-col items-center gap-3 py-6 text-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <div className="space-y-1">
+                                <h3 className="text-base font-semibold text-foreground">Reading your photos</h3>
+                                <p className="text-sm text-muted-foreground">{analysisStage || 'Analysing photos...'}</p>
                             </div>
                         </div>
                     ) : (
-                        <div className="space-y-6 py-4 w-full">
-                            <div className="relative flex items-center justify-center">
-                                <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl group-hover:bg-orange-500/20 transition-all w-24 h-24 pointer-events-none" />
-                                <div className="relative bg-gradient-to-br from-orange-500 to-purple-600 p-5 rounded-2xl border border-border shadow-xl group-hover:scale-110 transition-transform duration-500">
-                                    <Sparkles className="h-10 w-10 text-foreground" />
+                        <div className="space-y-5">
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <Sparkles className="h-5 w-5" />
+                                </div>
+                                <div className="min-w-0 space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <h3 className="text-base font-semibold text-foreground">List with photos</h3>
+                                        <Badge variant="secondary" className="h-5 px-2 text-[10px] font-semibold uppercase tracking-wide">
+                                            Recommended
+                                        </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        Add up to 4 photos. We&apos;ll detect the item and fill in the details. For cards, include the front and back.
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                                    ✨ AI Picture Check (Recommended)
-                                </h3>
-                                <p className="text-foreground/80 text-sm max-w-sm mx-auto font-medium">
-                                    Take a photo, upload, or drag-and-drop photos here. The AI will auto-detect the category and pre-fill details in seconds!
-                                </p>
-                                <div className="pt-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-[10px] sm:text-xs font-bold text-orange-700 uppercase tracking-wider">
-                                        Supports front & back card shots for max accuracy
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto mt-8 pt-4">
-                                <CameraCapture 
-                                    onCapture={(files) => onImagesSelect(files)} 
-                                    maxFiles={4} 
+                            <div className="grid grid-cols-2 gap-3">
+                                <CameraCapture
+                                    onCapture={(files) => onImagesSelect(files)}
+                                    maxFiles={4}
                                     variant="custom"
                                 >
-                                    <Button 
-                                        type="button" 
-                                        size="lg"
-                                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-orange-900/20"
-                                    >
-                                        <Camera className="w-5 h-5 mr-2" />
-                                        Take Photo
+                                    <Button type="button" size="lg" className="w-full">
+                                        <Camera className="mr-2 h-4 w-4" />
+                                        Take photo
                                     </Button>
                                 </CameraCapture>
-                                <Button 
-                                    type="button" 
+                                <Button
+                                    type="button"
                                     size="lg"
                                     variant="outline"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex-1 border-border bg-muted/60 hover:bg-muted text-foreground backdrop-blur-sm"
+                                    className="w-full"
                                 >
-                                    <Upload className="w-5 h-5 mr-2" />
-                                    Upload Images
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Upload
                                 </Button>
                             </div>
+                            <p className="hidden text-center text-xs text-muted-foreground sm:block">
+                                You can also drag photos onto this box.
+                            </p>
                         </div>
                     )}
                 </CardContent>
             </Card>
 
-            {/* Manual Entry Divider */}
-            <div className="relative flex py-4 items-center max-w-md mx-auto">
-                <div className="flex-grow border-t border-border"></div>
-                <span className="flex-shrink mx-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Or List Manually</span>
-                <div className="flex-grow border-t border-border"></div>
+            {/* ProLoad (secondary) */}
+            <button
+                type="button"
+                onClick={() => router.push('/sell/proload')}
+                className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
+                    <Layers className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">Import from Marketplace</span>
+                        <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-semibold uppercase">New</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Upload a Facebook Marketplace screenshot and we&apos;ll build the listing.</p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+            </button>
+
+            <div className="flex items-center gap-3 pt-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs font-medium text-muted-foreground">Or choose a category</span>
+                <div className="h-px flex-1 bg-border" />
             </div>
 
-            {/* Manual Fallbacks */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <Card
-                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
-                        selectedType === 'sneakers'
-                            ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-border hover:border-border bg-card'
-                    }`}
-                    onClick={() => onSelect('sneakers')}
-                >
-                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className={`w-12 h-12 border-2 rounded bg-muted/60 ${selectedType === 'sneakers' ? 'border-white' : 'border-orange-600 group-hover:border-white'}`} />
-                        <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-foreground">Sneakers</h3>
-                            <p className="text-xs text-muted-foreground">Jordan, Yeezy, Nike, etc.</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
-                        selectedType === 'collector-cards'
-                            ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-border hover:border-border bg-card'
-                    }`}
-                    onClick={() => onSelect('collector-cards')}
-                >
-                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className="w-12 h-16 border-2 border-orange-600 bg-muted/60 rounded flex items-center justify-center group-hover:border-white transition-colors">
-                            <Scan className="w-6 h-6 text-orange-700 group-hover:text-foreground transition-colors" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-foreground">Collector Cards</h3>
-                            <p className="text-xs text-muted-foreground">NBA & Basketball sets.</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    className={`relative cursor-pointer transition-all duration-300 overflow-hidden group hover:-translate-y-1 ${
-                        selectedType === 'coins'
-                            ? 'border-primary ring-2 ring-primary/20 bg-card'
-                            : 'border-border hover:border-border bg-card'
-                    }`}
-                    onClick={() => onSelect('coins')}
-                >
-                    <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4">
-                        <div className="w-16 h-16 border-2 border-yellow-500 bg-muted/60 rounded-full flex items-center justify-center group-hover:border-white transition-colors">
-                            <GripVertical className="w-8 h-8 text-yellow-700 group-hover:text-foreground transition-colors rotate-90" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-foreground">Coins</h3>
-                            <p className="text-xs text-muted-foreground">Listed in the Coins & Bullion section.</p>
-                        </div>
-                    </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {categories.map(({ type, label, note, Icon }) => {
+                    const selected = selectedType === type;
+                    return (
+                        <button
+                            key={type}
+                            type="button"
+                            onClick={() => onSelect(type)}
+                            aria-pressed={selected}
+                            className={cn(
+                                "flex w-full items-center gap-4 rounded-2xl border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:flex-col sm:items-start sm:gap-3",
+                                selected ? "border-primary ring-2 ring-primary/20" : "border-border"
+                            )}
+                        >
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
+                                <Icon className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <span className="block text-sm font-semibold text-foreground">{label}</span>
+                                <span className="block text-xs text-muted-foreground">{note}</span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground sm:hidden" />
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
