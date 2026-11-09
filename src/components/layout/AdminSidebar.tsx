@@ -111,7 +111,7 @@ export default function AdminSidebar() {
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
-            <Sidebar>
+            <Sidebar className="max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:h-dvh max-lg:overflow-y-auto max-lg:shadow-xl">
                 <SidebarHeader className="p-6">
                 <div className="flex items-center justify-between w-full">
                     {effectiveOpen ? (

@@ -21,7 +21,9 @@ const Sidebar = React.forwardRef<
     <aside
       ref={ref}
       onMouseEnter={(e) => {
-        setIsHovered(true)
+        // Phones fire a fake mouseenter on tap and never a mouseleave, which left the menu stuck open.
+        const canHover = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
+        if (canHover) setIsHovered(true)
         onMouseEnter?.(e)
       }}
       onMouseLeave={(e) => {
