@@ -23,6 +23,11 @@ export interface StorefrontConfig {
   categories: string[];
   /** Seller portal: management only, never indexed. */
   isSellerPortal?: boolean;
+  /**
+   * Path on benched.au where this storefront lives until it moves to its own
+   * domain (e.g. /coins). On the storefront's own host, "/" serves this path.
+   */
+  basePath: string;
   /** Not yet launched: pages still render the default storefront experience. */
   launched: boolean;
 }
@@ -32,6 +37,7 @@ export const DEFAULT_STOREFRONT_ID: StorefrontId = 'basketball';
 export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
   basketball: {
     id: 'basketball',
+    basePath: '/',
     name: 'Benched',
     hosts: ['benched.au', 'www.benched.au'],
     origin: 'https://benched.au',
@@ -46,6 +52,7 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
   },
   coins: {
     id: 'coins',
+    basePath: '/coins',
     name: 'Benched Coins',
     hosts: ['coins.benched.au'],
     origin: 'https://coins.benched.au',
@@ -60,6 +67,7 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
   },
   pokemon: {
     id: 'pokemon',
+    basePath: '/pokemon',
     name: 'Benched Pokémon',
     hosts: ['pokemon.benched.au'],
     origin: 'https://pokemon.benched.au',
@@ -74,6 +82,7 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
   },
   seller: {
     id: 'seller',
+    basePath: '/sellers',
     name: 'Benched Seller Hub',
     hosts: ['seller.benched.au'],
     origin: 'https://seller.benched.au',
@@ -111,4 +120,15 @@ export function getStorefrontConfig(id: string | null | undefined): StorefrontCo
 
 export function resolveStorefront(host: string | null | undefined): StorefrontConfig {
   return STOREFRONTS[resolveStorefrontId(host)];
+}
+
+/**
+ * For a storefront on its own host, the internal path its homepage maps to.
+ * Returns null when no rewrite is needed (default storefront or non-root path).
+ */
+export function storefrontRootRewrite(host: string | null | undefined, pathname: string): string | null {
+  if (pathname !== '/') return null;
+  const sf = resolveStorefront(host);
+  if (sf.id === DEFAULT_STOREFRONT_ID || sf.basePath === '/') return null;
+  return sf.basePath;
 }
