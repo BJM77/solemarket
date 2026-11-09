@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { ShieldCheck, Store, ShoppingBag } from 'lucide-react';
+import { SellerHubLinks } from '@/components/sellers/SellerHubLinks';
 
 export const metadata = {
-    title: 'Our Sellers',
-    description: 'Browse our community of verified sellers and their collections.',
+    title: 'Seller Hub & Our Sellers',
+    description: 'Manage and upload your Benched listings, and browse our community of verified sellers.',
 };
 
 export default async function SellersPage() {
@@ -16,6 +17,7 @@ export default async function SellersPage() {
 
     return (
         <div className="container py-12 min-h-screen bg-background">
+            <SellerHubLinks />
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline mb-2">Our Sellers</h1>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveStorefrontId, normaliseHost, getStorefrontConfig, STOREFRONTS } from './storefronts';
+import { storefrontRootRewrite, resolveStorefrontId, normaliseHost, getStorefrontConfig, STOREFRONTS } from './storefronts';
 
 describe('storefront host resolution', () => {
   it('maps known hosts', () => {
@@ -25,5 +25,22 @@ describe('storefront host resolution', () => {
   it('has unique hosts across storefronts', () => {
     const all = Object.values(STOREFRONTS).flatMap((s) => s.hosts);
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+describe('storefront folders', () => {
+  it('has a base path per storefront', () => {
+    expect(STOREFRONTS.coins.basePath).toBe('/coins');
+    expect(STOREFRONTS.pokemon.basePath).toBe('/pokemon');
+    expect(STOREFRONTS.seller.basePath).toBe('/sellers');
+    expect(STOREFRONTS.basketball.basePath).toBe('/');
+  });
+  it('maps a subdomain homepage to its folder, and nothing else', () => {
+    expect(storefrontRootRewrite('coins.benched.au', '/')).toBe('/coins');
+    expect(storefrontRootRewrite('pokemon.benched.au', '/')).toBe('/pokemon');
+    expect(storefrontRootRewrite('seller.benched.au', '/')).toBe('/sellers');
+    expect(storefrontRootRewrite('coins.benched.au', '/p/abc')).toBeNull();
+    expect(storefrontRootRewrite('benched.au', '/')).toBeNull();
+    expect(storefrontRootRewrite('localhost:3000', '/')).toBeNull();
   });
 });

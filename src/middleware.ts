@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
-import { STOREFRONT_HEADER, resolveStorefrontId } from '@/config/storefronts';
+import { STOREFRONT_HEADER, resolveStorefrontId, storefrontRootRewrite } from '@/config/storefronts';
 
 // Cache keys in memory during Edge function execution
 let cachedPublicKeys: Record<string, string> | null = null;
@@ -68,11 +68,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  // Multi-storefront: on a storefront's own domain (e.g. coins.benched.au), the
+  // homepage serves that storefront's folder (/coins). No effect on benched.au.
+  const rootRewrite = storefrontRootRewrite(
+    request.headers.get('x-forwarded-host') || request.headers.get('host'),
+    request.nextUrl.pathname,
+  );
+  const response = rootRewrite
+    ? NextResponse.rewrite(new URL(rootRewrite + request.nextUrl.search, request.url), { request: { headers: requestHeaders } })
+    : NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
 
   response.headers.set('Content-Security-Policy', cspHeader);
   response.headers.set('X-Frame-Options', 'DENY');
