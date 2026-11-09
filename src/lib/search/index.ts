@@ -1,4 +1,5 @@
 import 'server-only';
+import { isPokemonListing, isPokemonSubCategory } from '@/lib/pokemon-listings';
 import type { Product, ProductSearchParams } from '@/lib/types';
 import type { SearchProvider, SearchProviderName, SearchResult, SearchDocument } from './types';
 import { decodePageCursor, encodePageCursor, productToSearchDocument } from './mapping';
@@ -53,7 +54,9 @@ export async function searchProducts(params: ProductSearchParams, userRole = 'vi
   try {
     const provider = (await loadProvider(name))!;
     const { ids, total, facets } = await provider.search(params, page, perPage);
-    const products = await hydrate(ids);
+    const hydrated = await hydrate(ids);
+    const hidePokemon = !params.includePokemon && !isPokemonSubCategory(params.subCategory) && !isPokemonSubCategory(params.brand);
+    const products = hidePokemon ? hydrated.filter((p) => !isPokemonListing(p)) : hydrated;
     const hasMore = page * perPage < total;
     return { products, hasMore, lastVisibleId: hasMore ? encodePageCursor(page + 1) : undefined, totalCount: total, facets, provider: name };
   } catch (e) {

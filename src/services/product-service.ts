@@ -1,3 +1,4 @@
+import { POKEMON_SUBCATEGORIES, isPokemonListing, isPokemonSubCategory } from '@/lib/pokemon-listings';
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
@@ -16,6 +17,10 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
 
   const productsRef = collection(db, 'products');
   let constraints: any[] = [];
+
+  // Pokémon belongs to the Pokémon section; main-site feeds leave it out.
+  const wantsPokemon = isPokemonSubCategory(subCategory) || isPokemonSubCategory(brand);
+  const hidePokemon = !wantsPokemon && !searchParams.includePokemon;
 
   // 1. Status Filter (Security & Visibility)
   if (userRole === 'admin' || userRole === 'superadmin') {
@@ -69,7 +74,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
         inFilterSize = Math.min(categories.length, 10);
     }
   } else if (category) {
-    const related = RELATED_CATEGORIES[category];
+    // Pokémon listings are all filed under the main cards category; skip the related-category
+    // 'in' so the sub-category can use its own 'in' (and the existing index).
+    const related = wantsPokemon ? undefined : RELATED_CATEGORIES[category];
     if (related && related.length > 1) {
       constraints.push(where('category', 'in', related));
       inFilterUsed = true;
@@ -92,7 +99,12 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     brandOrBranches = 3;
     // Firestore OR logic handles multi-field inclusivity
   } else {
-    if (subCategory) {
+    if (subCategory && isPokemonSubCategory(subCategory) && !inFilterUsed) {
+      // Existing Pokémon listings use several spellings; match them all.
+      constraints.push(where('subCategory', 'in', POKEMON_SUBCATEGORIES));
+      inFilterUsed = true;
+      inFilterSize = POKEMON_SUBCATEGORIES.length;
+    } else if (subCategory) {
       constraints.push(where('subCategory', '==', subCategory));
     }
 
@@ -306,7 +318,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   const queryArgs: any[] = [...filterArgs, ...orderByConstraints];
 
   // Server counts can't see in-memory filters; don't show a count that could be wrong.
-  const countIsExact = !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating);
+  // Counts can't exclude Pokémon either, so skip them where Pokémon could be in the results.
+  const pokemonCouldAppear = hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory;
+  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
   if (searchParams.countOnly) {
@@ -350,6 +364,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
 
     const isAdminView = userRole === 'admin' || userRole === 'superadmin';
     products = products.filter((p: Product) => {
+      // 0. Pokémon lives in its own section.
+      if (hidePokemon && isPokemonListing(p)) return false;
+
       // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
       if (!isAdminView && !(Number(p.price) > 0)) return false;
 

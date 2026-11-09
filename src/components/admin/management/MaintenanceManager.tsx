@@ -24,7 +24,7 @@ export default function MaintenanceManager() {
         setIsSearching(true);
         try {
             // Fetch products matching the search term
-            const result = await getProducts({ q: searchTerm, page: 1, limit: 50 });
+            const result = await getProducts({ q: searchTerm, page: 1, limit: 50, includePokemon: true });
             setProducts(result.products);
 
             if (result.products.length === 0) {
