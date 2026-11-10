@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
-import { Layers, Plus, Sparkles, TrendingUp, ExternalLink, Loader2 } from 'lucide-react';
+import { Layers, Plus, Sparkles, TrendingUp, ExternalLink, Loader2, FolderPlus, X } from 'lucide-react';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-import { publishListing, saveDraftListing } from '@/app/actions/seller/sell';
+import { publishListing, saveDraftListing, setCollectionStatusAction } from '@/app/actions/seller/sell';
 import { priceCheckAction } from '@/app/actions/marketplace/price-check';
 import { buildEbayAuSoldUrl } from '@/components/price-check/InlinePriceSuggestion';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +26,7 @@ export default function MyCollectionPage() {
     const [estimates, setEstimates] = useState<Record<string, { median: number | null; count: number }>>({});
     const [busyId, setBusyId] = useState<string | null>(null);
     const [checkingId, setCheckingId] = useState<string | null>(null);
+    const [showDraftImporter, setShowDraftImporter] = useState(false);
 
     useEffect(() => {
         if (!isUserLoading && !user) {
@@ -40,14 +41,26 @@ export default function MyCollectionPage() {
 
     const { data: allProducts, isLoading } = useCollection<Product>(sellerIdQuery);
 
-    // Collection items = drafts or items not currently live for sale (excluding sold/deleted)
+    // Personal Collection items = explicitly marked inCollection or status === 'collection' (separate from unfinished listing drafts)
     const collectionItems = useMemo(() => {
         if (!allProducts) return [];
         return allProducts
-            .filter((p) => p.status !== 'sold' && p.status !== 'deleted' && (p.isDraft || p.status === 'draft'))
+            .filter((p) => p.status !== 'sold' && p.status !== 'deleted' && p.status !== 'available' && (p.status === 'collection' || p.inCollection === true))
             .sort((a, b) => {
-                const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toMillis() : new Date(a.createdAt as any || 0).getTime();
-                const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toMillis() : new Date(b.createdAt as any || 0).getTime();
+                const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toMillis() : new Date((a.createdAt as any) || 0).getTime();
+                const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toMillis() : new Date((b.createdAt as any) || 0).getTime();
+                return dateB - dateA;
+            });
+    }, [allProducts]);
+
+    // Saved drafts that are NOT in the collection yet (shown only in the optional "Add from Saved Drafts" drawer)
+    const savedDrafts = useMemo(() => {
+        if (!allProducts) return [];
+        return allProducts
+            .filter((p) => (p.status === 'draft' || p.isDraft) && p.status !== 'collection' && !p.inCollection)
+            .sort((a, b) => {
+                const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toMillis() : new Date((a.createdAt as any) || 0).getTime();
+                const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toMillis() : new Date((b.createdAt as any) || 0).getTime();
                 return dateB - dateA;
             });
     }, [allProducts]);
@@ -59,6 +72,28 @@ export default function MyCollectionPage() {
             return sum + (p > 0 ? p : 0);
         }, 0);
     }, [collectionItems, estimates, prices]);
+
+    const handleToggleCollection = async (item: Product, inCollection: boolean) => {
+        setBusyId(item.id);
+        try {
+            const token = (await getCurrentUserIdToken()) ?? '';
+            await setCollectionStatusAction(item.id, inCollection, token);
+            toast({
+                title: inCollection ? 'Added to Collection' : 'Removed from Collection',
+                description: inCollection
+                    ? `"${item.title || 'Card'}" is now in your personal collection.`
+                    : `"${item.title || 'Card'}" moved back to saved drafts.`,
+            });
+        } catch (e: any) {
+            toast({
+                title: 'Could not update collection',
+                description: e?.message || 'Please try again.',
+                variant: 'destructive',
+            });
+        } finally {
+            setBusyId(null);
+        }
+    };
 
     const handleCheckValue = async (item: Product) => {
         setCheckingId(item.id);
@@ -87,6 +122,18 @@ export default function MyCollectionPage() {
     };
 
     const handleFlipToSell = async (item: Product) => {
+        const hasPhoto = Array.isArray(item.imageUrls) && item.imageUrls.filter(Boolean).length > 0;
+        const hasTitle = Boolean(String(item.title || '').trim());
+        if (!hasPhoto || !hasTitle) {
+            toast({
+                title: 'Complete card details first',
+                description: 'A card needs at least one photo and a title before going live. Opening the editor...',
+                variant: 'destructive',
+            });
+            router.push(`/sell/create?edit=${item.id}`);
+            return;
+        }
+
         const rawPrice = prices[item.id] !== undefined ? Number(prices[item.id]) : Number(item.price);
         if (!(rawPrice > 0)) {
             toast({
@@ -141,15 +188,26 @@ export default function MyCollectionPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight font-headline">My Collection & Vault</h1>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Scan cards into your collection, check rough sold values, and flip any card to live For Sale in one tap.
+                        Track cards in your personal collection, check rough values, and flip any card to live For Sale when ready.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     {totalEstimatedValue > 0 && (
                         <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-2 text-right">
                             <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Est. Collection Value</span>
                             <span className="text-lg font-black text-primary">${totalEstimatedValue.toFixed(2)} AUD</span>
                         </div>
+                    )}
+                    {savedDrafts.length > 0 && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowDraftImporter((v) => !v)}
+                            data-testid="toggle-draft-importer-btn"
+                        >
+                            <FolderPlus className="h-4 w-4 mr-1.5" />
+                            Add from Drafts ({savedDrafts.length})
+                        </Button>
                     )}
                     <Button asChild>
                         <Link href="/sell/fast-bulk">
@@ -159,16 +217,66 @@ export default function MyCollectionPage() {
                 </div>
             </div>
 
+            {showDraftImporter && savedDrafts.length > 0 && (
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3" data-testid="draft-collection-importer">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-sm font-bold">Add Saved Scans / Drafts to Your Collection</h2>
+                            <p className="text-xs text-muted-foreground">
+                                Unfinished drafts stay separate from your collection unless you add them here.
+                            </p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => setShowDraftImporter(false)}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <ul className="divide-y divide-border rounded-xl border bg-background">
+                        {savedDrafts.slice(0, 20).map((draft) => (
+                            <li key={draft.id} className="flex items-center justify-between gap-3 p-3 text-sm">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    {draft.imageUrls?.[0] ? (
+                                        <img src={draft.imageUrls[0]} alt={draft.title || 'Draft'} className="h-10 w-8 rounded object-cover bg-muted shrink-0" />
+                                    ) : (
+                                        <div className="h-10 w-8 rounded bg-muted shrink-0" />
+                                    )}
+                                    <div className="min-w-0">
+                                        <p className="font-semibold truncate">{draft.title || 'Untitled Draft'}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {draft.condition || 'Raw'} {draft.price > 0 ? `· $${Number(draft.price).toFixed(2)}` : '· No price set'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="secondary"
+                                    disabled={busyId === draft.id}
+                                    onClick={() => handleToggleCollection(draft, true)}
+                                    data-testid={`add-to-collection-${draft.id}`}
+                                >
+                                    {busyId === draft.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Add to Collection'}
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {collectionItems.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border p-12 text-center space-y-4">
                     <Layers className="h-12 w-12 mx-auto text-muted-foreground" />
                     <div className="space-y-1">
                         <h2 className="text-xl font-bold">Your collection is empty</h2>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                            Scan cards or save drafts without publishing them right away. Track their rough market value here and flip them to For Sale whenever you&apos;re ready.
+                            Add cards to your personal collection to track their rough value and flip them to For Sale whenever you&apos;re ready. Unfinished listing drafts are kept separate.
                         </p>
                     </div>
-                    <div className="flex justify-center gap-2">
+                    <div className="flex flex-wrap justify-center gap-2">
+                        {savedDrafts.length > 0 && (
+                            <Button variant="secondary" onClick={() => setShowDraftImporter(true)}>
+                                <FolderPlus className="h-4 w-4 mr-1.5" /> Add from Saved Drafts ({savedDrafts.length})
+                            </Button>
+                        )}
                         <Button asChild>
                             <Link href="/sell/fast-bulk">Scan a Stack of Cards</Link>
                         </Button>
@@ -182,9 +290,10 @@ export default function MyCollectionPage() {
                     {collectionItems.map((item) => {
                         const currentPrice = prices[item.id] !== undefined ? prices[item.id] : (item.price > 0 ? String(item.price) : '');
                         const est = estimates[item.id];
+                        const hasPhoto = Array.isArray(item.imageUrls) && item.imageUrls.filter(Boolean).length > 0;
                         return (
                             <li key={item.id} className="rounded-2xl border border-border bg-card p-4 flex gap-4 items-start">
-                                {item.imageUrls?.[0] ? (
+                                {hasPhoto ? (
                                     <img
                                         src={item.imageUrls[0]}
                                         alt={item.title}
@@ -192,13 +301,26 @@ export default function MyCollectionPage() {
                                         loading="lazy"
                                     />
                                 ) : (
-                                    <div className="h-28 w-20 rounded-xl bg-muted shrink-0" />
+                                    <div className="h-28 w-20 rounded-xl bg-muted shrink-0 flex items-center justify-center text-[10px] text-muted-foreground text-center p-1">
+                                        No photo
+                                    </div>
                                 )}
                                 <div className="flex-1 min-w-0 space-y-2.5">
                                     <div>
-                                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                                            <Badge variant="secondary" className="text-[10px]">In Collection</Badge>
-                                            {item.condition && <Badge variant="outline" className="text-[10px]">{item.condition}</Badge>}
+                                        <div className="flex items-center justify-between gap-1.5 mb-1">
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <Badge variant="secondary" className="text-[10px]">In Collection</Badge>
+                                                {item.condition && <Badge variant="outline" className="text-[10px]">{item.condition}</Badge>}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleCollection(item, false)}
+                                                disabled={busyId === item.id}
+                                                className="text-[11px] text-muted-foreground hover:text-foreground"
+                                                title="Move back to drafts"
+                                            >
+                                                Remove
+                                            </button>
                                         </div>
                                         <h3 className="font-bold text-sm leading-snug truncate" title={item.title}>{item.title}</h3>
                                     </div>
@@ -272,4 +394,3 @@ export default function MyCollectionPage() {
         </div>
     );
 }
-

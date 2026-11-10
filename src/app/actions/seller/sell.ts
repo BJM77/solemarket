@@ -197,6 +197,41 @@ export async function getDraftListing(draftId: string, idToken: string): Promise
 }
 
 /**
+ * Moves a user's item into or out of their personal Collection (`status: 'collection'`, `inCollection: true`),
+ * keeping personal collection items separate from unfinished listing drafts (`status: 'draft'`).
+ */
+export async function setCollectionStatusAction(
+    productId: string,
+    inCollection: boolean,
+    idToken: string
+): Promise<void> {
+    if (!productId) throw new Error('Invalid request.');
+    const userId = await requireUidFromToken(idToken);
+    const docRef = db.collection('products').doc(productId);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) throw new Error('Item not found.');
+
+    let isSuperAdmin = false;
+    try {
+        const user = await adminAuth.getUser(userId);
+        const role = user.customClaims?.role;
+        isSuperAdmin = role === 'superadmin' || role === 'admin';
+    } catch { /* ignore */ }
+
+    const data = docSnap.data();
+    if (data?.sellerId !== userId && data?.userId !== userId && !isSuperAdmin) {
+        throw new Error('Unauthorized.');
+    }
+
+    await docRef.update({
+        status: inCollection ? 'collection' : 'draft',
+        inCollection,
+        isDraft: !inCollection,
+        updatedAt: FieldValue.serverTimestamp(),
+    });
+}
+
+/**
  * Publishes a draft listing.
  */
 export async function publishListing(draftId: string, idToken: string): Promise<void> {

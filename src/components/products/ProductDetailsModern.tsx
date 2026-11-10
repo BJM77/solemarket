@@ -1101,7 +1101,11 @@ export default function ProductDetailsModern({
                                                                             </div>
                                                                         </div>
                                                                         {product.certNumber && product.gradingCompany === 'PSA' && (
-                                                                            <PsaCertBadge certNumber={product.certNumber} />
+                                                                            <PsaCertBadge
+                                                                                certNumber={product.certNumber}
+                                                                                productId={product.id}
+                                                                                canTriggerLookup={Boolean(isSuperAdmin || (user?.uid && user.uid === product.sellerId))}
+                                                                            />
                                                                         )}
                                                                     </div>
                                                                 )}

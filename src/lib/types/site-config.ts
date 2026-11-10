@@ -170,20 +170,19 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   menus: [
     { id: 'm1', label: 'Shoes', href: '/shoes', enabled: true, order: 1 },
     { id: 'm2', label: 'Cards', href: '/cards', enabled: true, order: 2 },
-    { id: 'm4', label: 'Wanted', href: '/wtb', enabled: true, order: 3 },
-    { id: 'm3', label: 'Sellers', href: '/sellers', enabled: true, order: 4 },
+    { id: 'm3', label: 'Sellers', href: '/sellers', enabled: true, order: 3 },
     { 
       id: 'm5', 
       label: 'The Lineup', 
       href: '#', 
       enabled: true, 
-      order: 5,
+      order: 4,
       subItems: [
         { label: 'Browse All', href: '/browse', iconName: 'Store' },
-        { label: 'Wanted to Buy (WTB)', href: '/wtb', iconName: 'Search' },
         { label: 'Seller Directory', href: '/sellers', iconName: 'Store' },
         { label: 'Top 10 Stores', href: '/top-stores', iconName: 'TrendingUp' },
         { label: 'Multi-Listing Deals', href: '/multilisting-deals', iconName: 'LayoutGrid' },
+        { label: 'Wanted to Buy (WTB)', href: '/wtb', iconName: 'Search' },
       ]
     }
   ],
