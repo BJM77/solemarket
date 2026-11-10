@@ -1,15 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
-import { verifyPsaCertAction, type PsaCertDetails } from '@/app/actions/marketplace/psa-cert';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { getCachedPsaCertAction, verifyPsaCertAction, type PsaCertDetails } from '@/app/actions/marketplace/psa-cert';
 
-export function PsaCertBadge({ certNumber }: { certNumber: string }) {
+export function PsaCertBadge({
+    certNumber,
+    productId,
+    canTriggerLookup = false,
+}: {
+    certNumber: string;
+    productId?: string;
+    canTriggerLookup?: boolean;
+}) {
     const [loading, setLoading] = useState(false);
     const [details, setDetails] = useState<PsaCertDetails | null>(null);
     const [error, setError] = useState<string | null>(null);
     const cleanCert = String(certNumber || '').replace(/\D/g, '').trim();
+
+    useEffect(() => {
+        if (!cleanCert) return;
+        let cancelled = false;
+        getCachedPsaCertAction(cleanCert)
+            .then((res) => {
+                if (!cancelled && res.success && res.data) {
+                    setDetails(res.data);
+                }
+            })
+            .catch(() => {
+                // ignore cache read error
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [cleanCert]);
 
     if (!cleanCert) return null;
 
@@ -17,7 +43,8 @@ export function PsaCertBadge({ certNumber }: { certNumber: string }) {
         setLoading(true);
         setError(null);
         try {
-            const res = await verifyPsaCertAction(cleanCert);
+            const idToken = (await getCurrentUserIdToken()) || undefined;
+            const res = await verifyPsaCertAction(cleanCert, { idToken, productId });
             if (res.success) {
                 setDetails(res.data);
             } else {
@@ -37,7 +64,7 @@ export function PsaCertBadge({ certNumber }: { certNumber: string }) {
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                         <CheckCircle2 className="h-3.5 w-3.5" /> Cert verified with PSA
                     </span>
-                ) : (
+                ) : canTriggerLookup ? (
                     <Button
                         type="button"
                         variant="outline"
@@ -49,6 +76,10 @@ export function PsaCertBadge({ certNumber }: { certNumber: string }) {
                         {loading ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : null}
                         Check PSA Cert & Pop
                     </Button>
+                ) : (
+                    <span className="text-[11px] font-medium text-amber-800 dark:text-amber-300">
+                        Verify cert on PSA
+                    </span>
                 )}
                 <Button variant="ghost" size="sm" className="h-7 text-[11px] font-bold text-amber-900 dark:text-amber-200 px-2" asChild>
                     <a
@@ -76,4 +107,3 @@ export function PsaCertBadge({ certNumber }: { certNumber: string }) {
         </div>
     );
 }
-

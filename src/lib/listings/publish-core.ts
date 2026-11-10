@@ -50,7 +50,13 @@ export async function publishListingAs(draftId: string, userId: string): Promise
             throw new Error("Your seller application is pending approval or has not been submitted.");
         }
 
-        // 1b. A listing can't go live without a real price (reverse-bid/WTB listings excepted).
+        // 1b. A listing can't go live without a title, photo, and real price (reverse-bid/WTB listings excepted).
+        if (!String(data?.title || '').trim()) {
+            throw new Error("Add a title before publishing.");
+        }
+        if (!Array.isArray(data?.imageUrls) || data.imageUrls.filter(Boolean).length === 0) {
+            throw new Error("Add at least one photo before publishing.");
+        }
         if (!data?.isReverseBidding && !(Number(data?.price) > 0)) {
             throw new Error("Set a price above $0 before publishing.");
         }
@@ -74,6 +80,7 @@ export async function publishListingAs(draftId: string, userId: string): Promise
         const updateData: any = {
             status: 'available',
             isDraft: false,
+            inCollection: false,
             updatedAt: FieldValue.serverTimestamp(),
             publishedAt: FieldValue.serverTimestamp(),
             storefrontId: data?.storefrontId || determineProductStorefrontId(data),
