@@ -7,10 +7,10 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Partner with Benched | Digitise Your Store",
-    description: "Exclusive partnership program for Op Shops, Antique Stores, and Collectors. Unlock AI-powered listing, security, and world-class SEO.",
+    title: "Card Shops & Hobby Store Partners | Benched Australia",
+    description: "Exclusive partnership program for Australian card shops, sneaker boutiques, and verified hobby sellers. Fast listing, local collectors, zero listing fees.",
     robots: {
-        index: false, // Hidden page
+        index: false, // Keep hidden / unindexed until publicly announced
         follow: false,
     },
 };
@@ -25,19 +25,19 @@ export default function PartnersPage() {
                     <div className="flex flex-col lg:flex-row items-center gap-12">
                         <div className="lg:w-1/2 space-y-6 text-center lg:text-left">
                             <Badge variant="secondary" className="px-3 py-1 text-sm font-medium border-primary/20 bg-primary/10 text-primary mb-2">
-                                Restricted Access • Partner Program
+                                Store Program • Australian Card & Sneaker Shops
                             </Badge>
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-headline text-foreground">
-                                Turn Your Shelf Space <br />
-                                <span className="text-primary">Into Global Sales.</span>
+                                Turn Your Showcases <br />
+                                <span className="text-primary">Into Direct Sales.</span>
                             </h1>
                             <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
-                                The exclusive digital storefront for Op Shops, Antique Dealers, and Collector Stores.
-                                Leverage AI, security, and SEO to unlock the true value of your inventory.
+                                The Australian digital storefront built specifically for card shops, sneaker stores, and volume hobbyists.
+                                Fast bulk listing, direct PayID payments, and reach Australian collectors with zero middleman friction.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <Button size="lg" className="text-base px-8 shadow-lg shadow-primary/20 h-12" asChild>
-                                    <Link href="#contact">Apply for Access</Link>
+                                    <Link href="#contact">Apply for Partner Access</Link>
                                 </Button>
                                 <Button size="lg" variant="outline" className="text-base h-12" asChild>
                                     <Link href="#features">Explore Benefits</Link>
@@ -46,34 +46,34 @@ export default function PartnersPage() {
                         </div>
                         <div className="lg:w-1/2 w-full max-w-lg">
                             <div className="relative">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-30 animate-pulse"></div>
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-orange-600 rounded-2xl blur opacity-30 animate-pulse"></div>
                                 <div className="relative bg-card border rounded-2xl shadow-2xl p-6 lg:p-8">
                                     <div className="space-y-4">
-                                        <div className="flex items-center gap-4 p-3 bg-green-50 rounded-lg border border-green-100">
-                                            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                        <div className="flex items-center gap-4 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-900/40">
+                                            <div className="h-10 w-10 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center text-green-700 dark:text-green-300">
                                                 <BarChart3 className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-green-900">Revenue increased by 40%</p>
-                                                <p className="text-xs text-green-700">Average partner growth in month 1</p>
+                                                <p className="text-sm font-medium text-green-950 dark:text-green-100">Zero Commission on Direct Sales</p>
+                                                <p className="text-xs text-green-800 dark:text-green-300">Keep 100% of your listed card and sneaker prices</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                                            <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-700">
+                                        <div className="flex items-center gap-4 p-3 bg-orange-50 dark:bg-orange-950/30 rounded-lg border border-orange-200 dark:border-orange-900/40">
+                                            <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center text-orange-700 dark:text-orange-300">
                                                 <Sparkles className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-orange-900">AI Listing Enabled</p>
-                                                <p className="text-xs text-orange-700">List items in seconds, not minutes</p>
+                                                <p className="text-sm font-medium text-orange-950 dark:text-orange-100">Rapid Camera Bulk Listing</p>
+                                                <p className="text-xs text-orange-800 dark:text-orange-300">Scan and price slabs or raw cards in bulk</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                                            <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                                        <div className="flex items-center gap-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900/40">
+                                            <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300">
                                                 <Globe className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-purple-900">Global Reach</p>
-                                                <p className="text-xs text-purple-700">Your items seen by collectors worldwide</p>
+                                                <p className="text-sm font-medium text-blue-950 dark:text-blue-100">Dedicated Storefront</p>
+                                                <p className="text-xs text-blue-800 dark:text-blue-300">Your own store link with unified multi-buy deals</p>
                                             </div>
                                         </div>
                                     </div>
@@ -89,10 +89,10 @@ export default function PartnersPage() {
                 <div className="container mx-auto max-w-6xl">
                     <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
                         {[
-                            { label: "Verified Buyers", value: "100%" },
-                            { label: "Search Visibility", value: "Top Tier" },
-                            { label: "Payment Security", value: "Bank-Grade" },
-                            { label: "Partner Support", value: "24/7" },
+                            { label: "Direct PayID & Cash", value: "Instant" },
+                            { label: "Listing Fees", value: "$0" },
+                            { label: "Community", value: "Australia-Wide" },
+                            { label: "Partner Support", value: "Dedicated" },
                         ].map((stat, i) => (
                             <div key={i}>
                                 <p className="text-3xl font-bold font-headline text-foreground">{stat.value}</p>
@@ -106,10 +106,10 @@ export default function PartnersPage() {
             {/* Main Features */}
             <section id="features" className="py-20 container mx-auto max-w-6xl px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <Badge variant="outline" className="mb-4">Why Benched?</Badge>
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Built for Serious Sellers</h2>
+                    <Badge variant="outline" className="mb-4">Why Partner with Benched?</Badge>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Built for Serious Card & Sneaker Sellers</h2>
                     <p className="text-lg text-muted-foreground">
-                        We understand the unique challenges of physical stores. Our platform is designed to seamlessly integrate with your workflow.
+                        We know physical hobby shops and high-volume collectors need fast turnaround and zero marketplace fee drag.
                     </p>
                 </div>
 
@@ -117,12 +117,12 @@ export default function PartnersPage() {
                     <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-primary">
                         <CardHeader>
                             <ShieldCheck className="w-10 h-10 text-primary mb-4" />
-                            <CardTitle>Unmatched Security</CardTitle>
-                            <CardDescription>Zero fraud tolerance.</CardDescription>
+                            <CardTitle>Direct Australian Payments</CardTitle>
+                            <CardDescription>Zero chargeback anxiety.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                Every buyer is verified with Government ID. We gate high-value transactions to ensure you only deal with serious, legitimate collectors. Buyers pay you directly by PayID or cash on pickup, so you get paid fast with no processing fees.
+                                Buyers pay you directly via PayID or cash upon local store pickup. No 14-day fund holds, and no surprise payment processor clawbacks.
                             </p>
                         </CardContent>
                     </Card>
@@ -130,90 +130,65 @@ export default function PartnersPage() {
                     <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-orange-500">
                         <CardHeader>
                             <Search className="w-10 h-10 text-orange-700 mb-4" />
-                            <CardTitle>SEO Domination</CardTitle>
-                            <CardDescription>Get found by the world.</CardDescription>
+                            <CardTitle>Comps & Price Intelligence</CardTitle>
+                            <CardDescription>Instant Australian market data.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                Don&apos;t rely on foot traffic alone. Our world-class SEO architecture ensures your unique, vintage items rank high on Google, bringing global collectors to your virtual doorstep.
+                                Check completed Benched sales alongside one-click eBay AU Sold and 130point searches. Price showcase slabs accurately without leaving your workflow.
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-purple-500">
+                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-blue-500">
                         <CardHeader>
-                            <Zap className="w-10 h-10 text-purple-500 mb-4" />
-                            <CardTitle>AI-Powered Speed</CardTitle>
-                            <CardDescription>List in seconds.</CardDescription>
+                            <Zap className="w-10 h-10 text-blue-500 mb-4" />
+                            <CardTitle>Rapid Bulk Listing</CardTitle>
+                            <CardDescription>List 50 cards in minutes.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                Snap a photo, and our AI identifies the item, writes the description, and suggests pricing. Turning unpriced inventory into active listings has never been faster.
+                                Use our camera-based batch scanner to capture stacks of slabs or raw singles. Review names, numbers, and prices in a grid and publish in one tap.
                             </p>
                         </CardContent>
                     </Card>
                 </div>
             </section>
 
-            {/* Platform Comparison Section */}
+            {/* Platform Benefits */}
             <section className="py-20 bg-muted/20 border-y">
                 <div className="container mx-auto max-w-6xl px-6">
                     <div className="flex flex-col md:flex-row gap-12 items-start">
                         <div className="md:w-1/3 sticky top-24">
-                            <Badge variant="outline" className="mb-4 text-primary border-primary">Comparison</Badge>
-                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Benched vs. Others</h2>
+                            <Badge variant="outline" className="mb-4 text-primary border-primary">Hobby First</Badge>
+                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Built for the Culture</h2>
                             <p className="text-lg text-muted-foreground mb-6">
-                                Benched shares the robust e-commerce power of traditional builders but is architected as a specialized multi-vendor marketplace tailored specifically for the collectibles hobby.
+                                Unlike generic second-hand platforms, Benched understands PSA slabs, rookie cards, sneaker colorways, and Australian domestic shipping.
                             </p>
-                            <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
-                                <p className="text-sm font-medium">
-                                    "Benched gives you the industrial-strength tools of a global platform with the community and niche focus of a specialized marketplace."
-                                </p>
-                            </div>
                         </div>
                         
                         <div className="md:w-2/3 grid sm:grid-cols-2 gap-4">
                             {[
                                 {
-                                    title: "Marketplace Profile",
-                                    desc: "Instead of building a site from scratch, you get a professional Seller Profile (/seller/[id]) within a high-traffic ecosystem.",
+                                    title: "Verified Store Profile",
+                                    desc: "Get a verified store badge, custom profile link, and showcase your physical location or Perth pickup.",
                                     icon: <Store className="w-5 h-5 text-primary" />
                                 },
                                 {
-                                    title: "Inventory Mastery",
-                                    desc: "Similar to leading e-commerce tools, we support unlimited listings, variants (condition, year), and automated inventory alerts.",
+                                    title: "Multi-Card Deal Tiers",
+                                    desc: "Bundle cheap singles into 4 for $15 Bronze tiers or custom volume discounts automatically.",
                                     icon: <BarChart3 className="w-5 h-5 text-primary" />
                                 },
                                 {
-                                    title: "Seamless Payments",
-                                    desc: "Direct PayID and cash-on-pickup payments, with no card processing fees or setup.",
+                                    title: "Direct PayID Routing",
+                                    desc: "Orders display your PayID reference code so buyers transfer funds straight to your bank account.",
                                     icon: <ShieldCheck className="w-5 h-5 text-primary" />
                                 },
                                 {
-                                    title: "Built-in Traffic",
-                                    desc: "While independent store builders require you to find your own customers, Benched is the destination. We bring the collectors to you.",
-                                    icon: <Search className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Local SEO Focus",
-                                    desc: "World-class SEO specifically tuned for the Australian market, ensuring your items rank where it matters.",
-                                    icon: <Globe className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Domestic Logistics",
-                                    desc: "Optimized for Australia Post with built-in shipping label generation and real-time tracking.",
+                                    title: "Australia Post Friendly",
+                                    desc: "Standard flat-rate shipping with combined postage rules across your entire stock.",
                                     icon: <Zap className="w-5 h-5 text-primary" />
                                 },
-                                {
-                                    title: "Advanced Analytics",
-                                    desc: "Comprehensive seller dashboards tracking sales, visitor behavior, and inventory performance.",
-                                    icon: <BarChart3 className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Bank-Grade Security",
-                                    desc: "Level 1 PCI-DSS compliant infrastructure powered by Google Firebase with 99.9% uptime.",
-                                    icon: <Lock className="w-5 h-5 text-primary" />
-                                }
                             ].map((item, i) => (
                                 <div key={i} className="p-5 bg-card border rounded-xl hover:border-primary/30 transition-colors">
                                     <div className="flex items-center gap-3 mb-3">
@@ -229,85 +204,6 @@ export default function PartnersPage() {
                             ))}
                         </div>
                     </div>
-
-                    <div className="mt-16 grid md:grid-cols-3 gap-6">
-                        <div className="p-6 bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl shadow-xl">
-                            <Sparkles className="w-8 h-8 mb-4 text-foreground/80" />
-                            <h3 className="text-xl font-bold mb-2">AI Card Grading</h3>
-                            <p className="text-foreground/80 text-sm">
-                                Proprietary AI analysis that identifies, grades, and values your cards in seconds—a feature generic platforms simply don't offer.
-                            </p>
-                        </div>
-                        <div className="p-6 bg-muted text-foreground rounded-2xl shadow-xl">
-                            <BarChart3 className="w-8 h-8 mb-4 text-primary" />
-                            <h3 className="text-xl font-bold mb-2">The Price Assistant</h3>
-                            <p className="text-foreground/80 text-sm">
-                                Real-time market data integration helping you price your inventory for maximum profit and faster turnover.
-                            </p>
-                        </div>
-                        <div className="p-6 bg-white border-2 border-primary/20 rounded-2xl shadow-xl">
-                            <Lock className="w-8 h-8 mb-4 text-primary" />
-                            <h3 className="text-xl font-bold mb-2 text-slate-900">The Vault</h3>
-                            <p className="text-slate-600 text-sm">
-                                A trust-first verification service. We verify authenticity before the item ever reaches the buyer, eliminating chargeback risk.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Premier Feature: Research Service */}
-            <section className="py-20 bg-card text-foreground relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
-                <div className="container mx-auto max-w-6xl px-6 relative z-10">
-                    <div className="flex flex-col md:flex-row items-center gap-12">
-                        <div className="md:w-1/2">
-                            <Badge className="bg-yellow-500 text-black hover:bg-yellow-400 mb-6">New Premium Service</Badge>
-                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-headline mb-6">Benched Research & Valuation</h2>
-                            <p className="text-foreground/80 text-lg mb-8 leading-relaxed">
-                                Have high-value items but unsure of their market price? Don&apos;t leave money on the table.
-                                <br /><br />
-                                Our expert team, aided by advanced market data tools, will <strong>research, grade, and value your items</strong> for you. We provide a detailed report and listing strategy to ensure you achieve the maximum market rate.
-                            </p>
-                            <ul className="space-y-4 mb-8">
-                                <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
-                                        <CheckIcon />
-                                    </div>
-                                    <span>Expert appraisal of rare collectibles</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
-                                        <CheckIcon />
-                                    </div>
-                                    <span>Data-driven pricing strategy</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-700">
-                                        <CheckIcon />
-                                    </div>
-                                    <span>Maximize margins on donations/estates</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="md:w-1/2 bg-muted/60 backdrop-blur-sm border border-border rounded-2xl p-8">
-                            <div className="text-center space-y-4">
-                                <h3 className="text-2xl font-bold">Maximise Your Inventory</h3>
-                                <p className="text-muted-foreground text-sm">Case Study: Vintage Comic Collection</p>
-                                <div className="grid grid-cols-2 gap-4 my-8">
-                                    <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                                        <p className="text-xs text-red-600 uppercase font-bold">Store Price</p>
-                                        <p className="text-2xl font-bold text-foreground">$450</p>
-                                    </div>
-                                    <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                        <p className="text-xs text-green-700 uppercase font-bold">Benched Valued</p>
-                                        <p className="text-2xl font-bold text-foreground">$1,200</p>
-                                    </div>
-                                </div>
-                                <p className="text-lg font-medium text-green-700">+166% Profit</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -316,9 +212,9 @@ export default function PartnersPage() {
                 <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
                     <div className="space-y-8">
                         <div>
-                            <h2 className="text-3xl font-bold font-headline mb-4">Flexible, Negotiable Pricing</h2>
+                            <h2 className="text-3xl font-bold font-headline mb-4">Partner Store Enquiries</h2>
                             <p className="text-lg text-muted-foreground">
-                                We know that every store is different. Whether you are a non-profit Op Shop or a high-end Antique Dealer, we have a structure that works for you.
+                                Are you a local card shop, hobby retailer, or consignment dealer? Connect with our team to set up your verified store and bulk import inventory.
                             </p>
                         </div>
 
@@ -328,8 +224,8 @@ export default function PartnersPage() {
                                     <Store className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">Volume-Based Discounts</h3>
-                                    <p className="text-muted-foreground">Lower fees as you list more items. Perfect for high-volume intake stores.</p>
+                                    <h3 className="font-bold text-lg">Physical Storefront Promotion</h3>
+                                    <p className="text-muted-foreground">Highlight your local brick-and-mortar store for customer pickups.</p>
                                 </div>
                             </div>
                             <div className="flex gap-4">
@@ -337,17 +233,10 @@ export default function PartnersPage() {
                                     <Lock className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">Fixed-Rate Partnerships</h3>
-                                    <p className="text-muted-foreground">Prefer predictability? Let&apos;s agree on a flat monthly rate for unlimited listings.</p>
+                                    <h3 className="font-bold text-lg">Dedicated Account Manager</h3>
+                                    <p className="text-muted-foreground">Direct access to assist with catalog migration, bulk scans, and feature requests.</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="p-6 bg-amber-50 rounded-xl border border-amber-200">
-                            <h4 className="font-bold text-amber-800 mb-2">Op Shop Special</h4>
-                            <p className="text-amber-700 text-sm">
-                                Registered charities and Op Shops qualify for our subsidised community rate. Contact us to learn more.
-                            </p>
                         </div>
                     </div>
 
@@ -359,14 +248,8 @@ export default function PartnersPage() {
 
             {/* Footer Simple */}
             <footer className="py-8 text-center text-muted-foreground text-sm border-t">
-                <p>&copy; {new Date().getFullYear()} Benched. All rights reserved. | <Link href="/" className="hover:underline">Back to Marketplace</Link></p>
+                <p>&copy; {new Date().getFullYear()} Benched Australia. All rights reserved. | <Link href="/" className="hover:underline">Back to Marketplace</Link></p>
             </footer>
         </div>
     );
-}
-
-function CheckIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-    )
 }

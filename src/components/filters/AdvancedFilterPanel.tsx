@@ -80,6 +80,59 @@ const SNEAKER_BRANDS = [
     'Other',
 ];
 
+const POPULAR_SNEAKER_MODELS = [
+    'Air Jordan 1',
+    'Air Jordan 4',
+    'Air Jordan 11',
+    'Dunk Low',
+    'Air Force 1',
+    'Kobe 4',
+    'Kobe 6',
+    'Kobe 8',
+    'Yeezy 350',
+    'New Balance 550',
+    'New Balance 990',
+];
+
+const BASKETBALL_LEAGUES = [
+    'NBA',
+    'WNBA',
+    'NBL',
+    'NCAA',
+];
+
+const POPULAR_TEAMS = [
+    'Lakers',
+    'Warriors',
+    'Bulls',
+    'Celtics',
+    'Spurs',
+    'Heat',
+    'Knicks',
+    'Mavericks',
+];
+
+const POPULAR_PLAYERS = [
+    'Michael Jordan',
+    'Kobe Bryant',
+    'LeBron James',
+    'Stephen Curry',
+    'Victor Wembanyama',
+    'Luka Doncic',
+    'Anthony Edwards',
+    'Giannis Antetokounmpo',
+];
+
+const CARD_GRADES = [
+    'PSA 10',
+    'PSA 9',
+    'BGS 9.5',
+    'BGS 9',
+    'CGC 10',
+    'CGC 9.5',
+    'Raw',
+];
+
 const CARD_SUB_CATEGORIES = [
     'Basketball Cards',
     'Sports Cards',
@@ -243,6 +296,14 @@ export default function AdvancedFilterPanel({
         handleLocalChange('gradingCompanies', newCompanies.length > 0 ? newCompanies : undefined);
     };
 
+    const toggleGrade = (grade: string) => {
+        const currentGrades = (localFilters.grades as string[]) || [];
+        const newGrades = currentGrades.includes(grade)
+            ? currentGrades.filter(g => g !== grade)
+            : [...currentGrades, grade];
+        handleLocalChange('grades', newGrades.length > 0 ? newGrades : undefined);
+    };
+
     const panelBody = (
                 <div className="py-8 space-y-10">
 
@@ -298,9 +359,55 @@ export default function AdvancedFilterPanel({
                     {/* Size Grid (Visual) - Sneakers Only */}
                     {isSneakers && (
                         <>
+                            {/* Gender / Sizing category */}
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Sizing Category</Label>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        { label: 'All', value: 'all' },
+                                        { label: "Men's", value: 'men' },
+                                        { label: "Women's", value: 'women' },
+                                        { label: "Kids'", value: 'kids' },
+                                    ].map((opt) => {
+                                        const isSelected = (localFilters.sizeGender || 'all') === opt.value;
+                                        return (
+                                            <Button
+                                                key={opt.value}
+                                                type="button"
+                                                variant={isSelected ? "default" : "outline"}
+                                                size="sm"
+                                                className="h-9 text-xs font-semibold"
+                                                onClick={() => handleLocalChange('sizeGender', opt.value === 'all' ? undefined : opt.value)}
+                                            >
+                                                {opt.label}
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Sneaker Model Selector */}
+                            <div className="space-y-3">
+                                <Label className="text-base font-bold">Model</Label>
+                                <Select
+                                    value={localFilters.model as string || 'all'}
+                                    onValueChange={(v) => handleLocalChange('model', v === 'all' ? undefined : v)}
+                                >
+                                    <SelectTrigger className="h-11">
+                                        <SelectValue placeholder="All Models" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Models</SelectItem>
+                                        {POPULAR_SNEAKER_MODELS.map(m => (
+                                            <SelectItem key={m} value={m}>{m}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <Label className="text-base font-bold">Size (US Men)</Label>
+                                    <Label className="text-base font-bold">Size (US)</Label>
                                     {(localFilters.sizes?.length || 0) > 10 && (
                                         <span className="text-xs text-amber-600 font-medium">Max 10 sizes applied</span>
                                     )}
@@ -355,6 +462,95 @@ export default function AdvancedFilterPanel({
                                 </div>
                             </div>
                             <Separator />
+
+                            {/* Specific Grade (e.g. PSA 10, BGS 9.5, Raw) */}
+                            {facets.grades && (
+                                <>
+                                    <div className="space-y-3">
+                                        <Label className="text-base font-bold">Grade</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {CARD_GRADES.map(grade => {
+                                                const isSelected = (localFilters.grades as string[] || []).includes(grade);
+                                                return (
+                                                    <Badge
+                                                        key={grade}
+                                                        variant={isSelected ? "default" : "outline"}
+                                                        className="cursor-pointer px-3 py-1 text-sm font-semibold"
+                                                        onClick={() => toggleGrade(grade)}
+                                                    >
+                                                        {grade}
+                                                    </Badge>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <Separator />
+                                </>
+                            )}
+
+                            {/* Basketball Card Specific Filters (League, Team, Player) */}
+                            {facets.basketballMetadata && (
+                                <>
+                                    <div className="space-y-3">
+                                        <Label className="text-base font-bold">League</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {BASKETBALL_LEAGUES.map(league => {
+                                                const isSelected = localFilters.league === league;
+                                                return (
+                                                    <Badge
+                                                        key={league}
+                                                        variant={isSelected ? "default" : "outline"}
+                                                        className="cursor-pointer px-3 py-1 text-sm font-semibold"
+                                                        onClick={() => handleLocalChange('league', isSelected ? undefined : league)}
+                                                    >
+                                                        {league}
+                                                    </Badge>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <Separator />
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold">Player</Label>
+                                            <Select
+                                                value={localFilters.player as string || 'all'}
+                                                onValueChange={(v) => handleLocalChange('player', v === 'all' ? undefined : v)}
+                                            >
+                                                <SelectTrigger className="h-10 text-xs">
+                                                    <SelectValue placeholder="All Players" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All Players</SelectItem>
+                                                    {POPULAR_PLAYERS.map(p => (
+                                                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold">Team</Label>
+                                            <Select
+                                                value={localFilters.team as string || 'all'}
+                                                onValueChange={(v) => handleLocalChange('team', v === 'all' ? undefined : v)}
+                                            >
+                                                <SelectTrigger className="h-10 text-xs">
+                                                    <SelectValue placeholder="All Teams" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All Teams</SelectItem>
+                                                    {POPULAR_TEAMS.map(t => (
+                                                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <Separator />
+                                </>
+                            )}
 
                             {facets.manufacturer && <><div className="space-y-3">
                                 <Label className="text-base font-bold">Manufacturer</Label>

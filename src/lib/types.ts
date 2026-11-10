@@ -220,6 +220,12 @@ export type ProductSearchParams = {
   minRating?: number;
   gradingCompanies?: string[];
   manufacturer?: string;
+  grades?: string[];
+  league?: string;
+  team?: string;
+  player?: string;
+  model?: string;
+  sizeGender?: 'men' | 'women' | 'kids' | 'all';
 };
 
 

@@ -320,7 +320,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   // Server counts can't see in-memory filters; don't show a count that could be wrong.
   // Counts can't exclude Pokémon either, so skip them where Pokémon could be in the results.
   const pokemonCouldAppear = hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory;
-  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating);
+  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
   if (searchParams.countOnly) {
@@ -408,6 +408,62 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
       // 7. Grading Filter (in memory)
       if (filterGradingInMemory) {
         if (!p.gradingCompany || !filterGradingInMemory.includes(p.gradingCompany)) return false;
+      }
+
+      // 7b. Specific Grade Filter (in memory, e.g. "PSA 10", "BGS 9.5", "Raw")
+      if (searchParams.grades && Array.isArray(searchParams.grades) && searchParams.grades.length > 0) {
+        const rawGrade = String(p.grade || '').trim();
+        const isRaw = !rawGrade || /^raw$/i.test(rawGrade);
+        const gradeCo = (rawGrade.match(/^(PSA|BGS|CGC|SGC)/i)?.[1] || p.gradingCompany || '').toUpperCase();
+        const gradeNum = rawGrade.replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+        const matchesGrade = searchParams.grades.some((g: string) => {
+          const target = String(g).trim();
+          if (/^raw$/i.test(target)) return isRaw && !p.gradingCompany;
+          if (isRaw) return false;
+          const targetCo = (target.match(/^(PSA|BGS|CGC|SGC)/i)?.[1] || '').toUpperCase();
+          const targetNum = target.replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+          if (targetNum !== gradeNum) return false;
+          return !targetCo || !gradeCo || targetCo === gradeCo;
+        });
+        if (!matchesGrade) return false;
+      }
+
+      // 7c. League Filter (in memory)
+      if (searchParams.league) {
+        const targetLeague = searchParams.league.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''} ${p.subCategory || ''}`.toLowerCase();
+        if (!fullText.includes(targetLeague)) return false;
+      }
+
+      // 7d. Team Filter (in memory)
+      if (searchParams.team) {
+        const targetTeam = searchParams.team.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''}`.toLowerCase();
+        if (!fullText.includes(targetTeam)) return false;
+      }
+
+      // 7e. Player Filter (in memory)
+      if (searchParams.player) {
+        const targetPlayer = searchParams.player.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''} ${p.subCategory || ''}`.toLowerCase();
+        if (!fullText.includes(targetPlayer)) return false;
+      }
+
+      // 7f. Sneaker Model Filter (in memory)
+      if (searchParams.model) {
+        const targetModel = searchParams.model.toLowerCase();
+        const fullText = `${p.model || ''} ${p.title}`.toLowerCase();
+        if (!fullText.includes(targetModel)) return false;
+      }
+
+      // 7g. Sneaker Size Gender (in memory, whole-word match so "ships" or "kings" don't count as kids' sizes)
+      if (searchParams.sizeGender && searchParams.sizeGender !== 'all') {
+        const fullText = `${p.title} ${p.size || ''} ${p.description || ''}`.toLowerCase();
+        const isWomens = /\b(women'?s?|womens|wmns|wms)\b/.test(fullText);
+        const isKids = /\b(kids?'?|gs|ps|td|toddler|youth|grade school|preschool|infant)\b/.test(fullText);
+        if (searchParams.sizeGender === 'women' && !isWomens) return false;
+        if (searchParams.sizeGender === 'kids' && !isKids) return false;
+        if (searchParams.sizeGender === 'men' && (isWomens || isKids)) return false;
       }
 
       // 8. Deal Tiers Filter (in memory)
