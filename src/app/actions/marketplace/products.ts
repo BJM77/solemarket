@@ -12,6 +12,7 @@ import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { isPokemonListing, withoutPokemon } from "@/lib/pokemon-listings";
+import { determineProductStorefrontId } from "@/config/storefronts";
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -136,6 +137,7 @@ export async function createProductAction(
             status: (userRole === 'admin' || userRole === 'superadmin') ? 'available' : 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+            storefrontId: (validData as any).storefrontId || determineProductStorefrontId(validData),
             isFeatured: false,
             isPromoted: false,
             views: 0,
@@ -226,6 +228,7 @@ export async function createBulkProductsAction(
                 sellerId: decodedToken.uid,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                storefrontId: (data as any).storefrontId || determineProductStorefrontId(data),
                 status: 'available',
                 views: 0,
                 uniqueViews: 0,

@@ -30,7 +30,50 @@ export async function GET(
     const price = fields?.price?.integerValue || fields?.price?.doubleValue || '0';
     const category = fields?.category?.stringValue || 'Collectibles';
     const size = fields?.size?.stringValue || null;
+    const condition = fields?.condition?.stringValue || null;
+    const gradingCompany = fields?.gradingCompany?.stringValue || null;
+    const grade = fields?.grade?.stringValue || null;
+    const year = fields?.year?.integerValue || fields?.year?.stringValue || null;
+    const brand = fields?.brand?.stringValue || fields?.manufacturer?.stringValue || null;
+    const cardSet = fields?.set?.stringValue || null;
+    const cardNumber = fields?.cardNumber?.stringValue || null;
+    const sellerId = fields?.sellerId?.stringValue || null;
+    const sellerName = fields?.sellerName?.stringValue || 'Verified Seller';
     const imageUrl = fields?.imageUrls?.arrayValue?.values?.[0]?.stringValue || 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=1200';
+
+    // Fetch seller location & PayID status if available
+    let sellerLocation = 'Australia';
+    let payIdReady = true;
+    if (sellerId) {
+      try {
+        const sellerRes = await fetch(`https://firestore.googleapis.com/v1/projects/studio-3973035687-658c0/databases/(default)/documents/users/${sellerId}`);
+        if (sellerRes.ok) {
+          const sellerDoc = await sellerRes.json();
+          const sFields = sellerDoc.fields;
+          if (sFields?.location?.stringValue) sellerLocation = sFields.location.stringValue;
+          if (sFields?.payIdReady?.booleanValue !== undefined) payIdReady = sFields.payIdReady.booleanValue;
+        }
+      } catch {
+        // Fallback to defaults if seller lookup fails
+      }
+    }
+
+    const isCard = /card/i.test(category);
+    const gradeChip = gradingCompany && gradingCompany !== 'Raw'
+      ? `${gradingCompany}${grade ? ` ${grade}` : ''}`
+      : isCard ? 'Raw Card' : null;
+
+    const chips = [
+      gradeChip,
+      condition,
+      year ? String(year) : null,
+      brand,
+      cardSet,
+      cardNumber ? `#${String(cardNumber).replace(/^#/, '')}` : null,
+      size ? `Size ${size}` : null,
+    ].filter((c): c is string => Boolean(c)).slice(0, 5);
+
+    const paymentLine = `${payIdReady ? 'Pay by PayID or Cash' : 'Cash on Pickup'} · ${sellerLocation}`;
 
     return new ImageResponse(
       (
@@ -82,9 +125,9 @@ export async function GET(
               flexDirection: 'row',
               width: '100%',
               height: '100%',
-              backgroundColor: 'rgba(15, 23, 42, 0.6)',
+              backgroundColor: 'rgba(15, 23, 42, 0.85)',
               borderRadius: '30px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
               overflow: 'hidden',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             }}
@@ -96,7 +139,7 @@ export async function GET(
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 flex: 1,
-                padding: '50px',
+                padding: '44px 48px',
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -110,46 +153,74 @@ export async function GET(
                     marginBottom: '10px',
                   }}
                 >
-                  {category}
+                  {category} · Benched.au
                 </span>
                 <span
                   style={{
-                    fontSize: '44px',
+                    fontSize: '38px',
                     fontWeight: '900',
                     color: 'white',
-                    lineHeight: '1.1',
+                    lineHeight: '1.15',
                     letterSpacing: '-1px',
                   }}
                 >
-                  {title}
+                  {title.length > 70 ? `${title.slice(0, 68)}…` : title}
                 </span>
-                {size && (
-                  <span
+
+                {/* Fact Chips */}
+                {chips.length > 0 && (
+                  <div
                     style={{
-                      fontSize: '18px',
-                      color: '#94a3b8',
-                      marginTop: '15px',
-                      fontWeight: '500',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '8px',
+                      marginTop: '18px',
                     }}
                   >
-                    Size: {size}
-                  </span>
+                    {chips.map((chip, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          fontSize: '15px',
+                          fontWeight: '700',
+                          padding: '6px 14px',
+                          borderRadius: '999px',
+                          backgroundColor: idx === 0 && gradingCompany && gradingCompany !== 'Raw' ? '#f59e0b' : 'rgba(255, 255, 255, 0.1)',
+                          color: idx === 0 && gradingCompany && gradingCompany !== 'Raw' ? '#0f172a' : '#e2e8f0',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                        }}
+                      >
+                        {chip}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  Suggested Price
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: '600' }}>
+                  Listed by {sellerName}
                 </span>
                 <span
                   style={{
                     fontSize: '64px',
-                    fontWeight: 'bold',
+                    fontWeight: '900',
                     color: 'white',
                     letterSpacing: '-2px',
+                    lineHeight: '1',
                   }}
                 >
-                  ${Number(price).toLocaleString()}
+                  ${Number(price).toLocaleString()} AUD
+                </span>
+                <span
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#34d399',
+                    marginTop: '6px',
+                  }}
+                >
+                  ✓ {paymentLine}
                 </span>
               </div>
             </div>

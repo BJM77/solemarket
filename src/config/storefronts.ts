@@ -114,6 +114,22 @@ export function resolveStorefrontId(host: string | null | undefined): Storefront
   return DEFAULT_STOREFRONT_ID;
 }
 
+/** Determine the storefront for a listing based on its category/subCategory/brand */
+export function determineProductStorefrontId(product: { category?: unknown; subCategory?: unknown; brand?: unknown; storefrontId?: unknown } | null | undefined): StorefrontId {
+  if (!product) return 'basketball';
+  if (product.storefrontId === 'coins' || product.storefrontId === 'pokemon' || product.storefrontId === 'basketball') {
+    return product.storefrontId;
+  }
+  const cat = String(product.category || '').toLowerCase();
+  const sub = String(product.subCategory || '').toLowerCase();
+  const brand = String(product.brand || '').toLowerCase();
+
+  if (cat.includes('coin') || sub.includes('coin') || sub.includes('bullion')) return 'coins';
+  if (/pok[eé]mon/i.test(cat) || /pok[eé]mon/i.test(sub) || /pok[eé]mon/i.test(brand) || sub.includes('magic') || sub.includes('yu-gi-oh')) return 'pokemon';
+
+  return 'basketball';
+}
+
 export function getStorefrontConfig(id: string | null | undefined): StorefrontConfig {
   return (id && (STOREFRONTS as Record<string, StorefrontConfig>)[id]) || STOREFRONTS[DEFAULT_STOREFRONT_ID];
 }

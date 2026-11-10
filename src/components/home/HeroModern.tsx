@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
+import { cn } from '@/lib/utils/ui';
 
 export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
     const [mounted, setMounted] = useState(false);
@@ -35,15 +36,23 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:items-center sm:justify-center md:gap-4 slide-up mb-2 md:mb-16" style={{ animationDelay: '0.3s' }}>
-                        {hero.buttons && hero.buttons.map((btn) => (
-                            <Link
-                                key={btn.id}
-                                href={btn.href}
-                                className="w-full sm:w-auto px-2 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-xs sm:text-sm md:text-base text-center leading-tight flex items-center justify-center gap-2 bg-white text-primary border border-orange-200 shadow-sm transition-colors hover:bg-orange-50 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-slate-900 dark:text-orange-300 dark:border-slate-700 dark:hover:bg-slate-800"
-                            >
-                                {btn.label}
-                            </Link>
-                        ))}
+                        {hero.buttons && hero.buttons.map((btn) => {
+                            const isDrops = /drops/i.test(btn.label);
+                            return (
+                                <Link
+                                    key={btn.id}
+                                    href={btn.href}
+                                    className={cn(
+                                        "w-full sm:w-auto px-2 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-bold text-xs sm:text-sm md:text-base text-center leading-tight flex items-center justify-center gap-2 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        isDrops
+                                            ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 shadow-orange-600/20"
+                                            : "bg-white text-primary border border-orange-200 hover:bg-orange-50 hover:border-primary dark:bg-slate-900 dark:text-orange-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                                    )}
+                                >
+                                    {btn.label}
+                                </Link>
+                            );
+                        })}
                         <Link
                             href="/sell"
                             className="hidden sm:flex col-span-3 w-full sm:w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base items-center justify-center gap-2 bg-primary text-primary-foreground shadow-md shadow-orange-600/20 transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"

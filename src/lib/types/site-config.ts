@@ -170,14 +170,18 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   menus: [
     { id: 'm1', label: 'Shoes', href: '/shoes', enabled: true, order: 1 },
     { id: 'm2', label: 'Cards', href: '/cards', enabled: true, order: 2 },
+    { id: 'm4', label: 'Wanted', href: '/wtb', enabled: true, order: 3 },
+    { id: 'm3', label: 'Sellers', href: '/sellers', enabled: true, order: 4 },
     { 
       id: 'm5', 
       label: 'The Lineup', 
       href: '#', 
       enabled: true, 
-      order: 4,
+      order: 5,
       subItems: [
         { label: 'Browse All', href: '/browse', iconName: 'Store' },
+        { label: 'Wanted to Buy (WTB)', href: '/wtb', iconName: 'Search' },
+        { label: 'Seller Directory', href: '/sellers', iconName: 'Store' },
         { label: 'Top 10 Stores', href: '/top-stores', iconName: 'TrendingUp' },
         { label: 'Multi-Listing Deals', href: '/multilisting-deals', iconName: 'LayoutGrid' },
       ]
@@ -192,6 +196,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { label: 'New Arrivals', href: '/browse?sort=newest' },
         { label: 'Sneakers', href: '/shoes' },
         { label: 'Basketball Cards', href: '/cards' },
+        { label: 'Wanted to Buy', href: '/wtb' },
         { label: 'Card Drops', href: '/card-drops' },
       ] },
       { id: 'f2', title: 'Brands', links: [

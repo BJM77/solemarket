@@ -700,20 +700,6 @@ export default function ProductCard({
           ) : null}
 
           <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 pointer-events-none">
-            {product.isVault && (
-              <Badge
-                variant="default"
-                className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md cursor-pointer z-20 pointer-events-auto"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open('/vault', '_blank');
-                }}
-              >
-                <ShieldCheck className="h-3 w-3" />
-                Vault
-              </Badge>
-            )}
             {mounted && hasViewed && (
               <Badge variant="secondary" className="inline-flex items-center justify-center h-6 w-6 bg-black/50 text-white rounded-full backdrop-blur-sm p-0">
                 <Eye className="h-3 w-3" />

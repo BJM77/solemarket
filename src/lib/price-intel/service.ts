@@ -22,9 +22,23 @@ async function loadRecentOrders(): Promise<any[]> {
     return orders;
 }
 
+let recentHistory: { at: number; items: any[] } | null = null;
+async function loadRecentPriceHistory(): Promise<any[]> {
+    if (recentHistory && Date.now() - recentHistory.at < 10 * 60_000) return recentHistory.items;
+    try {
+        const snap = await firestoreDb.collection('card_price_history').orderBy('recordedAt', 'desc').limit(1000).get();
+        const items = snap.docs.map((d: any) => d.data());
+        recentHistory = { at: Date.now(), items };
+        return items;
+    } catch {
+        return [];
+    }
+}
+
 async function internalProvider(q: PriceQuery): Promise<ProviderResult> {
     try {
-        return { source: 'benched', ok: true, comps: mapInternalSales(await loadRecentOrders(), q) };
+        const [orders, history] = await Promise.all([loadRecentOrders(), loadRecentPriceHistory()]);
+        return { source: 'benched', ok: true, comps: mapInternalSales(orders, q, history) };
     } catch (e: any) {
         return { source: 'benched', ok: false, note: e?.message, comps: [] };
     }

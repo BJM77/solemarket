@@ -27,7 +27,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const activeMenus = useMemo(() => {
         if (!config?.menus) return [];
         return [...config.menus]
-            .filter(m => m.enabled !== false)
+            .filter(m => m.enabled !== false && !/fundraising|club/i.test(m.label))
             .sort((a, b) => (a.order || 0) - (b.order || 0));
     }, [config?.menus]);
 

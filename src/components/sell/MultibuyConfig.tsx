@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/
 import { Plus, Trash2 } from 'lucide-react';
 import { MultibuyTier } from '@/types/multibuy';
 import { BundleTierPicker } from '@/components/sell/BundleTierPicker';
+import { tierGroupFor } from '@/lib/tier-bundles';
 
 interface MultibuyConfigProps {
     form: any;
@@ -16,12 +17,36 @@ interface MultibuyConfigProps {
 
 export function MultibuyConfig({ form }: MultibuyConfigProps) {
     const category = form.watch('category');
+    const price = Number(form.watch('price'));
+    const gradingCompany = form.watch('gradingCompany');
+    const multiCardTier = form.watch('multiCardTier');
+    const [autoTickedBronze, setAutoTickedBronze] = useState(false);
+    const manualTierRef = useRef(false);
+
+    useEffect(() => {
+        if (manualTierRef.current) return;
+        const isCardGroup = tierGroupFor(category) === 'cards';
+        const isRaw = !gradingCompany || gradingCompany === 'Raw';
+        if (isCardGroup && isRaw && price > 0 && price <= 5 && multiCardTier === undefined) {
+            form.setValue('multiCardTier', 'bronze', { shouldDirty: true });
+            setAutoTickedBronze(true);
+        } else if (autoTickedBronze && price > 5 && multiCardTier === 'bronze') {
+            form.setValue('multiCardTier', undefined, { shouldDirty: true });
+            setAutoTickedBronze(false);
+        }
+    }, [category, price, gradingCompany, multiCardTier, autoTickedBronze, form]);
+
     return (
         <>
             <BundleTierPicker
                 category={category}
-                value={form.watch('multiCardTier')}
-                onChange={(v) => form.setValue('multiCardTier', v, { shouldDirty: true })}
+                value={multiCardTier}
+                autoAddedNotice={autoTickedBronze && multiCardTier === 'bronze' ? 'Added to $5 multi-buy (Bronze), untick to sell singly.' : undefined}
+                onChange={(v) => {
+                    manualTierRef.current = true;
+                    setAutoTickedBronze(false);
+                    form.setValue('multiCardTier', v, { shouldDirty: true });
+                }}
             />
             <FormField
                 control={form.control}

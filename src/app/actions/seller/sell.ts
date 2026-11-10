@@ -6,6 +6,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { checkForAdminWantedMatch } from '../admin/admin-wanted';
 import { requireUidFromToken } from '@/lib/firebase/session-user';
+import { determineProductStorefrontId } from '@/config/storefronts';
 
 export interface DraftListingData {
     sellerId: string;
@@ -93,6 +94,7 @@ export async function saveDraftListing(idToken: string, data: Omit<DraftListingD
         isDraft: true,
         isFeatured: false,
         isPromoted: false,
+        storefrontId: (data as any)?.storefrontId || determineProductStorefrontId(data),
         updatedAt: FieldValue.serverTimestamp(),
     };
 

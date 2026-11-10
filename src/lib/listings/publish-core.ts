@@ -3,6 +3,7 @@ import { resolveSellerName } from '@/lib/utils/seller-name';
 import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { checkForAdminWantedMatch } from '@/app/actions/admin/admin-wanted';
+import { determineProductStorefrontId } from '@/config/storefronts';
 
 /**
  * Publish one draft on behalf of an already-authenticated user. Runs every
@@ -75,6 +76,7 @@ export async function publishListingAs(draftId: string, userId: string): Promise
             isDraft: false,
             updatedAt: FieldValue.serverTimestamp(),
             publishedAt: FieldValue.serverTimestamp(),
+            storefrontId: data?.storefrontId || determineProductStorefrontId(data),
             sellerName: resolveSellerName(userData as any, data?.sellerName),
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,
@@ -95,6 +97,33 @@ export async function publishListingAs(draftId: string, userId: string): Promise
         }
 
         await docRef.update(updateData);
+
+        // Save the price the seller picked next to the scanned card details in `card_price_history`
+        // so Benched builds its own first-party pricing history over time without scraping.
+        const pickedPrice = Number(data?.price);
+        if (pickedPrice > 0 && data?.title) {
+            try {
+                await db.collection('card_price_history').add({
+                    productId: draftId,
+                    sellerId: targetUserId,
+                    title: String(data.title).trim(),
+                    price: pickedPrice,
+                    currency: 'AUD',
+                    category: data.category || 'Collector Cards',
+                    subCategory: data.subCategory || null,
+                    brand: data.brand || data.manufacturer || null,
+                    model: data.model || (data as any).set || null,
+                    year: data.year || null,
+                    cardNumber: data.cardNumber || null,
+                    condition: data.condition || null,
+                    gradingCompany: data.gradingCompany || 'Raw',
+                    grade: data.grade || null,
+                    recordedAt: FieldValue.serverTimestamp(),
+                });
+            } catch (e) {
+                console.warn('Failed to record card_price_history entry', e);
+            }
+        }
     } else {
         throw new Error("Listing not found.");
     }

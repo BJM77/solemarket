@@ -12,9 +12,10 @@ import { startBulkPublishJobAction, getBulkPublishJobAction } from '@/app/action
 
 const JOB_KEY = 'picksy:bulk-publish-job';
 import { priceCheckAction } from '@/app/actions/marketplace/price-check';
+import { buildEbayAuSoldUrl, build130PointUrl } from '@/components/price-check/InlinePriceSuggestion';
 import { loadDraftIds, removeDraftIds } from '@/lib/bulk/draft-store';
 import { CONDITIONS } from '@/lib/listing-wizard/steps';
-import { TrendingUp, Loader2, Sparkles } from 'lucide-react';
+import { TrendingUp, Loader2, Sparkles, ExternalLink } from 'lucide-react';
 
 const CARD_CONDITIONS = CONDITIONS['Collector Cards'];
 
@@ -311,6 +312,30 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
                   >
                     {r.checkingPrice ? 'Checking comps…' : 'Suggest price'}
                   </button>
+                )}
+                {r.title.trim().length >= 3 && (
+                  <>
+                    <a
+                      href={buildEbayAuSoldUrl(r.title)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-slate-600 hover:text-primary underline"
+                      title="Open eBay AU sold listings"
+                    >
+                      eBay Sold <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try { await navigator.clipboard.writeText(r.title.trim()); } catch { /* ignore */ }
+                        window.open(build130PointUrl(), '_blank', 'noopener,noreferrer');
+                      }}
+                      className="inline-flex items-center gap-0.5 text-slate-600 hover:text-primary underline"
+                      title="Copy title and open 130point sales search"
+                    >
+                      130point <ExternalLink className="h-3 w-3" />
+                    </button>
+                  </>
                 )}
                 <Link href={`/sell/create?edit=${r.id}`} className="text-primary underline ml-auto">Full edit</Link>
                 {r.dirty && <span className="text-muted-foreground">unsaved</span>}

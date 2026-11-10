@@ -33,6 +33,11 @@ export default async function Image({ params }: { params: { id: string } }) {
     );
   }
 
+  const isCard = /card/i.test(product.category || '');
+  const gradeLabel = product.gradingCompany && product.gradingCompany !== 'Raw'
+    ? `${product.gradingCompany}${product.grade ? ` ${product.grade}` : ''}`
+    : isCard ? 'Raw Card' : product.condition || null;
+
   return new ImageResponse(
     (
       <div
@@ -98,17 +103,17 @@ export default async function Image({ params }: { params: { id: string } }) {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '24px', fontWeight: 900, color: '#f26c0d', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
-                {product.category === 'Collector Cards' || product.category === 'Trading Cards' ? 'Authenticated Card' : 'Authenticated Kicks'}
+              <span style={{ fontSize: '22px', fontWeight: 900, color: '#f26c0d', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
+                {gradeLabel ? `${gradeLabel} · ` : ''}{product.category}
               </span>
-              <span style={{ fontSize: '48px', fontWeight: 900, maxWidth: '800px', lineHeight: 1.1 }}>
+              <span style={{ fontSize: '44px', fontWeight: 900, maxWidth: '800px', lineHeight: 1.1 }}>
                 {product.title}
               </span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <span style={{ fontSize: '20px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>
-                Buy Now
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', marginBottom: '4px' }}>
+                Pay by PayID or Cash
               </span>
               <span style={{ fontSize: '64px', fontWeight: 900, color: 'white' }}>
                 ${product.price}

@@ -92,6 +92,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { ProductHeaderInfo } from './ProductHeaderInfo';
+import { PsaCertBadge } from './PsaCertBadge';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -112,7 +113,7 @@ const QRCodeCanvas = dynamic(() => import('qrcode.react').then((m) => m.QRCodeCa
 
 const ADMIN_CATEGORIES = {
     'Sneakers': ['Basketball', 'Lifestyle', 'Running', 'Other'],
-    'Collector Cards': ['Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama', 'Signed', 'Flag', 'Top 100', 'Pokémon', 'Yu-Gi-Oh!', 'Sports Cards', 'Trading Cards', 'Other'],
+    'Collector Cards': ['Basketball Cards', 'Rookies', 'Jordan', 'Kobe', 'Curry', 'Wembanyama', 'Signed', 'Flag', 'Top 100', 'Sports Cards', 'Trading Cards', 'Other'],
     'Coins': ['Australian Coins', 'World Coins', 'Gold', 'Silver', 'Proof Sets', 'Banknotes', 'Error Coins', 'Other'],
     'Streetwear': ['T-Shirts', 'Hoodies', 'Pants', 'Jackets', 'Caps', 'Other'],
     'Accessories': ['Bags', 'Socks', 'Shoe Care', 'Other']
@@ -1098,18 +1099,10 @@ export default function ProductDetailsModern({
                                                                                     )}
                                                                                 </div>
                                                                             </div>
-                                                                            {product.certNumber && product.gradingCompany === 'PSA' && (
-                                                                                <Button variant="outline" size="sm" className="h-7 text-[11px] font-bold border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200" asChild>
-                                                                                    <a
-                                                                                        href={`https://www.psacard.com/cert/${product.certNumber}`}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                    >
-                                                                                        Verify PSA <ExternalLink className="h-3 w-3 ml-1" />
-                                                                                    </a>
-                                                                                </Button>
-                                                                            )}
                                                                         </div>
+                                                                        {product.certNumber && product.gradingCompany === 'PSA' && (
+                                                                            <PsaCertBadge certNumber={product.certNumber} />
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                                 {product.cardNumber && (

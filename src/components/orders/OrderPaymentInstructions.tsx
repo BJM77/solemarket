@@ -38,6 +38,7 @@ function CopyRow({ label, value, mono }: { label: string; value: string; mono?: 
 export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
     const [d, setD] = useState<Details | null>(null);
     const [err, setErr] = useState<string | null>(null);
+    const [copiedAll, setCopiedAll] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -65,15 +66,41 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
         <section aria-label="Payment instructions" className="space-y-4 rounded-2xl border-2 border-primary bg-primary/5 p-5">
             {d.paymentMethod === 'payid' ? (
                 <>
-                    <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-6 w-6 shrink-0 text-primary" aria-hidden />
-                        <div>
-                            <h3 className="text-lg font-black text-foreground">Pay {d.sellerName || 'the seller'} by PayID</h3>
-                            <p className="text-sm text-foreground/80">
-                                Transfer the exact amount from your banking app using the PayID and reference below.
-                                {due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
-                            </p>
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="h-6 w-6 shrink-0 text-primary" aria-hidden />
+                            <div>
+                                <h3 className="text-lg font-black text-foreground">Pay {d.sellerName || 'the seller'} by PayID</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Transfer the exact amount from your banking app using the PayID and reference below.
+                                    {due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
+                                </p>
+                            </div>
                         </div>
+                        {d.payId && (
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="min-h-11 gap-1.5 font-bold bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+                                data-testid="copy-all-payid-btn"
+                                onClick={async () => {
+                                    const summary = [
+                                        `PayID: ${d.payId!.payId}`,
+                                        d.payId!.accountName ? `Account Name: ${d.payId!.accountName}` : null,
+                                        `Amount: $${formatPrice(d.totalAmount)} AUD`,
+                                        `Reference: ${d.paymentReference}`,
+                                    ].filter(Boolean).join('\n');
+                                    try {
+                                        await navigator.clipboard.writeText(summary);
+                                        setCopiedAll(true);
+                                        setTimeout(() => setCopiedAll(false), 2000);
+                                    } catch { /* ignore */ }
+                                }}
+                            >
+                                {copiedAll ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                {copiedAll ? 'Copied All Details' : 'Copy PayID + Reference'}
+                            </Button>
+                        )}
                     </div>
                     {d.payId ? (
                         <div className="grid gap-3">

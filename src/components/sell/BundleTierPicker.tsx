@@ -13,7 +13,7 @@ export const TIER_STYLE: Record<BundleTier, string> = {
  * Bronze / Silver / Gold tick boxes. Behaves like a radio group that can be cleared:
  * ticking one unticks the others; unticking the current one clears the tier.
  */
-export function BundleTierPicker({ category, value, onChange }: { category?: string; value?: string | null; onChange: (v: BundleTier | null) => void }) {
+export function BundleTierPicker({ category, value, autoAddedNotice, onChange }: { category?: string; value?: string | null; autoAddedNotice?: string; onChange: (v: BundleTier | null) => void }) {
     const settings = useTierSettings();
     const group = tierGroupFor(category);
     if (!group) return null;
@@ -25,6 +25,11 @@ export function BundleTierPicker({ category, value, onChange }: { category?: str
                     Optional. Buyers get a fixed bundle price when they buy enough of your {groupNoun(group, 2)} from the same tier. Any {groupNoun(group, 1)} can go in any tier.
                 </p>
             </div>
+            {autoAddedNotice && (
+                <div className="rounded-md bg-orange-500/10 border border-orange-500/30 px-2.5 py-1.5 text-xs font-medium text-orange-800 dark:text-orange-300" data-testid="multibuy-auto-notice">
+                    {autoAddedNotice}
+                </div>
+            )}
             <div className="grid grid-cols-3 gap-2">
                 {BUNDLE_TIERS.map(t => {
                     const checked = value === t;

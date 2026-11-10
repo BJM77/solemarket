@@ -168,7 +168,7 @@ export const brandConfig: BrandConfig = {
     features: {
         enableWTB: getEnvBool('ENABLE_WTB', true),
         enableBidsy: getEnvBool('ENABLE_BIDSY', false),
-        enableConsignment: getEnvBool('ENABLE_CONSIGNMENT', true),
+        enableConsignment: getEnvBool('ENABLE_CONSIGNMENT', false),
         enableVault: getEnvBool('ENABLE_VAULT', false),
         enableAIGrading: getEnvBool('ENABLE_AI_GRADING', false),
         enablePriceAssistant: getEnvBool('ENABLE_PRICE_ASSISTANT', true),

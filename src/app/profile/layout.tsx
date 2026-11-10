@@ -68,6 +68,7 @@ export default function ProfileLayout({
   const getCurrentTab = () => {
     if (pathname.includes('/favorites')) return 'favorites';
     if (pathname.includes('/saved-searches')) return 'saved-searches';
+    if (pathname.includes('/collection')) return 'collection';
     if (pathname.includes('/listings')) return 'listings';
     if (pathname.includes('/offers')) return 'offers';
     return 'profile';
@@ -106,21 +107,24 @@ export default function ProfileLayout({
         {/* Right Content */}
         <main className="lg:col-span-3">
           <Tabs value={getCurrentTab()} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 max-w-lg mb-6">
+            <TabsList className="flex flex-wrap h-auto gap-1 w-full mb-6 p-1">
               <TabsTrigger value="profile" asChild>
-                <Link href="/profile"><UserIcon className="w-4 h-4 mr-2" />Profile</Link>
+                <Link href="/profile"><UserIcon className="w-4 h-4 mr-1.5" />Profile</Link>
               </TabsTrigger>
               <TabsTrigger value="listings" asChild>
-                <Link href="/profile/listings"><ShoppingBag className="w-4 h-4 mr-2" />My Listings</Link>
+                <Link href="/profile/listings"><ShoppingBag className="w-4 h-4 mr-1.5" />My Listings</Link>
+              </TabsTrigger>
+              <TabsTrigger value="collection" asChild>
+                <Link href="/profile/collection"><ShoppingBag className="w-4 h-4 mr-1.5" />My Collection</Link>
               </TabsTrigger>
               <TabsTrigger value="offers" asChild>
-                <Link href="/profile/offers"><DollarSign className="w-4 h-4 mr-2" />Offers</Link>
+                <Link href="/profile/offers"><DollarSign className="w-4 h-4 mr-1.5" />Offers</Link>
               </TabsTrigger>
               <TabsTrigger value="favorites" asChild>
-                <Link href="/profile/favorites"><Heart className="w-4 h-4 mr-2" />Favorites</Link>
+                <Link href="/profile/favorites"><Heart className="w-4 h-4 mr-1.5" />Favorites</Link>
               </TabsTrigger>
               <TabsTrigger value="saved-searches" asChild>
-                <Link href="/profile/saved-searches"><Bell className="w-4 h-4 mr-2" />Saved searches</Link>
+                <Link href="/profile/saved-searches"><Bell className="w-4 h-4 mr-1.5" />Saved searches</Link>
               </TabsTrigger>
             </TabsList>
             {/* The active page content will be rendered here */}

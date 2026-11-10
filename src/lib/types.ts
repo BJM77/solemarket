@@ -137,6 +137,7 @@ export type Product = {
   uniqueViews?: number; // Unique views for auto-repricing
   lastViewedTimestamp?: Timestamp; // Timestamp of the most recent view for auto-repricing
   isVault?: boolean;
+  storefrontId?: 'basketball' | 'coins' | 'pokemon' | 'seller';
   allowLocalPickup?: boolean;
   externalUrl?: string;
   externalSource?: 'facebook_marketplace' | 'other';
