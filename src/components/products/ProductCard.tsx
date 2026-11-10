@@ -1086,7 +1086,7 @@ export default function ProductCard({
                 US {product.size.replace('US ', '')}
               </span>
             )}
-            {!isCardCategory(product.category) && !isBasketballSneaker(product) && (
+            {!isCardCategory(product.category) && !isCoinCategory(product.category) && !isBasketballSneaker(product) && (
               <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded pointer-events-auto shrink-0 tracking-wider">
                 Lifestyle
               </span>

@@ -102,7 +102,7 @@ export function activeFilterChips(params: Partial<ProductSearchParams>, pageDefa
     if (key === 'yearRange' && Array.isArray(value)) { chips.push({ key, label: `Year: ${value[0]}–${value[1]}` }); continue; }
     if (Array.isArray(value)) {
       for (const v of value) {
-        const prefix = key === 'sizes' ? 'Size: ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'grades' ? 'Grade: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : '';
+        const prefix = key === 'sizes' ? 'Size: US ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'grades' ? 'Grade: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : '';
         chips.push({ key, value: String(v), label: `${prefix}${v}` });
       }
       continue;

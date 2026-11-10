@@ -410,13 +410,20 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
         if (!p.gradingCompany || !filterGradingInMemory.includes(p.gradingCompany)) return false;
       }
 
-      // 7b. Specific Grade Filter (in memory, e.g. PSA 10, 9.5, etc.)
+      // 7b. Specific Grade Filter (in memory, e.g. "PSA 10", "BGS 9.5", "Raw")
       if (searchParams.grades && Array.isArray(searchParams.grades) && searchParams.grades.length > 0) {
-        if (!p.grade) return false;
-        const normGrade = String(p.grade).replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+        const rawGrade = String(p.grade || '').trim();
+        const isRaw = !rawGrade || /^raw$/i.test(rawGrade);
+        const gradeCo = (rawGrade.match(/^(PSA|BGS|CGC|SGC)/i)?.[1] || p.gradingCompany || '').toUpperCase();
+        const gradeNum = rawGrade.replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
         const matchesGrade = searchParams.grades.some((g: string) => {
-          const target = String(g).replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
-          return normGrade === target || String(p.grade).toLowerCase().includes(target.toLowerCase());
+          const target = String(g).trim();
+          if (/^raw$/i.test(target)) return isRaw && !p.gradingCompany;
+          if (isRaw) return false;
+          const targetCo = (target.match(/^(PSA|BGS|CGC|SGC)/i)?.[1] || '').toUpperCase();
+          const targetNum = target.replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+          if (targetNum !== gradeNum) return false;
+          return !targetCo || !gradeCo || targetCo === gradeCo;
         });
         if (!matchesGrade) return false;
       }
@@ -449,12 +456,14 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
         if (!fullText.includes(targetModel)) return false;
       }
 
-      // 7g. Sneaker Size Gender (in memory, e.g. women / kids / men)
+      // 7g. Sneaker Size Gender (in memory, whole-word match so "ships" or "kings" don't count as kids' sizes)
       if (searchParams.sizeGender && searchParams.sizeGender !== 'all') {
         const fullText = `${p.title} ${p.size || ''} ${p.description || ''}`.toLowerCase();
-        if (searchParams.sizeGender === 'women' && !fullText.includes('women') && !fullText.includes('wm')) return false;
-        if (searchParams.sizeGender === 'kids' && !fullText.includes('kid') && !fullText.includes('gs') && !fullText.includes('ps') && !fullText.includes('toddler') && !fullText.includes('youth')) return false;
-        if (searchParams.sizeGender === 'men' && (fullText.includes('women') || fullText.includes('wm') || fullText.includes('gs') || fullText.includes('ps'))) return false;
+        const isWomens = /\b(women'?s?|womens|wmns|wms)\b/.test(fullText);
+        const isKids = /\b(kids?'?|gs|ps|td|toddler|youth|grade school|preschool|infant)\b/.test(fullText);
+        if (searchParams.sizeGender === 'women' && !isWomens) return false;
+        if (searchParams.sizeGender === 'kids' && !isKids) return false;
+        if (searchParams.sizeGender === 'men' && (isWomens || isKids)) return false;
       }
 
       // 8. Deal Tiers Filter (in memory)

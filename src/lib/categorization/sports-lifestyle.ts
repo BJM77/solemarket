@@ -1,5 +1,11 @@
 import type { Product } from '@/lib/types';
-import { isCardCategory } from '@/lib/constants/marketplace';
+import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Whole-word / whole-phrase match so short keywords like 'kd' or 'f1' don't match inside other words. */
+export function hasKeyword(text: string, keywords: string[]): boolean {
+  return keywords.some((kw) => new RegExp(`(^|[^a-z0-9])${escapeRe(kw)}($|[^a-z0-9])`, 'i').test(text));
+}
 
 const BASKETBALL_SNEAKER_KEYWORDS = [
   'jordan',
@@ -51,11 +57,11 @@ const BASKETBALL_SNEAKER_KEYWORDS = [
  * If false, it's non-basketball / lifestyle footwear (e.g. Stan Smith, Samba, 550, Air Max, runners).
  */
 export function isBasketballSneaker(p: Product): boolean {
-  if (isCardCategory(p.category)) return false;
+  if (isCardCategory(p.category) || isCoinCategory(p.category)) return false;
   const brand = (p.brand || '').toLowerCase();
   if (brand === 'jordan') return true;
   const text = `${p.title} ${p.subCategory || ''} ${p.model || ''} ${p.description || ''}`.toLowerCase();
-  return BASKETBALL_SNEAKER_KEYWORDS.some((kw) => text.includes(kw));
+  return hasKeyword(text, BASKETBALL_SNEAKER_KEYWORDS);
 }
 
 const OTHER_SPORTS_KEYWORDS = [
@@ -83,5 +89,5 @@ const OTHER_SPORTS_KEYWORDS = [
 export function isNonBasketballSportCard(p: Product): boolean {
   if (!isCardCategory(p.category)) return false;
   const text = `${p.title} ${p.subCategory || ''} ${p.description || ''}`.toLowerCase();
-  return OTHER_SPORTS_KEYWORDS.some((kw) => text.includes(kw));
+  return hasKeyword(text, OTHER_SPORTS_KEYWORDS);
 }
