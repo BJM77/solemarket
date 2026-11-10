@@ -320,7 +320,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   // Server counts can't see in-memory filters; don't show a count that could be wrong.
   // Counts can't exclude Pokémon either, so skip them where Pokémon could be in the results.
   const pokemonCouldAppear = hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory;
-  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating);
+  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
   if (searchParams.countOnly) {
@@ -408,6 +408,53 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
       // 7. Grading Filter (in memory)
       if (filterGradingInMemory) {
         if (!p.gradingCompany || !filterGradingInMemory.includes(p.gradingCompany)) return false;
+      }
+
+      // 7b. Specific Grade Filter (in memory, e.g. PSA 10, 9.5, etc.)
+      if (searchParams.grades && Array.isArray(searchParams.grades) && searchParams.grades.length > 0) {
+        if (!p.grade) return false;
+        const normGrade = String(p.grade).replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+        const matchesGrade = searchParams.grades.some((g: string) => {
+          const target = String(g).replace(/^(PSA|BGS|CGC|SGC)\s*/i, '').trim();
+          return normGrade === target || String(p.grade).toLowerCase().includes(target.toLowerCase());
+        });
+        if (!matchesGrade) return false;
+      }
+
+      // 7c. League Filter (in memory)
+      if (searchParams.league) {
+        const targetLeague = searchParams.league.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''} ${p.subCategory || ''}`.toLowerCase();
+        if (!fullText.includes(targetLeague)) return false;
+      }
+
+      // 7d. Team Filter (in memory)
+      if (searchParams.team) {
+        const targetTeam = searchParams.team.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''}`.toLowerCase();
+        if (!fullText.includes(targetTeam)) return false;
+      }
+
+      // 7e. Player Filter (in memory)
+      if (searchParams.player) {
+        const targetPlayer = searchParams.player.toLowerCase();
+        const fullText = `${p.title} ${p.description || ''} ${p.subCategory || ''}`.toLowerCase();
+        if (!fullText.includes(targetPlayer)) return false;
+      }
+
+      // 7f. Sneaker Model Filter (in memory)
+      if (searchParams.model) {
+        const targetModel = searchParams.model.toLowerCase();
+        const fullText = `${p.model || ''} ${p.title}`.toLowerCase();
+        if (!fullText.includes(targetModel)) return false;
+      }
+
+      // 7g. Sneaker Size Gender (in memory, e.g. women / kids / men)
+      if (searchParams.sizeGender && searchParams.sizeGender !== 'all') {
+        const fullText = `${p.title} ${p.size || ''} ${p.description || ''}`.toLowerCase();
+        if (searchParams.sizeGender === 'women' && !fullText.includes('women') && !fullText.includes('wm')) return false;
+        if (searchParams.sizeGender === 'kids' && !fullText.includes('kid') && !fullText.includes('gs') && !fullText.includes('ps') && !fullText.includes('toddler') && !fullText.includes('youth')) return false;
+        if (searchParams.sizeGender === 'men' && (fullText.includes('women') || fullText.includes('wm') || fullText.includes('gs') || fullText.includes('ps'))) return false;
       }
 
       // 8. Deal Tiers Filter (in memory)

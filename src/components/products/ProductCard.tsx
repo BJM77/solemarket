@@ -51,6 +51,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
 import { SmartImage } from './SmartImage';
 import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
+import { isBasketballSneaker, isNonBasketballSportCard } from '@/lib/categorization/sports-lifestyle';
 
 
 
@@ -1083,6 +1084,16 @@ export default function ProductCard({
             {!isCardCategory(product.category) && product.size && (
               <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-700 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded pointer-events-auto shrink-0 uppercase tracking-tighter">
                 US {product.size.replace('US ', '')}
+              </span>
+            )}
+            {!isCardCategory(product.category) && !isBasketballSneaker(product) && (
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded pointer-events-auto shrink-0 tracking-wider">
+                Lifestyle
+              </span>
+            )}
+            {isCardCategory(product.category) && isNonBasketballSportCard(product) && (
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[8px] sm:text-[9px] font-medium px-1.5 py-0.5 rounded pointer-events-auto shrink-0">
+                Other Sport
               </span>
             )}
           </div>

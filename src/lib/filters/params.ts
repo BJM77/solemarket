@@ -51,7 +51,7 @@ export function sizeMatches(itemSize: string | undefined | null, selected: strin
   return selected.some((s) => normalizeSize(s) === n);
 }
 
-const LIST_KEYS = new Set(['conditions', 'sellers', 'categories', 'sizes', 'gradingCompanies', 'multiCardTiers']);
+const LIST_KEYS = new Set(['conditions', 'sellers', 'categories', 'sizes', 'gradingCompanies', 'multiCardTiers', 'grades']);
 const RANGE_KEYS = new Set(['priceRange', 'yearRange']);
 
 /** URLSearchParams / Next searchParams record -> ProductSearchParams overlayed on `base`. */
@@ -102,13 +102,18 @@ export function activeFilterChips(params: Partial<ProductSearchParams>, pageDefa
     if (key === 'yearRange' && Array.isArray(value)) { chips.push({ key, label: `Year: ${value[0]}–${value[1]}` }); continue; }
     if (Array.isArray(value)) {
       for (const v of value) {
-        const prefix = key === 'sizes' ? 'Size: US ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : '';
+        const prefix = key === 'sizes' ? 'Size: ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'grades' ? 'Grade: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : '';
         chips.push({ key, value: String(v), label: `${prefix}${v}` });
       }
       continue;
     }
     const label = key === 'q' ? `Search: ${value}`
       : key === 'brand' || key === 'manufacturer' ? `Brand: ${value}`
+      : key === 'model' ? `Model: ${value}`
+      : key === 'league' ? `League: ${value}`
+      : key === 'team' ? `Team: ${value}`
+      : key === 'player' ? `Player: ${value}`
+      : key === 'sizeGender' ? `Sizing: ${value === 'women' ? "Women's" : value === 'kids' ? "Kids'" : "Men's"}`
       : key === 'subCategory' ? `${value}`
       : key === 'verifiedOnly' ? 'Verified sellers'
       : key === 'minRating' ? `Seller ${value}★+`
@@ -139,14 +144,15 @@ export function facetCategory(category?: string | null): FacetCategory {
 export interface FacetConfig {
   brand: boolean; size: boolean; sneakerCondition: boolean; cardSubCategory: boolean;
   grading: boolean; manufacturer: boolean; year: boolean; dealTiers: boolean;
+  grades: boolean; basketballMetadata: boolean; sneakerModel: boolean;
 }
 
 export function facetsFor(category?: string | null): FacetConfig {
   switch (facetCategory(category)) {
-    case 'sneakers': return { brand: true, size: true, sneakerCondition: true, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false };
-    case 'cards': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: true, grading: true, manufacturer: true, year: true, dealTiers: true };
-    case 'coins': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: false, grading: true, manufacturer: false, year: true, dealTiers: false };
-    default: return { brand: true, size: false, sneakerCondition: false, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false };
+    case 'sneakers': return { brand: true, size: true, sneakerCondition: true, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false, grades: false, basketballMetadata: false, sneakerModel: true };
+    case 'cards': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: true, grading: true, manufacturer: true, year: true, dealTiers: true, grades: true, basketballMetadata: true, sneakerModel: false };
+    case 'coins': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: false, grading: true, manufacturer: false, year: true, dealTiers: false, grades: true, basketballMetadata: false, sneakerModel: false };
+    default: return { brand: true, size: false, sneakerCondition: false, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false, grades: false, basketballMetadata: false, sneakerModel: false };
   }
 }
 
