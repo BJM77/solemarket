@@ -889,7 +889,7 @@ export default function ProductDetailsModern({
             </Dialog>
 
             <div className="max-w-[1440px] mx-auto px-4 pt-1 md:pt-2 lg:pt-3">
-                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-4 lg:gap-6 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
                     {/* Left Column: Back + Breadcrumbs, Gallery */}
                     <div className="space-y-2 lg:space-y-3 min-w-0">
                         {/* Header Row: Back button next to the breadcrumbs */}
@@ -920,7 +920,7 @@ export default function ProductDetailsModern({
                         </div>
 
                         {/* Image Gallery */}
-                        {/* Phones keep a capped, centred photo; desktop gets the full 65% column with thumbnails beside the photo */}
+                        {/* Phones keep a capped, centred photo; desktop gets the full 50% column with thumbnails beside the photo */}
                         <div className="w-full mx-auto md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
                                 images={product.imageUrls}
