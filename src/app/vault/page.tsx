@@ -182,7 +182,7 @@ export default function VaultPage() {
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="order-2 md:order-1 space-y-6">
                   <BenefitItem title="100% Authenticity Guarantee" desc="If the item is fake or not as described, we return your money instantly. Full stop." />
-                  <BenefitItem title="Professional Inspection" desc="We check corners, edges, and surface conditions for cards, and authenticity for coins/memorabilia." />
+                  <BenefitItem title="Professional Inspection" desc="We check corners, edges, and surface conditions for cards, and authenticity for memorabilia." />
                   <BenefitItem title="Secure Shipping" desc="We repackage the item in professional-grade protection for the final leg of the journey." />
                   <div className="pt-4">
                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8">Browse Vault Items</Button>

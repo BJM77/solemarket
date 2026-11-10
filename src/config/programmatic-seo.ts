@@ -26,10 +26,7 @@ export const PROGRAMMATIC_ROUTES: ProgrammaticRoute[] = [
     { path: 'fleer/michael-jordan', category: 'cards', searchVolume: 6100, competition: 38, priority: 'high', hasInventory: true },
     // MEDIUM priority
     { path: 'donruss-optic/anthony-edwards', category: 'cards', searchVolume: 2100, competition: 25, priority: 'medium', hasInventory: true },
-
-    // --- COINS ---
-    // HIGH priority
-    { path: 'australia/penny/1930', category: 'coins', searchVolume: 5400, competition: 25, priority: 'high', hasInventory: true }
+    // Coins aren't part of benched.au, so there are no coin landing pages here.
 ];
 
 /**

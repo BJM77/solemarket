@@ -38,13 +38,6 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
             { label: 'Drops', href: '/card-drops', icon: Star },
             { label: 'Rookies', href: '/cards?subCategory=Rookies', icon: History },
         ];
-    } else if (pathname === '/coins' || pathname.includes('category=Coins')) {
-        navItems = [
-            { label: 'Home', href: '/', icon: Home },
-            { label: 'Australian', href: '/coins?subCategory=Australian%20Coins', icon: Flame },
-            { label: 'Gold', href: '/coins?subCategory=Gold', icon: Star },
-            { label: 'World', href: '/coins?subCategory=World%20Coins', icon: History },
-        ];
     }
 
     return (

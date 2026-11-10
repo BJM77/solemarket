@@ -114,7 +114,6 @@ export function ConsignmentForm() {
                                 <SelectContent>
                                     <SelectItem value="Sports Cards">Sports Cards</SelectItem>
                                     <SelectItem value="TCG">TCG (Pokémon, Magic, etc.)</SelectItem>
-                                    <SelectItem value="Coins & Banknotes">Coins & Banknotes</SelectItem>
                                     <SelectItem value="Comics">Comics</SelectItem>
                                     <SelectItem value="Sealed Product">Sealed Product</SelectItem>
                                     <SelectItem value="Memorabilia">Memorabilia</SelectItem>

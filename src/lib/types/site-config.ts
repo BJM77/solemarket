@@ -1,3 +1,5 @@
+import { isCoinsHref } from '@/lib/coin-listings';
+
 export interface CategoryCardItem {
   id: string;
   name: string;
@@ -217,7 +219,6 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { label: 'Privacy', href: '/privacy' },
       ] },
       { id: 'f5', title: 'Also on Benched', links: [
-        { label: 'Coins & Bullion', href: '/coins' },
         { label: 'Pokémon', href: '/pokemon' },
         { label: 'Seller Hub', href: '/sellers' },
       ] },
@@ -241,7 +242,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
 export function mergeSiteConfig(data: Partial<SiteConfig> | null | undefined): SiteConfig {
   const d = DEFAULT_SITE_CONFIG;
   if (!data) return d;
-  return {
+  return withoutCoinLinks({
     branding: { ...d.branding, ...(data.branding || {}) },
     hero: { ...d.hero, ...(data.hero || {}) },
     sections: data.sections?.length ? data.sections : d.sections,
@@ -256,6 +257,27 @@ export function mergeSiteConfig(data: Partial<SiteConfig> | null | undefined): S
     },
     announcement: { ...d.announcement, ...(data.announcement || {}) },
     ...(data.updatedAt ? { updatedAt: data.updatedAt } : {}),
+  });
+}
+
+/**
+ * Coins and bullion aren't part of benched.au. Saved site settings (Firestore
+ * site_config) may still hold links into /coins from before, so drop any menu
+ * item, sub-item, footer link, hero button or homepage tile that points there.
+ */
+export function withoutCoinLinks(c: SiteConfig): SiteConfig {
+  const keep = (href: unknown) => !isCoinsHref(href);
+  return {
+    ...c,
+    hero: { ...c.hero, buttons: (c.hero.buttons || []).filter((b) => keep(b.href)) },
+    sections: (c.sections || []).map((sec) => ({ ...sec, items: (sec.items || []).filter((i) => keep(i.href)) })),
+    menus: (c.menus || [])
+      .filter((m) => keep(m.href))
+      .map((m) => (m.subItems ? { ...m, subItems: m.subItems.filter((si) => keep(si.href)) } : m)),
+    footer: {
+      ...c.footer,
+      columns: (c.footer.columns || []).map((col) => ({ ...col, links: (col.links || []).filter((l) => keep(l.href)) })),
+    },
   };
 }
 

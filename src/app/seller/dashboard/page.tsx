@@ -265,7 +265,7 @@ export default function SellerDashboard() {
             <Package className="h-10 w-10 text-primary" />
           </div>
           <h2 className="text-2xl font-black text-foreground mb-4">Become a Seller</h2>
-          <p className="text-muted-foreground mb-8 font-medium">Start your business on Benched today. List your cards, coins, and collectibles to millions of buyers.</p>
+          <p className="text-muted-foreground mb-8 font-medium">Start your business on Benched today. List your basketball cards and sneakers for Australian buyers.</p>
           <Button asChild size="lg" className="w-full font-black uppercase rounded-xl shadow-glow">
             <Link href="/seller/agreement">Review Agreement</Link>
           </Button>

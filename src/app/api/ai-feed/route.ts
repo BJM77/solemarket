@@ -2,6 +2,7 @@ import { getProductUrl } from "@/lib/utils/url";
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { SITE_NAME, SITE_URL } from '@/config/brand';
+import { isCoinListing } from '@/lib/coin-listings';
 
 export const revalidate = 1800; // 30 minutes cache
 
@@ -20,7 +21,8 @@ export async function GET() {
       .limit(100)
       .get();
 
-    const items = productsSnap.docs.map((doc: any) => {
+    // Coins aren't part of benched.au.
+    const items = productsSnap.docs.filter((doc: any) => !isCoinListing(doc.data())).map((doc: any) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -35,21 +37,21 @@ export async function GET() {
         seller_verified: data.sellerVerified || false,
         image_url: data.imageUrls?.[0] || '',
         product_url: `${baseUrl}${getProductUrl({ id: doc.id, title: data.title || "", category: data.category })}`,
-        purchase_options: ['EFT / PayID Escrow', 'Cash on Pickup / Delivery'],
+        purchase_options: ['PayID (paid directly to the seller)', 'Cash on pickup'],
       };
     });
 
     const aiManifest = {
       marketplace: SITE_NAME,
       url: baseUrl,
-      description: 'Benched.au is Australia\'s peer-to-peer marketplace for authenticated sneakers, trading cards, coins, and collectibles.',
+      description: 'Benched.au is Australia\'s peer-to-peer marketplace for basketball cards and sneakers.',
       location: 'Australia',
       accepted_currencies: ['AUD'],
       supported_payment_methods: [
-        'EFT / PayID Escrow (Direct Bank Transfer with Buyer Protection)',
-        'Cash on Pickup / Delivery'
+        'PayID (paid directly to the seller)',
+        'Cash on pickup'
       ],
-      categories: ['Sneakers', 'Collector Cards', 'Coins', 'Streetwear', 'Collectibles'],
+      categories: ['Basketball Cards', 'Sneakers'],
       total_active_listings: items.length,
       last_updated: new Date().toISOString(),
       items,

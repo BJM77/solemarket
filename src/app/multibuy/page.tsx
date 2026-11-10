@@ -54,13 +54,13 @@ export default async function MultibuyPage({
         {tierSettings.enabled && (
         <section className="max-w-7xl mx-auto px-4 pt-6" aria-labelledby="tier-heading" data-testid="multibuy-tiers">
             <h2 id="tier-heading" className="text-lg font-black uppercase tracking-tight">Bronze, Silver &amp; Gold bundles</h2>
-            <p className="text-xs text-muted-foreground mb-3">Mix any items in the same tier from the same seller. Card tiers count cards only; coin tiers count coins only. The bundle price applies automatically in your cart.</p>
+            <p className="text-xs text-muted-foreground mb-3">Mix any cards in the same tier from the same seller. The bundle price applies automatically in your cart.</p>
             <div className="flex flex-wrap gap-2">
                 <Link href="/multibuy" className={`rounded-full border px-3 py-1.5 text-xs font-bold ${!tier ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}>All deals</Link>
                 {BUNDLE_TIERS.map(t => (
                     <Link key={t} href={`/multibuy?tier=${t}`} aria-current={tier === t ? 'page' : undefined}
                         className={`rounded-full border px-3 py-1.5 text-xs font-bold ${tier === t ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}>
-                        {TIER_LABEL[t]}: cards {tierOfferText(tierSettings.cards[t])} · coins {tierOfferText(tierSettings.coins[t])}
+                        {TIER_LABEL[t]}: {tierOfferText(tierSettings.cards[t])}
                     </Link>
                 ))}
             </div>

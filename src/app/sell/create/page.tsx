@@ -266,9 +266,10 @@ function CreateListingForm() {
     // 2. Load draft if editId exists
     if (!user || !editId) {
       const storedType = localStorage.getItem('preferredListingType') as 'sneakers' | 'collector-cards' | 'coins' | null;
-      if (storedType) {
+      // Coins aren't listed on benched.au any more; don't reopen an old coin preference.
+      if (storedType && storedType !== 'coins') {
         setSelectedType(storedType);
-        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : storedType === 'coins' ? 'Coins' : 'Collector Cards', { shouldValidate: true });
+        form.setValue('category', storedType === 'sneakers' ? 'Sneakers' : 'Collector Cards', { shouldValidate: true });
       }
       return;
     }
@@ -552,7 +553,9 @@ function CreateListingForm() {
         if (norm.includes('card')) {
           finalType = 'collector-cards';
         } else if (norm.includes('coin')) {
-          finalType = 'coins';
+          // Benched is for basketball cards and sneakers; coins aren't accepted.
+          notifyCoinsNotAccepted();
+          return;
         } else if (norm.includes('sneaker') || norm.includes('shoe')) {
           finalType = 'sneakers';
         }
@@ -585,6 +588,16 @@ function CreateListingForm() {
       setAnalysisStage('');
       setAnalyzingFields({});
     }
+  };
+
+  const notifyCoinsNotAccepted = () => {
+    setSelectedType(null);
+    setCurrentStep(0);
+    toast({
+      title: "Coins aren't listed on Benched",
+      description: "Benched is for basketball cards and sneakers, so coin and bullion listings aren't accepted.",
+      variant: "destructive",
+    });
   };
 
   const applyAiDataToForm = (suggestions: any, fieldMap: Record<string, boolean>, detectedCategory: string, isCard: boolean) => {
@@ -663,15 +676,13 @@ function CreateListingForm() {
     let optimisticType: 'sneakers' | 'collector-cards' | 'coins' | null = null;
     if (fileNames.includes('card') || fileNames.includes('panini') || fileNames.includes('topps') || fileNames.includes('pokemon')) {
       optimisticType = 'collector-cards';
-    } else if (fileNames.includes('coin') || fileNames.includes('mint') || fileNames.includes('penny') || fileNames.includes('florin')) {
-      optimisticType = 'coins';
     } else if (fileNames.includes('shoe') || fileNames.includes('sneaker') || fileNames.includes('nike') || fileNames.includes('jordan') || fileNames.includes('yeezy')) {
       optimisticType = 'sneakers';
     }
 
     if (optimisticType) {
       setSelectedType(optimisticType);
-      form.setValue('category', optimisticType === 'sneakers' ? 'Sneakers' : optimisticType === 'coins' ? 'Coins' : 'Collector Cards');
+      form.setValue('category', optimisticType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
     }
 
     // Save snapshot of empty values for rollback
@@ -747,7 +758,9 @@ function CreateListingForm() {
         if (norm.includes('card')) {
           finalType = 'collector-cards';
         } else if (norm.includes('coin')) {
-          finalType = 'coins';
+          // Benched is for basketball cards and sneakers; coins aren't accepted.
+          notifyCoinsNotAccepted();
+          return;
         } else if (norm.includes('sneaker') || norm.includes('shoe')) {
           finalType = 'sneakers';
         }
@@ -755,7 +768,7 @@ function CreateListingForm() {
         setSelectedType(finalType);
         if (finalType) {
           localStorage.setItem('preferredListingType', finalType);
-          form.setValue('category', finalType === 'sneakers' ? 'Sneakers' : finalType === 'coins' ? 'Coins' : 'Collector Cards');
+          form.setValue('category', finalType === 'sneakers' ? 'Sneakers' : 'Collector Cards');
         } else {
           form.setValue('category', detectedCategory);
         }

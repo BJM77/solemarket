@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Create an account',
-  description: 'Join Benched to buy and sell sneakers, collector cards and coins across Australia.',
+  description: 'Join Benched to buy and sell basketball cards and sneakers across Australia.',
   robots: { index: false, follow: true },
 };
 
