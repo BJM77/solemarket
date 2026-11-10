@@ -28,12 +28,12 @@ import { Loader2, Send } from "lucide-react";
 import { submitPartnerInquiryAction } from "@/app/actions/system/partners";
 
 const formSchema = z.object({
-    storeName: z.string().min(2, "Store name is required"),
+    storeName: z.string().min(2, "Name is required"),
     contactName: z.string().min(2, "Contact person name is required"),
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
     storeType: z.string({
-        required_error: "Please select a store type",
+        required_error: "Please select a partnership type",
     }),
     monthlyVolume: z.string().optional(),
     message: z.string().optional(),
@@ -62,7 +62,7 @@ export function PartnerContactForm() {
             if (result.success) {
                 toast({
                     title: "Inquiry Received",
-                    description: "Thanks for your interest! Our partnership team will contact you shortly.",
+                    description: "Thanks! We'll reply by email.",
                 });
                 form.reset();
             } else {
@@ -83,7 +83,7 @@ export function PartnerContactForm() {
         <div className="bg-card border rounded-xl p-6 shadow-sm">
             <h3 className="text-xl font-bold mb-4 font-headline">Partner Inquiry</h3>
             <p className="text-muted-foreground mb-6 text-sm">
-                Tell us about your business and we'll tailor a package for you.
+                Tell us who you are and how you'd like to work with Benched. We'll get back to you by email.
             </p>
 
             <Form {...form}>
@@ -93,9 +93,9 @@ export function PartnerContactForm() {
                         name="storeName"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Store Name</FormLabel>
+                                <FormLabel>Business, Club or Channel Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g. Vintage Vault" {...field} />
+                                    <Input placeholder="e.g. Perth Card Co." {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -122,7 +122,7 @@ export function PartnerContactForm() {
                             name="storeType"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Store Type</FormLabel>
+                                    <FormLabel>Partnership Type</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -130,11 +130,11 @@ export function PartnerContactForm() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="op_shop">Op Shop / Charity Store</SelectItem>
-                                            <SelectItem value="antique">Antique Store</SelectItem>
-                                            <SelectItem value="collectibles">Collectibles Store</SelectItem>
-                                            <SelectItem value="pawn">Pawn Shop</SelectItem>
-                                            <SelectItem value="estate">Estate Sales</SelectItem>
+                                            <SelectItem value="shop">Card shop or sneaker store</SelectItem>
+                                            <SelectItem value="breaker">Breaker or card-drop host</SelectItem>
+                                            <SelectItem value="club">Basketball club, league or association</SelectItem>
+                                            <SelectItem value="creator">Content creator or collector</SelectItem>
+                                            <SelectItem value="event">Card show or event</SelectItem>
                                             <SelectItem value="other">Other</SelectItem>
                                         </SelectContent>
                                     </Select>

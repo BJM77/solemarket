@@ -257,7 +257,7 @@ export default function CompleteProfilePage() {
                                         <FormItem>
                                             <FormLabel>Store Description (Optional)</FormLabel>
                                             <FormControl>
-                                                <Textarea placeholder="Specializing in rare cards and coins..." {...field} />
+                                                <Textarea placeholder="Specialising in basketball cards and sneakers..." {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

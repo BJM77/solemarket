@@ -7,6 +7,7 @@ import { Search, Loader2 } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { getActiveProducts } from '@/lib/firebase/firestore';
 import { withoutPokemon } from '@/lib/pokemon-listings';
+import { withoutCoins } from '@/lib/coin-listings';
 import type { Product } from '@/lib/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
@@ -22,7 +23,7 @@ export function InstantSearchModal({ open, onOpenChange }: { open: boolean, onOp
       setLoading(true);
       // In a real app at scale, this should hit an API endpoint that returns a cached lite-version of products
       getActiveProducts(500).then(data => {
-        setProducts(withoutPokemon(data));
+        setProducts(withoutCoins(withoutPokemon(data)));
         setLoading(false);
       }).catch(err => {
         console.error("Search fetch error", err);

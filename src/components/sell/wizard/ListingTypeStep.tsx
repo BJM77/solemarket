@@ -3,7 +3,7 @@
 import { useRef, useState, DragEvent, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Upload, Loader2, Camera, Layers, ChevronRight, Footprints, RectangleVertical, Coins } from 'lucide-react';
+import { Sparkles, Upload, Loader2, Camera, Layers, ChevronRight, Footprints, RectangleVertical } from 'lucide-react';
 import { cn } from "@/lib/utils/ui";
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,6 @@ export function ListingTypeStep({
     const categories = [
         { type: 'sneakers' as const, label: 'Sneakers', note: 'Jordan, Nike, adidas and more', Icon: Footprints },
         { type: 'collector-cards' as const, label: 'Basketball Cards', note: 'Raw and graded NBA, WNBA, NBL', Icon: RectangleVertical },
-        { type: 'coins' as const, label: 'Coins & Bullion', note: 'Listed in the Coins section', Icon: Coins },
     ];
 
     return (
@@ -175,7 +174,7 @@ export function ListingTypeStep({
                 <div className="h-px flex-1 bg-border" />
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {categories.map(({ type, label, note, Icon }) => {
                     const selected = selectedType === type;
                     return (

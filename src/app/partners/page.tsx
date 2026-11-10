@@ -1,253 +1,218 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Search, Zap, BarChart3, Store, Lock, Globe, Sparkles } from "lucide-react";
+import { Store, Package, Users, Video, CalendarDays, ArrowRight, Check } from "lucide-react";
 import { PartnerContactForm } from "@/components/partners/PartnerContactForm";
 import Link from "next/link";
 import { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Card Shops & Hobby Store Partners | Benched Australia",
-    description: "Exclusive partnership program for Australian card shops, sneaker boutiques, and verified hobby sellers. Fast listing, local collectors, zero listing fees.",
+    title: "Partner with Benched | Basketball Cards & Sneakers Australia",
+    description: "Five ways to partner with Benched, Australia's basketball card and sneaker marketplace: shops, breakers, clubs, creators and card shows.",
     robots: {
         index: false, // Keep hidden / unindexed until publicly announced
         follow: false,
     },
 };
 
+interface Opportunity {
+    id: string;
+    title: string;
+    summary: string;
+    points: { text: string; href?: string }[];
+    cta: string;
+    Icon: LucideIcon;
+}
+
+/** The five ways to partner. Keep every point true to what the site does today. */
+const OPPORTUNITIES: Opportunity[] = [
+    {
+        id: "shops",
+        title: "Card shops & sneaker stores",
+        summary: "List your basketball card and sneaker stock on Benched and sell to Australian buyers alongside your shopfront.",
+        points: [
+            { text: "Bulk listing tools: photo scan for cards, CSV upload and Facebook Marketplace import", href: "/sell" },
+            { text: "Your own store page with all your listings and your pickup location" },
+            { text: "Bronze, Silver and Gold bundle tiers to move cheaper singles", href: "/multibuy" },
+        ],
+        cta: "Talk to us about listing your stock",
+        Icon: Store,
+    },
+    {
+        id: "breakers",
+        title: "Breakers & card-drop hosts",
+        summary: "Sell the singles and hits from your breaks, and work with us on featuring upcoming breaks and drops.",
+        points: [
+            { text: "Fast photo listing for raw and graded cards" },
+            { text: "Multi-buy tiers suit lots of low-value base and inserts" },
+            { text: "See what collectors are hunting on Wanted to Buy", href: "/wtb" },
+        ],
+        cta: "Tell us about your breaks",
+        Icon: Package,
+    },
+    {
+        id: "clubs",
+        title: "Basketball clubs, leagues & associations",
+        summary: "Get a free club page where your members and families buy and sell shoes, cards and gear.",
+        points: [
+            { text: "A club page showing only your members' listings, with your name and logo", href: "/clubs" },
+            { text: "No setup cost and no monthly fee" },
+            { text: "Buyers pay members directly by PayID or cash on pickup" },
+        ],
+        cta: "Ask about a club page",
+        Icon: Users,
+    },
+    {
+        id: "creators",
+        title: "Content creators & collectors",
+        summary: "Make content about basketball cards or sneakers? Partner with us on features, collabs and giveaways.",
+        points: [
+            { text: "Share your store page link with your audience" },
+            { text: "Show off your collection on your Benched profile" },
+            { text: "We're open to collabs; there's no paid referral scheme yet" },
+        ],
+        cta: "Pitch us an idea",
+        Icon: Video,
+    },
+    {
+        id: "events",
+        title: "Card shows & events",
+        summary: "Running a card show, sneaker swap or meetup in Australia? Let's work together before and after the day.",
+        points: [
+            { text: "Vendors can list stock on Benched before and after the event" },
+            { text: "Buyers can arrange pickup at the event and pay by cash or PayID" },
+            { text: "Tell us your dates and we'll look at ways to help promote it" },
+        ],
+        cta: "Tell us about your event",
+        Icon: CalendarDays,
+    },
+];
+
+const FACTS = [
+    { value: "$0", label: "To list" },
+    { value: "PayID or cash", label: "Paid direct to you" },
+    { value: "Cards & sneakers", label: "Basketball focus" },
+    { value: "Australia", label: "Local buyers" },
+];
+
 export default function PartnersPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Hero Section */}
-            <section className="relative py-20 px-6 lg:px-8 bg-gradient-to-b from-primary/5 to-background overflow-hidden">
+            <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/5 to-background overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid-pattern.svg')] opacity-10 pointer-events-none" />
                 <div className="container mx-auto max-w-6xl relative z-10">
-                    <div className="flex flex-col lg:flex-row items-center gap-12">
-                        <div className="lg:w-1/2 space-y-6 text-center lg:text-left">
-                            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium border-primary/20 bg-primary/10 text-primary mb-2">
-                                Store Program • Australian Card & Sneaker Shops
-                            </Badge>
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-headline text-foreground">
-                                Turn Your Showcases <br />
-                                <span className="text-primary">Into Direct Sales.</span>
-                            </h1>
-                            <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
-                                The Australian digital storefront built specifically for card shops, sneaker stores, and volume hobbyists.
-                                Fast bulk listing, direct PayID payments, and reach Australian collectors with zero middleman friction.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                <Button size="lg" className="text-base px-8 shadow-lg shadow-primary/20 h-12" asChild>
-                                    <Link href="#contact">Apply for Partner Access</Link>
-                                </Button>
-                                <Button size="lg" variant="outline" className="text-base h-12" asChild>
-                                    <Link href="#features">Explore Benefits</Link>
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="lg:w-1/2 w-full max-w-lg">
-                            <div className="relative">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-orange-600 rounded-2xl blur opacity-30 animate-pulse"></div>
-                                <div className="relative bg-card border rounded-2xl shadow-2xl p-6 lg:p-8">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-4 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-900/40">
-                                            <div className="h-10 w-10 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center text-green-700 dark:text-green-300">
-                                                <BarChart3 className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-green-950 dark:text-green-100">Zero Commission on Direct Sales</p>
-                                                <p className="text-xs text-green-800 dark:text-green-300">Keep 100% of your listed card and sneaker prices</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4 p-3 bg-orange-50 dark:bg-orange-950/30 rounded-lg border border-orange-200 dark:border-orange-900/40">
-                                            <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center text-orange-700 dark:text-orange-300">
-                                                <Sparkles className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-orange-950 dark:text-orange-100">Rapid Camera Bulk Listing</p>
-                                                <p className="text-xs text-orange-800 dark:text-orange-300">Scan and price slabs or raw cards in bulk</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900/40">
-                                            <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300">
-                                                <Globe className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-blue-950 dark:text-blue-100">Dedicated Storefront</p>
-                                                <p className="text-xs text-blue-800 dark:text-blue-300">Your own store link with unified multi-buy deals</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="max-w-3xl mx-auto text-center space-y-6">
+                        <Badge variant="secondary" className="px-3 py-1 text-sm font-medium border-primary/20 bg-primary/10 text-primary">
+                            Partners • Basketball Cards & Sneakers in Australia
+                        </Badge>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-headline text-foreground">
+                            Partner with <span className="text-primary">Benched.</span>
+                        </h1>
+                        <p className="text-base sm:text-lg text-muted-foreground">
+                            Benched is a marketplace for basketball cards and sneakers in Australia. Buyers pay sellers
+                            directly by PayID or cash on pickup. There are five ways to work with us.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                            <Button size="lg" className="text-base px-8 shadow-lg shadow-primary/20 h-12" asChild>
+                                <Link href="#contact">Make an enquiry</Link>
+                            </Button>
+                            <Button size="lg" variant="outline" className="text-base h-12" asChild>
+                                <Link href="#opportunities">See the 5 opportunities</Link>
+                            </Button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Trust & Stats */}
-            <section className="border-y bg-muted/30 py-8">
+            {/* Facts */}
+            <section className="border-y bg-muted/30 py-8 px-4">
                 <div className="container mx-auto max-w-6xl">
-                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
-                        {[
-                            { label: "Direct PayID & Cash", value: "Instant" },
-                            { label: "Listing Fees", value: "$0" },
-                            { label: "Community", value: "Australia-Wide" },
-                            { label: "Partner Support", value: "Dedicated" },
-                        ].map((stat, i) => (
-                            <div key={i}>
-                                <p className="text-3xl font-bold font-headline text-foreground">{stat.value}</p>
-                                <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
+                        {FACTS.map((f) => (
+                            <div key={f.label}>
+                                <p className="text-xl sm:text-2xl md:text-3xl font-bold font-headline text-foreground">{f.value}</p>
+                                <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">{f.label}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Main Features */}
-            <section id="features" className="py-20 container mx-auto max-w-6xl px-6">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    <Badge variant="outline" className="mb-4">Why Partner with Benched?</Badge>
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Built for Serious Card & Sneaker Sellers</h2>
-                    <p className="text-lg text-muted-foreground">
-                        We know physical hobby shops and high-volume collectors need fast turnaround and zero marketplace fee drag.
+            {/* The five opportunities */}
+            <section id="opportunities" className="py-16 md:py-20 container mx-auto max-w-6xl px-4 sm:px-6">
+                <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
+                    <Badge variant="outline" className="mb-4">Ways to partner</Badge>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">5 partnership opportunities</h2>
+                    <p className="text-base sm:text-lg text-muted-foreground">
+                        Pick the one that fits and send us an enquiry. Listing on Benched is free.
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-primary">
-                        <CardHeader>
-                            <ShieldCheck className="w-10 h-10 text-primary mb-4" />
-                            <CardTitle>Direct Australian Payments</CardTitle>
-                            <CardDescription>Zero chargeback anxiety.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">
-                                Buyers pay you directly via PayID or cash upon local store pickup. No 14-day fund holds, and no surprise payment processor clawbacks.
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-orange-500">
-                        <CardHeader>
-                            <Search className="w-10 h-10 text-orange-700 mb-4" />
-                            <CardTitle>Comps & Price Intelligence</CardTitle>
-                            <CardDescription>Instant Australian market data.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">
-                                Check completed Benched sales alongside one-click eBay AU Sold and 130point searches. Price showcase slabs accurately without leaving your workflow.
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-card hover:shadow-lg transition-shadow border-t-4 border-t-blue-500">
-                        <CardHeader>
-                            <Zap className="w-10 h-10 text-blue-500 mb-4" />
-                            <CardTitle>Rapid Bulk Listing</CardTitle>
-                            <CardDescription>List 50 cards in minutes.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">
-                                Use our camera-based batch scanner to capture stacks of slabs or raw singles. Review names, numbers, and prices in a grid and publish in one tap.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </section>
-
-            {/* Platform Benefits */}
-            <section className="py-20 bg-muted/20 border-y">
-                <div className="container mx-auto max-w-6xl px-6">
-                    <div className="flex flex-col md:flex-row gap-12 items-start">
-                        <div className="md:w-1/3 sticky top-24">
-                            <Badge variant="outline" className="mb-4 text-primary border-primary">Hobby First</Badge>
-                            <h2 className="text-3xl md:text-4xl font-bold font-headline mb-6">Built for the Culture</h2>
-                            <p className="text-lg text-muted-foreground mb-6">
-                                Unlike generic second-hand platforms, Benched understands PSA slabs, rookie cards, sneaker colorways, and Australian domestic shipping.
-                            </p>
-                        </div>
-                        
-                        <div className="md:w-2/3 grid sm:grid-cols-2 gap-4">
-                            {[
-                                {
-                                    title: "Verified Store Profile",
-                                    desc: "Get a verified store badge, custom profile link, and showcase your physical location or Perth pickup.",
-                                    icon: <Store className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Multi-Card Deal Tiers",
-                                    desc: "Bundle cheap singles into 4 for $15 Bronze tiers or custom volume discounts automatically.",
-                                    icon: <BarChart3 className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Direct PayID Routing",
-                                    desc: "Orders display your PayID reference code so buyers transfer funds straight to your bank account.",
-                                    icon: <ShieldCheck className="w-5 h-5 text-primary" />
-                                },
-                                {
-                                    title: "Australia Post Friendly",
-                                    desc: "Standard flat-rate shipping with combined postage rules across your entire stock.",
-                                    icon: <Zap className="w-5 h-5 text-primary" />
-                                },
-                            ].map((item, i) => (
-                                <div key={i} className="p-5 bg-card border rounded-xl hover:border-primary/30 transition-colors">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            {item.icon}
+                <ol className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="partner-opportunities">
+                    {OPPORTUNITIES.map(({ id, title, summary, points, cta, Icon }, i) => (
+                        <li key={id} id={id} className="list-none">
+                            <Card className="h-full flex flex-col bg-card hover:shadow-lg transition-shadow border-t-4 border-t-primary">
+                                <CardHeader>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                            <Icon className="w-6 h-6" />
                                         </div>
-                                        <h4 className="font-bold">{item.title}</h4>
+                                        <span className="text-sm font-bold text-muted-foreground">{i + 1} of {OPPORTUNITIES.length}</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                        {item.desc}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                                    <CardTitle className="text-xl">{title}</CardTitle>
+                                    <p className="text-muted-foreground">{summary}</p>
+                                </CardHeader>
+                                <CardContent className="flex flex-1 flex-col gap-4">
+                                    <ul className="space-y-2">
+                                        {points.map((p) => (
+                                            <li key={p.text} className="flex gap-2 text-sm text-muted-foreground">
+                                                <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                                                {p.href ? (
+                                                    <Link href={p.href} className="hover:text-foreground hover:underline">{p.text}</Link>
+                                                ) : (
+                                                    <span>{p.text}</span>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <Button variant="outline" className="mt-auto w-full h-11 justify-between" asChild>
+                                        <Link href="#contact">
+                                            {cta}
+                                            <ArrowRight className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </li>
+                    ))}
+                </ol>
             </section>
 
-            {/* Pricing & Contact */}
-            <section id="contact" className="py-24 container mx-auto max-w-6xl px-6">
-                <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-                    <div className="space-y-8">
-                        <div>
-                            <h2 className="text-3xl font-bold font-headline mb-4">Partner Store Enquiries</h2>
-                            <p className="text-lg text-muted-foreground">
-                                Are you a local card shop, hobby retailer, or consignment dealer? Connect with our team to set up your verified store and bulk import inventory.
+            {/* Contact */}
+            <section id="contact" className="py-16 md:py-24 bg-muted/20 border-t">
+                <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+                    <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+                        <div className="space-y-4">
+                            <h2 className="text-3xl font-bold font-headline">Partner enquiries</h2>
+                            <p className="text-base sm:text-lg text-muted-foreground">
+                                Choose your partnership type in the form and tell us a bit about what you do. We&apos;ll get back to you by email.
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                Benched doesn&apos;t handle payments: buyers pay sellers directly by PayID or cash on pickup.
                             </p>
                         </div>
 
-                        <div className="space-y-6">
-                            <div className="flex gap-4">
-                                <div className="h-12 w-12 bg-primary/10 rounded-lg flex-shrink-0 flex items-center justify-center text-primary">
-                                    <Store className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-lg">Physical Storefront Promotion</h3>
-                                    <p className="text-muted-foreground">Highlight your local brick-and-mortar store for customer pickups.</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="h-12 w-12 bg-primary/10 rounded-lg flex-shrink-0 flex items-center justify-center text-primary">
-                                    <Lock className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-lg">Dedicated Account Manager</h3>
-                                    <p className="text-muted-foreground">Direct access to assist with catalog migration, bulk scans, and feature requests.</p>
-                                </div>
-                            </div>
+                        <div>
+                            <PartnerContactForm />
                         </div>
-                    </div>
-
-                    <div>
-                        <PartnerContactForm />
                     </div>
                 </div>
             </section>
 
             {/* Footer Simple */}
-            <footer className="py-8 text-center text-muted-foreground text-sm border-t">
+            <footer className="py-8 px-4 text-center text-muted-foreground text-sm border-t">
                 <p>&copy; {new Date().getFullYear()} Benched Australia. All rights reserved. | <Link href="/" className="hover:underline">Back to Marketplace</Link></p>
             </footer>
         </div>

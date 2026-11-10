@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
 import { STOREFRONT_HEADER, resolveStorefrontId, storefrontRootRewrite } from '@/config/storefronts';
+import { isCoinsPath } from '@/lib/coin-listings';
 
 // Cache keys in memory during Edge function execution
 let cachedPublicKeys: Record<string, string> | null = null;
@@ -66,6 +67,14 @@ export async function middleware(request: NextRequest) {
   
   if (isStaticFile || request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();
+  }
+
+  // Coins and bullion aren't part of benched.au (basketball cards and sneakers).
+  // The /coins pages stay in the codebase for a future coins.benched.au, but on
+  // every other host /coins and its sub-pages (incl. old coin listing URLs) go home.
+  const storefrontId = resolveStorefrontId(request.headers.get('x-forwarded-host') || request.headers.get('host'));
+  if (storefrontId !== 'coins' && isCoinsPath(request.nextUrl.pathname)) {
+    return NextResponse.redirect(new URL('/', request.url), 308);
   }
 
   // Multi-storefront: on a storefront's own domain (e.g. coins.benched.au), the

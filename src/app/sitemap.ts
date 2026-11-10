@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getProductUrl } from "@/lib/utils/url";
 import { sitemapChunkIndex, toSitemapDate } from "@/lib/seo/sitemap";
+import { isCoinListing } from "@/lib/coin-listings";
 
 /**
  * World-Class Sitemap Generation
@@ -71,7 +72,6 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     '/browse',
     '/shoes',
     '/cards',
-    '/coins',
     '/pokemon',
     '/sellers',
     '/card-drops',
@@ -144,10 +144,9 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
   if (id === 0) {
     try {
       const { SEO_TOPICS } = await import('@/config/seo-topics');
-      topicRoutes = SEO_TOPICS.map(topic => {
+      topicRoutes = SEO_TOPICS.filter(topic => topic.category !== 'Coins').map(topic => {
         let pathPrefix = 'shoes';
         if (topic.category === 'Collector Cards') pathPrefix = 'cards';
-        else if (topic.category === 'Coins') pathPrefix = 'coins';
 
         return {
           url: `${baseUrl}/${pathPrefix}/${topic.slug}`,
@@ -181,7 +180,8 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
-    productRoutes = activeProducts.map(p => ({
+    // Coin listings aren't part of benched.au (their /coins/... pages redirect home).
+    productRoutes = activeProducts.filter(p => !isCoinListing(p)).map(p => ({
       url: `${baseUrl}${getProductUrl(p)}`,
       lastModified: toSitemapDate(p.updatedAt, p.createdAt),
       changeFrequency: 'daily',

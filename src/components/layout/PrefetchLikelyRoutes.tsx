@@ -8,7 +8,6 @@ const NEXT_ROUTES: Record<string, string[]> = {
   '/': ['/cards', '/browse', '/shoes'],
   '/cards': ['/browse', '/multibuy'],
   '/shoes': ['/browse'],
-  '/coins': ['/browse', '/multibuy'],
   '/browse': ['/cards', '/shoes'],
 };
 

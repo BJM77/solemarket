@@ -3,7 +3,7 @@ import { PlusCircle, Layers, List, LayoutDashboard, Settings, BarChart3, Target 
 
 // Seller portal shortcuts. Lives at /sellers so it works on every storefront domain.
 const LINKS = [
-  { href: '/sell/create', label: 'List an item', desc: 'Basketball, sneakers, coins or Pokémon', Icon: PlusCircle },
+  { href: '/sell/create', label: 'List an item', desc: 'Basketball cards or sneakers', Icon: PlusCircle },
   { href: '/sell/fast-bulk', label: 'Fast Bulk upload', desc: 'Scan and publish many at once', Icon: Layers },
   { href: '/wtb', label: 'Buyer Wanted Board', desc: 'Fill open buyer requests for instant sales', Icon: Target },
   { href: '/seller/dashboard', label: 'Dashboard', desc: 'Orders, offers and messages', Icon: LayoutDashboard },

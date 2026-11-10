@@ -212,7 +212,7 @@ export default function ConsignPage() {
                                         <Star className="text-yellow-700" />
                                         <Star className="text-yellow-700" />
                                     </div>
-                                    <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's coin collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
+                                    <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's card collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
                                     <p className="font-semibold">- Sarah L., Estate Seller</p>
                                 </CardContent>
                             </Card>

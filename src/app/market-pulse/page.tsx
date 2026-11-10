@@ -8,7 +8,7 @@ import { brandConfig } from '@/config/brand';
 
 export const metadata: Metadata = {
     title: `Market Pulse Data Index | ${brandConfig.seo.defaultTitle}`,
-    description: 'Explore verified, Australian market prices and sales volume for the most popular sneakers, cards, and coins on Benched.',
+    description: 'Explore verified, Australian market prices and sales volume for the most popular sneakers and basketball cards on Benched.',
 };
 
 export const revalidate = 3600; // Cache for 1 hour
@@ -18,8 +18,7 @@ const TOP_MARKETS = [
     { slug: 'nike-dunk-low', title: 'Nike Dunk Low', category: 'shoes' },
     { slug: 'kobe-6', title: 'Nike Kobe 6 Protro', category: 'shoes' },
     { slug: 'panini-prizm-basketball', title: 'Panini Prizm NBA Cards', category: 'cards' },
-    { slug: 'michael-jordan-fleer', title: 'Michael Jordan Fleer Cards', category: 'cards' },
-    { slug: '1930-australian-penny', title: '1930 Australian Penny', category: 'coins' }
+    { slug: 'michael-jordan-fleer', title: 'Michael Jordan Fleer Cards', category: 'cards' }
 ];
 
 export default function MarketPulseIndexPage() {

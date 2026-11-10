@@ -1,4 +1,5 @@
 import { POKEMON_SUBCATEGORIES, isPokemonListing, isPokemonSubCategory } from '@/lib/pokemon-listings';
+import { isCoinListing, isCoinValue } from '@/lib/coin-listings';
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
@@ -21,6 +22,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   // Pokémon belongs to the Pokémon section; main-site feeds leave it out.
   const wantsPokemon = isPokemonSubCategory(subCategory) || isPokemonSubCategory(brand);
   const hidePokemon = !wantsPokemon && !searchParams.includePokemon;
+  // Coins and bullion aren't part of benched.au; only the (future) coins storefront asks for them.
+  const wantsCoins = isCoinValue(searchParams.category) || (searchParams.categories || []).some((c: string) => isCoinValue(c)) || isCoinValue(subCategory);
+  const hideCoins = !wantsCoins && !searchParams.includeCoins;
 
   // 1. Status Filter (Security & Visibility)
   if (userRole === 'admin' || userRole === 'superadmin') {
@@ -320,7 +324,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   // Server counts can't see in-memory filters; don't show a count that could be wrong.
   // Counts can't exclude Pokémon either, so skip them where Pokémon could be in the results.
   const pokemonCouldAppear = hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory;
-  const countIsExact = !pokemonCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
+  // Same for coins: without a category filter, coin listings could be in the server count.
+  const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
+  const countIsExact = !pokemonCouldAppear && !coinsCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
   if (searchParams.countOnly) {
@@ -366,6 +372,8 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     products = products.filter((p: Product) => {
       // 0. Pokémon lives in its own section.
       if (hidePokemon && isPokemonListing(p)) return false;
+      // 0b. Coins and bullion aren't listed on benched.au.
+      if (hideCoins && isCoinListing(p)) return false;
 
       // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
       if (!isAdminView && !(Number(p.price) > 0)) return false;

@@ -12,6 +12,10 @@ import { productFormSchema } from '@/schemas/product';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { isPokemonListing, withoutPokemon } from "@/lib/pokemon-listings";
+import { isCoinListing, withoutCoins } from "@/lib/coin-listings";
+
+/** Main-site rails leave out Pokémon (own section) and coins (not on benched.au). */
+const mainSiteOnly = <T extends Product>(items: T[]): T[] => withoutCoins(withoutPokemon(items));
 import { determineProductStorefrontId } from "@/config/storefronts";
 
 export type CreateProductResult =
@@ -326,6 +330,7 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
         // Stay within the same section: Pokémon listings step to Pokémon, everything else skips them.
         const currentSnap = await productsRef.doc(currentId).get();
         const currentIsPokemon = isPokemonListing(currentSnap.data() as any);
+        const currentIsCoin = isCoinListing(currentSnap.data() as any);
 
         const prevSnap = await productsRef
             .where('createdAt', '>', timestamp)
@@ -340,7 +345,7 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
             .get();
 
         const findFirstAvailable = (docs: admin.firestore.QueryDocumentSnapshot[]) => {
-            const match = docs.find(doc => doc.data().status === 'available' && isPokemonListing(doc.data() as any) === currentIsPokemon);
+            const match = docs.find(doc => doc.data().status === 'available' && isPokemonListing(doc.data() as any) === currentIsPokemon && isCoinListing(doc.data() as any) === currentIsCoin);
             return match ? match.id : null;
         };
 
@@ -371,7 +376,7 @@ export const getFeaturedProducts = unstable_cache(
 
                 if (!snapshot.empty) {
                     // "Popular Listings": rank a recent pool by view count (newest wins ties).
-                    const pool = withoutPokemon(snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    const pool = mainSiteOnly(snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[]);
@@ -390,7 +395,7 @@ export const getFeaturedProducts = unstable_cache(
                 .limit(limitCount)
                 .get();
 
-            return withoutPokemon(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+            return mainSiteOnly(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                 id: doc.id,
                 ...doc.data(),
             })) as Product[]);
@@ -436,7 +441,7 @@ export const getActiveProducts = unstable_cache(
 
                 if (!snapshot.empty) {
                     // "Popular Listings": rank a recent pool by view count (newest wins ties).
-                    const pool = withoutPokemon(snapshot.docs.map((doc: any) => serializeFirestoreData({
+                    const pool = mainSiteOnly(snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[]);
@@ -454,7 +459,7 @@ export const getActiveProducts = unstable_cache(
                     .where('status', '==', 'available')
                     .limit(limitCount)
                     .get();
-                return withoutPokemon(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+                return mainSiteOnly(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                     id: doc.id,
                     ...doc.data(),
                 })) as Product[]);

@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: "The terms that apply when you buy, sell or browse on Benched, Australia's marketplace for sneakers, cards and coins.",
+  description: "The terms that apply when you buy, sell or browse on Benched, Australia's marketplace for basketball cards and sneakers.",
   alternates: { canonical: '/terms' },
 };
 

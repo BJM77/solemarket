@@ -10,10 +10,11 @@ export const CATEGORY_COINS = 'Coins';
 export const CATEGORY_ACCESSORIES = 'Accessories';
 export const CATEGORY_GENERAL = 'General';
 
+// Coins aren't offered on benched.au (basketball cards and sneakers); CATEGORY_COINS stays
+// defined for existing listings and a possible separate coins site.
 export const DEFAULT_CATEGORIES = [
   CATEGORY_SNEAKERS,
   CATEGORY_TRADING_CARDS,
-  CATEGORY_COINS,
   CATEGORY_ACCESSORIES,
   CATEGORY_GENERAL
 ];
