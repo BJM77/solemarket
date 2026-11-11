@@ -31,7 +31,7 @@ test.describe('browse → checkout (PayID / cash)', () => {
     });
   });
 
-  test('buyer finds a listing and places a cash-on-pickup order', async ({ page }) => {
+  test('buyer finds a listing and sends a cash-on-pickup request to the seller', async ({ page }) => {
     await signIn(page, 'buyer@e2e.test');
 
     // Browse: the seeded listing is reachable from its legacy alias (redirects to canonical URL).
@@ -49,6 +49,9 @@ test.describe('browse → checkout (PayID / cash)', () => {
     await confirm.click();
 
     await expect(page).toHaveURL(/\/checkout\/confirmation/, { timeout: 45_000 });
+    // Checkout sends a request: nothing is reserved until the seller accepts.
+    await expect(page.getByTestId('request-sent-heading')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('request-pending').first()).toBeVisible();
   });
 
 });

@@ -1,20 +1,19 @@
 /**
- * Guest checkout (no account, no email): name, email and mobile, then the item is held for
- * 30 minutes and the buyer sees the seller's PayID on a private order page. Fake holds are kept
- * down by per-identity hold limits, rate limits, a honeypot and a minimum time on the form.
+ * Guest requests (no account, no email): name, email and mobile, then a Buy or Offer request
+ * goes to the seller, who accepts, declines or counters. The buyer follows it on a private
+ * order page (PayID shown once accepted). Fake requests are kept down by the 3-open-requests
+ * limit per email/mobile/device/IP, rate limits, a honeypot and a minimum time on the form.
  * Server only: every write goes through the Admin SDK. Firestore rules deny clients access to
  * guest_checkout_tickets and to guest orders.
  */
 import { firestoreDb } from '@/lib/firebase/admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { resolveSellerName } from '@/lib/utils/seller-name';
 import { serializeFirestoreData } from '@/lib/utils/serialization';
-import { getSystemSettingsAdmin } from '@/services/settings-service';
-import { calculateShipping, calculateTax } from '@/lib/pricing';
-import { generatePaymentReference } from '@/lib/payments/local';
 import { validateGuestDetails, checkFormTiming, isHoneypotFilled, MIN_FORM_MS, type GuestDetailsInput, type GuestDetails } from './guest-validation';
 import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash, randomId } from './guest-crypto';
-import { addHold, assertCanHold, assertHoldLimits, countActiveHoldOrders, holdExpiry, isActiveHoldOrder, toMs } from './holds';
+import { isActiveHoldOrder } from './holds';
+import { assertRequestLimit, effectiveRequestStatus, isRequestOrder, validateOfferAmount } from './requests';
+import { assertRequestable, buildRequestOrder, buyerRespondToRequest, countOpenByIdentity, notifyNewRequest } from './requests-server';
 
 const TICKETS = 'guest_checkout_tickets';
 
@@ -37,32 +36,11 @@ function identityHashes(details: Pick<GuestDetails, 'email' | 'mobile'>, ctx: Gu
 type Hashes = ReturnType<typeof identityHashes>;
 const HASH_FIELDS = { email: 'guestEmailHash', phone: 'guestPhoneHash', device: 'guestDeviceHash', ip: 'guestIpHash' } as const;
 
-/** Active-hold counts per identity (orders awaiting payment with an unexpired hold). */
-async function countHolds(hashes: Hashes, nowMs: number, t?: any) {
-    const counts: Partial<Record<keyof Hashes, number>> = {};
-    for (const key of Object.keys(HASH_FIELDS) as (keyof Hashes)[]) {
-        const h = hashes[key];
-        if (!h) continue;
-        // Equality-only filters: served by single-field indexes, no composite index needed.
-        const q = firestoreDb.collection('orders').where(HASH_FIELDS[key], '==', h).where('status', '==', 'awaiting_payment').limit(20);
-        const snap = t ? await t.get(q) : await q.get();
-        counts[key] = countActiveHoldOrders(snap.docs.map((d: any) => d.data()), nowMs);
-    }
-    return counts;
-}
-
-function assertGuestBuyable(product: any) {
-    if (!product) throw new Error('This listing no longer exists.');
-    if (product.isDraft || product.isPrivate) throw new Error('This listing is not for sale.');
-    if (product.externalUrl) throw new Error('This item is sold on another site. Use the button on the listing.');
-    if (product.isUntimed || product.isReverseBidding) throw new Error('This listing takes offers, not direct purchases.');
-}
-
-async function quote(product: any, shippingMethod: 'pickup' | 'shipping') {
-    const settings = await getSystemSettingsAdmin();
-    const subtotal = Math.round(Number(product.price || 0) * 100) / 100;
-    const shippingCost = calculateShipping(subtotal, shippingMethod, { freightCharge: settings.freightCharge, freeShippingThreshold: settings.freeShippingThreshold });
-    return { subtotal, shippingCost, totalAmount: Math.max(0, Math.round((subtotal + shippingCost) * 100) / 100), standardTaxRate: settings.standardTaxRate };
+/** Open-request counts per identity (pending, countered, or accepted and not yet paid). */
+async function countOpen(hashes: Hashes, nowMs: number, t?: any) {
+    const ids: Record<string, string | null> = {};
+    for (const key of Object.keys(HASH_FIELDS) as (keyof Hashes)[]) ids[HASH_FIELDS[key]] = hashes[key];
+    return countOpenByIdentity(ids, nowMs, t);
 }
 
 /**
@@ -85,40 +63,43 @@ export async function issueGuestCheckoutTicket(productId: string, ctx: GuestCont
     return { ticketId, issuedAtMs: nowMs, minFormMs: MIN_FORM_MS };
 }
 
-export interface PlaceGuestHoldInput extends GuestDetailsInput {
+export interface PlaceGuestRequestInput extends GuestDetailsInput {
     productId: string;
     ticketId: string;
+    /** 'buy' (asking price) or 'offer' (below asking). */
+    requestType?: 'buy' | 'offer';
+    offerAmount?: number | null;
     /** Honeypot: hidden from people, bots fill it in. */
     website?: unknown;
 }
 
 /**
- * Guest checkout without an account or email code: checks the form ticket, honeypot and limits,
- * then in one transaction re-checks the item and limits, creates the order (with the seller's
- * PayID snapshot) and adds a 30-minute hold to the listing.
- * Two buyers racing for the last unit: Firestore retries the loser's transaction, which then
- * sees the winner's hold and fails with "on hold for another buyer".
+ * Guest sends a request (no account, no email): checks the form ticket, honeypot and the
+ * 3-open-requests limit, then in one transaction re-checks the listing and limits and creates
+ * the request (with the seller's PayID snapshot, only revealed once the seller accepts).
+ * Nothing is held: the listing stays on sale until the seller accepts a request.
  */
-export async function placeGuestHold(input: PlaceGuestHoldInput, ctx: GuestContext) {
-    if (isHoneypotFilled(input?.website)) throw new Error("We couldn't place this order. Please refresh the page and try again.");
+export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: GuestContext) {
+    if (isHoneypotFilled(input?.website)) throw new Error("We couldn't send this request. Please refresh the page and try again.");
     const details = validateGuestDetails(input);
+    const requestType: 'buy' | 'offer' = input?.requestType === 'offer' ? 'offer' : 'buy';
     const productId = String(input?.productId || '');
     if (!/^[\w-]{1,128}$/.test(productId)) throw new Error('Listing not found.');
     const ticketId = String(input?.ticketId || '');
-    if (!/^[\w-]{10,64}$/.test(ticketId)) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
+    if (!/^[\w-]{10,64}$/.test(ticketId)) throw new Error('This form has expired. Please close it and try again.');
 
     const ticketRef = firestoreDb.collection(TICKETS).doc(ticketId);
     const pre = await ticketRef.get();
-    if (!pre.exists) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
+    if (!pre.exists) throw new Error('This form has expired. Please close it and try again.');
     const ticket = pre.data() as any;
-    if (ticket.used) throw new Error('This checkout form was already used. Please close it and tap Buy Now again.');
-    if (ticket.productId !== productId) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
+    if (ticket.used) throw new Error('This form was already used. Please close it and try again.');
+    if (ticket.productId !== productId) throw new Error('This form has expired. Please close it and try again.');
     const timingError = checkFormTiming(Number(ticket.issuedAtMs), Date.now());
     if (timingError) throw new Error(timingError);
 
     const hashes = identityHashes(details, ctx);
     // Cheap pre-check outside the transaction (re-checked inside).
-    assertHoldLimits(await countHolds(hashes, Date.now()));
+    assertRequestLimit(await countOpen(hashes, Date.now()), 1);
 
     const productRef = firestoreDb.collection('products').doc(productId);
     const { token, hash: tokenHash } = generateOrderToken();
@@ -127,77 +108,43 @@ export async function placeGuestHold(input: PlaceGuestHoldInput, ctx: GuestConte
         const nowMs = Date.now();
         // ---------- reads ----------
         const tk = await t.get(ticketRef);
-        if (!tk.exists || tk.data().used) throw new Error('This checkout form was already used. Please close it and tap Buy Now again.');
+        if (!tk.exists || tk.data().used) throw new Error('This form was already used. Please close it and try again.');
         const pSnap = await t.get(productRef);
         const product = pSnap.exists ? { ...pSnap.data(), id: pSnap.id } as any : null;
-        assertGuestBuyable(product);
+        assertRequestable(product, requestType, null);
         const sellerId = String(product.sellerId);
         const [userDoc, payoutDoc] = await t.getAll(
             firestoreDb.collection('users').doc(sellerId),
             firestoreDb.collection('users').doc(sellerId).collection('private').doc('payout'),
         );
-        const counts = await countHolds(hashes, nowMs, t);
+        const counts = await countOpen(hashes, nowMs, t);
 
         // ---------- checks ----------
-        assertCanHold(product, 1, nowMs);
-        assertHoldLimits(counts);
+        assertRequestLimit(counts, 1);
         const payout = payoutDoc.exists ? payoutDoc.data() : null;
-        if (!payout?.payId) throw new Error("This seller doesn't take PayID yet, so guest checkout isn't available. Sign in to arrange a cash pickup, or message the seller.");
+        if (!payout?.payId) throw new Error("This seller doesn't take PayID yet, so buying without an account isn't available. Sign in to arrange a cash pickup, or message the seller.");
+        const offerAmount = requestType === 'offer' ? validateOfferAmount(input?.offerAmount, product) : null;
 
-        const sellerProfile = userDoc.exists ? userDoc.data() : null;
-        const q = await quote(product, details.shippingMethod);
-        const isBusiness = sellerProfile?.role === 'business';
-        const expiresAtMs = holdExpiry(nowMs);
         const orderRef = firestoreDb.collection('orders').doc();
-        const paymentReference = generatePaymentReference();
-        const newOrder = {
-            groupOrderId: `GRP-${nowMs}-${randomId(4).toUpperCase()}`,
-            items: [{
-                id: product.id,
-                title: product.title || 'Item',
-                price: Number(product.price || 0),
-                discountedPrice: Number(product.price || 0),
-                lineTotal: q.subtotal,
-                quantity: 1,
-                image: product.imageUrls?.[0] || '',
-                sellerId,
-                dealId: null,
-            }],
-            totalAmount: q.totalAmount,
-            subtotal: q.subtotal,
-            shippingCost: q.shippingCost,
-            taxAmount: isBusiness ? calculateTax(q.subtotal, q.standardTaxRate, true) : 0,
-            discountAmount: 0,
-            discountCode: null,
-            buyerId: null,
-            isGuest: true,
-            buyerEmail: details.email,
-            buyerName: details.name,
-            buyerPhone: details.mobile,
-            guestEmailHash: hashes.email,
-            guestPhoneHash: hashes.phone,
-            guestDeviceHash: hashes.device || null,
-            guestIpHash: hashes.ip || null,
-            guestAccessTokenHash: tokenHash,
-            sellerId,
-            sellerName: resolveSellerName(sellerProfile as any, product.sellerName),
-            isBusinessSeller: isBusiness,
-            status: 'awaiting_payment',
-            paymentStatus: 'pending',
+        const newOrder = await buildRequestOrder({
+            product,
+            sellerProfile: userDoc.exists ? userDoc.data() : null,
+            requestType,
+            offerAmount,
             paymentMethod: 'payid',
-            paymentReference,
-            payIdReference: paymentReference,
-            paymentDueAt: Timestamp.fromMillis(expiresAtMs),
-            holdExpiresAt: Timestamp.fromMillis(expiresAtMs),
-            stockMode: 'hold',
-            pickupLocation: null,
             shippingMethod: details.shippingMethod,
             shippingAddress: details.shippingAddress,
-            createdAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-            nudgeCount: 0,
-            lastNudgeAt: null,
-        };
+            buyer: {
+                buyerId: null,
+                isGuest: true,
+                name: details.name,
+                email: details.email,
+                phone: details.mobile,
+                hashes,
+                accessTokenHash: tokenHash,
+            },
+            nowMs,
+        });
 
         // ---------- writes ----------
         t.update(ticketRef, { used: true, usedAt: FieldValue.serverTimestamp(), orderId: orderRef.id });
@@ -208,23 +155,14 @@ export async function placeGuestHold(input: PlaceGuestHoldInput, ctx: GuestConte
             accountName: payout.accountName || null,
             createdAt: FieldValue.serverTimestamp(),
         });
-        t.update(productRef, {
-            checkoutHolds: addHold(product, { orderId: orderRef.id, qty: 1, expiresAtMs }, nowMs),
-            updatedAt: FieldValue.serverTimestamp(),
-        });
         return { id: orderRef.id, ...newOrder };
     });
 
     // Seller: in-app notification + push to their phone/computer. No email to anyone.
-    try {
-        const { notifyOrderPlaced } = await import('@/lib/payments/server');
-        await notifyOrderPlaced(order);
-    } catch (e) {
-        console.error('guest notifyOrderPlaced failed', e);
-    }
+    await notifyNewRequest(order);
     try {
         const { sendTelegramNotification } = await import('@/lib/telegram');
-        await sendTelegramNotification(`<b>🛒 Guest order (PayID, 30 min hold)</b>\n<b>Item:</b> ${order.items[0].title}\n<b>Total:</b> $${Number(order.totalAmount).toFixed(2)}\n<b>Seller:</b> ${order.sellerName}`);
+        await sendTelegramNotification(`<b>🛒 Guest ${requestType === 'offer' ? 'offer' : 'buy request'}</b>\n<b>Item:</b> ${order.items[0].title}\n<b>Total:</b> $${Number(order.totalAmount).toFixed(2)}\n<b>Seller:</b> ${order.sellerName}`);
     } catch { /* best effort */ }
 
     return {
@@ -232,7 +170,7 @@ export async function placeGuestHold(input: PlaceGuestHoldInput, ctx: GuestConte
         orderId: order.id,
         paymentReference: order.paymentReference,
         totalAmount: order.totalAmount,
-        holdExpiresAtMs: toMs(order.holdExpiresAt),
+        requestType,
         title: order.items[0].title,
     };
 }
@@ -244,8 +182,9 @@ async function findOrderByToken(token: string) {
 }
 
 /**
- * The guest's order page. Only this order's own fields, plus the seller's PayID while the hold
- * is running. Expired holds are tidied up lazily here.
+ * The guest's order page. Only this order's own fields, plus the seller's PayID once the seller
+ * has accepted (or, for older orders, while the 30-minute hold runs). Expired holds and
+ * unanswered requests are tidied up lazily here.
  */
 export async function getGuestOrderByToken(token: string) {
     let doc = await findOrderByToken(token);
@@ -260,7 +199,9 @@ export async function getGuestOrderByToken(token: string) {
         doc = (await doc.ref.get()) as any;
         o = doc!.data();
     }
-    const active = isActiveHoldOrder(o, nowMs);
+    const isRequest = isRequestOrder(o);
+    const requestStatus = isRequest ? effectiveRequestStatus(o, nowMs) : null;
+    const active = isRequest ? o.status === 'awaiting_payment' : isActiveHoldOrder(o, nowMs);
     let payId: { payId: string; payIdType: string | null; accountName: string | null } | null = null;
     if (o.paymentMethod === 'payid' && o.status === 'awaiting_payment' && active) {
         const p = await doc!.ref.collection('private').doc('payment').get();
@@ -270,6 +211,17 @@ export async function getGuestOrderByToken(token: string) {
     return serializeFirestoreData({
         id: doc!.id,
         status: o.status,
+        stockMode: o.stockMode || null,
+        requestStatus,
+        requestType: o.requestType || null,
+        askingPrice: o.askingPrice ?? null,
+        offerAmount: o.offerAmount ?? null,
+        counterAmount: o.counterAmount ?? null,
+        agreedPrice: o.agreedPrice ?? null,
+        requestExpiresAt: o.requestExpiresAt || null,
+        counterExpiresAt: o.counterExpiresAt || null,
+        acceptedAt: o.acceptedAt || null,
+        declineReason: o.declineReason || null,
         cancelReason: o.cancelReason || null,
         paymentMethod: o.paymentMethod,
         paymentReference: o.paymentReference || o.payIdReference,
@@ -290,13 +242,26 @@ export async function getGuestOrderByToken(token: string) {
     });
 }
 
-/** Guest cancels their own unpaid hold from the order page (frees the item straight away). */
+/** Guest cancels their own request or unpaid order from the order page. */
 export async function cancelGuestOrderByToken(token: string) {
     const doc = await findOrderByToken(token);
     if (!doc) throw new Error('Order not found.');
     const o = doc.data() as any;
+    if (isRequestOrder(o)) {
+        await buyerRespondToRequest(doc.id, 'buyer_cancel');
+        return { success: true };
+    }
     if (o.status !== 'awaiting_payment') throw new Error('This order can no longer be cancelled here.');
     const { applyOrderTransition } = await import('@/lib/payments/server');
     await applyOrderTransition(doc.id, 'cancel', null, 'cancelled_by_buyer');
+    return { success: true };
+}
+
+/** Guest accepts or declines the seller's counter-offer from the order page. */
+export async function respondToCounterByToken(token: string, accept: boolean) {
+    const doc = await findOrderByToken(token);
+    if (!doc) throw new Error('Order not found.');
+    if (!isRequestOrder(doc.data())) throw new Error('This order has no counter-offer.');
+    await buyerRespondToRequest(doc.id, accept ? 'accept_counter' : 'decline_counter');
     return { success: true };
 }

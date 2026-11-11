@@ -1,7 +1,9 @@
-name: Release expired holds
+name: Expire requests and holds
 
-# Free scheduler: cancels unpaid orders whose 30-minute PayID hold has ended and notifies the
-# seller (in-app + push notification; no email). Listings are buyable again as soon as a hold ends even if this doesn't run.
+# Free scheduler: marks purchase requests the seller didn't answer within 24h (and counter-offers
+# the buyer didn't answer within 24h) as expired, and tidies older unpaid 30-minute holds.
+# No email. Requests already read as expired even if this doesn't run. Seller-accepted requests
+# are never auto-relisted: the seller decides.
 on:
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'

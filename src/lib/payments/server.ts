@@ -6,7 +6,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { nextOrderState, type OrderPaymentAction } from '@/lib/payments/local';
 import { sendNotification } from '@/services/notifications';
-import { pushOrderToSeller } from '@/lib/notifications/push-server';
+import { pushOrderToSeller, pushRequestToBuyer } from '@/lib/notifications/push-server';
 import { SELLER_ORDERS_PATH } from '@/lib/notifications/push-payload';
 import { isActiveHoldOrder, pruneHolds, resolvePaidStock, toMs } from '@/lib/checkout/holds';
 
@@ -36,7 +36,10 @@ export async function applyOrderTransition(
         const items: any[] = Array.isArray(order.items) ? order.items : [];
         const productRefs = items.map(i => firestoreDb.collection('products').doc(String(i.id)));
         const productDocs = productRefs.length ? await t.getAll(...productRefs) : [];
-        const holdModel = order.stockMode === 'hold';
+        // 'hold' = older 30-minute PayID holds; 'request' = seller-accepted requests (reserved
+        // via a checkoutHolds entry until paid, collected or relisted). Both only hold stock.
+        const holdModel = order.stockMode === 'hold' || order.stockMode === 'request';
+        const requestModel = order.stockMode === 'request';
         const nowMs = Date.now();
 
         // Hold-model orders (30-minute PayID holds) only took a hold on the listing, not stock.
@@ -84,6 +87,7 @@ export async function applyOrderTransition(
             ...(action !== 'cancel' && order.status === 'cancelled' ? { reinstatedAfterExpiry: true } : {}),
             ...((patch as any).collected ? { collectedAt: FieldValue.serverTimestamp() } : {}),
             ...(action === 'cancel' ? { cancelledAt: FieldValue.serverTimestamp(), cancelReason: reason || 'cancelled' } : {}),
+            ...(requestModel ? { requestStatus: action !== 'cancel' ? 'paid' : reason === 'seller_relisted' ? 'seller_relisted' : 'cancelled' } : {}),
             statusUpdatedBy: actor?.uid || 'system',
             updatedAt: FieldValue.serverTimestamp(),
         });
@@ -104,9 +108,11 @@ export async function applyOrderTransition(
             const msg = reason === 'payment_timeout'
                 ? `Order ${ref} was cancelled because payment wasn't received in time. The items have been re-listed.`
                 : reason === 'cancelled_by_buyer' ? `Order ${ref} was cancelled by the buyer. The items are available again.`
+                : reason === 'seller_relisted' ? `The seller relisted the item from order ${ref}, so the reservation has ended. Please don't pay for it now.`
                 : `Order ${ref} was cancelled.`;
-            if (order.buyerId) await sendNotification(order.buyerId, 'system', 'Order cancelled', msg, '/profile/orders');
-            await sendNotification(order.sellerId, 'system', 'Order cancelled', msg, SELLER_ORDERS_PATH);
+            if (order.buyerId) await sendNotification(order.buyerId, 'system', reason === 'seller_relisted' ? 'Item relisted by the seller' : 'Order cancelled', msg, '/profile/orders');
+            if (reason !== 'seller_relisted') await sendNotification(order.sellerId, 'system', 'Order cancelled', msg, SELLER_ORDERS_PATH);
+            if (reason === 'seller_relisted' && order.buyerId) await pushRequestToBuyer('request_relisted', { ...order, id: orderId });
             // Push to the seller's phone/computer when the buyer cancels or the hold runs out
             // (a seller cancelling it themselves doesn't need a push).
             if (reason === 'cancelled_by_buyer' || reason === 'payment_timeout') {
@@ -133,6 +139,8 @@ export async function releaseExpiredOrders(now: Date = new Date(), limit = 200) 
     const nowMs = now.getTime();
     const expired = snap.docs.filter((d: any) => {
         const o = d.data();
+        // Seller-accepted requests never auto-cancel: the seller decides when to relist.
+        if (o.stockMode === 'request') return false;
         const due = toMs(o.holdExpiresAt) ?? toMs(o.paymentDueAt);
         return !!due && due <= nowMs && !isActiveHoldOrder(o, nowMs);
     }).slice(0, limit);

@@ -13,7 +13,7 @@ type State = 'loading' | 'off' | 'on' | 'blocked' | PushSupport;
 
 /**
  * "Enable order notifications" for sellers: free push notifications on this phone or computer
- * when someone orders, cancels, or a 30-minute hold runs out. Shown in the seller dashboard
+ * when someone sends a request or offer, accepts a counter-offer, or cancels. Shown in the seller dashboard
  * and the Seller Hub.
  */
 export function OrderNotificationsToggle({ compact = false }: { compact?: boolean }) {
@@ -98,7 +98,7 @@ export function OrderNotificationsToggle({ compact = false }: { compact?: boolea
                         <p className="text-sm text-muted-foreground">
                             {state === 'on'
                                 ? "On. You'll get a notification for new orders, buyer cancellations and holds that run out."
-                                : 'Get a notification on this phone or computer the moment someone orders, so you can check your PayID within the 30-minute hold.'}
+                                : 'Get a notification on this phone or computer the moment someone sends a request or offer, so you can accept it quickly.'}
                         </p>
                     </div>
                 </div>

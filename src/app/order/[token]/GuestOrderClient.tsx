@@ -11,9 +11,20 @@ import { OrderPaymentInstructionsView, type PaymentDetails } from '@/components/
 import { cancelGuestOrderAction } from '@/app/actions/marketplace/guest-checkout';
 import { formatPrice } from '@/lib/utils/format';
 import { toMs } from '@/lib/checkout/holds';
-import { saveGuestOrder, listGuestOrders, isLocalOrderActive, type LocalGuestOrder } from '@/lib/checkout/guest-orders-local';
+import { saveGuestOrder, listGuestOrders, localOrderLabel, type LocalGuestOrder } from '@/lib/checkout/guest-orders-local';
+import { RequestStatusPanel } from '@/components/orders/RequestStatusPanel';
+import { REQUEST_STATUS_LABEL, type RequestStatus } from '@/lib/checkout/requests';
 
 type GuestOrder = PaymentDetails & {
+    requestStatus?: RequestStatus | null;
+    requestType?: string | null;
+    offerAmount?: number | null;
+    counterAmount?: number | null;
+    askingPrice?: number | null;
+    requestExpiresAt?: string | null;
+    counterExpiresAt?: string | null;
+    declineReason?: string | null;
+    sellerId?: string;
     cancelReason?: string | null;
     subtotal?: number;
     shippingCost?: number;
@@ -21,6 +32,17 @@ type GuestOrder = PaymentDetails & {
     buyerName?: string;
     buyerEmail?: string;
     item: { id: string; title: string; image?: string; price: number; quantity: number } | null;
+};
+
+const REQUEST_TONE: Record<RequestStatus, string> = {
+    pending: 'bg-amber-100 text-amber-800',
+    countered: 'bg-sky-100 text-sky-800',
+    accepted: 'bg-emerald-100 text-emerald-800',
+    paid: 'bg-emerald-100 text-emerald-800',
+    declined: 'bg-slate-200 text-slate-700',
+    expired: 'bg-slate-200 text-slate-700',
+    seller_relisted: 'bg-slate-200 text-slate-700',
+    cancelled: 'bg-slate-200 text-slate-700',
 };
 
 const STATUS: Record<string, { label: string; tone: string }> = {
@@ -50,6 +72,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             createdAtMs: toMs((order as any).createdAt) || Date.now(),
             holdExpiresAtMs: toMs(order.holdExpiresAt),
             status: order.status,
+            requestStatus: order.requestStatus || null,
         });
         setOthers(listGuestOrders().filter((o) => o.token !== token));
     }, [token, order]);
@@ -64,14 +87,17 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
         }
     };
 
-    // Pick up the seller marking it paid (or the hold ending) without a manual reload.
+    // Pick up the seller accepting, countering or marking it paid without a manual reload.
     useEffect(() => {
-        if (order.status !== 'awaiting_payment') return;
+        if (!['awaiting_payment', 'requested', 'countered'].includes(order.status)) return;
         const id = setInterval(() => router.refresh(), 30_000);
         return () => clearInterval(id);
     }, [order.status, router]);
 
-    const status = STATUS[order.status] || { label: order.status, tone: 'bg-slate-200 text-slate-700' };
+    const isRequest = order.stockMode === 'request' && !!order.requestStatus;
+    const status = isRequest
+        ? { label: order.requestStatus === 'accepted' && order.paymentMethod === 'payid' ? 'Accepted: pay by PayID' : REQUEST_STATUS_LABEL[order.requestStatus!], tone: REQUEST_TONE[order.requestStatus!] }
+        : STATUS[order.status] || { label: order.status, tone: 'bg-slate-200 text-slate-700' };
     const cancelledText = order.cancelReason === 'payment_timeout'
         ? 'Your 30-minute hold ended before the seller confirmed a payment, so the item went back on sale.'
         : order.cancelReason === 'cancelled_by_buyer' ? 'You cancelled this order.' : 'This order was cancelled.';
@@ -82,6 +108,9 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Order {order.paymentReference}</p>
                 <h1 className="text-2xl font-black">Thanks{order.buyerName ? `, ${order.buyerName.split(' ')[0]}` : ''}!</h1>
+                {isRequest && order.requestStatus === 'pending' && (
+                    <p className="text-sm text-muted-foreground">Your request has gone to the seller. This page updates when they reply.</p>
+                )}
                 <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${status.tone}`} data-testid="guest-order-status">{status.label}</span>
             </div>
 
@@ -120,10 +149,14 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
                 </div>
             )}
 
+            {isRequest && (
+                <RequestStatusPanel order={{ ...order, item: order.item }} guestToken={token} onChanged={() => router.refresh()} />
+            )}
+
             {order.status === 'awaiting_payment' && (
                 <>
                     <OrderPaymentInstructionsView d={order} guest onExpire={() => router.refresh()} />
-                    {order.holdActive && (
+                    {!isRequest && order.holdActive && (
                         <div className="text-center">
                             <Button
                                 variant="ghost"
@@ -154,7 +187,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
                 </div>
             )}
 
-            {order.status === 'cancelled' && (
+            {order.status === 'cancelled' && !isRequest && (
                 <div className="flex items-start gap-3 rounded-2xl border bg-muted p-4 text-sm">
                     <XCircle className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
                     <div className="space-y-2">
@@ -173,7 +206,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
                         {others.slice(0, 5).map((o) => (
                             <li key={o.token}>
                                 <Link href={`/order/${o.token}`} className="underline">{o.title}</Link>
-                                <span className="text-muted-foreground"> · {isLocalOrderActive(o) ? 'on hold, awaiting payment' : o.status === 'cancelled' ? 'cancelled' : o.status === 'awaiting_payment' ? 'awaiting payment' : o.status || 'order'}</span>
+                                <span className="text-muted-foreground"> · {localOrderLabel(o).toLowerCase()}</span>
                             </li>
                         ))}
                     </ul>

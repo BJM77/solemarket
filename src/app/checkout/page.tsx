@@ -111,23 +111,6 @@ export default function CheckoutPage() {
   // Guest email state (when user is not signed in)
   const [guestEmail, setGuestEmail] = useState('');
 
-  // 10-Minute Cart Hold Reservation Timer (Option 4)
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
-
-  useEffect(() => {
-    if (items.length === 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [items.length]);
-
-  const formatTimer = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
   // Populate address inputs when context updates
   useEffect(() => {
     if (shippingAddress) {
@@ -285,14 +268,8 @@ export default function CheckoutPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <h1 className="text-3xl font-black tracking-tight uppercase">Checkout</h1>
 
-          {/* Option 4: Inventory Hold Reservation Timer */}
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-700">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-700"></span>
-            </span>
-            <span>Item held for:</span>
-            <span className="font-mono text-sm text-amber-700">{formatTimer(timeLeft)}</span>
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-800" data-testid="checkout-request-note">
+            The seller approves every sale. You&apos;ll pay once they accept.
           </div>
         </div>
 
@@ -647,17 +624,20 @@ export default function CheckoutPage() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Placing Order...
+                      <Loader2 className="h-4 w-4 animate-spin" /> Sending request...
                     </span>
                   ) : (
-                    'Confirm Purchase'
+                    'Confirm purchase request'
                   )}
                 </Button>
                 {paymentMethod === 'cash' && !perthPickupConfirmed && (
                   <p className="text-xs text-center font-semibold text-orange-800">Tick the Perth pickup box to confirm your purchase.</p>
                 )}
+                <p className="text-xs text-center text-slate-600" data-testid="checkout-request-explainer">
+                  This sends a request to the seller. Nothing is charged and the item isn&apos;t yours until they accept, usually within 24 hours. You can have up to 3 items requested or reserved at once.
+                </p>
                 <p className="text-xs text-center text-slate-600">
-                  By completing your purchase, you agree to our <Link href="/terms" className="underline">Terms of Service</Link>.
+                  By sending a request, you agree to our <Link href="/terms" className="underline">Terms of Service</Link>.
                 </p>
               </div>
             </Card>

@@ -96,7 +96,8 @@ import { PsaCertBadge } from './PsaCertBadge';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { GuestCheckoutDialog } from '@/components/checkout/GuestCheckoutDialog';
 import { HoldCountdown } from '@/components/checkout/HoldCountdown';
-import { holdEndsAt, isOnCheckoutHold } from '@/lib/checkout/holds';
+import { holdEndsAt, isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
+import { getListingRequestCountAction } from '@/app/actions/marketplace/requests';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -151,6 +152,15 @@ export default function ProductDetailsModern({
     const [isGuestCheckoutOpen, setIsGuestCheckoutOpen] = useState(false);
     // Re-render when a checkout hold runs out so the listing becomes buyable again.
     const [, setHoldTick] = useState(0);
+    // Public "X requests" note (a count only; never other buyers' details).
+    const [requestCount, setRequestCount] = useState(0);
+    const requestCountId = productId;
+    useEffect(() => {
+        if (!requestCountId) return;
+        let cancelled = false;
+        getListingRequestCountAction(String(requestCountId)).then((n) => { if (!cancelled) setRequestCount(Number(n) || 0); }).catch(() => {});
+        return () => { cancelled = true; };
+    }, [requestCountId]);
     const [guestEmail, setGuestEmail] = useState('');
     const [guestCode, setGuestCode] = useState('');
     const [verifyingGuest, setVerifyingGuest] = useState(false);
@@ -477,12 +487,14 @@ export default function ProductDetailsModern({
             return;
         }
         if (isOnCheckoutHold(product as any)) {
-            toast({ title: 'On hold', description: 'Another buyer is paying for this right now. Check back when the timer ends.' });
+            toast(isReservedForBuyer(product as any)
+                ? { title: 'Reserved', description: 'The seller has reserved this for another buyer. It goes back on sale if they relist it.' }
+                : { title: 'On hold', description: 'Another buyer is paying for this right now. Check back when the timer ends.' });
             return;
         }
         if (!user) {
             if (isUserLoading) return;
-            // Guest checkout: no account needed (email code + 30-minute PayID hold).
+            // Guest request: no account needed. The seller accepts before anything is reserved.
             setIsGuestCheckoutOpen(true);
             return;
         }
@@ -1193,6 +1205,17 @@ export default function ProductDetailsModern({
                                                     );
                                                 }
 
+                                                if (isReservedForBuyer(product as any)) {
+                                                    return (
+                                                        <div className="space-y-1 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center" data-testid="listing-reserved">
+                                                            <p className="flex items-center justify-center gap-2 text-sm font-bold text-amber-900">
+                                                                <Clock className="h-4 w-4" /> Reserved
+                                                            </p>
+                                                            <p className="text-xs text-amber-800">The seller has accepted another buyer&apos;s request. If it falls through, it goes back on sale.</p>
+                                                        </div>
+                                                    );
+                                                }
+
                                                 if (isOnCheckoutHold(product as any)) {
                                                     return (
                                                         <div className="space-y-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center" data-testid="listing-on-hold">
@@ -1260,6 +1283,11 @@ export default function ProductDetailsModern({
                                                                     <ShoppingCart className="h-5 w-5" />
                                                                     Buy Now
                                                                 </Button>
+                                                                {requestCount > 0 && user?.uid !== product.sellerId && (
+                                                                    <p className="text-center text-xs font-semibold text-muted-foreground lg:col-span-2 lg:order-last" data-testid="listing-request-count">
+                                                                        {requestCount} {requestCount === 1 ? 'request' : 'requests'} with the seller
+                                                                    </p>
+                                                                )}
 
                                                                 <Button
                                                                     variant="outline"
@@ -1278,8 +1306,8 @@ export default function ProductDetailsModern({
                                                                         </p>
                                                                         <p className="text-[11px] text-orange-700/80 dark:text-orange-300/80 leading-relaxed mt-0.5">
                                                                             {seller?.payIdReady
-                                                                                ? "Pay the seller directly by PayID (details shown after you order), or pay cash when you collect in Perth."
-                                                                                : "This seller takes cash on pickup in Perth. Inspect the item before you pay."}
+                                                                                ? "Buy Now sends a request: the seller accepts, then you pay them directly by PayID (or cash when you collect in Perth)."
+                                                                                : "Buy Now sends a request: once the seller accepts, pay cash on pickup in Perth. Inspect the item before you pay."}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -1291,6 +1319,7 @@ export default function ProductDetailsModern({
                                                             <OfferModal
                                                                 product={product}
                                                                 user={user}
+                                                                payIdReady={seller ? !!seller.payIdReady : true}
                                                                 trigger={
                                                                     <Button
                                                                         variant="outline"

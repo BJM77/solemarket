@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { OrderPaymentInstructions } from '@/components/orders/OrderPaymentInstructions';
+import { RequestStatusPanel, buyerRequestLabel } from '@/components/orders/RequestStatusPanel';
 import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { confirmOrderReceipt } from '@/app/actions/marketplace/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
@@ -247,12 +248,15 @@ export default function UserOrdersPage() {
                                             order.status === 'delivered' ? "bg-emerald-100 text-emerald-700" :
                                                 "bg-slate-100 text-slate-700"
                                 )}>
-                                    {order.status}
+                                    {buyerRequestLabel(order) || order.status}
                                 </Badge>
                             </CardHeader>
                             <CardContent className="p-6">
+                                {order.stockMode === 'request' && (
+                                    <div className="mb-4" data-testid={`buyer-request-${order.id}`}><RequestStatusPanel order={order} /></div>
+                                )}
                                 {order.status === 'awaiting_payment' && (
-                                    <div className="mb-6"><OrderPaymentInstructions orderId={order.id} /></div>
+                                    <div className="mb-6"><OrderPaymentInstructions key={`${order.id}-${order.status}`} orderId={order.id} /></div>
                                 )}
                                 <div className="space-y-4 mb-6">
                                     {order.items.map((item: any) => (

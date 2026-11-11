@@ -20,7 +20,15 @@ export interface CheckoutHold {
     orderId: string;
     qty: number;
     expiresAtMs: number;
+    /**
+     * Seller-accepted request (src/lib/checkout/requests.ts): reserved for that buyer until the
+     * seller marks it paid/collected or relists it. Never expires on its own.
+     */
+    reserved?: boolean;
 }
+
+/** expiresAtMs used for seller-accepted reservations (max JS date: effectively never). */
+export const RESERVED_UNTIL_MS = 8_640_000_000_000_000;
 
 export interface HoldableProduct {
     status?: string;
@@ -75,15 +83,25 @@ export function isOnCheckoutHold(p: HoldableProduct, now: number = Date.now()): 
     return activeHolds(p, now).length > 0 && availableQuantity(p, now) <= 0;
 }
 
-/** When the soonest active hold ends (ms), for "On hold, frees up in mm:ss". */
+/** True when every unit is taken and at least one is a seller-accepted reservation ("Reserved"). */
+export function isReservedForBuyer(p: HoldableProduct, now: number = Date.now()): boolean {
+    return isOnCheckoutHold(p, now) && activeHolds(p, now).some((h) => h.reserved);
+}
+
+/** When the soonest timed hold ends (ms), for "On hold, frees up in mm:ss". Reservations don't count. */
 export function holdEndsAt(p: HoldableProduct, now: number = Date.now()): number | null {
-    const a = activeHolds(p, now);
+    const a = activeHolds(p, now).filter((h) => !h.reserved);
     return a.length ? Math.min(...a.map((h) => Number(h.expiresAtMs))) : null;
 }
 
 /** Keep only running holds (drops expired ones) and optionally remove an order's hold. */
 export function pruneHolds(p: HoldableProduct, now: number = Date.now(), removeOrderId?: string): CheckoutHold[] {
-    return activeHolds(p, now, removeOrderId).map((h) => ({ orderId: h.orderId, qty: Number(h.qty), expiresAtMs: Number(h.expiresAtMs) }));
+    return activeHolds(p, now, removeOrderId).map((h) => ({
+        orderId: h.orderId,
+        qty: Number(h.qty),
+        expiresAtMs: Number(h.expiresAtMs),
+        ...(h.reserved ? { reserved: true } : {}),
+    }));
 }
 
 /** Older single-listing hold (negotiation/enquiry) by someone other than `buyerKey`. */
@@ -103,7 +121,9 @@ export function assertCanHold(p: HoldableProduct & { title?: string }, qty: numb
     if (heldByOtherLegacy(p, buyerKey, now)) throw new Error(`Sorry, ${name} is currently reserved by another buyer.`);
     if (availableQuantity(p, now) < qty) {
         throw new Error(activeHolds(p, now).length
-            ? `Sorry, ${name} is on hold for another buyer right now. Check back in a few minutes.`
+            ? (activeHolds(p, now).some((h) => h.reserved)
+                ? `Sorry, ${name} is reserved for another buyer.`
+                : `Sorry, ${name} is on hold for another buyer right now. Check back in a few minutes.`)
             : `Not enough stock for ${name}.`);
     }
 }
