@@ -42,3 +42,33 @@ export async function resetDrafts() {
     });
   }
 }
+
+/** Fresh, unheld guest listing and no leftover guest orders/codes (emulator only). */
+export async function resetGuestListing(email: string) {
+  const { db, admin } = await emulatorDb();
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  await db.doc('products/e2e-guest-1').set({
+    sellerId: 'e2e-seller', sellerName: 'E2E Seller', category: 'Collector Cards', subCategory: 'Pokemon',
+    condition: 'Near Mint', quantity: 1, imageUrls: ['/placeholder.png'], description: 'Seeded for e2e.',
+    acceptsPayId: true, acceptsCash: true, createdAt: now, updatedAt: now,
+    title: 'E2E Guest Checkout Card', price: 15, status: 'available', isDraft: false, isPrivate: false, checkoutHolds: [],
+  });
+  const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
+  for (const d of orders.docs) await d.ref.delete();
+  const codes = await db.collection('guest_checkout_codes').where('details.email', '==', email).get();
+  for (const d of codes.docs) await d.ref.delete();
+}
+
+/** The code the server generated for this email (emulator stores it only in test mode). */
+export async function latestGuestCode(email: string): Promise<string | undefined> {
+  const { db } = await emulatorDb();
+  const snap = await db.collection('guest_checkout_codes').where('details.email', '==', email).get();
+  const open = snap.docs.map((d: any) => d.data()).filter((d: any) => !d.used && d.devCode);
+  open.sort((a: any, b: any) => (b.expiresAt?.toMillis?.() || 0) - (a.expiresAt?.toMillis?.() || 0));
+  return open[0]?.devCode;
+}
+
+export async function productDoc(id: string): Promise<any> {
+  const { db } = await emulatorDb();
+  return (await db.doc(`products/${id}`).get()).data();
+}

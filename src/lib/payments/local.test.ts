@@ -29,9 +29,9 @@ describe('references + expiry', () => {
     it('reference format', () => {
         expect(generatePaymentReference()).toMatch(/^BEN-[A-HJ-NP-Z2-9]{6}$/);
     });
-    it('48h for PayID, 72h for cash', () => {
+    it('30 min for PayID, 72h for cash', () => {
         const t = new Date('2026-01-01T00:00:00Z');
-        expect(paymentDueAt('payid', t).toISOString()).toBe('2026-01-03T00:00:00.000Z');
+        expect(paymentDueAt('payid', t).toISOString()).toBe('2026-01-01T00:30:00.000Z');
         expect(paymentDueAt('cash', t).toISOString()).toBe('2026-01-04T00:00:00.000Z');
     });
     it('maps legacy method names', () => {
@@ -59,6 +59,9 @@ describe('order transitions', () => {
     it('mark paid', () => {
         expect(nextOrderState({ status: 'awaiting_payment', paymentMethod: 'payid' }, 'mark_paid')).toMatchObject({ status: 'paid', productStatus: 'sold' });
         expect(() => nextOrderState({ status: 'cancelled' }, 'mark_paid')).toThrow();
+        // An expired 30-minute hold can still be marked paid (stock is checked in the transaction).
+        expect(nextOrderState({ status: 'cancelled', stockMode: 'hold', cancelReason: 'payment_timeout', paymentMethod: 'payid' }, 'mark_paid')).toMatchObject({ status: 'paid' });
+        expect(() => nextOrderState({ status: 'cancelled', stockMode: 'hold', cancelReason: 'cancelled_by_seller' }, 'mark_paid')).toThrow();
     });
     it('mark collected (cash pickup)', () => {
         expect(nextOrderState({ status: 'awaiting_payment', paymentMethod: 'cash', shippingMethod: 'pickup' }, 'mark_collected')).toMatchObject({ status: 'completed', paymentStatus: 'paid' });

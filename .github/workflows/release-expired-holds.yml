@@ -1,0 +1,22 @@
+name: Release expired holds
+
+# Free scheduler: cancels unpaid orders whose 30-minute PayID hold has ended and emails the
+# buyer/seller. Listings are buyable again as soon as a hold ends even if this doesn't run.
+on:
+  schedule:
+    - cron: '3,13,23,33,43,53 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST https://benched.au/api/jobs/release-expired-holds
+        run: |
+          code=$(curl -s -o body.json -w '%{http_code}' -X POST --max-time 120 https://benched.au/api/jobs/release-expired-holds || echo 000)
+          echo "HTTP $code"; cat body.json 2>/dev/null; echo
+          [ "$code" = "200" ]

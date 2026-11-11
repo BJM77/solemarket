@@ -179,6 +179,8 @@ export type Product = {
   holdReason?: 'checkout' | 'negotiation' | 'enquiry';
   heldBy?: string;
   holdExpiresAt?: Timestamp;
+  /** 30-minute PayID checkout holds (see src/lib/checkout/holds.ts). */
+  checkoutHolds?: { orderId: string; qty: number; expiresAtMs: number }[];
   sellerRating?: number;
   marketValue?: number; // Fetched from eBay comps or AI
   marketData?: {

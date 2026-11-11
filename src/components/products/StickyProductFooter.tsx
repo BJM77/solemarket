@@ -16,9 +16,11 @@ import { useState, useEffect } from 'react';
 interface StickyProductFooterProps {
     product: Product;
     user: UserProfile | null;
+    /** Product page passes its own Buy Now (guest checkout, holds). */
+    onBuyNow?: () => void;
 }
 
-export function StickyProductFooter({ product, user }: StickyProductFooterProps) {
+export function StickyProductFooter({ product, user, onBuyNow }: StickyProductFooterProps) {
     const { addItem } = useCart();
     const { toast } = useToast();
     const router = useRouter();
@@ -27,6 +29,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
 
     // Logic from ProductDetailsClient
     const handleBuyNow = () => {
+        if (onBuyNow) { onBuyNow(); return; }
         if (product?.externalUrl) {
             let url = product.externalUrl.trim();
             if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
@@ -35,7 +38,7 @@ export function StickyProductFooter({ product, user }: StickyProductFooterProps)
         }
 
         if (!user) {
-            router.push(`/sign-in?redirect=${encodeURIComponent(product ? getProductUrl(product) : "/")}`);
+            router.push(`${product ? getProductUrl(product) : '/'}?buy=1`);
             return;
         }
 

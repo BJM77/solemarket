@@ -94,6 +94,9 @@ import {
 import { ProductHeaderInfo } from './ProductHeaderInfo';
 import { PsaCertBadge } from './PsaCertBadge';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
+import { GuestCheckoutDialog } from '@/components/checkout/GuestCheckoutDialog';
+import { HoldCountdown } from '@/components/checkout/HoldCountdown';
+import { holdEndsAt, isOnCheckoutHold } from '@/lib/checkout/holds';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -145,6 +148,9 @@ export default function ProductDetailsModern({
     const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
     const [isGuestMessageOpen, setIsGuestMessageOpen] = useState(false);
     const [isGuestVerificationOpen, setIsGuestVerificationOpen] = useState(false);
+    const [isGuestCheckoutOpen, setIsGuestCheckoutOpen] = useState(false);
+    // Re-render when a checkout hold runs out so the listing becomes buyable again.
+    const [, setHoldTick] = useState(0);
     const [guestEmail, setGuestEmail] = useState('');
     const [guestCode, setGuestCode] = useState('');
     const [verifyingGuest, setVerifyingGuest] = useState(false);
@@ -470,8 +476,14 @@ export default function ProductDetailsModern({
             window.open(url, '_blank', 'noopener,noreferrer');
             return;
         }
+        if (isOnCheckoutHold(product as any)) {
+            toast({ title: 'On hold', description: 'Another buyer is paying for this right now. Check back when the timer ends.' });
+            return;
+        }
         if (!user) {
-            router.push(`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`);
+            if (isUserLoading) return;
+            // Guest checkout: no account needed (email code + 30-minute PayID hold).
+            setIsGuestCheckoutOpen(true);
             return;
         }
 
@@ -707,7 +719,18 @@ export default function ProductDetailsModern({
     const navHeldByOther = !!navHoldExpiresAt && navHoldExpiresAt > new Date() && (product as any)?.heldBy !== user?.uid;
     const navIsOwner = !!user && user.uid === product?.sellerId;
     const navBuyable = !!product && !navIsOwner && !product.isReverseBidding && !product.isUntimed;
-    const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther;
+    const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther || isOnCheckoutHold(product as any);
+
+    // Buy Now from a listing card while signed out lands here with ?buy=1: open guest checkout.
+    useEffect(() => {
+        if (typeof window === 'undefined' || isUserLoading || user || !product) return;
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('buy') !== '1') return;
+        params.delete('buy');
+        const qs = params.toString();
+        window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+        if (!isOnCheckoutHold(product as any) && product.status === 'available') setIsGuestCheckoutOpen(true);
+    }, [isUserLoading, user, product]);
     useEffect(() => {
         if (navIsOwner && productId) {
             setBuyAction({ onBuy: () => {}, disabled: false, editHref: `/sell/create?edit=${productId}` });
@@ -1165,6 +1188,21 @@ export default function ProductDetailsModern({
                                                             </p>
                                                             <p className="text-slate-500 text-[10px] uppercase tracking-wider font-black">
                                                                 {reason === 'negotiation' ? 'Under negotiation' : 'A buyer is contacting the seller'}
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                if (isOnCheckoutHold(product as any)) {
+                                                    return (
+                                                        <div className="space-y-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center" data-testid="listing-on-hold">
+                                                            <p className="flex items-center justify-center gap-2 text-sm font-bold text-amber-900">
+                                                                <Clock className="h-4 w-4" /> On hold
+                                                            </p>
+                                                            <p className="text-xs text-amber-800">
+                                                                Another buyer has until{' '}
+                                                                <HoldCountdown compact expiresAt={holdEndsAt(product as any)} onExpire={() => setHoldTick((n) => n + 1)} />{' '}
+                                                                to pay. If they don&apos;t, it goes back on sale.
                                                             </p>
                                                         </div>
                                                     );
@@ -1656,7 +1694,16 @@ export default function ProductDetailsModern({
                 />
             )}
 
-            {product && <StickyProductFooter product={product} user={isUserLoading ? null : user as any} />}
+            {product && <StickyProductFooter product={product} user={isUserLoading ? null : user as any} onBuyNow={handleBuyNow} />}
+            {product && !user && (
+                <GuestCheckoutDialog
+                    open={isGuestCheckoutOpen}
+                    onOpenChange={setIsGuestCheckoutOpen}
+                    product={{ id: product.id || productId, title: product.title, price: product.price }}
+                    signInHref={`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`}
+                    payIdReady={!!seller?.payIdReady}
+                />
+            )}
         </main>
     );
 }
