@@ -25,7 +25,7 @@ for (const u of Object.values(users)) {
 const now = admin.firestore.FieldValue.serverTimestamp();
 await db.doc('users/e2e-seller').set({
   uid: 'e2e-seller', email: users.seller.email, displayName: 'E2E Seller', storeName: 'E2E Store',
-  sellerStatus: 'approved', canSell: true, role: 'user', acceptsCash: true, acceptsPayID: true, payIdReady: true,
+  sellerStatus: 'approved', canSell: true, role: 'user', acceptsCash: true, acceptsPayID: true, payIdReady: true, agreementAccepted: true,
   suburb: 'Perth', state: 'WA', createdAt: now,
 });
 await db.doc('users/e2e-seller/private/payout').set({ payId: '0400000000', payIdType: 'phone', accountName: 'E2E Seller' });
