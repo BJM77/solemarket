@@ -32,6 +32,8 @@ import { updateOrderStatus } from '@/app/actions/marketplace/order';
 import { cancelUnpaidOrder, markOrderCollected, markOrderPaid } from '@/app/actions/marketplace/order-payments';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useRouter } from 'next/navigation';
+import { HoldCountdown } from '@/components/checkout/HoldCountdown';
+import { isActiveHoldOrder } from '@/lib/checkout/holds';
 
 export function SellerOrders({ limit }: { limit?: number }) {
     const { user } = useUser();
@@ -216,7 +218,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
             {/* Filter Hub */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                    {['all', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                    {['all', 'awaiting_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
                         <Button
                             key={status}
                             variant={statusFilter === status ? 'default' : 'outline'}
@@ -248,7 +250,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
             ) : (
                 <div className="grid grid-cols-1 gap-6">
                     {filteredOrders.map((order) => (
-                        <Card key={order.id} className="border-none shadow-premium hover:shadow-premium-hover transition-all duration-300 rounded-2xl overflow-hidden bg-white">
+                        <Card key={order.id} data-testid={`seller-order-${order.id}`} className="border-none shadow-premium hover:shadow-premium-hover transition-all duration-300 rounded-2xl overflow-hidden bg-white">
                             <div className="flex flex-col lg:flex-row">
                                 {/* Left Side: Order Info */}
                                 <div className="flex-1 p-6">
@@ -320,7 +322,16 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 {order.type === 'guest_enquiry' && (
                                                     <span className="text-[10px] text-muted-foreground font-medium">({order.email})</span>
                                                 )}
+                                                {order.isGuest && (
+                                                    <Badge variant="outline" className="text-[9px] uppercase font-black">Guest</Badge>
+                                                )}
                                             </div>
+                                            {order.isGuest && (
+                                                <div className="flex flex-col gap-0.5 text-xs" data-testid="guest-buyer-contact">
+                                                    <a href={`mailto:${order.buyerEmail}?subject=${encodeURIComponent(`Your Benched order ${order.paymentReference || ''}`)}`} className="font-medium text-slate-700 underline">{order.buyerEmail}</a>
+                                                    {order.buyerPhone && <a href={`tel:${order.buyerPhone}`} className="font-medium text-slate-700 underline">{order.buyerPhone}</a>}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Channel</p>
@@ -367,8 +378,13 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                     <p className="text-xs text-slate-500">
                                                         {order.paymentMethod === 'cash' ? 'Cash on pickup (Perth).' : 'PayID transfer to you.'} Ref <span className="font-mono font-bold">{order.paymentReference || order.payIdReference}</span>
                                                     </p>
+                                                    {order.stockMode === 'hold' && (
+                                                        isActiveHoldOrder(order)
+                                                            ? <HoldCountdown expiresAt={order.holdExpiresAt} label="Held for buyer" className="p-2" />
+                                                            : <p className="text-xs font-bold text-rose-600">The 30-minute hold has ended and the item is back on sale. If the money arrived, you can still mark it paid while the item is free.</p>
+                                                    )}
                                                     {order.paymentMethod !== 'cash' && (
-                                                        <Button className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'paid')}>
+                                                        <Button className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'paid')} data-testid="seller-mark-paid">
                                                             Mark as paid
                                                         </Button>
                                                     )}
@@ -379,6 +395,14 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                     )}
                                                     <Button variant="ghost" className="w-full min-h-11 text-slate-500" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'cancel')}>
                                                         Cancel &amp; re-list
+                                                    </Button>
+                                                </div>
+                                            )}
+                                            {order.status === 'cancelled' && order.stockMode === 'hold' && order.cancelReason === 'payment_timeout' && (
+                                                <div className="space-y-2">
+                                                    <p className="text-xs text-slate-500">Hold expired before payment was confirmed. Ref <span className="font-mono font-bold">{order.paymentReference}</span></p>
+                                                    <Button variant="outline" className="w-full min-h-11 font-bold rounded-xl" disabled={isPending} onClick={() => handlePaymentAction(order.id, 'paid')}>
+                                                        Payment arrived late: mark as paid
                                                     </Button>
                                                 </div>
                                             )}
@@ -448,6 +472,14 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 </Button>
                                             )}
 
+                                            {order.isGuest || !order.buyerId ? (
+                                                <Button variant="outline" className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6" asChild>
+                                                    <a href={`mailto:${order.buyerEmail}?subject=${encodeURIComponent(`Your Benched order ${order.paymentReference || ''}`)}`}>
+                                                        <MessageSquare className="h-4 w-4" />
+                                                        Email buyer
+                                                    </a>
+                                                </Button>
+                                            ) : (
                                             <Button
                                                 variant="outline"
                                                 className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6"
@@ -456,6 +488,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 <MessageSquare className="h-4 w-4" />
                                                 Inquire Buyer
                                             </Button>
+                                            )}
 
                                             <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-muted-foreground hover:text-slate-900">
                                                 <Printer className="h-4 w-4" />

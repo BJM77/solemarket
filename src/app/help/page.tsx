@@ -79,7 +79,7 @@ export default function HelpPage() {
                 <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-4">How payment works</h2>
                 <p className="mb-4">Benched doesn&apos;t hold your money. You pay the seller directly, in one of two ways:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
-                    <li><strong>PayID (bank transfer):</strong> after you place an order, your Benched order page shows the seller&apos;s PayID, the amount and your order reference. Pay within 48 hours or the items are released.</li>
+                    <li><strong>PayID (bank transfer):</strong> after you place an order, your Benched order page shows the seller&apos;s PayID, the amount and your order reference. The item is held for you for 30 minutes: pay before the timer runs out or it goes back on sale. You don&apos;t need an account to buy.</li>
                     <li><strong>Cash on pickup (Perth only):</strong> arrange a safe, public meeting place with the seller, inspect the item, then pay cash.</li>
                 </ul>
                 <p className="font-semibold">Only pay the PayID shown on your Benched order page. Never pay a PayID or bank account sent to you by message, email or text. Something not right? <Link href="/contact?topic=order-problem" className="underline">Report a problem</Link>.</p>

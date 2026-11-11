@@ -41,6 +41,10 @@ const base = {
 await db.doc('products/e2e-live-1').set({
   ...base, title: 'E2E Charizard Test Card', price: 12, status: 'available', isDraft: false, isPrivate: false,
 });
+// Guest checkout flow (signed-out buyer, email code, 30-minute PayID hold).
+await db.doc('products/e2e-guest-1').set({
+  ...base, title: 'E2E Guest Checkout Card', price: 15, status: 'available', isDraft: false, isPrivate: false,
+});
 for (let i = 1; i <= 3; i++) {
   await db.doc(`products/e2e-draft-${i}`).set({
     ...base, title: `E2E Draft Card ${i}`, price: 5 + i, status: 'draft', isDraft: true,

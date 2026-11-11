@@ -195,3 +195,38 @@ export async function sendSellerGhostNudgeEmail({
         console.error('Ghost nudge failed:', e);
     }
 }
+
+/** True when SendGrid is configured, so emails will actually be sent. */
+export function isEmailConfigured(): boolean {
+    return !!process.env.SENDGRID_API_KEY;
+}
+
+const escapeHtml = (s: string) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+
+/** Guest checkout: 6-digit code that confirms the buyer owns the email before an item is held. */
+export async function sendGuestCheckoutCodeEmail(to: string, name: string, code: string, productTitle: string): Promise<{ success: boolean; error?: string }> {
+    if (!API_KEY) return { success: false, error: 'Email service not configured' };
+    const msg = {
+        to,
+        from: { email: FROM_EMAIL, name: 'Benched.au' },
+        subject: `${code} is your Benched checkout code`,
+        text: `Hi ${name}, your Benched checkout code is ${code}. Enter it to hold "${productTitle}" for 30 minutes while you pay by PayID. The code expires in 10 minutes. If you didn't request it, ignore this email.`,
+        html: `
+            <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 20px; border: 1px solid #eee; border-radius: 20px;">
+                <h1 style="color: #111; font-size: 22px; font-weight: 900; margin: 0 0 12px;">Your checkout code</h1>
+                <p style="color: #555; font-size: 15px;">Hi ${escapeHtml(name)}, enter this code to hold <strong>${escapeHtml(productTitle)}</strong> for 30 minutes while you pay by PayID.</p>
+                <div style="background: #f6f6f6; padding: 24px; border-radius: 16px; text-align: center; margin: 24px 0;">
+                    <div style="font-family: monospace; font-size: 38px; font-weight: 900; color: #111; letter-spacing: 8px;">${code}</div>
+                </div>
+                <p style="color: #888; font-size: 13px;">The code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>
+            </div>
+        `,
+    };
+    try {
+        await sgMail.send(msg);
+        return { success: true };
+    } catch (error: any) {
+        console.error('❌ SendGrid Error (guest code):', error.response?.body || error.message);
+        return { success: false, error: error.message };
+    }
+}

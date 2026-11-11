@@ -7,7 +7,8 @@
  */
 export type LocalPaymentMethod = 'payid' | 'cash';
 
-export const PAYID_HOLD_HOURS = 48;
+/** PayID orders hold the item for 30 minutes (see src/lib/checkout/holds.ts). */
+export const PAYID_HOLD_HOURS = 0.5;
 export const CASH_HOLD_HOURS = 72;
 
 export type PayIdType = 'email' | 'phone' | 'abn';
@@ -108,10 +109,13 @@ export const OPEN_PAYMENT_STATUSES = ['awaiting_payment'] as const;
 export type OrderPaymentAction = 'mark_paid' | 'mark_collected' | 'cancel';
 
 /** Which transitions are allowed. Returns the patch to apply, or throws. */
-export function nextOrderState(order: { status: string; paymentMethod?: string; shippingMethod?: string; paymentStatus?: string }, action: OrderPaymentAction) {
+export function nextOrderState(order: { status: string; paymentMethod?: string; shippingMethod?: string; paymentStatus?: string; stockMode?: string; cancelReason?: string }, action: OrderPaymentAction) {
     const method = normalizePaymentMethod(order.paymentMethod);
+    // A 30-minute hold that ran out can still be marked paid if the stock is still free
+    // (the stock check happens in applyOrderTransition).
+    const expiredHold = order.stockMode === 'hold' && order.status === 'cancelled' && order.cancelReason === 'payment_timeout';
     if (action === 'mark_paid') {
-        if (order.status !== 'awaiting_payment') throw new Error('This order is not awaiting payment.');
+        if (order.status !== 'awaiting_payment' && !expiredHold) throw new Error('This order is not awaiting payment.');
         return { status: 'paid', paymentStatus: 'paid', productStatus: 'sold' as const };
     }
     if (action === 'mark_collected') {

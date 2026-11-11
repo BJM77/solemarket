@@ -86,7 +86,7 @@ function SignUpFormInner() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       displayName: "",
-      email: "",
+      email: searchParams.get('email') || "",
       phoneNumber: "",
       location: "",
       password: "",

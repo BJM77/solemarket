@@ -7,8 +7,22 @@ import { Button } from '@/components/ui/button';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { getOrderPaymentDetails } from '@/app/actions/marketplace/order-payments';
 import { formatPrice } from '@/lib/utils/format';
+import { HoldCountdown } from '@/components/checkout/HoldCountdown';
 
-type Details = Awaited<ReturnType<typeof getOrderPaymentDetails>>;
+/** Shape shared by signed-in orders (getOrderPaymentDetails) and guest orders (order token page). */
+export interface PaymentDetails {
+    id: string;
+    status: string;
+    paymentMethod: string;
+    paymentReference: string;
+    paymentDueAt?: string | null;
+    holdExpiresAt?: string | null;
+    stockMode?: string | null;
+    holdActive?: boolean;
+    totalAmount: number;
+    sellerName?: string | null;
+    payId: { payId: string; payIdType?: string | null; accountName?: string | null } | null;
+}
 
 function CopyRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     const [copied, setCopied] = useState(false);
@@ -36,9 +50,8 @@ function CopyRow({ label, value, mono }: { label: string; value: string; mono?: 
 
 /** Payment instructions for one order (PayID or Perth cash pickup), shown to the buyer only. */
 export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
-    const [d, setD] = useState<Details | null>(null);
+    const [d, setD] = useState<PaymentDetails | null>(null);
     const [err, setErr] = useState<string | null>(null);
-    const [copiedAll, setCopiedAll] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -47,7 +60,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                 const token = await getCurrentUserIdToken();
                 if (!token) throw new Error('Sign in to see payment details.');
                 const res = await getOrderPaymentDetails(token, orderId);
-                if (!cancelled) setD(res);
+                if (!cancelled) setD(res as PaymentDetails);
             } catch (e: any) {
                 if (!cancelled) setErr(e?.message || 'Could not load payment details.');
             }
@@ -57,15 +70,46 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
 
     if (err) return <p className="text-sm text-rose-600">{err}</p>;
     if (!d) return <Loader2 className="h-5 w-5 animate-spin" aria-label="Loading payment details" />;
+    return <OrderPaymentInstructionsView d={d} />;
+}
+
+/**
+ * The instructions themselves. `guest` hides links that need an account (messages).
+ * Hold-model PayID orders show a live 30-minute countdown; when it runs out the PayID is hidden.
+ */
+export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d: PaymentDetails; guest?: boolean; onExpire?: () => void }) {
+    const [copiedAll, setCopiedAll] = useState(false);
+    const [expired, setExpired] = useState(false);
     if (d.status !== 'awaiting_payment') return null;
+    const isHold = d.stockMode === 'hold' || !!d.holdExpiresAt;
+    const holdOver = isHold && (expired || d.holdActive === false);
 
     const due = d.paymentDueAt ? new Date(d.paymentDueAt).toLocaleString('en-AU', { timeZone: 'Australia/Perth', dateStyle: 'medium', timeStyle: 'short' }) : null;
     const reportHref = `/contact?topic=order-problem&ref=${encodeURIComponent(d.paymentReference || d.id)}`;
+
+    if (d.paymentMethod === 'payid' && holdOver) {
+        return (
+            <section aria-label="Hold expired" className="space-y-2 rounded-2xl border-2 border-rose-500/50 bg-rose-500/5 p-5" data-testid="hold-expired">
+                <h3 className="text-lg font-black text-foreground">Your 30-minute hold has ended</h3>
+                <p className="text-sm text-foreground/80">
+                    Please don&apos;t pay now. The item has been released for other buyers. If it&apos;s still listed you can buy it again.
+                    If you already paid, the seller can still confirm your payment, or <Link href={reportHref} className="underline">contact us</Link>.
+                </p>
+            </section>
+        );
+    }
 
     return (
         <section aria-label="Payment instructions" className="space-y-4 rounded-2xl border-2 border-primary bg-primary/5 p-5">
             {d.paymentMethod === 'payid' ? (
                 <>
+                    {isHold && d.holdExpiresAt && (
+                        <HoldCountdown
+                            expiresAt={d.holdExpiresAt}
+                            label="Pay within"
+                            onExpire={() => { setExpired(true); onExpire?.(); }}
+                        />
+                    )}
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="flex items-start gap-3">
                             <AlertTriangle className="h-6 w-6 shrink-0 text-primary" aria-hidden />
@@ -73,7 +117,9 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                                 <h3 className="text-lg font-black text-foreground">Pay {d.sellerName || 'the seller'} by PayID</h3>
                                 <p className="text-sm text-foreground/80">
                                     Transfer the exact amount from your banking app using the PayID and reference below.
-                                    {due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
+                                    {isHold
+                                        ? ' The item is held for you for 30 minutes. Pay before the timer runs out or it goes back on sale.'
+                                        : due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
                                 </p>
                             </div>
                         </div>
@@ -116,7 +162,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                         <li>Open your banking app and choose Pay to PayID.</li>
                         <li>Check the name your bank shows matches the account name above before you confirm.</li>
                         <li>Put the reference in the description so the seller can match your payment.</li>
-                        <li>The seller marks the order as paid when the money arrives; you&apos;ll get a notification.</li>
+                        <li>The seller marks the order as paid when the money arrives; you&apos;ll get {guest ? 'an email' : 'a notification'}.</li>
                     </ol>
                 </>
             ) : (
@@ -129,7 +175,7 @@ export function OrderPaymentInstructions({ orderId }: { orderId: string }) {
                             {due ? ` before ${due} (Perth time)` : ' within 72 hours'}. Bring <b>${formatPrice(d.totalAmount)}</b> in cash,
                             inspect the item, then pay. Quote reference <b className="font-mono">{d.paymentReference}</b>.
                         </p>
-                        <Button asChild variant="outline" className="min-h-11"><Link href="/messages">Message the seller</Link></Button>
+                        {!guest && <Button asChild variant="outline" className="min-h-11"><Link href="/messages">Message the seller</Link></Button>}
                     </div>
                 </div>
             )}

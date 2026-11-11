@@ -8,6 +8,7 @@ import { maskPayId, validateSellerPayout } from '@/lib/payments/local';
 import { applyOrderTransition } from '@/lib/payments/server';
 import { serializeFirestoreData } from '@/lib/utils/serialization';
 import { resolveSellerName } from '@/lib/utils/seller-name';
+import { isActiveHoldOrder } from '@/lib/checkout/holds';
 
 const payoutRef = (uid: string) => firestoreDb.collection('users').doc(uid).collection('private').doc('payout');
 
@@ -53,7 +54,9 @@ export async function getOrderPaymentDetails(idToken: string, orderId: string) {
     const isAdmin = role === 'admin' || role === 'superadmin';
     if (o.buyerId !== uid && !isAdmin) throw new Error('Order not found.');
     let payId: any = null;
-    if (o.paymentMethod === 'payid' && o.status === 'awaiting_payment') {
+    // Hold-model orders: the PayID is only shown while the 30-minute hold is running.
+    const holdActive = o.stockMode === 'hold' ? isActiveHoldOrder(o) : o.status === 'awaiting_payment';
+    if (o.paymentMethod === 'payid' && o.status === 'awaiting_payment' && holdActive) {
         const p = await orderRef.collection('private').doc('payment').get();
         if (p.exists) payId = { payId: p.data().payId, payIdType: p.data().payIdType, accountName: p.data().accountName };
     }
@@ -65,6 +68,9 @@ export async function getOrderPaymentDetails(idToken: string, orderId: string) {
         paymentMethod: o.paymentMethod,
         paymentReference: o.paymentReference || o.payIdReference,
         paymentDueAt: o.paymentDueAt,
+        holdExpiresAt: o.holdExpiresAt || null,
+        stockMode: o.stockMode || null,
+        holdActive,
         totalAmount: o.totalAmount,
         sellerName,
         sellerId: o.sellerId,

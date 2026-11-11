@@ -15,6 +15,7 @@ import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymen
 import type { Deal } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { sendTelegramNotification } from '@/lib/telegram';
+import { addHold, availableQuantity, holdExpiry, activeHolds } from '@/lib/checkout/holds';
 
 interface CartItem {
     id: string;
@@ -134,8 +135,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 if (product.status !== 'available') {
                     throw new Error(`${product.title} is no longer available.`);
                 }
-                if ((product.quantity || 0) < item.quantity) {
-                    throw new Error(`Not enough stock for ${product.title}.`);
+                // Units held by other buyers' 30-minute PayID holds don't count (expired holds do).
+                if (availableQuantity(product as any, now.getTime()) < item.quantity) {
+                    throw new Error(activeHolds(product as any, now.getTime()).length
+                        ? `Sorry, ${product.title} is on hold for another buyer right now. Check back in a few minutes.`
+                        : `Not enough stock for ${product.title}.`);
                 }
                 const currentHoldExpiresAt = product.holdExpiresAt?.toDate?.();
                 const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > now;
@@ -160,6 +164,13 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 })),
             });
             const dueAt = paymentDueAt(paymentMethod, now);
+            // PayID orders use the 30-minute hold model (stock is taken when the seller marks it
+            // paid); cash pickups keep reserving stock for 72h.
+            const useHold = paymentMethod === 'payid';
+            const holdExpiresAtMs = holdExpiry(now.getTime());
+            const orderRefBySeller: Record<string, any> = {};
+            const orderRefFor = (sellerId: string) => (orderRefBySeller[sellerId] ||= firestoreDb.collection('orders').doc());
+            const holdQtyByProduct: Record<string, { index: number; qty: number }> = {};
 
             const { lineTotals, dealUsage, bundleUsage } = buildOrderPricing({
                 items, products, deals, bundles, dealAllowance, bundleAllowance, tierSettings, now,
@@ -190,6 +201,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
                 // Reserve (not sell) while awaiting payment; the release-unpaid-orders cron
                 // puts it back if the buyer doesn't pay in time.
+                if (useHold) {
+                    const h = (holdQtyByProduct[String(item.id)] ||= { index: i, qty: 0 });
+                    h.qty += item.quantity;
+                    continue;
+                }
                 const soldOut = (product.quantity || 0) - item.quantity === 0;
                 t.update(productRefs[i], {
                     quantity: FieldValue.increment(-item.quantity),
@@ -199,6 +215,14 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                         reservedUntil: Timestamp.fromDate(dueAt),
                         updatedAt: FieldValue.serverTimestamp(),
                     } : {}),
+                });
+            }
+
+            for (const { index, qty } of Object.values(holdQtyByProduct)) {
+                const product = products[index];
+                t.update(productRefs[index], {
+                    checkoutHolds: addHold(product as any, { orderId: orderRefFor(product.sellerId).id, qty, expiresAtMs: holdExpiresAtMs }, now.getTime()),
+                    updatedAt: FieldValue.serverTimestamp(),
                 });
             }
 
@@ -235,7 +259,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             }
 
             for (const [sellerId, group] of Object.entries(sellerGroups)) {
-                const orderRef = firestoreDb.collection('orders').doc();
+                const orderRef = orderRefFor(sellerId);
                 const sellerProfile = fetchedUsers[sellerId];
                 const isBusiness = sellerProfile?.role === 'business';
 
@@ -278,6 +302,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     paymentMethod,
                     paymentReference,
                     paymentDueAt: Timestamp.fromDate(dueAt),
+                    ...(useHold ? { stockMode: 'hold', holdExpiresAt: Timestamp.fromMillis(holdExpiresAtMs) } : {}),
                     pickupLocation: paymentMethod === 'cash' ? 'Perth (arranged with seller)' : null,
                     shippingMethod,
                     shippingAddress: options?.shippingAddress || null,
