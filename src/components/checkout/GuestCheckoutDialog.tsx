@@ -3,14 +3,15 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, Mail, ShieldCheck } from 'lucide-react';
+import { Loader2, Lock, ShieldCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatPrice } from '@/lib/utils/format';
-import { requestGuestCodeAction, confirmGuestCodeAction } from '@/app/actions/marketplace/guest-checkout';
-import { validateGuestDetails } from '@/lib/checkout/guest-validation';
+import { startGuestCheckoutAction, placeGuestHoldAction } from '@/app/actions/marketplace/guest-checkout';
+import { validateGuestDetails, msUntilFormReady } from '@/lib/checkout/guest-validation';
+import { saveGuestOrder } from '@/lib/checkout/guest-orders-local';
 
 const DEVICE_KEY = 'benched:device-id';
 
@@ -37,26 +38,38 @@ interface Props {
     payIdReady: boolean;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
- * Guest checkout (no account): name, email and mobile -> 6-digit code by email -> the item is
- * held for 30 minutes and the buyer is sent to their private order page with the PayID.
+ * Guest checkout (no account, no email code): name, email and mobile -> the item is held for
+ * 30 minutes and the buyer goes straight to their private order page with the PayID.
  */
 export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, payIdReady }: Props) {
     const router = useRouter();
-    const [step, setStep] = useState<'details' | 'code'>('details');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
+    const [website, setWebsite] = useState(''); // honeypot
     const [shippingMethod, setShippingMethod] = useState<'pickup' | 'shipping'>('pickup');
     const [addr, setAddr] = useState({ street: '', city: '', state: 'WA', zip: '' });
-    const [code, setCode] = useState('');
-    const [challenge, setChallenge] = useState<{ challengeId: string; email: string; totalAmount: number; shippingCost: number } | null>(null);
+    const [ticket, setTicket] = useState<{ ticketId: string; issuedAtMs: number; localAtMs: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
-    useEffect(() => { if (!open) { setError(null); } }, [open]);
+    // A fresh one-use form ticket each time the dialog opens (records when the form was shown).
+    useEffect(() => {
+        if (!open) { setError(null); setTicket(null); return; }
+        if (!payIdReady) return;
+        let cancelled = false;
+        startGuestCheckoutAction(product.id).then((r) => {
+            if (cancelled) return;
+            if (r.success) setTicket({ ticketId: r.ticketId, issuedAtMs: r.issuedAtMs, localAtMs: Date.now() });
+            else setError(r.error);
+        }).catch(() => { if (!cancelled) setError('Something went wrong. Please try again.'); });
+        return () => { cancelled = true; };
+    }, [open, payIdReady, product.id]);
 
-    const sendCode = () => {
+    const placeHold = () => {
         setError(null);
         try {
             validateGuestDetails({ name, email, mobile, shippingMethod, shippingAddress: addr });
@@ -64,26 +77,34 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
             setError(e.message);
             return;
         }
+        if (!ticket) { setError('Still getting checkout ready. Try again in a moment.'); return; }
         startTransition(async () => {
-            const res = await requestGuestCodeAction({
-                productId: product.id, name, email, mobile, shippingMethod,
+            // Very fast fills (autofill) wait out the minimum form time instead of erroring.
+            await sleep(msUntilFormReady(ticket.localAtMs, Date.now()));
+            const res = await placeGuestHoldAction({
+                productId: product.id, ticketId: ticket.ticketId, name, email, mobile, shippingMethod,
                 shippingAddress: shippingMethod === 'shipping' ? addr : null,
                 deviceId: getDeviceId(),
+                website,
             });
-            if (!res.success) { setError(res.error); return; }
-            setChallenge(res);
-            setCode('');
-            setStep('code');
-        });
-    };
-
-    const confirm = () => {
-        if (!challenge) return;
-        setError(null);
-        if (!/^\d{6}$/.test(code.trim())) { setError('Enter the 6-digit code from your email.'); return; }
-        startTransition(async () => {
-            const res = await confirmGuestCodeAction({ challengeId: challenge.challengeId, code: code.trim(), deviceId: getDeviceId() });
-            if (!res.success) { setError(res.error); return; }
+            if (!res.success) {
+                setError(res.error);
+                // A used or expired ticket needs a new one.
+                if (/expired|already used/i.test(res.error)) {
+                    const t = await startGuestCheckoutAction(product.id);
+                    if (t.success) setTicket({ ticketId: t.ticketId, issuedAtMs: t.issuedAtMs, localAtMs: Date.now() });
+                }
+                return;
+            }
+            saveGuestOrder({
+                token: res.orderToken,
+                title: res.title || product.title,
+                reference: res.paymentReference,
+                totalAmount: res.totalAmount,
+                createdAtMs: Date.now(),
+                holdExpiresAtMs: res.holdExpiresAtMs,
+                status: 'awaiting_payment',
+            });
             onOpenChange(false);
             router.push(`/order/${res.orderToken}`);
         });
@@ -106,8 +127,8 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                         </p>
                         <Button asChild className="w-full min-h-11 font-bold"><Link href={signInHref}>Sign in to buy</Link></Button>
                     </div>
-                ) : step === 'details' ? (
-                    <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); sendCode(); }}>
+                ) : (
+                    <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); placeHold(); }}>
                         <div className="space-y-1">
                             <Label htmlFor="guest-name">Name</Label>
                             <Input id="guest-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -119,7 +140,12 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                         <div className="space-y-1">
                             <Label htmlFor="guest-mobile">Mobile</Label>
                             <Input id="guest-mobile" type="tel" autoComplete="tel" inputMode="tel" placeholder="04xx xxx xxx" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
-                            <p className="text-[11px] text-muted-foreground">Shared with the seller so they can contact you about this order.</p>
+                            <p className="text-[11px] text-muted-foreground">Your email and mobile go to the seller only, so they can contact you about this order. We don&apos;t send you emails.</p>
+                        </div>
+                        {/* Honeypot: hidden from people and screen readers; bots fill it in. */}
+                        <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
+                            <label htmlFor="guest-website">Website</label>
+                            <input id="guest-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
                         </div>
                         <fieldset className="space-y-2">
                             <legend className="text-sm font-medium">Delivery</legend>
@@ -141,48 +167,15 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                         )}
                         <div className="flex items-start gap-2 rounded-xl bg-muted p-3 text-xs text-foreground/80">
                             <ShieldCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-                            <p>We&apos;ll email you a 6-digit code. Once you enter it, the item is held for you for <b>30 minutes</b> while you pay the seller by PayID.</p>
+                            <p>The item is held for you for <b>30 minutes</b> while you pay the seller by PayID. Next you&apos;ll see the PayID and a private order page: save or bookmark it, as it&apos;s your only link to this order.</p>
                         </div>
                         {error && <p className="text-sm font-medium text-rose-600" role="alert">{error}</p>}
-                        <Button type="submit" className="w-full min-h-11 font-bold" disabled={pending} data-testid="guest-send-code">
-                            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />} Email me a code
+                        <Button type="submit" className="w-full min-h-11 font-bold" disabled={pending || !ticket} data-testid="guest-place-hold">
+                            {pending || (!ticket && !error) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Hold it for 30 minutes
                         </Button>
                         <p className="text-center text-xs text-muted-foreground">
                             Have an account? <Link href={signInHref} className="font-bold underline">Sign in</Link>
                         </p>
-                    </form>
-                ) : (
-                    <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); confirm(); }}>
-                        <p className="text-sm text-foreground/80">
-                            We sent a 6-digit code to <b>{challenge?.email}</b>. It expires in 10 minutes. Check your spam folder if it isn&apos;t there.
-                        </p>
-                        {challenge && (
-                            <p className="text-sm">
-                                Total to pay: <b>${formatPrice(challenge.totalAmount)}</b>
-                                {challenge.shippingCost > 0 ? ` (includes $${formatPrice(challenge.shippingCost)} postage)` : ''}
-                            </p>
-                        )}
-                        <div className="space-y-1">
-                            <Label htmlFor="guest-code">Code</Label>
-                            <Input
-                                id="guest-code"
-                                inputMode="numeric"
-                                autoComplete="one-time-code"
-                                maxLength={6}
-                                className="text-center font-mono text-2xl tracking-[0.5em]"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                autoFocus
-                            />
-                        </div>
-                        {error && <p className="text-sm font-medium text-rose-600" role="alert">{error}</p>}
-                        <Button type="submit" className="w-full min-h-11 font-bold" disabled={pending || code.length !== 6} data-testid="guest-confirm-code">
-                            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Confirm and hold for 30 minutes
-                        </Button>
-                        <div className="flex justify-between text-xs">
-                            <button type="button" className="underline" onClick={() => { setStep('details'); setError(null); }}>Change details</button>
-                            <button type="button" className="underline" disabled={pending} onClick={sendCode}>Send a new code</button>
-                        </div>
                     </form>
                 )}
             </DialogContent>

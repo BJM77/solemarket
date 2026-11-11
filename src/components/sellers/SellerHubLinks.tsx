@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OrderNotificationsToggle } from '@/components/seller/OrderNotificationsToggle';
 import { PlusCircle, Layers, List, LayoutDashboard, Settings, BarChart3, Target } from 'lucide-react';
 
 // Seller portal shortcuts. Lives at /sellers so it works on every storefront domain.
@@ -16,6 +17,9 @@ export function SellerHubLinks() {
     <section aria-labelledby="seller-hub-heading" className="mb-12" data-testid="seller-hub">
       <h2 id="seller-hub-heading" className="text-2xl font-bold font-headline mb-1">Seller Hub</h2>
       <p className="text-foreground/80 mb-5">Manage and upload your listings for every Benched storefront.</p>
+      <div className="mb-4">
+        <OrderNotificationsToggle compact />
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {LINKS.map(({ href, label, desc, Icon }) => (
           <Link

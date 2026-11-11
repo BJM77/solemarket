@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { Bookmark, Copy, Check } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { OrderPaymentInstructionsView, type PaymentDetails } from '@/components/orders/OrderPaymentInstructions';
 import { cancelGuestOrderAction } from '@/app/actions/marketplace/guest-checkout';
 import { formatPrice } from '@/lib/utils/format';
+import { toMs } from '@/lib/checkout/holds';
+import { saveGuestOrder, listGuestOrders, isLocalOrderActive, type LocalGuestOrder } from '@/lib/checkout/guest-orders-local';
 
 type GuestOrder = PaymentDetails & {
     cancelReason?: string | null;
@@ -34,6 +37,32 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
     const router = useRouter();
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+    const [others, setOthers] = useState<LocalGuestOrder[]>([]);
+
+    // Remember this order on this device ("Your active orders"), with its latest status.
+    useEffect(() => {
+        saveGuestOrder({
+            token,
+            title: order.item?.title || 'Your order',
+            reference: order.paymentReference,
+            totalAmount: order.totalAmount,
+            createdAtMs: toMs((order as any).createdAt) || Date.now(),
+            holdExpiresAtMs: toMs(order.holdExpiresAt),
+            status: order.status,
+        });
+        setOthers(listGuestOrders().filter((o) => o.token !== token));
+    }, [token, order]);
+
+    const copyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.origin + window.location.pathname);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            setError('Copy failed. Bookmark this page instead.');
+        }
+    };
 
     // Pick up the seller marking it paid (or the hold ending) without a manual reload.
     useEffect(() => {
@@ -54,6 +83,21 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Order {order.paymentReference}</p>
                 <h1 className="text-2xl font-black">Thanks{order.buyerName ? `, ${order.buyerName.split(' ')[0]}` : ''}!</h1>
                 <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${status.tone}`} data-testid="guest-order-status">{status.label}</span>
+            </div>
+
+            <div className="space-y-3 rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 text-sm" data-testid="guest-save-link">
+                <div className="flex items-start gap-2">
+                    <Bookmark className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    <div>
+                        <p className="font-bold">Save or bookmark this page</p>
+                        <p className="text-foreground/80">
+                            We don&apos;t send emails, so this private link is the only way back to your order. It&apos;s also remembered on this device under &quot;Your active orders&quot;. Don&apos;t share it.
+                        </p>
+                    </div>
+                </div>
+                <Button type="button" variant="outline" className="min-h-11 w-full font-bold sm:w-auto" onClick={copyLink} data-testid="copy-order-link">
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} {copied ? 'Link copied' : 'Copy order link'}
+                </Button>
             </div>
 
             {order.item && (
@@ -106,7 +150,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             {['paid', 'completed', 'shipped', 'delivered', 'processing'].includes(order.status) && (
                 <div className="flex items-start gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
                     <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
-                    <p>The seller has confirmed your payment. They&apos;ll contact you by email or mobile to arrange {order.shippingMethod === 'shipping' ? 'postage' : 'pickup'}.</p>
+                    <p>The seller has confirmed your payment. They&apos;ll contact you on the email or mobile you gave to arrange {order.shippingMethod === 'shipping' ? 'postage' : 'pickup'}.</p>
                 </div>
             )}
 
@@ -121,10 +165,19 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             )}
 
             <div className="space-y-2 rounded-2xl border bg-card p-4 text-sm">
-                <p className="font-bold">Keep this page</p>
-                <p className="text-muted-foreground">
-                    This private link is the only way to see this order without an account, and we&apos;ve emailed it to you too. Don&apos;t share it.
-                </p>
+                <p className="font-bold">Your other orders on this device</p>
+                {others.length === 0 ? (
+                    <p className="text-muted-foreground">None yet.</p>
+                ) : (
+                    <ul className="space-y-1">
+                        {others.slice(0, 5).map((o) => (
+                            <li key={o.token}>
+                                <Link href={`/order/${o.token}`} className="underline">{o.title}</Link>
+                                <span className="text-muted-foreground"> · {isLocalOrderActive(o) ? 'on hold, awaiting payment' : o.status === 'cancelled' ? 'cancelled' : o.status === 'awaiting_payment' ? 'awaiting payment' : o.status || 'order'}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
                 <p className="text-muted-foreground">
                     Want to track orders in one place? <Link href={signUpHref} className="font-bold text-foreground underline">Create a free account</Link> with {order.buyerEmail || 'the same email'}.
                 </p>

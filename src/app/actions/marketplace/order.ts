@@ -340,7 +340,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
         const result = { orders: serializedOrders };
 
-        // Buyer + seller notifications / emails with payment or pickup instructions.
+        // Buyer + seller in-app notifications and a push to the seller (no email).
         try {
             const { notifyOrderPlaced } = await import('@/lib/payments/server');
             await Promise.all(results.map((o: any) => notifyOrderPlaced(o)));

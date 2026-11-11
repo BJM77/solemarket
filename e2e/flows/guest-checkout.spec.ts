@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { flowsEnabled, signIn, resetGuestListing, latestGuestCode, productDoc } from './helpers';
+import { flowsEnabled, signIn, resetGuestListing, productDoc } from './helpers';
 
 const EMAIL = 'guest.buyer@e2e.test';
 
-// Signed-out buyer: details -> emailed 6-digit code -> 30-minute PayID hold -> seller marks paid.
+// Signed-out buyer: details -> 30-minute PayID hold straight away (no email code) -> seller marks paid.
 test.describe('guest checkout (no account)', () => {
   test.use({ bypassCSP: true });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
@@ -23,26 +23,21 @@ test.describe('guest checkout (no account)', () => {
     await dialog.locator('#guest-name').fill('Guest Buyer');
     await dialog.locator('#guest-email').fill(EMAIL);
     await dialog.locator('#guest-mobile').fill('0412 345 678');
-    await dialog.getByTestId('guest-send-code').click();
-    await expect(dialog.locator('#guest-code')).toBeVisible({ timeout: 30_000 });
-
-    let code: string | undefined;
-    await expect.poll(async () => (code = await latestGuestCode(EMAIL)), { timeout: 15_000 }).toMatch(/^\d{6}$/);
-
-    // A wrong code is rejected without holding anything.
-    await dialog.locator('#guest-code').fill(code === '000000' ? '111111' : '000000');
-    await dialog.getByTestId('guest-confirm-code').click();
-    await expect(dialog.getByRole('alert')).toContainText(/isn't right/i, { timeout: 15_000 });
-    expect((await productDoc('e2e-guest-1')).checkoutHolds || []).toHaveLength(0);
-
-    await dialog.locator('#guest-code').fill(code!);
-    await dialog.getByTestId('guest-confirm-code').click();
+    // Honeypot stays empty for a person; the hold is placed with no email code.
+    await expect(dialog.locator('#guest-website')).toHaveValue('');
+    await dialog.getByTestId('guest-place-hold').click();
 
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
     await expect(page.getByTestId('guest-order-page')).toBeVisible();
     await expect(page.getByTestId('pay-payid')).toHaveText('0400000000');
     await expect(page.getByTestId('hold-countdown')).toHaveText(/^(30:00|29:\d\d)$/);
     await expect(page.getByTestId('copy-all-payid-btn')).toBeVisible();
+    // No email: the page tells the buyer to save it, offers a copy-link button and remembers it.
+    await expect(page.getByTestId('guest-save-link')).toContainText(/bookmark/i);
+    await expect(page.getByTestId('copy-order-link')).toBeVisible();
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('benched:guest-orders') || '[]'));
+    expect(saved).toHaveLength(1);
+    expect(page.url()).toContain(saved[0].token);
 
     // The listing is held: stock untouched, one 30-minute hold.
     const held = await productDoc('e2e-guest-1');
@@ -51,6 +46,12 @@ test.describe('guest checkout (no account)', () => {
     expect(held.checkoutHolds).toHaveLength(1);
     const orderId = held.checkoutHolds[0].orderId;
     expect(held.checkoutHolds[0].expiresAtMs - Date.now()).toBeGreaterThan(28 * 60_000);
+
+    // Back on the site, the same device shows "Your active orders".
+    const orderUrl = page.url();
+    await page.goto('/');
+    await expect(page.getByTestId('guest-active-orders-bar')).toBeVisible({ timeout: 45_000 });
+    await page.goto(orderUrl);
 
     // Another visitor sees it on hold and can't buy it.
     const other = await browser.newContext({ bypassCSP: true });

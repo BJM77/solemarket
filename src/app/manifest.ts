@@ -6,11 +6,19 @@ export default function manifest(): MetadataRoute.Manifest {
         name: SITE_NAME,
         short_name: SITE_NAME,
         description: brandConfig.company.description,
+        id: '/',
         start_url: '/',
+        scope: '/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#f26c0d',
         icons: [
+            // iPhone Home Screen app (needed for web push on iOS 16.4+).
+            {
+                src: '/apple-touch-icon.png',
+                sizes: '180x180',
+                type: 'image/png',
+            },
             {
                 src: brandConfig.branding.faviconUrl,
                 sizes: 'any',

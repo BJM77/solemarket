@@ -1,4 +1,5 @@
-'use server';
+import 'server-only';
+// Server-only helpers (not server actions: they must never be callable from a browser).
 
 import { firestoreDb, admin as firebaseAdmin } from '@/lib/firebase/admin';
 import { Notification } from '@/lib/types';

@@ -10,7 +10,7 @@ const MIN_INTERVAL_MS = 60_000;
 
 /**
  * Tidies unpaid orders whose 30-minute PayID hold (or 72h cash window) has ended:
- * order -> cancelled, hold removed, buyer + seller told. Listings are already buyable again
+ * order -> cancelled, hold removed, seller told in-app + by push (no email). Listings are buyable again
  * the moment a hold expires (computed on read), so this is bookkeeping, not a gate.
  * Needs no secret: it only acts on genuinely expired orders, returns counts only, and a
  * Firestore throttle stops it running more than once a minute.

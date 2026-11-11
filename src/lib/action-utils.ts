@@ -20,7 +20,8 @@ export async function ensureActionAuth(idToken?: string, requiredRole?: AuthRole
 
     // 1. Try provided ID Token (common for actions triggered by client interactions)
     if (idToken) {
-        if (idToken === 'test') {
+        // Unit-test shortcut only: never honoured outside the test runner.
+        if (idToken === 'test' && process.env.NODE_ENV === 'test') {
             return {
                 uid: 'test-user-id',
                 email: 'test@example.com',

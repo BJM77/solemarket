@@ -62,6 +62,26 @@ export function validateGuestDetails(input: GuestDetailsInput): GuestDetails {
     return { name, email, mobile, shippingMethod, shippingAddress };
 }
 
-export function isSixDigitCode(v: unknown): v is string {
-    return typeof v === 'string' && /^\d{6}$/.test(v);
+/** Anti-abuse: a checkout form must be open at least this long before a hold is placed. */
+export const MIN_FORM_MS = 3_000;
+/** ...and not so long that the form ticket is stale. */
+export const MAX_FORM_MS = 2 * 3600_000;
+
+/** Returns a buyer-friendly error, or null when the form timing looks human. */
+export function checkFormTiming(issuedAtMs: number, nowMs: number): string | null {
+    if (!Number.isFinite(issuedAtMs) || issuedAtMs <= 0) return 'This checkout form has expired. Please close it and tap Buy Now again.';
+    const age = nowMs - issuedAtMs;
+    if (age < MIN_FORM_MS) return 'That was quick! Please check your details and try again.';
+    if (age > MAX_FORM_MS) return 'This checkout form has expired. Please close it and tap Buy Now again.';
+    return null;
+}
+
+/** Honeypot: a hidden field people never see. Anything in it means a bot filled the form. */
+export function isHoneypotFilled(v: unknown): boolean {
+    return v != null && String(v).trim().length > 0;
+}
+
+/** How long the client should wait before sending, so fast typers/autofill never see an error. */
+export function msUntilFormReady(issuedAtMs: number, nowMs: number): number {
+    return Math.max(0, issuedAtMs + MIN_FORM_MS + 250 - nowMs);
 }

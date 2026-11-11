@@ -127,6 +127,7 @@ export const viewport: Viewport = {
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PwaRegister } from '@/components/layout/PwaRegister';
+import { GuestActiveOrdersBar } from '@/components/checkout/GuestActiveOrders';
 
 export default async function RootLayout({
   children,
@@ -153,6 +154,7 @@ export default async function RootLayout({
           <FBPixel />
           <AnnouncementBanner announcement={siteConfig.announcement} />
           <Header />
+          <GuestActiveOrdersBar />
           <main id="main-content" className="min-h-screen overflow-x-hidden max-w-full w-full">
             {children}
           </main>

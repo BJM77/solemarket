@@ -43,7 +43,7 @@ export async function resetDrafts() {
   }
 }
 
-/** Fresh, unheld guest listing and no leftover guest orders/codes (emulator only). */
+/** Fresh, unheld guest listing and no leftover guest orders/form tickets (emulator only). */
 export async function resetGuestListing(email: string) {
   const { db, admin } = await emulatorDb();
   const now = admin.firestore.FieldValue.serverTimestamp();
@@ -55,17 +55,8 @@ export async function resetGuestListing(email: string) {
   });
   const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
   for (const d of orders.docs) await d.ref.delete();
-  const codes = await db.collection('guest_checkout_codes').where('details.email', '==', email).get();
-  for (const d of codes.docs) await d.ref.delete();
-}
-
-/** The code the server generated for this email (emulator stores it only in test mode). */
-export async function latestGuestCode(email: string): Promise<string | undefined> {
-  const { db } = await emulatorDb();
-  const snap = await db.collection('guest_checkout_codes').where('details.email', '==', email).get();
-  const open = snap.docs.map((d: any) => d.data()).filter((d: any) => !d.used && d.devCode);
-  open.sort((a: any, b: any) => (b.expiresAt?.toMillis?.() || 0) - (a.expiresAt?.toMillis?.() || 0));
-  return open[0]?.devCode;
+  const tickets = await db.collection('guest_checkout_tickets').where('productId', '==', 'e2e-guest-1').get();
+  for (const d of tickets.docs) await d.ref.delete();
 }
 
 export async function productDoc(id: string): Promise<any> {
