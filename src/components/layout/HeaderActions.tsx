@@ -8,6 +8,7 @@ import { UserNav } from './user-nav';
 import dynamic from 'next/dynamic';
 const SearchCommand = dynamic(() => import('@/components/search/SearchCommand').then(m => m.SearchCommand), { ssr: false });
 import { NotificationBell } from '../notifications/NotificationBell';
+import { NewOrderAlerts } from '../notifications/NewOrderAlerts';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { LogIn, UserPlus } from 'lucide-react';
@@ -43,6 +44,7 @@ export default function HeaderActions() {
             {user && (
                 <div>
                     <NotificationBell />
+                    <NewOrderAlerts />
                 </div>
             )}
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeAuMobile, normalizeEmail, validateGuestDetails, isSixDigitCode } from './guest-validation';
-import { codeMatches, generateCode, generateOrderToken, hashCode, identityHash, isPlausibleOrderToken, orderTokenHash } from './guest-crypto';
+import { normalizeAuMobile, normalizeEmail, validateGuestDetails, checkFormTiming, isHoneypotFilled, msUntilFormReady, MIN_FORM_MS, MAX_FORM_MS } from './guest-validation';
+import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash } from './guest-crypto';
 
 describe('guest details', () => {
     it('normalises AU mobiles', () => {
@@ -26,15 +26,38 @@ describe('guest details', () => {
     });
 });
 
-describe('codes and tokens', () => {
-    it('6-digit codes, salted by challenge id, constant-time compare', () => {
-        for (let i = 0; i < 50; i++) expect(isSixDigitCode(generateCode())).toBe(true);
-        const h = hashCode('challenge-1', '123456');
-        expect(codeMatches('challenge-1', '123456', h)).toBe(true);
-        expect(codeMatches('challenge-1', '123457', h)).toBe(false);
-        expect(codeMatches('challenge-2', '123456', h)).toBe(false);
-        expect(codeMatches('challenge-1', '123456', 'zz')).toBe(false);
+describe('anti-abuse (no email code)', () => {
+    it('rejects forms submitted faster than a person could fill them', () => {
+        const t0 = 1_000_000;
+        expect(checkFormTiming(t0, t0 + 500)).toMatch(/quick/i);
+        expect(checkFormTiming(t0, t0 + MIN_FORM_MS - 1)).toMatch(/quick/i);
+        expect(checkFormTiming(t0, t0 + MIN_FORM_MS)).toBeNull();
+        expect(checkFormTiming(t0, t0 + 60_000)).toBeNull();
     });
+    it('rejects stale or missing form tickets', () => {
+        const t0 = 1_000_000;
+        expect(checkFormTiming(t0, t0 + MAX_FORM_MS + 1)).toMatch(/expired/i);
+        expect(checkFormTiming(NaN, t0)).toMatch(/expired/i);
+        expect(checkFormTiming(0, t0)).toMatch(/expired/i);
+    });
+    it('client waits out the minimum time instead of showing an error', () => {
+        expect(msUntilFormReady(1000, 1000)).toBe(MIN_FORM_MS + 250);
+        expect(msUntilFormReady(1000, 1000 + MIN_FORM_MS + 1000)).toBe(0);
+    });
+    it('honeypot: empty is a person, anything else is a bot', () => {
+        expect(isHoneypotFilled(undefined)).toBe(false);
+        expect(isHoneypotFilled(null)).toBe(false);
+        expect(isHoneypotFilled('')).toBe(false);
+        expect(isHoneypotFilled('   ')).toBe(false);
+        expect(isHoneypotFilled('http://spam.example')).toBe(true);
+    });
+    it('email is collected but mobile must be Australian', () => {
+        expect(() => validateGuestDetails({ name: 'Ben', email: 'b@x.com', mobile: '+1 415 555 0100' })).toThrow(/Australian mobile/);
+        expect(() => validateGuestDetails({ name: 'Ben', email: 'not-an-email', mobile: '0412345678' })).toThrow(/email/);
+    });
+});
+
+describe('tokens', () => {
     it('order tokens are long, random and only stored hashed', () => {
         const a = generateOrderToken();
         const b = generateOrderToken();

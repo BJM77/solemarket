@@ -4,7 +4,8 @@
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
 import { useUser, useCollection, useFirebaseRef } from '@/firebase';
-import { getUserNotifications, markAllAsRead, markAsRead } from '@/services/notifications';
+import { doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -45,13 +46,16 @@ export function NotificationBell() {
   const handleMarkAllRead = () => {
     if (!user?.uid || unreadCount === 0) return;
     startTransition(async () => {
-      await markAllAsRead(user.uid);
+      // Firestore rules let the recipient flip `read` on their own notifications.
+      const batch = writeBatch(db);
+      (notifications || []).filter(n => !n.read).forEach(n => batch.update(doc(db, 'notifications', n.id), { read: true }));
+      await batch.commit().catch(() => {});
     });
   };
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-      await markAsRead(notification.id);
+      await updateDoc(doc(db, 'notifications', notification.id), { read: true }).catch(() => {});
     }
     // Note: navigation is handled by the Link component
   };

@@ -1,7 +1,9 @@
 /**
- * Guest checkout (no account): verify the email with a 6-digit code, then hold the item for
- * 30 minutes and show the seller's PayID. Server only: every write goes through the Admin SDK.
- * Firestore rules deny clients access to guest_checkout_codes and to guest orders.
+ * Guest checkout (no account, no email): name, email and mobile, then the item is held for
+ * 30 minutes and the buyer sees the seller's PayID on a private order page. Fake holds are kept
+ * down by per-identity hold limits, rate limits, a honeypot and a minimum time on the form.
+ * Server only: every write goes through the Admin SDK. Firestore rules deny clients access to
+ * guest_checkout_tickets and to guest orders.
  */
 import { firestoreDb } from '@/lib/firebase/admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
@@ -10,18 +12,11 @@ import { serializeFirestoreData } from '@/lib/utils/serialization';
 import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateShipping, calculateTax } from '@/lib/pricing';
 import { generatePaymentReference } from '@/lib/payments/local';
-import { validateGuestDetails, isSixDigitCode, type GuestDetailsInput, type GuestDetails } from './guest-validation';
-import { CODE_TTL_MS, MAX_CODE_ATTEMPTS, codeMatches, generateCode, generateOrderToken, hashCode, identityHash, isPlausibleOrderToken, orderTokenHash, randomId } from './guest-crypto';
-import { addHold, assertCanHold, assertHoldLimits, countActiveHoldOrders, holdExpiry, isActiveHoldOrder, toMs, HOLD_MINUTES } from './holds';
+import { validateGuestDetails, checkFormTiming, isHoneypotFilled, MIN_FORM_MS, type GuestDetailsInput, type GuestDetails } from './guest-validation';
+import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash, randomId } from './guest-crypto';
+import { addHold, assertCanHold, assertHoldLimits, countActiveHoldOrders, holdExpiry, isActiveHoldOrder, toMs } from './holds';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
-const CODES = 'guest_checkout_codes';
-
-/** Emulator-only test hook: the e2e flow reads the code from Firestore. Never true in production. */
-function isEmulatorTestEnv(): boolean {
-    const project = process.env.GCLOUD_PROJECT || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '';
-    return process.env.NEXT_PUBLIC_E2E_EMULATORS === 'true' && !!process.env.FIRESTORE_EMULATOR_HOST && project.startsWith('demo-');
-}
+const TICKETS = 'guest_checkout_tickets';
 
 export interface GuestContext {
     ip: string;
@@ -56,14 +51,6 @@ async function countHolds(hashes: Hashes, nowMs: number, t?: any) {
     return counts;
 }
 
-async function loadSellerForCheckout(sellerId: string) {
-    const [userDoc, payoutDoc] = await firestoreDb.getAll(
-        firestoreDb.collection('users').doc(sellerId),
-        firestoreDb.collection('users').doc(sellerId).collection('private').doc('payout'),
-    );
-    return { user: userDoc.exists ? userDoc.data() : null, payout: payoutDoc.exists ? payoutDoc.data() : null };
-}
-
 function assertGuestBuyable(product: any) {
     if (!product) throw new Error('This listing no longer exists.');
     if (product.isDraft || product.isPrivate) throw new Error('This listing is not for sale.');
@@ -79,101 +66,68 @@ async function quote(product: any, shippingMethod: 'pickup' | 'shipping') {
 }
 
 /**
- * Step 1: validate details, check the item can be held, check limits, email a 6-digit code.
- * Returns a challenge id (not secret on its own: the code is needed too).
+ * Opens a checkout form: a one-use ticket that records when the form was shown, so a hold
+ * can't be placed faster than a person could fill it in (bots posting straight away fail).
  */
-export async function requestGuestCheckoutCode(
-    input: GuestDetailsInput & { productId: string },
-    ctx: GuestContext,
-    deps: { sendCode: (to: string, name: string, code: string, title: string) => Promise<{ success: boolean; error?: string }>; emailConfigured: () => boolean },
-) {
-    const details = validateGuestDetails(input);
-    const productId = String(input.productId || '');
-    if (!/^[\w-]{1,128}$/.test(productId)) throw new Error('Listing not found.');
-
-    const snap = await firestoreDb.collection('products').doc(productId).get();
-    const product = snap.exists ? { ...snap.data(), id: snap.id } as any : null;
-    assertGuestBuyable(product);
+export async function issueGuestCheckoutTicket(productId: string, ctx: GuestContext) {
+    if (!/^[\w-]{1,128}$/.test(String(productId || ''))) throw new Error('Listing not found.');
     const nowMs = Date.now();
-    assertCanHold(product, 1, nowMs);
-
-    const seller = await loadSellerForCheckout(String(product.sellerId));
-    if (!seller.payout?.payId) {
-        throw new Error("This seller doesn't take PayID yet, so guest checkout isn't available. Sign in to arrange a cash pickup, or message the seller.");
-    }
-
-    const hashes = identityHashes(details, ctx);
-    assertHoldLimits(await countHolds(hashes, nowMs));
-
-    const testEnv = isEmulatorTestEnv();
-    if (!deps.emailConfigured() && !testEnv) {
-        throw new Error("We can't send checkout codes right now. Please sign in to buy, or try again later.");
-    }
-
-    const code = generateCode();
-    const challengeId = randomId(18);
-    const q = await quote(product, details.shippingMethod);
-    await firestoreDb.collection(CODES).doc(challengeId).set({
-        codeHash: hashCode(challengeId, code),
-        attempts: 0,
+    const ticketId = randomId(18);
+    await firestoreDb.collection(TICKETS).doc(ticketId).set({
+        productId: String(productId),
+        ipHash: ctx.ip && ctx.ip !== 'unknown' ? identityHash('ip', ctx.ip) : null,
+        issuedAtMs: nowMs,
         used: false,
-        productId,
-        details,
-        hashes,
-        expiresAt: Timestamp.fromMillis(nowMs + CODE_TTL_MS),
-        // TTL policy field (optional, free): lets Firestore delete old challenges.
-        expireAt: Timestamp.fromMillis(nowMs + 24 * 3600_000),
         createdAt: FieldValue.serverTimestamp(),
-        ...(testEnv ? { devCode: code } : {}),
+        // TTL policy field (optional, free): lets Firestore delete old tickets.
+        expireAt: Timestamp.fromMillis(nowMs + 24 * 3600_000),
     });
+    return { ticketId, issuedAtMs: nowMs, minFormMs: MIN_FORM_MS };
+}
 
-    if (deps.emailConfigured()) {
-        const sent = await deps.sendCode(details.email, details.name, code, String(product.title || 'your item'));
-        if (!sent.success) {
-            await firestoreDb.collection(CODES).doc(challengeId).delete().catch(() => {});
-            throw new Error("We couldn't email your code. Check the address, or sign in to buy instead.");
-        }
-    }
-
-    return { challengeId, email: details.email, totalAmount: q.totalAmount, shippingCost: q.shippingCost, holdMinutes: HOLD_MINUTES };
+export interface PlaceGuestHoldInput extends GuestDetailsInput {
+    productId: string;
+    ticketId: string;
+    /** Honeypot: hidden from people, bots fill it in. */
+    website?: unknown;
 }
 
 /**
- * Step 2: check the code, then in one transaction re-check the item and limits, create the
- * order (with the seller's PayID snapshot) and add a 30-minute hold to the listing.
- * Two buyers racing for the last unit: Firestore retries the loser's transaction, which
- * then sees the winner's hold and fails with "on hold for another buyer".
+ * Guest checkout without an account or email code: checks the form ticket, honeypot and limits,
+ * then in one transaction re-checks the item and limits, creates the order (with the seller's
+ * PayID snapshot) and adds a 30-minute hold to the listing.
+ * Two buyers racing for the last unit: Firestore retries the loser's transaction, which then
+ * sees the winner's hold and fails with "on hold for another buyer".
  */
-export async function confirmGuestCheckout(input: { challengeId: string; code: string }, ctx: GuestContext) {
-    const challengeId = String(input.challengeId || '');
-    if (!/^[\w-]{10,64}$/.test(challengeId)) throw new Error('Your code has expired. Request a new one.');
-    const code = String(input.code || '').trim();
-    if (!isSixDigitCode(code)) throw new Error('Enter the 6-digit code from your email.');
+export async function placeGuestHold(input: PlaceGuestHoldInput, ctx: GuestContext) {
+    if (isHoneypotFilled(input?.website)) throw new Error("We couldn't place this order. Please refresh the page and try again.");
+    const details = validateGuestDetails(input);
+    const productId = String(input?.productId || '');
+    if (!/^[\w-]{1,128}$/.test(productId)) throw new Error('Listing not found.');
+    const ticketId = String(input?.ticketId || '');
+    if (!/^[\w-]{10,64}$/.test(ticketId)) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
 
-    const challengeRef = firestoreDb.collection(CODES).doc(challengeId);
-    const pre = await challengeRef.get();
-    if (!pre.exists) throw new Error('Your code has expired. Request a new one.');
-    const c = pre.data() as any;
-    if (c.used) throw new Error('This code has already been used.');
-    if ((toMs(c.expiresAt) || 0) <= Date.now()) throw new Error('Your code has expired. Request a new one.');
-    if (Number(c.attempts || 0) >= MAX_CODE_ATTEMPTS) throw new Error('Too many wrong codes. Request a new one.');
-    if (!codeMatches(challengeId, code, c.codeHash)) {
-        await challengeRef.update({ attempts: FieldValue.increment(1) });
-        const left = MAX_CODE_ATTEMPTS - Number(c.attempts || 0) - 1;
-        throw new Error(left > 0 ? `That code isn't right. ${left} ${left === 1 ? 'try' : 'tries'} left.` : 'Too many wrong codes. Request a new one.');
-    }
+    const ticketRef = firestoreDb.collection(TICKETS).doc(ticketId);
+    const pre = await ticketRef.get();
+    if (!pre.exists) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
+    const ticket = pre.data() as any;
+    if (ticket.used) throw new Error('This checkout form was already used. Please close it and tap Buy Now again.');
+    if (ticket.productId !== productId) throw new Error('This checkout form has expired. Please close it and tap Buy Now again.');
+    const timingError = checkFormTiming(Number(ticket.issuedAtMs), Date.now());
+    if (timingError) throw new Error(timingError);
 
-    const details: GuestDetails = c.details;
-    // Limits are re-checked against the device/IP of the confirming request too.
-    const hashes: Hashes = { ...c.hashes, ...Object.fromEntries(Object.entries(identityHashes(details, ctx)).filter(([k, v]) => (k === 'device' || k === 'ip') && v)) };
-    const productRef = firestoreDb.collection('products').doc(String(c.productId));
+    const hashes = identityHashes(details, ctx);
+    // Cheap pre-check outside the transaction (re-checked inside).
+    assertHoldLimits(await countHolds(hashes, Date.now()));
+
+    const productRef = firestoreDb.collection('products').doc(productId);
     const { token, hash: tokenHash } = generateOrderToken();
 
     const order = await firestoreDb.runTransaction(async (t: any) => {
         const nowMs = Date.now();
         // ---------- reads ----------
-        const ch = await t.get(challengeRef);
-        if (!ch.exists || ch.data().used) throw new Error('This code has already been used.');
+        const tk = await t.get(ticketRef);
+        if (!tk.exists || tk.data().used) throw new Error('This checkout form was already used. Please close it and tap Buy Now again.');
         const pSnap = await t.get(productRef);
         const product = pSnap.exists ? { ...pSnap.data(), id: pSnap.id } as any : null;
         assertGuestBuyable(product);
@@ -188,7 +142,7 @@ export async function confirmGuestCheckout(input: { challengeId: string; code: s
         assertCanHold(product, 1, nowMs);
         assertHoldLimits(counts);
         const payout = payoutDoc.exists ? payoutDoc.data() : null;
-        if (!payout?.payId) throw new Error("This seller doesn't take PayID yet. Sign in to arrange a cash pickup.");
+        if (!payout?.payId) throw new Error("This seller doesn't take PayID yet, so guest checkout isn't available. Sign in to arrange a cash pickup, or message the seller.");
 
         const sellerProfile = userDoc.exists ? userDoc.data() : null;
         const q = await quote(product, details.shippingMethod);
@@ -196,7 +150,6 @@ export async function confirmGuestCheckout(input: { challengeId: string; code: s
         const expiresAtMs = holdExpiry(nowMs);
         const orderRef = firestoreDb.collection('orders').doc();
         const paymentReference = generatePaymentReference();
-
         const newOrder = {
             groupOrderId: `GRP-${nowMs}-${randomId(4).toUpperCase()}`,
             items: [{
@@ -247,7 +200,7 @@ export async function confirmGuestCheckout(input: { challengeId: string; code: s
         };
 
         // ---------- writes ----------
-        t.update(challengeRef, { used: true, usedAt: FieldValue.serverTimestamp(), orderId: orderRef.id, devCode: FieldValue.delete() });
+        t.update(ticketRef, { used: true, usedAt: FieldValue.serverTimestamp(), orderId: orderRef.id });
         t.set(orderRef, newOrder);
         t.set(orderRef.collection('private').doc('payment'), {
             payId: payout.payId,
@@ -262,10 +215,10 @@ export async function confirmGuestCheckout(input: { challengeId: string; code: s
         return { id: orderRef.id, ...newOrder };
     });
 
-    const orderUrl = `${SITE}/order/${token}`;
+    // Seller: in-app notification + push to their phone/computer. No email to anyone.
     try {
         const { notifyOrderPlaced } = await import('@/lib/payments/server');
-        await notifyOrderPlaced(order, { orderUrl });
+        await notifyOrderPlaced(order);
     } catch (e) {
         console.error('guest notifyOrderPlaced failed', e);
     }
@@ -274,7 +227,14 @@ export async function confirmGuestCheckout(input: { challengeId: string; code: s
         await sendTelegramNotification(`<b>🛒 Guest order (PayID, 30 min hold)</b>\n<b>Item:</b> ${order.items[0].title}\n<b>Total:</b> $${Number(order.totalAmount).toFixed(2)}\n<b>Seller:</b> ${order.sellerName}`);
     } catch { /* best effort */ }
 
-    return { orderToken: token, orderId: order.id };
+    return {
+        orderToken: token,
+        orderId: order.id,
+        paymentReference: order.paymentReference,
+        totalAmount: order.totalAmount,
+        holdExpiresAtMs: toMs(order.holdExpiresAt),
+        title: order.items[0].title,
+    };
 }
 
 async function findOrderByToken(token: string) {

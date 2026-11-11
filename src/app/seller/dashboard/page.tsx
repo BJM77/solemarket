@@ -56,6 +56,7 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2 } from 'lucide-react';
 import { PayIdSettings } from '@/components/seller/PayIdSettings';
+import { OrderNotificationsToggle } from '@/components/seller/OrderNotificationsToggle';
 
 import { useToast } from '@/hooks/use-toast';
 
@@ -67,6 +68,12 @@ export default function SellerDashboard() {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  // ?tab=orders (used by order notifications) opens the orders tab.
+  const [tab, setTab] = useState('overview');
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab');
+    if (t && ['overview', 'products', 'orders', 'reviews'].includes(t)) setTab(t);
+  }, []);
 
   const handleEnquiryAction = async (productId: string, newStatus: 'pending' | 'sold' | 'available') => {
     setIsUpdatingStatus(productId);
@@ -355,7 +362,7 @@ export default function SellerDashboard() {
 
       <div className="container mx-auto px-4 py-12">
 
-        <Tabs defaultValue="overview" className="space-y-12">
+        <Tabs value={tab} onValueChange={setTab} className="space-y-12">
           <div className="flex items-center justify-between overflow-x-auto pb-2 no-scrollbar">
             <TabsList className="bg-card border border-border p-1.5 rounded-2xl h-14">
               <TabsTrigger value="overview" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-black h-full transition-all">
@@ -377,6 +384,7 @@ export default function SellerDashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-12">
+            <OrderNotificationsToggle compact />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
                 <Card key={index} className="border border-border bg-card/50 backdrop-blur-sm shadow-2xl transition-all duration-300 hover:border-primary/20">
@@ -671,6 +679,7 @@ export default function SellerDashboard() {
                 <CardDescription className="text-muted-foreground font-medium">Manage your buyer messages and payment arrangements here.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
+                <OrderNotificationsToggle compact />
                 <PayIdSettings compact />
                 <SellerOrders />
               </CardContent>
