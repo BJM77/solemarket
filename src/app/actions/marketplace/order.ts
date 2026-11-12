@@ -18,6 +18,8 @@ import { sendTelegramNotification } from '@/lib/telegram';
 import { availableQuantity, activeHolds } from '@/lib/checkout/holds';
 import { REQUEST_TTL_MS, assertRequestLimit } from '@/lib/checkout/requests';
 import { assertRequestable, countOpenByIdentity, notifyNewRequest } from '@/lib/checkout/requests-server';
+import { readBlocks, resolveBuyerMobile } from '@/lib/checkout/blocks-server';
+import { assertNotBlocked } from '@/lib/checkout/blocks';
 
 interface CartItem {
     id: string;
@@ -41,6 +43,8 @@ interface OrderOptions {
     perthPickupConfirmed?: boolean;
     idempotencyKey?: string;
     discountCode?: string;
+    /** Only needed when the buyer's profile has no Australian mobile yet (saved to it). */
+    mobile?: string;
 }
 
 export async function createOrderAction(items: CartItem[], idToken: string, options?: OrderOptions) {
@@ -60,6 +64,9 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
     try {
         const { uid: buyerId, email: buyerEmail, name: buyerName } = await ensureActionAuth(idToken);
+        // Every buyer has a mobile on file so seller and sitewide blocks apply to everyone.
+        const buyerPhone = await resolveBuyerMobile(buyerId, options?.mobile);
+        const who = { mobile: buyerPhone, uid: buyerId };
 
         const results = await firestoreDb.runTransaction(async (t: any) => {
             const now = new Date();
@@ -73,6 +80,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             });
 
             const sellerIds = Array.from(new Set(products.map(p => p.sellerId).filter(Boolean)));
+            const blocks = await readBlocks(who, sellerIds, t);
             const fetchedUsers: Record<string, any> = {};
             if (sellerIds.length) {
                 const sellerProfilesDocs = await t.getAll(...sellerIds.map(id => firestoreDb.collection('users').doc(id)));
@@ -128,6 +136,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             }
 
             // ---------- VALIDATION + PRICING (pure, see src/lib/order-pricing.ts) ----------
+            assertNotBlocked(blocks, who, sellerIds);
             // Checkout sends a request per seller: nothing is held or sold until the seller accepts.
             for (let i = 0; i < items.length; i++) {
                 const product = products[i];
@@ -269,6 +278,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     buyerId,
                     buyerEmail,
                     buyerName: buyerName || buyerEmail,
+                    buyerPhone,
                     sellerId,
                     sellerName: group.sellerName,
                     isBusinessSeller: isBusiness,
@@ -357,7 +367,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
     } catch (error: any) {
         console.error('Order creation failed:', error);
-        return { error: error.message || 'An unexpected error occurred.' };
+        return { error: error.message || 'An unexpected error occurred.', ...(error?.code === 'MOBILE_REQUIRED' ? { needsMobile: true } : {}) };
     }
 }
 

@@ -10,6 +10,7 @@ import { createOrderAction } from '@/app/actions/marketplace/order';
 import { getSellersPaymentReadiness } from '@/app/actions/marketplace/order-payments';
 import { startGuestCheckoutAction, placeGuestRequestAction } from '@/app/actions/marketplace/guest-checkout';
 import { getDeviceId } from '@/components/checkout/GuestCheckoutDialog';
+import { BuyerMobileField, useBuyerMobile } from '@/components/checkout/BuyerMobileField';
 import { validateGuestDetails, msUntilFormReady } from '@/lib/checkout/guest-validation';
 import { saveGuestOrder } from '@/lib/checkout/guest-orders-local';
 import { MAX_OPEN_REQUESTS } from '@/lib/checkout/requests';
@@ -119,8 +120,10 @@ export default function CheckoutPage() {
 
   // Guest (signed-out) checkout: each cart item becomes a request to its seller, no account needed.
   const [guestName, setGuestName] = useState('');
-  const [guestEmail, setGuestEmail] = useState('');
   const [guestMobile, setGuestMobile] = useState('');
+  // Signed-in buyers without a mobile on their profile give one here (saved to the profile).
+  const [buyerMobileInput, setBuyerMobileInput] = useState('');
+  const buyerMobile = useBuyerMobile(!!user && !isUserLoading);
   const [guestWebsite, setGuestWebsite] = useState(''); // honeypot
   const [guestTickets, setGuestTickets] = useState<Record<string, { ticketId: string; localAtMs: number }>>({});
   const guestItemKey = !user && !isUserLoading ? items.map(i => i.id).sort().join(',') : '';
@@ -147,7 +150,7 @@ export default function CheckoutPage() {
     }
     const shippingAddressInput = shippingMethod === 'shipping' ? { street, city, state, zip } : null;
     try {
-      validateGuestDetails({ name: guestName, email: guestEmail, mobile: guestMobile, shippingMethod, shippingAddress: shippingAddressInput });
+      validateGuestDetails({ name: guestName, mobile: guestMobile, shippingMethod, shippingAddress: shippingAddressInput });
     } catch (e: any) {
       toast({ title: 'Check your details', description: e.message, variant: 'destructive' });
       return;
@@ -165,7 +168,7 @@ export default function CheckoutPage() {
         }
         await new Promise((res) => setTimeout(res, msUntilFormReady(t!.localAtMs, Date.now())));
         const res = await placeGuestRequestAction({
-          productId: item.id, ticketId: t.ticketId, name: guestName, email: guestEmail, mobile: guestMobile,
+          productId: item.id, ticketId: t.ticketId, name: guestName, mobile: guestMobile,
           shippingMethod, shippingAddress: shippingAddressInput, deviceId: getDeviceId(), website: guestWebsite, requestType: 'buy',
         });
         if (!res.success) { failed.push(`${item.title}: ${res.error}`); continue; }
@@ -295,11 +298,13 @@ export default function CheckoutPage() {
         perthPickupConfirmed: paymentMethod === 'cash' ? perthPickupConfirmed : undefined,
         idempotencyKey: `ord_${activeUser.uid}_${Date.now()}`,
         discountCode: appliedPromo || undefined,
+        mobile: buyerMobile.needsMobile ? buyerMobileInput : undefined,
       };
 
       const result = await createOrderAction(cartItemsForAction, idToken, options);
 
       if (result.error) {
+        if ((result as any).needsMobile) buyerMobile.askForMobile();
         throw new Error(result.error);
       }
 
@@ -413,16 +418,12 @@ export default function CheckoutPage() {
                         <Label htmlFor="guestName" className="text-xs font-semibold text-muted-foreground uppercase">Name</Label>
                         <Input id="guestName" required autoComplete="name" className="bg-background border-input" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="guestEmail" className="text-xs font-semibold text-muted-foreground uppercase">Email</Label>
-                        <Input id="guestEmail" type="email" required autoComplete="email" inputMode="email" className="bg-background border-input" placeholder="you@example.com" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="guestMobile" className="text-xs font-semibold text-muted-foreground uppercase">Mobile</Label>
                         <Input id="guestMobile" type="tel" required autoComplete="tel" inputMode="tel" className="bg-background border-input" placeholder="04xx xxx xxx" value={guestMobile} onChange={(e) => setGuestMobile(e.target.value)} />
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Your email and mobile go to the seller only, so they can contact you. We don&apos;t send you emails. Have an account? <Link href="/sign-in?redirect=%2Fcheckout" className="font-bold underline">Sign in</Link></p>
+                    <p className="text-xs text-muted-foreground">Your name and mobile go to the seller only, so they can call or text you. We don&apos;t send you emails or texts. Have an account? <Link href="/sign-in?redirect=%2Fcheckout" className="font-bold underline">Sign in</Link></p>
                     {/* Honeypot: hidden from people and screen readers; bots fill it in. */}
                     <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
                       <label htmlFor="guestWebsite">Website</label>
@@ -431,6 +432,13 @@ export default function CheckoutPage() {
                     {guestTooMany && (
                       <p className="text-sm font-semibold text-rose-600" role="alert">Without an account you can request up to {MAX_OPEN_REQUESTS} items at a time. Remove some items, or sign in.</p>
                     )}
+                  </div>
+                )}
+
+                {!!user && buyerMobile.needsMobile && (
+                  <div className="space-y-2 pb-4 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm">Your mobile</h3>
+                    <BuyerMobileField id="buyerMobile" value={buyerMobileInput} onChange={setBuyerMobileInput} />
                   </div>
                 )}
 

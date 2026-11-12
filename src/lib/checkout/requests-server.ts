@@ -19,6 +19,8 @@ import {
     type AcceptPaymentPlan, type RequestAction, type RequestType,
 } from './requests';
 import { randomId } from './guest-crypto';
+import { readBlocks, resolveBuyerMobile } from './blocks-server';
+import { assertNotBlocked } from './blocks';
 
 const ORDERS = () => firestoreDb.collection('orders');
 const OPEN_STATUSES = ['requested', 'countered', 'awaiting_payment'];
@@ -77,9 +79,11 @@ export interface NewRequestInput {
         buyerId: string | null;
         isGuest: boolean;
         name: string;
-        email: string;
+        /** Signed-in buyers only (guests give a name and mobile, no email). */
+        email?: string | null;
+        /** E.164 Australian mobile (+614...). */
         phone?: string | null;
-        hashes?: { email?: string | null; phone?: string | null; device?: string | null; ip?: string | null };
+        hashes?: { phone?: string | null; device?: string | null; ip?: string | null };
         accessTokenHash?: string | null;
     };
     nowMs: number;
@@ -116,11 +120,10 @@ export async function buildRequestOrder(i: NewRequestInput) {
         discountCode: null,
         buyerId: i.buyer.buyerId,
         isGuest: i.buyer.isGuest,
-        buyerEmail: i.buyer.email,
+        buyerEmail: i.buyer.email || null,
         buyerName: i.buyer.name,
         buyerPhone: i.buyer.phone || null,
         ...(i.buyer.isGuest ? {
-            guestEmailHash: i.buyer.hashes?.email || null,
             guestPhoneHash: i.buyer.hashes?.phone || null,
             guestDeviceHash: i.buyer.hashes?.device || null,
             guestIpHash: i.buyer.hashes?.ip || null,
@@ -388,9 +391,12 @@ export async function buyerRespondToRequest(orderId: string, action: 'accept_cou
         if (action === 'accept_counter') {
             const patch = nextRequestState(order, 'accept_counter', nowMs);
             if (Number(order.counterAmount) !== Number(preOrder?.counterAmount)) throw new Error('The counter-offer changed. Please reload and try again.');
+            const who = { mobile: order.buyerPhone || null, uid: order.buyerId || null };
+            const blocks = await readBlocks(who, [String(order.sellerId)], t);
             const pay = await readAcceptPayment(t, orderRef, order);
             const ctx = await readForReserve(t, order);
             const plan = planReserve(ctx, snap.id, nowMs);
+            assertNotBlocked(blocks, who, [String(order.sellerId)]);
             if (pay.plan === 'needs_payid') throw new Error("The seller hasn't set up PayID for posted orders yet. Please try again later or contact the seller.");
             const payPatch = applyAcceptPayment(t, orderRef, pay);
             t.update(orderRef, {
@@ -489,6 +495,8 @@ export interface SignedInRequestInput {
     shippingMethod?: 'pickup' | 'shipping';
     shippingAddress?: { street?: string; city?: string; state?: string; zip?: string } | null;
     perthPickupConfirmed?: boolean;
+    /** Only needed when the buyer's profile has no Australian mobile yet (saved to it). */
+    mobile?: string | null;
 }
 
 /** Signed-in buyer sends a request (buy or offer) on one listing. */
@@ -505,8 +513,11 @@ export async function createSignedInRequest(buyer: { uid: string; email?: string
     let shippingAddress: any = null;
     if (shippingMethod === 'shipping') {
         const { validateGuestDetails } = await import('./guest-validation');
-        shippingAddress = validateGuestDetails({ name: 'Buyer', email: 'buyer@example.com', mobile: '0400000000', shippingMethod, shippingAddress: input?.shippingAddress || {} }).shippingAddress;
+        shippingAddress = validateGuestDetails({ name: 'Buyer', mobile: '0400000000', shippingMethod, shippingAddress: input?.shippingAddress || {} }).shippingAddress;
     }
+    const mobile = await resolveBuyerMobile(buyer.uid, input?.mobile);
+    const who = { mobile, uid: buyer.uid };
+    assertNotBlocked(await readBlocks(who, []), who, []);
     assertRequestLimit(await countOpenByIdentity({ buyerId: buyer.uid }, Date.now()), 1);
     const productRef = firestoreDb.collection('products').doc(productId);
 
@@ -521,6 +532,8 @@ export async function createSignedInRequest(buyer: { uid: string; email?: string
             firestoreDb.collection('users').doc(sellerId).collection('private').doc('payout'),
         );
         const counts = await countOpenByIdentity({ buyerId: buyer.uid }, nowMs, t);
+        const blocks = await readBlocks(who, [sellerId], t);
+        assertNotBlocked(blocks, who, [sellerId]);
         assertRequestLimit(counts, 1);
         const payout = payoutDoc.exists ? payoutDoc.data() : null;
         if (paymentMethod === 'payid' && !payout?.payId) throw new Error("This seller doesn't take PayID yet. Choose cash on pickup in Perth.");
@@ -529,7 +542,7 @@ export async function createSignedInRequest(buyer: { uid: string; email?: string
         const newOrder = await buildRequestOrder({
             product, sellerProfile: userDoc.exists ? userDoc.data() : null, requestType, offerAmount,
             paymentMethod, shippingMethod, shippingAddress,
-            buyer: { buyerId: buyer.uid, isGuest: false, name: buyer.name || buyer.email || 'Buyer', email: buyer.email || '' },
+            buyer: { buyerId: buyer.uid, isGuest: false, name: buyer.name || buyer.email || 'Buyer', email: buyer.email || null, phone: mobile },
             nowMs,
         });
         t.set(orderRef, newOrder);

@@ -34,7 +34,8 @@ import {
     BellRing,
     Tag,
     Target,
-    Palette
+    Palette,
+    Ban,
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -69,6 +70,7 @@ const navItems = [
 const integrityItems = [
     { href: "/admin/moderation", icon: ShieldCheck, label: "Moderation" },
     { href: "/admin/fraud-detection", icon: ShieldAlert, label: "Fraud Lab" },
+    { href: "/admin/blocked-mobiles", icon: Ban, label: "Blocked Mobiles" },
 ];
 
 const sysItems = [

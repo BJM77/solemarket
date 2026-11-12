@@ -1,8 +1,9 @@
 /**
- * Guest requests (no account, no email): name, email and mobile, then a Buy or Offer request
- * goes to the seller, who accepts, declines or counters. The buyer follows it on a private
- * order page (PayID shown once accepted). Fake requests are kept down by the 3-open-requests
- * limit per email/mobile/device/IP, rate limits, a honeypot and a minimum time on the form.
+ * Guest requests (no account, no email): a name and an Australian mobile, then a Buy or Offer
+ * request goes to the seller, who accepts, declines or counters. The buyer follows it on a
+ * private order page (PayID shown once accepted). Fake requests are kept down by the
+ * 3-open-requests limit per mobile/device/IP, rate limits, a honeypot, a minimum time on the
+ * form, and the seller-level and sitewide mobile block lists (./blocks-server.ts).
  * Server only: every write goes through the Admin SDK. Firestore rules deny clients access to
  * guest_checkout_tickets and to guest orders.
  */
@@ -14,6 +15,8 @@ import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash
 import { isActiveHoldOrder } from './holds';
 import { assertRequestLimit, effectiveRequestStatus, guestRequestPaymentMethod, isRequestOrder, validateOfferAmount } from './requests';
 import { assertRequestable, buildRequestOrder, buyerRespondToRequest, countOpenByIdentity, notifyNewRequest } from './requests-server';
+import { assertBuyerNotBlocked, readBlocks } from './blocks-server';
+import { assertNotBlocked } from './blocks';
 
 const TICKETS = 'guest_checkout_tickets';
 
@@ -22,11 +25,10 @@ export interface GuestContext {
     deviceId?: string | null;
 }
 
-function identityHashes(details: Pick<GuestDetails, 'email' | 'mobile'>, ctx: GuestContext) {
+function identityHashes(details: Pick<GuestDetails, 'mobile'>, ctx: GuestContext) {
     const device = typeof ctx.deviceId === 'string' && /^[\w-]{8,64}$/.test(ctx.deviceId) ? ctx.deviceId : null;
     const ip = ctx.ip && ctx.ip !== 'unknown' ? ctx.ip : null;
     return {
-        email: identityHash('email', details.email),
         phone: identityHash('phone', details.mobile),
         device: device ? identityHash('device', device) : null,
         ip: ip ? identityHash('ip', ip) : null,
@@ -34,7 +36,7 @@ function identityHashes(details: Pick<GuestDetails, 'email' | 'mobile'>, ctx: Gu
 }
 
 type Hashes = ReturnType<typeof identityHashes>;
-const HASH_FIELDS = { email: 'guestEmailHash', phone: 'guestPhoneHash', device: 'guestDeviceHash', ip: 'guestIpHash' } as const;
+const HASH_FIELDS = { phone: 'guestPhoneHash', device: 'guestDeviceHash', ip: 'guestIpHash' } as const;
 
 /** Open-request counts per identity (pending, countered, or accepted and not yet paid). */
 async function countOpen(hashes: Hashes, nowMs: number, t?: any) {
@@ -99,7 +101,8 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
     if (timingError) throw new Error(timingError);
 
     const hashes = identityHashes(details, ctx);
-    // Cheap pre-check outside the transaction (re-checked inside).
+    // Cheap pre-checks outside the transaction (re-checked inside).
+    await assertBuyerNotBlocked({ mobile: details.mobile }, []);
     assertRequestLimit(await countOpen(hashes, Date.now()), 1);
 
     const productRef = firestoreDb.collection('products').doc(productId);
@@ -119,8 +122,10 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
             firestoreDb.collection('users').doc(sellerId).collection('private').doc('payout'),
         );
         const counts = await countOpen(hashes, nowMs, t);
+        const blocks = await readBlocks({ mobile: details.mobile }, [sellerId], t);
 
         // ---------- checks ----------
+        assertNotBlocked(blocks, { mobile: details.mobile }, [sellerId]);
         assertRequestLimit(counts, 1);
         const payout = payoutDoc.exists ? payoutDoc.data() : null;
         // No sign-in needed whatever the seller's set-up: PayID if they have one, otherwise cash
@@ -141,7 +146,6 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
                 buyerId: null,
                 isGuest: true,
                 name: details.name,
-                email: details.email,
                 phone: details.mobile,
                 hashes,
                 accessTokenHash: tokenHash,
@@ -240,7 +244,6 @@ export async function getGuestOrderByToken(token: string) {
         sellerName: o.sellerName,
         sellerId: o.sellerId,
         buyerName: o.buyerName,
-        buyerEmail: o.buyerEmail,
         item: item ? { id: item.id, title: item.title, image: item.image, price: item.price, quantity: item.quantity } : null,
         createdAt: o.createdAt,
         payId,

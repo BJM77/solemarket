@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail, Brain, RefreshCcw } from "lucide-react";
+import { BarChart, Package, Users, Settings, ShieldAlert, FileText, Mail, Brain, RefreshCcw, Ban } from "lucide-react";
 import Link from 'next/link';
 import { AdminStatsGrid } from "@/components/admin/StatsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,6 +42,12 @@ const adminSections = [
         icon: <ShieldAlert className="h-8 w-8 text-primary" />,
         href: "/admin/moderation",
         description: "Analyze listings and manage platform risk."
+    },
+    {
+        title: "Blocked Mobiles",
+        icon: <Ban className="h-8 w-8 text-primary" />,
+        href: "/admin/blocked-mobiles",
+        description: "Block buyer mobiles sitewide and review numbers sellers have blocked."
     },
     {
         title: "Customer Enquiries",

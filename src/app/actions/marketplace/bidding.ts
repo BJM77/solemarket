@@ -39,6 +39,12 @@ export async function placeBidAction(
         } else {
             return { success: false, error: "Authentication or Guest Verification required." };
         }
+        // Seller-level and sitewide buyer blocks apply to bids and offers too.
+        const { normalizeAuMobile } = await import('@/lib/checkout/guest-validation');
+        const profile = idToken ? await firestoreDb.collection('users').doc(bidderId).get() : null;
+        const who = { uid: idToken ? bidderId : null, mobile: normalizeAuMobile(profile?.exists ? profile.data()?.phoneNumber : null) };
+        const { readBlocks } = await import('@/lib/checkout/blocks-server');
+        const { assertNotBlocked } = await import('@/lib/checkout/blocks');
 
         const result = await firestoreDb.runTransaction(async (transaction: any) => {
             const productRef = firestoreDb.collection('products').doc(productId);
@@ -49,6 +55,7 @@ export async function placeBidAction(
             }
 
             const product = productSnap.data() as Product;
+            if (who.uid || who.mobile) assertNotBlocked(await readBlocks(who, [String(product.sellerId)], transaction), who, [String(product.sellerId)]);
 
             if (!product.isReverseBidding && !product.isNegotiable) {
                 throw new Error('This product does not accept bids or offers');

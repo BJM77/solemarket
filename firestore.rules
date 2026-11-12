@@ -239,6 +239,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Blocked buyer mobiles (sitewide, admin) and seller-level buyer blocks: server actions
+    // (Admin SDK) only. Clients never read or write them.
+    match /blocked_mobiles/{key} {
+      allow read, write: if false;
+    }
+    match /seller_blocks/{blockId} {
+      allow read, write: if false;
+    }
+
     // Default deny
     // Price intel cache + admin report: server (Admin SDK) only.
     match /price_checks/{id} { allow read, write: if false; }

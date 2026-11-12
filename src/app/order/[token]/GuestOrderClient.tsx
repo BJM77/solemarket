@@ -30,7 +30,6 @@ type GuestOrder = PaymentDetails & {
     shippingCost?: number;
     shippingMethod?: string;
     buyerName?: string;
-    buyerEmail?: string;
     item: { id: string; title: string; image?: string; price: number; quantity: number } | null;
 };
 
@@ -101,7 +100,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
     const cancelledText = order.cancelReason === 'payment_timeout'
         ? 'Your 30-minute hold ended before the seller confirmed a payment, so the item went back on sale.'
         : order.cancelReason === 'cancelled_by_buyer' ? 'You cancelled this order.' : 'This order was cancelled.';
-    const signUpHref = `/sign-up?email=${encodeURIComponent(order.buyerEmail || '')}`;
+    const signUpHref = '/sign-up';
 
     return (
         <main className="container mx-auto max-w-2xl space-y-6 px-4 py-8" data-testid="guest-order-page">
@@ -183,7 +182,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             {['paid', 'completed', 'shipped', 'delivered', 'processing'].includes(order.status) && (
                 <div className="flex items-start gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
                     <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
-                    <p>The seller has confirmed your payment. They&apos;ll contact you on the email or mobile you gave to arrange {order.shippingMethod === 'shipping' ? 'postage' : 'pickup'}.</p>
+                    <p>The seller has confirmed your payment. They&apos;ll call or text the mobile you gave to arrange {order.shippingMethod === 'shipping' ? 'postage' : 'pickup'}.</p>
                 </div>
             )}
 
@@ -212,7 +211,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
                     </ul>
                 )}
                 <p className="text-muted-foreground">
-                    Want to track orders in one place? <Link href={signUpHref} className="font-bold text-foreground underline">Create a free account</Link> with {order.buyerEmail || 'the same email'}.
+                    Want to track orders in one place? <Link href={signUpHref} className="font-bold text-foreground underline">Create a free account</Link>.
                 </p>
             </div>
         </main>

@@ -44,14 +44,13 @@ interface Props {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Guest request (no account, no email code): name, email and mobile -> a Buy or Offer request
+ * Guest request (no account, no email): name and mobile -> a Buy or Offer request
  * goes to the seller, and the buyer follows it on their private order page. Nothing is held
  * until the seller accepts; then the page shows the PayID.
  */
 export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, payIdReady = true, mode = 'buy' }: Props) {
     const router = useRouter();
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
     const [website, setWebsite] = useState(''); // honeypot
     const [offer, setOffer] = useState('');
@@ -82,7 +81,7 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
             return;
         }
         try {
-            validateGuestDetails({ name, email, mobile, shippingMethod, shippingAddress: addr });
+            validateGuestDetails({ name, mobile, shippingMethod, shippingAddress: addr });
         } catch (e: any) {
             setError(e.message);
             return;
@@ -92,7 +91,7 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
             // Very fast fills (autofill) wait out the minimum form time instead of erroring.
             await sleep(msUntilFormReady(ticket.localAtMs, Date.now()));
             const res = await placeGuestRequestAction({
-                productId: product.id, ticketId: ticket.ticketId, name, email, mobile, shippingMethod,
+                productId: product.id, ticketId: ticket.ticketId, name, mobile, shippingMethod,
                 shippingAddress: shippingMethod === 'shipping' ? addr : null,
                 deviceId: getDeviceId(),
                 website,
@@ -145,13 +144,9 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                             <Input id="guest-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
                         </div>
                         <div className="space-y-1">
-                            <Label htmlFor="guest-email">Email</Label>
-                            <Input id="guest-email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        </div>
-                        <div className="space-y-1">
                             <Label htmlFor="guest-mobile">Mobile</Label>
                             <Input id="guest-mobile" type="tel" autoComplete="tel" inputMode="tel" placeholder="04xx xxx xxx" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
-                            <p className="text-[11px] text-muted-foreground">Your email and mobile go to the seller only, so they can contact you about this order. We don&apos;t send you emails.</p>
+                            <p className="text-[11px] text-muted-foreground">Your name and mobile go to the seller only, so they can call or text you about this order. We don&apos;t send you emails or texts.</p>
                         </div>
                         {/* Honeypot: hidden from people and screen readers; bots fill it in. */}
                         <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
