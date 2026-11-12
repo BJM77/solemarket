@@ -8,21 +8,17 @@ import { MobileNav } from './mobile-nav';
 import HeaderActions from './HeaderActions';
 import { Suspense, useEffect, useState } from 'react';
 import { MainNavLinks } from './MainNavLinks';
-import { SearchBar } from './search-bar';
 import { Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
 import { cn } from "@/lib/utils/ui";
-import dynamic from 'next/dynamic';
 import { PrefetchLikelyRoutes } from './PrefetchLikelyRoutes';
-// Search modal is only needed after a tap/shortcut: keep it out of the first-load bundle.
-const InstantSearchModal = dynamic(() => import('../search/InstantSearchModal').then(m => m.InstantSearchModal), { ssr: false });
+import { DesktopInlineSearch, MobileInlineSearch } from '../search/InlineSearch';
+import { RecentlyViewedStrip } from '../search/RecentlyViewedStrip';
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [showInstantSearch, setShowInstantSearch] = useState(false);
   const pathname = usePathname();
   const { isPinned } = useMobileNav();
 
@@ -43,14 +39,16 @@ export default function Header() {
               <Logo className="h-[60px] md:h-12 lg:h-14" priority />
             </Link>
 
-            <div onClick={() => setShowInstantSearch(true)} className="hidden lg:flex flex-1 max-w-2xl h-10 group cursor-text">
-              {isClient && <SearchBar className="pointer-events-none" />}
+            {/* Desktop: inline search (results drop down below the bar) + recently viewed thumbnails */}
+            <div className="hidden lg:flex flex-1 items-center gap-3 min-w-0">
+              {isClient && <DesktopInlineSearch className="w-full max-w-[336px] h-10" />}
+              {isClient && <RecentlyViewedStrip className="hidden lg:flex" />}
             </div>
             
-            {/* Mobile Search - ALWAYS VISIBLE */}
+            {/* Mobile Search - ALWAYS VISIBLE; expands to a full-screen search on tap */}
             {isClient && (
-              <div onClick={() => setShowInstantSearch(true)} className="flex-1 lg:hidden mx-2 max-w-[200px] xs:max-w-none cursor-text">
-                <SearchBar className="h-10 group pointer-events-none" inputClassName="h-10 text-xs" />
+              <div className="flex-1 lg:hidden mx-2 max-w-[200px] xs:max-w-none">
+                <MobileInlineSearch />
               </div>
             )}
           </div>
@@ -72,23 +70,12 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Search Overlay */}
-      {isClient && showMobileSearch && (
-        <div className="lg:hidden sticky top-[60px] z-40 bg-background border-b px-4 py-3 shadow-md animate-in slide-in-from-top-4 duration-300">
-          <SearchBar
-            className="w-full h-12"
-            inputClassName="h-12"
-            onSearch={() => setShowMobileSearch(false)}
-          />
-        </div>
-      )}
 
       {/* 
         Home Navigation Pills (Mobile Only)
         Replacing the scrolling ticker with discovery pills
       */}
 
-      <InstantSearchModal open={showInstantSearch} onOpenChange={setShowInstantSearch} />
       <PrefetchLikelyRoutes />
 
       {/* Desktop Ticker Only */}

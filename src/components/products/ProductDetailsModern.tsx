@@ -83,6 +83,7 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { EbaySearchModal } from '@/components/admin/EbaySearchModal';
 import { acceptBidAction } from '@/app/actions/marketplace/bidding';
 import { getRecentViewCount } from '@/app/actions/marketplace/products';
+import { useRecordRecentView } from '@/lib/use-record-recent-view';
 import { TrendingUp } from 'lucide-react';
 import {
     Dialog,
@@ -198,6 +199,8 @@ export default function ProductDetailsModern({
     const { data: product, isLoading: isProductLoading, error: productError } = useDoc<Product>(productRef, {
         initialData: initialProduct,
     });
+    // Header "recently viewed" strip (desktop).
+    useRecordRecentView(product ? { ...product, id: product.id || String(productId) } : null);
 
     const provenanceData = useProvenanceData(product || initialProduct);
 
