@@ -4,10 +4,11 @@ import { flowsEnabled, signIn, resetGuestListing, productDoc, ordersFor, deleteG
 const EMAIL = 'guest.buyer@e2e.test';
 const OFFER_EMAIL = 'guest.offer@e2e.test';
 
-async function fillGuestDetails(dialog: ReturnType<Page['getByTestId']>, email: string) {
+async function fillGuestDetails(dialog: ReturnType<Page['getByTestId']>, email: string, mobile = '0412 345 678') {
   await dialog.locator('#guest-name').fill('Guest Buyer');
   await dialog.locator('#guest-email').fill(email);
-  await dialog.locator('#guest-mobile').fill('0412 345 678');
+  // Each test uses its own mobile: phones have their own rate limit and open-request cap.
+  await dialog.locator('#guest-mobile').fill(mobile);
   // Honeypot stays empty for a person; no email code.
   await expect(dialog.locator('#guest-website')).toHaveValue('');
 }
@@ -25,12 +26,16 @@ test.describe('guest requests (no account), seller approval', () => {
   test.use({ bypassCSP: true });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
   // Every CI guest shares one IP, which has a 3-open-requests cap: don't leave requests open.
+  // Only this test's own orders: tests in this file run in parallel.
+  let mine: string | null = null;
   test.afterEach(async () => {
-    for (const e of [EMAIL, OFFER_EMAIL]) await deleteGuestOrders(e);
+    if (mine) await deleteGuestOrders(mine);
+    mine = null;
   });
 
   test('guest requests to buy, seller accepts, guest sees PayID, seller marks paid', async ({ page, browser }) => {
     test.setTimeout(180_000);
+    mine = EMAIL;
     await resetGuestListing(EMAIL);
     await page.goto('/product/e2e-guest-1');
     await expect(page.getByRole('heading', { name: /E2E Guest Checkout Card/i }).first()).toBeVisible({ timeout: 45_000 });
@@ -101,6 +106,7 @@ test.describe('guest requests (no account), seller approval', () => {
 
   test('guest offers, seller counters, guest accepts the counter, seller relists', async ({ page, browser }) => {
     test.setTimeout(180_000);
+    mine = OFFER_EMAIL;
     await resetGuestListing(OFFER_EMAIL, 'e2e-guest-2', { title: 'E2E Offer Card', price: 40, isNegotiable: true });
     await page.goto('/product/e2e-guest-2');
     await expect(page.getByRole('heading', { name: /E2E Offer Card/i }).first()).toBeVisible({ timeout: 45_000 });
@@ -111,7 +117,7 @@ test.describe('guest requests (no account), seller approval', () => {
       await expect(dialog).toBeVisible({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
     await dialog.locator('#guest-offer').fill('25');
-    await fillGuestDetails(dialog, OFFER_EMAIL);
+    await fillGuestDetails(dialog, OFFER_EMAIL, '0412 345 679');
     await dialog.getByTestId('guest-send-request').click();
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
     await expect(page.getByTestId('request-pending')).toContainText('$25.00');
