@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/lib/firebase/client-ops';
 import { useState, useEffect, useTransition } from 'react';
 import { SellerMiniDashboard } from '@/components/profile/SellerMiniDashboard';
+import { TeamPickerPanel } from '@/components/team-theme/TeamPicker';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Display name must be at least 2 characters.'),
@@ -144,6 +145,17 @@ export default function ProfileDetailsPage() {
   return (
     <div className="space-y-6">
       <SellerMiniDashboard />
+      <Card id="your-team">
+        <CardHeader>
+          <CardTitle>Your team</CardTitle>
+          <CardDescription>
+            Pick your NBA team to colour Benched in its colours. It&apos;s saved to your account, so it follows you to your phone and computer.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TeamPickerPanel className="max-w-md" />
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Public Profile</CardTitle>

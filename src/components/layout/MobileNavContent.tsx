@@ -17,6 +17,8 @@ import { Skeleton } from '../ui/skeleton';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 import { cn } from "@/lib/utils/ui";
+import { TeamPickerPanel } from '@/components/team-theme/TeamPicker';
+import { Palette } from 'lucide-react';
 
 export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) {
     const { user } = useUser();
@@ -396,6 +398,20 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         })}
                     </Accordion>
                 </div>
+
+                {/* Your team colours */}
+                <Accordion type="single" collapsible className="w-full border-t pt-2">
+                    <AccordionItem value="team" className="border-b-0">
+                        <AccordionTrigger className="py-3 hover:no-underline px-4 hover:bg-primary/5 rounded-xl" data-testid="mobile-team-picker">
+                            <div className="flex items-center text-sm font-bold">
+                                <Palette className="mr-3 h-4 w-4 text-primary" /> Your team colours
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <TeamPickerPanel className="px-4 pt-1" />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
                 {/* User Account Section */}
                 <div className="border-t pt-4">

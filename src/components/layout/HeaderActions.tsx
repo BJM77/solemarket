@@ -12,6 +12,7 @@ import { NewOrderAlerts } from '../notifications/NewOrderAlerts';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { LogIn, UserPlus } from 'lucide-react';
+import { TeamPickerButton } from '@/components/team-theme/TeamPicker';
 
 export default function HeaderActions() {
     const { itemCount, setIsCartOpen } = useCart();
@@ -62,6 +63,8 @@ export default function HeaderActions() {
                     </span>
                 )}
             </Button>
+
+            <TeamPickerButton className="hidden md:inline-flex" />
 
             <UserNav />
 
