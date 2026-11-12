@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getImageProps } from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Home, Search, PlusCircle, Bell, User, ShoppingBag, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
-import { GALLERY_SIZES, type ListingNeighbours, captureListingClick, listingIdFromPath, neighboursFromList, readListingContext } from '@/lib/listing-nav';
-import { getCategoryNeighbours } from '@/app/actions/marketplace/listing-neighbours';
+import { GALLERY_SIZES, listingIdFromPath } from '@/lib/listing-nav';
+import { captureListingClick, useListingSequence } from '@/lib/listing-nav/store';
+import { ListingSequenceEnd } from '@/components/products/ListingSequenceEnd';
 import { cn } from "@/lib/utils/ui";
 import { useUser } from '@/firebase';
 import { useMobileNav } from '@/context/MobileNavContext';
@@ -16,7 +17,9 @@ export function BottomNav() {
   const { user } = useUser();
   const { isVisible, buyAction } = useMobileNav();
   const listingId = listingIdFromPath(pathname);
-  const [adjacent, setAdjacent] = useState<({ id: string } & ListingNeighbours) | null>(null);
+  const seq = useListingSequence(listingId, pathname);
+  const [showEnd, setShowEnd] = useState(false);
+  useEffect(() => { setShowEnd(false); }, [listingId]);
 
   // Remember which grid/list a listing tile was tapped from.
   useEffect(() => {
@@ -24,17 +27,9 @@ export function BottomNav() {
     return () => document.removeEventListener('click', captureListingClick, true);
   }, []);
 
-  useEffect(() => {
-    if (!listingId) return;
-    const fromContext = neighboursFromList(readListingContext(), listingId);
-    if (fromContext) { setAdjacent({ id: listingId, ...fromContext }); return; }
-    let cancelled = false;
-    setAdjacent({ id: listingId, prev: null, next: null });
-    getCategoryNeighbours(listingId).then((n) => { if (!cancelled) setAdjacent({ id: listingId, ...n }); }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [listingId]);
-
-  const nav = listingId && adjacent?.id === listingId ? adjacent : null;
+  const nav = useMemo(() => (seq ? {
+    prev: seq.prev?.url ?? null, next: seq.next?.url ?? null, prevImage: seq.prev?.image ?? null, nextImage: seq.next?.image ?? null,
+  } : null), [seq?.prev?.url, seq?.next?.url, seq?.prev?.image, seq?.next?.image]); // eslint-disable-line react-hooks/exhaustive-deps
   const router = useRouter();
 
   // Warm the Next (then Previous) listing: route payload + its main photo at the gallery's srcset.
@@ -57,14 +52,14 @@ export function BottomNav() {
     }
   }, [nav, router]);
 
-  const navItems: { label: string; href: string | null; icon: any; primary?: boolean; testId?: string }[] = [
+  const navItems: { label: string; href: string | null; icon: any; primary?: boolean; testId?: string; onEnd?: boolean }[] = [
     { label: 'Home', href: '/', icon: Home },
     listingId
       ? { label: 'Previous', href: nav?.prev ?? null, icon: ChevronLeft, testId: 'bottom-nav-prev' }
       : { label: 'Lineup', href: '/browse', icon: Search },
     { label: 'Sell', href: '/sell/wizard', icon: PlusCircle, primary: true },
     listingId
-      ? { label: 'Next', href: nav?.next ?? null, icon: ChevronRight, testId: 'bottom-nav-next' }
+      ? { label: 'Next', href: nav?.next ?? null, icon: ChevronRight, testId: 'bottom-nav-next', onEnd: !!seq?.done }
       : { label: 'Activity', href: '/profile/orders', icon: Bell },
     { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
   ];
@@ -74,9 +69,29 @@ export function BottomNav() {
       "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-border/50 px-2 pb-safe pt-2 h-[4.5rem] transition-all duration-500 ease-in-out shadow-[0_-8px_30px_rgb(0,0,0,0.12)]",
       !isVisible ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
     )}>
-      <div className="flex items-center justify-around h-full max-w-lg mx-auto relative">
+      {showEnd && seq && (
+        <ListingSequenceEnd returnHref={seq.returnHref} onClose={() => setShowEnd(false)} className="absolute bottom-full left-3 right-3 mb-3" />
+      )}
+      <div className="flex items-center justify-around h-full max-w-lg mx-auto relative" data-listing-nav>
         {navItems.map((item) => {
           const isActive = !!item.href && (pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href)));
+
+          if (!item.href && item.onEnd) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                data-testid={item.testId}
+                data-end="true"
+                aria-label="No more listings"
+                onClick={() => setShowEnd((v) => !v)}
+                className="flex flex-col items-center justify-center flex-1 min-h-11 min-w-11 text-muted-foreground hover:text-foreground"
+              >
+                <div className="p-1 rounded-xl"><item.icon className="h-5 w-5" /></div>
+                <span className="text-[11px] font-bold mt-1 uppercase tracking-tighter">{item.label}</span>
+              </button>
+            );
+          }
 
           if (!item.href) {
             return (

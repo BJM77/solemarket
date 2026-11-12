@@ -1,4 +1,5 @@
 'use client';
+import { ListingSequenceNav } from './ListingSequenceNav';
 import { usePublicSeller } from '@/hooks/use-public-seller';
 
 import { getProductUrl } from '@/lib/utils/url';
@@ -953,6 +954,7 @@ export default function ProductDetailsModern({
                                     </>
                                 )}
                             </nav>
+                            <ListingSequenceNav productId={productId} className="hidden md:flex ml-auto shrink-0" />
                         </div>
 
                         {/* Image Gallery */}

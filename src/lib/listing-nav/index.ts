@@ -1,7 +1,6 @@
-/** Client helpers for mobile Previous/Next listing navigation. */
+/** Client helpers for Previous/Next listing navigation (sequence logic: ./sequence, state: ./store). */
 /** Main gallery image `sizes`; shared with the next-listing preloader so the srcset matches. */
 export const GALLERY_SIZES = '(max-width: 767px) 100vw, (max-width: 1023px) 70vw, 760px';
-export const LISTING_NAV_KEY = 'benched_listing_nav';
 const LISTING_PATH = /^\/(?:(?:shoes|cards|coins)\/[^/]+|product)\/([^/?#]+)\/?$/;
 
 export function listingIdFromPath(pathname: string | null | undefined): string | null {
@@ -38,42 +37,4 @@ export function originalImageUrl(src?: string | null): string | undefined {
     if (u.pathname.startsWith('/_next/image')) return u.searchParams.get('url') || undefined;
     return u.href;
   } catch { return undefined; }
-}
-
-export function saveListingContext(entries: ListingNavEntry[]) {
-  try { sessionStorage.setItem(LISTING_NAV_KEY, JSON.stringify(entries)); } catch { /* storage blocked */ }
-}
-
-export function readListingContext(): ListingNavEntry[] {
-  try {
-    const raw = sessionStorage.getItem(LISTING_NAV_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.filter((e) => e && typeof e.id === 'string' && typeof e.url === 'string') : [];
-  } catch { return []; }
-}
-
-export interface ListingNeighbours { prev: string | null; next: string | null; prevImage?: string | null; nextImage?: string | null }
-
-export function neighboursFromList(list: ListingNavEntry[], id: string): ListingNeighbours | null {
-  const i = list.findIndex((e) => e.id === id);
-  if (i < 0) return null;
-  return { prev: list[i - 1]?.url ?? null, next: list[i + 1]?.url ?? null, prevImage: list[i - 1]?.image ?? null, nextImage: list[i + 1]?.image ?? null };
-}
-
-/**
- * When a listing tile is tapped, remember the list it came from: the nearest
- * ancestor holding 2+ distinct listing links (i.e. the grid/list/carousel).
- */
-export function captureListingClick(e: MouseEvent) {
-  const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
-  if (!a) return;
-  let path: string;
-  try { path = new URL(a.href, window.location.origin).pathname; } catch { return; }
-  if (!listingIdFromPath(path)) return;
-  let node: HTMLElement | null = a.parentElement;
-  while (node && node !== document.body) {
-    const links = collectListingLinks(node);
-    if (links.length >= 2) { saveListingContext(links); return; }
-    node = node.parentElement;
-  }
 }

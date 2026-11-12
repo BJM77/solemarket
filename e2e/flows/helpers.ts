@@ -94,3 +94,21 @@ export async function deleteGuestOrders(email: string) {
   const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
   for (const d of orders.docs) await d.ref.delete();
 }
+
+/** Main-site sneaker listings for the Previous/Next sequence test (emulator only). */
+export async function seedNavListings() {
+  const { db, admin } = await emulatorDb();
+  const base = {
+    sellerId: 'e2e-seller', sellerName: 'E2E Seller', category: 'Sneakers', condition: 'New', size: 'US 10',
+    quantity: 1, imageUrls: ['/placeholder.png'], description: 'Seeded for the listing nav e2e.',
+    acceptsPayId: true, acceptsCash: true, status: 'available', isDraft: false, isPrivate: false,
+  };
+  const at = (minsAgo: number) => admin.firestore.Timestamp.fromMillis(Date.now() - minsAgo * 60_000);
+  const docs: [string, Record<string, unknown>][] = [
+    ['e2e-nav-a', { title: 'E2E Nav Sneaker A', brand: 'E2ENav', price: 100, createdAt: at(1) }],
+    ['e2e-nav-b', { title: 'E2E Nav Sneaker B', brand: 'E2ENav', price: 110, createdAt: at(2) }],
+    ['e2e-nav-c', { title: 'E2E Nav Sneaker C', brand: 'E2ENav', price: 120, createdAt: at(3) }],
+    ['e2e-nav-other', { title: 'E2E Nav Other Sneaker', brand: 'E2EOther', price: 90, createdAt: at(4) }],
+  ];
+  for (const [id, data] of docs) await db.doc(`products/${id}`).set({ ...base, ...data, updatedAt: at(0) });
+}
