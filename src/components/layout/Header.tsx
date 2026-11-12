@@ -14,6 +14,7 @@ import { Button } from '../ui/button';
 import { useMobileNav } from '@/context/MobileNavContext';
 import { MarketTicker } from '../home/MarketTicker';
 import { cn } from "@/lib/utils/ui";
+import { shouldHideMarketTicker } from '@/lib/utils/hide-market-ticker';
 import dynamic from 'next/dynamic';
 import { PrefetchLikelyRoutes } from './PrefetchLikelyRoutes';
 // Search modal is only needed after a tap/shortcut: keep it out of the first-load bundle.
@@ -99,8 +100,8 @@ export default function Header() {
       <InstantSearchModal open={showInstantSearch} onOpenChange={setShowInstantSearch} />
       <PrefetchLikelyRoutes />
 
-      {/* Desktop Ticker Only */}
-      {isClient && (
+      {/* Desktop Ticker Only — hidden on admin, listing tools, and checkout */}
+      {isClient && !shouldHideMarketTicker(pathname) && (
         <div className="hidden md:block transition-all duration-300">
           <MarketTicker />
         </div>
