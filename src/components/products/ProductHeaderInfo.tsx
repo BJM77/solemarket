@@ -12,6 +12,7 @@ import { ShieldCheck, TrendingUp, MapPin, Clock, Star, Share2, Heart, MessageSqu
 import Link from 'next/link';
 import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
+import { listingDetailTitle } from "@/lib/utils/listing-detail-title";
 import type { Product, UserProfile } from '@/lib/types';
 import type { Timestamp } from 'firebase/firestore';
 import { calculateDutchAuctionPrice } from '@/lib/pricing';
@@ -38,6 +39,7 @@ interface ProductHeaderInfoProps {
 export function ProductHeaderInfo({ product, seller, recentViews = 0, className, user, headingAs = 'h1', titleActions, priceActions, mobileLayout = false }: ProductHeaderInfoProps) {
     const Heading = headingAs;
     const router = useRouter();
+    const { row1, row2 } = listingDetailTitle(product);
     return (
         <div className={cn(mobileLayout ? "space-y-3" : "space-y-4", className)}>
             {/* Seller Badge & Social Proof (only rendered when there is something to show) */}
@@ -63,8 +65,15 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
 
             {!mobileLayout && (
             <div className="flex items-center gap-2.5 flex-wrap">
-                <Heading className="text-2xl md:text-3xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                {product.title}</Heading>
+                <Heading className="flex min-w-0 flex-col gap-0.5 text-gray-900 dark:text-white" data-testid="desktop-listing-title">
+                    <span className="text-2xl md:text-3xl font-extrabold leading-tight">{row1}</span>
+                    {row2 ? (
+                        <>
+                            {' '}
+                            <span className="text-base md:text-lg font-semibold leading-snug text-gray-500 dark:text-gray-400">{row2}</span>
+                        </>
+                    ) : null}
+                </Heading>
                 {titleActions}
             </div>
             )}

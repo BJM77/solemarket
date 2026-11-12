@@ -10,10 +10,15 @@ export type ListingTitleSource = {
   player?: string | null;
   playerName?: string | null;
   manufacturer?: string | null;
+  set?: string | null;
+  cardNumber?: string | null;
+  colorway?: string | null;
+  parallel?: string | null;
   detectedAttributes?: {
     brand?: string | null;
     model?: string | null;
     year?: number | string | null;
+    colorway?: string | null;
   } | null;
 };
 
@@ -40,10 +45,10 @@ const SHOE_BRANDS = [
   'Ugg',
 ].sort((a, b) => b.length - a.length);
 
-const SHOE_NOISE = /\b(deadstock|ds|vnds|used|new|bnib|og box|with box|no box|men'?s|women'?s|womens|kids|gs|ps|td|youth|grade school)\b/gi;
+export const SHOE_NOISE = /\b(deadstock|ds|vnds|used|new|bnib|og box|with box|no box|men'?s|women'?s|womens|kids|gs|ps|td|youth|grade school)\b/gi;
 // Match "US 11" first so "Kyrie 7 US 11" does not lose the model number to a "7 US" match.
-const SHOE_SIZE_US_FIRST = /\b(?:size\s+)?us\s*\d+(?:\.\d+)?(?:y|c|w)?\b/gi;
-const SHOE_SIZE_TRAILING = /\bsize\s+\d+(?:\.\d+)?\b|\b\d+(?:\.\d+)?(?:y|c|w)?\s*us\b/gi;
+export const SHOE_SIZE_US_FIRST = /\b(?:size\s+)?us\s*\d+(?:\.\d+)?(?:y|c|w)?\b/gi;
+export const SHOE_SIZE_TRAILING = /\bsize\s+\d+(?:\.\d+)?\b|\b\d+(?:\.\d+)?(?:y|c|w)?\s*us\b/gi;
 
 const CARD_SET_WORDS = new Set([
   'panini', 'prizm', 'optic', 'select', 'donruss', 'mosaic', 'topps', 'chrome',
@@ -56,7 +61,7 @@ const CARD_SET_WORDS = new Set([
   'psa', 'bgs', 'cgc', 'sgc', 'gem', 'mint', 'raw', 'base',
 ]);
 
-function cleanSpaces(value: string): string {
+export function cleanSpaces(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
@@ -64,21 +69,21 @@ function stripQuotes(value: string): string {
   return value.replace(/['"“”‘’][^'"“”‘’]+['"“”‘’]/g, ' ');
 }
 
-function pickBrand(listing: ListingTitleSource): string {
-  return cleanSpaces(String(listing.brand || listing.detectedAttributes?.brand || ''));
+export function pickBrand(listing: ListingTitleSource): string {
+  return cleanSpaces(String(listing.brand || listing.manufacturer || listing.detectedAttributes?.brand || ''));
 }
 
-function pickModel(listing: ListingTitleSource): string {
+export function pickModel(listing: ListingTitleSource): string {
   return cleanSpaces(String(listing.model || listing.detectedAttributes?.model || ''));
 }
 
-function pickYear(listing: ListingTitleSource): string {
+export function pickYear(listing: ListingTitleSource): string {
   const raw = listing.year ?? listing.detectedAttributes?.year;
   if (raw === null || raw === undefined || raw === '') return '';
   return String(raw).trim();
 }
 
-function pickPlayer(listing: ListingTitleSource): string {
+export function pickPlayer(listing: ListingTitleSource): string {
   return cleanSpaces(String(listing.player || listing.playerName || ''));
 }
 
@@ -138,7 +143,7 @@ function shortShoeTitle(listing: ListingTitleSource, title: string): string {
   return title ? parseShoeFromTitle(title) : '';
 }
 
-const YEAR_RE = /\b((?:19|20)\d{2}(?:-\d{2})?)\b/;
+export const YEAR_RE = /\b((?:19|20)\d{2}(?:-\d{2})?)\b/;
 
 function parseCardFromTitle(title: string): string {
   const cleaned = cleanSpaces(stripQuotes(title));
