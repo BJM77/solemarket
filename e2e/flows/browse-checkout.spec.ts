@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { flowsEnabled, signIn } from './helpers';
+import { flowsEnabled, signIn, setUserPhone, userDoc } from './helpers';
 
 // Runs against the Firebase emulators seeded by e2e/flows/seed.mjs (CI job e2e-flows).
 test.describe('browse → checkout (PayID / cash)', () => {
@@ -32,6 +32,8 @@ test.describe('browse → checkout (PayID / cash)', () => {
   });
 
   test('buyer finds a listing and sends a cash-on-pickup request to the seller', async ({ page }) => {
+    // A signed-in buyer without a mobile on their profile is asked for one (saved to the profile).
+    await setUserPhone('e2e-buyer', null);
     await signIn(page, 'buyer@e2e.test');
 
     // Browse: the seeded listing is reachable from its legacy alias (redirects to canonical URL).
@@ -40,6 +42,10 @@ test.describe('browse → checkout (PayID / cash)', () => {
 
     await page.getByRole('button', { name: /buy now/i }).first().click();
     await expect(page).toHaveURL(/\/checkout/, { timeout: 30_000 });
+
+    const mobile = page.getByTestId('buyer-mobile-field');
+    await expect(mobile).toBeVisible({ timeout: 30_000 });
+    await mobile.locator('input').fill('0411 222 333');
 
     await page.locator('label[for="cash"]').click();
     const confirm = page.getByRole('button', { name: /confirm purchase/i });
@@ -52,6 +58,7 @@ test.describe('browse → checkout (PayID / cash)', () => {
     // Checkout sends a request: nothing is reserved until the seller accepts.
     await expect(page.getByTestId('request-sent-heading')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('request-pending').first()).toBeVisible();
+    expect((await userDoc('e2e-buyer'))?.phoneNumber).toBe('+61411222333');
   });
 
 });

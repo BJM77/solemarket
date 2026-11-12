@@ -1,4 +1,7 @@
-/** Guest checkout input validation. Safe to import on the client and the server. */
+/**
+ * Guest request input validation: a name and an Australian mobile (plus a postal address for
+ * posted orders). No email. Safe to import on the client and the server.
+ */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -25,7 +28,6 @@ export interface GuestShippingAddress { street: string; city: string; state: str
 
 export interface GuestDetailsInput {
     name: unknown;
-    email: unknown;
     mobile: unknown;
     shippingMethod?: unknown;
     shippingAddress?: Partial<Record<keyof GuestShippingAddress, unknown>> | null;
@@ -33,7 +35,6 @@ export interface GuestDetailsInput {
 
 export interface GuestDetails {
     name: string;
-    email: string;
     mobile: string;
     shippingMethod: 'pickup' | 'shipping';
     shippingAddress: GuestShippingAddress | null;
@@ -45,8 +46,6 @@ const clean = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u00
 export function validateGuestDetails(input: GuestDetailsInput): GuestDetails {
     const name = normalizeName(input?.name);
     if (!name) throw new Error('Enter your name (2 to 80 characters).');
-    const email = normalizeEmail(input?.email);
-    if (!email) throw new Error('Enter a valid email address.');
     const mobile = normalizeAuMobile(input?.mobile);
     if (!mobile) throw new Error('Enter an Australian mobile number, e.g. 0412 345 678.');
     const shippingMethod = input?.shippingMethod === 'shipping' ? 'shipping' : 'pickup';
@@ -59,7 +58,7 @@ export function validateGuestDetails(input: GuestDetailsInput): GuestDetails {
         }
         if (!/^\d{4}$/.test(shippingAddress.zip)) throw new Error('Enter a 4-digit postcode.');
     }
-    return { name, email, mobile, shippingMethod, shippingAddress };
+    return { name, mobile, shippingMethod, shippingAddress };
 }
 
 /** Anti-abuse: a checkout form must be open at least this long before a hold is placed. */

@@ -5,7 +5,7 @@
 
 export const SELLER_ORDERS_PATH = '/seller/dashboard?tab=orders';
 
-export type OrderPushKind = 'new_order' | 'cancelled_by_buyer' | 'hold_expired' | 'new_request' | 'counter_accepted';
+export type OrderPushKind = 'new_order' | 'cancelled_by_buyer' | 'hold_expired' | 'new_request' | 'counter_accepted' | 'cancelled_by_support';
 
 /** Status changes pushed to a signed-in buyer who turned notifications on. */
 export type BuyerRequestPushKind = 'request_accepted' | 'request_declined' | 'request_countered' | 'request_relisted';
@@ -78,6 +78,14 @@ export function buildOrderPush(kind: OrderPushKind, o: OrderPushInput): PushPayl
         return {
             title: 'Counter-offer accepted',
             body: clip(`${o.buyerName || 'The buyer'} accepted your counter of ${money(o.counterAmount)} for ${item}. It's now reserved for them.`, 200),
+            url: SELLER_ORDERS_PATH,
+            tag,
+        };
+    }
+    if (kind === 'cancelled_by_support') {
+        return {
+            title: 'Request cancelled by Benched support',
+            body: clip(`A request for ${item} (${amount}) was cancelled by support. It's on sale for everyone.${ref ? ` Ref ${ref}.` : ''}`, 200),
             url: SELLER_ORDERS_PATH,
             tag,
         };

@@ -36,6 +36,10 @@ import { HoldCountdown } from '@/components/checkout/HoldCountdown';
 import { isActiveHoldOrder } from '@/lib/checkout/holds';
 import { SELLER_REQUEST_LABEL, effectiveRequestStatus } from '@/lib/checkout/requests';
 import { SellerRequestActions } from './SellerRequestActions';
+import { BlockBuyerButton } from './BlockBuyerButton';
+import { getBuyerHistoryAction } from '@/app/actions/marketplace/buyer-blocks';
+import { formatAuMobile, smsHref, telHref } from '@/lib/checkout/blocks';
+import { Phone } from 'lucide-react';
 
 export function SellerOrders({ limit }: { limit?: number }) {
     const { user } = useUser();
@@ -48,6 +52,20 @@ export function SellerOrders({ limit }: { limit?: number }) {
     const [trackingCarrier, setTrackingCarrier] = useState('');
     const [trackingNumber, setTrackingNumber] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    // Buyer's past outcomes across the site (counts only), for requests.
+    const [buyerHistory, setBuyerHistory] = useState<Record<string, { label: string }>>({});
+    const historyKey = orders.filter((o) => o.type === 'order' && o.stockMode === 'request').map((o) => o.id).slice(0, 60).join(',');
+    useEffect(() => {
+        if (!historyKey) return;
+        let cancelled = false;
+        (async () => {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) return;
+            const r = await getBuyerHistoryAction(idToken, historyKey.split(','));
+            if (!cancelled && r.success) setBuyerHistory(r.history);
+        })().catch(() => {});
+        return () => { cancelled = true; };
+    }, [historyKey]);
 
     useEffect(() => {
         if (!user?.uid) return;
@@ -335,11 +353,14 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                     <Badge variant="outline" className="text-[9px] uppercase font-black">Guest</Badge>
                                                 )}
                                             </div>
-                                            {order.isGuest && (
-                                                <div className="flex flex-col gap-0.5 text-xs" data-testid="guest-buyer-contact">
-                                                    <a href={`mailto:${order.buyerEmail}?subject=${encodeURIComponent(`Your Benched order ${order.paymentReference || ''}`)}`} className="font-medium text-slate-700 underline">{order.buyerEmail}</a>
-                                                    {order.buyerPhone && <a href={`tel:${order.buyerPhone}`} className="font-medium text-slate-700 underline">{order.buyerPhone}</a>}
+                                            {order.type === 'order' && telHref(order.buyerPhone) && (
+                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs" data-testid="guest-buyer-contact">
+                                                    <a href={telHref(order.buyerPhone)!} className="font-medium text-slate-700 underline" data-testid="buyer-call">{formatAuMobile(order.buyerPhone)}</a>
+                                                    <a href={smsHref(order.buyerPhone)!} className="font-medium text-slate-700 underline" data-testid="buyer-sms">Text</a>
                                                 </div>
+                                            )}
+                                            {buyerHistory[order.id] && (
+                                                <p className="text-[11px] text-slate-500" data-testid="buyer-history">Past requests on Benched: {buyerHistory[order.id].label}</p>
                                             )}
                                         </div>
                                         <div className="space-y-1">
@@ -482,14 +503,17 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 </Button>
                                             )}
 
-                                            {order.isGuest || !order.buyerId ? (
-                                                <Button variant="outline" className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6" asChild>
-                                                    <a href={`mailto:${order.buyerEmail}?subject=${encodeURIComponent(`Your Benched order ${order.paymentReference || ''}`)}`}>
-                                                        <MessageSquare className="h-4 w-4" />
-                                                        Email buyer
-                                                    </a>
-                                                </Button>
-                                            ) : (
+                                            {telHref(order.buyerPhone) && (
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <Button variant="outline" className="w-full font-bold rounded-xl gap-2 hover:bg-white min-h-11" asChild>
+                                                        <a href={telHref(order.buyerPhone)!}><Phone className="h-4 w-4" /> Call</a>
+                                                    </Button>
+                                                    <Button variant="outline" className="w-full font-bold rounded-xl gap-2 hover:bg-white min-h-11" asChild>
+                                                        <a href={smsHref(order.buyerPhone)!}><MessageSquare className="h-4 w-4" /> Text</a>
+                                                    </Button>
+                                                </div>
+                                            )}
+                                            {order.isGuest || !order.buyerId ? null : (
                                             <Button
                                                 variant="outline"
                                                 className="w-full font-bold rounded-xl gap-2 hover:bg-white py-6"
@@ -499,6 +523,8 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                 Inquire Buyer
                                             </Button>
                                             )}
+
+                                            {(order.buyerPhone || order.buyerId) && order.buyerId !== user?.uid && <BlockBuyerButton order={order} />}
 
                                             <Button variant="ghost" className="w-full font-bold rounded-xl gap-2 text-muted-foreground hover:text-slate-900">
                                                 <Printer className="h-4 w-4" />

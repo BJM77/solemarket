@@ -22,6 +22,7 @@ import { getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { formatPrice } from '@/lib/utils/format';
 import { GuestCheckoutDialog } from '@/components/checkout/GuestCheckoutDialog';
+import { BuyerMobileField, useBuyerMobile } from '@/components/checkout/BuyerMobileField';
 
 interface OfferModalProps {
     product: Product;
@@ -48,6 +49,8 @@ export function OfferModal({ product, user, trigger, payIdReady = true }: OfferM
     const [pending, startTransition] = useTransition();
     const router = useRouter();
     const { toast } = useToast();
+    const [mobile, setMobile] = useState('');
+    const buyerMobile = useBuyerMobile(!!user && isOpen);
 
     const triggerEl = trigger || <Button variant="outline">Make an Offer</Button>;
 
@@ -89,8 +92,13 @@ export function OfferModal({ product, user, trigger, payIdReady = true }: OfferM
                 shippingMethod,
                 shippingAddress: shippingMethod === 'shipping' ? addr : null,
                 perthPickupConfirmed: perthOk,
+                mobile: buyerMobile.needsMobile ? mobile : undefined,
             });
-            if (!res.success) { setError(res.error); return; }
+            if (!res.success) {
+                setError(res.error);
+                if ((res as any).needsMobile) buyerMobile.askForMobile();
+                return;
+            }
             try { trackEcommerceEvent.generateLead(product, 'offer'); } catch { /* ignore */ }
             toast({ title: 'Offer sent', description: 'The seller will accept, decline or counter. Track it in your purchases.' });
             setIsOpen(false);
@@ -111,6 +119,7 @@ export function OfferModal({ product, user, trigger, payIdReady = true }: OfferM
                         <Label htmlFor="offer-amount">Your offer (AUD)</Label>
                         <Input id="offer-amount" type="number" inputMode="decimal" min={1} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
                     </div>
+                    {buyerMobile.needsMobile && <BuyerMobileField id="offer-mobile" value={mobile} onChange={setMobile} />}
                     <fieldset className="space-y-2">
                         <legend className="text-sm font-medium">Delivery</legend>
                         <div className="grid grid-cols-2 gap-2">

@@ -40,6 +40,7 @@ import { formatPrice } from "@/lib/utils/format";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SellerOrders } from '@/components/seller/SellerOrders';
+import { BlockedBuyers } from '@/components/seller/BlockedBuyers';
 import { SubscriptionTier } from '@/components/seller/SubscriptionTier';
 import { StripeConnect } from '@/components/seller/StripeConnect';
 
@@ -682,6 +683,7 @@ export default function SellerDashboard() {
                 <OrderNotificationsToggle compact />
                 <PayIdSettings compact />
                 <SellerOrders />
+                <BlockedBuyers />
               </CardContent>
             </Card>
           </TabsContent>

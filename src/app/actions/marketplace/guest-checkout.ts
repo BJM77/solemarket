@@ -1,12 +1,12 @@
 'use server';
 
 /**
- * Guest checkout server actions (no account, no email). Thin wrappers that add rate limits and
+ * Guest checkout server actions (no account, no email: a name and a mobile). Thin wrappers that add rate limits and
  * the caller's IP; the logic lives in src/lib/checkout/guest-server.ts.
  */
 import { checkRateLimit, clientIp } from '@/lib/rate-limit-guard';
 import { identityHash } from '@/lib/checkout/guest-crypto';
-import { normalizeAuMobile, normalizeEmail } from '@/lib/checkout/guest-validation';
+import { normalizeAuMobile } from '@/lib/checkout/guest-validation';
 import {
     issueGuestCheckoutTicket,
     placeGuestRequest,
@@ -38,7 +38,6 @@ export async function placeGuestRequestAction(input: {
     productId: string;
     ticketId: string;
     name: string;
-    email: string;
     mobile: string;
     shippingMethod?: 'pickup' | 'shipping';
     shippingAddress?: { street?: string; city?: string; state?: string; zip?: string } | null;
@@ -49,20 +48,19 @@ export async function placeGuestRequestAction(input: {
 }): Promise<Result<{ orderToken: string; orderId: string; paymentReference: string; totalAmount: number; requestType: 'buy' | 'offer'; title: string }>> {
     try {
         const ip = await clientIp();
-        const email = normalizeEmail(input?.email);
         const mobile = normalizeAuMobile(input?.mobile);
         const device = validDevice(input?.deviceId);
-        // Request attempts: per IP, device, email and mobile (on top of the 3-open-requests cap).
+        // Request attempts: per IP, device and mobile (on top of the 3-open-requests cap).
         const checks = [
             checkRateLimit('guest_hold_ip', { limit: 10, windowSeconds: 3600, identifier: identityHash('ip', ip) }),
             ...(device ? [checkRateLimit('guest_hold_device', { limit: 6, windowSeconds: 3600, identifier: identityHash('device', device) })] : []),
-            ...(email ? [checkRateLimit('guest_hold_email', { limit: 5, windowSeconds: 3600, identifier: identityHash('email', email) })] : []),
             ...(mobile ? [checkRateLimit('guest_hold_phone', { limit: 5, windowSeconds: 3600, identifier: identityHash('phone', mobile) })] : []),
         ];
         if ((await Promise.all(checks)).some((ok) => !ok)) {
             return { success: false, error: 'Too many requests in a short time. Please wait a while and try again, or sign in to buy.' };
         }
-        const r = await placeGuestRequest(input as any, { ip, deviceId: device });
+        const { email: _ignored, ...rest } = (input || {}) as any;
+        const r = await placeGuestRequest(rest, { ip, deviceId: device });
         return { success: true, ...r };
     } catch (e) {
         return fail(e);
