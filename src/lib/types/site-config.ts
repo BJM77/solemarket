@@ -217,6 +217,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         { label: 'Contact', href: '/contact' },
         { label: 'Terms', href: '/terms' },
         { label: 'Privacy', href: '/privacy' },
+        { label: 'Authenticity and integrity', href: '/authenticity' },
+        { label: 'Prohibited Items', href: '/prohibited-items' },
+        { label: 'Report infringement', href: '/report-infringement' },
       ] },
       { id: 'f5', title: 'Also on Benched', links: [
         { label: 'Pokémon', href: '/pokemon' },

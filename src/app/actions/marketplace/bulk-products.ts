@@ -5,6 +5,7 @@ import * as admin from 'firebase-admin';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import type { Product, UserProfile } from '@/lib/types';
+import { assertNewListingsAllowed } from '@/lib/super-seller/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 type BulkCreateProductData = {
@@ -46,6 +47,14 @@ export async function bulkCreateProductsFromCSV(
             return { success: false, error: 'You do not have permission to list products.' };
         }
 
+        if (userProfile.role !== 'superadmin' && userProfile.role !== 'admin') {
+            try {
+                await assertNewListingsAllowed(decodedToken.uid, userProfile.role);
+            } catch (e: any) {
+                return { success: false, error: e?.message || 'New listings are paused.' };
+            }
+        }
+
         const batch = firestoreDb.batch();
         const productsCollection = firestoreDb.collection("products");
 
@@ -58,6 +67,7 @@ export async function bulkCreateProductsFromCSV(
                 sellerId: decodedToken.uid,
                 sellerName: userProfile.displayName,
                 sellerAvatar: userProfile.photoURL,
+                sellerIsSuperSeller: Boolean(userProfile.abn && String(userProfile.abn).replace(/\D/g, '').length === 11),
                 status: 'available',
                 isDraft: false,
                 createdAt: admin.firestore.FieldValue.serverTimestamp() as any,

@@ -6,6 +6,7 @@ export const PUBLIC_SELLER_FIELDS = [
     'displayName', 'storeName', 'businessName', 'storeDescription', 'bio',
     'photoURL', 'avatarUrl', 'bannerUrl', 'shopSlug', 'isVerified', 'isFounder',
     'rating', 'totalSales', 'joinDate', 'createdAt', 'role', 'accountType', 'canSell', 'payIdReady',
+    'abn', 'gstRegistered',
 ] as const;
 
 export function pickPublicSellerFields(data: Record<string, any> | null | undefined): Record<string, any> {

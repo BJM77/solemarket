@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NBA_TEAMS, getTeam } from '../teams';
+import { NBA_TEAMS, getTeam, teamLabel, flipColourLabel } from '../teams';
 import { contrastRatio, darkenToContrast, hexToRgb, readableForeground, rgbToHex, WHITE, INK, type RGB } from '../color';
 import {
   allTeamChoices, buildTeamThemeVars, computeTeamColors, isValidTeamChoice, parseTeamChoice,
@@ -68,6 +68,15 @@ describe('NBA team data', () => {
     const lal = getTeam('LAL')!;
     expect(lal.primary).toBe('#552583');
     expect(lal.secondary).toBe('#FDB927');
+  });
+
+  it('uses unique city-and-colour labels and flips colours for alt', () => {
+    expect(new Set(NBA_TEAMS.map((t) => t.label)).size).toBe(30);
+    const lal = getTeam('LAL')!;
+    expect(teamLabel(lal)).toBe('LA Purple & Gold');
+    expect(teamLabel(lal, true)).toBe('LA Gold & Purple');
+    expect(flipColourLabel('Oklahoma City Blue & Orange')).toBe('Oklahoma City Orange & Blue');
+    expect(NBA_TEAMS.every((t) => t.label.includes(' & '))).toBe(true);
   });
 });
 

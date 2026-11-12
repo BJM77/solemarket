@@ -34,7 +34,12 @@ service cloud.firestore {
                (resource != null && resource.data.get('listingLimit', null) == d.listingLimit)) &&
              (!('isVerified' in d) || (resource != null && resource.data.get('isVerified', null) == d.isVerified)) &&
              // payIdReady is set by the server when a seller saves a PayID.
-             (!('payIdReady' in d) || (resource != null && resource.data.get('payIdReady', null) == d.payIdReady));
+             (!('payIdReady' in d) || (resource != null && resource.data.get('payIdReady', null) == d.payIdReady)) &&
+             // ABN / Super Seller fields are written only by server actions.
+             (!('abn' in d) || (resource != null && resource.data.get('abn', null) == d.abn)) &&
+             (!('gstRegistered' in d) || (resource != null && resource.data.get('gstRegistered', null) == d.gstRegistered)) &&
+             (!('abnPromptedAt' in d) || (resource != null && resource.data.get('abnPromptedAt', null) == d.abnPromptedAt)) &&
+             (!('abnBusinessName' in d) || (resource != null && resource.data.get('abnBusinessName', null) == d.abnBusinessName));
     }
 
     function isValidProduct(productData) {
@@ -252,6 +257,9 @@ service cloud.firestore {
     // Price intel cache + admin report: server (Admin SDK) only.
     match /price_checks/{id} { allow read, write: if false; }
     match /price_reports/{id} { allow read, write: if false; }
+
+    // Infringement reports: Admin SDK only.
+    match /takedown_requests/{id} { allow read, write: if false; }
 
     match /{document=**} {
       allow read, write: if false;

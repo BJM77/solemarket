@@ -17,6 +17,7 @@ import type { Product, UserProfile } from '@/lib/types';
 import type { Timestamp } from 'firebase/firestore';
 import { calculateDutchAuctionPrice } from '@/lib/pricing';
 import { Lock } from 'lucide-react';
+import { BusinessSellerNote, SuperSellerBadge, isSuperSeller } from '@/components/products/SuperSellerBadge';
 import { useRouter } from 'next/navigation';
 
 interface ProductHeaderInfoProps {
@@ -42,8 +43,9 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
     return (
         <div className={cn(mobileLayout ? "space-y-3" : "space-y-4", className)}>
             {/* Seller Badge & Social Proof (only rendered when there is something to show) */}
-            {(seller?.isVerified || recentViews > 5) && (
+            {(seller?.isVerified || isSuperSeller(seller) || isSuperSeller(product) || recentViews > 5) && (
             <div className="flex flex-wrap items-center gap-3">
+                {(isSuperSeller(seller) || isSuperSeller(product)) && <SuperSellerBadge />}
                 {seller?.isVerified && (
                     <div className="flex items-center gap-2">
                         <ShieldCheck className="text-primary h-5 w-5 fill-primary/10" />
@@ -74,6 +76,9 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
                 </Heading>
                 {titleActions}
             </div>
+            )}
+            {(isSuperSeller(seller) || isSuperSeller(product)) && (
+              <BusinessSellerNote />
             )}
 
             <div className="flex flex-col gap-3">
