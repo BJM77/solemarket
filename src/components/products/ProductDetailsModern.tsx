@@ -1313,6 +1313,15 @@ export default function ProductDetailsModern({
                                                                         </p>
                                                                     </div>
                                                                 </div>
+                                                                <p className="text-center lg:col-span-2 lg:order-last">
+                                                                    <Link
+                                                                        href={`/report-infringement?url=${encodeURIComponent(`/product/${product.id}`)}`}
+                                                                        className="text-[11px] text-muted-foreground underline"
+                                                                        data-testid="report-listing-link"
+                                                                    >
+                                                                        Report this listing
+                                                                    </Link>
+                                                                </p>
                                                             </>
                                                         )}
 

@@ -48,11 +48,9 @@ The Protro features a large Zoom Turbo unit in the forefoot and Cushlon foam in 
 - **Authentic:** The shoe should feel incredibly responsive in the forefoot. A Men's US 10 should weigh approximately 380-400 grams per shoe.
 - **Fake:** Fakes use cheap EVA foam. They often weigh 50+ grams less than authentic pairs because they hollow out the midsole to save material costs. 
 
-### Why Use the Benched Vault?
+### Buying with care
 
-While these tips help, the best replicas (often called "God Killer" batches) can pass visual inspections. Our Benched Vault authenticators use UV light analysis, weight discrepancy testing, and glue-smell checks to guarantee authenticity.
-
-When you buy a [Vault-Verified Kobe 6](?ref=journal&article=how-to-spot-fake-kobe-6-protros), you receive our cryptographic Passport guaranteeing it is 100% authentic.
+Even the best replicas (often called "God Killer" batches) can pass a casual visual check. Compare weight, cushioning and photos of the size tag with a known authentic pair, ask the seller questions, and for a higher-value purchase consider cash on pickup in Perth so you can inspect the shoes before you pay. Benched does not physically authenticate items.
         `,
         coverImage: 'https://images.unsplash.com/photo-1552346154-21d32810baa3?auto=format&fit=crop&q=80&w=2600',
         datePublished: '2026-03-01T12:00:00Z',

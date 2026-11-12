@@ -83,6 +83,7 @@ export function SellersTable() {
                             <TableHead className="w-[250px]">Seller</TableHead>
                             <TableHead>Account Type</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>ABN</TableHead>
                             <TableHead>Member Since</TableHead>
                             <TableHead className="text-right">Manage</TableHead>
                         </TableRow>
@@ -90,13 +91,13 @@ export function SellersTable() {
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
+                                <TableCell colSpan={6} className="h-24 text-center">
                                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
                                 </TableCell>
                             </TableRow>
                         ) : filteredUsers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                     No sellers found.
                                 </TableCell>
                             </TableRow>
@@ -131,6 +132,16 @@ export function SellersTable() {
                                             <Badge variant="destructive" className="bg-orange-600">Suspended</Badge>
                                         ) : (
                                             <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Active</Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-xs">
+                                        {user.abn ? (
+                                            <div>
+                                                <div className="font-mono">{user.abn}</div>
+                                                <div className="text-muted-foreground">{user.gstRegistered ? 'GST registered' : 'ABN on file'}</div>
+                                            </div>
+                                        ) : (
+                                            <span className="text-muted-foreground">None</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">

@@ -62,6 +62,9 @@ export type UserProfile = {
   phoneNumber?: string;
   location?: string;
   businessName?: string; // For Business users (Slug can be derived or stored in storeName)
+  abn?: string;
+  gstRegistered?: boolean;
+  abnPromptedAt?: any;
   bannerUrl?: string;
   isFounder?: boolean;
   warningCount?: number;
@@ -83,6 +86,7 @@ export type Product = {
   sellerName: string;
   sellerAvatar?: string;
   sellerVerified?: boolean;
+  sellerIsSuperSeller?: boolean;
   imageUrls: string[];
   videoUrl?: string;
   videoThumbnailUrl?: string;

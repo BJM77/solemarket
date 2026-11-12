@@ -1,25 +1,32 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, CheckCircle, SearchCode, ShieldCheck, Fingerprint } from "lucide-react";
+import { ShieldAlert, SearchCode, ShieldCheck, Fingerprint } from "lucide-react";
 import FAQSchema from "@/components/seo/FAQSchema";
+
+export const metadata: Metadata = {
+    title: 'Authenticity and integrity',
+    description: 'How authenticity works on Benched: seller responsibility, PSA cert lookups, inspecting on pickup, and how to report a problem.',
+    alternates: { canonical: '/authenticity' },
+};
 
 const authenticityFaqs = [
   {
     question: "Does Benched authenticate items?",
-    answer: "No single authority can physically authenticate every item traded online instantly. Instead, Benched utilizes a multi-layered trust approach: AI Vision pre-screening during listing, direct PayID or cash-on-pickup payments so buyers can inspect before paying in person, and a strict seller penalty system for counterfeits."
+    answer: "No. Benched is a peer-to-peer marketplace and does not physically inspect or authenticate items before they are listed or sold. Sellers are responsible for the accuracy of their listings, including authenticity. Buyers pay the seller directly by PayID or cash on pickup."
   },
   {
-    question: "What is AI Pre-Screening?",
-    answer: "Our Genkit AI pipeline analyzes every uploaded listing photo to detect metadata (like card set limits, sneaker style codes) and flag low-quality or suspicious stock images before they go live."
+    question: "What does a PSA cert check show?",
+    answer: "If a seller provides a PSA certification number, we may look that number up in PSA's records, or show a cached result, so you can compare the cert details with the listing photos. That check only confirms the number exists in PSA's database. It does not confirm that the physical card being sold is that same card, and it is not a Benched authentication. Live lookups can be requested by the listing owner or an admin."
   },
   {
     question: "What happens if I receive a fake item?",
-    answer: "Benched doesn't hold payments, so for high-value items we recommend cash on pickup in Perth, where you inspect the item before paying. If a PayID purchase arrives fake or severely misrepresented, report it to us from your order page. We investigate, remove the listing and ban sellers who sell replicas."
+    answer: "Benched doesn't hold payments, so for high-value items we recommend cash on pickup in Perth, where you inspect the item before paying. If a PayID purchase arrives fake or is not as described, report it from your order page or the contact page. We may remove the listing, end the seller's account, and block the associated mobile number."
   },
   {
     question: "Can anyone sell on Benched?",
-    answer: "Yes, we are a peer-to-peer marketplace. However, sellers who abuse the platform or attempt to sell replicas are permanently banned, and we cooperate with police and banks on fraud reports."
+    answer: "Sellers are approved before they can list. Selling counterfeit or replica items is prohibited and can lead to the listing being removed, the account being ended, and the mobile number being blocked sitewide."
   }
 ];
 
@@ -28,18 +35,19 @@ export default function AuthenticityPage() {
         <div className="bg-background min-h-screen text-foreground pb-20">
             <FAQSchema questions={authenticityFaqs} />
             <PageHeader
-                title="Authenticity & Integrity"
-                description="We don't rely on blind faith. We rely on system-enforced trust."
+                title="Authenticity and integrity"
+                description="Benched is a peer-to-peer marketplace. We do not physically authenticate items."
             />
 
             <div className="container mx-auto px-4 mt-12 max-w-5xl">
                 <div className="mb-16">
-                    <h2 className="text-3xl font-black mb-6">The Fake Epidemic</h2>
+                    <h2 className="text-3xl font-black mb-6">How authenticity works here</h2>
                     <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                        The collectible market—specifically sneakers and cards—is flooded with replicas. Many platforms claim to "Authenticate" everything, but human error is inevitable, and shipping items back and forth is slow and expensive.
+                        The collectible market—especially sneakers and cards—includes replicas. Benched does not inspect items before they are listed or sold, and we do not hold payments.
+                        Sellers must describe condition and authenticity accurately. Buyers should check photos, ask questions, and for higher-value purchases consider cash on pickup in Perth so they can inspect the item before paying.
                     </p>
                     <p className="text-lg text-muted-foreground leading-relaxed">
-                        At <strong className="text-foreground">Benched</strong>, we take a different approach. We are a peer-to-peer marketplace, meaning we do not physically hold the inventory. Instead, we have constructed an environment where **selling fakes is unprofitable and mathematically risky**.
+                        Counterfeit and replica goods are prohibited. See our <Link href="/prohibited-items" className="underline font-semibold text-foreground">Prohibited Items Policy</Link> and <Link href="/terms" className="underline font-semibold text-foreground">Terms of Service</Link>.
                     </p>
                 </div>
 
@@ -47,17 +55,17 @@ export default function AuthenticityPage() {
                     <Card className="bg-card border-border hover:border-orange-500/50 transition-colors">
                         <CardContent className="p-8">
                             <SearchCode className="h-12 w-12 text-orange-700 mb-6" />
-                            <h3 className="text-xl font-bold text-foreground mb-4">1. AI Vision Pre-Screening</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-4">1. PSA cert lookup</h3>
                             <p className="text-muted-foreground leading-relaxed">
-                                Our listing flow uses advanced AI models to scan every image. If a seller uploads generic images, screenshots, or highly suspicious items lacking physical context, our system flags it for manual review before it ever reaches the public feed.
+                                For a graded card, if the seller provides a PSA certification number, we can look that number up in PSA&apos;s records (or show a previously cached result) so you can compare the cert details with the photos. This confirms the number exists in PSA&apos;s database. It does not confirm the card in the seller&apos;s hand is that same card.
                             </p>
                         </CardContent>
                     </Card>
 
                     <Card className="bg-card border-border hover:border-emerald-500/50 transition-colors">
                         <CardContent className="p-8">
-                            <LockIcon className="h-12 w-12 text-emerald-700 mb-6" />
-                            <h3 className="text-xl font-bold text-foreground mb-4">2. Inspect Before You Pay</h3>
+                            <ShieldCheck className="h-12 w-12 text-emerald-700 mb-6" />
+                            <h3 className="text-xl font-bold text-foreground mb-4">2. Inspect on pickup</h3>
                             <p className="text-muted-foreground leading-relaxed">
                                 Cash on pickup in Perth lets you check the item in person before any money changes hands. For PayID orders, only pay the PayID shown on your Benched order page, with your order reference.
                             </p>
@@ -67,9 +75,9 @@ export default function AuthenticityPage() {
                     <Card className="bg-card border-border hover:border-red-500/50 transition-colors">
                         <CardContent className="p-8">
                             <ShieldAlert className="h-12 w-12 text-red-500 mb-6" />
-                            <h3 className="text-xl font-bold text-foreground mb-4">3. Permanent Network Bans</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-4">3. Report and block</h3>
                             <p className="text-muted-foreground leading-relaxed">
-                                If a seller is caught attempting to pass off replicas, their account, IP, and associated payment methods are permanently blacklisted from the Benched network. We operate a zero-tolerance policy.
+                                If an item is fake or not as described, report it from your order or the <Link href="/contact?topic=order-problem" className="underline">contact page</Link>. We may remove the listing, end the account, and block the mobile number sitewide. Rights holders can also use our <Link href="/report-infringement" className="underline">infringement report form</Link>.
                             </p>
                         </CardContent>
                     </Card>
@@ -78,20 +86,16 @@ export default function AuthenticityPage() {
                 <div className="bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 rounded-3xl p-10 md:p-16">
                     <h2 className="text-3xl font-black text-foreground mb-6 flex items-center gap-3">
                         <Fingerprint className="text-primary h-8 w-8" />
-                        Buyer Responsibility
+                        Seller and buyer responsibility
                     </h2>
                     <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-                        While our software and seller checks help, peer-to-peer trading requires vigilance. We encourage all buyers to carefully inspect high-resolution photos provided by sellers, engage in dialogue, and inspect in person with cash on pickup for any significant purchase.
+                        Sellers warrant that they own the item and that the listing, including condition and authenticity, is accurate. Buyers should inspect high-resolution photos, ask questions, and use cash on pickup for significant purchases when they can.
                     </p>
-                    <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground">
-                        <CheckCircle className="text-green-700 h-5 w-5" /> Never pay a PayID or bank account sent to you by message, email or text.
-                    </div>
+                    <p className="flex items-center gap-4 text-sm font-bold text-muted-foreground">
+                        Never pay a PayID or bank account sent to you by message, email or text.
+                    </p>
                 </div>
             </div>
         </div>
     );
-}
-
-function LockIcon({ className }: { className?: string }) {
-    return <ShieldCheck className={className} />;
 }

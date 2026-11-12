@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
+import { SuperSellerBadge, isSuperSeller } from '@/components/products/SuperSellerBadge';
 import { isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
@@ -1129,6 +1130,7 @@ export default function ProductCard({
           <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate max-w-[80px] sm:max-w-[100px]">
             {resolveSellerName(null, product.sellerName)}
           </span>
+          {isSuperSeller(product) && <SuperSellerBadge className="text-[8px] px-1 py-0" />}
           {product.sellerVerified ? (
             <BadgeCheck className="h-3 w-3 text-orange-700 shrink-0" />
           ) : (

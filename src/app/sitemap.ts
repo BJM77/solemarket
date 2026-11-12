@@ -84,6 +84,8 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     '/privacy',
     '/dmca',
     '/prohibited-items',
+    '/authenticity',
+    '/report-infringement',
     '/guides',
     '/help',
     '/size-guide',

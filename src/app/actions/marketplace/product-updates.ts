@@ -8,6 +8,7 @@ import { sendTelegramNotification } from '@/lib/telegram';
 import { sendSellerEnquiryEmail } from '@/lib/email';
 import { revalidateTag } from 'next/cache';
 import { verifyActionCode } from '../auth/email-verification';
+import { assertNewListingsAllowed } from '@/lib/super-seller/server';
 
 
 export async function updateProductPrice(productId: string, newPrice: number, idToken: string) {
@@ -369,6 +370,12 @@ export async function activateProductAction(productId: string, idToken: string) 
         const data = docSnap.data();
         if (data?.sellerId !== decoded.uid && decoded.role !== 'admin' && decoded.role !== 'superadmin') {
             return { success: false, error: 'Unauthorized' };
+        }
+
+        try {
+            await assertNewListingsAllowed(data?.sellerId || decoded.uid, decoded.role);
+        } catch (e: any) {
+            return { success: false, error: e?.message || 'New listings are paused.' };
         }
 
         await docRef.update({

@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils/ui';
-import { NBA_TEAMS, teamLabel } from '@/lib/team-themes/teams';
+import { NBA_TEAMS, teamLabel, pickerShortLabel } from '@/lib/team-themes/teams';
 import { canUseAlt, parseTeamChoice } from '@/lib/team-themes/theme';
 import { useTeamTheme } from '@/providers/TeamThemeProvider';
 
@@ -18,7 +18,7 @@ export function TeamPickerPanel({ onPicked, className }: { onPicked?: () => void
 
   return (
     <div className={cn('space-y-3', className)} data-testid="team-picker">
-      <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Your NBA team">
+      <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Your team colours">
         {NBA_TEAMS.map((t) => {
           const selected = parsed?.team.abbr === t.abbr;
           return (
@@ -39,7 +39,7 @@ export function TeamPickerPanel({ onPicked, className }: { onPicked?: () => void
                 <span className="h-full w-1/2" style={{ backgroundColor: t.primary }} />
                 <span className="h-full w-1/2" style={{ backgroundColor: t.secondary }} />
               </span>
-              <span>{t.abbr}</span>
+              <span className="line-clamp-2 w-full text-center leading-tight">{pickerShortLabel(t)}</span>
               {selected && <Check className="absolute right-0.5 top-0.5 h-3 w-3" aria-hidden="true" />}
             </button>
           );
@@ -50,7 +50,7 @@ export function TeamPickerPanel({ onPicked, className }: { onPicked?: () => void
         <div className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 px-3 py-2">
           <Label htmlFor="team-alt" className="text-xs font-semibold flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-full border border-black/10" style={{ backgroundColor: parsed.team.secondary }} aria-hidden="true" />
-            Use {parsed.team.name} secondary colour as main
+            Use the second colour as the main colour
           </Label>
           <Switch
             id="team-alt"
@@ -95,7 +95,7 @@ export function TeamPickerButton({ className }: { className?: string }) {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-3">
         <p className="mb-2 text-sm font-bold">Your team</p>
-        <p className="mb-3 text-xs text-muted-foreground">Colour the site in your NBA team&apos;s colours. Saved on this device and to your account when signed in.</p>
+        <p className="mb-3 text-xs text-muted-foreground">Colour the site in your chosen colours. Saved on this device and to your account when signed in.</p>
         <TeamPickerPanel />
       </PopoverContent>
     </Popover>

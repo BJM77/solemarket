@@ -40,6 +40,8 @@ import { BlockBuyerButton } from './BlockBuyerButton';
 import { getBuyerHistoryAction } from '@/app/actions/marketplace/buyer-blocks';
 import { formatAuMobile, smsHref, telHref } from '@/lib/checkout/blocks';
 import { Phone } from 'lucide-react';
+import { getMySuperSellerStatusAction } from '@/app/actions/seller/super-seller';
+import { gstInclusiveBreakdown } from '@/lib/super-seller/gst';
 
 export function SellerOrders({ limit }: { limit?: number }) {
     const { user } = useUser();
@@ -48,6 +50,18 @@ export function SellerOrders({ limit }: { limit?: number }) {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
+    const [gstRegistered, setGstRegistered] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const idToken = await getCurrentUserIdToken();
+            if (!idToken) return;
+            const r = await getMySuperSellerStatusAction(idToken);
+            if (!cancelled && r.success) setGstRegistered(r.status.gstRegistered);
+        })();
+        return () => { cancelled = true; };
+    }, [user?.uid]);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [trackingCarrier, setTrackingCarrier] = useState('');
     const [trackingNumber, setTrackingNumber] = useState('');
@@ -380,8 +394,16 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                         </div>
                                         {order.totalAmount && (
                                             <div className="space-y-1 ml-auto text-right">
-                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Profit Impact</p>
+                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Total</p>
                                                 <p className="text-lg font-black text-slate-900">${formatPrice(order.totalAmount)}</p>
+                                                {gstRegistered && ['paid', 'completed'].includes(order.status) && (() => {
+                                                    const br = gstInclusiveBreakdown(Number(order.totalAmount) || 0);
+                                                    return (
+                                                        <p className="text-[10px] text-muted-foreground">
+                                                            inc GST ${formatPrice(br.incGst)} · GST ${formatPrice(br.gst)} · ex GST ${formatPrice(br.exGst)}
+                                                        </p>
+                                                    );
+                                                })()}
                                             </div>
                                         )}
                                     </div>

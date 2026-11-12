@@ -60,6 +60,7 @@ import { PayIdSettings } from '@/components/seller/PayIdSettings';
 import { OrderNotificationsToggle } from '@/components/seller/OrderNotificationsToggle';
 
 import { useToast } from '@/hooks/use-toast';
+import { SuperSellerPrompt } from '@/components/seller/SuperSellerPrompt';
 
 export default function SellerDashboard() {
   const router = useRouter();
@@ -362,6 +363,7 @@ export default function SellerDashboard() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        <SuperSellerPrompt />
 
         <Tabs value={tab} onValueChange={setTab} className="space-y-12">
           <div className="flex items-center justify-between overflow-x-auto pb-2 no-scrollbar">
@@ -802,4 +804,3 @@ function SyncListingsButton({ userId }: { userId: string }) {
     </Button>
   );
 }
-

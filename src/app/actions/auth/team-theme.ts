@@ -4,7 +4,7 @@ import { firestoreDb, admin } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { isValidTeamChoice } from '@/lib/team-themes/theme';
 
-/** Save (or clear with null) the signed-in user's favourite NBA team theme. */
+/** Save (or clear with null) the signed-in user's favourite team colour theme. */
 export async function saveFavoriteTeam(idToken: string, choice: string | null) {
   try {
     if (typeof idToken !== 'string' || !idToken) return { success: false, message: 'Not signed in.' };
