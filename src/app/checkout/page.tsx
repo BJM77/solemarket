@@ -8,6 +8,11 @@ import { TierNudges } from '@/components/cart/TierNudges';
 import { useUser } from '@/firebase';
 import { createOrderAction } from '@/app/actions/marketplace/order';
 import { getSellersPaymentReadiness } from '@/app/actions/marketplace/order-payments';
+import { startGuestCheckoutAction, placeGuestRequestAction } from '@/app/actions/marketplace/guest-checkout';
+import { getDeviceId } from '@/components/checkout/GuestCheckoutDialog';
+import { validateGuestDetails, msUntilFormReady } from '@/lib/checkout/guest-validation';
+import { saveGuestOrder } from '@/lib/checkout/guest-orders-local';
+import { MAX_OPEN_REQUESTS } from '@/lib/checkout/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,6 +31,7 @@ export default function CheckoutPage() {
   const { user, isUserLoading } = useUser();
   const { 
     items, 
+    removeItem,
     cartSubtotal, 
     cartTotal, 
     clearCart, 
@@ -50,12 +56,15 @@ export default function CheckoutPage() {
   const sellersWithoutPayId = sellerReadiness.filter(s => !s.payIdReady);
   const payIdAvailable = sellerReadiness.length > 0 && sellersWithoutPayId.length === 0;
   useEffect(() => {
-    // Sellers without a PayID can only be paid in cash at a Perth pickup.
+    // Signed-in buyers: sellers without a PayID can only be paid in cash at a Perth pickup.
+    // (Guests don't choose: the seller confirms PayID or cash when they accept.)
+    if (!user) return;
     if (sellerReadiness.length && !payIdAvailable && paymentMethod === 'payid') setPaymentMethod('cash');
-  }, [sellerReadiness, payIdAvailable, paymentMethod]);
+  }, [user, sellerReadiness, payIdAvailable, paymentMethod]);
   useEffect(() => {
+    if (!user) return;
     if (paymentMethod === 'cash' && shippingMethod !== 'pickup') setShippingMethod('pickup');
-  }, [paymentMethod, shippingMethod, setShippingMethod]);
+  }, [user, paymentMethod, shippingMethod, setShippingMethod]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Set once an order is placed so the empty-cart screen never flashes before the redirect.
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -108,8 +117,80 @@ export default function CheckoutPage() {
     setPromoError(null);
   };
 
-  // Guest email state (when user is not signed in)
+  // Guest (signed-out) checkout: each cart item becomes a request to its seller, no account needed.
+  const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
+  const [guestMobile, setGuestMobile] = useState('');
+  const [guestWebsite, setGuestWebsite] = useState(''); // honeypot
+  const [guestTickets, setGuestTickets] = useState<Record<string, { ticketId: string; localAtMs: number }>>({});
+  const guestItemKey = !user && !isUserLoading ? items.map(i => i.id).sort().join(',') : '';
+  useEffect(() => {
+    if (!guestItemKey) return;
+    let cancelled = false;
+    // One form ticket per item (records when the form was shown; bots posting instantly fail).
+    Promise.all(guestItemKey.split(',').slice(0, MAX_OPEN_REQUESTS).map(async (id) => [id, await startGuestCheckoutAction(id)] as const))
+      .then((rs) => {
+        if (cancelled) return;
+        const next: Record<string, { ticketId: string; localAtMs: number }> = {};
+        for (const [id, r] of rs) if (r.success) next[id] = { ticketId: r.ticketId, localAtMs: Date.now() };
+        setGuestTickets(next);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [guestItemKey]);
+  const guestTooMany = !user && items.length > MAX_OPEN_REQUESTS;
+
+  const handleGuestRequests = async () => {
+    if (guestTooMany) {
+      toast({ title: `Up to ${MAX_OPEN_REQUESTS} items at a time`, description: `Remove some items, or sign in. Each item is a request the seller approves, and you can have ${MAX_OPEN_REQUESTS} open at once.`, variant: 'destructive' });
+      return;
+    }
+    const shippingAddressInput = shippingMethod === 'shipping' ? { street, city, state, zip } : null;
+    try {
+      validateGuestDetails({ name: guestName, email: guestEmail, mobile: guestMobile, shippingMethod, shippingAddress: shippingAddressInput });
+    } catch (e: any) {
+      toast({ title: 'Check your details', description: e.message, variant: 'destructive' });
+      return;
+    }
+    setIsSubmitting(true);
+    const placed: { token: string }[] = [];
+    const failed: string[] = [];
+    try {
+      for (const item of items) {
+        let t = guestTickets[item.id];
+        if (!t) {
+          const r = await startGuestCheckoutAction(item.id);
+          if (!r.success) { failed.push(`${item.title}: ${r.error}`); continue; }
+          t = { ticketId: r.ticketId, localAtMs: Date.now() };
+        }
+        await new Promise((res) => setTimeout(res, msUntilFormReady(t!.localAtMs, Date.now())));
+        const res = await placeGuestRequestAction({
+          productId: item.id, ticketId: t.ticketId, name: guestName, email: guestEmail, mobile: guestMobile,
+          shippingMethod, shippingAddress: shippingAddressInput, deviceId: getDeviceId(), website: guestWebsite, requestType: 'buy',
+        });
+        if (!res.success) { failed.push(`${item.title}: ${res.error}`); continue; }
+        saveGuestOrder({
+          token: res.orderToken, title: res.title || item.title, reference: res.paymentReference, totalAmount: res.totalAmount,
+          createdAtMs: Date.now(), holdExpiresAtMs: null, status: 'requested', requestStatus: 'pending',
+        });
+        placed.push({ token: res.orderToken });
+        removeItem(item.id);
+      }
+      if (failed.length) {
+        toast({ title: placed.length ? 'Some requests were not sent' : 'Request not sent', description: failed.join(' '), variant: 'destructive' });
+      }
+      if (placed.length) {
+        setOrderPlaced(true);
+        if (placed.length > 1) toast({ title: `${placed.length} requests sent`, description: 'Each one has its own order page, listed under "Your active orders".' });
+        router.push(`/order/${placed[0].token}`);
+      }
+    } catch (err: any) {
+      if (handleStaleDeploy(err)) return;
+      toast({ title: 'Request not sent', description: err?.message || 'Something went wrong. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Populate address inputs when context updates
   useEffect(() => {
@@ -163,12 +244,8 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user && !guestEmail) {
-      toast({
-        title: 'Email Required',
-        description: 'Please enter your email address to receive order updates.',
-        variant: 'destructive',
-      });
+    if (!user) {
+      await handleGuestRequests();
       return;
     }
 
@@ -184,14 +261,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      let activeUser = user;
-      if (!activeUser) {
-        const { auth } = await import('@/lib/firebase/config');
-        const { signInAnonymously } = await import('firebase/auth');
-        const userCred = await signInAnonymously(auth);
-        activeUser = userCred.user;
-      }
-
+      const activeUser = user;
       const idToken = await activeUser.getIdToken();
       const cartItemsForAction = items.map((item) => ({
         id: item.id,
@@ -336,21 +406,31 @@ export default function CheckoutPage() {
                 </RadioGroup>
 
                 {!user && (
-                  <div className="space-y-4 pb-4 border-b border-border">
-                    <h3 className="font-bold text-foreground text-sm">Contact Information</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="guestEmail" className="text-xs font-semibold text-muted-foreground uppercase">Email Address (for Order Confirmation & Tracking)</Label>
-                      <Input 
-                        id="guestEmail" 
-                        type="email"
-                        required 
-                        autoComplete="email"
-                        className="bg-background border-input" 
-                        placeholder="you@example.com"
-                        value={guestEmail}
-                        onChange={(e) => setGuestEmail(e.target.value)}
-                      />
+                  <div className="space-y-4 pb-4 border-b border-border" data-testid="guest-checkout-contact">
+                    <h3 className="font-bold text-foreground text-sm">Your details (no account needed)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="guestName" className="text-xs font-semibold text-muted-foreground uppercase">Name</Label>
+                        <Input id="guestName" required autoComplete="name" className="bg-background border-input" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="guestEmail" className="text-xs font-semibold text-muted-foreground uppercase">Email</Label>
+                        <Input id="guestEmail" type="email" required autoComplete="email" inputMode="email" className="bg-background border-input" placeholder="you@example.com" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="guestMobile" className="text-xs font-semibold text-muted-foreground uppercase">Mobile</Label>
+                        <Input id="guestMobile" type="tel" required autoComplete="tel" inputMode="tel" className="bg-background border-input" placeholder="04xx xxx xxx" value={guestMobile} onChange={(e) => setGuestMobile(e.target.value)} />
+                      </div>
                     </div>
+                    <p className="text-xs text-muted-foreground">Your email and mobile go to the seller only, so they can contact you. We don&apos;t send you emails. Have an account? <Link href="/sign-in?redirect=%2Fcheckout" className="font-bold underline">Sign in</Link></p>
+                    {/* Honeypot: hidden from people and screen readers; bots fill it in. */}
+                    <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
+                      <label htmlFor="guestWebsite">Website</label>
+                      <input id="guestWebsite" name="website" type="text" tabIndex={-1} autoComplete="off" value={guestWebsite} onChange={(e) => setGuestWebsite(e.target.value)} />
+                    </div>
+                    {guestTooMany && (
+                      <p className="text-sm font-semibold text-rose-600" role="alert">Without an account you can request up to {MAX_OPEN_REQUESTS} items at a time. Remove some items, or sign in.</p>
+                    )}
                   </div>
                 )}
 
@@ -362,7 +442,7 @@ export default function CheckoutPage() {
                         <Label htmlFor="fullName" className="text-xs font-semibold text-muted-foreground uppercase">Full Name</Label>
                         <Input 
                           id="fullName" 
-                          required 
+                          required={!!user}
                           autoComplete="name"
                           className="bg-background border-input" 
                           placeholder="John Doe"
@@ -446,6 +526,15 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {!user ? (
+                  <div className="rounded-xl border border-border p-4 text-sm space-y-1" data-testid="guest-payment-note">
+                    <p className="font-bold text-foreground">Nothing to pay yet</p>
+                    <p className="text-xs text-muted-foreground">
+                      Each item is sent to its seller as a request. Nothing is reserved until they accept. Then your order page shows how to pay:
+                      PayID, or cash when you collect in Perth. You can have up to {MAX_OPEN_REQUESTS} items requested or reserved at once.
+                    </p>
+                  </div>
+                ) : (<>
                 <RadioGroup
                   value={paymentMethod}
                   onValueChange={(val: 'payid' | 'cash') => setPaymentMethod(val)}
@@ -498,6 +587,7 @@ export default function CheckoutPage() {
                     </span>
                   </label>
                 )}
+                </>)}
               </CardContent>
             </Card>
 
@@ -620,7 +710,8 @@ export default function CheckoutPage() {
                 <Button 
                   type="submit" 
                   className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg bg-[#f26c0d] text-slate-950 hover:bg-[#e05f05] disabled:opacity-100 disabled:bg-slate-100 disabled:text-slate-500 disabled:shadow-none"
-                  disabled={isSubmitting || (paymentMethod === 'cash' && !perthPickupConfirmed)}
+                  disabled={isSubmitting || (!!user && paymentMethod === 'cash' && !perthPickupConfirmed) || guestTooMany}
+                  data-testid="checkout-submit"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -630,7 +721,7 @@ export default function CheckoutPage() {
                     'Confirm purchase request'
                   )}
                 </Button>
-                {paymentMethod === 'cash' && !perthPickupConfirmed && (
+                {!!user && paymentMethod === 'cash' && !perthPickupConfirmed && (
                   <p className="text-xs text-center font-semibold text-orange-800">Tick the Perth pickup box to confirm your purchase.</p>
                 )}
                 <p className="text-xs text-center text-slate-600" data-testid="checkout-request-explainer">

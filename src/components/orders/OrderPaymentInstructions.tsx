@@ -169,12 +169,14 @@ export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d
                     </ol>
                 </>
             ) : (
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3" data-testid="pay-cash">
                     <MapPin className="h-6 w-6 shrink-0 text-primary" aria-hidden />
                     <div className="space-y-2 text-sm text-foreground/80">
                         <h3 className="text-lg font-black text-foreground">Cash on pickup in Perth</h3>
                         <p>
-                            Message {d.sellerName || 'the seller'} to arrange a pickup time and a safe, public place
+                            {guest
+                                ? `${d.sellerName || 'The seller'} will contact you on the email or mobile you gave to arrange a pickup time and a safe, public place`
+                                : `Message ${d.sellerName || 'the seller'} to arrange a pickup time and a safe, public place`}
                             {isRequest ? ' soon (the seller can relist it if pickup takes too long)' : due ? ` before ${due} (Perth time)` : ' within 72 hours'}. Bring <b>${formatPrice(d.totalAmount)}</b> in cash,
                             inspect the item, then pay. Quote reference <b className="font-mono">{d.paymentReference}</b>.
                         </p>

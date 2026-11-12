@@ -34,8 +34,9 @@ interface Props {
     onOpenChange: (open: boolean) => void;
     product: { id: string; title: string; price: number };
     signInHref: string;
-    /** Seller has a PayID set up (guest checkout is PayID only). */
-    payIdReady: boolean;
+    /** Seller has a PayID set up. Without one, guests can still send a request (cash on pickup, or
+     *  the seller adds a PayID before accepting a posted order). Only changes the wording. */
+    payIdReady?: boolean;
     /** 'buy' = request at the asking price; 'offer' = a lower amount. */
     mode?: 'buy' | 'offer';
 }
@@ -47,7 +48,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * goes to the seller, and the buyer follows it on their private order page. Nothing is held
  * until the seller accepts; then the page shows the PayID.
  */
-export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, payIdReady, mode = 'buy' }: Props) {
+export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, payIdReady = true, mode = 'buy' }: Props) {
     const router = useRouter();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -64,7 +65,6 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
     // A fresh one-use form ticket each time the dialog opens (records when the form was shown).
     useEffect(() => {
         if (!open) { setError(null); setTicket(null); return; }
-        if (!payIdReady) return;
         let cancelled = false;
         startGuestCheckoutAction(product.id).then((r) => {
             if (cancelled) return;
@@ -72,7 +72,7 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
             else setError(r.error);
         }).catch(() => { if (!cancelled) setError('Something went wrong. Please try again.'); });
         return () => { cancelled = true; };
-    }, [open, payIdReady, product.id]);
+    }, [open, product.id]);
 
     const sendRequest = () => {
         setError(null);
@@ -133,14 +133,6 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                     </DialogDescription>
                 </DialogHeader>
 
-                {!payIdReady ? (
-                    <div className="space-y-4">
-                        <p className="text-sm text-foreground/80">
-                            This seller only takes cash at a Perth pickup, so you&apos;ll need to sign in to arrange it with them.
-                        </p>
-                        <Button asChild className="w-full min-h-11 font-bold"><Link href={signInHref}>Sign in to continue</Link></Button>
-                    </div>
-                ) : (
                     <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); sendRequest(); }}>
                         {isOffer && (
                             <div className="space-y-1">
@@ -188,7 +180,7 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                             <ShieldCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden />
                             <p>
                                 The seller approves every sale. They&apos;ll accept{isOffer ? ', decline or counter your offer' : ' or decline'}, usually within 24 hours.
-                                Nothing is reserved until they accept, and you pay by PayID only after that. Next you&apos;ll get a private order page: save or bookmark it, as it&apos;s your only link to this request.
+                                Nothing is reserved until they accept, and you only pay after that{payIdReady ? ' (by PayID)' : shippingMethod === 'pickup' ? ' (cash when you collect in Perth)' : ' (by PayID, which the seller adds when they accept)'}. Next you&apos;ll get a private order page: save or bookmark it, as it&apos;s your only link to this request.
                                 You can have up to 3 items requested or reserved at once.
                             </p>
                         </div>
@@ -200,7 +192,6 @@ export function GuestCheckoutDialog({ open, onOpenChange, product, signInHref, p
                             Have an account? <Link href={signInHref} className="font-bold underline">Sign in</Link>
                         </p>
                     </form>
-                )}
             </DialogContent>
         </Dialog>
     );
