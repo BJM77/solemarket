@@ -57,7 +57,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             href="/sell"
                             className="hidden sm:flex col-span-3 w-full sm:w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base items-center justify-center gap-2 bg-primary text-primary-foreground shadow-md shadow-orange-600/20 transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
-                            Sell Now <span className="font-normal">· 0% fees</span>
+                            Sell Now
                         </Link>
                     </div>
 

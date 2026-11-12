@@ -512,14 +512,9 @@ export default function ProductCard({
 
 
   const getFormattedDate = formatRelativeTime;
-  const getAspectRatio = (category: string) => {
-    if (isCardCategory(category)) {
-      return 'aspect-[5/7]';
-    }
-    return 'aspect-square';
-  };
-
-  const imageAspectRatio = getAspectRatio(product.category);
+  // One square frame for every category so mixed homepage/grid rows stay even.
+  // Images use object-contain (via SmartImage) so trading cards are not cropped.
+  const imageAspectRatio = 'aspect-square';
 
   const getEbayQuery = () => {
     const parts = [];
@@ -683,7 +678,7 @@ export default function ProductCard({
   if (viewMode === 'list') {
     return (
       <div className="group relative flex flex-col sm:flex-row gap-4 rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all hover:shadow-md">
-        <div className={cn("relative w-full sm:w-48 flex-shrink-0 bg-muted", imageAspectRatio)}>
+        <div className={cn("relative w-full sm:w-48 flex-shrink-0 bg-white dark:bg-neutral-900", imageAspectRatio)}>
           {selectable && (
             <div className="absolute top-2 left-2 z-50">
               <Checkbox checked={selected} onCheckedChange={() => onToggleSelect?.()} className="bg-white" />
@@ -889,7 +884,7 @@ export default function ProductCard({
     <Link
       href={getProductUrl(product)}
       title={product.title}
-      className="md:hidden relative block w-full aspect-[3/4] overflow-hidden rounded-lg bg-muted"
+      className="md:hidden relative block w-full aspect-[3/4] overflow-hidden rounded-lg bg-white dark:bg-neutral-900"
       data-testid="mobile-product-tile"
     >
       {product.imageUrls?.[0] && (
@@ -899,7 +894,7 @@ export default function ProductCard({
           fill
           sizes="50vw"
           priority={priority}
-          className="object-cover"
+          className="object-contain"
         />
       )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-2 pb-2 pt-8">
@@ -917,7 +912,7 @@ export default function ProductCard({
       !selectable && "hidden md:flex",
       selectable && selected ? "border-primary ring-2 ring-primary ring-offset-2" : "hover:border-primary/30"
     )} onClick={() => selectable && onToggleSelect?.()}>
-      <div className={cn("bg-muted/30 relative overflow-hidden shrink-0 w-full", imageAspectRatio)}>
+      <div className={cn("bg-white dark:bg-neutral-900 relative overflow-hidden shrink-0 w-full", imageAspectRatio)}>
 
         {selectable && (
           <div className="absolute top-3 left-3 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
@@ -1094,7 +1089,7 @@ export default function ProductCard({
 
       <div className="p-2.5 sm:p-5 flex flex-col flex-grow relative z-10 pointer-events-none min-w-0 overflow-hidden">
         <div className="flex justify-between items-start mb-1 sm:mb-2 min-w-0">
-          <h3 className="text-xs sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2rem] sm:min-h-0 min-w-0 break-words">
+          <h3 className="text-xs sm:text-lg font-bold leading-tight group-hover:text-primary transition-colors flex-1 pr-1 sm:pr-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.25rem] min-w-0 break-words">
             {product.title}
           </h3>
           <div className="flex flex-col items-end gap-1 shrink-0">
@@ -1136,7 +1131,7 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="flex flex-wrap items-end justify-between mt-1 sm:mt-4 gap-1 sm:gap-2 flex-grow min-w-0">
+        <div className="flex flex-wrap items-end justify-between mt-auto pt-1 sm:pt-4 gap-1 sm:gap-2 flex-grow min-w-0">
           <div className="pointer-events-auto min-w-0 max-w-full">
             <p className="text-[8px] sm:text-xs text-muted-foreground font-black uppercase tracking-widest">Price</p>
             <div className="text-sm sm:text-2xl font-black text-foreground tracking-tight flex flex-wrap items-center gap-1">
