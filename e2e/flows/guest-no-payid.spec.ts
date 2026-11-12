@@ -1,0 +1,122 @@
+import { test, expect, Page } from '@playwright/test';
+import { flowsEnabled, signIn, resetGuestListing, ordersFor, productDoc, setSellerPayId, orderPaymentSnapshot } from './helpers';
+
+// Guests never need an account, even when the seller hasn't set up PayID (cash-only sellers).
+const CASH_SELLER = { sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller' };
+const PICKUP_EMAIL = 'guest.cash@e2e.test';
+const POSTED_EMAIL = 'guest.posted@e2e.test';
+const CART_EMAIL = 'guest.cart@e2e.test';
+
+async function fill(scope: ReturnType<Page['getByTestId']>, email: string) {
+  await scope.locator('#guest-name').fill('Guest Buyer');
+  await scope.locator('#guest-email').fill(email);
+  await scope.locator('#guest-mobile').fill('0412 345 678');
+}
+
+async function openBuyDialog(page: Page, id: string, title: RegExp) {
+  await page.goto(`/product/${id}`);
+  await expect(page.getByRole('heading', { name: title }).first()).toBeVisible({ timeout: 45_000 });
+  const dialog = page.getByTestId('guest-checkout-dialog').filter({ has: page.locator('#guest-name') });
+  await expect(async () => {
+    await page.getByRole('button', { name: /buy now/i }).first().click();
+    await expect(dialog).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 45_000 });
+  // No sign-in wall, whatever the seller's payment set-up.
+  await expect(dialog.getByText(/sign in to continue/i)).toHaveCount(0);
+  return dialog;
+}
+
+test.describe('guest requests to a seller without PayID', () => {
+  test.use({ bypassCSP: true });
+  test.describe.configure({ mode: 'serial' });
+  test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
+
+  test('pickup request becomes cash on pickup; seller accepts; guest sees cash instructions', async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    await setSellerPayId('e2e-seller-cash', null);
+    await resetGuestListing(PICKUP_EMAIL, 'e2e-guest-cash-1', { ...CASH_SELLER, title: 'E2E Cash Seller Card', price: 18 });
+    const dialog = await openBuyDialog(page, 'e2e-guest-cash-1', /E2E Cash Seller Card/i);
+    await fill(dialog, PICKUP_EMAIL);
+    await dialog.getByTestId('guest-send-request').click();
+    await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
+    await expect(page.getByTestId('request-pending')).toBeVisible();
+
+    const [order] = await ordersFor(PICKUP_EMAIL);
+    expect(order).toMatchObject({ status: 'requested', isGuest: true, paymentMethod: 'cash', shippingMethod: 'pickup', sellerId: 'e2e-seller-cash' });
+
+    const ctx = await browser.newContext({ bypassCSP: true });
+    const seller = await ctx.newPage();
+    await signIn(seller, 'cashseller@e2e.test');
+    await seller.goto('/seller/dashboard');
+    const card = seller.getByTestId(`seller-order-${order.id}`).first();
+    await expect(card).toBeVisible({ timeout: 60_000 });
+    await card.getByTestId('seller-request-accept').click();
+    await expect.poll(async () => ((await productDoc('e2e-guest-cash-1')).checkoutHolds || []).length, { timeout: 30_000 }).toBe(1);
+    await ctx.close();
+
+    await page.reload();
+    await expect(page.getByTestId('pay-cash')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('pay-payid')).toHaveCount(0);
+  });
+
+  test('posted request goes through; the seller adds a PayID and it is copied on accept', async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    await setSellerPayId('e2e-seller-cash', null);
+    await resetGuestListing(POSTED_EMAIL, 'e2e-guest-cash-2', { ...CASH_SELLER, title: 'E2E Posted Cash Seller Card', price: 22 });
+    const dialog = await openBuyDialog(page, 'e2e-guest-cash-2', /E2E Posted Cash Seller Card/i);
+    await fill(dialog, POSTED_EMAIL);
+    await dialog.getByRole('button', { name: /post it to me/i }).click();
+    await dialog.getByPlaceholder('Street address').fill('1 Test Street');
+    await dialog.getByPlaceholder(/suburb|city/i).first().fill('Perth');
+    await dialog.getByPlaceholder(/postcode/i).first().fill('6000');
+    await dialog.getByTestId('guest-send-request').click();
+    await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
+
+    const [order] = await ordersFor(POSTED_EMAIL);
+    expect(order).toMatchObject({ status: 'requested', paymentMethod: 'payid', shippingMethod: 'shipping' });
+    expect(await orderPaymentSnapshot(order.id)).toBeUndefined();
+
+    // Seller sets up PayID, then accepts: the PayID is copied onto the order for the guest.
+    await setSellerPayId('e2e-seller-cash', '0411111111');
+    const ctx = await browser.newContext({ bypassCSP: true });
+    const seller = await ctx.newPage();
+    await signIn(seller, 'cashseller@e2e.test');
+    await seller.goto('/seller/dashboard');
+    const card = seller.getByTestId(`seller-order-${order.id}`).first();
+    await expect(card).toBeVisible({ timeout: 60_000 });
+    await card.getByTestId('seller-request-accept').click();
+    await expect.poll(async () => (await orderPaymentSnapshot(order.id))?.payId, { timeout: 30_000 }).toBe('0411111111');
+    await ctx.close();
+    await setSellerPayId('e2e-seller-cash', null);
+
+    await page.reload();
+    await expect(page.getByTestId('pay-payid')).toHaveText('0411111111', { timeout: 30_000 });
+  });
+
+  test('signed-out cart checkout sends a request without an account', async ({ page }) => {
+    test.setTimeout(120_000);
+    await setSellerPayId('e2e-seller-cash', null);
+    await resetGuestListing(CART_EMAIL, 'e2e-guest-cash-3', { ...CASH_SELLER, title: 'E2E Cart Cash Card', price: 9 });
+    await page.addInitScript(() => {
+      if (sessionStorage.getItem('e2e-cart-set')) return;
+      sessionStorage.setItem('e2e-cart-set', '1');
+      localStorage.setItem('benched-cart', JSON.stringify([{
+        id: 'e2e-guest-cash-3', title: 'E2E Cart Cash Card', price: 9, quantity: 1, sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller',
+        imageUrls: ['/placeholder.png'], category: 'Collector Cards', status: 'available',
+      }]));
+      localStorage.setItem('benched-shipping-method', 'pickup');
+    });
+    await page.goto('/checkout');
+    await expect(page).toHaveURL(/\/checkout/);
+    const contact = page.getByTestId('guest-checkout-contact');
+    await expect(contact).toBeVisible({ timeout: 45_000 });
+    await contact.locator('#guestName').fill('Guest Buyer');
+    await contact.locator('#guestEmail').fill(CART_EMAIL);
+    await contact.locator('#guestMobile').fill('0412 345 678');
+    await expect(page.getByTestId('guest-payment-note')).toBeVisible();
+    await page.getByTestId('checkout-submit').click();
+    await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
+    const [order] = await ordersFor(CART_EMAIL);
+    expect(order).toMatchObject({ status: 'requested', isGuest: true, paymentMethod: 'cash' });
+  });
+});

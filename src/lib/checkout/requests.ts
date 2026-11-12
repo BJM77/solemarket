@@ -249,3 +249,32 @@ export function timeLeft(o: RequestLike, now: number = Date.now()): number | nul
 export function countOpenRequestsForListing(orders: RequestLike[], now: number = Date.now()): number {
     return orders.filter((o) => isRequestOrder(o) && ['pending', 'countered'].includes(effectiveRequestStatus(o, now))).length;
 }
+
+/**
+ * Payment method for a guest request. Guests can always send a request: PayID when the seller
+ * has one; otherwise cash for a Perth pickup, or (posted orders) PayID that the seller adds
+ * before they accept.
+ */
+export function guestRequestPaymentMethod(sellerHasPayId: boolean, shippingMethod: 'pickup' | 'shipping'): 'payid' | 'cash' {
+    if (sellerHasPayId) return 'payid';
+    return shippingMethod === 'pickup' ? 'cash' : 'payid';
+}
+
+export type AcceptPaymentPlan = 'keep' | 'snapshot' | 'cash' | 'needs_payid';
+
+/**
+ * When a request is accepted (or a counter is sent/accepted): PayID orders need the seller's
+ * PayID copied onto the order. 'snapshot' = copy it now, 'cash' = no PayID but it's a pickup,
+ * so switch to cash on pickup, 'needs_payid' = posted order and the seller has no PayID yet.
+ */
+export function planAcceptPayment(
+    o: { paymentMethod?: string | null; shippingMethod?: string | null },
+    hasSnapshot: boolean,
+    sellerHasPayId: boolean,
+): AcceptPaymentPlan {
+    if (o?.paymentMethod !== 'payid' || hasSnapshot) return 'keep';
+    if (sellerHasPayId) return 'snapshot';
+    return o?.shippingMethod === 'shipping' ? 'needs_payid' : 'cash';
+}
+
+export const NEEDS_PAYID_MESSAGE = 'This buyer wants it posted, so they need to pay by PayID. Add your PayID under Sell > Payouts, then accept (or decline the request).';

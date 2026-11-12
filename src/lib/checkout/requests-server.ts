@@ -15,8 +15,8 @@ import { serializeFirestoreData } from '@/lib/utils/serialization';
 import { RESERVED_UNTIL_MS, addHold, assertCanHold, availableQuantity } from './holds';
 import {
     MAX_OPEN_REQUESTS, REQUEST_TTL_MS, assertRequestLimit, countOpenRequestsForListing, countOpenUnits,
-    effectiveRequestStatus, isRequestOrder, nextRequestState, validateOfferAmount,
-    type RequestAction, type RequestType,
+    NEEDS_PAYID_MESSAGE, effectiveRequestStatus, isRequestOrder, nextRequestState, planAcceptPayment, validateOfferAmount,
+    type AcceptPaymentPlan, type RequestAction, type RequestType,
 } from './requests';
 import { randomId } from './guest-crypto';
 
@@ -258,6 +258,32 @@ async function repriceSingle(order: any, unit: number) {
 }
 
 /**
+ * PayID for an order being accepted (transaction reads only). Guests can request from sellers
+ * without a PayID; the seller's PayID is copied onto the order when it's accepted.
+ */
+async function readAcceptPayment(t: any, orderRef: any, order: any) {
+    if (order?.paymentMethod !== 'payid') return { plan: 'keep' as AcceptPaymentPlan, payout: null as any };
+    const [snapDoc, payoutDoc] = await t.getAll(
+        orderRef.collection('private').doc('payment'),
+        firestoreDb.collection('users').doc(String(order.sellerId)).collection('private').doc('payout'),
+    );
+    const payout = payoutDoc.exists ? payoutDoc.data() : null;
+    return { plan: planAcceptPayment(order, snapDoc.exists && !!snapDoc.data()?.payId, !!payout?.payId), payout };
+}
+
+/** Writes for readAcceptPayment's plan (after all reads). Returns a patch for the order. */
+function applyAcceptPayment(t: any, orderRef: any, r: Awaited<ReturnType<typeof readAcceptPayment>>): Record<string, unknown> {
+    if (r.plan === 'needs_payid') throw new Error(NEEDS_PAYID_MESSAGE);
+    if (r.plan === 'snapshot') {
+        t.set(orderRef.collection('private').doc('payment'), {
+            payId: r.payout.payId, payIdType: r.payout.payIdType || null, accountName: r.payout.accountName || null, createdAt: FieldValue.serverTimestamp(),
+        });
+    }
+    if (r.plan === 'cash') return { paymentMethod: 'cash', pickupLocation: 'Perth (arranged with seller)' };
+    return {};
+}
+
+/**
  * Seller answers a pending request: accept (reserve in a transaction), decline, or (offers)
  * decline with a counter-offer.
  */
@@ -273,11 +299,14 @@ export async function sellerRespondToRequest(orderId: string, actor: Actor, acti
 
         if (action === 'accept') {
             const patch = nextRequestState(order, 'accept', nowMs);
+            const pay = await readAcceptPayment(t, orderRef, order);
             const ctx = await readForReserve(t, order);
             const plan = planReserve(ctx, snap.id, nowMs);
             const agreed = order.requestType === 'offer' ? Number(order.offerAmount) : Number(order.items?.[0]?.discountedPrice ?? order.askingPrice);
+            const payPatch = applyAcceptPayment(t, orderRef, pay);
             t.update(orderRef, {
                 ...patch,
+                ...payPatch,
                 agreedPrice: order.requestType === 'offer' ? agreed : null,
                 acceptedAt: FieldValue.serverTimestamp(),
                 acceptedAtMs: nowMs,
@@ -286,13 +315,15 @@ export async function sellerRespondToRequest(orderId: string, actor: Actor, acti
                 updatedAt: FieldValue.serverTimestamp(),
             });
             applyReserve(t, plan);
-            return { order: { ...order, id: snap.id }, patch, autoDeclined: plan.autoDecline };
+            return { order: { ...order, ...payPatch, id: snap.id }, patch, autoDeclined: plan.autoDecline };
         }
         if (action === 'decline') {
             const patch = nextRequestState(order, 'decline', nowMs);
             t.update(orderRef, { ...patch, respondedAt: FieldValue.serverTimestamp(), statusUpdatedBy: actor.uid, updatedAt: FieldValue.serverTimestamp() });
             return { order: { ...order, id: snap.id }, patch, autoDeclined: [] };
         }
+        // A counter can be accepted by the buyer straight away, so a posted order needs a PayID first.
+        if ((await readAcceptPayment(t, orderRef, order)).plan === 'needs_payid') throw new Error(NEEDS_PAYID_MESSAGE);
         const patch = nextRequestState(order, 'counter', nowMs, { counterAmount, askingPrice: Number(order.askingPrice ?? order.items?.[0]?.price), offerAmount: Number(order.offerAmount) });
         const { counterExpiresAtMs, ...rest } = patch as any;
         t.update(orderRef, {
@@ -357,11 +388,15 @@ export async function buyerRespondToRequest(orderId: string, action: 'accept_cou
         if (action === 'accept_counter') {
             const patch = nextRequestState(order, 'accept_counter', nowMs);
             if (Number(order.counterAmount) !== Number(preOrder?.counterAmount)) throw new Error('The counter-offer changed. Please reload and try again.');
+            const pay = await readAcceptPayment(t, orderRef, order);
             const ctx = await readForReserve(t, order);
             const plan = planReserve(ctx, snap.id, nowMs);
+            if (pay.plan === 'needs_payid') throw new Error("The seller hasn't set up PayID for posted orders yet. Please try again later or contact the seller.");
+            const payPatch = applyAcceptPayment(t, orderRef, pay);
             t.update(orderRef, {
                 ...patch,
                 ...(reprice || {}),
+                ...payPatch,
                 acceptedAt: FieldValue.serverTimestamp(),
                 acceptedAtMs: nowMs,
                 counterRespondedAt: FieldValue.serverTimestamp(),
@@ -369,7 +404,7 @@ export async function buyerRespondToRequest(orderId: string, action: 'accept_cou
                 updatedAt: FieldValue.serverTimestamp(),
             });
             applyReserve(t, plan);
-            return { order: { ...order, id: snap.id }, patch, autoDeclined: plan.autoDecline };
+            return { order: { ...order, ...payPatch, id: snap.id }, patch, autoDeclined: plan.autoDecline };
         }
         const patch = nextRequestState(order, action, nowMs) as any;
         const { releasesStock: _r, ...rest } = patch;

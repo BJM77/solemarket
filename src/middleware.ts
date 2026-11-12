@@ -5,6 +5,7 @@ import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
 import { STOREFRONT_HEADER, resolveStorefrontId, storefrontRootRewrite } from '@/config/storefronts';
 import { isCoinsPath } from '@/lib/coin-listings';
+import { isSellerAreaProtected } from '@/lib/auth/protected-routes';
 
 // Cache keys in memory during Edge function execution
 let cachedPublicKeys: Record<string, string> | null = null;
@@ -169,9 +170,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect Seller Routes. The bare /sell landing page is public (SEO + seller acquisition).
-  const isPublicSellLanding = request.nextUrl.pathname === '/sell' || request.nextUrl.pathname === '/sell/';
-  if (!isPublicSellLanding && (request.nextUrl.pathname.startsWith('/sell') || request.nextUrl.pathname.startsWith('/seller'))) {
+  // Protect seller tools. Public: the /sell landing page, the /sellers directory and seller
+  // storefronts (/seller/{id}), so signed-out buyers can browse and buy.
+  if (isSellerAreaProtected(request.nextUrl.pathname)) {
     if (!isAuth) {
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);

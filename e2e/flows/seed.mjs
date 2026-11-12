@@ -15,6 +15,8 @@ export const PASSWORD = 'e2e-Password-123';
 const users = {
   seller: { uid: 'e2e-seller', email: 'seller@e2e.test', displayName: 'E2E Seller' },
   buyer: { uid: 'e2e-buyer', email: 'buyer@e2e.test', displayName: 'E2E Buyer' },
+  // A seller with no PayID set up (cash only): guests must still be able to send requests.
+  cashSeller: { uid: 'e2e-seller-cash', email: 'cashseller@e2e.test', displayName: 'E2E Cash Seller' },
 };
 
 for (const u of Object.values(users)) {
@@ -29,6 +31,11 @@ await db.doc('users/e2e-seller').set({
   suburb: 'Perth', state: 'WA', createdAt: now,
 });
 await db.doc('users/e2e-seller/private/payout').set({ payId: '0400000000', payIdType: 'phone', accountName: 'E2E Seller' });
+await db.doc('users/e2e-seller-cash').set({
+  uid: 'e2e-seller-cash', email: users.cashSeller.email, displayName: 'E2E Cash Seller', storeName: 'E2E Cash Store',
+  sellerStatus: 'approved', canSell: true, role: 'user', acceptsCash: true, acceptsPayID: false, payIdReady: false, agreementAccepted: true,
+  suburb: 'Perth', state: 'WA', createdAt: now,
+});
 await db.doc('users/e2e-buyer').set({
   uid: 'e2e-buyer', email: users.buyer.email, displayName: 'E2E Buyer', role: 'user', createdAt: now,
 });

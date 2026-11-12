@@ -12,7 +12,7 @@ import { serializeFirestoreData } from '@/lib/utils/serialization';
 import { validateGuestDetails, checkFormTiming, isHoneypotFilled, MIN_FORM_MS, type GuestDetailsInput, type GuestDetails } from './guest-validation';
 import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash, randomId } from './guest-crypto';
 import { isActiveHoldOrder } from './holds';
-import { assertRequestLimit, effectiveRequestStatus, isRequestOrder, validateOfferAmount } from './requests';
+import { assertRequestLimit, effectiveRequestStatus, guestRequestPaymentMethod, isRequestOrder, validateOfferAmount } from './requests';
 import { assertRequestable, buildRequestOrder, buyerRespondToRequest, countOpenByIdentity, notifyNewRequest } from './requests-server';
 
 const TICKETS = 'guest_checkout_tickets';
@@ -76,7 +76,8 @@ export interface PlaceGuestRequestInput extends GuestDetailsInput {
 /**
  * Guest sends a request (no account, no email): checks the form ticket, honeypot and the
  * 3-open-requests limit, then in one transaction re-checks the listing and limits and creates
- * the request (with the seller's PayID snapshot, only revealed once the seller accepts).
+ * the request (with the seller's PayID snapshot if they have one, only revealed once the seller
+ * accepts; without a PayID it's cash on pickup, or the seller adds a PayID before accepting).
  * Nothing is held: the listing stays on sale until the seller accepts a request.
  */
 export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: GuestContext) {
@@ -122,7 +123,9 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
         // ---------- checks ----------
         assertRequestLimit(counts, 1);
         const payout = payoutDoc.exists ? payoutDoc.data() : null;
-        if (!payout?.payId) throw new Error("This seller doesn't take PayID yet, so buying without an account isn't available. Sign in to arrange a cash pickup, or message the seller.");
+        // No sign-in needed whatever the seller's set-up: PayID if they have one, otherwise cash
+        // for a Perth pickup, or (posted) the seller adds a PayID before accepting.
+        const paymentMethod = guestRequestPaymentMethod(!!payout?.payId, details.shippingMethod);
         const offerAmount = requestType === 'offer' ? validateOfferAmount(input?.offerAmount, product) : null;
 
         const orderRef = firestoreDb.collection('orders').doc();
@@ -131,7 +134,7 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
             sellerProfile: userDoc.exists ? userDoc.data() : null,
             requestType,
             offerAmount,
-            paymentMethod: 'payid',
+            paymentMethod,
             shippingMethod: details.shippingMethod,
             shippingAddress: details.shippingAddress,
             buyer: {
@@ -149,12 +152,14 @@ export async function placeGuestRequest(input: PlaceGuestRequestInput, ctx: Gues
         // ---------- writes ----------
         t.update(ticketRef, { used: true, usedAt: FieldValue.serverTimestamp(), orderId: orderRef.id });
         t.set(orderRef, newOrder);
-        t.set(orderRef.collection('private').doc('payment'), {
-            payId: payout.payId,
-            payIdType: payout.payIdType || null,
-            accountName: payout.accountName || null,
-            createdAt: FieldValue.serverTimestamp(),
-        });
+        if (paymentMethod === 'payid' && payout?.payId) {
+            t.set(orderRef.collection('private').doc('payment'), {
+                payId: payout.payId,
+                payIdType: payout.payIdType || null,
+                accountName: payout.accountName || null,
+                createdAt: FieldValue.serverTimestamp(),
+            });
+        }
         return { id: orderRef.id, ...newOrder };
     });
 

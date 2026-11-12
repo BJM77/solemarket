@@ -73,3 +73,17 @@ export async function productDoc(id: string): Promise<any> {
   const { db } = await emulatorDb();
   return (await db.doc(`products/${id}`).get()).data();
 }
+
+/** Remove (or restore) a seller's PayID in the emulator. */
+export async function setSellerPayId(uid: string, payId: string | null) {
+  const { db } = await emulatorDb();
+  const ref = db.doc(`users/${uid}/private/payout`);
+  if (payId) await ref.set({ payId, payIdType: 'phone', accountName: 'E2E Cash Seller' });
+  else await ref.delete();
+  await db.doc(`users/${uid}`).set({ payIdReady: !!payId }, { merge: true });
+}
+
+export async function orderPaymentSnapshot(orderId: string): Promise<any> {
+  const { db } = await emulatorDb();
+  return (await db.doc(`orders/${orderId}/private/payment`).get()).data();
+}
