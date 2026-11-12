@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { flowsEnabled, signIn, resetGuestListing, productDoc, ordersFor } from './helpers';
+import { flowsEnabled, signIn, resetGuestListing, productDoc, ordersFor, deleteGuestOrders } from './helpers';
 
 const EMAIL = 'guest.buyer@e2e.test';
 const OFFER_EMAIL = 'guest.offer@e2e.test';
@@ -24,6 +24,10 @@ async function sellerPage(browser: any) {
 test.describe('guest requests (no account), seller approval', () => {
   test.use({ bypassCSP: true });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
+  // Every CI guest shares one IP, which has a 3-open-requests cap: don't leave requests open.
+  test.afterEach(async () => {
+    for (const e of [EMAIL, OFFER_EMAIL]) await deleteGuestOrders(e);
+  });
 
   test('guest requests to buy, seller accepts, guest sees PayID, seller marks paid', async ({ page, browser }) => {
     test.setTimeout(180_000);

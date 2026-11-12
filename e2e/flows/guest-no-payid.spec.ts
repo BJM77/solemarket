@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { flowsEnabled, signIn, resetGuestListing, ordersFor, productDoc, setSellerPayId, orderPaymentSnapshot } from './helpers';
+import { flowsEnabled, signIn, resetGuestListing, ordersFor, productDoc, setSellerPayId, orderPaymentSnapshot, deleteGuestOrders } from './helpers';
 
 // Guests never need an account, even when the seller hasn't set up PayID (cash-only sellers).
 const CASH_SELLER = { sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller' };
@@ -30,6 +30,10 @@ test.describe('guest requests to a seller without PayID', () => {
   test.use({ bypassCSP: true });
   test.describe.configure({ mode: 'serial' });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
+  // Every CI guest shares one IP, which has a 3-open-requests cap: don't leave requests open.
+  test.afterEach(async () => {
+    for (const e of [PICKUP_EMAIL, POSTED_EMAIL, CART_EMAIL]) await deleteGuestOrders(e);
+  });
 
   test('pickup request becomes cash on pickup; seller accepts; guest sees cash instructions', async ({ page, browser }) => {
     test.setTimeout(180_000);
