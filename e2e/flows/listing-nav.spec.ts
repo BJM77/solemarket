@@ -13,9 +13,11 @@ test.describe('listing Previous/Next sequence', () => {
     await seedNavListings();
     // A filtered URL makes the grid fetch live (not the build-time first page).
     await page.goto('/shoes?brand=E2ENav');
-    const first = page.locator('a[href$="/e2e-nav-a"]').first();
+    // Inside the browse grid (the header ticker also links listings, and it never stops moving).
+    const grid = page.locator('[data-listing-ctx]');
+    const first = grid.locator('a[href$="/e2e-nav-a"]').first();
     await expect(first).toBeVisible({ timeout: 45_000 });
-    await expect(page.locator('a[href$="/e2e-nav-c"]').first()).toBeVisible();
+    await expect(grid.locator('a[href$="/e2e-nav-c"]').first()).toBeVisible();
     await first.click();
     await expect(page).toHaveURL(/\/e2e-nav-a$/, { timeout: 45_000 });
 
