@@ -87,3 +87,10 @@ export async function orderPaymentSnapshot(orderId: string): Promise<any> {
   const { db } = await emulatorDb();
   return (await db.doc(`orders/${orderId}/private/payment`).get()).data();
 }
+
+/** Delete a guest's orders (emulator only) so open requests don't count against the shared CI IP. */
+export async function deleteGuestOrders(email: string) {
+  const { db } = await emulatorDb();
+  const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
+  for (const d of orders.docs) await d.ref.delete();
+}

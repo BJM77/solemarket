@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { flowsEnabled, signIn, resetGuestListing, ordersFor, productDoc, setSellerPayId, orderPaymentSnapshot } from './helpers';
+import { flowsEnabled, signIn, resetGuestListing, ordersFor, productDoc, setSellerPayId, orderPaymentSnapshot, deleteGuestOrders } from './helpers';
 
 // Guests never need an account, even when the seller hasn't set up PayID (cash-only sellers).
 const CASH_SELLER = { sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller' };
@@ -7,10 +7,11 @@ const PICKUP_EMAIL = 'guest.cash@e2e.test';
 const POSTED_EMAIL = 'guest.posted@e2e.test';
 const CART_EMAIL = 'guest.cart@e2e.test';
 
-async function fill(scope: ReturnType<Page['getByTestId']>, email: string) {
+// Each test uses its own mobile: phones have their own rate limit and open-request cap.
+async function fill(scope: ReturnType<Page['getByTestId']>, email: string, mobile: string) {
   await scope.locator('#guest-name').fill('Guest Buyer');
   await scope.locator('#guest-email').fill(email);
-  await scope.locator('#guest-mobile').fill('0412 345 678');
+  await scope.locator('#guest-mobile').fill(mobile);
 }
 
 async function openBuyDialog(page: Page, id: string, title: RegExp) {
@@ -30,13 +31,17 @@ test.describe('guest requests to a seller without PayID', () => {
   test.use({ bypassCSP: true });
   test.describe.configure({ mode: 'serial' });
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
+  // Every CI guest shares one IP, which has a 3-open-requests cap: don't leave requests open.
+  test.afterEach(async () => {
+    for (const e of [PICKUP_EMAIL, POSTED_EMAIL, CART_EMAIL]) await deleteGuestOrders(e);
+  });
 
   test('pickup request becomes cash on pickup; seller accepts; guest sees cash instructions', async ({ page, browser }) => {
     test.setTimeout(180_000);
     await setSellerPayId('e2e-seller-cash', null);
     await resetGuestListing(PICKUP_EMAIL, 'e2e-guest-cash-1', { ...CASH_SELLER, title: 'E2E Cash Seller Card', price: 18 });
     const dialog = await openBuyDialog(page, 'e2e-guest-cash-1', /E2E Cash Seller Card/i);
-    await fill(dialog, PICKUP_EMAIL);
+    await fill(dialog, PICKUP_EMAIL, '0413 000 001');
     await dialog.getByTestId('guest-send-request').click();
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
     await expect(page.getByTestId('request-pending')).toBeVisible();
@@ -64,7 +69,7 @@ test.describe('guest requests to a seller without PayID', () => {
     await setSellerPayId('e2e-seller-cash', null);
     await resetGuestListing(POSTED_EMAIL, 'e2e-guest-cash-2', { ...CASH_SELLER, title: 'E2E Posted Cash Seller Card', price: 22 });
     const dialog = await openBuyDialog(page, 'e2e-guest-cash-2', /E2E Posted Cash Seller Card/i);
-    await fill(dialog, POSTED_EMAIL);
+    await fill(dialog, POSTED_EMAIL, '0413 000 002');
     await dialog.getByRole('button', { name: /post it to me/i }).click();
     await dialog.getByPlaceholder('Street address').fill('1 Test Street');
     await dialog.getByPlaceholder(/suburb|city/i).first().fill('Perth');
@@ -112,7 +117,7 @@ test.describe('guest requests to a seller without PayID', () => {
     await expect(contact).toBeVisible({ timeout: 45_000 });
     await contact.locator('#guestName').fill('Guest Buyer');
     await contact.locator('#guestEmail').fill(CART_EMAIL);
-    await contact.locator('#guestMobile').fill('0412 345 678');
+    await contact.locator('#guestMobile').fill('0413 000 003');
     await expect(page.getByTestId('guest-payment-note')).toBeVisible();
     await page.getByTestId('checkout-submit').click();
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
