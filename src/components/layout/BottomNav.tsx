@@ -60,7 +60,7 @@ export function BottomNav() {
     { label: 'Sell', href: '/sell/wizard', icon: PlusCircle, primary: true },
     listingId
       ? { label: 'Next', href: nav?.next ?? null, icon: ChevronRight, testId: 'bottom-nav-next', onEnd: !!seq?.done }
-      : { label: 'Activity', href: '/profile/orders', icon: Bell },
+      : { label: 'Activity', href: user ? '/profile/orders' : '/sign-in?redirect=/profile/orders', icon: Bell },
     { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
   ];
 

@@ -187,11 +187,13 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     )}
                 </nav>
 
-                {/* Tools & Services Sections (Matching Desktop) */}
+                {/* Tools & Services: Tools is sellers-only; the section hides when empty. */}
+                {(canSell || features.consignment) && (
                 <nav className="flex flex-col space-y-1">
                     <h3 className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Tools & Services</h3>
 
                     <Accordion type="single" collapsible className="w-full">
+                        {canSell && (
                         <AccordionItem value="tools" className="border-b-0">
                             <AccordionTrigger className="min-h-11 py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl group/trigger">
                                 <div className="flex items-center text-sm font-bold">
@@ -211,6 +213,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
+                        )}
 
                         <AccordionItem value="services" className="border-b-0">
                             <AccordionTrigger className="min-h-11 py-2 hover:no-underline px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl">
@@ -229,6 +232,7 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                         </AccordionItem>
                     </Accordion>
                 </nav>
+                )}
 
                 {/* Favorite Categories Section */}
                 {user && (
@@ -467,13 +471,15 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                                     <Heart className="mr-3 h-4 w-4 text-primary" /> My Favorites
                                 </Button>
 
-                                {/* <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/orders')}>
+                                <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/orders')}>
                                     <CreditCard className="mr-3 h-4 w-4 text-primary" /> My Purchases
-                                </Button> */}
-
-                                <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/listings')}>
-                                    <Tag className="mr-3 h-4 w-4 text-primary" /> My Listings
                                 </Button>
+
+                                {canSell && (
+                                    <Button variant="ghost" className="justify-start w-full font-bold text-sm h-11 rounded-xl" onClick={() => handleLinkClick('/profile/listings')}>
+                                        <Tag className="mr-3 h-4 w-4 text-primary" /> My Listings
+                                    </Button>
+                                )}
                             </div>
 
                             <div className="border-t mt-4 pt-4">

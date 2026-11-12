@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -10,14 +10,8 @@ import { Loader2, ShieldCheck, ShieldAlert, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { moderateContent, type ModerateContentOutput } from '@/ai/flows/ai-content-moderation';
-import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
-
-const MOCK_QUEUE = [
-  { id: '1', type: 'Product', reason: 'Counterfeit Suspected', targetId: 'prod_123', status: 'Pending', reportedBy: 'user_456' },
-  { id: '2', type: 'User', reason: 'Abusive Language in Messages', targetId: 'user_789', status: 'Pending', reportedBy: 'user_111' },
-];
 
 export default function ModerationPage() {
   const [productName, setProductName] = useState('');
@@ -25,8 +19,6 @@ export default function ModerationPage() {
   const [result, setResult] = useState<ModerateContentOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  
-  const [queue, setQueue] = useState(MOCK_QUEUE);
 
   const handleAnalyze = async () => {
     if (!productName.trim() || !productDescription.trim()) {
@@ -53,57 +45,30 @@ export default function ModerationPage() {
     }
   };
 
-  const handleAction = (id: string, action: string) => {
-    setQueue(prev => prev.filter(item => item.id !== id));
-    toast({ title: `Action Taken: ${action}`, description: `Item ${id} has been processed.` });
-  };
-
   return (
     <div className="space-y-12">
       <PageHeader
         title="Trust & Safety Hub"
-        description="Review AI flags, handle user reports, and maintain platform integrity."
+        description="Review listing copy with the AI moderation engine."
       />
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Live Moderation Queue */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-red-500" />
-              Action Queue
-            </CardTitle>
-            <CardDescription>Items flagged by users or AI requiring manual review.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {queue.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
-                <ShieldCheck className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p>Queue is empty. Great job!</p>
-              </div>
-            ) : (
-              queue.map((item) => (
-                <div key={item.id} className="p-4 bg-background rounded-xl border border-border flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                  <div>
-                    <div className="flex gap-2 items-center mb-1">
-                      <Badge variant={item.type === 'Product' ? 'default' : 'secondary'}>{item.type}</Badge>
-                      <span className="text-sm font-bold">{item.reason}</span>
-                    </div>
-                    <p className="text-xs text-slate-500 font-mono">Target: {item.targetId} • Reporter: {item.reportedBy}</p>
-                  </div>
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <Button size="sm" variant="outline" className="flex-1" onClick={() => handleAction(item.id, 'Dismissed')}>Dismiss</Button>
-                    <Button size="sm" variant="destructive" className="flex-1" onClick={() => handleAction(item.id, 'Deleted/Suspended')}>
-                      {item.type === 'User' ? 'Suspend' : 'Delete'}
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-red-500" />
+            Action Queue
+          </CardTitle>
+          <CardDescription>Items flagged by users or AI requiring manual review.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-slate-500">
+            <ShieldCheck className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p>No reports yet.</p>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* AI Testing Sandbox */}
+      <div className="grid gap-8 lg:grid-cols-2">
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">

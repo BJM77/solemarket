@@ -18,7 +18,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { user, isUserLoading: isAuthLoading } = useUser();
-  const { isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
+  const { isAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -27,15 +27,15 @@ export default function AdminLayout({
   useEffect(() => {
     const checkAdmin = async () => {
       if (!isUserLoading) {
-        if (!isSuperAdmin) {
+        if (!isAdmin) {
           router.replace('/');
         }
       }
     };
     checkAdmin();
-  }, [user, isUserLoading, router, isSuperAdmin]);
+  }, [user, isUserLoading, router, isAdmin]);
 
-  if (isUserLoading || !isSuperAdmin) {
+  if (isUserLoading || !isAdmin) {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

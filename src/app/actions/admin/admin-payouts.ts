@@ -4,7 +4,6 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { verifyIdToken } from '@/lib/firebase/auth-admin';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { FieldValue } from 'firebase-admin/firestore';
-import { getSystemSettingsAdmin } from '@/services/settings-service';
 
 export async function getPendingPayouts(idToken: string) {
     try {
@@ -12,8 +11,6 @@ export async function getPendingPayouts(idToken: string) {
         if (!['admin', 'superadmin'].includes(decodedToken.role)) {
             throw new Error('Unauthorized');
         }
-
-        const settings = await getSystemSettingsAdmin();
 
         const ordersSnapshot = await firestoreDb.collection('orders')
             .where('status', '==', 'delivered')
@@ -42,15 +39,11 @@ export async function getPendingPayouts(idToken: string) {
 
         const processedOrders = orders.map((order: any) => {
             const sellerProfile = sellerProfiles[order.sellerId] || {};
-            // Founder onboarding logic: early adopters have special badges and fee waivers
+            // Payments are PayID or cash: there is no platform fee.
             const hasFeeWaiver = sellerProfile.feeWaiver === true || sellerProfile.isFounder === true || sellerProfile.isEarlyAdopter === true;
-
-            // Use dynamic platform fee from settings
-            const platformFeePercentage = hasFeeWaiver ? 0 : (settings.platformFeeRate || 0.07);
-            const platformFeeAmount = order.subtotal * platformFeePercentage;
-
-            // The seller receives Total Amount minus Platform Fee
-            const payoutAmount = order.totalAmount - platformFeeAmount;
+            const platformFeePercentage = 0;
+            const platformFeeAmount = 0;
+            const payoutAmount = order.totalAmount;
 
             return serializeFirestoreData({
                 ...order,
