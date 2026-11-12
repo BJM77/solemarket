@@ -43,8 +43,14 @@ export async function resetDrafts() {
   }
 }
 
+/** +61 E.164 for a test mobile like '0412 345 678' (guests give a name and mobile, no email). */
+export function e164(mobile: string): string {
+  const d = mobile.replace(/[^\d]/g, '');
+  return d.startsWith('0') ? `+61${d.slice(1)}` : `+${d}`;
+}
+
 /** Fresh, unreserved guest listing and no leftover guest orders/form tickets (emulator only). */
-export async function resetGuestListing(email: string, id = 'e2e-guest-1', extra: Record<string, unknown> = {}) {
+export async function resetGuestListing(mobile: string, id = 'e2e-guest-1', extra: Record<string, unknown> = {}) {
   const { db, admin } = await emulatorDb();
   const now = admin.firestore.FieldValue.serverTimestamp();
   await db.doc(`products/${id}`).set({
@@ -54,7 +60,7 @@ export async function resetGuestListing(email: string, id = 'e2e-guest-1', extra
     title: 'E2E Guest Checkout Card', price: 15, status: 'available', isDraft: false, isPrivate: false, checkoutHolds: [],
     ...extra,
   });
-  const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
+  const orders = await db.collection('orders').where('buyerPhone', '==', e164(mobile)).get();
   for (const d of orders.docs) await d.ref.delete();
   const byProduct = await db.collection('orders').where('productIds', 'array-contains', id).get();
   for (const d of byProduct.docs) await d.ref.delete();
@@ -62,10 +68,10 @@ export async function resetGuestListing(email: string, id = 'e2e-guest-1', extra
   for (const d of tickets.docs) await d.ref.delete();
 }
 
-/** The guest's orders/requests, newest first (emulator only). */
-export async function ordersFor(email: string): Promise<any[]> {
+/** The guest's orders/requests, found by their mobile (emulator only). */
+export async function ordersFor(mobile: string): Promise<any[]> {
   const { db } = await emulatorDb();
-  const snap = await db.collection('orders').where('buyerEmail', '==', email).get();
+  const snap = await db.collection('orders').where('buyerPhone', '==', e164(mobile)).get();
   return snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
 }
 
@@ -89,8 +95,45 @@ export async function orderPaymentSnapshot(orderId: string): Promise<any> {
 }
 
 /** Delete a guest's orders (emulator only) so open requests don't count against the shared CI IP. */
-export async function deleteGuestOrders(email: string) {
+export async function deleteGuestOrders(mobile: string) {
   const { db } = await emulatorDb();
-  const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
+  const orders = await db.collection('orders').where('buyerPhone', '==', e164(mobile)).get();
   for (const d of orders.docs) await d.ref.delete();
+}
+
+/** Remove every seller-level and sitewide block for a mobile (emulator only). */
+export async function deleteBlocksFor(mobile: string) {
+  const { db } = await emulatorDb();
+  const m = e164(mobile);
+  for (const d of (await db.collection('seller_blocks').where('mobile', '==', m).get()).docs) await d.ref.delete();
+  await db.doc(`blocked_mobiles/${m.slice(1)}`).delete();
+}
+
+export async function sellerBlocksFor(mobile: string): Promise<any[]> {
+  const { db } = await emulatorDb();
+  const snap = await db.collection('seller_blocks').where('mobile', '==', e164(mobile)).get();
+  return snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+}
+
+/** Sitewide block straight in the emulator (the admin page needs a superadmin login). */
+export async function blockSitewide(mobile: string, reason = 'e2e') {
+  const { db } = await emulatorDb();
+  const m = e164(mobile);
+  await db.doc(`blocked_mobiles/${m.slice(1)}`).set({ mobile: m, uids: [], reason, createdAtMs: Date.now() });
+}
+
+/** Clear per-hour rate-limit counters (emulator only): every CI guest shares one IP. */
+export async function clearRateLimits() {
+  const { db } = await emulatorDb();
+  for (const d of (await db.collection('rate_limits').limit(500).get()).docs) await d.ref.delete();
+}
+
+export async function userDoc(uid: string): Promise<any> {
+  const { db } = await emulatorDb();
+  return (await db.doc(`users/${uid}`).get()).data();
+}
+
+export async function setUserPhone(uid: string, phoneNumber: string | null) {
+  const { db, admin } = await emulatorDb();
+  await db.doc(`users/${uid}`).set({ phoneNumber: phoneNumber ?? admin.firestore.FieldValue.delete() }, { merge: true });
 }

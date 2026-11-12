@@ -1,13 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
 import { flowsEnabled, signIn, resetGuestListing, productDoc, ordersFor, deleteGuestOrders } from './helpers';
 
-const EMAIL = 'guest.buyer@e2e.test';
-const OFFER_EMAIL = 'guest.offer@e2e.test';
+// Guests give only a name and an Australian mobile. Each test uses its own mobile: phones have
+// their own rate limit and open-request cap, and orders are found/cleaned up by mobile.
+const MOBILE = '0412 345 678';
+const OFFER_MOBILE = '0412 345 679';
 
-async function fillGuestDetails(dialog: ReturnType<Page['getByTestId']>, email: string, mobile = '0412 345 678') {
+async function fillGuestDetails(dialog: ReturnType<Page['getByTestId']>, mobile: string) {
   await dialog.locator('#guest-name').fill('Guest Buyer');
-  await dialog.locator('#guest-email').fill(email);
-  // Each test uses its own mobile: phones have their own rate limit and open-request cap.
+  await expect(dialog.locator('#guest-email')).toHaveCount(0);
   await dialog.locator('#guest-mobile').fill(mobile);
   // Honeypot stays empty for a person; no email code.
   await expect(dialog.locator('#guest-website')).toHaveValue('');
@@ -35,8 +36,8 @@ test.describe('guest requests (no account), seller approval', () => {
 
   test('guest requests to buy, seller accepts, guest sees PayID, seller marks paid', async ({ page, browser }) => {
     test.setTimeout(180_000);
-    mine = EMAIL;
-    await resetGuestListing(EMAIL);
+    mine = MOBILE;
+    await resetGuestListing(MOBILE);
     await page.goto('/product/e2e-guest-1');
     await expect(page.getByRole('heading', { name: /E2E Guest Checkout Card/i }).first()).toBeVisible({ timeout: 45_000 });
 
@@ -46,7 +47,7 @@ test.describe('guest requests (no account), seller approval', () => {
       await page.getByRole('button', { name: /buy now/i }).first().click();
       await expect(dialog).toBeVisible({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
-    await fillGuestDetails(dialog, EMAIL);
+    await fillGuestDetails(dialog, MOBILE);
     await dialog.getByTestId('guest-send-request').click();
 
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
@@ -65,8 +66,9 @@ test.describe('guest requests (no account), seller approval', () => {
     const listed = await productDoc('e2e-guest-1');
     expect(listed.status).toBe('available');
     expect(listed.checkoutHolds || []).toHaveLength(0);
-    const [order] = await ordersFor(EMAIL);
-    expect(order).toMatchObject({ status: 'requested', stockMode: 'request', requestType: 'buy', isGuest: true });
+    const [order] = await ordersFor(MOBILE);
+    expect(order).toMatchObject({ status: 'requested', stockMode: 'request', requestType: 'buy', isGuest: true, buyerPhone: '+61412345678', buyerName: 'Guest Buyer' });
+    expect(order.buyerEmail ?? null).toBeNull();
 
     const other = await browser.newContext({ bypassCSP: true });
     const otherPage = await other.newPage();
@@ -80,8 +82,11 @@ test.describe('guest requests (no account), seller approval', () => {
     const { ctx: sellerCtx, seller } = await sellerPage(browser);
     const card = seller.getByTestId(`seller-order-${order.id}`).first();
     await expect(card).toBeVisible({ timeout: 60_000 });
-    await expect(card.getByTestId('guest-buyer-contact')).toContainText(EMAIL);
-    await expect(card.getByTestId('guest-buyer-contact')).toContainText('+61412345678');
+    // Name and mobile only, with tap-to-call and tap-to-text.
+    await expect(card.getByTestId('guest-buyer-contact')).toContainText('0412 345 678');
+    await expect(card.getByTestId('buyer-call')).toHaveAttribute('href', 'tel:+61412345678');
+    await expect(card.getByTestId('buyer-sms')).toHaveAttribute('href', 'sms:+61412345678');
+    await expect(card.getByText(/email buyer/i)).toHaveCount(0);
     await card.getByTestId('seller-request-accept').click();
     await expect.poll(async () => ((await productDoc('e2e-guest-1')).checkoutHolds || []).length, { timeout: 30_000 }).toBe(1);
     const reserved = await productDoc('e2e-guest-1');
@@ -106,8 +111,8 @@ test.describe('guest requests (no account), seller approval', () => {
 
   test('guest offers, seller counters, guest accepts the counter, seller relists', async ({ page, browser }) => {
     test.setTimeout(180_000);
-    mine = OFFER_EMAIL;
-    await resetGuestListing(OFFER_EMAIL, 'e2e-guest-2', { title: 'E2E Offer Card', price: 40, isNegotiable: true });
+    mine = OFFER_MOBILE;
+    await resetGuestListing(OFFER_MOBILE, 'e2e-guest-2', { title: 'E2E Offer Card', price: 40, isNegotiable: true });
     await page.goto('/product/e2e-guest-2');
     await expect(page.getByRole('heading', { name: /E2E Offer Card/i }).first()).toBeVisible({ timeout: 45_000 });
 
@@ -117,12 +122,12 @@ test.describe('guest requests (no account), seller approval', () => {
       await expect(dialog).toBeVisible({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
     await dialog.locator('#guest-offer').fill('25');
-    await fillGuestDetails(dialog, OFFER_EMAIL, '0412 345 679');
+    await fillGuestDetails(dialog, OFFER_MOBILE);
     await dialog.getByTestId('guest-send-request').click();
     await expect(page).toHaveURL(/\/order\/[A-Za-z0-9_-]{40,}/, { timeout: 45_000 });
     await expect(page.getByTestId('request-pending')).toContainText('$25.00');
 
-    const [order] = await ordersFor(OFFER_EMAIL);
+    const [order] = await ordersFor(OFFER_MOBILE);
     expect(order).toMatchObject({ status: 'requested', requestType: 'offer', offerAmount: 25 });
 
     // Seller declines with a counter of $32.

@@ -13,8 +13,12 @@ import {
     type SignedInRequestInput,
 } from '@/lib/checkout/requests-server';
 
-type Result<T = object> = ({ success: true } & T) | { success: false; error: string };
-const fail = (e: any): { success: false; error: string } => ({ success: false, error: e?.message || 'Something went wrong. Please try again.' });
+type Result<T = object> = ({ success: true } & T) | { success: false; error: string; needsMobile?: boolean };
+const fail = (e: any): { success: false; error: string; needsMobile?: boolean } => ({
+    success: false,
+    error: e?.message || 'Something went wrong. Please try again.',
+    ...(e?.code === 'MOBILE_REQUIRED' ? { needsMobile: true } : {}),
+});
 
 /** Signed-in buyer: send a Buy or Offer request on one listing. */
 export async function sendRequestAction(idToken: string, input: SignedInRequestInput): Promise<Result<{ order: any }>> {

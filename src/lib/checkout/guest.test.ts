@@ -1,28 +1,33 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeAuMobile, normalizeEmail, validateGuestDetails, checkFormTiming, isHoneypotFilled, msUntilFormReady, MIN_FORM_MS, MAX_FORM_MS } from './guest-validation';
+import { normalizeAuMobile, validateGuestDetails, checkFormTiming, isHoneypotFilled, msUntilFormReady, MIN_FORM_MS, MAX_FORM_MS } from './guest-validation';
 import { generateOrderToken, identityHash, isPlausibleOrderToken, orderTokenHash } from './guest-crypto';
 
 describe('guest details', () => {
-    it('normalises AU mobiles', () => {
+    it('normalises AU mobiles to E.164', () => {
         expect(normalizeAuMobile('0412 345 678')).toBe('+61412345678');
+        expect(normalizeAuMobile('0412-345-678')).toBe('+61412345678');
+        expect(normalizeAuMobile('(0412) 345 678')).toBe('+61412345678');
         expect(normalizeAuMobile('+61 412 345 678')).toBe('+61412345678');
+        expect(normalizeAuMobile('61412345678')).toBe('+61412345678');
+        expect(normalizeAuMobile('0061 412 345 678')).toBe('+61412345678');
+        expect(normalizeAuMobile('+61 0412 345 678')).toBeNull();
         expect(normalizeAuMobile('(08) 9123 4567')).toBeNull();
+        expect(normalizeAuMobile('0312 345 678')).toBeNull();
+        expect(normalizeAuMobile('041234567')).toBeNull();
         expect(normalizeAuMobile('12345')).toBeNull();
-    });
-    it('normalises email', () => {
-        expect(normalizeEmail(' Ben@Example.COM ')).toBe('ben@example.com');
-        expect(normalizeEmail('nope')).toBeNull();
+        expect(normalizeAuMobile(null)).toBeNull();
     });
     it('validates and requires an address for postage', () => {
-        const ok = validateGuestDetails({ name: ' Ben  M ', email: 'b@x.com', mobile: '0412345678' });
-        expect(ok).toEqual({ name: 'Ben M', email: 'b@x.com', mobile: '+61412345678', shippingMethod: 'pickup', shippingAddress: null });
-        expect(() => validateGuestDetails({ name: 'B', email: 'b@x.com', mobile: '0412345678' })).toThrow(/name/);
-        expect(() => validateGuestDetails({ name: 'Ben', email: 'b@x.com', mobile: '0412345678', shippingMethod: 'shipping', shippingAddress: { street: '1 A St', city: 'Perth', state: 'wa', zip: '60' } })).toThrow(/postcode/);
-        const shipped = validateGuestDetails({ name: 'Ben', email: 'b@x.com', mobile: '0412345678', shippingMethod: 'shipping', shippingAddress: { street: '1 A St', city: 'Perth', state: 'wa', zip: '6000' } });
+        const ok = validateGuestDetails({ name: ' Ben  M ', mobile: '0412345678' });
+        expect(ok).toEqual({ name: 'Ben M', mobile: '+61412345678', shippingMethod: 'pickup', shippingAddress: null });
+        expect(ok).not.toHaveProperty('email');
+        expect(() => validateGuestDetails({ name: 'B', mobile: '0412345678' })).toThrow(/name/);
+        expect(() => validateGuestDetails({ name: 'Ben', mobile: '0412345678', shippingMethod: 'shipping', shippingAddress: { street: '1 A St', city: 'Perth', state: 'wa', zip: '60' } })).toThrow(/postcode/);
+        const shipped = validateGuestDetails({ name: 'Ben', mobile: '0412345678', shippingMethod: 'shipping', shippingAddress: { street: '1 A St', city: 'Perth', state: 'wa', zip: '6000' } });
         expect(shipped.shippingAddress).toEqual({ street: '1 A St', city: 'Perth', state: 'WA', zip: '6000' });
     });
     it('strips markup from names', () => {
-        expect(validateGuestDetails({ name: '<b>Ben</b>', email: 'b@x.com', mobile: '0412345678' }).name).toBe('bBen/b');
+        expect(validateGuestDetails({ name: '<b>Ben</b>', mobile: '0412345678' }).name).toBe('bBen/b');
     });
 });
 
@@ -51,9 +56,11 @@ describe('anti-abuse (no email code)', () => {
         expect(isHoneypotFilled('   ')).toBe(false);
         expect(isHoneypotFilled('http://spam.example')).toBe(true);
     });
-    it('email is collected but mobile must be Australian', () => {
-        expect(() => validateGuestDetails({ name: 'Ben', email: 'b@x.com', mobile: '+1 415 555 0100' })).toThrow(/Australian mobile/);
-        expect(() => validateGuestDetails({ name: 'Ben', email: 'not-an-email', mobile: '0412345678' })).toThrow(/email/);
+    it('needs only a name and an Australian mobile (no email)', () => {
+        expect(() => validateGuestDetails({ name: 'Ben', mobile: '+1 415 555 0100' })).toThrow(/Australian mobile/);
+        expect(() => validateGuestDetails({ name: 'Ben', mobile: '' })).toThrow(/Australian mobile/);
+        // An email sent by an older client is ignored, never required.
+        expect(validateGuestDetails({ name: 'Ben', mobile: '0412345678', email: 'not-an-email' } as any)).toEqual({ name: 'Ben', mobile: '+61412345678', shippingMethod: 'pickup', shippingAddress: null });
     });
 });
 
