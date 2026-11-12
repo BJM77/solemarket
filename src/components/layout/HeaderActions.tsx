@@ -1,12 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { ShoppingCart, Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { UserNav } from './user-nav';
-import dynamic from 'next/dynamic';
-const SearchCommand = dynamic(() => import('@/components/search/SearchCommand').then(m => m.SearchCommand), { ssr: false });
 import { NotificationBell } from '../notifications/NotificationBell';
 import { NewOrderAlerts } from '../notifications/NewOrderAlerts';
 import Link from 'next/link';
@@ -16,7 +13,6 @@ import { TeamPickerButton } from '@/components/team-theme/TeamPicker';
 
 export default function HeaderActions() {
     const { itemCount, setIsCartOpen } = useCart();
-    const [open, setOpen] = useState(false);
     const { user } = useUser();
 
     return (
@@ -68,7 +64,6 @@ export default function HeaderActions() {
 
             <UserNav />
 
-            <SearchCommand open={open} setOpen={setOpen} />
         </div>
     )
 }
