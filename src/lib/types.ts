@@ -127,6 +127,7 @@ export type Product = {
   year?: number;
   manufacturer?: string;
   cardNumber?: string;
+  player?: string;
 
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
