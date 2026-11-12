@@ -118,7 +118,7 @@ export default function SellerAgreementPage() {
                                     <CheckCircle2 className="h-5 w-5 text-primary" />
                                     4. Fees & Payments
                                 </h3>
-                                <p>Benched collects a platform fee on every successful sale. Detailed fee structures are available in the Seller Help Center. Payments are processed securely via our payment partners.</p>
+                                <p>Benched does not charge a platform fee on sales, and does not hold or process payments. Buyers pay you directly by PayID or cash on pickup in Perth.</p>
                             </section>
                         </div>
 

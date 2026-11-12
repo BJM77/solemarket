@@ -34,7 +34,7 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
     } else if (isCardPage) {
         navItems = [
             { label: 'Home', href: '/', icon: Home },
-            { label: 'NBA', href: '/cards?subCategory=Basketball%20Cards', icon: Flame },
+            { label: 'Basketball', href: '/cards?subCategory=Basketball%20Cards', icon: Flame },
             { label: 'Drops', href: '/card-drops', icon: Star },
             { label: 'Rookies', href: '/cards?subCategory=Rookies', icon: History },
         ];
@@ -51,7 +51,10 @@ export function MobileNavPills({ onSearchClick }: MobileNavPillsProps) {
             </button>
             {navItems.map((item) => {
                 // For subcategories, we check if the current URL contains the subcategory name
-                const isActive = pathname === item.href || (item.href !== '/' && pathname.includes(encodeURIComponent(item.label)));
+                const hrefPath = item.href.split('?')[0];
+                const isActive = item.href === '/'
+                  ? pathname === '/'
+                  : pathname === item.href || (hrefPath !== '/' && (pathname === hrefPath || pathname.startsWith(hrefPath + '/')));
 
                 return (
                     <Link 

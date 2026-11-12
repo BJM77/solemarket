@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
 import { Phone } from 'lucide-react'; // Import Phone icon
 import { safeDate } from '@/lib/date-utils';
+import { SuperSellerBadge, BusinessSellerNote, isSuperSeller } from '@/components/products/SuperSellerBadge';
 
 // Define types
 interface Seller extends UserProfile {
@@ -186,6 +187,12 @@ export default function SellerPage() {
                   <span className="text-muted-foreground text-sm">({reviews?.length || 0} reviews)</span>
                 </div>
 
+                {isSuperSeller(seller) && (
+                  <div className="mt-2 space-y-1">
+                    <SuperSellerBadge />
+                    <BusinessSellerNote />
+                  </div>
+                )}
                 {seller.isVerified && (
                   <div className="flex items-center gap-2 mt-2 text-orange-700">
                     <ShieldCheck className="h-5 w-5" />

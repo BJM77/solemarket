@@ -6,24 +6,24 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'How It Works',
-  description: 'Learn how to buy and sell collectibles securely on Benched. From AI-powered listings to secure payments and the Benched Vault.',
+  description: 'How buying and selling works on Benched: send a request, pay the seller directly by PayID or cash on pickup in Perth.',
 };
 
 const forBuyers = [
   {
     icon: <Search className="h-8 w-8 text-primary" />,
     title: "Discover & Find",
-    description: "Use our powerful search and filtering tools to browse thousands of collectibles from sellers across Australia."
+    description: "Use our search and filters to browse basketball shoes and collector cards from sellers across Australia."
   },
   {
     icon: <ShoppingCart className="h-8 w-8 text-primary" />,
-    title: "Purchase Securely",
-    description: "Add items to your cart and check out with confidence. Your payment is held securely until you confirm receipt of your item."
+    title: "Send a request",
+    description: "Buy Now or make an offer. The seller accepts, then you pay them directly by PayID, or in cash when you collect in Perth. Benched does not hold your payment."
   },
   {
     icon: <Shield className="h-8 w-8 text-primary" />,
-    title: "Receive & Verify",
-    description: "For high-value items, use our optional Benched Vault service for third-party verification and secure storage."
+    title: "Inspect with care",
+    description: "Check photos, ask questions, and for higher-value items consider cash on pickup in Perth so you can inspect before you pay. Benched does not physically authenticate items."
   }
 ];
 
@@ -31,19 +31,20 @@ const forSellers = [
   {
     icon: <Upload className="h-8 w-8 text-primary" />,
     title: "List Your Items",
-    description: "Easily create listings with our AI-powered tools that help you write descriptions, suggest prices, and grade your cards."
+    description: "Create a listing with photos, a price and a description. Tools on the site can help you fill in details from a photo."
   },
   {
     icon: <Package className="h-8 w-8 text-primary" />,
-    title: "Ship to Buyer",
-    description: "Once an item is sold, ship it directly to the buyer or to the Benched Vault for verification, depending on the transaction type."
+    title: "Accept and fulfil",
+    description: "When a buyer sends a request, you can accept, decline or counter. After you accept, the buyer pays you directly by PayID or cash on pickup in Perth."
   },
   {
     icon: <DollarSign className="h-8 w-8 text-primary" />,
-    title: "Get Paid Fast",
-    description: "Payment is released to you as soon as the buyer confirms receipt or the item is verified by our Vault service."
+    title: "Get paid directly",
+    description: "There is no platform fee. Mark the order paid or collected when the money or the pickup is complete."
   }
 ];
+
 
 export default function HowItWorksPage() {
   const faqSchema = {
@@ -55,7 +56,7 @@ export default function HowItWorksPage() {
         name: 'Is Benched safe for buyers?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes, Benched uses secure payment processing and offers the Benched Vault for high-value item verification to ensure you get exactly what you paid for.'
+          text: 'Buyers pay sellers directly by PayID or cash on pickup in Perth. Benched does not hold payments or physically authenticate items. Inspect photos, ask questions, and consider cash on pickup for higher-value purchases. Report a problem from your order or the contact page.'
         }
       },
       {
@@ -68,10 +69,10 @@ export default function HowItWorksPage() {
       },
       {
         '@type': 'Question',
-        name: 'What is the Benched Vault?',
+        name: 'Does Benched authenticate items?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'The Benched Vault is a third-party verification and secure storage service for high-value collectibles. It ensures authenticity and eliminates shipping risks.'
+          text: 'No. Benched is a peer-to-peer marketplace and does not physically inspect or authenticate items. For graded cards, a PSA certification number can be looked up in PSA\'s records so you can compare the cert details with the listing photos. That check does not confirm the physical card is the same card.'
         }
       }
     ]

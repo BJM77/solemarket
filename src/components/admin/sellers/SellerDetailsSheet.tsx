@@ -70,7 +70,10 @@ export function SellerDetailsSheet({ user, open, onOpenChange, refresh }: Seller
                         </Avatar>
                         <div>
                             <SheetTitle>{user.displayName}</SheetTitle>
-                            <SheetDescription>{user.email}</SheetDescription>
+                            <SheetDescription>
+                                {user.email}
+                                {user.abn ? ` · ABN ${user.abn}${user.gstRegistered ? ' · GST registered' : ''}` : ' · No ABN on file'}
+                            </SheetDescription>
                         </div>
                     </div>
                 </SheetHeader>

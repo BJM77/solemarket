@@ -1,6 +1,5 @@
 'use client';
 
-import { resolveSellerName } from '@/lib/utils/seller-name';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
+import { SuperSellerBadge, isSuperSeller } from '@/components/products/SuperSellerBadge';
 import { isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
@@ -1110,6 +1110,10 @@ export default function ProductCard({
         <h3 className="text-xs sm:text-sm font-bold leading-tight group-hover:text-primary transition-colors truncate min-w-0" title={product.title}>
           {tileTitle}
         </h3>
+
+        {isSuperSeller(product) && (
+          <SuperSellerBadge className="text-[8px] px-1 py-0 mt-0.5 self-start" />
+        )}
 
         <div className="flex items-center justify-between gap-2 mt-auto pt-1.5 min-w-0">
           <div className="pointer-events-auto min-w-0">

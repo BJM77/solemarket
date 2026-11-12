@@ -149,7 +149,7 @@ export default function ProfileDetailsPage() {
         <CardHeader>
           <CardTitle>Your team</CardTitle>
           <CardDescription>
-            Pick your NBA team to colour Benched in its colours. It&apos;s saved to your account, so it follows you to your phone and computer.
+            Pick your team colours to colour Benched. It&apos;s saved to your account, so it follows you to your phone and computer.
           </CardDescription>
         </CardHeader>
         <CardContent>

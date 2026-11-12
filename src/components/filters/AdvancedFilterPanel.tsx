@@ -31,6 +31,7 @@ import type { ProductSearchParams } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";
 import { useToast } from '@/hooks/use-toast';
 import { facetsFor, normalizeSize } from '@/lib/filters/params';
+import { TEAM_FILTERS } from '@/lib/filters/team-aliases';
 
 // These are now defaults, but get overridden by Firestore values.
 const DEFAULT_CATEGORIES = [
@@ -101,16 +102,7 @@ const BASKETBALL_LEAGUES = [
     'NCAA',
 ];
 
-const POPULAR_TEAMS = [
-    'Lakers',
-    'Warriors',
-    'Bulls',
-    'Celtics',
-    'Spurs',
-    'Heat',
-    'Knicks',
-    'Mavericks',
-];
+
 
 const POPULAR_PLAYERS = [
     'Michael Jordan',
@@ -541,8 +533,8 @@ export default function AdvancedFilterPanel({
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="all">All Teams</SelectItem>
-                                                    {POPULAR_TEAMS.map(t => (
-                                                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                    {TEAM_FILTERS.map(t => (
+                                                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>

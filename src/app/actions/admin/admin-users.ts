@@ -36,6 +36,9 @@ const mapUserRecordToAdminUser = (user: any, profile?: UserProfile): AdminUser =
     listingLimit: profile?.listingLimit || 0,
     onStop: profile?.onStop || false,
     stopReason: profile?.stopReason,
+    abn: profile?.abn,
+    gstRegistered: profile?.gstRegistered,
+    businessName: profile?.businessName,
 });
 
 

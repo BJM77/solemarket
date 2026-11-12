@@ -7,6 +7,7 @@ import { collection, query, where, or, and, orderBy, limit, getDocs, startAfter,
 import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeSize } from '@/lib/filters/params';
+import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
 
 const PAGE_SIZE = 24;
 
@@ -445,9 +446,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
 
       // 7d. Team Filter (in memory)
       if (searchParams.team) {
-        const targetTeam = searchParams.team.toLowerCase();
+        const aliases = aliasesForTeamFilter(searchParams.team);
         const fullText = `${p.title} ${p.description || ''}`.toLowerCase();
-        if (!fullText.includes(targetTeam)) return false;
+        if (!aliases.some((a) => fullText.includes(a))) return false;
       }
 
       // 7e. Player Filter (in memory)

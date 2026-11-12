@@ -25,6 +25,7 @@ import { handleStaleDeploy } from '@/lib/stale-deploy';
 import { formatPrice } from "@/lib/utils/format";
 import { Loader2, ShoppingBag, Truck, MapPin, CreditCard, Shield, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
+import { AFFILIATION_DISCLAIMER } from '@/lib/legal/disclaimer';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -738,6 +739,7 @@ export default function CheckoutPage() {
                 <p className="text-xs text-center text-slate-600">
                   By sending a request, you agree to our <Link href="/terms" className="underline">Terms of Service</Link>.
                 </p>
+                <p className="text-[11px] text-center leading-relaxed text-slate-500">{AFFILIATION_DISCLAIMER} See our <Link href="/terms" className="underline">Terms</Link>.</p>
               </div>
             </Card>
           </div>
