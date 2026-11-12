@@ -1,30 +1,24 @@
 import { isCardCategory } from '@/lib/constants/marketplace';
+import {
+  type ListingTitleSource,
+  shortListingTitle,
+  cleanSpaces,
+  pickBrand,
+  pickModel,
+  pickYear,
+  pickPlayer,
+  YEAR_RE,
+  SHOE_NOISE,
+  SHOE_SIZE_US_FIRST,
+  SHOE_SIZE_TRAILING,
+} from '@/lib/utils/short-listing-title';
 
 /**
  * Fields used to split the desktop listing-page heading into two rows.
- * Extra listing fields are ignored. `player`, `set` and `parallel` are often
- * present on card documents even when they are not on the Product type.
+ * Extends the shared tile-title source so card set/player/colourway fields
+ * can also feed the remainder row. Extra listing fields are ignored.
  */
-export type ListingDetailTitleSource = {
-  title?: string | null;
-  category?: string | null;
-  brand?: string | null;
-  manufacturer?: string | null;
-  model?: string | null;
-  year?: number | string | null;
-  player?: string | null;
-  playerName?: string | null;
-  set?: string | null;
-  cardNumber?: string | null;
-  colorway?: string | null;
-  parallel?: string | null;
-  detectedAttributes?: {
-    brand?: string | null;
-    model?: string | null;
-    year?: number | string | null;
-    colorway?: string | null;
-  } | null;
-};
+export type ListingDetailTitleSource = ListingTitleSource;
 
 export type ListingDetailTitle = {
   /** Larger first row, e.g. "2024 Panini" or "Nike Kyrie 7". */
@@ -32,29 +26,6 @@ export type ListingDetailTitle = {
   /** Remaining title info, or empty when the heading cannot be split. */
   row2: string;
 };
-
-const SHOE_BRANDS = [
-  'Air Jordan',
-  'New Balance',
-  'Under Armour',
-  'Alexander McQueen',
-  'The North Face',
-  'Nike',
-  'Jordan',
-  'Adidas',
-  'Yeezy',
-  'Puma',
-  'Reebok',
-  'Asics',
-  'Converse',
-  'Vans',
-  'Saucony',
-  'Hoka',
-  'Salomon',
-  'Crocs',
-  'Timberland',
-  'Ugg',
-].sort((a, b) => b.length - a.length);
 
 const CARD_BRANDS = [
   'Wizards of the Coast',
@@ -77,37 +48,8 @@ const CARD_BRANDS = [
   'Donruss',
 ].sort((a, b) => b.length - a.length);
 
-const SHOE_NOISE = /\b(deadstock|ds|vnds|used|new|bnib|og box|with box|no box|men'?s|women'?s|womens|kids|gs|ps|td|youth|grade school)\b/gi;
-const SHOE_SIZE_US_FIRST = /\b(?:size\s+)?us\s*\d+(?:\.\d+)?(?:y|c|w)?\b/gi;
-const SHOE_SIZE_TRAILING = /\bsize\s+\d+(?:\.\d+)?\b|\b\d+(?:\.\d+)?(?:y|c|w)?\s*us\b/gi;
-const YEAR_RE = /\b((?:19|20)\d{2}(?:-\d{2})?)\b/;
-
-function cleanSpaces(value: string): string {
-  return value.replace(/\s+/g, ' ').trim();
-}
-
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function pickBrand(listing: ListingDetailTitleSource): string {
-  return cleanSpaces(String(
-    listing.brand || listing.manufacturer || listing.detectedAttributes?.brand || '',
-  ));
-}
-
-function pickModel(listing: ListingDetailTitleSource): string {
-  return cleanSpaces(String(listing.model || listing.detectedAttributes?.model || ''));
-}
-
-function pickYear(listing: ListingDetailTitleSource): string {
-  const raw = listing.year ?? listing.detectedAttributes?.year;
-  if (raw === null || raw === undefined || raw === '') return '';
-  return String(raw).trim();
-}
-
-function pickPlayer(listing: ListingDetailTitleSource): string {
-  return cleanSpaces(String(listing.player || listing.playerName || ''));
 }
 
 function pickColorway(listing: ListingDetailTitleSource): string {
@@ -186,10 +128,6 @@ function remainderAfter(title: string, phrases: string[]): string {
   return stripWrappingPunctuation(rest);
 }
 
-function looksLikeColorway(token: string): boolean {
-  return /^(black|white|grey|gray|red|blue|green|yellow|orange|purple|pink|brown|gold|silver|panda|grinch|currency|sisterhood|multicolor|multi)$/i.test(token);
-}
-
 function matchLeadingBrand(text: string, brands: string[]): string | null {
   const lower = text.toLowerCase();
   for (const brand of brands) {
@@ -201,57 +139,15 @@ function matchLeadingBrand(text: string, brands: string[]): string | null {
   return null;
 }
 
-function extractQuotedPhrase(text: string): string | null {
-  const match = text.match(/['"“”‘’]([^'"“”‘’]+)['"“”‘’]/);
-  const phrase = cleanSpaces(match?.[1] || '');
-  return phrase || null;
-}
-
-function extractShoeModel(rest: string): string {
-  const quoted = extractQuotedPhrase(rest);
-  const beforeQuote = quoted
-    ? cleanSpaces(rest.slice(0, rest.search(/['"“”‘’]/)))
-    : rest;
-  const cutAtDash = beforeQuote.split(/\s+[-–—]\s+/)[0];
-  const tokens = cleanSpaces(cutAtDash).split(/\s+/).filter(Boolean);
-  const keep: string[] = [];
-  for (const token of tokens) {
-    if (looksLikeColorway(token) && keep.length > 0) break;
-    keep.push(token);
-    if (keep.length >= 5) break;
-  }
-  return keep.join(' ');
-}
-
-function withBrandAndModel(brand: string, model: string): string {
-  if (!brand) return model;
-  if (!model) return brand;
-  return model.toLowerCase().startsWith(brand.toLowerCase())
-    ? model
-    : `${brand} ${model}`;
-}
-
+/**
+ * Shoe row 1 reuses the shared tile helper (Brand + Model). If that helper
+ * cannot shorten the title, return empty so we fall back to the full title.
+ */
 function composeShoeRow1(listing: ListingDetailTitleSource, title: string): string {
-  const brand = pickBrand(listing);
-  const model = pickModel(listing);
-  if (brand && model) return withBrandAndModel(brand, model);
-
-  let cleaned = title;
-  cleaned = cleaned.replace(SHOE_SIZE_US_FIRST, ' ');
-  cleaned = cleaned.replace(SHOE_SIZE_TRAILING, ' ');
-  cleaned = cleaned.replace(SHOE_NOISE, ' ');
-  cleaned = cleanSpaces(cleaned.replace(/[|/]+/g, ' '));
-
-  const parsedBrand = brand || matchLeadingBrand(cleaned || title, SHOE_BRANDS) || '';
-  if (!parsedBrand) return '';
-
-  const afterBrand = cleanSpaces(
-    (cleaned || title).slice(
-      (cleaned || title).toLowerCase().indexOf(parsedBrand.toLowerCase()) + parsedBrand.length,
-    ),
-  );
-  const parsedModel = model || extractShoeModel(afterBrand);
-  return parsedModel ? withBrandAndModel(parsedBrand, parsedModel) : '';
+  const derived = shortListingTitle(listing);
+  if (!derived) return '';
+  if (title && derived.toLowerCase() === title.toLowerCase()) return '';
+  return derived;
 }
 
 function composeCardRow1(listing: ListingDetailTitleSource, title: string): string {
@@ -294,7 +190,8 @@ function composeShoeRow2(listing: ListingDetailTitleSource, title: string, row1:
 /**
  * Two-row desktop listing title.
  * Cards: "Year Brand" + remaining set / player / number.
- * Shoes: "Brand Model" + colourway or remaining edition text.
+ * Shoes: "Brand Model" (same source as the tile short title) + colourway
+ * or remaining edition text.
  * Falls back to the full title on row 1 (and an empty row 2) when a split
  * cannot be derived confidently.
  */
