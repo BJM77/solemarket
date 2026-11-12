@@ -4,6 +4,7 @@ import { firestoreDb as db, auth as adminAuth } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { checkForAdminWantedMatch } from '@/app/actions/admin/admin-wanted';
 import { determineProductStorefrontId } from '@/config/storefronts';
+import { assertNewListingsAllowed } from '@/lib/super-seller/server';
 
 /**
  * Publish one draft on behalf of an already-authenticated user. Runs every
@@ -50,6 +51,10 @@ export async function publishListingAs(draftId: string, userId: string): Promise
             throw new Error("Your seller application is pending approval or has not been submitted.");
         }
 
+        if (!isSuperAdmin && !isStaff) {
+            await assertNewListingsAllowed(targetUserId, userData?.role);
+        }
+
         // 1b. A listing can't go live without a title, photo, and real price (reverse-bid/WTB listings excepted).
         if (!String(data?.title || '').trim()) {
             throw new Error("Add a title before publishing.");
@@ -87,6 +92,7 @@ export async function publishListingAs(draftId: string, userId: string): Promise
             sellerName: resolveSellerName(userData as any, data?.sellerName),
             sellerAvatar: userData?.photoURL || '',
             sellerVerified: userData?.isVerified || false,
+            sellerIsSuperSeller: Boolean(userData?.abn && String(userData.abn).replace(/\D/g, '').length === 11),
             isFeatured: data?.isFeatured ?? false,
             isPromoted: data?.isPromoted ?? false,
         };

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NewsletterSignup } from './NewsletterSignup';
 import { SITE_NAME, brandConfig } from '@/config/brand';
+import { AFFILIATION_DISCLAIMER } from '@/lib/legal/disclaimer';
 import { Logo } from '../logo';
 import { DEFAULT_SITE_CONFIG, type FooterConfig } from '@/lib/types/site-config';
 
@@ -46,12 +47,18 @@ export default function Footer({ config = DEFAULT_SITE_CONFIG.footer }: { config
         </div>}
       </div>
       <div className="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <Link href="/log" className="cursor-default hover:text-slate-500 transition-colors">
-          © {new Date().getFullYear()} {config.copyright || `${brandConfig.company.legalName}. All rights reserved.`}
-        </Link>
-        <div className="flex gap-8">
+        <div className="flex flex-col gap-3 max-w-3xl">
+          <Link href="/log" className="cursor-default hover:text-slate-500 transition-colors">
+            © {new Date().getFullYear()} {config.copyright || `${brandConfig.company.legalName}. All rights reserved.`}
+          </Link>
+          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">{AFFILIATION_DISCLAIMER}</p>
+        </div>
+        <div className="flex flex-wrap gap-x-8 gap-y-2">
           <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+          <Link href="/authenticity" className="hover:text-primary transition-colors">Authenticity</Link>
+          <Link href="/prohibited-items" className="hover:text-primary transition-colors">Prohibited Items</Link>
+          <Link href="/report-infringement" className="hover:text-primary transition-colors">Report infringement</Link>
         </div>
       </div>
     </footer>

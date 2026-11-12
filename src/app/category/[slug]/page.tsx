@@ -22,7 +22,7 @@ const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
       Benched is the destination for buying and selling performance basketball shoes. 
       From the latest Air Jordan releases to specialized Nike G.T. Cut and Kobe grails, our platform connects hoopers with trusted sellers.
       
-      Every pair is verified for authenticity, ensuring you can play with confidence. 
+      Inspect listing photos carefully, ask the seller questions, and consider cash on pickup in Perth for higher-value pairs so you can check the item before you pay. 
       Whether you're looking for the ultimate court feel or rare player editions, Benched has you covered.
       Join the community today and experience the future of basketball shoe trading in Australia.
     `

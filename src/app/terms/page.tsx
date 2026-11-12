@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AFFILIATION_DISCLAIMER } from '@/lib/legal/disclaimer';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -12,7 +14,7 @@ export default function TermsPage() {
     <div className="container py-12 md:py-16">
       <PageHeader
         title="Terms of Service"
-        description="Last Updated: February 2026"
+        description="Last Updated: November 2026"
       />
       <div className="prose lg:prose-lg max-w-4xl mx-auto mt-8">
         <h2>1. Introduction</h2>
@@ -47,12 +49,30 @@ export default function TermsPage() {
           We comply with the <strong>Australian Consumer Law</strong> under the Competition andConsumer Act 2010 (Cth). Our goods come with guarantees that cannot be excluded under the Australian Consumer Law.
         </p>
 
-        <h2>6. Prohibited Items</h2>
+        <h2>6. Prohibited items</h2>
         <p>
-          You may not buy or sell counterfeit items, stolen goods, or any items listed in our Prohibited Items Policy.
+          You must not list, buy or sell counterfeit, replica or otherwise inauthentic goods, stolen goods, or items that infringe someone else&apos;s intellectual property.
+          See our <Link href="/prohibited-items">Prohibited Items Policy</Link>.
+          We may remove a listing, end an account, and block the associated mobile number.
         </p>
 
-        <h2>7. Contact Us</h2>
+        <h2>7. Authenticity</h2>
+        <p>
+          Benched is a peer-to-peer marketplace. We do not physically inspect or authenticate items before they are listed or sold.
+          Sellers are responsible for the accuracy of their listings, including authenticity, and buyers pay the seller directly by PayID or cash on pickup.
+          For a graded card, if the seller provides a PSA certification number, we may look that number up in PSA&apos;s records (or show a cached result) so you can compare the cert details with the listing photos.
+          That check only confirms the number exists in PSA&apos;s database; it does not confirm that the card being sold is that same card, and it is not a Benched authentication.
+          Inspect photos, ask questions, and for higher-value purchases consider cash on pickup in Perth so you can inspect before paying.
+          If an item is fake or not as described, report it from your order or the <Link href="/contact?topic=order-problem">contact page</Link>.
+        </p>
+
+        <h2>8. Independent marketplace</h2>
+        <p>{AFFILIATION_DISCLAIMER}</p>
+        <p>
+          Rights holders can ask us to review a listing through our <Link href="/report-infringement">infringement report form</Link>.
+        </p>
+
+        <h2>9. Contact Us</h2>
         <p>
           If you have any questions about these Terms, please contact us at legal@benched.au.
         </p>

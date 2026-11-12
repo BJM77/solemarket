@@ -32,7 +32,7 @@ const TOPICS = [
         title: 'Trust & Safety',
         icon: ShieldCheck,
         links: [
-            { name: 'Our Authenticity Guarantee', href: '/authenticity' },
+            { name: 'Authenticity and integrity', href: '/authenticity' },
             { name: 'How payment works', href: '/help#how-payment-works' },
             { name: 'What to do if there is an issue', href: '#' },
         ]

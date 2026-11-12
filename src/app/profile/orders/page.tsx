@@ -34,6 +34,7 @@ import { RequestStatusPanel, buyerRequestLabel } from '@/components/orders/Reque
 import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { confirmOrderReceipt } from '@/app/actions/marketplace/order';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
+import { TaxInvoiceSummary } from '@/components/orders/TaxInvoiceSummary';
 
 export default function UserOrdersPage() {
     const { user } = useUser();
@@ -282,6 +283,7 @@ export default function UserOrdersPage() {
                                         <p className="text-xl font-black text-primary">${formatPrice(order.totalAmount)}</p>
                                     </div>
                                 </div>
+                                <TaxInvoiceSummary orderId={order.id} status={order.status} />
                             </CardContent>
                             <CardFooter className="bg-muted/60 p-4 flex gap-2 flex-wrap">
                                 <Button

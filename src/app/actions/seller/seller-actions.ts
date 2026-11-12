@@ -10,6 +10,7 @@ import { verifyIdToken } from "@/lib/firebase/auth-admin";
 import { SUPER_ADMIN_UIDS } from "@/lib/constants";
 import { logActivity } from "@/services/activity-logs";
 import { rejectAllBidsForProduct } from "../marketplace/bidding";
+import { assertNewListingsAllowed } from '@/lib/super-seller/server';
 
 /**
  * Helper to get the authenticated user's ID from the session cookie.
@@ -318,6 +319,12 @@ export async function republishListing(idToken: string, productId: string) {
         const productData = productSnap.data() as Product;
         if (!(await isAuthorized(decodedToken, productData))) {
             return { success: false, error: 'You do not have permission to republish this listing.' };
+        }
+
+        try {
+            await assertNewListingsAllowed(userId, (decodedToken as any).role);
+        } catch (e: any) {
+            return { success: false, error: e?.message || 'New listings are paused.' };
         }
 
         await productRef.update({

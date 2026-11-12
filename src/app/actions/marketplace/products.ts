@@ -17,6 +17,7 @@ import { isCoinListing, withoutCoins } from "@/lib/coin-listings";
 /** Main-site rails leave out Pokémon (own section) and coins (not on benched.au). */
 const mainSiteOnly = <T extends Product>(items: T[]): T[] => withoutCoins(withoutPokemon(items));
 import { determineProductStorefrontId } from "@/config/storefronts";
+import { assertNewListingsAllowed } from '@/lib/super-seller/server';
 
 export type CreateProductResult =
     | { success: true; productId: string; }
@@ -104,6 +105,14 @@ export async function createProductAction(
             return { success: false, error: 'You do not have permission to list products.' };
         }
 
+        if (userRole !== 'superadmin' && userRole !== 'admin') {
+            try {
+                await assertNewListingsAllowed(decodedToken.uid, userRole);
+            } catch (e: any) {
+                return { success: false, error: e?.message || 'New listings are paused.' };
+            }
+        }
+
         if (userRole === 'seller') {
             const userProductsSnap = await firestoreDb.collection('products')
                 .where('sellerId', '==', decodedToken.uid)
@@ -138,6 +147,7 @@ export async function createProductAction(
             sellerName: sellerName,
             sellerAvatar: sellerAvatar,
             sellerVerified: sellerVerified,
+            sellerIsSuperSeller: Boolean((userSnap.exists && (userSnap.data() as any)?.abn && String((userSnap.data() as any).abn).replace(/\D/g, '').length === 11)),
             status: (userRole === 'admin' || userRole === 'superadmin') ? 'available' : 'pending_approval',
             createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
             updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,

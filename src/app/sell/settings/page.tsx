@@ -1,11 +1,15 @@
+import { AbnSettings } from '@/components/seller/AbnSettings';
+import { PayIdSettings } from '@/components/seller/PayIdSettings';
+
 export default function SettingsPage() {
-    return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold mb-4">Settings</h1>
-            <p className="text-gray-600">Manage your seller profile and references.</p>
-            <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800">This feature is currently under development.</p>
-            </div>
-        </div>
-    );
+  return (
+    <div className="p-6 md:p-8 max-w-3xl space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Seller settings</h1>
+        <p className="text-muted-foreground">Manage your PayID, ABN and sales export.</p>
+      </div>
+      <PayIdSettings />
+      <AbnSettings />
+    </div>
+  );
 }
