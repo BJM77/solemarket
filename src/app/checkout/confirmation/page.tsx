@@ -19,12 +19,15 @@ import { formatPrice } from "@/lib/utils/format";
 import { lodgeDispute } from '@/app/actions/admin/disputes';
 import { useUser } from '@/firebase';
 import { OrderPaymentInstructions } from '@/components/orders/OrderPaymentInstructions';
+import { RequestStatusPanel } from '@/components/orders/RequestStatusPanel';
 
 import { trackEcommerceEvent } from '@/lib/analytics';
 import { useRef } from 'react';
 
 const getStepIndex = (status: string) => {
     switch (status) {
+        case 'requested':
+        case 'countered':
         case 'awaiting_payment': return 0;
         case 'paid':
         case 'processing': return 1;
@@ -36,7 +39,7 @@ const getStepIndex = (status: string) => {
 };
 
 const steps = [
-    { label: 'Awaiting Payment', desc: 'PayID or cash on pickup' },
+    { label: 'Seller accepts', desc: 'Then pay by PayID or cash on pickup' },
     { label: 'Paid', desc: 'Seller confirmed payment' },
     { label: 'Shipped', desc: 'Item is in transit' },
     { label: 'Delivered', desc: 'Received & finalized' }
@@ -142,8 +145,8 @@ function ConfirmationContent() {
                 <div className="container mx-auto px-4 w-full max-w-2xl space-y-6">
                     <div className="text-center">
                         <CheckCircle2 className="w-12 h-12 text-emerald-700 mx-auto mb-4" />
-                        <h1 className="text-3xl font-black text-foreground">Order placed</h1>
-                        <p className="text-muted-foreground mt-1">Here&apos;s how to pay. Full details are in your purchases.</p>
+                        <h1 className="text-3xl font-black text-foreground">Request sent</h1>
+                        <p className="text-muted-foreground mt-1">The seller will accept or decline. Once they accept, payment details appear in your purchases.</p>
                     </div>
                     {orderIdsFromUrl.map(id => <OrderPaymentInstructions key={id} orderId={id} />)}
                     <Button asChild className="w-full h-12 font-bold rounded-xl"><Link href="/profile/orders">View Purchases</Link></Button>
@@ -172,15 +175,18 @@ function ConfirmationContent() {
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="w-12 h-12 text-emerald-700" />
                     </div>
-                    <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">Order Confirmed!</h1>
-                    <p className="text-lg text-muted-foreground">Thank you for your purchase. We&apos;ve notified the seller.</p>
-                    {orders.length > 0 && <p className="mt-2 text-sm text-foreground/80">Next step: follow the payment instructions below.</p>}
+                    <h1 className="text-4xl font-black text-foreground tracking-tight mb-2" data-testid="request-sent-heading">Request sent!</h1>
+                    <p className="text-lg text-muted-foreground">We&apos;ve notified the seller. Nothing is reserved or paid until they accept.</p>
+                    {orders.length > 0 && <p className="mt-2 text-sm text-foreground/80">Next step: wait for the seller to accept (usually within 24 hours). Then pay or arrange pickup from your purchases.</p>}
                     {orders[0]?.groupOrderId && (
                         <p className="text-xs font-mono text-muted-foreground mt-2 uppercase tracking-widest">Global Ref: {orders[0].groupOrderId}</p>
                     )}
                 </div>
 
                 <div className="max-w-2xl mx-auto space-y-6">
+                    {orders.filter(o => o.stockMode === 'request' && o.id).map(o => (
+                        <RequestStatusPanel key={`req-${o.id}`} order={o} onChanged={() => router.push('/profile/orders')} />
+                    ))}
                     {orders.filter(o => o.status === 'awaiting_payment' && o.id).map(o => (
                         <OrderPaymentInstructions key={`pay-${o.id}`} orderId={o.id} />
                     ))}

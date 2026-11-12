@@ -11,11 +11,13 @@ import { getSystemSettingsAdmin } from '@/services/settings-service';
 import { calculateShipping, calculateTax } from '@/lib/pricing';
 import { buildOrderPricing, parseDealId } from '@/lib/order-pricing';
 import { DEFAULT_TIER_SETTINGS, normalizeTierSettings } from '@/lib/tier-bundles';
-import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymentMethod, paymentDueAt } from '@/lib/payments/local';
+import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymentMethod } from '@/lib/payments/local';
 import type { Deal } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { sendTelegramNotification } from '@/lib/telegram';
-import { addHold, availableQuantity, holdExpiry, activeHolds } from '@/lib/checkout/holds';
+import { availableQuantity, activeHolds } from '@/lib/checkout/holds';
+import { REQUEST_TTL_MS, assertRequestLimit } from '@/lib/checkout/requests';
+import { assertRequestable, countOpenByIdentity, notifyNewRequest } from '@/lib/checkout/requests-server';
 
 interface CartItem {
     id: string;
@@ -126,19 +128,18 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             }
 
             // ---------- VALIDATION + PRICING (pure, see src/lib/order-pricing.ts) ----------
+            // Checkout sends a request per seller: nothing is held or sold until the seller accepts.
             for (let i = 0; i < items.length; i++) {
                 const product = products[i];
                 const item = items[i];
                 if (!Number.isInteger(item.quantity) || item.quantity < 1) {
                     throw new Error('Invalid item quantity.');
                 }
-                if (product.status !== 'available') {
-                    throw new Error(`${product.title} is no longer available.`);
-                }
-                // Units held by other buyers' 30-minute PayID holds don't count (expired holds do).
+                assertRequestable(product, 'buy', buyerId);
+                // Units reserved for other buyers (or older 30-minute holds) don't count.
                 if (availableQuantity(product as any, now.getTime()) < item.quantity) {
                     throw new Error(activeHolds(product as any, now.getTime()).length
-                        ? `Sorry, ${product.title} is on hold for another buyer right now. Check back in a few minutes.`
+                        ? `Sorry, ${product.title} is reserved for another buyer right now.`
                         : `Not enough stock for ${product.title}.`);
                 }
                 const currentHoldExpiresAt = product.holdExpiresAt?.toDate?.();
@@ -147,6 +148,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     throw new Error(`Sorry, ${product.title} is currently reserved by another buyer.`);
                 }
             }
+            // Max 3 items requested or reserved at once (pending, countered, accepted-but-unpaid).
+            assertRequestLimit(
+                await countOpenByIdentity({ buyerId }, now.getTime(), t),
+                items.reduce((n, it) => n + it.quantity, 0),
+            );
 
             const paymentMethod = normalizePaymentMethod(options?.paymentMethod ?? 'payid');
             if (!paymentMethod) {
@@ -163,14 +169,8 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     payIdReady: !!payoutDocs[id]?.payId,
                 })),
             });
-            const dueAt = paymentDueAt(paymentMethod, now);
-            // PayID orders use the 30-minute hold model (stock is taken when the seller marks it
-            // paid); cash pickups keep reserving stock for 72h.
-            const useHold = paymentMethod === 'payid';
-            const holdExpiresAtMs = holdExpiry(now.getTime());
             const orderRefBySeller: Record<string, any> = {};
             const orderRefFor = (sellerId: string) => (orderRefBySeller[sellerId] ||= firestoreDb.collection('orders').doc());
-            const holdQtyByProduct: Record<string, { index: number; qty: number }> = {};
 
             const { lineTotals, dealUsage, bundleUsage } = buildOrderPricing({
                 items, products, deals, bundles, dealAllowance, bundleAllowance, tierSettings, now,
@@ -199,31 +199,6 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 });
                 sellerGroups[sellerId].subtotal = Math.round((sellerGroups[sellerId].subtotal + itemTotal) * 100) / 100;
 
-                // Reserve (not sell) while awaiting payment; the release-unpaid-orders cron
-                // puts it back if the buyer doesn't pay in time.
-                if (useHold) {
-                    const h = (holdQtyByProduct[String(item.id)] ||= { index: i, qty: 0 });
-                    h.qty += item.quantity;
-                    continue;
-                }
-                const soldOut = (product.quantity || 0) - item.quantity === 0;
-                t.update(productRefs[i], {
-                    quantity: FieldValue.increment(-item.quantity),
-                    ...(soldOut ? {
-                        status: 'reserved',
-                        reservedBy: buyerId,
-                        reservedUntil: Timestamp.fromDate(dueAt),
-                        updatedAt: FieldValue.serverTimestamp(),
-                    } : {}),
-                });
-            }
-
-            for (const { index, qty } of Object.values(holdQtyByProduct)) {
-                const product = products[index];
-                t.update(productRefs[index], {
-                    checkoutHolds: addHold(product as any, { orderId: orderRefFor(product.sellerId).id, qty, expiresAtMs: holdExpiresAtMs }, now.getTime()),
-                    updatedAt: FieldValue.serverTimestamp(),
-                });
             }
 
             for (const [dealId, count] of Object.entries(dealUsage)) {
@@ -297,12 +272,17 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                     sellerId,
                     sellerName: group.sellerName,
                     isBusinessSeller: isBusiness,
-                    status: 'awaiting_payment',
+                    // A request: the seller accepts (reserving the items), declines, or lets it expire.
+                    status: 'requested',
+                    requestStatus: 'pending',
+                    stockMode: 'request',
+                    requestType: 'buy',
+                    productIds: Array.from(new Set(group.items.map((it: any) => String(it.id)))),
+                    requestExpiresAt: Timestamp.fromMillis(now.getTime() + REQUEST_TTL_MS),
                     paymentStatus: 'pending',
                     paymentMethod,
                     paymentReference,
-                    paymentDueAt: Timestamp.fromDate(dueAt),
-                    ...(useHold ? { stockMode: 'hold', holdExpiresAt: Timestamp.fromMillis(holdExpiresAtMs) } : {}),
+                    paymentDueAt: null,
                     pickupLocation: paymentMethod === 'cash' ? 'Perth (arranged with seller)' : null,
                     shippingMethod,
                     shippingAddress: options?.shippingAddress || null,
@@ -340,12 +320,11 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
 
         const result = { orders: serializedOrders };
 
-        // Buyer + seller in-app notifications and a push to the seller (no email).
+        // Seller: in-app alert + push for each request (no email).
         try {
-            const { notifyOrderPlaced } = await import('@/lib/payments/server');
-            await Promise.all(results.map((o: any) => notifyOrderPlaced(o)));
+            await Promise.all(results.map((o: any) => notifyNewRequest(o)));
         } catch (e) {
-            console.error('notifyOrderPlaced failed', e);
+            console.error('notifyNewRequest failed', e);
         }
 
         // Save result for idempotency
@@ -362,7 +341,7 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
             const sellerNames = results.map((order: any) => order.sellerName).join(', ');
 
             await sendTelegramNotification(
-                `<b>💰 New Order Received!</b>\n\n` +
+                `<b>💰 New buy request</b>\n\n` +
                 `<b>Order ID:</b> ${results[0].groupOrderId}\n` +
                 `<b>Buyer:</b> ${buyerName || buyerEmail}\n` +
                 `<b>Sellers:</b> ${sellerNames}\n` +

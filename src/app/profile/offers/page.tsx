@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import OfferManager from '@/components/offers/OfferManager';
 
 export default function SellerOffersPage() {
@@ -22,5 +23,18 @@ export default function SellerOffersPage() {
 
     if (!user) return null;
 
-    return <OfferManager />;
+    return (
+        <div className="space-y-6">
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm" data-testid="offers-moved-note">
+                <p className="font-bold">New offers and buy requests now arrive in your orders.</p>
+                <p className="text-foreground/80">
+                    Accept, decline or counter them in{' '}
+                    <Link href="/seller/dashboard?tab=orders" className="font-bold underline">Seller dashboard → Orders → Requests</Link>.
+                    Offers you&apos;ve made are in <Link href="/profile/orders" className="font-bold underline">your purchases</Link>.
+                    Older offers made before this change are still listed below.
+                </p>
+            </div>
+            <OfferManager />
+        </div>
+    );
 }

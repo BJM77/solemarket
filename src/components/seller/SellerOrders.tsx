@@ -34,6 +34,8 @@ import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useRouter } from 'next/navigation';
 import { HoldCountdown } from '@/components/checkout/HoldCountdown';
 import { isActiveHoldOrder } from '@/lib/checkout/holds';
+import { SELLER_REQUEST_LABEL, effectiveRequestStatus } from '@/lib/checkout/requests';
+import { SellerRequestActions } from './SellerRequestActions';
 
 export function SellerOrders({ limit }: { limit?: number }) {
     const { user } = useUser();
@@ -200,9 +202,14 @@ export function SellerOrders({ limit }: { limit?: number }) {
         }
     };
 
-    const filteredOrders = orders.filter(order =>
-        statusFilter === 'all' ? true : order.status === statusFilter
-    );
+    const isReq = (o: any) => o?.stockMode === 'request';
+    const filteredOrders = orders.filter(order => {
+        if (statusFilter === 'all') return true;
+        // "requests" = waiting on you (pending) or on the buyer (countered), with lazy expiry.
+        if (statusFilter === 'requests') return isReq(order) && ['pending', 'countered'].includes(effectiveRequestStatus(order));
+        return order.status === statusFilter;
+    });
+    const openRequestCount = orders.filter(o => isReq(o) && effectiveRequestStatus(o) === 'pending').length;
 
     if (loading) {
         return (
@@ -218,15 +225,17 @@ export function SellerOrders({ limit }: { limit?: number }) {
             {/* Filter Hub */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                    {['all', 'awaiting_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                    {['all', 'requests', 'awaiting_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
                         <Button
                             key={status}
                             variant={statusFilter === status ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setStatusFilter(status)}
                             className="capitalize rounded-full font-bold px-5"
+                            data-testid={`seller-orders-filter-${status}`}
                         >
-                            {status}
+                            {status === 'awaiting_payment' ? 'accepted / unpaid' : status}
+                            {status === 'requests' && openRequestCount > 0 ? ` (${openRequestCount})` : ''}
                         </Button>
                     ))}
                 </div>
@@ -282,7 +291,7 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                                     "bg-slate-100 text-slate-700"
                                                 )}
                                             >
-                                                {order.type === 'guest_enquiry' ? 'Guest Enquiry' : order.status}
+                                                {order.type === 'guest_enquiry' ? 'Guest Enquiry' : isReq(order) ? `${order.requestType === 'offer' ? 'Offer · ' : ''}${SELLER_REQUEST_LABEL[effectiveRequestStatus(order)]}` : order.status}
                                             </Badge>
                                             {order.type === 'guest_enquiry' && (
                                                 <p className="text-[10px] font-bold text-orange-700 animate-pulse uppercase tracking-wider">New Transmission</p>
@@ -373,7 +382,8 @@ export function SellerOrders({ limit }: { limit?: number }) {
                                         </Button>
                                     ) : (
                                         <>
-                                            {order.status === 'awaiting_payment' && (
+                                            {isReq(order) && <SellerRequestActions order={order} />}
+                                            {order.status === 'awaiting_payment' && !isReq(order) && (
                                                 <div className="space-y-2" data-testid="seller-payment-actions">
                                                     <p className="text-xs text-slate-500">
                                                         {order.paymentMethod === 'cash' ? 'Cash on pickup (Perth).' : 'PayID transfer to you.'} Ref <span className="font-mono font-bold">{order.paymentReference || order.payIdReference}</span>

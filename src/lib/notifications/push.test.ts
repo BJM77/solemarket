@@ -4,7 +4,7 @@ vi.mock('server-only', () => ({}));
 const { adminMessaging } = vi.hoisted(() => ({ adminMessaging: { sendEachForMulticast: vi.fn() } }));
 vi.mock('@/lib/firebase/admin', () => ({ firestoreDb: {}, messagingAdmin: adminMessaging }));
 
-import { buildOrderPush, buildWebPushMessage, isDeadTokenError, isPlausibleFcmToken, SELLER_ORDERS_PATH } from './push-payload';
+import { buildBuyerRequestPush, buildOrderPush, buildWebPushMessage, isDeadTokenError, isPlausibleFcmToken, SELLER_ORDERS_PATH } from './push-payload';
 import { sendPushToUser, pushOrderToSeller, fcmTokenDocId } from './push-server';
 import { detectPushSupport, deviceLabel, iosVersion } from './push-env';
 
@@ -32,6 +32,22 @@ describe('push payloads', () => {
         const exp = buildOrderPush('hold_expired', order);
         expect(exp.title).toMatch(/hold expired/i);
         expect(exp.body).toContain('back on sale');
+    });
+    it('requests: new buy request, new offer, counter accepted, request cancelled', () => {
+        const r = { ...order, stockMode: 'request', requestType: 'buy', buyerName: 'Sam' };
+        expect(buildOrderPush('new_request', r)).toMatchObject({ title: 'New buy request: tap to accept or decline', url: SELLER_ORDERS_PATH, tag: 'order-ord1' });
+        expect(buildOrderPush('new_request', r).body).toContain("still listed until you accept");
+        const o = buildOrderPush('new_request', { ...r, requestType: 'offer', offerAmount: 30 });
+        expect(o.title).toMatch(/New offer/);
+        expect(o.body).toContain('offer of $30.00');
+        expect(buildOrderPush('counter_accepted', { ...r, counterAmount: 40 }).body).toContain('$40.00');
+        expect(buildOrderPush('cancelled_by_buyer', r).title).toBe('Request cancelled by the buyer');
+    });
+    it('buyer request pushes open their purchases', () => {
+        expect(buildBuyerRequestPush('request_accepted', order)).toMatchObject({ title: 'Request accepted', url: '/profile/orders' });
+        expect(buildBuyerRequestPush('request_countered', { ...order, counterAmount: 40 }).body).toContain('$40.00');
+        expect(buildBuyerRequestPush('request_declined', order).title).toBe('Request declined');
+        expect(buildBuyerRequestPush('request_relisted', order).title).toBe('Item relisted');
     });
     it('long titles are clipped and bodies stay short', () => {
         const p = buildOrderPush('new_order', { ...order, items: [{ title: 'X'.repeat(500) }] });

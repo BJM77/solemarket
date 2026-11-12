@@ -43,20 +43,30 @@ export async function resetDrafts() {
   }
 }
 
-/** Fresh, unheld guest listing and no leftover guest orders/form tickets (emulator only). */
-export async function resetGuestListing(email: string) {
+/** Fresh, unreserved guest listing and no leftover guest orders/form tickets (emulator only). */
+export async function resetGuestListing(email: string, id = 'e2e-guest-1', extra: Record<string, unknown> = {}) {
   const { db, admin } = await emulatorDb();
   const now = admin.firestore.FieldValue.serverTimestamp();
-  await db.doc('products/e2e-guest-1').set({
+  await db.doc(`products/${id}`).set({
     sellerId: 'e2e-seller', sellerName: 'E2E Seller', category: 'Collector Cards', subCategory: 'Pokemon',
     condition: 'Near Mint', quantity: 1, imageUrls: ['/placeholder.png'], description: 'Seeded for e2e.',
     acceptsPayId: true, acceptsCash: true, createdAt: now, updatedAt: now,
     title: 'E2E Guest Checkout Card', price: 15, status: 'available', isDraft: false, isPrivate: false, checkoutHolds: [],
+    ...extra,
   });
   const orders = await db.collection('orders').where('buyerEmail', '==', email).get();
   for (const d of orders.docs) await d.ref.delete();
-  const tickets = await db.collection('guest_checkout_tickets').where('productId', '==', 'e2e-guest-1').get();
+  const byProduct = await db.collection('orders').where('productIds', 'array-contains', id).get();
+  for (const d of byProduct.docs) await d.ref.delete();
+  const tickets = await db.collection('guest_checkout_tickets').where('productId', '==', id).get();
   for (const d of tickets.docs) await d.ref.delete();
+}
+
+/** The guest's orders/requests, newest first (emulator only). */
+export async function ordersFor(email: string): Promise<any[]> {
+  const { db } = await emulatorDb();
+  const snap = await db.collection('orders').where('buyerEmail', '==', email).get();
+  return snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
 }
 
 export async function productDoc(id: string): Promise<any> {

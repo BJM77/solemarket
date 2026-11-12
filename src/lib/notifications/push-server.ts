@@ -6,7 +6,7 @@ import 'server-only';
  */
 import { createHash } from 'crypto';
 import { firestoreDb, messagingAdmin } from '@/lib/firebase/admin';
-import { buildOrderPush, buildWebPushMessage, isDeadTokenError, type OrderPushInput, type OrderPushKind, type PushPayload } from './push-payload';
+import { buildBuyerRequestPush, buildOrderPush, buildWebPushMessage, isDeadTokenError, type BuyerRequestPushKind, type OrderPushInput, type OrderPushKind, type PushPayload } from './push-payload';
 
 export const MAX_TOKENS_PER_USER = 10;
 
@@ -50,6 +50,17 @@ export async function pushOrderToSeller(kind: OrderPushKind, order: OrderPushInp
         return await sendPushToUser(String(order.sellerId), buildOrderPush(kind, order), deps);
     } catch (e) {
         console.error('seller push failed', kind, e);
+        return null;
+    }
+}
+
+/** Best effort push to a signed-in buyer (only reaches them if they turned notifications on). */
+export async function pushRequestToBuyer(kind: BuyerRequestPushKind, order: OrderPushInput & { buyerId?: string | null }, deps: PushDeps = {}) {
+    try {
+        if (!order?.buyerId) return null;
+        return await sendPushToUser(String(order.buyerId), buildBuyerRequestPush(kind, order), deps);
+    } catch (e) {
+        console.error('buyer push failed', kind, e);
         return null;
     }
 }

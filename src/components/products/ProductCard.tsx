@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
-import { isOnCheckoutHold } from '@/lib/checkout/holds';
+import { isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -321,6 +321,8 @@ export default function ProductCard({
   const buyerId = user?.uid;
   // Time-dependent, so only after mount (avoids a hydration mismatch).
   const onCheckoutHold = mounted && isOnCheckoutHold(product as any);
+  // Seller-accepted request: "Reserved" (no timer). Older 30-minute holds: "On hold".
+  const holdLabel = onCheckoutHold && isReservedForBuyer(product as any) ? 'Reserved' : 'On hold';
   const canBuyNow =
     !onCheckoutHold &&
     !selectable &&
@@ -579,7 +581,7 @@ export default function ProductCard({
           )}
           {onCheckoutHold && (
             <Badge className="h-5 px-1.5 text-[10px] uppercase font-bold flex-shrink-0 pointer-events-auto bg-amber-500 text-white">
-              On hold
+              {holdLabel}
             </Badge>
           )}
           <span
@@ -723,7 +725,7 @@ export default function ProductCard({
             )}
             {onCheckoutHold && (
               <Badge className="bg-amber-500 text-white" data-testid="card-on-hold">
-                On hold
+                {holdLabel}
               </Badge>
             )}
           </div>

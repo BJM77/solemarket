@@ -81,7 +81,8 @@ export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d
     const [copiedAll, setCopiedAll] = useState(false);
     const [expired, setExpired] = useState(false);
     if (d.status !== 'awaiting_payment') return null;
-    const isHold = d.stockMode === 'hold' || !!d.holdExpiresAt;
+    const isHold = d.stockMode === 'hold' || (!!d.holdExpiresAt && d.stockMode !== 'request');
+    const isRequest = d.stockMode === 'request';
     const holdOver = isHold && (expired || d.holdActive === false);
 
     const due = d.paymentDueAt ? new Date(d.paymentDueAt).toLocaleString('en-AU', { timeZone: 'Australia/Perth', dateStyle: 'medium', timeStyle: 'short' }) : null;
@@ -117,7 +118,9 @@ export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d
                                 <h3 className="text-lg font-black text-foreground">Pay {d.sellerName || 'the seller'} by PayID</h3>
                                 <p className="text-sm text-foreground/80">
                                     Transfer the exact amount from your banking app using the PayID and reference below.
-                                    {isHold
+                                    {isRequest
+                                        ? ' The seller accepted your request and reserved it for you. Please pay soon: if payment takes too long, they can relist it.'
+                                        : isHold
                                         ? ' The item is held for you for 30 minutes. Pay before the timer runs out or it goes back on sale.'
                                         : due ? ` Pay by ${due} (Perth time) or the items are released.` : ''}
                                 </p>
@@ -162,7 +165,7 @@ export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d
                         <li>Open your banking app and choose Pay to PayID.</li>
                         <li>Check the name your bank shows matches the account name above before you confirm.</li>
                         <li>Put the reference in the description so the seller can match your payment.</li>
-                        <li>The seller marks the order as paid when the money arrives; you&apos;ll get {guest ? 'an email' : 'a notification'}.</li>
+                        <li>The seller marks the order as paid when the money arrives; {guest ? 'this page will then show Paid' : "you'll get a notification"}.</li>
                     </ol>
                 </>
             ) : (
@@ -172,7 +175,7 @@ export function OrderPaymentInstructionsView({ d, guest = false, onExpire }: { d
                         <h3 className="text-lg font-black text-foreground">Cash on pickup in Perth</h3>
                         <p>
                             Message {d.sellerName || 'the seller'} to arrange a pickup time and a safe, public place
-                            {due ? ` before ${due} (Perth time)` : ' within 72 hours'}. Bring <b>${formatPrice(d.totalAmount)}</b> in cash,
+                            {isRequest ? ' soon (the seller can relist it if pickup takes too long)' : due ? ` before ${due} (Perth time)` : ' within 72 hours'}. Bring <b>${formatPrice(d.totalAmount)}</b> in cash,
                             inspect the item, then pay. Quote reference <b className="font-mono">{d.paymentReference}</b>.
                         </p>
                         {!guest && <Button asChild variant="outline" className="min-h-11"><Link href="/messages">Message the seller</Link></Button>}
