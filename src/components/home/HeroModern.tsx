@@ -16,8 +16,8 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
     }, []);
 
     return (
-        <section className="relative flex items-start pt-5 md:pt-16 lg:pt-24 pb-4 md:pb-8 overflow-hidden">
-            <div className="container mx-auto px-4 md:px-6 relative z-10 md:pt-4">
+        <section className="relative flex items-start pt-2.5 md:pt-8 lg:pt-12 pb-4 md:pb-8 overflow-hidden">
+            <div className="container mx-auto px-4 md:px-6 relative z-10 md:pt-2">
                 <div className="max-w-4xl mx-auto text-center">
 
                     {/* H1 for SEO & Accessibility */}
@@ -57,7 +57,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             href="/sell"
                             className="hidden sm:flex col-span-3 w-full sm:w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-xl font-semibold text-sm md:text-base items-center justify-center gap-2 bg-primary text-primary-foreground shadow-md shadow-orange-600/20 transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
-                            Sell Now <span className="font-normal">· 0% fees</span>
+                            Sell Now
                         </Link>
                     </div>
 

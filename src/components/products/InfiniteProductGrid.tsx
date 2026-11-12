@@ -396,13 +396,6 @@ function InfiniteProductGridInner({
     return 'Listings';
   }, [currentSearchParams.category, initialFilterState.category]);
 
-  const skeletonAspectRatio = useMemo(() => {
-    const category = currentSearchParams.category || initialFilterState.category;
-    if (category === 'Sneakers') return 'aspect-square';
-    if (category === 'Collector Cards' || category === 'Trading Cards') return 'aspect-[5/7]';
-    return 'aspect-square';
-  }, [currentSearchParams.category, initialFilterState.category]);
-
   const renderProducts = () => {
     if (isError) {
       const isIndexError = error instanceof Error && error.message.includes('index');
@@ -424,7 +417,7 @@ function InfiniteProductGridInner({
       return (
         <div className="w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8">
           {[...Array(12)].map((_, i) => (
-            <ProductCardSkeleton key={i} aspectRatio={skeletonAspectRatio} />
+            <ProductCardSkeleton key={i} />
           ))}
         </div>
       );
