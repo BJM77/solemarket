@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Outfit, Inter, Space_Grotesk, Montserrat } from 'next/font/google';
 import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { siteConfigCss } from '@/lib/types/site-config';
+import { TEAM_THEME_BOOT_SCRIPT } from '@/lib/team-themes/theme';
 import { AnnouncementBanner } from '@/components/layout/AnnouncementBanner';
 import "./globals.css";
 import { StructuredData } from '@/components/seo/StructuredData';
@@ -140,6 +141,8 @@ export default async function RootLayout({
       <head>
         {/* Published brand colours/fonts in the SSR HTML: no flash of default styles. */}
         <style id="site-config-vars" dangerouslySetInnerHTML={{ __html: siteConfigCss(siteConfig) }} />
+        {/* "Your team" colours from localStorage, applied before first paint (no orange flash). */}
+        <script id="team-theme-boot" dangerouslySetInnerHTML={{ __html: TEAM_THEME_BOOT_SCRIPT }} />
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://firestore.googleapis.com" />
       </head>

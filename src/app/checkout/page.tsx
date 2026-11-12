@@ -583,7 +583,7 @@ export default function CheckoutPage() {
                   <label className="mt-4 flex items-start gap-3 rounded-xl border border-amber-400 bg-amber-50 p-4 text-sm text-slate-800 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="mt-1 h-5 w-5 accent-[#f26c0d]"
+                      className="mt-1 h-5 w-5 accent-[hsl(var(--primary))]"
                       required
                       checked={perthPickupConfirmed}
                       onChange={e => setPerthPickupConfirmed(e.target.checked)}
@@ -717,7 +717,7 @@ export default function CheckoutPage() {
               <div className="p-6 space-y-4">
                 <Button 
                   type="submit" 
-                  className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg bg-[#f26c0d] text-slate-950 hover:bg-[#e05f05] disabled:opacity-100 disabled:bg-slate-100 disabled:text-slate-500 disabled:shadow-none"
+                  className="w-full h-12 font-bold text-base uppercase rounded-xl tracking-wide shadow-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-100 disabled:bg-slate-100 disabled:text-slate-500 disabled:shadow-none"
                   disabled={isSubmitting || (!!user && paymentMethod === 'cash' && !perthPickupConfirmed) || guestTooMany}
                   data-testid="checkout-submit"
                 >

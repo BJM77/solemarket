@@ -30,6 +30,20 @@
     --border: 214 32% 91%;              /* #e2e8f0 */
     --input: 214 32% 85%;
     --ring: 25 89% 50%;
+    /* Text-safe primary for text-primary on white (team themes override it). #c2410c */
+    --primary-text: 17 88% 40%;
+    /* Brand orange palette as RGB triplets so "Your team" themes can recolour orange-* utilities. */
+    --orange-50: 255 245 237;
+    --orange-100: 255 234 204;
+    --orange-200: 255 212 153;
+    --orange-300: 255 191 102;
+    --orange-400: 255 170 51;
+    --orange-500: 242 108 13;
+    --orange-600: 204 91 11;
+    --orange-700: 166 74 9;
+    --orange-800: 128 57 7;
+    --orange-900: 89 40 5;
+    --orange-950: 51 23 3;
     --radius: 1rem;
     --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
     --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08);
@@ -336,5 +350,13 @@
 
 /* Logo orange (#f26c0d) is only 3:1 on white; use deeper orange for text. */
 @layer utilities {
-  .text-primary { color: #c2410c; }
+  .text-primary { color: hsl(var(--primary-text)); }
+  html[data-team] .hover\:text-primary:hover, html[data-team] .group:hover .group-hover\:text-primary { color: hsl(var(--primary-text)); }
+}
+
+/* "Your team" themes: gradient headline text built from the brand colour becomes the
+   text-safe team colour, so light team colours (e.g. Lakers gold) stay readable on white. */
+html[data-team] .bg-clip-text:is(.from-primary, [class*="from-orange-"]),
+html[data-team] .gradient-text {
+  --tw-gradient-stops: hsl(var(--primary-text)), hsl(var(--primary-text));
 }
