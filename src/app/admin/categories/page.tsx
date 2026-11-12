@@ -96,6 +96,7 @@ export default function CategoriesPage() {
         section: editingCategory.section,
         href: editingCategory.href || '',
         showOnHomepage: editingCategory.showOnHomepage || false,
+        showInNav: editingCategory.showInNav !== false,
         isPopular: editingCategory.isPopular || false,
         order: editingCategory.order || 0
       });
@@ -105,6 +106,7 @@ export default function CategoriesPage() {
         section: '',
         href: '',
         showOnHomepage: false,
+        showInNav: true,
         isPopular: false,
         order: 0
       });
@@ -148,7 +150,10 @@ export default function CategoriesPage() {
 
   return (
     <div>
-      <PageHeader title="Category Management" description="Add, edit, or remove marketplace categories." />
+      <PageHeader
+        title="Category Management"
+        description="Add, edit, or remove marketplace categories. These only drive the mobile Explore Categories block. Desktop navigation and homepage tiles are managed in Brand Refresh."
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-1">

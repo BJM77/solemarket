@@ -49,8 +49,6 @@ export const MARKETPLACE_CATEGORIES: Category[] = [
             { id: 'sub_signed_cards', name: 'Signed', slug: 'signed', parentId: 'cat_cards' },
             { id: 'sub_flag_cards', name: 'Flag', slug: 'flag', parentId: 'cat_cards' },
             { id: 'sub_top100_cards', name: 'Top 100', slug: 'top-100', parentId: 'cat_cards' },
-            { id: 'sub_pokemon_cards', name: 'Pokémon', slug: 'pokemon', parentId: 'cat_cards' },
-            { id: 'sub_yugioh_cards', name: 'Yu-Gi-Oh!', slug: 'yugioh', parentId: 'cat_cards' },
             { id: 'sub_sports_cards', name: 'Sports Cards', slug: 'sports-cards', parentId: 'cat_cards' },
             { id: 'sub_trading_cards', name: 'Trading Cards', slug: 'trading-cards', parentId: 'cat_cards' },
         ]
