@@ -5,13 +5,15 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type React from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon, ShieldCheck, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Image as ImageIcon, ShieldCheck, Play, Pause, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from "@/lib/utils/ui";
 import { GALLERY_SIZES } from '@/lib/listing-nav';
 import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
+import ListingImageZoomOverlay from './ListingImageZoomOverlay';
+import { ZOOM_HOVER_DELAY_MS, isInTopHoverZone } from '@/lib/listing-zoom/geometry';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -61,31 +63,36 @@ export default function ProductImageGallery({
     watchDrag: (_api, evt) => !(evt.type.startsWith('touch') || (evt as PointerEvent).pointerType === 'touch'),
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showMagnifier, setShowMagnifier] = useState(false);
-  const [magnifierPos, setMagnifierPos] = useState({ x: 0, y: 0 });
-  const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
-  const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+  const [isZoomOverlayOpen, setIsZoomOverlayOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullZoom, setIsFullZoom] = useState(false);
+  const [canHoverZoom, setCanHoverZoom] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const isTouch = useRef(false);
-  const magnifierTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverZoomTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clearMagnifierTimer = () => {
-    if (magnifierTimer.current) {
-      clearTimeout(magnifierTimer.current);
-      magnifierTimer.current = null;
+  const clearHoverZoomTimer = useCallback(() => {
+    if (hoverZoomTimer.current) {
+      clearTimeout(hoverZoomTimer.current);
+      hoverZoomTimer.current = null;
     }
-  };
+  }, []);
 
-  // Reset full zoom when slide changes or fullscreen closes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setCanHoverZoom(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
+
+  // Reset zoom when the slide or lightbox changes
   useEffect(() => {
     setIsFullZoom(false);
-    clearMagnifierTimer();
-    setShowMagnifier(false);
-  }, [selectedIndex, isFullscreen]);
+    clearHoverZoomTimer();
+    setIsZoomOverlayOpen(false);
+  }, [selectedIndex, isFullscreen, clearHoverZoomTimer]);
 
-  useEffect(() => () => clearMagnifierTimer(), []);
+  useEffect(() => () => clearHoverZoomTimer(), [clearHoverZoomTimer]);
 
   // Combine media: Video (if exists) comes first
   const media = useMemo<Array<{ type: 'video' | 'image', url: string, thumbnail?: string }>>(() => {
@@ -132,9 +139,11 @@ export default function ProductImageGallery({
   const aspectRatio = getAspectRatio(category);
   // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height.
   // With side thumbnails the desktop photo may use the whole viewport below the site header.
+  // Phones/tablets keep a height cap so the photo does not dominate the page.
+  // On the desktop 50/50 listing layout, drop the max-width so the image fills its column.
   const heightCap = aspectRatio === 'aspect-[5/7]'
-    ? cn('md:max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-[calc((100vh-9rem)*5/7)]' : 'lg:max-w-[calc(68vh*5/7)]')
-    : cn('md:max-w-[50svh]', thumbnailsSide ? 'lg:max-w-[calc(100vh-9rem)]' : 'lg:max-w-[68vh]');
+    ? cn('md:max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-none' : 'lg:max-w-[calc(68vh*5/7)]')
+    : cn('md:max-w-[50svh]', thumbnailsSide ? 'lg:max-w-none' : 'lg:max-w-[68vh]');
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -151,34 +160,44 @@ export default function ProductImageGallery({
     setSelectedIndex(index);
   };
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const openZoomOverlay = useCallback(() => {
     if (media[selectedIndex]?.type === 'video') return;
-    isTouch.current = e.pointerType === 'touch';
-    // Hover-to-zoom is desktop / fine-pointer only.
-    if (e.pointerType !== 'mouse') return;
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - left;
-    const y = e.clientY - top;
-    const px = (x / width) * 100;
-    const py = (y / height) * 100;
+    clearHoverZoomTimer();
+    setIsZoomOverlayOpen(true);
+  }, [media, selectedIndex, clearHoverZoomTimer]);
 
-    setMagnifierPos({ x, y });
-    setZoomCoords({ x: px, y: py });
-    setImgSize({ width, height });
+  const closeZoomOverlay = useCallback(() => {
+    setIsZoomOverlayOpen(false);
+  }, []);
+
+  const handleImagePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!canHoverZoom || e.pointerType !== 'mouse' || isZoomOverlayOpen) return;
+    if (media[selectedIndex]?.type === 'video') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (isInTopHoverZone(e.clientX, e.clientY, rect)) {
+      if (!hoverZoomTimer.current) {
+        hoverZoomTimer.current = setTimeout(() => openZoomOverlay(), ZOOM_HOVER_DELAY_MS);
+      }
+    } else {
+      clearHoverZoomTimer();
+    }
   };
 
-  const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (media[selectedIndex]?.type === 'video') return;
-    isTouch.current = e.pointerType === 'touch';
-    if (e.pointerType !== 'mouse') return;
-    handlePointerMove(e);
-    clearMagnifierTimer();
-    magnifierTimer.current = setTimeout(() => setShowMagnifier(true), 300);
+  const handleImagePointerLeave = () => {
+    clearHoverZoomTimer();
   };
 
-  const handlePointerLeave = () => {
-    clearMagnifierTimer();
-    setShowMagnifier(false);
+  const handleImageClick = () => {
+    if (!canHoverZoom) return;
+    openZoomOverlay();
+  };
+
+  const handleImageKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!canHoverZoom) return;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      openZoomOverlay();
+    }
   };
 
   if (!media || media.length === 0) {
@@ -225,8 +244,7 @@ export default function ProductImageGallery({
           </div>
         )}
 
-        {/* Main Gallery */}
-        {/* Width (70% of the column) is set by the card wrapping this gallery; the magnifier still zooms into the full-res original. */}
+        {/* Main Gallery — desktop listing fills the 50% column; mobile height caps stay in place. */}
         <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
@@ -266,11 +284,14 @@ export default function ProductImageGallery({
                   ) : (
                     <div className="relative w-full h-full px-6 py-4 sm:p-0">
                     <div
-                      className="relative w-full h-full md:cursor-crosshair md:touch-none"
-                      onPointerMove={handlePointerMove}
-                      onPointerEnter={handlePointerEnter}
-                      onPointerLeave={handlePointerLeave}
-                      onClick={() => { if (!isTouch.current) setIsFullscreen(true); }}
+                      role={canHoverZoom ? 'button' : undefined}
+                      tabIndex={canHoverZoom ? 0 : undefined}
+                      aria-label={canHoverZoom ? `View enlarged photo of ${title}` : undefined}
+                      className={cn("relative w-full h-full", canHoverZoom && "md:cursor-zoom-in")}
+                      onPointerMove={handleImagePointerMove}
+                      onPointerLeave={handleImagePointerLeave}
+                      onClick={handleImageClick}
+                      onKeyDown={handleImageKeyDown}
                     >
                       <Image
                         src={item.url!}
@@ -283,21 +304,13 @@ export default function ProductImageGallery({
                         blurDataURL={BLUR_DATA_URL}
                         sizes={GALLERY_SIZES}
                       />
-                      {showMagnifier && index === selectedIndex && (
-                        <div
-                          className="hidden md:block absolute pointer-events-none rounded-full border-2 border-white/80 bg-no-repeat shadow-[0_0_25px_rgba(0,0,0,0.6)] z-30 ring-4 ring-black/20"
-                          style={{
-                            width: '200px',
-                            height: '200px',
-                            // Offset vertical position on touch devices to avoid finger obstruction
-                            // Clamp so the lens stays fully visible even when inspecting the card's edges
-                            top: `${Math.min(Math.max(magnifierPos.y - (isTouch.current ? 150 : 100), 0), Math.max(imgSize.height - 200, 0))}px`,
-                            left: `${Math.min(Math.max(magnifierPos.x - 100, 0), Math.max(imgSize.width - 200, 0))}px`,
-                            backgroundImage: `url(${item.url})`,
-                            backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`,
-                            backgroundSize: `${imgSize.width * 2.5}px ${imgSize.height * 2.5}px`,
-                          }}
-                        />
+                      {canHoverZoom && (
+                        <div className="hidden md:flex absolute inset-x-0 top-0 h-[20%] items-start justify-center pt-3 pointer-events-none z-10">
+                          <div className="flex items-center gap-1.5 rounded-full bg-black/45 text-white text-[11px] font-semibold px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                            <ZoomIn className="h-3.5 w-3.5" />
+                            Hold to zoom
+                          </div>
+                        </div>
                       )}
                     </div>
                     </div>
@@ -426,6 +439,15 @@ export default function ProductImageGallery({
           </div>
         )}
       </div>
+
+      {canHoverZoom && media[selectedIndex]?.type === 'image' && media[selectedIndex].url && (
+        <ListingImageZoomOverlay
+          open={isZoomOverlayOpen}
+          src={media[selectedIndex].url}
+          alt={imageAltTexts[selectedIndex] || `${title} - Zoomed`}
+          onClose={closeZoomOverlay}
+        />
+      )}
 
       {/* Fullscreen Viewer */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
