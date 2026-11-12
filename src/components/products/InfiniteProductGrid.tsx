@@ -152,6 +152,19 @@ function InfiniteProductGridInner({
   }, [initialFilterState, userRole]);
   const totalCount = data?.pages[0]?.totalCount;
 
+  // Previous/Next on a listing opened from this grid continue through the same filtered query
+  // (from where the grid stopped loading), then the rest of the site. Admin grids keep plain lists.
+  const listingCtx = useMemo(() => {
+    if (isAdmin) return undefined;
+    const pages = data?.pages ?? [];
+    const last = pages[pages.length - 1];
+    return JSON.stringify({
+      params: currentSearchParams,
+      provider: searchProvider !== 'firestore' ? 'external' : 'firestore',
+      cursor: hasNextPage && last?.lastVisibleId ? last.lastVisibleId : (pages.length ? null : undefined),
+    });
+  }, [isAdmin, data, currentSearchParams, searchProvider, hasNextPage]);
+
   // Bulk Edit State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -546,7 +559,7 @@ function InfiniteProductGridInner({
   };
 
   return (
-    <div className={containerClassName}>
+    <div className={containerClassName} data-listing-ctx={listingCtx}>
       <header className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-8">
         {!hideTitle && (
           <div className="w-full sm:w-auto">
