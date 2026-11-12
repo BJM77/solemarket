@@ -69,11 +69,23 @@ export default function ProductImageGallery({
   const [isFullZoom, setIsFullZoom] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isTouch = useRef(false);
+  const magnifierTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearMagnifierTimer = () => {
+    if (magnifierTimer.current) {
+      clearTimeout(magnifierTimer.current);
+      magnifierTimer.current = null;
+    }
+  };
 
   // Reset full zoom when slide changes or fullscreen closes
   useEffect(() => {
     setIsFullZoom(false);
+    clearMagnifierTimer();
+    setShowMagnifier(false);
   }, [selectedIndex, isFullscreen]);
+
+  useEffect(() => () => clearMagnifierTimer(), []);
 
   // Combine media: Video (if exists) comes first
   const media = useMemo<Array<{ type: 'video' | 'image', url: string, thumbnail?: string }>>(() => {
@@ -142,6 +154,8 @@ export default function ProductImageGallery({
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (media[selectedIndex]?.type === 'video') return;
     isTouch.current = e.pointerType === 'touch';
+    // Hover-to-zoom is desktop / fine-pointer only.
+    if (e.pointerType !== 'mouse') return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
@@ -155,11 +169,15 @@ export default function ProductImageGallery({
 
   const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
     if (media[selectedIndex]?.type === 'video') return;
-    setShowMagnifier(true);
+    isTouch.current = e.pointerType === 'touch';
+    if (e.pointerType !== 'mouse') return;
     handlePointerMove(e);
+    clearMagnifierTimer();
+    magnifierTimer.current = setTimeout(() => setShowMagnifier(true), 300);
   };
 
   const handlePointerLeave = () => {
+    clearMagnifierTimer();
     setShowMagnifier(false);
   };
 
@@ -248,7 +266,7 @@ export default function ProductImageGallery({
                   ) : (
                     <div className="relative w-full h-full px-6 py-4 sm:p-0">
                     <div
-                      className="relative w-full h-full cursor-crosshair touch-none"
+                      className="relative w-full h-full md:cursor-crosshair md:touch-none"
                       onPointerMove={handlePointerMove}
                       onPointerEnter={handlePointerEnter}
                       onPointerLeave={handlePointerLeave}
@@ -267,7 +285,7 @@ export default function ProductImageGallery({
                       />
                       {showMagnifier && index === selectedIndex && (
                         <div
-                          className="absolute pointer-events-none rounded-full border-2 border-white/80 bg-no-repeat shadow-[0_0_25px_rgba(0,0,0,0.6)] z-30 ring-4 ring-black/20"
+                          className="hidden md:block absolute pointer-events-none rounded-full border-2 border-white/80 bg-no-repeat shadow-[0_0_25px_rgba(0,0,0,0.6)] z-30 ring-4 ring-black/20"
                           style={{
                             width: '200px',
                             height: '200px',
