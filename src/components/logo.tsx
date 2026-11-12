@@ -16,7 +16,7 @@ export function Logo({ className, priority = false }: { className?: string; prio
                 alt={`${brandConfig.company.name} Logo`}
                 width={422}
                 height={193}
-                className="w-auto h-full object-contain"
+                className="w-auto h-full max-w-full object-contain"
                 sizes="(max-width: 767px) 160px, 200px"
                 priority={priority}
             />

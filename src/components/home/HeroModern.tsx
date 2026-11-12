@@ -16,8 +16,8 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
     }, []);
 
     return (
-        <section className="relative flex items-start pt-5 md:pt-16 lg:pt-24 pb-4 md:pb-8 overflow-hidden">
-            <div className="container mx-auto px-4 md:px-6 relative z-10 md:pt-4">
+        <section className="relative flex items-start pt-2.5 md:pt-8 lg:pt-12 pb-4 md:pb-8 overflow-hidden">
+            <div className="container mx-auto px-4 md:px-6 relative z-10 md:pt-2">
                 <div className="max-w-4xl mx-auto text-center">
 
                     {/* H1 for SEO & Accessibility */}

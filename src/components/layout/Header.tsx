@@ -27,6 +27,7 @@ export default function Header() {
   const { isPinned } = useMobileNav();
 
   const isMarketplacePage = pathname === '/browse' || pathname === '/shoes' || pathname === '/cards';
+  const isHome = pathname === '/';
 
   useEffect(() => {
     setIsClient(true);
@@ -40,7 +41,14 @@ export default function Header() {
             {isClient && <MobileNav />}
 
             <Link href="/" className={cn("flex items-center", isPinned ? "hidden md:flex" : "flex")} aria-label="Back to homepage">
-              <Logo className="h-[60px] md:h-12 lg:h-14" priority />
+              <Logo
+                className={cn(
+                  // Homepage: 1.5x on md/lg (72px / 84px). Mobile stays at 72px (1.2x of 60px)
+                  // so the mark does not overflow the hamburger + search + actions row.
+                  isHome ? "h-[72px] md:h-[72px] lg:h-[84px] max-w-[42vw] md:max-w-none" : "h-[60px] md:h-12 lg:h-14"
+                )}
+                priority
+              />
             </Link>
 
             <div onClick={() => setShowInstantSearch(true)} className="hidden lg:flex flex-1 max-w-2xl h-10 group cursor-text">
