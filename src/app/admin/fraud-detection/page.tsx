@@ -1,8 +1,8 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
-import { useActionState } from 'react';
+import { useState, useTransition } from 'react';
 import { detectFraudAction, type FraudState } from '@/lib/actions';
+import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,19 +10,23 @@ import { Progress } from '@/components/ui/progress';
 import { Loader2, ShieldAlert, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full font-bold h-12 rounded-xl">
-      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-      Analyze for Fraud
-    </Button>
-  );
-}
-
 export default function FraudDetectionPage() {
-  const initialState: FraudState = {};
-  const [state, formAction] = useActionState(detectFraudAction, initialState);
+  const [details, setDetails] = useState('');
+  const [state, setState] = useState<FraudState>({});
+  const [isPending, startTransition] = useTransition();
+
+  const handleAnalyze = (e: React.FormEvent) => {
+    e.preventDefault();
+    startTransition(async () => {
+      const idToken = await getCurrentUserIdToken();
+      if (!idToken) {
+        setState({ error: 'Authentication required for fraud analysis.' });
+        return;
+      }
+      const next = await detectFraudAction(details, idToken);
+      setState(next);
+    });
+  };
 
   return (
     <div>
@@ -42,7 +46,7 @@ export default function FraudDetectionPage() {
             <CardDescription className="text-muted-foreground">Paste any text, like user messages or transaction notes, to analyze.</CardDescription>
           </CardHeader>
           <CardContent className="px-0">
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={handleAnalyze} className="space-y-4">
               <Textarea
                 name="details"
                 id="details"
@@ -50,8 +54,13 @@ export default function FraudDetectionPage() {
                 rows={10}
                 className="resize-none rounded-xl"
                 required
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
               />
-              <SubmitButton />
+              <Button type="submit" disabled={isPending} className="w-full font-bold h-12 rounded-xl">
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Analyze for Fraud
+              </Button>
               {state.error && <p className="text-sm text-red-500 mt-2">{state.error}</p>}
             </form>
           </CardContent>
@@ -86,11 +95,6 @@ export default function FraudDetectionPage() {
                       <p className="text-base font-bold text-yellow-700">{state.result.recommendedAction}</p>
                     </div>
                   )}
-
-                  <div className="flex gap-4 pt-4 border-t">
-                    <Button variant="outline" className="flex-1 rounded-xl">Dismiss Signal</Button>
-                    <Button variant="destructive" className="flex-1 rounded-xl">Restrict Account</Button>
-                  </div>
                 </motion.div>
               ) : (
                 <motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-muted-foreground">
