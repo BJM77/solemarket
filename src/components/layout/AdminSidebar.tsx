@@ -24,7 +24,6 @@ import {
     Settings,
     Zap,
     Users,
-    Globe,
     Activity,
     ListChecks,
     Gavel,
@@ -74,7 +73,6 @@ const integrityItems = [
 ];
 
 const sysItems = [
-    { href: "/admin/seo", icon: Globe, label: "SEO" },
     { href: "/admin/conquesting", icon: Target, label: "Conquesting" },
     { href: "/admin/categories", icon: ListChecks, label: "Categories" },
     { href: "/admin/system", icon: Activity, label: "System Health" },

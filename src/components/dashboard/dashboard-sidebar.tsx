@@ -6,14 +6,11 @@ import Link from 'next/link';
 import {
     Home,
     Package,
-    Wand2,
     DollarSign,
     Star,
     AreaChart,
     Settings,
-    Camera,
     Package2,
-    Sparkles,
     Layers,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -33,7 +30,6 @@ const navItems = [
 const aiTools = [
     { href: '/sell/fast-bulk', label: 'Fast Bulk Lister', icon: Layers },
     { href: '/sell/bundle-tiers', label: 'Bundle Tiers', icon: Layers },
-    { href: '/sell/cards', label: 'AI Card Grader', icon: Sparkles },
 ]
 
 export default function DashboardSidebar() {

@@ -1,23 +1,18 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, Palette, CheckCircle, AlertTriangle, Loader2, Save } from "lucide-react";
-import Image from "next/image";
-import { Logo } from '@/components/logo';
-import { motion } from "framer-motion";
+import { CheckCircle, AlertTriangle, Loader2, Save, Truck, DollarSign, Percent, Palette } from "lucide-react";
+import Link from 'next/link';
 import { testApiKey } from '@/ai/flows/test-api-key';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Truck, DollarSign, Percent, Layout } from "lucide-react";
 import { getSystemSettings, saveSystemSettings, type AdminSystemSettings } from './actions';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-import { useEffect } from 'react';
+import { motion } from "framer-motion";
 
 export default function AdminSettingsPage() {
     const { toast } = useToast();
@@ -27,8 +22,7 @@ export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<AdminSystemSettings>({
         freightCharge: 12.00,
         freeShippingThreshold: 150.00,
-        standardTaxRate: 0.10,
-        platformFeeRate: 0.07
+        standardTaxRate: 0.10
     });
 
     useEffect(() => {
@@ -43,7 +37,15 @@ export default function AdminSettingsPage() {
         startShippingTransition(async () => {
             try {
                 const idToken = await getCurrentUserIdToken();
-                const result = await saveSystemSettings(settings, idToken || undefined);
+                if (!idToken) {
+                    toast({
+                        title: 'Save Failed',
+                        description: 'Authentication required.',
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+                const result = await saveSystemSettings(settings, idToken);
                 toast({
                     title: result.success ? 'Settings Saved' : 'Save Failed',
                     description: result.message,
@@ -100,7 +102,6 @@ export default function AdminSettingsPage() {
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* AI Service Status */}
                 <Card className="p-10 rounded-2xl">
                     <CardHeader className="px-0 pt-0 mb-8">
                         <CardTitle className="text-2xl font-black tracking-tight">AI Service Status</CardTitle>
@@ -124,11 +125,10 @@ export default function AdminSettingsPage() {
                     </CardContent>
                 </Card>
 
-                {/* Shipping & Logistics */}
                 <Card className="p-10 rounded-2xl">
                     <CardHeader className="px-0 pt-0 mb-8">
                         <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-                            <Truck className="w-6 h-6 text-primary" /> Shipping & Logistics
+                            <Truck className="w-6 h-6 text-primary" /> Shipping &amp; Logistics
                         </CardTitle>
                         <CardDescription>Configure shipping rates and thresholds.</CardDescription>
                     </CardHeader>
@@ -169,19 +169,6 @@ export default function AdminSettingsPage() {
                                 className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
                             />
                         </div>
-
-                        <div className="space-y-4">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                <Percent className="w-3 h-3" /> Platform Fee Rate (Escrow)
-                            </Label>
-                            <Input
-                                type="number"
-                                step="0.01"
-                                value={settings.platformFeeRate}
-                                onChange={(e) => setSettings({ ...settings, platformFeeRate: parseFloat(e.target.value) })}
-                                className="h-12 rounded-xl border-muted bg-muted/20 font-bold"
-                            />
-                        </div>
                     </CardContent>
                     <CardFooter className="px-0 pt-8 mt-4 border-t">
                         <Button
@@ -198,96 +185,20 @@ export default function AdminSettingsPage() {
                     </CardFooter>
                 </Card>
 
-                {/* Homepage Categories */}
-                <Card className="p-10 rounded-2xl">
-                    <CardHeader className="px-0 pt-0 mb-8">
-                        <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-                            <Layout className="w-6 h-6 text-primary" /> Homepage Categories
-                        </CardTitle>
-                        <CardDescription>Select how categories are displayed on the homepage.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="px-0">
-                        <RadioGroup
-                            value={settings.homepageCategoryMode || 'default'}
-                            onValueChange={(val: any) => setSettings({ ...settings, homepageCategoryMode: val })}
-                            className="grid gap-4"
-                        >
-                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-bold uppercase tracking-tight">Recommended Selection</span>
-                                    <span className="text-xs text-muted-foreground font-medium">Show only categories manually selected in Admin.</span>
-                                </div>
-                                <RadioGroupItem value="manual" id="manual" />
-                            </label>
-                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-bold uppercase tracking-tight">Most Popular</span>
-                                    <span className="text-xs text-muted-foreground font-medium">Show categories marked as popular.</span>
-                                </div>
-                                <RadioGroupItem value="popular" id="popular" />
-                            </label>
-                            <label className="flex items-center justify-between p-4 rounded-xl border-2 border-muted hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-bold uppercase tracking-tight">Default (Top Categories)</span>
-                                    <span className="text-xs text-muted-foreground font-medium">Show categories based on their display order.</span>
-                                </div>
-                                <RadioGroupItem value="default" id="default" />
-                            </label>
-                        </RadioGroup>
-                    </CardContent>
-                    <CardFooter className="px-0 pt-8 mt-4 border-t">
-                        <Button
-                            onClick={handleSaveShippingSettings}
-                            disabled={isSavingShipping}
-                            className="w-full h-12 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
-                        >
-                            {isSavingShipping ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
-                            ) : (
-                                <><Save className="w-4 h-4 mr-2" /> Save Homepage Settings</>
-                            )}
-                        </Button>
-                    </CardFooter>
-                </Card>
-
-                {/* Color Palette */}
-
                 <Card className="p-10 rounded-2xl">
                     <CardHeader className="px-0 pt-0 mb-8">
                         <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
                             <Palette className="w-6 h-6 text-primary" /> Branding &amp; Appearance
                         </CardTitle>
+                        <CardDescription>
+                            Logo, colours, fonts, menus and homepage tiles are managed in Brand Refresh.
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent className="px-0 space-y-8">
-                        <div className="space-y-4">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">System Logo</Label>
-                            <div className="p-8 rounded-xl bg-muted/50 border border-dashed flex flex-col items-center justify-center">
-                                <Logo className="w-auto h-10" />
-                                <Button variant="ghost" className="mt-4 text-xs font-bold uppercase tracking-wider text-muted-foreground rounded-lg">
-                                    <Upload className="mr-2 h-3 w-3" /> Change Logo
-                                </Button>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Accent Color</Label>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-lg border p-1 bg-muted/50">
-                                    <input
-                                        type="color"
-                                        defaultValue="#6366f1"
-                                        className="w-full h-full rounded-md bg-transparent border-none cursor-pointer"
-                                    />
-                                </div>
-                                <div className="text-sm font-mono font-bold uppercase tracking-tighter">#6366F1</div>
-                            </div>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="px-0 pt-8 mt-4 border-t">
-                        <Button className="w-full h-12 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20">
-                            <Save className="w-4 h-4 mr-2" /> Save Aesthetic Changes
+                    <CardContent className="px-0">
+                        <Button asChild className="w-full h-12 font-bold rounded-xl">
+                            <Link href="/admin/brand-refresh">Open Brand Refresh</Link>
                         </Button>
-                    </CardFooter>
+                    </CardContent>
                 </Card>
             </div>
         </div>

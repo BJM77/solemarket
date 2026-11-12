@@ -47,8 +47,8 @@ export function SmartImage({
     }
 
     return (
-        <div className={cn("relative w-full h-full overflow-hidden bg-muted/20", className)}>
-            {/* Main Product Image */}
+        <div className={cn("relative w-full h-full overflow-hidden bg-white dark:bg-neutral-900", className)}>
+            {/* Main Product Image — object-contain so portrait cards and shoes share one box without cropping */}
             <div className="relative z-10 w-full h-full">
                 <Image
                     src={imageUrl}
@@ -58,7 +58,7 @@ export function SmartImage({
                     fetchPriority={priority ? 'high' : undefined}
                     sizes={sizes}
                     quality={quality}
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                     style={{ objectPosition }}
                     onError={() => setError(true)}
                 />

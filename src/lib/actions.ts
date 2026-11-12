@@ -91,12 +91,10 @@ export type FraudState = {
 };
 
 export async function detectFraudAction(
-    prevState: FraudState,
-    formData: FormData
+    details: string,
+    idToken: string
 ): Promise<FraudState> {
-    const validatedFields = FraudSchema.safeParse({
-        details: formData.get("details"),
-    });
+    const validatedFields = FraudSchema.safeParse({ details });
 
     if (!validatedFields.success) {
         return {
@@ -104,16 +102,13 @@ export async function detectFraudAction(
         };
     }
 
+    if (!idToken) {
+        return {
+            error: "Authentication required for fraud analysis.",
+        };
+    }
+
     try {
-        const cookieStore = await cookies();
-        const idToken = cookieStore.get('session')?.value;
-
-        if (!idToken) {
-            return {
-                error: "Authentication required for fraud analysis.",
-            };
-        }
-
         const result = await detectFraud({ ...validatedFields.data, idToken });
         return {
             result,
