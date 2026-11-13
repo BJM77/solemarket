@@ -831,6 +831,39 @@ export default function ProductDetailsModern({
         </div>
     ) : null;
 
+    const renderListingShareActions = () => (
+        <div className="flex items-center justify-end gap-1" data-testid="listing-share-actions">
+            <Button variant="ghost" size="icon" onClick={toggleFavorite} aria-label={isFavorited ? "Remove from favourites" : "Add to favourites"} aria-pressed={isFavorited} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
+                <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
+            </Button>
+
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-orange-50 text-orange-700" title="Share to Facebook" aria-label="Share to Facebook">
+                        {isPostingFB ? <Loader2 className="h-6 w-6 animate-spin" /> : <Share2 className="h-6 w-6" />}
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => handleShare('fb')} className="cursor-pointer">
+                        Post to Profile Feed
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleMarketplaceShare} className="cursor-pointer">
+                        Create Marketplace Listing
+                    </DropdownMenuItem>
+                    {(isSuperAdmin || user?.uid === product.sellerId) && (
+                        <DropdownMenuItem onClick={handleOfficialFBPost} className="cursor-pointer text-orange-700 font-medium">
+                            Send to Benched Page
+                        </DropdownMenuItem>
+                    )}
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram" aria-label="Copy link for Instagram">
+                <ExternalLink className="h-6 w-6" />
+            </Button>
+        </div>
+    );
+
     return (
         <main className="min-h-screen bg-background pb-36 lg:pb-16">
             <Dialog open={isSafetyModalOpen} onOpenChange={setIsSafetyModalOpen}>
@@ -1005,6 +1038,7 @@ export default function ProductDetailsModern({
                                         seller={seller}
                                         recentViews={recentViews}
                                         user={user}
+                                        titleActions={renderListingShareActions()}
                                         priceActions={adminTitleActions}
                                     />
                                 </div>
@@ -1303,28 +1337,6 @@ export default function ProductDetailsModern({
                                                                     Message Seller
                                                                 </Button>
 
-                                                                <div className="flex items-start gap-3 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100/50 dark:border-orange-900/30 p-4 lg:p-3 rounded-2xl text-left mt-2 lg:mt-0 lg:col-span-2 lg:order-last">
-                                                                    <ShieldCheck className="h-5 w-5 text-orange-700 dark:text-orange-700 shrink-0 mt-0.5" />
-                                                                    <div>
-                                                                        <p className="text-xs font-bold text-orange-900 dark:text-orange-200 uppercase tracking-wide">
-                                                                            {seller?.payIdReady ? 'PayID or cash pickup (Perth)' : 'Cash pickup (Perth)'}
-                                                                        </p>
-                                                                        <p className="text-[11px] text-orange-700/80 dark:text-orange-300/80 leading-relaxed mt-0.5">
-                                                                            {seller?.payIdReady
-                                                                                ? "Buy Now sends a request: the seller accepts, then you pay them directly by PayID (or cash when you collect in Perth)."
-                                                                                : "Buy Now sends a request: once the seller accepts, pay cash on pickup in Perth. Inspect the item before you pay."}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <p className="text-center lg:col-span-2 lg:order-last">
-                                                                    <Link
-                                                                        href={`/report-infringement?url=${encodeURIComponent(`/product/${product.id}`)}`}
-                                                                        className="text-[11px] text-muted-foreground underline"
-                                                                        data-testid="report-listing-link"
-                                                                    >
-                                                                        Report this listing
-                                                                    </Link>
-                                                                </p>
                                                             </>
                                                         )}
 
@@ -1392,49 +1404,15 @@ export default function ProductDetailsModern({
                                                             </div>
                                                         )}
 
-                                                        <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
+                                                        <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest lg:col-span-2">
                                                             Pay the seller directly by PayID or cash on pickup.
                                                         </p>
                                                     </div>
                                                 );
                                             })()}
 
-                                            <div className="flex items-center justify-center gap-2 mt-2">
-                                                <Button variant="ghost" size="icon" onClick={toggleFavorite} aria-label={isFavorited ? "Remove from favourites" : "Add to favourites"} aria-pressed={isFavorited} className={cn("rounded-full hover:bg-red-50", isFavorited && "text-red-500 bg-red-50")}>
-                                                    <Heart className={cn("h-6 w-6", isFavorited && "fill-current")} />
-                                                </Button>
-
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-orange-50 text-orange-700" title="Share to Facebook" aria-label="Share to Facebook">
-                                                            {isPostingFB ? <Loader2 className="h-6 w-6 animate-spin" /> : <Share2 className="h-6 w-6" />}
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-56">
-                                                        <DropdownMenuItem onClick={() => handleShare('fb')} className="cursor-pointer">
-                                                            Post to Profile Feed
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={handleMarketplaceShare} className="cursor-pointer">
-                                                            Create Marketplace Listing
-                                                        </DropdownMenuItem>
-                                                        {(isSuperAdmin || user?.uid === product.sellerId) && (
-                                                            <DropdownMenuItem onClick={handleOfficialFBPost} className="cursor-pointer text-orange-700 font-medium">
-                                                                Send to Benched Page
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-
-                                                <Button variant="ghost" size="icon" onClick={() => handleShare('ig')} className="rounded-full hover:bg-pink-50 text-pink-600" title="Copy Link for Instagram" aria-label="Copy link for Instagram">
-                                                    <ExternalLink className="h-6 w-6" />
-                                                </Button>
-                                            </div>
-
-                                            <div className="flex items-center justify-center gap-1.5 mt-3 text-emerald-600 bg-emerald-50 py-2 rounded-lg">
-                                                <CheckCircle className="h-3.5 w-3.5" />
-                                                <p className="text-[11px] font-bold uppercase tracking-wide">
-                                                    Secure Peer-to-Peer Trade
-                                                </p>
+                                            <div className="flex justify-center lg:hidden mt-2">
+                                                {renderListingShareActions()}
                                             </div>
                                         </div>
                                     )}
@@ -1566,6 +1544,16 @@ export default function ProductDetailsModern({
                                     )}
 
                                 </div>
+
+                                <p className="pt-3 text-center lg:text-right lg:order-last">
+                                    <Link
+                                        href={`/report-infringement?url=${encodeURIComponent(`/product/${product.id}`)}`}
+                                        className="text-[11px] text-muted-foreground underline"
+                                        data-testid="report-listing-link"
+                                    >
+                                        Report this listing
+                                    </Link>
+                                </p>
                             </div>
 
 

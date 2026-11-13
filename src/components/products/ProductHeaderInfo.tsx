@@ -8,7 +8,7 @@ import { resolveSellerName } from '@/lib/utils/seller-name';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ShieldCheck, TrendingUp, MapPin, Clock, Star, Share2, Heart, MessageSquare, Phone, Tag } from 'lucide-react';
+import { ShieldCheck, TrendingUp, MapPin, Star, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
@@ -64,17 +64,25 @@ export function ProductHeaderInfo({ product, seller, recentViews = 0, className,
             )}
 
             {!mobileLayout && (
-            <div className="flex items-center gap-2.5 flex-wrap">
-                <Heading className="flex min-w-0 flex-col gap-0.5 text-gray-900 dark:text-white" data-testid="desktop-listing-title">
-                    <span className="text-2xl md:text-3xl font-extrabold leading-tight">{row1}</span>
+            <div className="flex items-start gap-2 min-w-0">
+                <Heading
+                    className="flex min-w-0 flex-1 flex-col gap-1.5 text-base font-extrabold leading-normal tracking-normal text-gray-900 dark:text-white"
+                    data-testid="desktop-listing-title"
+                >
+                    <span className="text-2xl md:text-3xl font-extrabold leading-snug tracking-normal break-words">
+                        {row1}
+                    </span>
                     {row2 ? (
-                        <>
-                            {' '}
-                            <span className="text-base md:text-lg font-semibold leading-snug text-gray-500 dark:text-gray-400">{row2}</span>
-                        </>
+                        <span className="text-lg md:text-xl font-semibold leading-snug tracking-normal text-gray-600 dark:text-gray-300 break-words">
+                            {row2}
+                        </span>
                     ) : null}
                 </Heading>
-                {titleActions}
+                {titleActions ? (
+                    <div className="flex shrink-0 items-center self-start justify-end" data-testid="listing-title-actions">
+                        {titleActions}
+                    </div>
+                ) : null}
             </div>
             )}
             {(isSuperSeller(seller) || isSuperSeller(product)) && (
