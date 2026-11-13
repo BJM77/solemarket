@@ -513,7 +513,7 @@ export default function ProductCard({
 
   const getFormattedDate = formatRelativeTime;
   // One square frame for every category so mixed homepage/grid rows stay even.
-  // Images use object-contain (via SmartImage) so trading cards are not cropped.
+  // Images use object-cover object-center (via SmartImage) so every tile fills the square.
   const imageAspectRatio = 'aspect-square';
   const shoeSizeBadge = !isCardCategory(product.category) ? formatShoeSizeBadge(product.size) : null;
   const tileTitle = shortListingTitle(product);
@@ -896,7 +896,7 @@ export default function ProductCard({
           fill
           sizes="50vw"
           priority={priority}
-          className="object-contain"
+          className="object-cover object-center"
         />
       )}
       {shoeSizeBadge && (
