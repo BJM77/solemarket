@@ -39,6 +39,7 @@ import {
   Download
 } from 'lucide-react';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { currentPathAndQuery, withRedirectParam } from '@/lib/auth/sanitize-redirect';
 
 
 export function UserNav() {
@@ -49,6 +50,11 @@ export function UserNav() {
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isPwaInstallable, setIsPwaInstallable] = useState(false);
+  const [signInHref, setSignInHref] = useState(() => withRedirectParam('/sign-in', pathname));
+
+  useEffect(() => {
+    setSignInHref(withRedirectParam('/sign-in', currentPathAndQuery()));
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -93,11 +99,32 @@ export function UserNav() {
   };
 
   if (isUserLoading) {
-    return <Skeleton className="h-10 w-10 rounded-full" />;
+    return (
+      <>
+        <Skeleton className="hidden lg:block h-9 w-[4.75rem] rounded-md" aria-hidden="true" />
+        <Skeleton className="lg:hidden h-10 w-10 rounded-full" aria-hidden="true" />
+      </>
+    );
   }
 
   if (!user) {
-    return null;
+    return (
+      <>
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="hidden lg:inline-flex h-9 border-primary text-primary hover:bg-primary/10 font-semibold"
+        >
+          <Link href={signInHref}>Sign in</Link>
+        </Button>
+        <Button asChild variant="ghost" size="icon" className="lg:hidden h-10 w-10" aria-label="Sign in">
+          <Link href={signInHref}>
+            <User className="h-5 w-5" />
+          </Link>
+        </Button>
+      </>
+    );
   }
 
   const getInitials = (name?: string | null) => {
