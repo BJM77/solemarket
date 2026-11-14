@@ -10,6 +10,7 @@ import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import { getProductUrl } from "@/lib/utils/url";
 import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
 import { listingSeoState } from "@/lib/seo/listing-status";
+import { isPokemonListing } from "@/lib/pokemon-listings";
 
 // ISR: product pages are cached for 5 minutes instead of rendered on every
 // visit. Price/status stay live because ProductDetailsModern subscribes to the
@@ -135,7 +136,9 @@ export default async function ProductPage({ params }: Props) {
       <BreadcrumbSchema
         items={[
           { name: 'Home', item: '/' },
-          { name: product.category, item: sectionPathForCategory(section) },
+          isPokemonListing(product)
+            ? { name: 'Pokémon & trading cards', item: '/pokemon' }
+            : { name: product.category, item: sectionPathForCategory(section) },
           { name: product.title, item: `/${section}/${slug}/${id}` },
         ]}
       />

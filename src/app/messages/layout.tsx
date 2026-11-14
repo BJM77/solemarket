@@ -1,35 +1,13 @@
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import MessagesAuthGate from './MessagesAuthGate';
 
-'use client';
-
-import { useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { ReactNode } from 'react';
+// Private inbox: never indexed.
+export const metadata: Metadata = {
+  title: 'Messages',
+  robots: { index: false, follow: false },
+};
 
 export default function MessagesLayout({ children }: { children: ReactNode }) {
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
-
-  if (isUserLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    router.push('/sign-in?redirect=/messages');
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Redirecting to sign-in...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-[calc(100vh-65px)] w-full flex bg-background border-t">
-      {children}
-    </div>
-  );
+  return <MessagesAuthGate>{children}</MessagesAuthGate>;
 }

@@ -2,11 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import { JOURNAL_ARTICLES } from '@/config/journal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { brandConfig } from '@/config/brand';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: `Benched Journal | ${brandConfig.seo.defaultTitle}`,
+    title: 'Benched Journal',
     description: 'Expert authentication guides, market reports, and collector spotlights from the Benched AU editorial team.',
 };
 

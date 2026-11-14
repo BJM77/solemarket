@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
-import { SITE_NAME } from '@/config/brand';
 
 export const metadata: Metadata = {
-  title: `Connection Lost | ${SITE_NAME}`,
+  title: 'Connection Lost',
   description: `It looks like you're offline. Please check your network connection and try again.`,
   robots: {
     index: false,

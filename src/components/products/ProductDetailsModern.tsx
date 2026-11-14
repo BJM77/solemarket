@@ -986,9 +986,15 @@ export default function ProductDetailsModern({
                             <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto min-w-0" aria-label="Breadcrumb">
                                 <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                                 <span className="text-foreground/80">/</span>
-                                <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors">
-                                    {product.category}
-                                </Link>
+                                {isPokemonListing(product) ? (
+                                    <Link href="/pokemon" className="hover:text-primary transition-colors">
+                                        Pokémon &amp; trading cards
+                                    </Link>
+                                ) : (
+                                    <Link href={product.category === 'Collector Cards' ? '/cards' : `/browse?category=${encodeURIComponent(product.category)}`} className="hover:text-primary transition-colors">
+                                        {product.category}
+                                    </Link>
+                                )}
                                 {product.subCategory && (
                                     <>
                                         <span className="text-foreground/80">/</span>

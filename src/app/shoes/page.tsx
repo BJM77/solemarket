@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
+import { pageOpenGraph } from '@/lib/seo/og';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export async function generateMetadata({
@@ -19,23 +20,19 @@ export async function generateMetadata({
 
   if (q && category) {
     title = `Buy ${q} Sneakers in ${category}`;
-    description = `Searching for ${q} in ${category}. Find the best sneaker deals authenticated by experts on Benched.`;
+    description = `Searching for ${q} in ${category}. Sneakers from Australian sellers on Benched.`;
   } else if (q) {
     title = `Search Results for "${q}" Sneakers`;
-    description = `Shop verified authentic results for "${q}". Browse the best performance basketball shoes on Benched Australia.`;
+    description = `Sneakers matching "${q}" from Australian sellers on Benched.`;
   } else if (category && category !== 'Sneakers') {
     title = `Buy ${category} Sneakers`;
-    description = `Shop the best ${category} on Benched. Verified authentic performance footwear and secure shipping Australia-wide.`;
+    description = `Shop the best ${category} on Benched. Pay sellers directly by PayID or cash on pickup.`;
   }
 
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-    },
+    openGraph: pageOpenGraph({ title, description, path: '/shoes' }),
   };
 }
 

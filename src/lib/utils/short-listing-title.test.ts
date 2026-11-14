@@ -124,3 +124,14 @@ describe('formatShoeSizeBadge', () => {
     expect(formatShoeSizeBadge(null)).toBeNull();
   });
 });
+
+describe('shortListingTitle with a mismatched model field', () => {
+  it('uses the title when the model names a different shoe', () => {
+    expect(shortListingTitle({ title: 'Nike Lebron 22 Monopoly', category: 'Sneakers', brand: 'Nike', model: 'Giannis Freak 6' }))
+      .toBe('Nike Lebron 22 Monopoly');
+  });
+  it('keeps a model that matches the title', () => {
+    expect(shortListingTitle({ title: "Air Jordan 11 'Cool Grey'", category: 'Sneakers', brand: 'Jordan', model: 'Jordan 11' }))
+      .toBe('Jordan 11');
+  });
+});

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { GuestOrdersList } from '@/components/checkout/GuestActiveOrders';
 
 export const metadata: Metadata = {
-    title: 'Your active orders | Benched',
+    title: 'Your active orders',
     robots: { index: false, follow: false },
 };
 

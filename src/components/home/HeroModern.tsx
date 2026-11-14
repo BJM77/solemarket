@@ -22,7 +22,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
 
                     {/* H1 for SEO & Accessibility */}
                     <h1 className="text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-2 md:mb-6 leading-[0.9] slide-up">
-                        {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"}<br />
+                        {hero.h1TitleLine1 || "AUSTRALIA'S PREMIER"}{' '}<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
                             {hero.h1TitleLine2 || 'MARKETPLACE.'}
                         </span>

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShieldCheck, Hash, Calendar, CheckCircle2 } from 'lucide-react';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { brandConfig } from '@/config/brand';
 
 interface Props {
     params: Promise<{ certId: string }>;
@@ -16,7 +15,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const params = await props.params;
     return {
-        title: `Vault Passport ${params.certId} | ${brandConfig.seo.defaultTitle}`,
+        title: `Vault Passport ${params.certId}`,
         description: `Cryptographic proof of authenticity for Benched Vault item ${params.certId}.`,
     };
 }

@@ -99,6 +99,20 @@ const nextConfig = {
       // One main address per section on the basketball site.
       { source: '/sneakers', destination: '/shoes', permanent: true },
       { source: '/collector-cards', destination: '/cards', permanent: true },
+      // Retired /p/ landing pages (placeholder listings): send each to its real topic page.
+      { source: '/p/jordan/1', destination: '/shoes/jordan-1-retro-high', permanent: true },
+      { source: '/p/jordan/4', destination: '/shoes/jordan-4-retro', permanent: true },
+      { source: '/p/nike/dunk-low', destination: '/shoes/nike-dunk-low-pandas', permanent: true },
+      { source: '/p/nike/kobe-6', destination: '/shoes/kobe-6-protro', permanent: true },
+      { source: '/p/panini-prizm/wembanyama', destination: '/cards/victor-wembanyama-rookie', permanent: true },
+      { source: '/p/fleer/michael-jordan', destination: '/cards/michael-jordan-cards', permanent: true },
+      { source: '/p/donruss-optic/anthony-edwards', destination: '/cards/donruss-optic-basketball', permanent: true },
+      { source: '/p/:brand(jordan|nike)/:model*', destination: '/shoes', permanent: true },
+      { source: '/p/:path*', destination: '/cards', permanent: true },
+      // Trading card games live on /pokemon.
+      { source: '/brand/pokemon', destination: '/pokemon', permanent: true },
+      { source: '/brand/magic-the-gathering', destination: '/pokemon', permanent: true },
+      { source: '/cards/pokemon-151-english-booster-boxes', destination: '/pokemon', permanent: true },
     ];
   },
   async headers() {

@@ -12,6 +12,7 @@ const getCachedProducts = unstable_cache(
   { revalidate: 120, tags: ['products'] }
 );
 import type { Metadata } from 'next';
+import { pageOpenGraph } from '@/lib/seo/og';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 
@@ -24,18 +25,18 @@ export async function generateMetadata({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
 
-  let title = 'Shop Basketball Cards & Sneakers | Benched';
-  let description = 'Browse basketball cards and sneakers on Benched from verified Australian sellers.';
+  let title = 'Shop Basketball Cards & Sneakers';
+  let description = 'Browse basketball cards and sneakers on Benched from Australian sellers. Pay the seller directly by PayID or cash on pickup.';
 
   if (q && category) {
     title = `Buy ${q} in ${category}`;
-    description = `Searching for ${q} in ${category}. Find the best sneaker deals authenticated by experts on Benched.`;
+    description = `Searching for ${q} in ${category}. Listings from Australian sellers on Benched.`;
   } else if (q) {
     title = `Search Results for "${q}"`;
-    description = `Shop verified authentic results for "${q}". Browse the best performance basketball shoes on Benched Australia.`;
+    description = `Listings matching "${q}" from Australian sellers on Benched.`;
   } else if (category) {
     title = `Buy ${category} in Australia`;
-    description = `Shop the best ${category} on Benched. Verified authentic performance footwear and secure shipping Australia-wide.`;
+    description = `Shop the best ${category} on Benched. Pay sellers directly by PayID or cash on pickup.`;
   }
 
   const hasFilters = Object.keys(resolvedParams).filter(k => k !== 'category' && resolvedParams[k] !== undefined).length > 0;
@@ -45,11 +46,7 @@ export async function generateMetadata({
     title,
     description,
     robots: (isSearch || hasFilters) ? 'noindex, follow' : 'index, follow',
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-    },
+    openGraph: pageOpenGraph({ title, description, path: '/browse' }),
     alternates: {
       canonical: '/browse',
     }

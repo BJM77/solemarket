@@ -1,12 +1,15 @@
-import { KNOWN_BRANDS } from '@/lib/seo/brands';
+import { KNOWN_BRANDS, brandDisplayName } from '@/lib/seo/brands';
 import { MetadataRoute } from 'next';
-import { getCategories, getActiveProductCount, getActiveProducts } from '@/lib/firebase/firestore';
+import { getActiveProductCount, getActiveProducts } from '@/lib/firebase/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getProductUrl } from "@/lib/utils/url";
 import { sitemapChunkIndex, toSitemapDate } from "@/lib/seo/sitemap";
 import { isCoinListing } from "@/lib/coin-listings";
 import { isPokemonListing } from "@/lib/pokemon-listings";
+import { getBrandListings, getLandingListings, getLiveListings } from '@/lib/seo/landing-listings.server';
+import { latestListingDate } from '@/lib/seo/landing-listings';
+import { isCardCategory } from '@/lib/constants/marketplace';
 
 /**
  * World-Class Sitemap Generation
@@ -16,34 +19,17 @@ import { isPokemonListing } from "@/lib/pokemon-listings";
 const PRODUCT_SITEMAP_SIZE = 5000; // Limit per sitemap chunk
 
 async function getGuideRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
-  const routes: MetadataRoute.Sitemap = [];
   try {
     const { SEO_GUIDES } = await import('@/config/guides');
-    for (const g of SEO_GUIDES) {
-      routes.push({ url: `${baseUrl}/guides/${g.slug}`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 });
-    }
+    return SEO_GUIDES.map((g) => ({
+      url: `${baseUrl}/guides/${g.slug}`,
+      lastModified: toSitemapDate(g.date),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    }));
   } catch (error) {
     console.error('Error loading guides for sitemap:', error);
-  }
-  try {
-    const guidesDirectory = path.join(process.cwd(), 'src/content/guides');
-    if (!fs.existsSync(guidesDirectory)) return routes;
-
-    const filenames = fs.readdirSync(guidesDirectory);
-    return [...routes, ...filenames
-      .filter(file => file.endsWith('.json'))
-      .map(file => {
-        const slug = file.replace('.json', '');
-        return {
-          url: `${baseUrl}/guide/topic/${slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.9, // High priority for high-value content
-        } as MetadataRoute.Sitemap[number];
-      })];
-  } catch (error) {
-    console.error('Error generating guide sitemap:', error);
-    return routes;
+    return [];
   }
 }
 
@@ -67,125 +53,79 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
   const id = sitemapChunkIndex(rawId);
   const startOffset = id * PRODUCT_SITEMAP_SIZE;
 
-  // 1. Static Routes (Only included on sitemap index 0)
-  const staticRoutes: MetadataRoute.Sitemap = id === 0 ? [
-    '',
-    '/browse',
-    '/shoes',
-    '/cards',
-    '/pokemon',
-    '/sellers',
-    '/card-drops',
-    '/sell',
-    '/drops',
-    '/about',
-    '/how-it-works',
-    '/safety-tips',
-    '/terms',
-    '/privacy',
-    '/dmca',
-    '/prohibited-items',
-    '/authenticity',
-    '/report-infringement',
-    '/guides',
-    '/help',
-    '/size-guide',
-    '/contact'
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: route === '' ? 1 : 0.8,
-  })) : [];
-
-  // 2. Dynamic Categories (Only included on sitemap index 0)
-  let categoryRoutes: MetadataRoute.Sitemap = [];
+  // Pages (home, sections, landing pages, guides) only go in sitemap 0.
+  let pageRoutes: MetadataRoute.Sitemap = [];
   if (id === 0) {
-    try {
-      const categories = await getCategories();
-      categoryRoutes = categories
-        .filter(category => category.slug)
-        .map((category) => ({
-          url: `${baseUrl}/${category.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        }));
-    } catch (err) {
-      console.error('Sitemap: Error fetching categories:', err);
-    }
-    
-    // 2.5 Programmatic Brand & SEO Routes
-    const brandRoutes: MetadataRoute.Sitemap = KNOWN_BRANDS.map((brand) => ({
-      url: `${baseUrl}/brand/${brand}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    }));
-    
-    let seoRoutes: MetadataRoute.Sitemap = [];
-    try {
-      const { PROGRAMMATIC_ROUTES } = await import('@/config/programmatic-seo');
-      seoRoutes = PROGRAMMATIC_ROUTES.map((route) => ({
-        url: `${baseUrl}/p/${route.path}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: route.priority === 'high' ? 0.9 : 0.7,
-      }));
-    } catch (err) {
-      console.error('Sitemap: Error loading programmatic SEO routes:', err);
-    }
-    
-    categoryRoutes = [...categoryRoutes, ...brandRoutes, ...seoRoutes];
-  }
+    // lastmod is the newest live listing in that section; pages without a real
+    // change date omit it rather than claiming they changed "now".
+    const live = (await getLiveListings()).filter((p) => !isCoinListing(p));
+    const tcg = live.filter((p) => isPokemonListing(p));
+    const main = live.filter((p) => !isPokemonListing(p));
+    const cards = main.filter((p) => isCardCategory(p.category));
+    const shoes = main.filter((p) => !isCardCategory(p.category));
 
-  // 3. Guide Routes (Only included on sitemap index 0)
-  const guideRoutes = id === 0 ? await getGuideRoutes(baseUrl) : [];
+    const listingPages: [string, Date | undefined, number][] = [
+      ['', latestListingDate(main), 1],
+      ['/browse', latestListingDate(main), 0.8],
+      ['/shoes', latestListingDate(shoes), 0.9],
+      ['/cards', latestListingDate(cards), 0.9],
+      ['/pokemon', latestListingDate(tcg), 0.8],
+    ];
+    const infoPages = [
+      '/sellers', '/card-drops', '/sell', '/drops', '/about', '/how-it-works', '/safety-tips', '/terms',
+      '/privacy', '/dmca', '/prohibited-items', '/authenticity', '/report-infringement', '/guides', '/help',
+      '/size-guide', '/contact',
+    ];
+    pageRoutes = [
+      ...listingPages.map(([route, lastModified, priority]) => ({
+        url: `${baseUrl}${route}`,
+        lastModified,
+        changeFrequency: 'daily' as const,
+        priority,
+      })),
+      ...infoPages.map((route) => ({ url: `${baseUrl}${route}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
+    ];
 
-  // 4. Topic Routes (Only included on sitemap index 0)
-  let topicRoutes: MetadataRoute.Sitemap = [];
-  if (id === 0) {
+    // Brand pages and topic landing pages: only those with something for sale (empty ones are noindex).
+    for (const brand of KNOWN_BRANDS) {
+      const listings = await getBrandListings(brandDisplayName(brand));
+      if (listings.length) {
+        pageRoutes.push({ url: `${baseUrl}/brand/${brand}`, lastModified: latestListingDate(listings), changeFrequency: 'weekly', priority: 0.7 });
+      }
+    }
     try {
       const { SEO_TOPICS } = await import('@/config/seo-topics');
-      topicRoutes = SEO_TOPICS.filter(topic => topic.category !== 'Coins').map(topic => {
-        let pathPrefix = 'shoes';
-        if (topic.category === 'Collector Cards') pathPrefix = 'cards';
-
-        return {
-          url: `${baseUrl}/${pathPrefix}/${topic.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.9,
-        };
-      });
+      for (const topic of SEO_TOPICS) {
+        if (topic.category === 'Coins') continue;
+        const section = topic.category === 'Collector Cards' ? 'cards' : 'shoes';
+        const listings = await getLandingListings(topic.searchQuery, section);
+        if (!listings.length) continue;
+        pageRoutes.push({ url: `${baseUrl}/${section}/${topic.slug}`, lastModified: latestListingDate(listings), changeFrequency: 'daily', priority: 0.8 });
+      }
     } catch (err) {
       console.error('Sitemap: Error loading SEO topics:', err);
     }
-  }
 
-  // 5. Competitor Conquesting Routes (Only included on sitemap index 0)
-  let conquestingRoutes: MetadataRoute.Sitemap = [];
-  if (id === 0) {
+    pageRoutes.push(...await getGuideRoutes(baseUrl));
+
     try {
       const competitors = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/content/conquesting/competitors.json'), 'utf-8'));
-      conquestingRoutes = Object.keys(competitors).map((slug) => ({
+      pageRoutes.push(...Object.keys(competitors).map((slug) => ({
         url: `${baseUrl}/shop-at/${slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      }));
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      })));
     } catch (err) {
       console.error('Sitemap: Error loading conquesting routes:', err);
     }
   }
 
-  // 6. Product Routes (Included on all chunks relative to id offset)
+  // Listing pages (every chunk, offset by id). Coins aren't part of benched.au.
+  // Pokémon / TCG listings are included; their breadcrumb points at /pokemon.
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
-    // Coins aren't part of benched.au. TCG listings belong on /pokemon and have
-    // no per-listing URL there yet, so they are left out of the main /cards sitemap.
-    productRoutes = activeProducts.filter(p => !isCoinListing(p) && !isPokemonListing(p)).map(p => ({
+    productRoutes = activeProducts.filter(p => !isCoinListing(p)).map(p => ({
       url: `${baseUrl}${getProductUrl(p)}`,
       lastModified: toSitemapDate(p.updatedAt, p.createdAt),
       changeFrequency: 'daily',
@@ -195,12 +135,5 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     console.error(`Sitemap: Error fetching products for chunk ${id}:`, err);
   }
 
-  return [
-    ...staticRoutes,
-    ...categoryRoutes,
-    ...guideRoutes,
-    ...topicRoutes,
-    ...conquestingRoutes,
-    ...productRoutes
-  ];
+  return [...pageRoutes, ...productRoutes];
 }

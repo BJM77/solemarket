@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Activity, ShieldCheck } from 'lucide-react';
 import { DatasetSchema } from '@/components/seo/DatasetSchema';
 import type { Metadata } from 'next';
-import { brandConfig } from '@/config/brand';
 
 export const metadata: Metadata = {
-    title: `Market Pulse Data Index | ${brandConfig.seo.defaultTitle}`,
+    title: 'Market Pulse Data Index',
     description: 'Explore verified, Australian market prices and sales volume for the most popular sneakers and basketball cards on Benched.',
 };
 

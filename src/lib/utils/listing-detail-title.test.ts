@@ -78,7 +78,48 @@ describe('listingDetailTitle', () => {
     });
   });
 
+  describe('listings without a player field', () => {
+    it('keeps the player from the title when brand holds the set name', () => {
+      expect(listingDetailTitle({
+        title: '2024 Panini Prizm Deep Space LeBron James #5',
+        category: 'Collector Cards',
+        brand: 'Panini Prizm Deep Space',
+        model: 'Prizm Deep Space',
+      })).toEqual({
+        row1: '2024 Panini Prizm Deep Space',
+        row2: 'LeBron James #5',
+      });
+    });
+
+    it('keeps the card name for Pokémon cards', () => {
+      expect(listingDetailTitle({
+        title: '2023 Pokémon Obsidian Flames Absol ex #214',
+        category: 'Collector Cards',
+        brand: 'Pokémon Obsidian Flames',
+        manufacturer: 'Pokémon',
+        model: 'Obsidian Flames',
+        cardNumber: '#214',
+      })).toEqual({
+        row1: '2023 Pokémon Obsidian Flames',
+        row2: 'Absol ex #214',
+      });
+    });
+  });
+
   describe('shoes', () => {
+    it('ignores a model field that belongs to a different shoe than the title', () => {
+      expect(listingDetailTitle({
+        title: 'Nike Lebron 22 Monopoly',
+        category: 'Sneakers',
+        brand: 'Nike',
+        model: 'Giannis Freak 6',
+        colorway: 'Monopoly',
+      })).toEqual({
+        row1: 'Nike Lebron 22',
+        row2: 'Monopoly',
+      });
+    });
+
     it('uses brand + model on row 1 and colorway on row 2', () => {
       expect(listingDetailTitle({
         title: "Nike Kyrie 7 'Play for the Future' US 11 Deadstock",
