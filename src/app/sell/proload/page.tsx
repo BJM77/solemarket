@@ -11,6 +11,7 @@ import { parseFacebookMarketplaceScreenshot } from '@/app/actions/marketplace/pr
 import { createProductAction } from '@/app/actions/marketplace/products';
 import { cn } from "@/lib/utils/ui";
 import { resizeAndCompressImage } from "@/lib/utils/image";
+import { compressScreenshotForAnalysis, ScreenshotReadError } from "@/lib/utils/screenshot-compress";
 
 // UI Components
 import { Button } from '@/components/ui/button';
@@ -81,14 +82,29 @@ export default function ProloadPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setScreenshotPreview(reader.result as string);
-      setScreenshotBase64(reader.result as string);
-      startAnalysis(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Let the same file be picked again after a failure.
+    e.target.value = '';
+
+    // Resize + re-encode in the browser first: a full-size phone screenshot is far too
+    // big to send to the server action as-is (see screenshot-compress.ts).
+    let dataUrl: string;
+    try {
+      dataUrl = await compressScreenshotForAnalysis(file);
+    } catch (error) {
+      console.error('Proload screenshot compression failed:', error);
+      toast({
+        title: "Couldn't read screenshot",
+        description: error instanceof ScreenshotReadError
+          ? error.message
+          : "We couldn't open that image. Please try a different screenshot.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setScreenshotPreview(dataUrl);
+    setScreenshotBase64(dataUrl);
+    startAnalysis(dataUrl);
   };
 
   // Start Gemini Analysis
@@ -154,9 +170,15 @@ export default function ProloadPage() {
     } catch (error: any) {
       console.error(error);
       setStep('upload');
+      // Errors thrown by the server (rather than returned) arrive masked in production
+      // ("An error occurred in the Server Components render..."): never show that to sellers.
+      const message: string = typeof error?.message === 'string' ? error.message : '';
+      const friendly = !message || /Server Components render|digest|Failed to fetch|unexpected response/i.test(message)
+        ? "We couldn't analyse that screenshot right now. Please check your connection and try again."
+        : message;
       toast({
         title: "Analysis Failed",
-        description: error.message || "Failed to analyze screenshot. Please try a clearer screenshot.",
+        description: friendly,
         variant: "destructive",
       });
     }
