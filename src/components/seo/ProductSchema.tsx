@@ -2,14 +2,18 @@ import type { Product, Review } from '@/lib/types'
 import { getProductUrl } from "@/lib/utils/url";
 import { listingSeoState } from '@/lib/seo/listing-status';
 import { schemaItemCondition } from "@/lib/seo/item-condition";
+import { schemaBrand, type SchemaSeller } from '@/lib/seo/listing-seo';
 
 type Props = {
   product: Product
   reviews?: Review[]
   siteUrl?: string
+  /** The actual seller (store or person); the offer omits seller when unknown. */
+  seller?: SchemaSeller | null
 }
 
-export default function ProductSchema({ product, reviews = [], siteUrl = 'https://benched.au' }: Props) {
+export default function ProductSchema({ product, reviews = [], siteUrl = 'https://benched.au', seller = null }: Props) {
+  const brand = schemaBrand(product);
   const ratingValue = reviews.length > 0 
     ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
     : 5;
@@ -33,12 +37,7 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     category: product.category,
     // mpn is the manufacturer's part number (e.g. a sneaker style code); never our listing ID or card number.
     ...(product.styleCode && { mpn: String(product.styleCode) }),
-    ...((product.brand || product.manufacturer) && {
-      brand: {
-        '@type': 'Brand',
-        name: product.brand || product.manufacturer,
-      }
-    }),
+    ...(brand && { brand: { '@type': 'Brand', name: brand } }),
     ...(additionalProperty.length > 0 && { additionalProperty }),
     ...(reviews.length > 0 && {
       aggregateRating: {
@@ -55,10 +54,9 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
       ...(schemaItemCondition(product.condition) && { itemCondition: schemaItemCondition(product.condition) }),
       availability: listingSeoState(product.status).availability,
       url: `${siteUrl}${getProductUrl(product)}`,
-      seller: {
-        '@type': 'Organization',
-        name: 'Benched Australia',
-      },
+      // Benched is the marketplace, not the seller. Shipping/returns are set per seller
+      // and not stored in a structured way, so shippingDetails/hasMerchantReturnPolicy are omitted.
+      ...(seller && { seller }),
     },
   };
 

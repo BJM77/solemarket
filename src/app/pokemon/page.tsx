@@ -4,6 +4,7 @@ import { pageOpenGraph } from '@/lib/seo/og';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import SectionPaginationServer from '@/components/seo/SectionPaginationServer';
 
 // Pokémon & trading cards storefront (served at benched.au/pokemon now; pokemon.benched.au later).
 const CATEGORY = 'Collector Cards';
@@ -64,6 +65,7 @@ export default async function PokemonPage({
           titleAsH1={true}
         />
       </Suspense>
+      {Object.keys(resolved).every((k) => k === 'view') && <SectionPaginationServer section="pokemon" />}
     </>
   );
 }
