@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signUpWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
+import { sanitizeRedirect, withRedirectParam } from "@/lib/auth/sanitize-redirect";
 import { Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,9 +73,7 @@ const formSchema = z.object({
 function SignUpFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawRedirect = searchParams.get('redirect') || '/';
-  // Only allow same-site relative redirects.
-  const redirectUrl = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+  const redirectUrl = sanitizeRedirect(searchParams.get('redirect'));
   const refCode = searchParams.get('ref');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -501,7 +500,7 @@ function SignUpFormInner() {
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Button variant="link" asChild className="p-0">
-              <Link href="/sign-in">Sign in</Link>
+              <Link href={withRedirectParam('/sign-in', redirectUrl)}>Sign in</Link>
             </Button>
           </p>
         </div>
