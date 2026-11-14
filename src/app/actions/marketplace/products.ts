@@ -14,7 +14,7 @@ import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketpla
 import { isPokemonListing, withoutPokemon } from "@/lib/pokemon-listings";
 import { isCoinListing, withoutCoins } from "@/lib/coin-listings";
 
-/** Main-site rails leave out Pokémon (own section) and coins (not on benched.au). */
+/** Main-site rails leave out TCG listings (own /pokemon section) and coins (not on benched.au). */
 const mainSiteOnly = <T extends Product>(items: T[]): T[] => withoutCoins(withoutPokemon(items));
 import { determineProductStorefrontId } from "@/config/storefronts";
 import { assertNewListingsAllowed } from '@/lib/super-seller/server';
@@ -337,7 +337,7 @@ export async function getAdjacentProducts(currentId: string, createdAt: any) {
             return { prevId: null, nextId: null };
         }
 
-        // Stay within the same section: Pokémon listings step to Pokémon, everything else skips them.
+        // Stay within the same section: TCG listings step to TCG, everything else skips them.
         const currentSnap = await productsRef.doc(currentId).get();
         const currentIsPokemon = isPokemonListing(currentSnap.data() as any);
         const currentIsCoin = isCoinListing(currentSnap.data() as any);
@@ -486,11 +486,15 @@ export const getActiveProducts = unstable_cache(
 export const getActiveListingCount = unstable_cache(
     async (): Promise<number> => {
         try {
+            // The live catalog is small enough to filter in memory so TCG and
+            // coin listings are not counted on the basketball homepage.
             const snapshot = await firestoreDb.collection('products')
                 .where('status', '==', 'available')
-                .count()
                 .get();
-            return snapshot.data().count;
+            return snapshot.docs.filter((doc: any) => {
+                const data = { id: doc.id, ...doc.data() };
+                return !isPokemonListing(data) && !isCoinListing(data);
+            }).length;
         } catch (error: any) {
             console.error(`[getActiveListingCount] Error: ${error.message}`);
             return 0;
@@ -506,12 +510,22 @@ export const getSimilarProductsByCategory = unstable_cache(
             const normalized = normalizeCategory(category);
             const related = RELATED_CATEGORIES[normalized] || [category];
 
+            const currentSnap = await firestoreDb.collection('products').doc(currentId).get();
+            const currentData = currentSnap.exists ? { id: currentId, ...currentSnap.data() } : null;
+            const currentIsTcg = isPokemonListing(currentData as any);
+            const currentIsCoin = isCoinListing(currentData as any);
+            const sameSection = (p: Product) =>
+                isPokemonListing(p) === currentIsTcg && isCoinListing(p) === currentIsCoin;
+
+            // Over-fetch: Collector Cards mixes sports and TCG, so we filter in memory.
+            const poolSize = Math.max(limitCount * 6, 40);
+
             try {
                 const snapshot = await firestoreDb.collection('products')
                     .where('category', 'in', related)
                     .where('status', '==', 'available')
                     .orderBy('createdAt', 'desc')
-                    .limit(limitCount + 1)
+                    .limit(poolSize)
                     .get();
 
                 let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
@@ -519,12 +533,12 @@ export const getSimilarProductsByCategory = unstable_cache(
                     ...doc.data(),
                 })) as Product[];
 
-                return products.filter(p => p.id !== currentId).slice(0, limitCount);
+                return products.filter(p => p.id !== currentId && sameSection(p)).slice(0, limitCount);
             } catch (indexError) {
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('category', 'in', related)
                     .where('status', '==', 'available')
-                    .limit(limitCount + 10)
+                    .limit(poolSize)
                     .get();
 
                 let products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
@@ -532,7 +546,7 @@ export const getSimilarProductsByCategory = unstable_cache(
                     ...doc.data(),
                 })) as Product[];
 
-                return products.filter(p => p.id !== currentId).slice(0, limitCount);
+                return products.filter(p => p.id !== currentId && sameSection(p)).slice(0, limitCount);
             }
         } catch (error) {
             console.error("Error fetching similar products:", error);

@@ -7,6 +7,9 @@
  * default storefront so existing behaviour is unchanged.
  */
 
+import { isCoinListing } from '@/lib/coin-listings';
+import { isTcgListing, type TcgListingFields } from '@/lib/tcg-listings';
+
 export type StorefrontId = 'basketball' | 'coins' | 'pokemon' | 'seller';
 
 export interface StorefrontConfig {
@@ -114,18 +117,15 @@ export function resolveStorefrontId(host: string | null | undefined): Storefront
   return DEFAULT_STOREFRONT_ID;
 }
 
-/** Determine the storefront for a listing based on its category/subCategory/brand */
-export function determineProductStorefrontId(product: { category?: unknown; subCategory?: unknown; brand?: unknown; storefrontId?: unknown } | null | undefined): StorefrontId {
+/** Determine the storefront for a listing based on its fields (category, title, specs, …). */
+export function determineProductStorefrontId(product: TcgListingFields): StorefrontId {
   if (!product) return 'basketball';
   if (product.storefrontId === 'coins' || product.storefrontId === 'pokemon' || product.storefrontId === 'basketball') {
     return product.storefrontId;
   }
-  const cat = String(product.category || '').toLowerCase();
-  const sub = String(product.subCategory || '').toLowerCase();
-  const brand = String(product.brand || '').toLowerCase();
-
-  if (cat.includes('coin') || sub.includes('coin') || sub.includes('bullion')) return 'coins';
-  if (/pok[eé]mon/i.test(cat) || /pok[eé]mon/i.test(sub) || /pok[eé]mon/i.test(brand) || sub.includes('magic') || sub.includes('yu-gi-oh')) return 'pokemon';
+  // Coins stay on the coins storefront; TCG (Pokémon, Magic, Yu-Gi-Oh, …) goes to /pokemon.
+  if (isCoinListing(product)) return 'coins';
+  if (isTcgListing(product)) return 'pokemon';
 
   return 'basketball';
 }

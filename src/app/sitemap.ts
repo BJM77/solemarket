@@ -6,6 +6,7 @@ import * as path from 'path';
 import { getProductUrl } from "@/lib/utils/url";
 import { sitemapChunkIndex, toSitemapDate } from "@/lib/seo/sitemap";
 import { isCoinListing } from "@/lib/coin-listings";
+import { isPokemonListing } from "@/lib/pokemon-listings";
 
 /**
  * World-Class Sitemap Generation
@@ -182,8 +183,9 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
-    // Coin listings aren't part of benched.au (their /coins/... pages redirect home).
-    productRoutes = activeProducts.filter(p => !isCoinListing(p)).map(p => ({
+    // Coins aren't part of benched.au. TCG listings belong on /pokemon and have
+    // no per-listing URL there yet, so they are left out of the main /cards sitemap.
+    productRoutes = activeProducts.filter(p => !isCoinListing(p) && !isPokemonListing(p)).map(p => ({
       url: `${baseUrl}${getProductUrl(p)}`,
       lastModified: toSitemapDate(p.updatedAt, p.createdAt),
       changeFrequency: 'daily',

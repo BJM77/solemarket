@@ -1,8 +1,19 @@
 /**
- * Pokémon listings live in the Pokémon section (/pokemon, later pokemon.benched.au)
- * and are kept off the main basketball site. Existing listings use a few
- * different sub-category spellings, so match them all.
+ * Pokémon and other trading card game listings live in the Pokémon & trading
+ * cards section (/pokemon, later pokemon.benched.au) and are kept off the
+ * main basketball site.
+ *
+ * The historical names in this file are kept so existing call sites keep
+ * working; they now detect every TCG, not only Pokémon. The real matcher
+ * lives in tcg-listings.ts.
+ *
+ * isPokemonSubCategory stays Pokémon-only so Firestore 'in' queries that
+ * use POKEMON_SUBCATEGORIES are not accidentally applied to Yu-Gi-Oh etc.
  */
+import { isTcgListing, withoutTcg } from './tcg-listings';
+
+export { isTcgListing, isTcgValue, withoutTcg } from './tcg-listings';
+
 export const POKEMON_SUBCATEGORIES = ['Pokémon', 'Pokemon', 'Pokémon Cards', 'Pokemon Cards', 'Pokémon TCG', 'Pokemon TCG'];
 
 const POKEMON_RE = /pok[eé]mon/i;
@@ -11,13 +22,12 @@ export function isPokemonSubCategory(value: unknown): boolean {
   return typeof value === 'string' && POKEMON_RE.test(value);
 }
 
-export function isPokemonListing(p: { category?: unknown; subCategory?: unknown; brand?: unknown; storefrontId?: unknown } | null | undefined): boolean {
-  if (!p) return false;
-  if (p.storefrontId === 'pokemon') return true;
-  return isPokemonSubCategory(p.subCategory) || isPokemonSubCategory(p.category) || isPokemonSubCategory(p.brand);
+/** True for a Pokémon or other TCG listing that should live on /pokemon. */
+export function isPokemonListing(p: Parameters<typeof isTcgListing>[0]): boolean {
+  return isTcgListing(p);
 }
 
-/** Drop Pokémon listings from a main-site list. */
-export function withoutPokemon<T extends Parameters<typeof isPokemonListing>[0]>(items: T[]): T[] {
-  return items.filter((p) => !isPokemonListing(p));
+/** Drop TCG listings from a main-site list. */
+export function withoutPokemon<T extends Parameters<typeof isTcgListing>[0]>(items: T[]): T[] {
+  return withoutTcg(items);
 }

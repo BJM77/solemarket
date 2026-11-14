@@ -1,5 +1,7 @@
 'use client';
 import { usePublicSeller } from '@/hooks/use-public-seller';
+import { isPokemonListing } from '@/lib/pokemon-listings';
+import { isCoinListing } from '@/lib/coin-listings';
 
 import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import { notFound, useRouter } from 'next/navigation';
@@ -199,7 +201,9 @@ export default function ProductDetailsClient({
                     id: doc.id,
                     ...doc.data()
                 })) as Product[];
-                setRelatedProducts(relatedData);
+                const sameSection = (item: Product) =>
+                    isPokemonListing(item) === isPokemonListing(product) && isCoinListing(item) === isCoinListing(product);
+                setRelatedProducts(relatedData.filter(sameSection));
                 setLoadingRelated(false);
             };
             fetchRelatedProducts();

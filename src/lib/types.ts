@@ -201,8 +201,10 @@ export type Product = {
 
 export type ProductSearchParams = {
   [key: string]: any;
-  /** Main-site feeds hide Pokémon listings unless this is set (admin tools) or the filter asks for Pokémon. */
+  /** Main-site feeds hide TCG listings unless this is set (admin tools) or tcgOnly is set. */
   includePokemon?: boolean;
+  /** /pokemon storefront: only return trading card game listings (Pokémon, Yu-Gi-Oh, Magic, …). */
+  tcgOnly?: boolean;
   /** Main-site feeds hide coin and bullion listings unless this is set (admin tools) or the filter asks for coins. */
   includeCoins?: boolean;
   q?: string;
