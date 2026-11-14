@@ -25,6 +25,9 @@ describe('toSearchLite', () => {
     expect(toSearchLite('x', { title: 'A', price: 5, status: 'available', isDraft: true })).toBeNull();
     expect(toSearchLite('x', { ...live, title: 'A', price: 0 })).toBeNull();
     expect(toSearchLite('x', { ...live, title: 'Charizard', price: 5, subCategory: 'Pokémon' })).toBeNull();
+    expect(toSearchLite('x', { ...live, title: 'Antique Sail Fossil', price: 5, category: 'Collector Cards', subCategory: 'Sports Cards', brand: 'Panini', specs: { setName: 'Pokemon', pokemonCode: 'POR' } })).toBeNull();
+    expect(toSearchLite('x', { ...live, title: 'Blue-Eyes White Dragon', price: 5, subCategory: 'Yu-Gi-Oh!' })).toBeNull();
+    expect(toSearchLite('x', { ...live, title: '2024 Topps Chrome Shota Imanaga', price: 5, category: 'Collector Cards', brand: 'Topps' })).not.toBeNull();
     expect(toSearchLite('x', { ...live, title: '1oz Silver', price: 5, category: 'Coins' })).toBeNull();
     expect(toSearchLite('x', { ...live, title: 'Penny', price: 5, storefrontId: 'coins' })).toBeNull();
     expect(toSearchLite('x', { ...live, title: '', price: 5 })).toBeNull();

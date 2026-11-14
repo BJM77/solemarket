@@ -3,6 +3,8 @@ import type { Product } from '@/lib/types';
 import ProductCard from '@/components/products/ProductCard';
 import { Flame, TrendingUp, BarChart3, Clock } from 'lucide-react';
 import { serializeFirestoreData } from "@/lib/utils/serialization";
+import { isPokemonListing } from '@/lib/pokemon-listings';
+import { isCoinListing } from '@/lib/coin-listings';
 
 // Build Trigger: Standardized on serializeFirestoreData
 export const dynamic = 'force-dynamic';
@@ -13,13 +15,13 @@ export default async function MarketTrendingPage() {
     const productsSnap = await firestoreDb.collection('products')
         .where('status', '==', 'available')
         .orderBy('views', 'desc')
-        .limit(20)
+        .limit(40)
         .get();
 
     const trendingProducts = productsSnap.docs.map((doc: any) => serializeFirestoreData({
         id: doc.id,
         ...doc.data()
-    })) as Product[];
+    })).filter((p: Product) => !isPokemonListing(p) && !isCoinListing(p)).slice(0, 20) as Product[];
 
     return (
         <div className="min-h-screen bg-background pb-20">

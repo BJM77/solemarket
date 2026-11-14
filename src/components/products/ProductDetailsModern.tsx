@@ -1,6 +1,8 @@
 'use client';
 import { ListingSequenceNav } from './ListingSequenceNav';
 import { usePublicSeller } from '@/hooks/use-public-seller';
+import { isPokemonListing } from '@/lib/pokemon-listings';
+import { isCoinListing } from '@/lib/coin-listings';
 
 import { getProductUrl } from '@/lib/utils/url';
 import { facetCategory } from '@/lib/filters/params';
@@ -223,10 +225,12 @@ export default function ProductDetailsModern({
                     limit(6)
                 );
                 const querySnapshot = await getDocs(q);
+                const sameSection = (item: Product) =>
+                    isPokemonListing(item) === isPokemonListing(product) && isCoinListing(item) === isCoinListing(product);
                 const productsData = querySnapshot.docs
                     .filter(doc => doc.id !== productId)
                     .map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
-                setSellerMultibuyProducts(productsData);
+                setSellerMultibuyProducts(productsData.filter(sameSection));
             } catch (error) {
                 console.error("Error fetching seller multibuy products:", error);
             } finally {
@@ -235,7 +239,7 @@ export default function ProductDetailsModern({
         };
 
         fetchSellerMultibuy();
-    }, [product?.sellerId, product?.category, productId, product?.multibuyEnabled]);
+    }, [product, product?.sellerId, product?.category, productId, product?.multibuyEnabled]);
 
     useEffect(() => {
         if (!product?.sellerId) {
@@ -254,17 +258,19 @@ export default function ProductDetailsModern({
                 );
                 const snap = await getDocs(q);
                 if (cancelled) return;
+                const sameSection = (item: Product) =>
+                    isPokemonListing(item) === isPokemonListing(product) && isCoinListing(item) === isCoinListing(product);
                 const items = snap.docs
                     .filter(d => d.id !== productId)
                     .map(d => ({ id: d.id, ...d.data() })) as Product[];
-                setMoreFromSeller(items.slice(0, 6));
+                setMoreFromSeller(items.filter(sameSection).slice(0, 6));
             } catch (err) {
                 console.error("Error fetching more from seller:", err);
             }
         };
         fetchMoreFromSeller();
         return () => { cancelled = true; };
-    }, [product?.sellerId, productId]);
+    }, [product, product?.sellerId, productId]);
 
     // Shoe-size labels and the size guide only make sense for footwear.
     const isShoeListing = facetCategory(product?.category) === 'sneakers';

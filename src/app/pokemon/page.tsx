@@ -4,9 +4,8 @@ import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
-// Pokémon storefront (served at benched.au/pokemon now; pokemon.benched.au later).
+// Pokémon & trading cards storefront (served at benched.au/pokemon now; pokemon.benched.au later).
 const CATEGORY = 'Collector Cards';
-const SUB_CATEGORY = 'Pokémon';
 
 export async function generateMetadata({
   searchParams,
@@ -15,10 +14,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const q = (await searchParams).q;
   const term = typeof q === 'string' ? q : '';
-  const title = term ? `Pokémon Cards: "${term}"` : 'Buy Pokémon Cards & TCG in Australia';
+  const title = term ? `Pokémon & trading cards: "${term}"` : 'Buy Pokémon & trading cards in Australia';
   const description = term
-    ? `Pokémon card results for "${term}" from Australian collectors on Benched.`
-    : 'Buy and sell Pokémon cards, graded slabs (PSA, BGS, CGC) and sealed TCG product from Australian collectors. Pay sellers directly by PayID or cash on pickup.';
+    ? `Pokémon and trading card results for "${term}" from Australian collectors on Benched.`
+    : 'Buy and sell Pokémon cards, graded slabs (PSA, BGS, CGC), sealed product and other trading card games from Australian collectors. Pay sellers directly by PayID or cash on pickup.';
   return { title, description, alternates: { canonical: '/pokemon' }, openGraph: { title, description, type: 'website' } };
 }
 
@@ -31,12 +30,18 @@ export default async function PokemonPage({
   const searchTerm = typeof resolved.q === 'string' ? resolved.q : '';
   const sort = typeof resolved.sort === 'string' ? resolved.sort : undefined;
 
+  const filterState = {
+    q: searchTerm,
+    category: CATEGORY,
+    includePokemon: true,
+    tcgOnly: true,
+    status: 'available' as const,
+  };
+
   let initialData;
   try {
     initialData = await getCachedCategoryProducts({
-      q: searchTerm,
-      category: CATEGORY,
-      subCategory: SUB_CATEGORY,
+      ...filterState,
       sort,
       page: 1,
       limit: 24,
@@ -48,12 +53,12 @@ export default async function PokemonPage({
 
   return (
     <>
-      <BreadcrumbSchema items={[{ name: 'Home', item: '/' }, { name: 'Pokémon', item: '/pokemon' }]} />
+      <BreadcrumbSchema items={[{ name: 'Home', item: '/' }, { name: 'Pokémon & trading cards', item: '/pokemon' }]} />
       <Suspense fallback={<div className="container mx-auto px-4 py-8"><div className="h-96 w-full bg-muted animate-pulse rounded-3xl" /></div>}>
         <InfiniteProductGrid
-          pageTitle={searchTerm ? `Pokémon results for "${searchTerm}"` : 'Pokémon Cards & TCG'}
-          pageDescription="Singles, graded slabs and sealed product from Australian collectors."
-          initialFilterState={{ q: searchTerm, category: CATEGORY, subCategory: SUB_CATEGORY, status: 'available' }}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : 'Pokémon & trading cards'}
+          pageDescription="Pokémon, Yu-Gi-Oh, Magic and other TCG singles, graded slabs and sealed product from Australian collectors."
+          initialFilterState={filterState}
           initialData={initialData}
           titleAsH1={true}
         />

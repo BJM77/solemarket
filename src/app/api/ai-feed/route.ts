@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { SITE_NAME, SITE_URL } from '@/config/brand';
 import { isCoinListing } from '@/lib/coin-listings';
+import { isPokemonListing } from '@/lib/pokemon-listings';
 
 export const revalidate = 1800; // 30 minutes cache
 
@@ -21,8 +22,11 @@ export async function GET() {
       .limit(100)
       .get();
 
-    // Coins aren't part of benched.au.
-    const items = productsSnap.docs.filter((doc: any) => !isCoinListing(doc.data())).map((doc: any) => {
+    // Coins aren't part of benched.au; TCG listings belong on /pokemon, not this feed.
+    const items = productsSnap.docs.filter((doc: any) => {
+      const data = doc.data();
+      return !isCoinListing(data) && !isPokemonListing(data);
+    }).map((doc: any) => {
       const data = doc.data();
       return {
         id: doc.id,

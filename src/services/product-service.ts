@@ -20,9 +20,11 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   const productsRef = collection(db, 'products');
   let constraints: any[] = [];
 
-  // Pokémon belongs to the Pokémon section; main-site feeds leave it out.
+  // TCG listings belong on /pokemon; main-site feeds leave them out unless
+  // includePokemon (admin) or tcgOnly (the Pokémon & trading cards page) is set.
+  const tcgOnly = searchParams.tcgOnly === true || String(searchParams.tcgOnly ?? '') === 'true';
   const wantsPokemon = isPokemonSubCategory(subCategory) || isPokemonSubCategory(brand);
-  const hidePokemon = !wantsPokemon && !searchParams.includePokemon;
+  const hidePokemon = !tcgOnly && !searchParams.includePokemon;
   // Coins and bullion aren't part of benched.au; only the (future) coins storefront asks for them.
   const wantsCoins = isCoinValue(searchParams.category) || (searchParams.categories || []).some((c: string) => isCoinValue(c)) || isCoinValue(subCategory);
   const hideCoins = !wantsCoins && !searchParams.includeCoins;
@@ -81,7 +83,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   } else if (category) {
     // Pokémon listings are all filed under the main cards category; skip the related-category
     // 'in' so the sub-category can use its own 'in' (and the existing index).
-    const related = wantsPokemon ? undefined : RELATED_CATEGORIES[category];
+    const related = wantsPokemon && !tcgOnly ? undefined : RELATED_CATEGORIES[category];
     if (related && related.length > 1) {
       constraints.push(where('category', 'in', related));
       inFilterUsed = true;
@@ -104,7 +106,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     brandOrBranches = 3;
     // Firestore OR logic handles multi-field inclusivity
   } else {
-    if (subCategory && isPokemonSubCategory(subCategory) && !inFilterUsed) {
+    if (subCategory && isPokemonSubCategory(subCategory) && !inFilterUsed && !tcgOnly) {
       // Existing Pokémon listings use several spellings; match them all.
       constraints.push(where('subCategory', 'in', POKEMON_SUBCATEGORIES));
       inFilterUsed = true;
@@ -323,8 +325,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   const queryArgs: any[] = [...filterArgs, ...orderByConstraints];
 
   // Server counts can't see in-memory filters; don't show a count that could be wrong.
-  // Counts can't exclude Pokémon either, so skip them where Pokémon could be in the results.
-  const pokemonCouldAppear = hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory;
+  // Counts can't exclude TCG either, so skip them where TCG could be in the results.
+  // tcgOnly always needs an in-memory count (Collector Cards also includes sports cards).
+  const pokemonCouldAppear = tcgOnly || (hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory);
   // Same for coins: without a category filter, coin listings could be in the server count.
   const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
   const countIsExact = !pokemonCouldAppear && !coinsCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
@@ -342,17 +345,21 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     }
   }
 
+  // /pokemon asks for every TCG under Collector Cards and filters in memory;
+  // the live catalog is small enough to load in one page.
+  const pageSize = tcgOnly ? 500 : PAGE_SIZE;
+
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
     const lastDocSnap = await getDoc(lastDocRef);
 
     if (lastDocSnap.exists()) {
-      finalQuery = query(productsRef, ...queryArgs, startAfter(lastDocSnap), limit(PAGE_SIZE));
+      finalQuery = query(productsRef, ...queryArgs, startAfter(lastDocSnap), limit(pageSize));
     } else {
       return { products: [], hasMore: false };
     }
   } else {
-    finalQuery = query(productsRef, ...queryArgs, limit(PAGE_SIZE));
+    finalQuery = query(productsRef, ...queryArgs, limit(pageSize));
   }
 
   try {
@@ -371,8 +378,9 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
 
     const isAdminView = userRole === 'admin' || userRole === 'superadmin';
     products = products.filter((p: Product) => {
-      // 0. Pokémon lives in its own section.
+      // 0. TCG listings live in the /pokemon section.
       if (hidePokemon && isPokemonListing(p)) return false;
+      if (tcgOnly && !isPokemonListing(p)) return false;
       // 0b. Coins and bullion aren't listed on benched.au.
       if (hideCoins && isCoinListing(p)) return false;
 
@@ -513,7 +521,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
     // Keep the page in the requested order regardless of legacy string prices.
     products = applyClientSort(products, effectiveSort);
 
-    const hasMore = querySnapshot.docs.length === PAGE_SIZE;
+    const hasMore = querySnapshot.docs.length === pageSize;
     const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;
 
     let totalCount: number | undefined = undefined;

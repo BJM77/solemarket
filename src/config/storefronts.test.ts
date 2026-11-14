@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { storefrontRootRewrite, resolveStorefrontId, normaliseHost, getStorefrontConfig, STOREFRONTS } from './storefronts';
+import { storefrontRootRewrite, resolveStorefrontId, normaliseHost, getStorefrontConfig, STOREFRONTS, determineProductStorefrontId } from './storefronts';
 
 describe('storefront host resolution', () => {
   it('maps known hosts', () => {
@@ -42,5 +42,27 @@ describe('storefront folders', () => {
     expect(storefrontRootRewrite('coins.benched.au', '/p/abc')).toBeNull();
     expect(storefrontRootRewrite('benched.au', '/')).toBeNull();
     expect(storefrontRootRewrite('localhost:3000', '/')).toBeNull();
+  });
+});
+
+describe('determineProductStorefrontId', () => {
+  it('routes TCG listings to pokemon, including mis-filed Pokémon', () => {
+    expect(determineProductStorefrontId({ subCategory: 'Pokémon' })).toBe('pokemon');
+    expect(determineProductStorefrontId({ subCategory: 'Yu-Gi-Oh!' })).toBe('pokemon');
+    expect(determineProductStorefrontId({ title: 'Magic: The Gathering Bloomburrow' })).toBe('pokemon');
+    expect(determineProductStorefrontId({
+      title: 'Antique Sail Fossil',
+      category: 'Collector Cards',
+      subCategory: 'Sports Cards',
+      brand: 'Panini',
+      specs: { setName: 'Pokemon', pokemonCode: 'POR' },
+    })).toBe('pokemon');
+  });
+  it('keeps sports cards on basketball and coins on coins', () => {
+    expect(determineProductStorefrontId({ title: '2024 Topps Chrome Shota Imanaga', brand: 'Topps' })).toBe('basketball');
+    expect(determineProductStorefrontId({ title: '2023 Panini Prizm Magic Johnson', brand: 'Panini' })).toBe('basketball');
+    expect(determineProductStorefrontId({ title: 'Orlando Magic jersey card', category: 'Collector Cards' })).toBe('basketball');
+    expect(determineProductStorefrontId({ category: 'Coins', title: '1930 Penny' })).toBe('coins');
+    expect(determineProductStorefrontId({ storefrontId: 'basketball', subCategory: 'Pokémon' })).toBe('basketball');
   });
 });

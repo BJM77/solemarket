@@ -83,7 +83,7 @@ export function parseFilterSearchParams(
 }
 
 /** Keys never shown as removable "Active" chips. */
-const NON_CHIP_KEYS = new Set(['view', 'sort', 'page', 'category', 'categories', 'limit', 'lastId', 'status']);
+const NON_CHIP_KEYS = new Set(['view', 'sort', 'page', 'category', 'categories', 'limit', 'lastId', 'status', 'includePokemon', 'includeCoins', 'tcgOnly']);
 
 export interface ActiveChip { key: string; value?: string; label: string }
 
