@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils/ui";
 import { GALLERY_SIZES } from '@/lib/listing-nav';
 import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
 import ListingImageZoomOverlay from './ListingImageZoomOverlay';
+import ListingMobileGallery from './ListingMobileGallery';
 import { ZOOM_HOVER_DELAY_MS, isInTopHoverZone } from '@/lib/listing-zoom/geometry';
 
 interface ProductImageGalleryProps {
@@ -59,11 +60,12 @@ export default function ProductImageGallery({
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     skipSnaps: false,
-    // On touch screens, dragging is reserved for the magnifier; photos change via the arrow buttons.
+    // On touch screens, swiping the main photo is reserved so a tap can open the full-screen gallery.
     watchDrag: (_api, evt) => !(evt.type.startsWith('touch') || (evt as PointerEvent).pointerType === 'touch'),
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isZoomOverlayOpen, setIsZoomOverlayOpen] = useState(false);
+  const [isMobileGalleryOpen, setIsMobileGalleryOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullZoom, setIsFullZoom] = useState(false);
   const [canHoverZoom, setCanHoverZoom] = useState(false);
@@ -100,6 +102,13 @@ export default function ProductImageGallery({
       ? [{ type: 'video' as const, url: videoUrl, thumbnail: videoThumbnailUrl || images[0] }, ...images.map(img => ({ type: 'image' as const, url: img }))]
       : images.map(img => ({ type: 'image' as const, url: img }));
   }, [videoUrl, videoThumbnailUrl, images]);
+
+  const photoItems = useMemo(
+    () => media.filter((item): item is { type: 'image'; url: string } => item.type === 'image' && Boolean(item.url)),
+    [media],
+  );
+  const photoUrls = photoItems.map((item) => item.url);
+  const photoIndex = Math.max(0, photoItems.findIndex((item) => item.url === media[selectedIndex]?.url));
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -187,17 +196,28 @@ export default function ProductImageGallery({
     clearHoverZoomTimer();
   };
 
+  const openMobileGallery = useCallback(() => {
+    if (photoUrls.length === 0) return;
+    setIsMobileGalleryOpen(true);
+  }, [photoUrls.length]);
+
   const handleImageClick = () => {
-    if (!canHoverZoom) return;
-    openZoomOverlay();
+    if (canHoverZoom) {
+      openZoomOverlay();
+      return;
+    }
+    if (media[selectedIndex]?.type === 'video') return;
+    openMobileGallery();
   };
 
   const handleImageKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!canHoverZoom) return;
-    if (e.key === 'Enter') {
-      e.preventDefault();
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    if (canHoverZoom) {
       openZoomOverlay();
+      return;
     }
+    if (media[selectedIndex]?.type !== 'video') openMobileGallery();
   };
 
   if (!media || media.length === 0) {
@@ -284,10 +304,11 @@ export default function ProductImageGallery({
                   ) : (
                     <div className="relative w-full h-full px-6 py-4 sm:p-0">
                     <div
-                      role={canHoverZoom ? 'button' : undefined}
-                      tabIndex={canHoverZoom ? 0 : undefined}
-                      aria-label={canHoverZoom ? `View enlarged photo of ${title}` : undefined}
-                      className={cn("relative w-full h-full", canHoverZoom && "md:cursor-zoom-in")}
+                      role="button"
+                      tabIndex={0}
+                      data-testid={index === selectedIndex ? 'listing-main-photo' : undefined}
+                      aria-label={canHoverZoom ? `View enlarged photo of ${title}` : `View photos of ${title}`}
+                      className={cn("relative w-full h-full", canHoverZoom ? "md:cursor-zoom-in" : "cursor-zoom-in")}
                       onPointerMove={handleImagePointerMove}
                       onPointerLeave={handleImagePointerLeave}
                       onClick={handleImageClick}
@@ -342,7 +363,7 @@ export default function ProductImageGallery({
             </>
           )}
 
-          {/* Mobile arrows: sit in the side inset so they never cover the magnifier area */}
+          {/* Mobile arrows: sit in the side inset so they never cover the photo */}
           {media.length > 1 && (
             <>
               <button
@@ -393,7 +414,7 @@ export default function ProductImageGallery({
             onClick={() => setIsFullscreen(true)}
             variant="ghost"
             aria-label="Show all photos"
-            className="absolute top-4 right-4 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-border rounded-full px-2.5 sm:px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
+            className="absolute top-4 right-4 hidden sm:flex bg-black/40 backdrop-blur-md hover:bg-black/60 text-white border border-border rounded-full px-2.5 sm:px-4 h-9 text-xs font-bold uppercase tracking-tighter z-20 transition-all active:scale-95"
           >
             <ImageIcon className="w-3.5 h-3.5 sm:mr-2" />
             <span className="hidden sm:inline">Show All Photos</span>
@@ -446,6 +467,17 @@ export default function ProductImageGallery({
           src={media[selectedIndex].url}
           alt={imageAltTexts[selectedIndex] || `${title} - Zoomed`}
           onClose={closeZoomOverlay}
+        />
+      )}
+
+      {!canHoverZoom && (
+        <ListingMobileGallery
+          open={isMobileGalleryOpen}
+          images={photoUrls}
+          initialIndex={photoIndex}
+          title={title}
+          altTexts={imageAltTexts}
+          onClose={() => setIsMobileGalleryOpen(false)}
         />
       )}
 
