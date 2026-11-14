@@ -31,12 +31,13 @@ test.describe('mobile listing photo gallery', () => {
   test('the browser back button closes the gallery without leaving the listing', async ({ page }) => {
     await page.goto('/product/e2e-live-1');
     await expect(page.getByTestId('listing-main-photo')).toBeVisible({ timeout: 45_000 });
+    const listingUrl = page.url();
     await page.getByTestId('listing-main-photo').click();
     await expect(page.getByTestId('listing-mobile-gallery')).toBeVisible();
 
     await page.goBack();
 
     await expect(page.getByTestId('listing-mobile-gallery')).toHaveCount(0);
-    await expect(page).toHaveURL(/\/product\//);
+    await expect(page).toHaveURL(listingUrl);
   });
 });
