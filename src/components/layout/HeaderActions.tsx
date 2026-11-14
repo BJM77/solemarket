@@ -1,14 +1,12 @@
 'use client';
 
-import { ShoppingCart, Search, PlusCircle } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { UserNav } from './user-nav';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { NewOrderAlerts } from '../notifications/NewOrderAlerts';
-import Link from 'next/link';
 import { useUser } from '@/firebase';
-import { LogIn, UserPlus } from 'lucide-react';
 import { TeamPickerButton } from '@/components/team-theme/TeamPicker';
 
 export default function HeaderActions() {
@@ -17,21 +15,6 @@ export default function HeaderActions() {
 
     return (
         <div className="flex items-center justify-end space-x-1 lg:space-x-2">
-            {!user && (
-                <div className="flex items-center gap-1">
-                    <Button asChild variant="ghost" size="icon" aria-label="Sign In">
-                        <Link href="/sign-in">
-                            <LogIn className="h-5 w-5" />
-                        </Link>
-                    </Button>
-                    <Button asChild variant="ghost" size="icon" aria-label="Register">
-                        <Link href="/sign-up">
-                            <UserPlus className="h-5 w-5" />
-                        </Link>
-                    </Button>
-                </div>
-            )}
-
             {user && (
                 <div className="flex items-center gap-1 lg:gap-2">
                     {/* Sell buttons removed as requested */}

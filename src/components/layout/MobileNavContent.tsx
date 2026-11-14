@@ -17,6 +17,7 @@ import { Skeleton } from '../ui/skeleton';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 import { cn } from "@/lib/utils/ui";
+import { currentPathAndQuery, withRedirectParam } from '@/lib/auth/sanitize-redirect';
 import { TeamPickerPanel } from '@/components/team-theme/TeamPicker';
 import { Palette } from 'lucide-react';
 
@@ -491,11 +492,11 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     ) : (
                         <div className="px-4 py-2 space-y-3">
                             <p className="text-xs text-muted-foreground mb-4">Sign in to sync your favorites and start selling.</p>
-                            <Button className="w-full font-bold rounded-xl h-11" onClick={() => handleLinkClick('/sign-in')}>
-                                <LogIn className="mr-2 h-4 w-4" /> Sign In
+                            <Button className="w-full font-bold rounded-xl h-11" onClick={() => handleLinkClick(withRedirectParam('/sign-in', currentPathAndQuery()))}>
+                                <LogIn className="mr-2 h-4 w-4" /> Sign in
                             </Button>
-                            <Button variant="outline" className="w-full font-bold rounded-xl h-11" onClick={() => handleLinkClick('/sign-up')}>
-                                <User className="mr-2 h-4 w-4" /> Register
+                            <Button variant="outline" className="w-full font-bold rounded-xl h-11" onClick={() => handleLinkClick(withRedirectParam('/sign-up', currentPathAndQuery()))}>
+                                <User className="mr-2 h-4 w-4" /> Create account
                             </Button>
                         </div>
                     )}

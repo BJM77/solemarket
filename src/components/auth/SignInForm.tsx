@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signInWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
+import { sanitizeRedirect } from "@/lib/auth/sanitize-redirect";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -30,7 +31,7 @@ const formSchema = z.object({
 function SignInFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/';
+  const redirectUrl = sanitizeRedirect(searchParams.get('redirect'));
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);

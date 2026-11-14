@@ -61,7 +61,7 @@ export function BottomNav() {
     listingId
       ? { label: 'Next', href: nav?.next ?? null, icon: ChevronRight, testId: 'bottom-nav-next', onEnd: !!seq?.done }
       : { label: 'Activity', href: user ? '/profile/orders' : '/sign-in?redirect=/profile/orders', icon: Bell },
-    { label: 'Profile', href: user ? '/profile' : '/sign-in', icon: User },
+    { label: 'Profile', href: user ? '/profile' : '/sign-in?redirect=/profile', icon: User },
   ];
 
   return (
