@@ -21,13 +21,33 @@ const ProloadParsedDetailsSchema = z.object({
 
 export type ProloadParsedDetails = z.infer<typeof ProloadParsedDetailsSchema>;
 
+// The browser shrinks screenshots to well under this before calling the action.
+const MAX_SCREENSHOT_CHARS = 950_000;
+
+const GENERIC_ERROR = "We couldn't analyse that screenshot right now. Please try again in a moment.";
+
 export async function parseFacebookMarketplaceScreenshot(
   idToken: string,
   screenshotBase64: string
 ): Promise<{ success: true; data: ProloadParsedDetails } | { success: false; error: string }> {
+  if (typeof screenshotBase64 !== 'string' || screenshotBase64.length === 0) {
+    return { success: false, error: 'Please choose a screenshot to analyse.' };
+  }
+  if (screenshotBase64.length > MAX_SCREENSHOT_CHARS) {
+    return { success: false, error: 'That screenshot is too large. Please try a smaller screenshot.' };
+  }
+  if (screenshotBase64.startsWith('data:') && !screenshotBase64.startsWith('data:image/')) {
+    return { success: false, error: 'Please upload an image file (a screenshot of the listing).' };
+  }
+
   try {
-    // 1. Verify user token
     await verifyIdToken(idToken);
+  } catch (error) {
+    console.error('Proload: ID token verification failed:', error);
+    return { success: false, error: 'Your sign-in has expired. Please refresh the page and try again.' };
+  }
+
+  try {
 
     // 2. Call Gemini Vision Model to extract structure
     const prompt = `You are a Facebook Marketplace screenshot parsing specialist.
@@ -58,8 +78,9 @@ export async function parseFacebookMarketplaceScreenshot(
     }
 
     return { success: true, data: result.output };
-  } catch (error: any) {
+  } catch (error) {
+    // Log the real cause (missing key, model error, timeout...) server-side; sellers get a friendly message.
     console.error('Error parsing FB Marketplace listing:', error);
-    return { success: false, error: error.message || 'An unexpected error occurred during analysis.' };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
