@@ -11,6 +11,8 @@ import { getProductUrl } from "@/lib/utils/url";
 import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
 import { listingSeoState } from "@/lib/seo/listing-status";
 import { isPokemonListing } from "@/lib/pokemon-listings";
+import { listingSeoTitle, schemaSeller } from "@/lib/seo/listing-seo";
+import { getPublicSellerInfo } from "@/app/actions/seller/public-seller";
 
 // ISR: product pages are cached for 5 minutes instead of rendered on every
 // visit. Price/status stay live because ProductDetailsModern subscribes to the
@@ -41,13 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : product.condition || null,
   ].filter(Boolean);
 
-  // Keep the <title> around 60 chars: trim the product part, keep the category suffix.
-  const titleSuffix = ` | ${product.category}`;
-  const titleCore = specBits.length > 0 ? `${product.title} (${specBits.slice(0, 3).join(' ')})` : String(product.title);
-  const maxCore = Math.max(20, 60 - titleSuffix.length);
-  const enrichedTitle = (titleCore.length > maxCore ? `${titleCore.slice(0, maxCore - 1).trimEnd()}…` : titleCore) + titleSuffix;
+  // The seller's title plus only details it doesn't already say; the layout adds " | Benched".
+  const enrichedTitle = listingSeoTitle(product);
 
-  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Verified local sellers, PayID & secure local collection.`;
+  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Pay the seller directly by PayID or cash on pickup.`;
   const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;
   const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category })}`;
   const primaryImage = product.imageUrls[0];
@@ -93,7 +92,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: enrichedTitle,
       description,
       url: canonicalUrl,
-      type: 'website',
+      // og:type "product" is rendered by the page (Next's openGraph.type has no product value).
       images: [ogImage],
     },
     other: {
@@ -125,14 +124,20 @@ export default async function ProductPage({ params }: Props) {
 
   // Reviews and related products are independent: fetch them in parallel.
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
-  const [initialReviews, similarProducts] = await Promise.all([
+  const [initialReviews, similarProducts, sellerInfo] = await Promise.all([
     getReviewsForProduct(id),
     getSimilarProductsByCategory(id, product.category, 6),
+    product.sellerId ? getPublicSellerInfo(product.sellerId).catch(() => null) : Promise.resolve(null),
   ]);
 
   return (
     <>
-      <ProductSchema product={product} reviews={initialReviews} />
+      <meta property="og:type" content="product" />
+      <ProductSchema
+        product={product}
+        reviews={initialReviews}
+        seller={schemaSeller(sellerInfo as Record<string, any> | null, 'https://benched.au', product.sellerId)}
+      />
       <BreadcrumbSchema
         items={[
           { name: 'Home', item: '/' },

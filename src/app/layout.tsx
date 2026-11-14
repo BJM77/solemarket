@@ -12,7 +12,7 @@ import { brandConfig, SITE_NAME, SITE_URL } from '@/config/brand';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { BottomNav } from '@/components/layout/BottomNav';
-import { CartDrawer } from "@/components/cart/CartDrawer";
+import { LazyCartDrawer } from "@/components/cart/LazyCartDrawer";
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { FacebookPixel as FBPixel } from '@/components/analytics/FacebookPixel';
 
@@ -163,7 +163,7 @@ export default async function RootLayout({
           </main>
           <Footer config={siteConfig.footer} />
           <BottomNav />
-          <CartDrawer />
+          <LazyCartDrawer />
         </AppProviders>
       </body>
     </html>

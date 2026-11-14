@@ -894,8 +894,12 @@ export default function ProductCard({
           src={product.imageUrls[0]}
           alt={product.title}
           fill
-          sizes="50vw"
+          // Same sizes/quality as the desktop SmartImage below, so both variants resolve to one
+          // image URL: the browser downloads (and preloads) it once instead of twice.
+          sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
+          quality={50}
           priority={priority}
+          fetchPriority={priority ? 'high' : undefined}
           className="object-cover object-center"
         />
       )}

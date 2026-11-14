@@ -5,6 +5,7 @@ import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
 import { pageOpenGraph } from '@/lib/seo/og';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import SectionPaginationServer from '@/components/seo/SectionPaginationServer';
 
 export async function generateMetadata({
   searchParams,
@@ -113,6 +114,7 @@ export default async function ShoesBrowsePage({
           titleAsH1={true}
         />
       </Suspense>
+      {Object.keys(resolvedParams).every((k) => k === 'view') && <SectionPaginationServer section="shoes" />}
     </>
   );
 }

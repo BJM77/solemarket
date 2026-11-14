@@ -1,250 +1,73 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { cache } from 'react';
+import type { Product, UserProfile } from '@/lib/types';
+import { getPublicSellerInfo } from '@/app/actions/seller/public-seller';
+import { getLiveListings } from '@/lib/seo/landing-listings.server';
+import { toSearchLite } from '@/lib/search/inline';
+import { pageOpenGraph } from '@/lib/seo/og';
+import { createdSeconds } from '@/lib/seo/section-pages';
+import SellerPageClient from './SellerPageClient';
 
-'use client';
-import { usePublicSeller } from '@/hooks/use-public-seller';
+// The listings grid reads search params, so render per request (listing data comes from a cached read).
+export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useMemo } from 'react';
-import { usePathname } from 'next/navigation';
-import { doc, getDoc, collection, query, where, getDocs, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import type { Product, UserProfile, Review } from '@/lib/types';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Mail, ShieldCheck, ShoppingBag, MessageSquare, Info } from 'lucide-react';
-import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
-import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
-import ReviewList from '@/components/reviews/ReviewList';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
-import { toast } from '@/hooks/use-toast';
-import Link from 'next/link';
-import { cn } from "@/lib/utils/ui";
-import { formatPrice } from "@/lib/utils/format";
-import { Phone } from 'lucide-react'; // Import Phone icon
-import { safeDate } from '@/lib/date-utils';
-import { SuperSellerBadge, BusinessSellerNote, isSuperSeller } from '@/components/products/SuperSellerBadge';
+/** Listings rendered on the server; sellers with more fall back to the grid's client paging. */
+const SSR_LIMIT = 60;
 
-// Define types
-interface Seller extends UserProfile {
-  rating?: number;
-  totalSales?: number;
-  isVerified?: boolean;
-  responseTime?: string;
-  joinDate?: string;
-  description?: string;
+type Props = { params: Promise<{ id: string }> };
+
+const loadSeller = cache(async (id: string) => getPublicSellerInfo(id));
+
+const loadSellerListings = cache(async (id: string): Promise<Product[]> => {
+  const live = await getLiveListings();
+  return live
+    .filter((p) => (p as any).sellerId === id && !!toSearchLite(p.id, p as unknown as Record<string, any>))
+    .sort((a, b) => createdSeconds(b) - createdSeconds(a));
+});
+
+function sellerName(s: UserProfile): string {
+  const d = s as any;
+  // Same name the page's H1 shows.
+  return String(d.businessName || d.displayName || d.storeName || 'Benched seller').trim();
 }
 
-function SellerProfileSkeleton() {
-  return (
-    <div className="container py-8 md:py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-        <div className="lg:col-span-1">
-          <Card>
-            <CardContent className="p-6 text-center flex flex-col items-center">
-              <Skeleton className="h-28 w-28 rounded-full mb-4" />
-              <Skeleton className="h-8 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardContent>
-          </Card>
-        </div>
-        <div className="lg:col-span-3">
-          <Skeleton className="h-10 w-full max-w-sm mb-6" />
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => <Skeleton key={i} className="aspect-square h-48 w-full" />)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const seller = await loadSeller(id);
+  if (!seller) return { title: 'Seller not found', robots: { index: false } };
+  const name = sellerName(seller);
+  const listings = await loadSellerListings(id);
+  const n = listings.length;
+  const title = `${name} – Seller Profile`;
+  const description = n > 0
+    ? `Shop ${n} live ${n === 1 ? 'listing' : 'listings'} from ${name} on Benched, Australia's marketplace for basketball cards and sneakers. Pay the seller directly by PayID or cash on pickup.`
+    : `${name} sells basketball cards and sneakers on Benched. Pay the seller directly by PayID or cash on pickup.`;
+  const path = `/seller/${id}`;
+  const image = (seller as any).photoURL;
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    // A storefront with nothing for sale is thin content; keep it out of search until it has stock.
+    ...(n === 0 ? { robots: { index: false, follow: true } } : {}),
+    openGraph: pageOpenGraph({ title, description, path, type: 'website', ...(image ? { images: [{ url: image }] } : {}) }),
+  };
 }
 
-export default function SellerPage() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const sellerId = pathname.split('/').pop() || '';
-  const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
-
-
-  const { firestore } = useFirebase();
-  const { user } = useUser();
-
-  const { data: sellerData, isLoading: loadingSeller } = usePublicSeller(sellerId);
-  const seller = sellerData as unknown as Seller | null;
-
-  const reviewsQuery = useMemoFirebase(() => {
-    if (!firestore || !sellerId) return null;
-    return query(
-      collection(firestore, 'reviews'),
-      where('sellerId', '==', sellerId)
-    );
-  }, [firestore, sellerId]);
-  const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery);
-
-
-
-
-  const averageRating = reviews && reviews.length > 0
-    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-    : 0;
-
-  const handleStartConversation = async () => {
-    if (!user || !seller) {
-      if (!user) router.push(`/sign-in?redirect=/seller/${sellerId}`);
-      return;
-    }
-
-    if (user.uid === seller.id) {
-      toast({ title: "You can't message yourself.", variant: 'destructive' });
-      return;
-    }
-
-    const conversationQuery = query(
-      collection(db, 'conversations'),
-      where('participantIds', 'array-contains', user.uid)
-    );
-
-    const querySnapshot = await getDocs(conversationQuery);
-    let existingConversation: any = null;
-
-    querySnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.participantIds.includes(seller.id)) {
-        existingConversation = { id: doc.id, ...data };
-      }
-    });
-
-    if (existingConversation) {
-      router.push(`/messages/${existingConversation.id}`);
-    } else {
-      const newConversationRef = await addDoc(collection(db, 'conversations'), {
-        participantIds: [user.uid, seller.id],
-        participants: {
-          [user.uid]: {
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-          },
-          [seller.id]: {
-            displayName: seller.displayName,
-            photoURL: seller.photoURL,
-          }
-        },
-        lastMessage: {
-          text: `New conversation with ${seller.displayName}`,
-          senderId: user.uid,
-          timestamp: serverTimestamp(),
-        },
-        createdAt: serverTimestamp(),
-      });
-      router.push(`/messages/${newConversationRef.id}`);
-    }
-  };
-
-  if (loadingSeller) return <SellerProfileSkeleton />;
-
-  if (!seller) {
-    return (
-      <div className="container py-12 text-center">
-        <h1 className="text-2xl font-bold">Seller not found</h1>
-        <p className="text-muted-foreground mt-2">The seller you are looking for does not exist.</p>
-      </div>
-    );
-  }
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return 'S';
-    const names = name.split(' ');
-    if (names.length > 1) {
-      return names[0][0] + names[names.length - 1][0];
-    }
-    return name[0];
-  };
-
-  const joinDate = seller.createdAt ? safeDate(seller.createdAt).toLocaleDateString() : new Date().toLocaleDateString();
-
+export default async function SellerPage({ params }: Props) {
+  const { id } = await params;
+  const seller = await loadSeller(id);
+  if (!seller) notFound();
+  const listings = await loadSellerListings(id);
+  // Keep the phone number out of the HTML; the client fetches it when "Show Phone Number" is tapped.
+  const { phoneNumber, ...rest } = seller as UserProfile & { phoneNumber?: string };
+  const initialSeller = { ...rest, hasPhone: !!phoneNumber } as UserProfile & { hasPhone: boolean };
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container py-8 md:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardContent className="p-6 text-center flex flex-col items-center">
-                <Avatar className="h-28 w-28 mb-4 border-4 border-white shadow-md">
-                  <AvatarImage src={seller.photoURL || ''} alt={seller.displayName || 'Seller'} />
-                  <AvatarFallback className="text-4xl">{getInitials(seller.displayName)}</AvatarFallback>
-                </Avatar>
-                <h1 className="text-2xl font-bold font-headline">{seller.businessName || seller.displayName}</h1>
-                {seller.businessName && <p className="text-sm font-medium text-gray-500">{seller.displayName}</p>}
-                <p className="text-sm text-muted-foreground">Joined {joinDate}</p>
-
-                <div className="flex items-center gap-2 mt-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-700" />
-                    <span className="font-bold">{typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'}</span>
-                  </div>
-                  <span className="text-muted-foreground text-sm">({reviews?.length || 0} reviews)</span>
-                </div>
-
-                {isSuperSeller(seller) && (
-                  <div className="mt-2 space-y-1">
-                    <SuperSellerBadge />
-                    <BusinessSellerNote />
-                  </div>
-                )}
-                {seller.isVerified && (
-                  <div className="flex items-center gap-2 mt-2 text-orange-700">
-                    <ShieldCheck className="h-5 w-5" />
-                    <span className="text-sm font-medium">Verified Seller</span>
-                  </div>
-                )}
-
-                <Button className="w-full mt-6" onClick={handleStartConversation}>
-                  <Mail className="mr-2 h-4 w-4" /> Message Seller
-                </Button>
-                {seller.phoneNumber && (
-                  <Button
-                    variant={isPhoneRevealed ? "secondary" : "outline"}
-                    className={cn("w-full mt-2", isPhoneRevealed ? "bg-green-100 text-green-800 hover:bg-green-200" : "")}
-                    onClick={() => setIsPhoneRevealed(true)}
-                  >
-                    <Phone className="mr-2 h-4 w-4" />
-                    {isPhoneRevealed ? seller.phoneNumber : "Show Phone Number"}
-                  </Button>
-                )}
-                {seller.bio && (
-                  <div className="text-left w-full mt-6 pt-4 border-t">
-                    <h4 className="font-semibold text-sm mb-2 text-muted-foreground">About Me</h4>
-                    <p className="text-sm text-gray-600">{seller.bio}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Content */}
-          <div className="lg:col-span-3">
-            <Tabs defaultValue="listings">
-              <TabsList className="grid w-full grid-cols-2 max-w-sm">
-                <TabsTrigger value="listings"><ShoppingBag className="w-4 h-4 mr-2" />Listings</TabsTrigger>
-                <TabsTrigger value="reviews"><MessageSquare className="w-4 h-4 mr-2" />Reviews ({reviews?.length || 0})</TabsTrigger>
-              </TabsList>
-              <TabsContent value="listings" className="mt-8">
-                <InfiniteProductGrid 
-                  pageTitle="Store Listings"
-                  initialFilterState={{ sellers: [sellerId] }}
-                  hideTitle={true}
-                  containerClassName="w-full"
-                />
-              </TabsContent>
-              <TabsContent value="reviews" className="mt-8">
-                <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SellerPageClient
+      sellerId={id}
+      initialSeller={initialSeller}
+      initialListings={listings.length <= SSR_LIMIT ? listings : undefined}
+    />
   );
 }

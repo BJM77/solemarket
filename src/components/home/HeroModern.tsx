@@ -1,19 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
 import { cn } from '@/lib/utils/ui';
 
 export default function HeroModern({ listingCount = 0 }: { listingCount?: number }) {
-    const [mounted, setMounted] = useState(false);
     const { config } = useSiteConfig();
     const hero = config.hero;
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     return (
         <section className="relative flex items-start pt-2.5 md:pt-8 lg:pt-12 pb-4 md:pb-8 overflow-hidden">
@@ -72,7 +67,7 @@ export default function HeroModern({ listingCount = 0 }: { listingCount?: number
                             <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Peer-to-Peer</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-xl md:text-3xl font-black text-primary mb-0.5 md:mb-1">{mounted ? listingCount.toLocaleString() : '...'}</div>
+                            <div className="text-xl md:text-3xl font-black text-primary mb-0.5 md:mb-1">{listingCount.toLocaleString('en-AU')}</div>
                             <div className="text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Active Listings</div>
                         </div>
                         <div className="text-center">
