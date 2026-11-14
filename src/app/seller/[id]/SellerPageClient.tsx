@@ -190,7 +190,7 @@ export default function SellerPageClient({ sellerId, initialSeller = null, initi
                   <AvatarImage src={seller.photoURL || ''} alt={seller.displayName || 'Seller'} />
                   <AvatarFallback className="text-4xl">{getInitials(seller.displayName)}</AvatarFallback>
                 </Avatar>
-                <h1 className="text-2xl font-bold font-headline">{seller.businessName || seller.displayName}</h1>
+                <h1 className="text-2xl font-bold font-headline">{seller.businessName || seller.displayName || (seller as { storeName?: string }).storeName || 'Benched seller'}</h1>
                 {seller.businessName && <p className="text-sm font-medium text-gray-500">{seller.displayName}</p>}
                 {joinDate && <p className="text-sm text-muted-foreground">Joined {joinDate}</p>}
 

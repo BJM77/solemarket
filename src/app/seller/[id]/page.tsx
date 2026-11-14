@@ -39,10 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = sellerName(seller);
   const listings = await loadSellerListings(id);
   const n = listings.length;
-  const title = `${name} – Seller Profile`;
+  // Profiles with no name set get a neutral title instead of "Benched seller – Seller Profile".
+  const title = name === 'Benched seller' ? 'Seller Profile' : `${name} – Seller Profile`;
   const description = n > 0
-    ? `Shop ${n} live ${n === 1 ? 'listing' : 'listings'} from ${name} on Benched, Australia's marketplace for basketball cards and sneakers. Pay the seller directly by PayID or cash on pickup.`
-    : `${name} sells basketball cards and sneakers on Benched. Pay the seller directly by PayID or cash on pickup.`;
+    ? `Shop ${n} live ${n === 1 ? 'listing' : 'listings'} from ${name === 'Benched seller' ? 'this seller' : name} on Benched, Australia's marketplace for basketball cards and sneakers. Pay the seller directly by PayID or cash on pickup.`
+    : `${name === 'Benched seller' ? 'This seller' : name} sells basketball cards and sneakers on Benched. Pay the seller directly by PayID or cash on pickup.`;
   const path = `/seller/${id}`;
   const image = (seller as any).photoURL;
   return {
