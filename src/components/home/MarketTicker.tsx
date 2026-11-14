@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useCollection, useFirebaseRef } from '@/firebase';
 import type { Product } from '@/lib/types';
 import { getProductUrl } from "@/lib/utils/url";
+import { isPokemonListing } from '@/lib/pokemon-listings';
+import { isCoinListing } from '@/lib/coin-listings';
 import { useMobileNav } from '@/context/MobileNavContext';
 
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
@@ -26,7 +28,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
             collection(db, 'products'),
             where('status', '==', 'available'),
             orderBy('createdAt', 'desc'),
-            limit(10)
+            limit(25)
         );
     }, []);
 
@@ -61,7 +63,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
     }
 
     // Prepare data for the marquee, ensure stability and no null items
-    const items = (products || []).filter(item => item && item.id);
+    const items = (products || []).filter(item => item && item.id && !isPokemonListing(item) && !isCoinListing(item)).slice(0, 10);
 
     if (items.length === 0) return null;
 

@@ -10,6 +10,8 @@ import MontageGrid from '@/components/products/MontageGrid';
 import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
 
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
+import { isPokemonListing } from '@/lib/pokemon-listings';
+import { isCoinListing } from '@/lib/coin-listings';
 
 function toTitleCase(str: string) {
     if (!str) return '';
@@ -60,7 +62,7 @@ function CategoryPageContent() {
                     <ProductGridSkeleton count={20} />
                 </div>
             ) : (
-                <MontageGrid products={products || []} />
+                <MontageGrid products={(products || []).filter((p) => !isPokemonListing(p) && !isCoinListing(p))} />
             )}
         </div>
     );

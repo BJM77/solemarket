@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { SITE_URL } from '@/config/brand';
+import { isPokemonListing } from '@/lib/pokemon-listings';
 
 /**
  * Facebook Product Feed API
@@ -31,6 +32,8 @@ export async function GET() {
 `;
 
         items.forEach((item: any) => {
+            // TCG listings belong on /pokemon, not the main-site commerce feed.
+            if (isPokemonListing(item)) return;
             // Skip items missing critical data
             if (!item.title || !item.imageUrls || item.imageUrls.length === 0) return;
 

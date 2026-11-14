@@ -13,4 +13,16 @@ describe('pokemon listings', () => {
     expect(isPokemonListing({ category: 'Collector Cards', subCategory: 'Rookies', brand: 'Panini' })).toBe(false);
     expect(withoutPokemon([{ subCategory: 'Pokémon' }, { subCategory: 'Rookies' }])).toEqual([{ subCategory: 'Rookies' }]);
   });
+  it('also treats other TCGs and mis-filed Pokémon as Pokémon-section listings', () => {
+    expect(isPokemonListing({ subCategory: 'Yu-Gi-Oh!', title: 'Blue-Eyes White Dragon' })).toBe(true);
+    expect(isPokemonListing({
+      title: 'Antique Sail Fossil',
+      category: 'Collector Cards',
+      subCategory: 'Sports Cards',
+      brand: 'Panini',
+      specs: { setName: 'Pokemon', pokemonCode: 'POR' },
+    })).toBe(true);
+    expect(isPokemonListing({ title: '2023 Panini Prizm Magic Johnson', brand: 'Panini' })).toBe(false);
+    expect(isPokemonListing({ title: '2024 Topps Chrome Shota Imanaga', brand: 'Topps' })).toBe(false);
+  });
 });
