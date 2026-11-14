@@ -185,41 +185,6 @@ export default function ConsignPage() {
                     </div>
                 </div>
 
-                {/* Testimonials Section */}
-                <div className="bg-gray-100/70 py-16 mb-20 rounded-xl">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-4xl font-bold mb-12">Trusted by Collectors Like You</h2>
-                        <div className="grid md:grid-cols-2 gap-8 px-6">
-                            <Card className="bg-white">
-                                <CardContent className="p-6">
-                                    <div className="flex mb-2">
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                    </div>
-                                    <p className="text-gray-700 italic mb-4">"The entire process was seamless. I sent my kicks in, and Benched handled the rest. The final sale price exceeded my expectations. Highly recommend for anyone who values their time and privacy."</p>
-                                    <p className="font-semibold">- David R., Private Collector</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-white">
-                                <CardContent className="p-6">
-                                    <div className="flex mb-2">
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                        <Star className="text-yellow-700" />
-                                    </div>
-                                    <p className="text-gray-700 italic mb-4">"I was nervous about selling my late father's card collection, but they handled it with the utmost professionalism and respect. The communication was excellent, and the results were fantastic."</p>
-                                    <p className="font-semibold">- Sarah L., Estate Seller</p>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-                </div>
-
                 {/* FAQ Section */}
                 <div className="max-w-3xl mx-auto mb-20">
                     <h2 className="text-4xl font-bold text-center mb-8">Frequently Asked Questions</h2>

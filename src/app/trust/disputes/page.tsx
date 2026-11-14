@@ -2,10 +2,9 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Scale, CheckCircle2, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
 import type { Metadata } from 'next';
-import { brandConfig } from '@/config/brand';
 
 export const metadata: Metadata = {
-    title: `Dispute Resolution Statistics | ${brandConfig.seo.defaultTitle}`,
+    title: 'Dispute Resolution Statistics',
     description: 'Radical transparency for Benched disputes. View our 48-hour SLA resolution stats and automated decision matrices.',
 };
 

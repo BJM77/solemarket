@@ -5,6 +5,7 @@ import {
   cleanSpaces,
   pickBrand,
   pickModel,
+  pickModelMatchingTitle,
   pickYear,
   pickPlayer,
   YEAR_RE,
@@ -146,7 +147,18 @@ function matchLeadingBrand(text: string, brands: string[]): string | null {
 function composeShoeRow1(listing: ListingDetailTitleSource, title: string): string {
   const derived = shortListingTitle(listing);
   if (!derived) return '';
-  if (title && derived.toLowerCase() === title.toLowerCase()) return '';
+  if (title && derived.toLowerCase() === title.toLowerCase()) {
+    // "Nike Lebron 22 Monopoly" with colourway "Monopoly": split the colourway off the title.
+    const colorway = pickColorway(listing);
+    if (colorway) {
+      const withoutColorway = removePhrase(title, colorway);
+      if (withoutColorway && withoutColorway.toLowerCase() !== title.toLowerCase()) {
+        const fromTitle = shortListingTitle({ ...listing, title: withoutColorway });
+        if (fromTitle && fromTitle.toLowerCase() !== title.toLowerCase()) return fromTitle;
+      }
+    }
+    return '';
+  }
   return derived;
 }
 
@@ -167,12 +179,17 @@ function composeCardRow2(listing: ListingDetailTitleSource, title: string, row1:
   const parallel = cleanSpaces(String(listing.parallel || ''));
   const cardNumber = formatCardNumber(listing.cardNumber);
   const row1Phrases = [...phrasesFromRow1(row1), pickYear(listing), pickBrand(listing)];
+  // Without a player field the structured fields can't name the card's subject
+  // (e.g. brand "Panini Prizm Deep Space" + model "Prizm Deep Space" drops "LeBron James"),
+  // so use what's left of the title instead.
+  const fromTitle = remainderAfter(title, row1Phrases);
+  if (!player && fromTitle) return fromTitle;
   const fromFields = remainderAfter(
     joinParts([setOrModel, player, parallel, cardNumber]),
     row1Phrases,
   );
   if (fromFields) return fromFields;
-  return remainderAfter(title, row1Phrases);
+  return fromTitle;
 }
 
 function composeShoeRow2(listing: ListingDetailTitleSource, title: string, row1: string): string {
@@ -180,7 +197,7 @@ function composeShoeRow2(listing: ListingDetailTitleSource, title: string, row1:
   if (colorway && !row1.toLowerCase().includes(colorway.toLowerCase())) {
     return colorway;
   }
-  let rest = remainderAfter(title, [row1, pickBrand(listing), pickModel(listing), ...phrasesFromRow1(row1)]);
+  let rest = remainderAfter(title, [row1, pickBrand(listing), pickModelMatchingTitle(listing, title), ...phrasesFromRow1(row1)]);
   rest = rest.replace(SHOE_SIZE_US_FIRST, ' ');
   rest = rest.replace(SHOE_SIZE_TRAILING, ' ');
   rest = rest.replace(SHOE_NOISE, ' ');

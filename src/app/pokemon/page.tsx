@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { pageOpenGraph } from '@/lib/seo/og';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
@@ -18,7 +19,7 @@ export async function generateMetadata({
   const description = term
     ? `Pokémon and trading card results for "${term}" from Australian collectors on Benched.`
     : 'Buy and sell Pokémon cards, graded slabs (PSA, BGS, CGC), sealed product and other trading card games from Australian collectors. Pay sellers directly by PayID or cash on pickup.';
-  return { title, description, alternates: { canonical: '/pokemon' }, openGraph: { title, description, type: 'website' } };
+  return { title, description, alternates: { canonical: '/pokemon' }, openGraph: pageOpenGraph({ title, description, path: '/pokemon' }) };
 }
 
 export default async function PokemonPage({

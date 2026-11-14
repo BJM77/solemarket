@@ -13,36 +13,36 @@ export const SEO_TOPICS: SEOTopic[] = [
     // Sneakers
     {
         slug: 'jordan-1-retro-high',
-        title: 'Buy Air Jordan 1 Retro High Australia',
-        h1: 'Authentic Air Jordan 1 Retro High',
-        description: 'Shop the largest collection of authentic Air Jordan 1 Retro High sneakers in Australia. Verified safe, express shipping available.',
+        title: 'Buy Air Jordan 1 Retro High in Australia',
+        h1: 'Air Jordan 1 Retro High',
+        description: 'Air Jordan 1 Retro High sneakers listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup in Perth.',
         category: 'Sneakers',
-        searchQuery: 'Jordan 1 High',
+        searchQuery: 'Jordan 1',
         keywords: ['jordan 1', 'retro high', 'nike air jordan', 'australia']
     },
     {
         slug: 'kobe-6-protro',
-        title: 'Nike Kobe 6 Protro Australia | Buy Authentic',
-        h1: 'Nike Kobe 6 Protro Collection',
-        description: 'Get your hands on the most iconic performance basketball shoes. Authentic Nike Kobe 6 Protro sneakers, including Reverse Grinch and Mambacita.',
+        title: 'Buy Nike Kobe 6 Protro in Australia',
+        h1: 'Nike Kobe 6 Protro',
+        description: 'Nike Kobe 6 Protro basketball shoes listed by Australian sellers on Benched. Message the seller, then pay directly by PayID or cash on pickup.',
         category: 'Sneakers',
         searchQuery: 'Kobe 6',
         keywords: ['kobe 6', 'protro', 'nike basketball', 'kobe bryant']
     },
     {
         slug: 'yeezy-boost-350',
-        title: 'Adidas Yeezy Boost 350 V2 Australia',
-        h1: 'Authentic Yeezy Boost 350 V2',
-        description: 'The ultimate in comfort and style. Shop verified authentic Adidas Yeezy Boost 350 V2 sneakers in Melbourne, Sydney, and across Australia.',
+        title: 'Buy adidas Yeezy Boost 350 V2 in Australia',
+        h1: 'adidas Yeezy Boost 350 V2',
+        description: 'adidas Yeezy Boost 350 V2 sneakers listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup.',
         category: 'Sneakers',
         searchQuery: 'Yeezy 350',
         keywords: ['yeezy 350', 'adidas yeezy', 'boost 350', 'kanye west']
     },
     {
         slug: 'jordan-4-retro',
-        title: 'Air Jordan 4 Retro Australia | Shop Authentics',
-        h1: 'Air Jordan 4 Retro Sneakers',
-        description: 'Discover rare and classic Air Jordan 4 Retro colorways. Verified authentic by Benched, the premier Australian basketball marketplace.',
+        title: 'Buy Air Jordan 4 Retro in Australia',
+        h1: 'Air Jordan 4 Retro',
+        description: 'Air Jordan 4 Retro sneakers listed by Australian sellers on Benched. Check the photos, ask the seller questions and pay directly by PayID or cash.',
         category: 'Sneakers',
         searchQuery: 'Jordan 4',
         keywords: ['jordan 4', 'retro', 'jumpman', 'nike air']
@@ -50,76 +50,67 @@ export const SEO_TOPICS: SEOTopic[] = [
     // Cards
     {
         slug: 'panini-prizm-basketball',
-        title: 'Panini Prizm Basketball Collector Cards Australia',
-        h1: 'Panini Prizm NBA Cards',
-        description: 'The gold standard of NBA collecting. Shop Panini Prizm Basketball hobby boxes, retail, and graded singles in Australia.',
+        title: 'Panini Prizm Basketball Cards Australia',
+        h1: 'Panini Prizm Basketball Cards',
+        description: 'Panini Prizm NBA cards, raw and graded, listed by Australian collectors on Benched. Pay the seller directly by PayID or cash on pickup.',
         category: 'Collector Cards',
-        searchQuery: 'Panini Prizm Basketball',
+        searchQuery: 'Panini Prizm',
         keywords: ['panini prizm', 'nba cards', 'basketball cards', 'hobby box']
     },
     {
         slug: 'victor-wembanyama-rookie',
-        title: 'Victor Wembanyama Rookie Cards Australia',
-        h1: 'Wemby Rookie Card Collection',
-        description: 'Invest in the future. Shop authenticated Victor Wembanyama rookie cards from Panini Prizm, Optic, and more.',
+        title: 'Victor Wembanyama Cards Australia',
+        h1: 'Victor Wembanyama Cards',
+        description: 'Victor Wembanyama rookie and base cards from Panini Prizm, Optic, Phoenix and more, listed by Australian collectors on Benched.',
         category: 'Collector Cards',
-        searchQuery: 'Victor Wembanyama',
+        searchQuery: 'Wembanyama',
         keywords: ['wembanyama', 'rookie card', 'wemby', 'spurs cards']
     },
     {
         slug: 'donruss-optic-basketball',
         title: 'Donruss Optic Basketball Cards Australia',
-        h1: 'Donruss Optic NBA Collection',
-        description: 'Shop Donruss Optic Basketball cards. Home of the Rated Rookie. Discover rare holos and signatures from your favorite NBA stars.',
+        h1: 'Donruss Optic Basketball Cards',
+        description: 'Donruss Optic NBA cards, including Rated Rookies and parallels, listed by Australian collectors on Benched.',
         category: 'Collector Cards',
-        searchQuery: 'Donruss Optic Basketball',
+        searchQuery: 'Optic',
         keywords: ['donruss optic', 'rated rookie', 'nba cards', 'basketball']
     },
     {
         slug: 'michael-jordan-cards',
-        title: 'Michael Jordan Basketball Collector Cards Australia',
-        h1: 'Michael Jordan Collectibles',
-        description: 'The GOAT. Shop authentic Michael Jordan basketball cards, from Fleer rookies to rare 90s inserts and modern high-end cards.',
+        title: 'Michael Jordan Basketball Cards Australia',
+        h1: 'Michael Jordan Cards',
+        description: 'Michael Jordan basketball cards, from Fleer and Upper Deck to modern inserts, listed by Australian collectors on Benched.',
         category: 'Collector Cards',
         searchQuery: 'Michael Jordan',
         keywords: ['michael jordan', 'bulls cards', 'mj cards', 'basketball goat']
     },
-    // --- New pSEO Long-Tail Topics ---
+    // --- Long-tail topics ---
     {
         slug: 'nike-dunk-low-pandas',
-        title: 'Buy Nike Dunk Low Panda in Australia | Authenticated',
+        title: 'Buy Nike Dunk Low Panda in Australia',
         h1: 'Nike Dunk Low Black & White (Panda)',
-        description: 'Shop the highly sought-after Nike Dunk Low Panda. 100% authenticated. Find deals on deadstock pairs across Australia.',
+        description: 'Nike Dunk Low Panda sneakers listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup in Perth.',
         category: 'Sneakers',
-        searchQuery: 'Dunk Low Panda',
+        searchQuery: 'Dunk Low',
         keywords: ['dunk low panda', 'nike dunk', 'black and white dunks', 'buy dunks australia']
     },
     {
         slug: 'jordan-4-military-blue',
-        title: 'Air Jordan 4 Military Blue Australia | Verified',
+        title: 'Buy Air Jordan 4 Military Blue in Australia',
         h1: 'Air Jordan 4 Military Blue',
-        description: 'The return of an icon. Secure your authenticated pair of Air Jordan 4 Military Blue sneakers today safely through Benched.',
+        description: 'Air Jordan 4 Military Blue sneakers listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup.',
         category: 'Sneakers',
         searchQuery: 'Jordan 4 Military Blue',
         keywords: ['jordan 4 military blue', 'jordan 4', 'retro 4', 'nike air']
     },
     {
         slug: 'upper-deck-lebron-james-rookie',
-        title: 'LeBron James Rookie Collector Cards | Upper Deck & Topps Chrome',
-        h1: 'LeBron James Rookie Card Grails',
-        description: 'Invest in the King. Browse our curated selection of authenticated LeBron James rookie cards from Upper Deck, Topps Chrome and more.',
+        title: 'LeBron James Cards Australia',
+        h1: 'LeBron James Cards',
+        description: 'LeBron James basketball cards, from rookies to modern Prizm and Optic, listed by Australian collectors on Benched.',
         category: 'Collector Cards',
-        searchQuery: 'LeBron James Rookie',
-        keywords: ['lebron james rookie', 'topps chrome lebron', 'upper deck lebron', 'nba grail cards']
-    },
-    {
-        slug: 'pokemon-151-english-booster-boxes',
-        title: 'Pokemon 151 English Booster Boxes Australia',
-        h1: 'Pokemon Scarlet & Violet 151 Collection',
-        description: 'Catch the original 151. Shop sealed English booster boxes and rare Illustrator Rare singles from the Pokemon 151 set.',
-        category: 'Collector Cards',
-        searchQuery: 'Pokemon 151',
-        keywords: ['pokemon 151', 'scarlet violet 151', 'pokemon booster box', 'tcg australia']
+        searchQuery: 'LeBron James',
+        keywords: ['lebron james rookie', 'topps chrome lebron', 'upper deck lebron', 'nba cards']
     },
     // Coins
     {

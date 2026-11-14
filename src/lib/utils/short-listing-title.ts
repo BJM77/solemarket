@@ -77,6 +77,21 @@ export function pickModel(listing: ListingTitleSource): string {
   return cleanSpaces(String(listing.model || listing.detectedAttributes?.model || ''));
 }
 
+/**
+ * The model field, unless it clearly belongs to a different shoe than the title
+ * (e.g. model "Giannis Freak 6" on a listing titled "Nike Lebron 22 Monopoly").
+ * The title is what the seller typed last, so it wins: the model is kept only when
+ * at least one of its words (3+ letters) also appears in the title.
+ */
+export function pickModelMatchingTitle(listing: ListingTitleSource, title: string): string {
+  const model = pickModel(listing);
+  if (!model || !title) return model;
+  const titleWords = new Set(title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
+  const modelWords = model.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && /[a-z]/.test(w));
+  if (!modelWords.length) return model;
+  return modelWords.some((w) => titleWords.has(w)) ? model : '';
+}
+
 export function pickYear(listing: ListingTitleSource): string {
   const raw = listing.year ?? listing.detectedAttributes?.year;
   if (raw === null || raw === undefined || raw === '') return '';
@@ -128,7 +143,7 @@ function parseShoeFromTitle(title: string): string {
 
 function shortShoeTitle(listing: ListingTitleSource, title: string): string {
   const brand = pickBrand(listing);
-  const model = pickModel(listing);
+  const model = pickModelMatchingTitle(listing, title);
   if (brand && model) {
     return model.toLowerCase().startsWith(brand.toLowerCase())
       ? model

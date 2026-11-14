@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
+import { pageOpenGraph } from '@/lib/seo/og';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 export async function generateMetadata({
@@ -22,20 +23,16 @@ export async function generateMetadata({
     description = `Searching for ${q} in ${category}. Find the best deals on rare and graded trading cards in Australia.`;
   } else if (q) {
     title = `Search Results for "${q}" Cards`;
-    description = `Shop verified authentic results for "${q}". Browse the best rare collector cards on Benched Australia.`;
+    description = `Cards matching "${q}" from Australian collectors on Benched.`;
   } else if (category) {
     title = `Buy ${category} Trading Cards`;
-    description = `Shop the best rare ${category} on Benched. Secure shipping Australia-wide and vetted authentic.`;
+    description = `Shop the best rare ${category} on Benched. Pay sellers directly by PayID or cash on pickup.`;
   }
 
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-    },
+    openGraph: pageOpenGraph({ title, description, path: '/cards' }),
   };
 }
 
