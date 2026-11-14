@@ -7,8 +7,8 @@ import { getProductUrl } from "@/lib/utils/url";
 import { sitemapChunkIndex, toSitemapDate } from "@/lib/seo/sitemap";
 import { isCoinListing } from "@/lib/coin-listings";
 import { isPokemonListing } from "@/lib/pokemon-listings";
-import { getBrandListings, getLandingListings, getLiveListings } from '@/lib/seo/landing-listings.server';
-import { latestListingDate } from '@/lib/seo/landing-listings';
+import { getLiveListings } from '@/lib/seo/landing-listings.server';
+import { latestListingDate, matchBrandListings, matchLandingListings } from '@/lib/seo/landing-listings';
 import { isCardCategory } from '@/lib/constants/marketplace';
 
 /**
@@ -58,7 +58,9 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
   if (id === 0) {
     // lastmod is the newest live listing in that section; pages without a real
     // change date omit it rather than claiming they changed "now".
-    const live = (await getLiveListings()).filter((p) => !isCoinListing(p));
+    // One cached read of every live listing; landing-page matches are computed from it.
+    const allLive = await getLiveListings();
+    const live = allLive.filter((p) => !isCoinListing(p));
     const tcg = live.filter((p) => isPokemonListing(p));
     const main = live.filter((p) => !isPokemonListing(p));
     const cards = main.filter((p) => isCardCategory(p.category));
@@ -88,7 +90,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
 
     // Brand pages and topic landing pages: only those with something for sale (empty ones are noindex).
     for (const brand of KNOWN_BRANDS) {
-      const listings = await getBrandListings(brandDisplayName(brand));
+      const listings = matchBrandListings(allLive, brandDisplayName(brand));
       if (listings.length) {
         pageRoutes.push({ url: `${baseUrl}/brand/${brand}`, lastModified: latestListingDate(listings), changeFrequency: 'weekly', priority: 0.7 });
       }
@@ -98,7 +100,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
       for (const topic of SEO_TOPICS) {
         if (topic.category === 'Coins') continue;
         const section = topic.category === 'Collector Cards' ? 'cards' : 'shoes';
-        const listings = await getLandingListings(topic.searchQuery, section);
+        const listings = matchLandingListings(allLive, { query: topic.searchQuery, kind: section });
         if (!listings.length) continue;
         pageRoutes.push({ url: `${baseUrl}/${section}/${topic.slug}`, lastModified: latestListingDate(listings), changeFrequency: 'daily', priority: 0.8 });
       }
