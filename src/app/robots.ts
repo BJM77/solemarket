@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { STOREFRONTS } from '@/config/storefronts';
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
@@ -27,6 +28,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/profile/', '/*?*'],
       }
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    // The coins storefront has its own sitemap; it moves to coins.benched.au/robots.txt once launched.
+    sitemap: STOREFRONTS.coins.launched ? `${baseUrl}/sitemap.xml` : [`${baseUrl}/sitemap.xml`, `${baseUrl}/coins/sitemap.xml`],
   };
 }

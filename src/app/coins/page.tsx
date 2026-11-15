@@ -1,105 +1,99 @@
-import { getPublishedSiteConfig } from '@/lib/site-config/server';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { ArrowRight, Banknote, Coins, Gem, Globe, Package, ShieldCheck } from 'lucide-react';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
-import { getCachedCategoryProducts } from '@/lib/cache/products';
-import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import { getCachedCategoryProducts } from '@/lib/cache/products';
+import { coinsPageMetadata } from '@/lib/coins/seo';
+import { STOREFRONTS } from '@/config/storefronts';
+import { coinsPublicUrl } from '@/lib/storefront-routing';
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}): Promise<Metadata> {
-  const resolvedParams = await searchParams;
-  const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
-  const category = typeof resolvedParams.category === 'string' ? resolvedParams.category : '';
+export const metadata = coinsPageMetadata({
+  title: STOREFRONTS.coins.seo.title,
+  description: 'Buy and sell Australian and world coins, gold and silver bullion, proof sets and banknotes from Australian collectors. Pay sellers directly by PayID or cash on pickup.',
+  path: '/',
+  absoluteTitle: true,
+});
 
-  let title = 'Buy Rare Coins & Banknotes';
-  let description = 'Shop Australia\'s premier marketplace for rare Australian coins, gold, silver, and world banknotes. 100% authenticated. Peer-to-peer. Zero selling fees.';
+const TILES = [
+  { label: 'Australian coins', href: '/coins/browse?subCategory=Australian+Coins', Icon: Coins },
+  { label: 'World coins', href: '/coins/browse?subCategory=World+Coins', Icon: Globe },
+  { label: 'Gold bullion', href: '/coins/browse?subCategory=Gold+Bullion', Icon: Gem },
+  { label: 'Silver bullion', href: '/coins/browse?subCategory=Silver+Bullion', Icon: Gem },
+  { label: 'Proof & mint sets', href: '/coins/browse?subCategory=Proof+%26+Mint+Sets', Icon: Package },
+  { label: 'Banknotes', href: '/coins/browse?subCategory=Banknotes', Icon: Banknote },
+];
 
-  if (q && category) {
-    title = `Buy ${q} Coins in ${category}`;
-    description = `Searching for ${q} in ${category}. Find the best deals on rare and graded coins in Australia.`;
-  } else if (q) {
-    title = `Search Results for "${q}" Coins`;
-    description = `Shop verified authentic results for "${q}". Browse the best rare collector coins on Benched Australia.`;
-  } else if (category) {
-    title = `Buy ${category} Coins`;
-    description = `Shop the best rare ${category} on Benched. Secure shipping Australia-wide and vetted authentic.`;
+export default async function CoinsHomePage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  // Old /coins?q=... and /coins?subCategory=... links now live on /coins/browse.
+  const sp = await searchParams;
+  const carry = new URLSearchParams();
+  for (const key of ['q', 'subCategory', 'coinType', 'sort']) {
+    const v = sp[key];
+    if (typeof v === 'string' && v) carry.set(key, v);
   }
+  if ([...carry.keys()].length) redirect(`/coins/browse?${carry.toString()}`);
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-    },
-  };
-}
-
-export default async function CoinsBrowsePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const header = (await getPublishedSiteConfig()).categoryHeaders.coins;
-  const resolvedParams = await searchParams;
-  const searchTerm = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
-  const categoryParam = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'Coins';
-  const subCategoryParam = typeof resolvedParams.subCategory === 'string' ? resolvedParams.subCategory : undefined;
-
-  // Initial Server Fetch
-  let initialProductsData;
+  const filterState = { coinsOnly: true, status: 'available' as const };
+  let initialData;
   try {
-    initialProductsData = await getCachedCategoryProducts({
-      q: searchTerm,
-      category: categoryParam,
-      subCategory: subCategoryParam,
-      sort: typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
-      page: 1,
-      limit: 24
-    });
+    initialData = await getCachedCategoryProducts({ ...filterState, page: 1, limit: 24 });
   } catch (error) {
-    console.error("Initial fetch failed (likely missing index):", error);
-    // return undefined to let client fetch and show error
-    initialProductsData = undefined;
+    console.error('Coins home initial fetch failed:', error);
+    initialData = undefined;
   }
 
   return (
     <>
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', item: '/' },
-          { name: 'Coins', item: '/coins' },
-        ]}
-      />
-      <Suspense fallback={
-        <div className="container mx-auto px-4 py-8">
-          <div className="h-12 w-64 bg-muted animate-pulse rounded-lg mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
-            ))}
+      <BreadcrumbSchema items={[{ name: 'Benched Coins', item: coinsPublicUrl('/') }]} />
+      <section className="bg-gradient-to-b from-amber-50 to-background dark:from-amber-950/30">
+        <div className="container mx-auto max-w-screen-2xl px-4 py-12 md:py-16">
+          <p className="mb-3 text-xs font-black uppercase tracking-widest text-amber-700">Benched Coins</p>
+          <h1 className="max-w-3xl text-4xl font-black tracking-tight md:text-6xl">Coins and bullion from Australian collectors</h1>
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+            Australian and world coins, gold and silver bullion, proof sets and banknotes. Message sellers through Benched and pay them directly by PayID or cash on pickup.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/coins/browse" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+              Shop coins &amp; bullion <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/coins/sell" className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-amber-400">
+              Sell a coin
+            </Link>
           </div>
+          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {TILES.map(({ label, href, Icon }) => (
+              <li key={href}>
+                <Link href={href} className="flex h-full flex-col gap-2 rounded-2xl border border-border bg-card p-4 text-sm font-bold shadow-sm hover:border-amber-500">
+                  <Icon className="h-5 w-5 text-amber-600" aria-hidden />
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
-      }>
+      </section>
+
+      <Suspense fallback={<div className="container mx-auto px-4 py-8"><div className="h-96 w-full animate-pulse rounded-3xl bg-muted" /></div>}>
         <InfiniteProductGrid
-          key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Coins` : header.title || 'All Rare Coins'}
-          pageDescription="Browse the rarest coins from thousands of collectors."
-          intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
-          initialFilterState={{
-            q: searchTerm,
-            category: categoryParam,
-            subCategory: subCategoryParam,
-            status: 'available'
-          }}
-          initialData={initialProductsData} // Pass initial data
-          titleAsH1={true}
+          storefront="coins"
+          pageTitle="Latest coins & bullion"
+          pageDescription="New listings from Australian sellers."
+          initialFilterState={filterState}
+          initialData={initialData}
         />
       </Suspense>
+
+      <section className="container mx-auto max-w-screen-2xl px-4 pb-8">
+        <div className="flex items-start gap-3 rounded-2xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" aria-hidden />
+          <p>
+            Every listing is written by its seller. Benched Coins doesn&apos;t grade, assay or authenticate coins or bullion, so check the photos,
+            any PCGS/NGC slab and cert number, and ask the seller questions before you buy. Spot prices at the top of the page are indicative only.
+          </p>
+        </div>
+      </section>
     </>
   );
 }

@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Pay the seller directly by PayID or cash on pickup.`;
   const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;
-  const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category })}`;
+  const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId })}`;
   const primaryImage = product.imageUrls[0];
   const siteUrl = 'https://benched.au';
   
@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   // One URL per product: send wrong section/slug variants to the canonical path.
-  const canonicalPath = getProductUrl({ id, title: product.title, category: product.category });
+  const canonicalPath = getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId });
   if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
 
   // Reviews and related products are independent: fetch them in parallel.

@@ -8,6 +8,8 @@ const PRIVATE_SELLER_SECTIONS = new Set(['agreement', 'analytics', 'bundles', 'd
 export function isSellerAreaProtected(pathname: string): boolean {
     const p = (pathname || '/').replace(/\/+$/, '') || '/';
     if (p === '/sell') return false;
+    // Coins storefront sell form (benched.au/coins/sell, coins.benched.au/sell).
+    if (p === '/coins/sell' || p.startsWith('/coins/sell/')) return true;
     if (p.startsWith('/sell/')) return true;
     if (p === '/seller') return true;
     if (p.startsWith('/seller/')) {

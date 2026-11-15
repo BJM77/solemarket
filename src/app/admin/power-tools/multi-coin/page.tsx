@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils/ui";
 import { useToast } from '@/hooks/use-toast';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { quickSaveAndPublish } from '@/app/actions/admin/admin-bulk';
+import { coinListingClassification } from '@/lib/coin-listings';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MultiGenPage() {
@@ -161,7 +162,8 @@ export default function MultiGenPage() {
             const result = await quickSaveAndPublish(idToken, {
                 ...aiData,
                 title,
-                category: 'Collectibles',
+                // Benched Coins storefront: Coins or Bullion with a standard sub-category.
+                ...coinListingClassification({ subCategory: aiData?.subCategory, title, metal: aiData?.metal || aiData?.material, country: aiData?.country }),
                 price: aiData?.price || 0,
                 quantity: 1,
             }, capturedImages);

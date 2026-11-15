@@ -10,8 +10,8 @@ export const CATEGORY_COINS = 'Coins';
 export const CATEGORY_ACCESSORIES = 'Accessories';
 export const CATEGORY_GENERAL = 'General';
 
-// Coins aren't offered on benched.au (basketball cards and sneakers); CATEGORY_COINS stays
-// defined for existing listings and a possible separate coins site.
+// Coins and bullion are sold on the Benched Coins storefront (/coins, later coins.benched.au),
+// never on the basketball site; see lib/coin-listings.ts.
 export const DEFAULT_CATEGORIES = [
   CATEGORY_SNEAKERS,
   CATEGORY_TRADING_CARDS,
@@ -65,7 +65,9 @@ export const CATEGORY_MAPPING: Record<string, string> = {
 export const RELATED_CATEGORIES: Record<string, string[]> = {
   [CATEGORY_SNEAKERS]: ['Sneakers', 'Shoes', 'shoes', 'sneakers'],
   [CATEGORY_TRADING_CARDS]: ['Collector Cards', 'Trading Cards', 'Cards', 'collector-cards', 'trading-cards'],
-  [CATEGORY_COINS]: ['Coins', 'coins', 'Numismatics'],
+  // Coins storefront: coin listings and bullion listings together.
+  [CATEGORY_COINS]: ['Coins', 'coins', 'Numismatics', 'Bullion', 'bullion'],
+  Bullion: ['Bullion', 'bullion'],
 };
 
 /**
@@ -81,7 +83,7 @@ export function normalizeCategory(category?: string): string {
  */
 export function isCoinCategory(category?: string): boolean {
   const normalized = normalizeCategory(category);
-  return normalized === CATEGORY_COINS;
+  return normalized === CATEGORY_COINS || /^bullion$/i.test(normalized);
 }
 
 /**

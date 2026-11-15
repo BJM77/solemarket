@@ -1,4 +1,5 @@
 import { isCardCategory, isCoinCategory } from "@/lib/constants/marketplace";
+import { isCoinListing } from "@/lib/coin-listings";
 
 export function slugify(text: string): string {
   const slug = text
@@ -17,12 +18,13 @@ export function slugify(text: string): string {
   return slug || 'item';
 }
 
-export function getProductUrl(product: { id: string; title: string; category?: string }): string {
+export function getProductUrl(product: { id: string; title: string; category?: string; subCategory?: unknown; storefrontId?: unknown }): string {
   let section = 'shoes';
-  if (isCardCategory(product.category)) {
-    section = 'cards';
-  } else if (isCoinCategory(product.category)) {
+  // Coins and bullion live on the coins storefront (/coins/..., coins.benched.au/...).
+  if (isCoinCategory(product.category) || isCoinListing(product)) {
     section = 'coins';
+  } else if (isCardCategory(product.category)) {
+    section = 'cards';
   }
   const slug = slugify(product.title);
   return `/${section}/${slug}/${product.id}`;

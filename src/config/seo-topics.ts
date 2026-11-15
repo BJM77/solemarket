@@ -117,7 +117,7 @@ export const SEO_TOPICS: SEOTopic[] = [
         slug: '1930-australian-penny',
         title: 'Buy 1930 Australian Penny | Rare Coins Australia',
         h1: '1930 Australian Penny (King George V)',
-        description: 'The king of Australian coins. Shop the rarest and most sought-after 1930 Australian Penny. Verified authentic and graded by PCGS/NGC.',
+        description: 'The most sought-after Australian coin. Find 1930 Australian Penny listings from Australian collectors, including PCGS/NGC graded examples where the seller has them.',
         category: 'Coins',
         searchQuery: '1930 Penny',
         keywords: ['1930 penny', 'rare australian coins', 'king george v', 'numismatics']
@@ -126,7 +126,7 @@ export const SEO_TOPICS: SEOTopic[] = [
         slug: 'gold-sovereigns-australia',
         title: 'Gold Sovereigns Australia | Buy Graded Gold Coins',
         h1: 'Australian Gold Sovereigns',
-        description: 'Invest in history. Shop authentic Australian gold sovereigns from the Perth, Sydney, and Melbourne mints. Verified and secure.',
+        description: 'Australian gold sovereigns from the Perth, Sydney and Melbourne mints, listed by Australian collectors. Check the photos and details in each listing before you buy.',
         category: 'Coins',
         searchQuery: 'Gold Sovereign',
         keywords: ['gold sovereign', 'bullion', 'perth mint', 'gold coins']
@@ -135,7 +135,7 @@ export const SEO_TOPICS: SEOTopic[] = [
         slug: 'pcgs-graded-coins-australia',
         title: 'PCGS Graded Coins Australia | Shop Slabs',
         h1: 'PCGS Graded Numismatics',
-        description: 'Shop with confidence. Browse our selection of PCGS graded Australian and world coins. Third-party authentication for maximum value.',
+        description: 'PCGS graded Australian and world coins listed by Australian collectors. Check the slab photos and cert number in each listing.',
         category: 'Coins',
         searchQuery: 'PCGS',
         keywords: ['pcgs', 'graded coins', 'slabs', 'numismatics']

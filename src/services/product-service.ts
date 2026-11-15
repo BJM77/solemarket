@@ -1,5 +1,5 @@
 import { POKEMON_SUBCATEGORIES, isPokemonListing, isPokemonSubCategory } from '@/lib/pokemon-listings';
-import { isCoinListing, isCoinValue } from '@/lib/coin-listings';
+import { isCoinListing, isCoinValue, matchesCoinFlags, wantsCoinsOnly } from '@/lib/coin-listings';
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
@@ -13,7 +13,14 @@ const PAGE_SIZE = 24;
 
 export async function getProducts(searchParams: ProductSearchParams & { countOnly?: boolean }, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
   const priceRange = parseRange(searchParams.priceRange as any);
-  const { page = 1, sort = 'createdAt-desc', q, subCategory, brand, conditions, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
+  // Coins storefront: every query covers all coin + bullion categories, filtered in memory below.
+  const coinsOnly = wantsCoinsOnly(searchParams);
+  if (coinsOnly && !searchParams.category && !(searchParams.categories || []).length) searchParams = { ...searchParams, category: 'Coins' };
+  const { page = 1, sort = 'createdAt-desc', q: rawQ, subCategory, brand, conditions, sellers, yearRange, isUntimed, gradingCompanies, manufacturer } = searchParams;
+  // Coin listings often lack the keyword index fields, so the coins storefront
+  // matches its (small) catalog's text in memory instead of with a Firestore prefix query.
+  const coinTextTerms = coinsOnly && typeof rawQ === 'string' ? rawQ.toLowerCase().split(/\s+/).filter(Boolean) : [];
+  const q = coinsOnly ? undefined : rawQ;
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
   let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
@@ -27,7 +34,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   const hidePokemon = !tcgOnly && !searchParams.includePokemon;
   // Coins and bullion aren't part of benched.au; only the (future) coins storefront asks for them.
   const wantsCoins = isCoinValue(searchParams.category) || (searchParams.categories || []).some((c: string) => isCoinValue(c)) || isCoinValue(subCategory);
-  const hideCoins = !wantsCoins && !searchParams.includeCoins;
+  const hideCoins = !coinsOnly && !wantsCoins && !searchParams.includeCoins;
 
   // 1. Status Filter (Security & Visibility)
   if (userRole === 'admin' || userRole === 'superadmin') {
@@ -330,7 +337,7 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
   const pokemonCouldAppear = tcgOnly || (hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory);
   // Same for coins: without a category filter, coin listings could be in the server count.
   const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
-  const countIsExact = !pokemonCouldAppear && !coinsCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
+  const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
   if (searchParams.countOnly) {
@@ -347,7 +354,8 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
 
   // /pokemon asks for every TCG under Collector Cards and filters in memory;
   // the live catalog is small enough to load in one page.
-  const pageSize = tcgOnly ? 500 : PAGE_SIZE;
+  // The coins storefront filters coins vs bullion in memory; its catalog is small too.
+  const pageSize = tcgOnly || coinsOnly ? 500 : PAGE_SIZE;
 
   if (searchParams.lastId) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
@@ -383,6 +391,13 @@ export async function getProducts(searchParams: ProductSearchParams & { countOnl
       if (tcgOnly && !isPokemonListing(p)) return false;
       // 0b. Coins and bullion aren't listed on benched.au.
       if (hideCoins && isCoinListing(p)) return false;
+      // 0c. The coins storefront only shows coins/bullion (never basketball cards or sneakers).
+      if (!matchesCoinFlags(p, searchParams)) return false;
+      if (coinTextTerms.length) {
+        const hay = [p.title, p.description, p.brand, p.subCategory, p.year, (p as any).denomination, (p as any).metal, (p as any).country]
+          .filter(Boolean).join(' ').toLowerCase();
+        if (!coinTextTerms.every((t) => hay.includes(t))) return false;
+      }
 
       // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
       if (!isAdminView && !(Number(p.price) > 0)) return false;

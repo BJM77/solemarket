@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils/ui";
 const PriceAssistantModal = dynamic(() => import('@/components/admin/PriceAssistantModal'), { ssr: false });
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CategoryPills } from './CategoryPills';
+import { CoinCategoryPills } from '@/components/coins/CoinCategoryPills';
 import { QuickFilterChips } from './QuickFilterChips';
 import { exportAllProductsCSV } from '@/app/actions/admin/export';
 import { Download, Search } from 'lucide-react';
@@ -65,6 +66,7 @@ function InfiniteProductGridInner({
   containerClassName = "container mx-auto max-w-screen-2xl px-4 py-8 min-h-screen",
   searchProvider = 'firestore',
   intro,
+  storefront,
 }: {
   pageTitle: string,
   pageDescription?: string,
@@ -77,8 +79,11 @@ function InfiniteProductGridInner({
   /** 'typesense' | 'algolia' routes public searches through the search adapter (server action). */
   searchProvider?: string,
   /** Short, crawlable category intro shown under the heading. */
-  intro?: string
+  intro?: string,
+  /** 'coins': coins storefront grid (coin pills, no basketball filters or ads). */
+  storefront?: 'coins'
 }) {
+  const isCoinsStorefront = storefront === 'coins';
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -539,7 +544,7 @@ function InfiniteProductGridInner({
                   priority={index < 4}
                 />
               </div>
-              {showAd && typeof AdUnit !== 'undefined' && (
+              {showAd && !isCoinsStorefront && typeof AdUnit !== 'undefined' && (
                 <div className="col-span-full py-4">
                   <AdUnit placement="grid_interstitial" className="w-full aspect-[6/1] md:aspect-[8/1] rounded-2xl" />
                 </div>
@@ -624,7 +629,7 @@ function InfiniteProductGridInner({
               </label>
             </div>
 
-            {isClient && (
+            {isClient && !isCoinsStorefront && (
               <>
                 {/* Desktop View: Inline */}
                 <div className="hidden md:block">
@@ -682,8 +687,8 @@ function InfiniteProductGridInner({
       </header>
 
       <div className="space-y-4 mb-6">
-        {typeof CategoryPills !== 'undefined' && <CategoryPills />}
-        {isClient && (
+        {isCoinsStorefront ? <CoinCategoryPills /> : typeof CategoryPills !== 'undefined' && <CategoryPills />}
+        {isClient && !isCoinsStorefront && (
           <QuickFilterChips
             currentFilters={currentSearchParams}
             onFilterChange={handleFilterChange}

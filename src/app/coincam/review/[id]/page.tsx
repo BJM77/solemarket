@@ -22,7 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/samcam/hooks/use-toast";
 import { db } from "@/samcam/lib/firebase";
 import { cn } from "@/samcam/lib/utils";
-import { doc, getDoc, updateDoc, deleteDoc, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { coinListingClassification } from "@/lib/coin-listings";
 import { useAuth } from "../../auth-provider";
 import { CoinImport } from "@/coincam/lib/types";
 
@@ -58,6 +59,8 @@ export default function CoinReviewDetailPage() {
     setSaveLoading(true);
     try {
       // 1. Promote to products database catalog under coin category
+      // Benched Coins storefront listing (never shown on the basketball site).
+      const cls = coinListingClassification({ subCategory: item.subCategory, title: item.coinName, metal: item.composition, country: item.country });
       await addDoc(collection(db, "products"), {
         title: item.coinName || 'Collectible Coin',
         price: item.price || 0,
@@ -65,14 +68,19 @@ export default function CoinReviewDetailPage() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user.uid,
         status: 'available',
-        category: 'Coins',
+        category: cls.category,
+        subCategory: cls.subCategory,
+        storefrontId: cls.storefrontId,
         brand: item.brand || 'Royal Australian Mint',
         model: item.model || item.denomination || '',
-        condition: item.condition || item.composition || 'New',
+        denomination: item.denomination || '',
+        country: item.country || '',
+        metal: item.composition || '',
+        condition: item.condition || 'Circulated',
         year: item.year || null,
-        subCategory: item.subCategory || 'Australian Coins',
         quantity: 1,
-        createdAt: Date.now(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         isDraft: false,
         specs: {
           coinName: item.coinName || '',
@@ -86,7 +94,7 @@ export default function CoinReviewDetailPage() {
           isRare: item.isRare || false,
           brand: item.brand || 'Royal Australian Mint',
           model: item.model || '',
-          subCategory: item.subCategory || 'Australian Coins',
+          subCategory: cls.subCategory,
           condition: item.condition || '',
         }
       });

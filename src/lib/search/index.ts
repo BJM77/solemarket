@@ -1,6 +1,6 @@
 import 'server-only';
 import { isPokemonListing } from '@/lib/pokemon-listings';
-import { isCoinListing, isCoinValue } from '@/lib/coin-listings';
+import { isCoinListing, isCoinValue, matchesCoinFlags, wantsCoinsOnly } from '@/lib/coin-listings';
 import type { Product, ProductSearchParams } from '@/lib/types';
 import type { SearchProvider, SearchProviderName, SearchResult, SearchDocument } from './types';
 import { decodePageCursor, encodePageCursor, productToSearchDocument } from './mapping';
@@ -58,11 +58,12 @@ export async function searchProducts(params: ProductSearchParams, userRole = 'vi
     const hydrated = await hydrate(ids);
     const tcgOnly = params.tcgOnly === true || String(params.tcgOnly ?? '') === 'true';
     const hidePokemon = !params.includePokemon && !tcgOnly;
-    const hideCoins = !params.includeCoins && !isCoinValue(params.category) && !isCoinValue(params.subCategory);
+    const hideCoins = !wantsCoinsOnly(params) && !params.includeCoins && !isCoinValue(params.category) && !isCoinValue(params.subCategory);
     const products = hydrated.filter((p) => {
       if (hidePokemon && isPokemonListing(p)) return false;
       if (tcgOnly && !isPokemonListing(p)) return false;
       if (hideCoins && isCoinListing(p)) return false;
+      if (!matchesCoinFlags(p, params)) return false;
       return true;
     });
     const hasMore = page * perPage < total;

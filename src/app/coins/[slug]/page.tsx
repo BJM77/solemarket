@@ -4,10 +4,9 @@ import { getTopicBySlug, SEO_TOPICS } from '@/config/seo-topics';
 import { getProducts } from '@/services/product-service';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import TopicSchema from '@/components/seo/TopicSchema';
+import { coinsPageMetadata } from '@/lib/coins/seo';
 
-// Coin landing pages listed in the sitemap (e.g. /coins/1930-australian-penny).
-// Without this route they fell through to the generic [section]/[slug] client page,
-// which rendered with the homepage title/description and no topic copy.
+// Coin topic landing pages (e.g. /coins/1930-australian-penny).
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -22,16 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: topic.title,
-        description: topic.description,
+        ...coinsPageMetadata({ title: topic.title, description: topic.description, path: `/${topic.slug}` }),
         keywords: topic.keywords,
-        alternates: { canonical: `/coins/${topic.slug}` },
-        openGraph: {
-            title: topic.title,
-            description: topic.description,
-            type: 'website',
-            url: `/coins/${topic.slug}`,
-        },
     };
 }
 
@@ -49,14 +40,10 @@ export default async function CoinTopicPage({ params }: Props) {
         notFound();
     }
 
+    const filterState = { q: topic.searchQuery, coinsOnly: true, status: 'available' as const };
     let initialData;
     try {
-        initialData = await getProducts({
-            q: topic.searchQuery,
-            category: 'Coins',
-            page: 1,
-            limit: 24
-        });
+        initialData = await getProducts({ ...filterState, page: 1, limit: 24 });
     } catch (error) {
         console.error('Coin topic initial fetch failed:', error);
         initialData = undefined;
@@ -65,10 +52,10 @@ export default async function CoinTopicPage({ params }: Props) {
     return (
         <div className="min-h-screen pb-20">
             <TopicSchema topic={topic} urlPath={`/coins/${topic.slug}`} />
-            <div className="bg-amber-950 text-foreground py-16 lg:py-24 mb-12">
+            <div className="bg-amber-950 text-amber-50 py-16 lg:py-24 mb-12">
                 <div className="container mx-auto px-4">
                     <div className="bg-amber-500/20 w-fit px-4 py-1 rounded-full text-amber-200 text-xs font-black uppercase tracking-widest mb-6">
-                        Rare Coins
+                        Benched Coins
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-6">
                         {topic.h1}
@@ -81,12 +68,10 @@ export default async function CoinTopicPage({ params }: Props) {
 
             <div className="container mx-auto px-4">
                 <InfiniteProductGrid
+                    storefront="coins"
                     pageTitle={topic.searchQuery}
                     pageDescription={`${topic.searchQuery} listings available now from Australian sellers.`}
-                    initialFilterState={{
-                        q: topic.searchQuery,
-                        category: 'Coins'
-                    }}
+                    initialFilterState={filterState}
                     initialData={initialData}
                 />
             </div>
@@ -95,10 +80,12 @@ export default async function CoinTopicPage({ params }: Props) {
                 <div className="max-w-4xl">
                     <h2 className="text-3xl font-black mb-6 uppercase">Collecting {topic.searchQuery} in Australia</h2>
                     <p className="text-muted-foreground leading-relaxed mb-4 text-lg">
-                        Find {topic.searchQuery} listings from Australian collectors on Benched. Check each listing&apos;s photos, grade and description, and message the seller through Benched if you have questions before you buy.
+                        Find {topic.searchQuery} listings from Australian collectors on Benched Coins. Listings are written by sellers and
+                        aren&apos;t checked or authenticated by Benched, so look at each listing&apos;s photos, grade and description, and message
+                        the seller if you have questions before you buy.
                     </p>
                     <p className="text-muted-foreground leading-relaxed text-lg">
-                        Perth buyers can arrange local cash pickup where the seller offers it.
+                        Pay the seller directly by PayID, or cash on pickup where the seller offers it.
                     </p>
                 </div>
             </div>
