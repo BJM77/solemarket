@@ -26,6 +26,7 @@ import { Form } from '@/components/ui/form';
 import { ChevronLeft, ChevronRight, Eye, Loader2, Sparkles, CheckCircle2, Send, Package, ImagePlus, ShieldCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
+import { isCoinListing } from '@/lib/coin-listings';
 import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
 import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
 import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
@@ -313,7 +314,11 @@ function CreateListingForm() {
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
-          else if (data.category === 'Coins') setSelectedType('coins');
+          else if (isCoinListing(data)) {
+            // Coin and bullion listings are edited in the Benched Coins sell form.
+            router.replace(`/coins/sell?edit=${encodeURIComponent(editId)}`);
+            return;
+          }
           else if (data.category === 'Collector Cards') setSelectedType('collector-cards');
 
           setCurrentStep(1);
@@ -326,7 +331,7 @@ function CreateListingForm() {
       }
     };
     loadDraft();
-  }, [editId, user, form, toast, searchParams]);
+  }, [editId, user, form, toast, searchParams, router]);
 
   // Restores the snapshot of form values prior to the last AI overwrite
   const undoLastAIAction = useCallback(() => {
@@ -594,10 +599,10 @@ function CreateListingForm() {
     setSelectedType(null);
     setCurrentStep(0);
     toast({
-      title: "Coins aren't listed on Benched",
-      description: "Benched is for basketball cards and sneakers, so coin and bullion listings aren't accepted.",
-      variant: "destructive",
+      title: "List coins on Benched Coins",
+      description: "Benched is for basketball cards and sneakers. Coins and bullion are listed on Benched Coins: taking you there now.",
     });
+    router.push('/coins/sell');
   };
 
   const applyAiDataToForm = (suggestions: any, fieldMap: Record<string, boolean>, detectedCategory: string, isCard: boolean) => {

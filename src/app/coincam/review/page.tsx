@@ -24,7 +24,8 @@ import { cn } from "@/samcam/lib/utils";
 import { useAuth } from "../auth-provider";
 import { CoinImport } from "@/coincam/lib/types";
 import { db } from "@/samcam/lib/firebase";
-import { collection, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { coinListingClassification } from "@/lib/coin-listings";
 import { useToast } from "@/samcam/hooks/use-toast";
 
 export default function CoinReviewQueue() {
@@ -56,6 +57,8 @@ export default function CoinReviewQueue() {
   const handleSubmit = async (item: CoinImport) => {
     setActionId(item.id);
     try {
+      // Benched Coins storefront listing (never shown on the basketball site).
+      const cls = coinListingClassification({ subCategory: item.subCategory, title: item.coinName, metal: item.composition, country: item.country });
       await addDoc(collection(db, "products"), {
         title: item.coinName || 'Collectible Coin',
         price: item.price || 0,
@@ -63,10 +66,17 @@ export default function CoinReviewQueue() {
         imageUrls: [item.frontImagePath, item.backImagePath].filter(Boolean),
         sellerId: user?.uid || 'anonymous',
         status: 'available',
-        category: 'Coins',
-        condition: item.composition || 'Circulated',
+        category: cls.category,
+        subCategory: cls.subCategory,
+        storefrontId: cls.storefrontId,
+        denomination: item.denomination || '',
+        country: item.country || '',
+        metal: item.composition || '',
+        year: item.year || null,
+        condition: item.condition || 'Circulated',
         quantity: 1,
-        createdAt: Date.now(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         isDraft: false,
         specs: {
           coinName: item.coinName || '',

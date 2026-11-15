@@ -3,8 +3,9 @@ import type { NextRequest } from 'next/server';
 
 import { jwtVerify, decodeProtectedHeader, importX509, decodeJwt } from 'jose';
 import { SUPER_ADMIN_UIDS, SUPER_ADMIN_EMAILS } from '@/lib/constants';
-import { STOREFRONT_HEADER, resolveStorefrontId, storefrontRootRewrite } from '@/config/storefronts';
+import { STOREFRONT_HEADER, resolveStorefrontId } from '@/config/storefronts';
 import { isCoinsPath } from '@/lib/coin-listings';
+import { routeCoinsHost, routeMainHost } from '@/lib/storefront-routing';
 import { isSellerAreaProtected } from '@/lib/auth/protected-routes';
 
 // Cache keys in memory during Edge function execution
@@ -48,8 +49,8 @@ export async function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('Content-Security-Policy', cspHeader);
-  // Multi-storefront: tell server code which storefront this host serves (never trust a client-sent value).
-  requestHeaders.set(STOREFRONT_HEADER, resolveStorefrontId(request.headers.get('x-forwarded-host') || request.headers.get('host')));
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  const hostStorefront = resolveStorefrontId(host);
 
   // 1. Security Headers (Always Safe & Recommended)
   requestHeaders.set('X-Frame-Options', 'DENY');
@@ -61,31 +62,30 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
 
+  // Multi-storefront routing. The coins storefront lives in src/app/coins: on
+  // coins.benched.au, "/browse" is served from /coins/browse (and /coins/... links
+  // work as-is); on benched.au it's reached at /coins. See lib/storefront-routing.ts.
+  const pathname = request.nextUrl.pathname;
+  const route = hostStorefront === 'coins'
+    ? routeCoinsHost(pathname, request.nextUrl.search, request.nextUrl, host)
+    : routeMainHost(pathname, request.nextUrl.searchParams);
+  if (route.type === 'redirect') {
+    return NextResponse.redirect(new URL(route.url, request.url), 308);
+  }
+  const internalPath = route.type === 'rewrite' ? route.pathname : pathname;
+  // Tell server code which storefront this request is for (never trust a client-sent value).
+  requestHeaders.set(STOREFRONT_HEADER, hostStorefront === 'coins' || isCoinsPath(internalPath) ? 'coins' : hostStorefront);
+
   // 1. Critical Bypass: Allow internal Next.js and all static files to pass through instantly.
   // This prevents MIME-type errors and ChunkLoadErrors during development.
-  const isStaticFile = request.nextUrl.pathname.includes('.') || 
-                       request.nextUrl.pathname.startsWith('/_next');
-  
-  if (isStaticFile || request.nextUrl.pathname.startsWith('/api/')) {
+  const isStaticFile = pathname.includes('.') || pathname.startsWith('/_next');
+
+  if (route.type !== 'rewrite' && (isStaticFile || pathname.startsWith('/api/'))) {
     return NextResponse.next();
   }
 
-  // Coins and bullion aren't part of benched.au (basketball cards and sneakers).
-  // The /coins pages stay in the codebase for a future coins.benched.au, but on
-  // every other host /coins and its sub-pages (incl. old coin listing URLs) go home.
-  const storefrontId = resolveStorefrontId(request.headers.get('x-forwarded-host') || request.headers.get('host'));
-  if (storefrontId !== 'coins' && isCoinsPath(request.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/', request.url), 308);
-  }
-
-  // Multi-storefront: on a storefront's own domain (e.g. coins.benched.au), the
-  // homepage serves that storefront's folder (/coins). No effect on benched.au.
-  const rootRewrite = storefrontRootRewrite(
-    request.headers.get('x-forwarded-host') || request.headers.get('host'),
-    request.nextUrl.pathname,
-  );
-  const response = rootRewrite
-    ? NextResponse.rewrite(new URL(rootRewrite + request.nextUrl.search, request.url), { request: { headers: requestHeaders } })
+  const response = route.type === 'rewrite'
+    ? NextResponse.rewrite(new URL(internalPath + request.nextUrl.search, request.url), { request: { headers: requestHeaders } })
     : NextResponse.next({
         request: {
           headers: requestHeaders,
@@ -161,7 +161,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect Admin Routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (internalPath.startsWith('/admin')) {
     const isAdmin = isAuth && (userRole === 'admin' || userRole === 'superadmin');
     if (!isAdmin) {
       const signInUrl = new URL('/sign-in', request.url);
@@ -172,7 +172,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect seller tools. Public: the /sell landing page, the /sellers directory and seller
   // storefronts (/seller/{id}), so signed-out buyers can browse and buy.
-  if (isSellerAreaProtected(request.nextUrl.pathname)) {
+  if (isSellerAreaProtected(internalPath)) {
     if (!isAuth) {
       const signInUrl = new URL('/sign-in', request.url);
       signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
@@ -190,8 +190,9 @@ export const config = {
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (standard SEO files)
+     * - favicon.ico
+     * (sitemap.xml and robots.txt do reach middleware: the coins host serves its own.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

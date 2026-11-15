@@ -57,7 +57,8 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
     id: 'coins',
     basePath: '/coins',
     name: 'Benched Coins',
-    hosts: ['coins.benched.au'],
+    // coins.localhost is for local testing only (browsers send *.localhost to this machine).
+    hosts: ['coins.benched.au', 'coins.localhost'],
     origin: 'https://coins.benched.au',
     tagline: 'Coins and bullion from Australian collectors',
     seo: {
@@ -65,7 +66,12 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
       description: 'Buy and sell Australian and international coins, gold and silver bullion, proof sets and collections.',
     },
     colors: { primary: '#B8860B', secondary: '#1F2937' },
-    categories: ['Coins'],
+    categories: ['Coins', 'Bullion'],
+    /**
+     * false: the coins storefront is served at benched.au/coins and canonical URLs use that.
+     * Flip to true only after coins.benched.au resolves to App Hosting; then canonicals,
+     * the coins sitemap and benched.au/coins/... redirects move to coins.benched.au.
+     */
     launched: false,
   },
   pokemon: {

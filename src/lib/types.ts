@@ -207,6 +207,10 @@ export type ProductSearchParams = {
   tcgOnly?: boolean;
   /** Main-site feeds hide coin and bullion listings unless this is set (admin tools) or the filter asks for coins. */
   includeCoins?: boolean;
+  /** Coins storefront: only coin and bullion listings (see lib/coin-listings matchesCoinFlags). */
+  coinsOnly?: boolean;
+  /** Coins storefront: 'coins' or 'bullion' to narrow the list. */
+  coinType?: 'coins' | 'bullion';
   q?: string;
   category?: string;
   subCategory?: string;

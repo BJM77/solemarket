@@ -701,7 +701,7 @@ export default function ProductDetailsModern({
                 : await deleteListing(idToken, productId);
             if (!result.success) throw new Error(result.error);
             toast({ title: "Product Deleted", description: result.message || "Listing removed." });
-            router.push('/browse');
+            router.push(isCoinListing(product) ? '/coins/browse' : '/browse');
         } catch (error: any) {
             toast({ variant: "destructive", title: "Deletion Failed", description: error.message || "An error occurred." });
         } finally {
@@ -811,7 +811,7 @@ export default function ProductDetailsModern({
     const adminTitleActions = canManageListing ? (
         <div className="flex items-center gap-1 shrink-0">
             <Button asChild size="icon" variant="outline" className="h-8 w-8 rounded-full" title="Edit listing" aria-label="Edit listing">
-                <Link href={`/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
+                <Link href={isCoinListing(product) ? `/coins/sell?edit=${productId}` : `/sell/create?edit=${productId}`} data-testid="admin-edit-listing">
                     <Pencil className="h-3.5 w-3.5" />
                 </Link>
             </Button>
@@ -984,9 +984,13 @@ export default function ProductDetailsModern({
                             </Button>
                             <span className="text-foreground/30 hidden sm:inline" aria-hidden>|</span>
                             <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 whitespace-nowrap overflow-x-auto min-w-0" aria-label="Breadcrumb">
-                                <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+                                <Link href={isCoinListing(product) ? '/coins' : '/'} className="hover:text-primary transition-colors">Home</Link>
                                 <span className="text-foreground/80">/</span>
-                                {isPokemonListing(product) ? (
+                                {isCoinListing(product) ? (
+                                    <Link href="/coins/browse" className="hover:text-primary transition-colors">
+                                        {product.category}
+                                    </Link>
+                                ) : isPokemonListing(product) ? (
                                     <Link href="/pokemon" className="hover:text-primary transition-colors">
                                         Pokémon &amp; trading cards
                                     </Link>
@@ -1680,11 +1684,12 @@ export default function ProductDetailsModern({
                                 Combine shipping or bundle items from the same seller
                             </p>
                         </div>
-                        <Button variant="ghost" size="sm" asChild className="font-bold text-primary">
+                        {/* Seller storefront pages list basketball listings only, so coin listings don't link there. */}
+                        {!isCoinListing(product) && <Button variant="ghost" size="sm" asChild className="font-bold text-primary">
                             <Link href={`/seller/${product.sellerId}`}>
                                 View Storefront <ChevronRight className="h-4 w-4 ml-1" />
                             </Link>
-                        </Button>
+                        </Button>}
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         {moreFromSeller.map((item) => (

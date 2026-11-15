@@ -15,6 +15,7 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { LazyCartDrawer } from "@/components/cart/LazyCartDrawer";
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { FacebookPixel as FBPixel } from '@/components/analytics/FacebookPixel';
+import { MainSiteOnly } from '@/components/layout/MainSiteOnly';
 
 
 
@@ -155,14 +156,19 @@ export default async function RootLayout({
           </a>
           <GoogleAnalytics />
           <FBPixel />
-          <AnnouncementBanner announcement={siteConfig.announcement} />
-          <Header />
+          {/* Basketball chrome; the coins storefront renders its own (src/app/coins/layout.tsx). */}
+          <MainSiteOnly>
+            <AnnouncementBanner announcement={siteConfig.announcement} />
+            <Header />
+          </MainSiteOnly>
           <GuestActiveOrdersBar />
           <main id="main-content" className="min-h-screen overflow-x-hidden max-w-full w-full">
             {children}
           </main>
-          <Footer config={siteConfig.footer} />
-          <BottomNav />
+          <MainSiteOnly>
+            <Footer config={siteConfig.footer} />
+            <BottomNav />
+          </MainSiteOnly>
           <LazyCartDrawer />
         </AppProviders>
       </body>

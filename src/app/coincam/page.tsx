@@ -62,12 +62,12 @@ export default function CoinCamDashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <header className="flex items-center justify-between p-4 border-b border-border bg-card sticky top-0 z-10">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <Link href="/coins" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <div className="bg-primary p-1.5 rounded-lg">
             <Coins className="w-6 h-6 text-black" />
           </div>
           <h1 className="text-xl font-bold font-headline tracking-tight uppercase text-foreground">
-            COINCAM<span className="text-primary">.AU</span>
+            CoinCam <span className="text-primary normal-case">by Benched Coins</span>
           </h1>
         </Link>
         <div className="flex items-center gap-4">
