@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { ArrowRight, Banknote, Coins, Gem, Globe, Package, ShieldCheck } from 'lucide-react';
-import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
+import CoinsBrowseGrid from '@/components/coins/CoinsBrowseGrid';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
-import { getCachedCategoryProducts } from '@/lib/cache/products';
+import { loadCoinsCatalog } from '@/lib/coins/catalog';
 import { coinsPageMetadata } from '@/lib/coins/seo';
 import { STOREFRONTS } from '@/config/storefronts';
 import { coinsPublicUrl } from '@/lib/storefront-routing';
@@ -29,20 +29,13 @@ export default async function CoinsHomePage({ searchParams }: { searchParams: Pr
   // Old /coins?q=... and /coins?subCategory=... links now live on /coins/browse.
   const sp = await searchParams;
   const carry = new URLSearchParams();
-  for (const key of ['q', 'subCategory', 'coinType', 'sort']) {
+  for (const key of ['q', 'subCategory', 'coinType', 'sort', 'metal', 'weight', 'purity', 'yearMin', 'yearMax', 'country', 'mint', 'denomination', 'condition', 'graded', 'grader', 'gradeMin', 'priceMin', 'priceMax']) {
     const v = sp[key];
     if (typeof v === 'string' && v) carry.set(key, v);
   }
   if ([...carry.keys()].length) redirect(`/coins/browse?${carry.toString()}`);
 
-  const filterState = { coinsOnly: true, status: 'available' as const };
-  let initialData;
-  try {
-    initialData = await getCachedCategoryProducts({ ...filterState, page: 1, limit: 24 });
-  } catch (error) {
-    console.error('Coins home initial fetch failed:', error);
-    initialData = undefined;
-  }
+  const { products, spot } = await loadCoinsCatalog();
 
   return (
     <>
@@ -76,12 +69,12 @@ export default async function CoinsHomePage({ searchParams }: { searchParams: Pr
       </section>
 
       <Suspense fallback={<div className="container mx-auto px-4 py-8"><div className="h-96 w-full animate-pulse rounded-3xl bg-muted" /></div>}>
-        <InfiniteProductGrid
-          storefront="coins"
-          pageTitle="Latest coins & bullion"
-          pageDescription="New listings from Australian sellers."
-          initialFilterState={filterState}
-          initialData={initialData}
+        <CoinsBrowseGrid
+          products={products}
+          spot={spot}
+          title="Latest coins & bullion"
+          description="New listings from Australian sellers"
+          limit={24}
         />
       </Suspense>
 

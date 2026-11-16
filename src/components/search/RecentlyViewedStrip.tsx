@@ -3,24 +3,27 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { readRecentViews, forgetRecentView, RECENT_VIEWS_EVENT, RECENT_VIEWS_KEY, type RecentView } from '@/lib/recent-views';
+import { readRecentViews, forgetRecentView, recentViewsKey, RECENT_VIEWS_EVENT, type RecentStorefront, type RecentView } from '@/lib/recent-views';
 import { cn } from '@/lib/utils/ui';
 
-/** Desktop header: thumbnails of the last 5 listings this visitor opened (hidden when empty). */
-export function RecentlyViewedStrip({ className }: { className?: string }) {
+/**
+ * Desktop header: thumbnails of the last 5 listings this visitor opened (hidden when empty).
+ * `storefront="coins"` shows only Benched Coins listings; the main site never shows coins.
+ */
+export function RecentlyViewedStrip({ className, storefront = 'main' }: { className?: string; storefront?: RecentStorefront }) {
   const [items, setItems] = useState<RecentView[]>([]);
 
   useEffect(() => {
-    const load = () => setItems(readRecentViews());
+    const load = () => setItems(readRecentViews(storefront));
     load();
-    const onStorage = (e: StorageEvent) => { if (e.key === RECENT_VIEWS_KEY) load(); };
+    const onStorage = (e: StorageEvent) => { if (e.key === recentViewsKey(storefront)) load(); };
     window.addEventListener(RECENT_VIEWS_EVENT, load);
     window.addEventListener('storage', onStorage);
     return () => {
       window.removeEventListener(RECENT_VIEWS_EVENT, load);
       window.removeEventListener('storage', onStorage);
     };
-  }, []);
+  }, [storefront]);
 
   if (!items.length) return null;
 

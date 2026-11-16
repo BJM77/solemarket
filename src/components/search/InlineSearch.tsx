@@ -8,92 +8,63 @@ import { cn } from '@/lib/utils/ui';
 import { getProductUrl } from '@/lib/utils/url';
 import {
   DEFAULT_FILTERS, PRICE_BUCKETS, SORT_OPTIONS, LruCache, buildBrowseHref, cacheKey, formatAud, pushRecent,
-  rowDetail, searchIndex, sizeOptions, type InlineFilters, type InlineResult, type SearchCategory, type SearchLite, type SearchSort,
+  rowDetail, searchIndex, sizeOptions, type InlineFilters, type SearchCategory, type SearchLite, type SearchSort,
 } from '@/lib/search/inline';
-import { getLoadedIndex, loadSearchIndex } from './search-index-client';
+import {
+  COIN_INLINE_TYPES, DEFAULT_COIN_INLINE_FILTERS, coinIndexMetals, coinInlineBrowseHref, coinInlineCacheKey, coinInlineSorts,
+  searchCoinIndex, type CoinInlineFilters, type CoinInlineSort, type CoinSearchLite,
+} from '@/lib/coins/search-lite';
+import { PRICE_BUCKETS as COIN_PRICE_BUCKETS, type SpotMap } from '@/lib/coins/filters';
+import { METAL_LABELS, type CoinMetal } from '@/lib/coins/facets';
+import { getLoadedCoinIndex, getLoadedIndex, loadCoinSearchIndex, loadSearchIndex } from './search-index-client';
 
 const DEBOUNCE_MS = 150;
 const RESULT_LIMIT = 8;
-const RECENT_KEY = 'benched_recent_searches_v1';
-const resultCache = new LruCache<InlineResult>(40);
-let cacheVersion = -1;
-
-function readRecent(): string[] {
-  try { const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(v) ? v.filter((x) => typeof x === 'string').slice(0, 5) : []; } catch { return []; }
-}
-function saveRecent(q: string) {
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(pushRecent(readRecent(), q))); } catch { /* ignore */ }
-}
 
 export function rowHref(row: SearchLite): string {
   if (row.kind === 'other') return `/product/${row.id}`;
   return getProductUrl({ id: row.id, title: row.title, category: row.kind === 'cards' ? 'Collector Cards' : 'Sneakers' });
 }
 
-/** State + results for one search box. Results are computed locally from the lite index. */
-function useInlineSearch(open: boolean) {
-  const [query, setQuery] = React.useState('');
-  const [debounced, setDebounced] = React.useState('');
-  const [filters, setFilters] = React.useState<InlineFilters>(DEFAULT_FILTERS);
-  const [index, setIndex] = React.useState<{ rows: SearchLite[] | null; version: number }>({ rows: null, version: 0 });
-  const [loadError, setLoadError] = React.useState(false);
+/** Which site's search box this is: the basketball site, or Benched Coins (coins and bullion only). */
+export type SearchStorefront = 'main' | 'coins';
 
-  const ensureIndex = React.useCallback(() => {
-    const now = getLoadedIndex();
-    if (now.rows) { setIndex(now); return; }
-    let alive = true;
-    loadSearchIndex()
-      .then(() => { if (alive) { setIndex(getLoadedIndex()); setLoadError(false); } })
-      .catch(() => { if (alive) setLoadError(true); });
-    return () => { alive = false; };
-  }, []);
+type AnyRow = { id: string; title: string; price: number };
+type FilterBarProps<F> = { filters: F; setFilters: React.Dispatch<React.SetStateAction<F>>; compact?: boolean; rows: any[] | null; query: string; spot: SpotMap | null };
 
-  React.useEffect(() => { if (open) return ensureIndex(); }, [open, ensureIndex]);
-
-  React.useEffect(() => {
-    if (query === debounced) return;
-    // Cached queries (and clearing the box) answer immediately; new ones wait for typing to settle.
-    if (!query.trim() || resultCache.get(cacheKey(query, filters))) { setDebounced(query); return; }
-    const t = setTimeout(() => setDebounced(query), DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [query, debounced, filters]);
-
-  const result = React.useMemo<InlineResult | null>(() => {
-    if (!index.rows || !debounced.trim()) return null;
-    if (cacheVersion !== index.version) { resultCache.clear(); cacheVersion = index.version; }
-    const key = cacheKey(debounced, filters);
-    const hit = resultCache.get(key);
-    if (hit) return hit;
-    const r = searchIndex(index.rows, debounced, filters, RESULT_LIMIT);
-    resultCache.set(key, r);
-    return r;
-  }, [index, debounced, filters]);
-
-  const sizes = React.useMemo(
-    () => (index.rows && filters.category === 'shoes' ? sizeOptions(index.rows, debounced, filters) : []),
-    [index, debounced, filters]
-  );
-
-  return {
-    query, setQuery, debounced, filters, setFilters, result, sizes, ensureIndex,
-    loading: !index.rows && !loadError, loadError, indexReady: !!index.rows,
-  };
+/** Everything that differs between the basketball and coins search dropdowns. */
+interface SearchEngine<F> {
+  recentKey: string;
+  placeholder: string;
+  mobilePlaceholder: string;
+  defaultFilters: F;
+  getLoaded(): { rows: AnyRow[] | null; version: number; spot?: SpotMap | null };
+  load(): Promise<unknown>;
+  search(rows: any[], query: string, f: F, limit: number, spot: SpotMap | null): { rows: AnyRow[]; total: number };
+  cacheKey(query: string, f: F): string;
+  rowHref(row: any): string;
+  rowDetail(row: any): string;
+  browseHref(query: string, f: F): string;
+  FilterBar: (p: FilterBarProps<F>) => React.ReactElement;
 }
 
-type SearchState = ReturnType<typeof useInlineSearch>;
+const chipCls = (active: boolean) => cn(
+  'shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+  active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground hover:border-primary/60'
+);
+const selectCls = 'h-7 shrink-0 rounded-full border border-border bg-background px-2 text-xs font-semibold text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary';
 
-function FilterBar({ s, compact }: { s: SearchState; compact?: boolean }) {
-  const { filters, setFilters, sizes } = s;
+function MainFilterBar({ filters, setFilters, compact, rows, query }: FilterBarProps<InlineFilters>) {
+  const sizes = React.useMemo(
+    () => (rows && filters.category === 'shoes' ? sizeOptions(rows as SearchLite[], query, filters) : []),
+    [rows, query, filters]
+  );
   const set = (patch: Partial<InlineFilters>) => setFilters((f) => {
     const next = { ...f, ...patch };
     if (next.category !== 'shoes') next.size = undefined;
     return next;
   });
-  const chip = (active: boolean) => cn(
-    'shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-    active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground hover:border-primary/60'
-  );
-  const selectCls = 'h-7 shrink-0 rounded-full border border-border bg-background px-2 text-xs font-semibold text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+  const chip = chipCls;
   const cats: { v: SearchCategory; l: string }[] = [{ v: 'all', l: 'All' }, { v: 'shoes', l: 'Shoes' }, { v: 'cards', l: 'Cards' }];
 
   return (
@@ -132,6 +103,152 @@ function FilterBar({ s, compact }: { s: SearchState; compact?: boolean }) {
   );
 }
 
+/** Benched Coins dropdown filters: type, metal, price and coin sorts (no sizes, players or brands). */
+function CoinFilterBar({ filters, setFilters, compact, rows, spot }: FilterBarProps<CoinInlineFilters>) {
+  const metals = React.useMemo(() => (rows ? coinIndexMetals(rows as CoinSearchLite[]) : []), [rows]);
+  const sorts = React.useMemo(
+    () => coinInlineSorts({ spot, anyFineWeight: !!rows?.some((r: CoinSearchLite) => r.fineOz) }),
+    [rows, spot]
+  );
+  const set = (patch: Partial<CoinInlineFilters>) => setFilters((f) => ({ ...f, ...patch }));
+  return (
+    <div className={cn('border-b border-border px-3 py-2', compact ? 'space-y-2' : 'flex flex-wrap items-center gap-2')} data-testid="inline-search-filters">
+      <div className={cn('flex items-center gap-1.5', compact && 'overflow-x-auto no-scrollbar -mx-1 px-1')} role="group" aria-label="Type">
+        {COIN_INLINE_TYPES.map((c) => (
+          <button key={c.v} type="button" className={chipCls(filters.type === c.v)} aria-pressed={filters.type === c.v} onClick={() => set({ type: c.v })}>
+            {c.l}
+          </button>
+        ))}
+        {compact && COIN_PRICE_BUCKETS.map((b) => (
+          <button key={b.id} type="button" className={chipCls(filters.price === b.id)} aria-pressed={filters.price === b.id}
+            onClick={() => set({ price: filters.price === b.id ? undefined : b.id })}>
+            {b.label}
+          </button>
+        ))}
+      </div>
+      <div className={cn('flex flex-wrap items-center gap-1.5', !compact && 'ml-auto')}>
+        {metals.length > 0 && (
+          <select aria-label="Metal" className={selectCls} value={filters.metal || ''} onChange={(e) => set({ metal: (e.target.value || undefined) as CoinMetal | undefined })}>
+            <option value="">Any metal</option>
+            {metals.map((m) => <option key={m} value={m}>{m === 'base' ? 'Base metal' : METAL_LABELS[m]}</option>)}
+          </select>
+        )}
+        {!compact && (
+          <select aria-label="Price" className={selectCls} value={filters.price || ''} onChange={(e) => set({ price: e.target.value || undefined })}>
+            <option value="">Any price</option>
+            {COIN_PRICE_BUCKETS.map((b) => <option key={b.id} value={b.id}>{b.label}</option>)}
+          </select>
+        )}
+        <select aria-label="Sort" className={selectCls} value={sorts.some((o) => o.value === filters.sort) ? filters.sort : 'relevance'} onChange={(e) => set({ sort: e.target.value as CoinInlineSort })}>
+          {sorts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+const MAIN_ENGINE: SearchEngine<InlineFilters> = {
+  recentKey: 'benched_recent_searches_v1',
+  placeholder: 'Find It Here',
+  mobilePlaceholder: 'Search shoes and cards',
+  defaultFilters: DEFAULT_FILTERS,
+  getLoaded: getLoadedIndex,
+  load: loadSearchIndex,
+  search: (rows, q, f, limit) => searchIndex(rows as SearchLite[], q, f, limit),
+  cacheKey,
+  rowHref,
+  rowDetail,
+  browseHref: buildBrowseHref,
+  FilterBar: MainFilterBar,
+};
+
+const COINS_ENGINE: SearchEngine<CoinInlineFilters> = {
+  recentKey: 'benched_coins_recent_searches_v1',
+  placeholder: 'Search coins & bullion',
+  mobilePlaceholder: 'Search coins, bullion, banknotes',
+  defaultFilters: DEFAULT_COIN_INLINE_FILTERS,
+  getLoaded: getLoadedCoinIndex,
+  load: loadCoinSearchIndex,
+  search: (rows, q, f, limit, spot) => {
+    // A spot-price sort with no spot prices falls back to best match.
+    const usable = coinInlineSorts({ spot, anyFineWeight: rows.some((r: CoinSearchLite) => r.fineOz) }).some((o) => o.value === f.sort);
+    return searchCoinIndex(rows as CoinSearchLite[], q, usable ? f : { ...f, sort: 'relevance' }, spot, limit);
+  },
+  cacheKey: coinInlineCacheKey,
+  rowHref: (row: CoinSearchLite) => row.url,
+  rowDetail: (row: CoinSearchLite) => row.detail || '',
+  browseHref: coinInlineBrowseHref,
+  FilterBar: CoinFilterBar,
+};
+
+const ENGINES: Record<SearchStorefront, SearchEngine<any>> = { main: MAIN_ENGINE, coins: COINS_ENGINE };
+const resultCaches: Record<SearchStorefront, { cache: LruCache<{ rows: AnyRow[]; total: number }>; version: number }> = {
+  main: { cache: new LruCache(40), version: -1 },
+  coins: { cache: new LruCache(40), version: -1 },
+};
+
+function readRecent(key: string): string[] {
+  try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v.filter((x) => typeof x === 'string').slice(0, 5) : []; } catch { return []; }
+}
+function saveRecent(key: string, q: string) {
+  try { localStorage.setItem(key, JSON.stringify(pushRecent(readRecent(key), q))); } catch { /* ignore */ }
+}
+
+/** State + results for one search box. Results are computed locally from the lite index. */
+function useInlineSearch(open: boolean, storefront: SearchStorefront) {
+  const engine = ENGINES[storefront];
+  const rc = resultCaches[storefront];
+  const [query, setQuery] = React.useState('');
+  const [debounced, setDebounced] = React.useState('');
+  const [filters, setFilters] = React.useState<any>(engine.defaultFilters);
+  const [index, setIndex] = React.useState<{ rows: AnyRow[] | null; version: number; spot?: SpotMap | null }>({ rows: null, version: 0 });
+  const [loadError, setLoadError] = React.useState(false);
+
+  const ensureIndex = React.useCallback(() => {
+    const now = engine.getLoaded();
+    if (now.rows) { setIndex(now); return; }
+    let alive = true;
+    engine.load()
+      .then(() => { if (alive) { setIndex(engine.getLoaded()); setLoadError(false); } })
+      .catch(() => { if (alive) setLoadError(true); });
+    return () => { alive = false; };
+  }, [engine]);
+
+  React.useEffect(() => { if (open) return ensureIndex(); }, [open, ensureIndex]);
+
+  React.useEffect(() => {
+    if (query === debounced) return;
+    // Cached queries (and clearing the box) answer immediately; new ones wait for typing to settle.
+    if (!query.trim() || rc.cache.get(engine.cacheKey(query, filters))) { setDebounced(query); return; }
+    const t = setTimeout(() => setDebounced(query), DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [query, debounced, filters, engine, rc]);
+
+  const spot = index.spot ?? null;
+  const result = React.useMemo<{ rows: AnyRow[]; total: number } | null>(() => {
+    if (!index.rows || !debounced.trim()) return null;
+    if (rc.version !== index.version) { rc.cache.clear(); rc.version = index.version; }
+    const key = engine.cacheKey(debounced, filters);
+    const hit = rc.cache.get(key);
+    if (hit) return hit;
+    const r = engine.search(index.rows, debounced, filters, RESULT_LIMIT, spot);
+    rc.cache.set(key, r);
+    return r;
+  }, [index, debounced, filters, engine, rc, spot]);
+
+  return {
+    engine, query, setQuery, debounced, filters, setFilters, result, ensureIndex, rows: index.rows, spot,
+    loading: !index.rows && !loadError, loadError, indexReady: !!index.rows,
+  };
+}
+
+type SearchState = ReturnType<typeof useInlineSearch>;
+
+function FilterBar({ s, compact }: { s: SearchState; compact?: boolean }) {
+  const Bar = s.engine.FilterBar;
+  return <Bar filters={s.filters} setFilters={s.setFilters} compact={compact} rows={s.rows} query={s.debounced} spot={s.spot} />;
+}
+
 interface PanelProps {
   s: SearchState;
   listboxId: string;
@@ -149,7 +266,7 @@ function ResultsPanel({ s, listboxId, activeIndex, setActiveIndex, recent, onPic
   const hasQuery = !!s.query.trim();
   const rows = s.result?.rows ?? [];
   const total = s.result?.total ?? 0;
-  const browseHref = buildBrowseHref(s.query, s.filters);
+  const browseHref = s.engine.browseHref(s.query, s.filters);
   // Keep focus in the input when clicking rows/chips (native selects still need their own focus).
   const keep = (e: React.MouseEvent) => { if (!(e.target as HTMLElement).closest('select')) e.preventDefault(); };
 
@@ -166,8 +283,8 @@ function ResultsPanel({ s, listboxId, activeIndex, setActiveIndex, recent, onPic
           </li>
         ))}
         {hasQuery && rows.map((row, i) => {
-          const href = rowHref(row);
-          const detail = rowDetail(row);
+          const href = s.engine.rowHref(row);
+          const detail = s.engine.rowDetail(row);
           return (
             <li key={row.id} id={`${listboxId}-opt-${i}`} role="option" aria-selected={activeIndex === i}
               onMouseEnter={() => { setActiveIndex(i); router.prefetch(href); }}
@@ -202,24 +319,25 @@ function ResultsPanel({ s, listboxId, activeIndex, setActiveIndex, recent, onPic
 }
 
 /** Shared keyboard + navigation behaviour for both layouts. */
-function useSearchController(onClose: () => void) {
+function useSearchController(onClose: () => void, storefront: SearchStorefront = 'main') {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const s = useInlineSearch(open);
+  const s = useInlineSearch(open, storefront);
+  const recentKey = s.engine.recentKey;
   const [activeIndex, setActiveIndex] = React.useState(-1);
   const [recent, setRecent] = React.useState<string[]>([]);
   const listboxId = React.useId().replace(/:/g, '') + '-listbox';
 
-  React.useEffect(() => { if (open) setRecent(readRecent()); }, [open]);
+  React.useEffect(() => { if (open) setRecent(readRecent(recentKey)); }, [open, recentKey]);
   React.useEffect(() => { setActiveIndex(-1); }, [s.debounced, s.filters]);
 
   const close = React.useCallback(() => { setOpen(false); setActiveIndex(-1); onClose(); }, [onClose]);
 
   const go = React.useCallback((href: string, q?: string) => {
-    if (q?.trim()) saveRecent(q);
+    if (q?.trim()) saveRecent(recentKey, q);
     close();
     router.push(href);
-  }, [close, router]);
+  }, [close, router, recentKey]);
 
   const hasQuery = !!s.query.trim();
   const optionCount = hasQuery ? (s.result?.rows.length ?? 0) + 1 : recent.length;
@@ -239,8 +357,8 @@ function useSearchController(onClose: () => void) {
         return;
       }
       const rows = s.result?.rows ?? [];
-      if (activeIndex >= 0 && activeIndex < rows.length) go(rowHref(rows[activeIndex]), s.query);
-      else go(buildBrowseHref(s.query, s.filters), s.query);
+      if (activeIndex >= 0 && activeIndex < rows.length) go(s.engine.rowHref(rows[activeIndex]), s.query);
+      else go(s.engine.browseHref(s.query, s.filters), s.query);
     } else if (e.key === 'Escape') {
       e.preventDefault();
       if (s.query && !open) s.setQuery('');
@@ -293,10 +411,10 @@ function useGlobalShortcut(handler: () => void) {
 const inputCls = 'h-10 w-full rounded-md border border-transparent bg-muted/60 pl-10 pr-9 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary/50 focus:bg-background focus:outline-none';
 
 /** Desktop: the header bar itself; results drop down directly below it over a dimmed page. */
-export function DesktopInlineSearch({ className }: { className?: string }) {
+export function DesktopInlineSearch({ className, storefront = 'main' }: { className?: string; storefront?: SearchStorefront }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const noop = React.useCallback(() => {}, []);
-  const c = useSearchController(noop);
+  const c = useSearchController(noop, storefront);
   const { open, setOpen, s, close } = c;
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
@@ -323,13 +441,13 @@ export function DesktopInlineSearch({ className }: { className?: string }) {
       <input
         ref={inputRef}
         type="search"
-        placeholder="Find It Here"
-        aria-label="Search listings"
+        placeholder={c.s.engine.placeholder}
+        aria-label={storefront === 'coins' ? 'Search coins and bullion' : 'Search listings'}
         className={cn(inputCls, '[&::-webkit-search-cancel-button]:hidden')}
         value={s.query}
         onChange={(e) => { s.setQuery(e.target.value); setOpen(true); }}
         onFocus={() => { setOpen(true); s.ensureIndex(); }}
-        onPointerEnter={() => { void loadSearchIndex().catch(() => {}); }}
+        onPointerEnter={() => { void c.s.engine.load().catch(() => {}); }}
         onKeyDown={c.onKeyDown}
         {...{ ...c.comboProps, 'aria-expanded': showPanel }}
       />
@@ -359,11 +477,11 @@ export function DesktopInlineSearch({ className }: { className?: string }) {
 }
 
 /** Mobile: tapping the bar expands it to full width; results fill the screen below it. */
-export function MobileInlineSearch({ className }: { className?: string }) {
+export function MobileInlineSearch({ className, storefront = 'main' }: { className?: string; storefront?: SearchStorefront }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const noop = React.useCallback(() => {}, []);
-  const c = useSearchController(noop);
+  const c = useSearchController(noop, storefront);
   const { open, setOpen, s, close } = c;
   useCloseOnRouteChange(close);
   useGlobalShortcut(React.useCallback(() => {
@@ -386,13 +504,13 @@ export function MobileInlineSearch({ className }: { className?: string }) {
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        onTouchStart={() => { void loadSearchIndex().catch(() => {}); }}
-        aria-label="Search listings"
+        onTouchStart={() => { void c.s.engine.load().catch(() => {}); }}
+        aria-label={storefront === 'coins' ? 'Search coins and bullion' : 'Search listings'}
         data-testid="inline-search-mobile-trigger"
         className={cn('relative flex h-10 w-full items-center rounded-md bg-muted/60 pl-10 pr-3 text-left text-xs text-muted-foreground', className)}
       >
         <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" aria-hidden="true" />
-        <span className="truncate">{s.query || 'Find It Here'}</span>
+        <span className="truncate">{s.query || s.engine.placeholder}</span>
       </button>
       {open && createPortal(
         <div className="fixed inset-0 z-[70] flex flex-col bg-background animate-in fade-in-0 duration-150" data-testid="inline-search-mobile">
@@ -402,8 +520,8 @@ export function MobileInlineSearch({ className }: { className?: string }) {
               <input
                 ref={inputRef}
                 type="search"
-                placeholder="Search shoes and cards"
-                aria-label="Search listings"
+                placeholder={s.engine.mobilePlaceholder}
+                aria-label={storefront === 'coins' ? 'Search coins and bullion' : 'Search listings'}
                 className={cn(inputCls, 'h-11 text-base [&::-webkit-search-cancel-button]:hidden')}
                 value={s.query}
                 onChange={(e) => s.setQuery(e.target.value)}

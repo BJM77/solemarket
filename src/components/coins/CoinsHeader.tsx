@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Coins, Search, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { UserNav } from '@/components/layout/user-nav';
+import { DesktopInlineSearch, MobileInlineSearch } from '@/components/search/InlineSearch';
+import { RecentlyViewedStrip } from '@/components/search/RecentlyViewedStrip';
 
 /** Links inside the coins storefront always use /coins/...: they work on benched.au/coins and coins.benched.au. */
 export const COINS_NAV = [
@@ -15,9 +17,11 @@ export const COINS_NAV = [
   { label: 'Bullion', href: '/coins/browse?coinType=bullion' },
   { label: 'Australian', href: '/coins/browse?subCategory=Australian+Coins' },
   { label: 'World', href: '/coins/browse?subCategory=World+Coins' },
+  { label: 'Banknotes', href: '/coins/browse?coinType=banknotes' },
   { label: 'Sell coins', href: '/coins/sell' },
 ];
 
+/** Plain search form shown until the page is interactive (and without JavaScript). */
 function SearchBox() {
   const params = useSearchParams();
   return (
@@ -38,6 +42,9 @@ function SearchBox() {
 
 export function CoinsHeader() {
   const { itemCount, setIsCartOpen } = useCart();
+  // The instant search dropdown (same as the basketball header, coins and bullion only) needs the browser.
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80" data-storefront-header="coins">
       <div className="container mx-auto max-w-screen-2xl px-4">
@@ -50,8 +57,12 @@ export function CoinsHeader() {
               Benched <span className="text-amber-600">Coins</span>
             </span>
           </Link>
-          <div className="hidden flex-1 md:flex">
-            <Suspense fallback={null}><SearchBox /></Suspense>
+          {/* Desktop: inline search (results drop down below the bar) + recently viewed coin listings */}
+          <div className="hidden min-w-0 flex-1 items-center gap-3 lg:flex">
+            {isClient
+              ? <DesktopInlineSearch storefront="coins" className="h-10 w-full max-w-[420px]" />
+              : <Suspense fallback={null}><SearchBox /></Suspense>}
+            {isClient && <RecentlyViewedStrip storefront="coins" className="hidden lg:flex" />}
           </div>
           <div className="ml-auto flex items-center gap-1">
             <Button
@@ -71,8 +82,8 @@ export function CoinsHeader() {
             <UserNav />
           </div>
         </div>
-        <div className="pb-3 md:hidden">
-          <Suspense fallback={null}><SearchBox /></Suspense>
+        <div className="pb-3 lg:hidden">
+          {isClient ? <MobileInlineSearch storefront="coins" /> : <Suspense fallback={null}><SearchBox /></Suspense>}
         </div>
         <nav aria-label="Benched Coins" className="-mx-4 overflow-x-auto px-4 pb-2">
           <ul className="flex min-w-max items-center gap-1 text-sm font-semibold">

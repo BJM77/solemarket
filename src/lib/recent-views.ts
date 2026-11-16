@@ -5,6 +5,18 @@
 export interface RecentView { id: string; title: string; thumb?: string; url: string; at: number }
 
 export const RECENT_VIEWS_KEY = 'benched_recent_views_v1';
+/** Benched Coins keeps its own list, so each site only shows its own listings. */
+export const RECENT_VIEWS_COINS_KEY = 'benched_recent_views_coins_v1';
+export type RecentStorefront = 'main' | 'coins';
+
+/** Which site a listing URL belongs to (/coins/... = Benched Coins). */
+export function recentStorefrontOf(url: string): RecentStorefront {
+  return /^\/coins(?:[/?#]|$)/.test(url) ? 'coins' : 'main';
+}
+
+export function recentViewsKey(storefront: RecentStorefront = 'main'): string {
+  return storefront === 'coins' ? RECENT_VIEWS_COINS_KEY : RECENT_VIEWS_KEY;
+}
 export const RECENT_VIEWS_MAX = 5;
 export const RECENT_VIEWS_EVENT = 'benched:recent-views';
 
@@ -59,24 +71,28 @@ function storage(): Storage | null {
   try { return typeof window !== 'undefined' ? window.localStorage : null; } catch { return null; }
 }
 
-export function readRecentViews(): RecentView[] {
-  return parseRecentViews(storage()?.getItem(RECENT_VIEWS_KEY));
+/** Recently viewed listings for one site (main: basketball; coins: Benched Coins), newest first. */
+export function readRecentViews(storefront: RecentStorefront = 'main'): RecentView[] {
+  return parseRecentViews(storage()?.getItem(recentViewsKey(storefront))).filter((r) => recentStorefrontOf(r.url) === storefront);
 }
 
-function write(list: RecentView[]): void {
+function write(list: RecentView[], storefront: RecentStorefront): void {
   const s = storage();
   if (!s) return;
   try {
-    s.setItem(RECENT_VIEWS_KEY, JSON.stringify(list));
+    s.setItem(recentViewsKey(storefront), JSON.stringify(list));
     window.dispatchEvent(new Event(RECENT_VIEWS_EVENT));
   } catch { /* quota / private mode: ignore */ }
 }
 
 export function recordRecentView(entry: Omit<RecentView, 'at'>): void {
-  write(addRecentView(readRecentViews(), entry));
+  const storefront = recentStorefrontOf(entry.url || '');
+  write(addRecentView(readRecentViews(storefront), entry), storefront);
 }
 
 export function forgetRecentView(id: string): void {
-  const list = readRecentViews();
-  if (list.some((r) => r.id === id)) write(removeRecentView(list, id));
+  for (const storefront of ['main', 'coins'] as const) {
+    const list = readRecentViews(storefront);
+    if (list.some((r) => r.id === id)) write(removeRecentView(list, id), storefront);
+  }
 }

@@ -1,4 +1,6 @@
 import { isCardCategory } from '@/lib/constants/marketplace';
+import { isCoinListing } from '@/lib/coin-listings';
+import { coinTitleRows } from '@/lib/coins/display';
 import {
   type ListingTitleSource,
   shortListingTitle,
@@ -206,6 +208,7 @@ function composeShoeRow2(listing: ListingDetailTitleSource, title: string, row1:
 
 /**
  * Two-row desktop listing title.
+ * Coins: "Year Country" (or mint) + the rest of the title.
  * Cards: "Year Brand" + remaining set / player / number.
  * Shoes: "Brand Model" (same source as the tile short title) + colourway
  * or remaining edition text.
@@ -213,6 +216,8 @@ function composeShoeRow2(listing: ListingDetailTitleSource, title: string, row1:
  * cannot be derived confidently.
  */
 export function listingDetailTitle(listing: ListingDetailTitleSource): ListingDetailTitle {
+  // Coins and bullion: "2023 Australia" + the rest of the title.
+  if (isCoinListing(listing as any)) return coinTitleRows(listing as any);
   const title = cleanSpaces(listing.title || '');
   const isCard = isCardCategory(listing.category ?? undefined);
   const row1 = isCard ? composeCardRow1(listing, title) : composeShoeRow1(listing, title);
