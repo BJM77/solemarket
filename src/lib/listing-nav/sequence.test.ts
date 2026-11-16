@@ -120,6 +120,14 @@ describe('listing sequence', () => {
     expect(remainderParams({ category: 'Collector Cards', subCategory: 'Pokémon' })).toEqual({ sort: 'createdAt-desc', category: 'Collector Cards', subCategory: 'Pokémon' });
     expect(remainderParams({ category: 'Coins' })).toEqual({ sort: 'createdAt-desc', category: 'Coins' });
     expect(remainderParams({ category: 'Sneakers', q: 'jordan' })).toEqual({ sort: 'createdAt-desc' });
+    // Benched Coins grids and coin listings opened directly stay on coins and bullion.
+    expect(remainderParams({ coinsOnly: true, metal: 'gold' })).toEqual({ sort: 'createdAt-desc', coinsOnly: true });
+    const coinGrid = createSequence({ trail: [e('a')], filter: { coinsOnly: true, coinType: 'bullion' }, cursor: null });
+    expect(coinGrid.sources.map((x) => x.params)).toEqual([{ coinsOnly: true, coinType: 'bullion', sort: 'createdAt-desc' }, { sort: 'createdAt-desc', coinsOnly: true }]);
+    const direct = directSequence({ id: 'x', url: '/coins/2023-2/x' });
+    expect(direct.sources.map((x) => x.params)).toEqual([{ coinsOnly: true, sort: 'createdAt-desc' }]);
+    expect(direct.returnHref).toBe('/coins/browse');
+    expect(directSequence({ id: 'y', url: '/cards/x/y' }).returnHref).toBe('/browse');
     // The main feed relies on getProducts to hide Pokémon/coins (no includePokemon/includeCoins).
     expect(createSequence({ trail: [] }).sources[0].params).toEqual({ sort: 'createdAt-desc' });
   });

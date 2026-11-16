@@ -53,6 +53,8 @@ import { Check, X as XIcon } from "lucide-react";
 import { SmartImage } from './SmartImage';
 import { isCardCategory } from '@/lib/constants/marketplace';
 import { shortListingTitle, formatShoeSizeBadge } from '@/lib/utils/short-listing-title';
+import { isCoinListing } from '@/lib/coin-listings';
+import { coinTileBadge, coinTileTitle } from '@/lib/coins/display';
 
 
 
@@ -515,8 +517,10 @@ export default function ProductCard({
   // One square frame for every category so mixed homepage/grid rows stay even.
   // Images use object-cover object-center (via SmartImage) so every tile fills the square.
   const imageAspectRatio = 'aspect-square';
-  const shoeSizeBadge = !isCardCategory(product.category) ? formatShoeSizeBadge(product.size) : null;
-  const tileTitle = shortListingTitle(product);
+  // Benched Coins tiles: "2023 $2 ..." titles and a slab grade or bullion weight/metal in the corner.
+  const isCoin = isCoinListing(product);
+  const shoeSizeBadge = isCoin ? coinTileBadge(product as any) : !isCardCategory(product.category) ? formatShoeSizeBadge(product.size) : null;
+  const tileTitle = isCoin ? coinTileTitle(product as any) : shortListingTitle(product);
 
   const getEbayQuery = () => {
     const parts = [];

@@ -54,6 +54,8 @@ const COIN_RE = /coin|bullion/i;
  */
 export function remainderParams(filter: Record<string, any> = {}): Record<string, any> {
   const base: Record<string, any> = { sort: 'createdAt-desc' };
+  // Benched Coins grids continue through coins and bullion only, never the basketball feed.
+  if (filter.coinsOnly === true || filter.coinsOnly === 'true') return { ...base, coinsOnly: true };
   const sub = String(filter.subCategory || '');
   const brand = String(filter.brand || '');
   const cat = String(filter.category || '');
@@ -110,9 +112,15 @@ export function createSequence(opts: {
   return { v: 1, trail, sources, phase, cursor, returnHref: opts.returnHref };
 }
 
-/** A listing opened with no browse context: just the current listing, then the default feed. */
-export function directSequence(current: ListingNavEntry, returnHref = '/browse'): SequenceState {
-  return createSequence({ trail: [current], returnHref });
+/**
+ * A listing opened with no browse context: just the current listing, then the default feed.
+ * A Benched Coins listing (/coins/...) continues through the coins storefront instead.
+ */
+export function directSequence(current: ListingNavEntry, returnHref?: string): SequenceState {
+  if (/^\/coins\//.test(current.url || '')) {
+    return createSequence({ trail: [current], filter: { coinsOnly: true }, cursor: undefined, returnHref: returnHref || '/coins/browse' });
+  }
+  return createSequence({ trail: [current], returnHref: returnHref || '/browse' });
 }
 
 export function isExhausted(state: SequenceState): boolean {

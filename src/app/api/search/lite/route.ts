@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { toSearchLite, type SearchLite } from '@/lib/search/inline';
+import { toCoinSearchLite, type CoinSearchLite } from '@/lib/coins/search-lite';
+import { getSpotPrices } from '@/lib/coins/spot-prices';
+import { spotMapFrom, type SpotMap } from '@/lib/coins/filters';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -13,6 +16,9 @@ const FIELDS = [
   'title', 'price', 'category', 'subCategory', 'brand', 'model', 'size', 'year', 'manufacturer',
   'gradingCompany', 'grade', 'cardNumber', 'createdAt', 'status', 'isDraft', 'storefrontId',
 ];
+
+/** Benched Coins index fields (the coin sell form's facts). */
+const COIN_FIELDS = [...FIELDS, 'metal', 'weight', 'purity', 'denomination', 'country', 'mint', 'condition'];
 
 /**
  * The lite index: every live listing's text fields + price (no images, descriptions or seller
@@ -37,11 +43,38 @@ const loadIndex = unstable_cache(
   { revalidate: 120, tags: ['products'] }
 );
 
-/** GET /api/search/lite - public, read-only, cacheable. */
-export async function GET() {
+/**
+ * The Benched Coins lite index: live coin and bullion listings only (never basketball),
+ * plus the cached AUD spot prices for the "premium over spot" sort (null when unavailable).
+ * Legacy coin listings may lack isDraft, so drafts are dropped in memory.
+ */
+const loadCoinIndex = unstable_cache(
+  async (): Promise<{ rows: CoinSearchLite[]; builtAt: number; capped: boolean; spot: SpotMap | null }> => {
+    const [snap, prices] = await Promise.all([
+      firestoreDb.collection('products')
+        .where('status', '==', 'available')
+        .select(...COIN_FIELDS)
+        .limit(MAX_ROWS)
+        .get(),
+      getSpotPrices().catch(() => null),
+    ]);
+    const rows: CoinSearchLite[] = [];
+    for (const doc of snap.docs) {
+      const row = toCoinSearchLite(doc.id, doc.data());
+      if (row) rows.push(row);
+    }
+    return { rows, builtAt: Date.now(), capped: snap.size >= MAX_ROWS, spot: spotMapFrom(prices) };
+  },
+  ['search-lite-coins-index-v1'],
+  { revalidate: 120, tags: ['products'] }
+);
+
+/** GET /api/search/lite - public, read-only, cacheable. `?storefront=coins` = the Benched Coins index. */
+export async function GET(request: Request) {
   const t0 = Date.now();
+  const coins = new URL(request.url).searchParams.get('storefront') === 'coins';
   try {
-    const data = await loadIndex();
+    const data = coins ? await loadCoinIndex() : await loadIndex();
     const ms = Date.now() - t0;
     return NextResponse.json(data, {
       headers: {
@@ -51,7 +84,7 @@ export async function GET() {
     });
   } catch (e) {
     console.error('[search-lite] failed to build index', e);
-    return NextResponse.json({ rows: [], builtAt: Date.now(), capped: false, error: 'unavailable' }, {
+    return NextResponse.json({ rows: [], builtAt: Date.now(), capped: false, ...(coins ? { spot: null } : {}), error: 'unavailable' }, {
       status: 503,
       headers: { 'Cache-Control': 'no-store' },
     });

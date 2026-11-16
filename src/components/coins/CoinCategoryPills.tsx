@@ -10,6 +10,7 @@ const PILLS: { label: string; href: string; match: (p: URLSearchParams) => boole
   { label: 'All', href: '/coins/browse', match: (p) => !p.get('coinType') && !p.get('subCategory') },
   { label: 'Coins', href: '/coins/browse?coinType=coins', match: (p) => p.get('coinType') === 'coins' && !p.get('subCategory') },
   { label: 'Bullion', href: '/coins/browse?coinType=bullion', match: (p) => p.get('coinType') === 'bullion' && !p.get('subCategory') },
+  { label: 'Banknotes', href: '/coins/browse?coinType=banknotes', match: (p) => p.get('coinType') === 'banknotes' && !p.get('subCategory') },
   ...COIN_SUBCATEGORIES.map((s) => ({
     label: s,
     href: `/coins/browse?subCategory=${encodeURIComponent(s).replace(/%20/g, '+')}`,

@@ -53,3 +53,22 @@ describe('recent views store', () => {
     window.removeEventListener('benched:recent-views', on);
   });
 });
+
+describe('recent views per site', () => {
+  beforeEach(() => localStorage.clear());
+  it('keeps Benched Coins listings out of the basketball list and vice versa', async () => {
+    const { RECENT_VIEWS_COINS_KEY, recentStorefrontOf } = await import('./recent-views');
+    recordRecentView(v('shoe'));
+    recordRecentView({ id: 'coin', title: '2023 $2', url: '/coins/2023-2/coin', thumb });
+    expect(readRecentViews().map((r) => r.id)).toEqual(['shoe']);
+    expect(readRecentViews('coins').map((r) => r.id)).toEqual(['coin']);
+    expect(JSON.parse(localStorage.getItem(RECENT_VIEWS_COINS_KEY)!)).toHaveLength(1);
+    // Older single-list data that mixed both never leaks across.
+    localStorage.setItem(RECENT_VIEWS_KEY, JSON.stringify([{ id: 'old', title: 'Coin', url: '/coins/x/old', at: 1 }, { id: 'shoe', title: 'Shoe', url: '/shoes/x/shoe', at: 1 }]));
+    expect(readRecentViews().map((r) => r.id)).toEqual(['shoe']);
+    forgetRecentView('coin');
+    expect(readRecentViews('coins')).toEqual([]);
+    expect(recentStorefrontOf('/coins')).toBe('coins');
+    expect(recentStorefrontOf('/cards/x/1')).toBe('main');
+  });
+});

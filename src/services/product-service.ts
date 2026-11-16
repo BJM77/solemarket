@@ -1,5 +1,6 @@
 import { POKEMON_SUBCATEGORIES, isPokemonListing, isPokemonSubCategory } from '@/lib/pokemon-listings';
 import { isCoinListing, isCoinValue, matchesCoinFlags, wantsCoinsOnly } from '@/lib/coin-listings';
+import { applyCoinFilters, parseCoinFilters } from '@/lib/coins/filters';
 
 import { db } from '@/lib/firebase/config';
 import type { Product, ProductSearchParams } from '@/lib/types';
@@ -11,7 +12,30 @@ import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
 
 const PAGE_SIZE = 24;
 
-export async function getProducts(searchParams: ProductSearchParams & { countOnly?: boolean }, userRole: string = 'viewer'): Promise<{ products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number }> {
+type ProductsResult = { products: Product[], hasMore: boolean, lastVisibleId?: string, totalCount?: number };
+
+export async function getProducts(searchParams: ProductSearchParams & { countOnly?: boolean }, userRole: string = 'viewer'): Promise<ProductsResult> {
+  // Benched Coins: one simple query for every live coin/bullion listing (the catalog is
+  // small), then the coin filters and sorts run in memory, so no new Firestore indexes
+  // are needed and basketball-only filters never apply.
+  if (wantsCoinsOnly(searchParams)) {
+    const coinFilters = parseCoinFilters(searchParams as Record<string, any>);
+    const base = await queryProducts({
+      coinsOnly: true,
+      status: searchParams.status,
+      category: searchParams.category,
+      categories: searchParams.categories,
+      lastId: searchParams.lastId,
+      page: searchParams.page,
+      countOnly: searchParams.countOnly,
+    } as ProductSearchParams & { countOnly?: boolean }, userRole);
+    if (searchParams.countOnly) return base;
+    return { ...base, products: applyCoinFilters(base.products as any[], coinFilters, null) as Product[], totalCount: undefined };
+  }
+  return queryProducts(searchParams, userRole);
+}
+
+async function queryProducts(searchParams: ProductSearchParams & { countOnly?: boolean }, userRole: string = 'viewer'): Promise<ProductsResult> {
   const priceRange = parseRange(searchParams.priceRange as any);
   // Coins storefront: every query covers all coin + bullion categories, filtered in memory below.
   const coinsOnly = wantsCoinsOnly(searchParams);

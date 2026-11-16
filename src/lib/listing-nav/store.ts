@@ -55,7 +55,7 @@ export function clearSequence() {
 
 function toEntry(p: Product): ListingNavEntry | null {
   if (!p?.id || (p as any).isDraft) return null;
-  return { id: p.id, url: getProductUrl({ id: p.id, title: p.title || '', category: p.category }), image: p.imageUrls?.[0] || undefined };
+  return { id: p.id, url: getProductUrl({ id: p.id, title: p.title || '', category: p.category, subCategory: p.subCategory, storefrontId: (p as any).storefrontId }), image: p.imageUrls?.[0] || undefined };
 }
 
 /** Fetch one page of a source with the same rules as the browse grid (viewer: available only). */
@@ -109,7 +109,7 @@ export function useListingSequence(id: string | null, pathname: string | null): 
     if (!id || !mounted) return;
     const s = load();
     // Not part of the current sequence (opened directly, shared link...): start from here.
-    if (!s || indexOf(s, id) < 0) save(directSequence({ id, url: pathname || `/product/${id}` }, s?.returnHref || '/browse'));
+    if (!s || indexOf(s, id) < 0) save(directSequence({ id, url: pathname || `/product/${id}` }, s?.returnHref));
     ensureNext(id);
   });
 

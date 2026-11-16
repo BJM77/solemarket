@@ -3,6 +3,7 @@ import { ListingSequenceNav } from './ListingSequenceNav';
 import { usePublicSeller } from '@/hooks/use-public-seller';
 import { isPokemonListing } from '@/lib/pokemon-listings';
 import { isCoinListing } from '@/lib/coin-listings';
+import { coinSpecRows } from '@/lib/coins/display';
 
 import { getProductUrl } from '@/lib/utils/url';
 import { facetCategory } from '@/lib/filters/params';
@@ -1078,7 +1079,8 @@ export default function ProductDetailsModern({
                                                     <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-0 font-bold uppercase tracking-wider text-[10px]">
                                                         {product.condition}
                                                     </Badge>
-                                                    <ConditionGuide />
+                                                    {/* The sneaker/card condition guide doesn't apply to coins and bullion. */}
+                                                    {!isCoinListing(product) && <ConditionGuide />}
                                                 </div>
                                                 <div className="max-h-[140px] overflow-y-auto pr-1 text-gray-600 dark:text-gray-400 leading-relaxed text-xs space-y-2">
                                                     {product.seoDescription && (
@@ -1096,7 +1098,28 @@ export default function ProductDetailsModern({
                                             </TabsContent>
 
                                             <TabsContent value="specs" className="mt-0 focus-visible:outline-none">
-                                                {(() => {
+                                                {isCoinListing(product) ? (
+                                                    <div className="max-h-[200px] overflow-y-auto pr-1" data-testid="coin-specs">
+                                                        <div className="grid grid-cols-2 gap-2 text-xs">
+                                                            {coinSpecRows(product as any).map((row) => {
+                                                                const inner = (
+                                                                    <>
+                                                                        <span className="text-gray-500 block text-[10px] mb-0.5 group-hover:text-primary/70 transition-colors">{row.label}</span>
+                                                                        <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-slate-100 truncate" title={row.value}>
+                                                                            <span className="truncate">{row.value}</span>
+                                                                            {row.href && <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />}
+                                                                        </span>
+                                                                    </>
+                                                                );
+                                                                return row.href ? (
+                                                                    <Link key={row.label} href={row.href} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group block">{inner}</Link>
+                                                                ) : (
+                                                                    <div key={row.label} className="bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl">{inner}</div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                ) : (() => {
                                                     const getSiloRoute = (cat: string, type: 'category' | 'subcategory' | 'brand' | 'model' | 'year', value?: string) => {
                                                         let basePath = '/browse';
                                                         if (cat === 'Sneakers') basePath = '/shoes';

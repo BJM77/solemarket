@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopicBySlug, SEO_TOPICS } from '@/config/seo-topics';
-import { getProducts } from '@/services/product-service';
-import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
+import { Suspense } from 'react';
+import CoinsBrowseGrid from '@/components/coins/CoinsBrowseGrid';
+import { loadCoinsCatalog } from '@/lib/coins/catalog';
 import TopicSchema from '@/components/seo/TopicSchema';
 import { coinsPageMetadata } from '@/lib/coins/seo';
 
@@ -40,14 +41,7 @@ export default async function CoinTopicPage({ params }: Props) {
         notFound();
     }
 
-    const filterState = { q: topic.searchQuery, coinsOnly: true, status: 'available' as const };
-    let initialData;
-    try {
-        initialData = await getProducts({ ...filterState, page: 1, limit: 24 });
-    } catch (error) {
-        console.error('Coin topic initial fetch failed:', error);
-        initialData = undefined;
-    }
+    const { products, spot } = await loadCoinsCatalog();
 
     return (
         <div className="min-h-screen pb-20">
@@ -67,13 +61,15 @@ export default async function CoinTopicPage({ params }: Props) {
             </div>
 
             <div className="container mx-auto px-4">
-                <InfiniteProductGrid
-                    storefront="coins"
-                    pageTitle={topic.searchQuery}
-                    pageDescription={`${topic.searchQuery} listings available now from Australian sellers.`}
-                    initialFilterState={filterState}
-                    initialData={initialData}
-                />
+                <Suspense fallback={<div className="h-96 w-full animate-pulse rounded-3xl bg-muted" />}>
+                    <CoinsBrowseGrid
+                        products={products}
+                        spot={spot}
+                        baseFilters={{ q: topic.searchQuery }}
+                        title={topic.searchQuery}
+                        description="Available now from Australian sellers"
+                    />
+                </Suspense>
             </div>
 
             <div className="container mx-auto px-4 mt-20 pt-20 border-t border-slate-100 dark:border-white/10">

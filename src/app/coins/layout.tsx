@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { CoinsHeader } from '@/components/coins/CoinsHeader';
 import { CoinsFooter } from '@/components/coins/CoinsFooter';
 import SpotPriceTicker from '@/components/coins/SpotPriceTicker';
+import { HideOnListingTools } from '@/components/coins/HideOnListingTools';
 import { STOREFRONTS } from '@/config/storefronts';
 import { coinsPublicUrl } from '@/lib/storefront-routing';
 
@@ -26,9 +27,11 @@ export const metadata: Metadata = {
 export default function CoinsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div data-storefront="coins" className="min-h-screen bg-background">
-      <Suspense fallback={null}>
-        <SpotPriceTicker />
-      </Suspense>
+      <HideOnListingTools>
+        <Suspense fallback={null}>
+          <SpotPriceTicker />
+        </Suspense>
+      </HideOnListingTools>
       <CoinsHeader />
       <div className="min-h-[60vh]">{children}</div>
       <CoinsFooter />
