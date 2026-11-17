@@ -450,16 +450,12 @@ export const getActiveProducts = unstable_cache(
                     .get();
 
                 if (!snapshot.empty) {
-                    // "Popular Listings": rank a recent pool by view count (newest wins ties).
+                    // Newest first. Coins and TCG are filtered out for the main-site rails.
                     const pool = mainSiteOnly(snapshot.docs.map((doc: any) => serializeFirestoreData({
                         id: doc.id,
                         ...doc.data(),
                     })) as Product[]);
-                    return pool
-                        .map((p, i) => ({ p, i, v: Number((p as any).views) || 0 }))
-                        .sort((a, b) => b.v - a.v || a.i - b.i)
-                        .slice(0, limitCount)
-                        .map(x => x.p);
+                    return pool.slice(0, limitCount);
                 }
             } catch (indexError) {
                 console.warn("Active products optimal query failed, falling back.");
@@ -467,12 +463,13 @@ export const getActiveProducts = unstable_cache(
             {
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('status', '==', 'available')
-                    .limit(limitCount)
+                    .orderBy('createdAt', 'desc')
+                    .limit(Math.max(limitCount * 4, 48))
                     .get();
                 return mainSiteOnly(fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                     id: doc.id,
                     ...doc.data(),
-                })) as Product[]);
+                })) as Product[]).slice(0, limitCount);
             }
         } catch (error) {
             console.error("Error fetching active products:", error);

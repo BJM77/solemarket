@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getFeaturedProducts, getActiveProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
+import { pickJustListed } from "@/lib/home/just-listed";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -25,12 +26,11 @@ async function FeaturedSection() {
 }
 
 async function NewArrivalsSection() {
-  // Don't repeat the featured items: show the newest listings that aren't already above.
-  const [latest, featured] = await Promise.all([getActiveProducts(24), getFeaturedProducts(12)]);
-  const featuredIds = new Set((featured || []).map((p: { id: string }) => p.id));
-  const fresh = (latest || []).filter((p: { id: string }) => !featuredIds.has(p.id));
-  const products = (fresh.length >= 4 ? fresh : latest || []).slice(0, 12);
-  return <TrendingGrid products={products} title="Just Listed" priorityCount={4} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
+  // 15 newest main-site listings (3 rows of 5 on desktop). Prefer items that
+  // are not already in Popular Listings, and fill from the newest overall if needed.
+  const [latest, featured] = await Promise.all([getActiveProducts(40), getFeaturedProducts(12)]);
+  const products = pickJustListed(latest || [], (featured || []).map((p: { id: string }) => p.id));
+  return <TrendingGrid products={products} title="Just Listed" layout="justListed" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
