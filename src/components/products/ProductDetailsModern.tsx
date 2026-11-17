@@ -31,7 +31,6 @@ import {
 import {
     Share2,
     Heart,
-    Star,
     Store,
     ShieldCheck,
     CheckCircle,
@@ -59,9 +58,9 @@ import { cn } from "@/lib/utils/ui";
 import { formatPrice } from "@/lib/utils/format";
 import { loadFirebase, getIdTokenLazy as getCurrentUserIdToken } from '@/lib/firebase/lazy';
 import { useCart } from '@/context/CartContext';
-import type { Product, Review, UserProfile } from '@/lib/types';
+import type { Product, UserProfile } from '@/lib/types';
 import { useViewedProducts } from '@/context/ViewedProductsContext';
-import { useUser, useCollection, useFirebaseRef, useDoc } from '@/firebase';
+import { useUser, useFirebaseRef, useDoc } from '@/firebase';
 import { deleteProductByAdmin, updateProductCategoryByAdmin } from '@/app/actions/admin/admin';
 import { recordProductView } from '@/app/actions/marketplace/products';
 import { trackEcommerceEvent } from '@/lib/analytics';
@@ -116,8 +115,6 @@ const SizeChart = dynamic(() => import('@/components/sneakers/SizeChart').then((
 const RelatedProductsCarousel = dynamic(() => import('@/components/product/RelatedProductsCarousel').then((m) => m.RelatedProductsCarousel));
 const MarketIndexWidget = dynamic(() => import('@/components/products/MarketIndexWidget').then((m) => m.MarketIndexWidget));
 const ProvenanceLedger = dynamic(() => import('@/components/trust/ProvenanceLedger').then((m) => m.ProvenanceLedger));
-const ReviewList = dynamic(() => import('@/components/reviews/ReviewList'));
-const ReviewForm = dynamic(() => import('@/components/reviews/ReviewForm'));
 const QRCodeCanvas = dynamic(() => import('qrcode.react').then((m) => m.QRCodeCanvas), { ssr: false });
 
 const ADMIN_CATEGORIES = {
@@ -132,14 +129,12 @@ export default function ProductDetailsModern({
     productId,
     initialProduct,
     initialSeller,
-    initialReviews,
     adjacentProducts = { prevId: null, nextId: null },
     initialRelatedProducts
 }: {
     productId: string;
     initialProduct: Product;
     initialSeller: UserProfile | null;
-    initialReviews: Review[];
     adjacentProducts?: { prevId: string | null; nextId: string | null };
     initialRelatedProducts?: Product[];
 }) {
@@ -277,15 +272,6 @@ export default function ProductDetailsModern({
     const isShoeListing = facetCategory(product?.category) === 'sneakers';
     const { data: seller, isLoading: isSellerLoading } = usePublicSeller(product?.sellerId, initialSeller ?? null);
     const sellerDisplayName = resolveSellerName(seller, product?.sellerName);
-
-    const reviewsQuery = useFirebaseRef(({ db, fs: { query, collection, where, orderBy } }) =>
-        query(
-            collection(db, 'reviews'),
-            where('productId', '==', productId),
-            orderBy('createdAt', 'desc')
-        ),
-        [productId]);
-    const { data: reviews, isLoading: reviewsLoading } = useCollection<Review>(reviewsQuery, { initialData: initialReviews });
 
     const favoriteRef = useFirebaseRef(({ db, fs: { doc } }) =>
         user?.uid ? doc(db, `users/${user.uid}/favorites/${productId}`) : null
@@ -1601,19 +1587,6 @@ export default function ProductDetailsModern({
                         </div>
                     </div>
 
-                    {/* Reviews Tab Section - Moved here for full width */}
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700 shadow-sm mt-8">
-                        <h3 className="text-xl font-bold mb-6">Reviews ({reviews?.length || 0})</h3>
-                        <ReviewForm
-                            user={user}
-                            productId={product.id}
-                            productTitle={product.title}
-                            sellerId={product.sellerId}
-                        />
-                        <div className="mt-6 space-y-4">
-                            <ReviewList reviews={reviews || []} isLoading={reviewsLoading} />
-                        </div>
-                    </div>
                 </div>
 
             {/* Seller Multibuy Mix & Match Section */}

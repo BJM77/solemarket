@@ -1,4 +1,4 @@
-import type { Product, Review } from '@/lib/types'
+import type { Product } from '@/lib/types'
 import { getProductUrl } from "@/lib/utils/url";
 import { listingSeoState } from '@/lib/seo/listing-status';
 import { schemaItemCondition } from "@/lib/seo/item-condition";
@@ -6,17 +6,13 @@ import { schemaBrand, type SchemaSeller } from '@/lib/seo/listing-seo';
 
 type Props = {
   product: Product
-  reviews?: Review[]
   siteUrl?: string
   /** The actual seller (store or person); the offer omits seller when unknown. */
   seller?: SchemaSeller | null
 }
 
-export default function ProductSchema({ product, reviews = [], siteUrl = 'https://benched.au', seller = null }: Props) {
+export default function ProductSchema({ product, siteUrl = 'https://benched.au', seller = null }: Props) {
   const brand = schemaBrand(product);
-  const ratingValue = reviews.length > 0 
-    ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
-    : 5;
 
   const additionalProperty = [
     product.year ? { '@type': 'PropertyValue', name: 'Year', value: String(product.year) } : null,
@@ -39,13 +35,6 @@ export default function ProductSchema({ product, reviews = [], siteUrl = 'https:
     ...(product.styleCode && { mpn: String(product.styleCode) }),
     ...(brand && { brand: { '@type': 'Brand', name: brand } }),
     ...(additionalProperty.length > 0 && { additionalProperty }),
-    ...(reviews.length > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: ratingValue.toFixed(1),
-        reviewCount: reviews.length,
-      }
-    }),
     offers: {
       '@type': 'Offer',
       priceCurrency: 'AUD',
