@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default function TrendingGrid({ products, title = "Trending Near You", className = "bg-background py-16 lg:py-24 relative overflow-hidden", priorityCount = 0 }: { products: Product[], title?: string, className?: string, priorityCount?: number }) {
+export default function TrendingGrid({ products, title = "Trending Near You", className = "bg-background py-16 lg:py-24 relative overflow-hidden", priorityCount = 0, layout = "default" }: { products: Product[], title?: string, className?: string, priorityCount?: number, layout?: "default" | "justListed" }) {
     if (!products || products.length === 0) return null;
 
     return (
@@ -23,7 +23,7 @@ export default function TrendingGrid({ products, title = "Trending Near You", cl
                     </Link>
                 </div>
 
-                <ProductGrid products={products} priorityCount={priorityCount} />
+                <ProductGrid products={products} priorityCount={priorityCount} layout={layout} />
 
                 <Link href="/browse" className="mt-6 md:hidden group text-sm font-black tracking-widest uppercase text-orange-700 hover:text-orange-800 flex justify-center items-center transition-all bg-primary/10 px-6 py-4 rounded-full hover:bg-primary/20 w-full text-center">
                     View Full Roster <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

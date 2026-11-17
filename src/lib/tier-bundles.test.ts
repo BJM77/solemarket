@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { priceCart, type PricingLine } from './bundles';
 import { buildOrderPricing } from './order-pricing';
 import {
-    DEFAULT_TIER_SETTINGS, normalizeTierSettings, priceTierPool, tierGroupFor, tierNudge, validateTierSettings,
+    DEFAULT_TIER_SETTINGS, formatBundleTierBadge, normalizeTierSettings, priceTierPool, tierGroupFor, tierNudge, validateTierSettings,
 } from './tier-bundles';
 import type { Product } from '@/lib/types';
 
@@ -150,5 +150,18 @@ describe('multibuyFilterState', () => {
     it('All deals filters on every tier (indexed), not multibuyEnabled alone', () => {
         expect(mbf(undefined).multiCardTiers).toEqual(['bronze', 'silver', 'gold']);
         expect(mbf(undefined).status).toBe('available');
+    });
+});
+
+describe('formatBundleTierBadge', () => {
+    it('returns a readable label for known tiers and null otherwise', () => {
+        expect(formatBundleTierBadge('bronze')).toBe('Bronze');
+        expect(formatBundleTierBadge('silver')).toBe('Silver');
+        expect(formatBundleTierBadge('gold')).toBe('Gold');
+        expect(formatBundleTierBadge('platinum')).toBe('Platinum');
+        expect(formatBundleTierBadge(null)).toBeNull();
+        expect(formatBundleTierBadge(undefined)).toBeNull();
+        expect(formatBundleTierBadge('')).toBeNull();
+        expect(formatBundleTierBadge('wood')).toBeNull();
     });
 });

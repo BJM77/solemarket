@@ -42,6 +42,13 @@ export function isBundleTier(v: unknown): v is BundleTier {
     return typeof v === 'string' && (BUNDLE_TIERS as readonly string[]).includes(v);
 }
 
+/** Readable photo-badge label for a listing's bundle tier, or null if it has none. */
+export function formatBundleTierBadge(tier?: string | null): string | null {
+    if (isBundleTier(tier)) return TIER_LABEL[tier];
+    if (tier === 'platinum') return 'Platinum';
+    return null;
+}
+
 export function tierGroupFor(category?: string | null): TierGroup | null {
     if (!category) return null;
     if (isCardCategory(category)) return 'cards';

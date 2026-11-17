@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
+import { getProductById } from '@/lib/firebase/firestore';
 import type { Metadata } from 'next';
 import { Loader2 } from 'lucide-react';
 import ProductDetailsModern from '@/components/products/ProductDetailsModern';
@@ -122,10 +122,8 @@ export default async function ProductPage({ params }: Props) {
   const canonicalPath = getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId });
   if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
 
-  // Reviews and related products are independent: fetch them in parallel.
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
-  const [initialReviews, similarProducts, sellerInfo] = await Promise.all([
-    getReviewsForProduct(id),
+  const [similarProducts, sellerInfo] = await Promise.all([
     getSimilarProductsByCategory(id, product.category, 6),
     product.sellerId ? getPublicSellerInfo(product.sellerId).catch(() => null) : Promise.resolve(null),
   ]);
@@ -135,7 +133,6 @@ export default async function ProductPage({ params }: Props) {
       <meta property="og:type" content="product" />
       <ProductSchema
         product={product}
-        reviews={initialReviews}
         seller={schemaSeller(sellerInfo as Record<string, any> | null, 'https://benched.au', product.sellerId)}
       />
       <BreadcrumbSchema
@@ -152,7 +149,6 @@ export default async function ProductPage({ params }: Props) {
           productId={id}
           initialProduct={product}
           initialSeller={null}
-          initialReviews={initialReviews}
           initialRelatedProducts={similarProducts}
         />
       </Suspense>

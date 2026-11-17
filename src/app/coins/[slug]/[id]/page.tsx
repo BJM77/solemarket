@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Loader2 } from 'lucide-react';
-import { getProductById, getReviewsForProduct } from '@/lib/firebase/firestore';
+import { getProductById } from '@/lib/firebase/firestore';
 import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
@@ -81,8 +81,7 @@ export default async function CoinListingPage({ params }: Props) {
   if (canonicalPath !== `/coins/${slug}/${id}`) permanentRedirect(canonicalPath);
 
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
-  const [initialReviews, similarProducts, sellerInfo] = await Promise.all([
-    getReviewsForProduct(id),
+  const [similarProducts, sellerInfo] = await Promise.all([
     getSimilarProductsByCategory(id, product.category, 6),
     product.sellerId ? getPublicSellerInfo(product.sellerId).catch(() => null) : Promise.resolve(null),
   ]);
@@ -93,7 +92,6 @@ export default async function CoinListingPage({ params }: Props) {
       <meta property="og:type" content="product" />
       <ProductSchema
         product={product}
-        reviews={initialReviews}
         seller={schemaSeller(sellerInfo as Record<string, any> | null, coinsPublicUrl('/'), product.sellerId)}
       />
       <BreadcrumbSchema
@@ -110,7 +108,6 @@ export default async function CoinListingPage({ params }: Props) {
           productId={id}
           initialProduct={product}
           initialSeller={null}
-          initialReviews={initialReviews}
           initialRelatedProducts={related}
         />
       </Suspense>

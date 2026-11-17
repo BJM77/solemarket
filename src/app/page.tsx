@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getFeaturedProducts, getActiveProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
+import { pickJustListed } from "@/lib/home/just-listed";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -21,16 +22,15 @@ export const revalidate = 60;
 
 async function FeaturedSection() {
   const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Popular Listings" className="bg-background pt-2 pb-12 md:pt-16 md:pb-24 relative overflow-hidden" />;
+  return <TrendingGrid products={products} title="Popular Listings" className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 
 async function NewArrivalsSection() {
-  // Don't repeat the featured items: show the newest listings that aren't already above.
-  const [latest, featured] = await Promise.all([getActiveProducts(24), getFeaturedProducts(12)]);
-  const featuredIds = new Set((featured || []).map((p: { id: string }) => p.id));
-  const fresh = (latest || []).filter((p: { id: string }) => !featuredIds.has(p.id));
-  const products = (fresh.length >= 4 ? fresh : latest || []).slice(0, 12);
-  return <TrendingGrid products={products} title="Just Listed" priorityCount={4} className="bg-background pt-4 md:pt-8 pb-4 md:pb-16 relative overflow-hidden" />;
+  // 15 newest main-site listings (3 rows of 5 on desktop). Prefer items that
+  // are not already in Popular Listings, and fill from the newest overall if needed.
+  const [latest, featured] = await Promise.all([getActiveProducts(40), getFeaturedProducts(12)]);
+  const products = pickJustListed(latest || [], (featured || []).map((p: { id: string }) => p.id));
+  return <TrendingGrid products={products} title="Just Listed" layout="justListed" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
@@ -38,9 +38,9 @@ import { MarketPulseTeaser } from "@/components/home/MarketPulseTeaser";
 
 function TrendingSkeleton() {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-8 bg-background">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-end justify-between mb-10">
+        <div className="flex items-end justify-between mb-4 md:mb-8">
           <div>
             <Skeleton className="h-10 w-64 mb-2" />
             <Skeleton className="h-6 w-48" />
