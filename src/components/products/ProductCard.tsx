@@ -55,8 +55,18 @@ import { isCardCategory } from '@/lib/constants/marketplace';
 import { shortListingTitle, formatShoeSizeBadge } from '@/lib/utils/short-listing-title';
 import { isCoinListing } from '@/lib/coin-listings';
 import { coinTileBadge, coinTileTitle } from '@/lib/coins/display';
+import { formatBundleTierBadge } from '@/lib/tier-bundles';
 
 
+
+
+function PhotoCornerBadge({ text }: { text: string }) {
+  return (
+    <span className="bg-black/70 text-white text-[9px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded shadow-md pointer-events-none uppercase tracking-tight">
+      {text}
+    </span>
+  );
+}
 
 interface ProductCardProps {
   product: Product;
@@ -178,30 +188,6 @@ export default function ProductCard({
     } finally {
       setIsSavingPrice(false);
     }
-  };
-
-  const DealTierBadge = ({ className }: { className?: string }) => {
-    if (!product.multiCardTier) return null;
-    
-    const tiers = {
-      bronze: { label: 'B', classes: 'bg-orange-500/10 text-orange-700 border-orange-500/20' },
-      silver: { label: 'S', classes: 'bg-slate-500/10 text-muted-foreground border-slate-500/20' },
-      gold: { label: 'G', classes: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20' },
-      platinum: { label: 'P', classes: 'bg-orange-500/10 text-orange-700 border-orange-500/20' }
-    };
-    
-    const tier = tiers[product.multiCardTier as keyof typeof tiers];
-    if (!tier) return null;
-
-    return (
-      <span className={cn(
-        "text-[8px] sm:text-[9px] px-1 py-0.5 rounded font-black uppercase tracking-tighter shadow-sm shrink-0 border inline-block",
-        tier.classes,
-        className
-      )} title={`${product.multiCardTier} bundle tier`} aria-label={`${product.multiCardTier} bundle tier`}>
-        {tier.label}
-      </span>
-    );
   };
 
   const DealIndicator = ({ className }: { className?: string }) => {
@@ -520,8 +506,8 @@ export default function ProductCard({
   // Benched Coins tiles: "2023 $2 ..." titles and a slab grade or bullion weight/metal in the corner.
   const isCoin = isCoinListing(product);
   const shoeSizeBadge = isCoin ? coinTileBadge(product as any) : !isCardCategory(product.category) ? formatShoeSizeBadge(product.size) : null;
+  const bundleTierBadge = formatBundleTierBadge(product.multiCardTier);
   const tileTitle = isCoin ? coinTileTitle(product as any) : shortListingTitle(product);
-
   const getEbayQuery = () => {
     const parts = [];
     const title = product.title || '';
@@ -598,6 +584,11 @@ export default function ProductCard({
               {product.grade}
             </span>
           )}
+          {bundleTierBadge && (
+            <span className="text-[10px] font-black uppercase tracking-tighter text-orange-700 bg-orange-500/10 px-1.5 py-0.5 rounded flex-shrink-0 border border-orange-500/20">
+              {bundleTierBadge}
+            </span>
+          )}
         </div>
 
         <div className="relative z-10 flex items-center gap-4 flex-shrink-0">
@@ -646,7 +637,6 @@ export default function ProductCard({
               </div>
             )}
             <div className="text-sm font-bold w-full text-right flex justify-end items-center gap-2 pointer-events-auto">
-              <DealTierBadge />
               <DealIndicator />
               <PriceDisplay />
             </div>
@@ -730,6 +720,12 @@ export default function ProductCard({
               </Badge>
             )}
           </div>
+          {(shoeSizeBadge || bundleTierBadge) && (
+            <div className="absolute bottom-2 right-2 z-20 pointer-events-none flex flex-col items-end gap-1">
+              {shoeSizeBadge && <PhotoCornerBadge text={shoeSizeBadge} />}
+              {bundleTierBadge && <PhotoCornerBadge text={bundleTierBadge} />}
+            </div>
+          )}
           <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
             <Button
               variant="secondary"
@@ -826,7 +822,6 @@ export default function ProductCard({
             <div className="flex items-center justify-between mb-1">
               <Badge variant="outline" className="text-xs pointer-events-auto">{product.category}</Badge>
               <div className="font-bold text-lg pointer-events-auto flex items-center gap-2">
-                <DealTierBadge />
                 <DealIndicator />
                 <PriceDisplay />
               </div>
@@ -907,11 +902,18 @@ export default function ProductCard({
           className="object-cover object-center"
         />
       )}
-      {shoeSizeBadge && (
-        <span className="absolute top-1.5 right-1.5 z-10 bg-black/70 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tight">
-          {shoeSizeBadge}
-        </span>
-      )}
+      <div className="absolute top-1.5 right-1.5 z-10 flex flex-col items-end gap-1">
+        {shoeSizeBadge && (
+          <span className="bg-black/70 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tight">
+            {shoeSizeBadge}
+          </span>
+        )}
+        {bundleTierBadge && (
+          <span className="bg-black/70 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tight">
+            {bundleTierBadge}
+          </span>
+        )}
+      </div>
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-2 pb-2 pt-8">
         <p className="truncate text-xs font-semibold leading-tight text-white" aria-hidden="true" title={product.title}>{tileTitle}</p>
       </div>
@@ -969,9 +971,10 @@ export default function ProductCard({
 
         <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-30 scale-90 sm:scale-100 origin-top-right flex flex-col items-center gap-1.5 sm:gap-2">
           {shoeSizeBadge && (
-            <span className="bg-black/70 text-white text-[9px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded shadow-md pointer-events-none uppercase tracking-tight">
-              {shoeSizeBadge}
-            </span>
+            <PhotoCornerBadge text={shoeSizeBadge} />
+          )}
+          {bundleTierBadge && (
+            <PhotoCornerBadge text={bundleTierBadge} />
           )}
           <div className="scale-75 sm:scale-100 hidden">
             <QuickView
@@ -1127,7 +1130,6 @@ export default function ProductCard({
           <div className="pointer-events-auto min-w-0">
             <div className="text-sm sm:text-lg font-black text-foreground tracking-tight flex flex-wrap items-center gap-1">
               <PriceDisplay />
-              <DealTierBadge />
               <DealIndicator />
             </div>
           </div>

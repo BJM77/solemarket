@@ -34,7 +34,7 @@ export default function MarketPulseIndexPage() {
             <div className="max-w-6xl mx-auto px-4">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
-                        Market <span className="text-emerald-700">Pulse</span>
+                        Market <span className="text-primary">Pulse</span>
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                         The source of truth for Australian collectibles pricing. 
@@ -45,7 +45,7 @@ export default function MarketPulseIndexPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
                     <Card className="bg-muted/60 border-border">
                         <CardHeader>
-                            <CardTitle className="text-emerald-700 flex items-center gap-2">
+                            <CardTitle className="text-primary flex items-center gap-2">
                                 <ShieldCheck className="h-5 w-5" />
                                 Vault Verified Premium
                             </CardTitle>
@@ -59,7 +59,7 @@ export default function MarketPulseIndexPage() {
 
                     <Card className="bg-muted/60 border-border">
                         <CardHeader>
-                            <CardTitle className="text-emerald-700 flex items-center gap-2">
+                            <CardTitle className="text-primary flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
                                 Real-Time Accuracy
                             </CardTitle>
@@ -73,7 +73,7 @@ export default function MarketPulseIndexPage() {
 
                     <Card className="bg-muted/60 border-border">
                         <CardHeader>
-                            <CardTitle className="text-emerald-700 flex items-center gap-2">
+                            <CardTitle className="text-primary flex items-center gap-2">
                                 <Activity className="h-5 w-5" />
                                 Free API Access
                             </CardTitle>
@@ -91,7 +91,7 @@ export default function MarketPulseIndexPage() {
                     {TOP_MARKETS.map(market => (
                         <Link key={market.slug} href={`/market-pulse/${market.slug}`}>
                             <div className="p-6 rounded-lg border border-border bg-muted/60 hover:bg-muted transition-colors cursor-pointer group">
-                                <div className="text-xs uppercase tracking-widest text-emerald-700 mb-2">{market.category}</div>
+                                <div className="text-xs uppercase tracking-widest text-primary mb-2">{market.category}</div>
                                 <h3 className="text-xl font-bold group-hover:underline underline-offset-4">{market.title}</h3>
                                 <div className="mt-4 flex items-center text-sm text-muted-foreground gap-2">
                                     <Activity className="h-4 w-4" />
