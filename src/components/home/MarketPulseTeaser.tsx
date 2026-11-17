@@ -12,7 +12,7 @@ export function MarketPulseTeaser() {
             <div className="max-w-7xl mx-auto px-4 relative z-10">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-muted/60 border border-border p-8 rounded-2xl">
                     <div className="flex-1 space-y-4 text-center md:text-left">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-widest">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent text-accent-foreground rounded-full text-xs font-bold uppercase tracking-widest">
                             <Activity className="h-3 w-3" /> Live Market Data
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">

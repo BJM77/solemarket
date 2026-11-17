@@ -90,7 +90,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                         <CardContent>
                             <div className="text-4xl font-bold text-foreground">${pulseData.vaultVerified.averagePrice || 'N/A'}</div>
                             {pulseData.vaultVerified.premiumOverMarket > 0 && (
-                                <Badge className="mt-2 bg-primary/15 text-primary hover:bg-primary/25 border-none">
+                                <Badge className="mt-2 bg-accent text-accent-foreground hover:bg-accent/80 border-none">
                                     +{pulseData.vaultVerified.premiumOverMarket}% Premium
                                 </Badge>
                             )}
@@ -136,7 +136,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                                     </td>
                                     <td className="p-4">
                                         {sale.isVaultVerified ? (
-                                            <Badge className="bg-primary/15 text-primary border-none">Vault Verified</Badge>
+                                            <Badge className="bg-accent text-accent-foreground border-none">Vault Verified</Badge>
                                         ) : (
                                             <span className="text-muted-foreground text-xs uppercase tracking-wider">Unverified P2P</span>
                                         )}
