@@ -128,3 +128,8 @@ export function isTcgListing(p: TcgListingFields): boolean {
 export function withoutTcg<T extends TcgListingFields>(items: T[]): T[] {
   return items.filter((item) => !isTcgListing(item));
 }
+
+/** Drop TCG names from a basketball category / sub-category list. */
+export function withoutTcgValues(values: string[] | undefined | null): string[] {
+  return (values || []).filter((value) => !isTcgValue(value));
+}

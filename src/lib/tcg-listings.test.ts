@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isTcgListing, isTcgValue, withoutTcg } from './tcg-listings';
+import { isTcgListing, isTcgValue, withoutTcg, withoutTcgValues } from './tcg-listings';
 
 /** Mis-filed live listing JXcO36B6yRGT2TUd7WG5 — still showing on basketball. */
 const antiqueSailFossil = {
@@ -137,3 +137,12 @@ describe('withoutTcg', () => {
     ]);
   });
 });
+
+describe('withoutTcgValues', () => {
+  it('strips Pokémon, Yu-Gi-Oh and other TCG names from basketball sub-category lists', () => {
+    expect(withoutTcgValues(['Basketball', 'Pokémon', 'Yu-Gi-Oh!', 'Rookies', 'Magic', 'New Arrivals'])).toEqual([
+      'Basketball', 'Rookies', 'New Arrivals',
+    ]);
+  });
+});
+

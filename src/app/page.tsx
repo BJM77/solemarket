@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getFeaturedProducts, getActiveProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
 import { pickJustListed } from "@/lib/home/just-listed";
+import { pickPopularListings } from "@/lib/home/popular-listings";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -21,16 +22,22 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 async function FeaturedSection() {
-  const products = await getFeaturedProducts(12);
-  return <TrendingGrid products={products} title="Popular Listings" className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
+  // 15 most-viewed main-site listings (3 rows of 5 on desktop). Prefer items
+  // that are not already in Just Listed, and backfill so the rows stay complete.
+  const [latest, featured] = await Promise.all([getActiveProducts(40), getFeaturedProducts(40)]);
+  const justListed = pickJustListed(latest || [], []);
+  const products = pickPopularListings(
+    [...(featured || []), ...(latest || [])],
+    justListed.map((p: { id: string }) => p.id),
+  );
+  return <TrendingGrid products={products} title="Popular Listings" layout="homeRail" className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 
 async function NewArrivalsSection() {
-  // 15 newest main-site listings (3 rows of 5 on desktop). Prefer items that
-  // are not already in Popular Listings, and fill from the newest overall if needed.
-  const [latest, featured] = await Promise.all([getActiveProducts(40), getFeaturedProducts(12)]);
-  const products = pickJustListed(latest || [], (featured || []).map((p: { id: string }) => p.id));
-  return <TrendingGrid products={products} title="Just Listed" layout="justListed" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
+  // 15 newest main-site listings (3 rows of 5 on desktop).
+  const latest = await getActiveProducts(40);
+  const products = pickJustListed(latest || [], []);
+  return <TrendingGrid products={products} title="Just Listed" layout="homeRail" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 
 import TopBannerAd from "@/components/home/TopBannerAd";
@@ -46,8 +53,8 @@ function TrendingSkeleton() {
             <Skeleton className="h-6 w-48" />
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {[...Array(15)].map((_, i) => (
             <div key={i} className="space-y-3">
               <Skeleton className="h-64 w-full rounded-2xl" />
               <div className="space-y-2">

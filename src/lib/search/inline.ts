@@ -71,7 +71,7 @@ export function toSearchLite(id: string, d: Record<string, any> | null | undefin
     : createdRaw instanceof Date ? Math.floor(createdRaw.getTime() / 1000)
     : 0;
   const year = Number(d.year);
-  const extra = [d.brand, d.model, d.subCategory, d.manufacturer, d.gradingCompany, d.grade, d.cardNumber]
+  const extra = [d.brand, d.model, d.subCategory, d.manufacturer, d.player, d.gradingCompany, d.grade, d.cardNumber]
     .filter((v) => typeof v === 'string' || typeof v === 'number')
     .map(String).join(' ').trim();
   const row: SearchLite = { id, title: d.title.trim(), kind, price, created };
@@ -118,6 +118,45 @@ export function scoreRow(row: SearchLite, tokens: string[]): number {
   }
   if (title.startsWith(tokens.join(' '))) score += 2;
   return score;
+}
+
+
+/**
+ * Same token match the header dropdown uses, but against a full listing record.
+ * Works when `keywords` / `title_lowercase` are missing: every query token must
+ * prefix-match a word in the title, brand, player, model, sub-category, or other
+ * text fields.
+ */
+export function listingMatchesQuery(listing: Record<string, any> | null | undefined, query: string): boolean {
+  const tokens = tokenize(query);
+  if (!tokens.length) return true;
+  if (!listing) return false;
+  const title = typeof listing.title === 'string' ? listing.title : '';
+  const extra = [
+    listing.brand,
+    listing.model,
+    listing.subCategory,
+    listing.manufacturer,
+    listing.player,
+    listing.gradingCompany,
+    listing.grade,
+    listing.cardNumber,
+    listing.size,
+    listing.year,
+    Array.isArray(listing.keywords) ? listing.keywords.join(' ') : listing.keywords,
+  ].filter((v) => v != null && v !== '').map(String).join(' ');
+  const size = listing.size ? String(listing.size) : undefined;
+  const year = Number(listing.year);
+  return scoreRow({
+    id: String(listing.id || 'x'),
+    title: title || ' ',
+    kind: 'other',
+    price: 1,
+    created: 0,
+    size,
+    year: Number.isFinite(year) && year > 1800 ? year : undefined,
+    extra: extra || undefined,
+  }, tokens) > 0;
 }
 
 export function priceBucket(id?: string): PriceBucket | undefined {

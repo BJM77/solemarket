@@ -4,6 +4,7 @@ import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
 import { pageOpenGraph } from '@/lib/seo/og';
+import { composeCategoryTitle } from '@/lib/seo/browse-heading';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import SectionPaginationServer from '@/components/seo/SectionPaginationServer';
 
@@ -95,7 +96,7 @@ export default async function ShoesBrowsePage({
       }>
         <InfiniteProductGrid
           key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${categoryParam}` : header.title || 'All Sneakers'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? composeCategoryTitle(subCategoryParam, categoryParam) : header.title || 'All Sneakers'}
           pageDescription="Browse the best performance kicks from thousands of sellers."
           intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{

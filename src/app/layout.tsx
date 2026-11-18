@@ -138,7 +138,7 @@ export default async function RootLayout({
 }>) {
   const siteConfig = await getPublishedSiteConfig();
   return (
-    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable} overflow-x-hidden max-w-full w-full`}>
+    <html lang="en-AU" suppressHydrationWarning data-scroll-behavior="smooth" className={`${outfit.variable} ${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable} max-w-full w-full`}>
       <head>
         {/* Published brand colours/fonts in the SSR HTML: no flash of default styles. */}
         <style id="site-config-vars" dangerouslySetInnerHTML={{ __html: siteConfigCss(siteConfig) }} />
@@ -147,7 +147,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://firestore.googleapis.com" />
       </head>
-      <body className="font-sans antialiased overflow-x-hidden max-w-full w-full min-h-screen bg-background" suppressHydrationWarning>
+      <body className="font-sans antialiased max-w-full w-full min-h-screen bg-background" suppressHydrationWarning>
         <PwaRegister />
         <StructuredData />
         <AppProviders siteConfig={siteConfig}>

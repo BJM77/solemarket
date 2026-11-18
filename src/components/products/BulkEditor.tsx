@@ -41,6 +41,7 @@ import {
     CATEGORY_TRADING_CARDS,
     CATEGORY_GENERAL
 } from '@/lib/constants/marketplace';
+import { withoutTcgValues } from '@/lib/tcg-listings';
 
 const STATUS_OPTIONS = ['available', 'sold', 'draft'];
 
@@ -74,7 +75,7 @@ export default function BulkEditor({ isAdmin = false, sellerId, title = "Bulk Ed
     const CATEGORIES_OPTIONS: string[] = marketplaceOptions?.categories || DEFAULT_CATEGORIES;
     const CONDITION_OPTIONS: string[] = marketplaceOptions?.conditions || DEFAULT_CONDITIONS;
     const SUB_CATEGORIES: Record<string, string[]> = {
-        [CATEGORY_TRADING_CARDS]: marketplaceOptions?.subCategories?.collector_cards || DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS],
+        [CATEGORY_TRADING_CARDS]: withoutTcgValues(marketplaceOptions?.subCategories?.collector_cards || DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS]),
         [CATEGORY_SNEAKERS]: marketplaceOptions?.subCategories?.sneakers || DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS],
         [CATEGORY_ACCESSORIES]: marketplaceOptions?.subCategories?.accessories || DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES],
         [CATEGORY_GENERAL]: marketplaceOptions?.subCategories?.general || DEFAULT_SUB_CATEGORIES[CATEGORY_GENERAL]

@@ -26,7 +26,8 @@ function CategoryPillsInner({ className }: CategoryPillsProps) {
     const currentSubCategory = searchParams.get('subCategory');
 
     // Determine the context based on paths or search params
-    const isCardsContext = pathname?.includes('/cards') || currentCategory === 'Collector Cards' || currentCategory === 'Trading Cards';
+    const isPokemonContext = pathname?.includes('/pokemon');
+    const isCardsContext = !isPokemonContext && (pathname?.includes('/cards') || currentCategory === 'Collector Cards' || currentCategory === 'Trading Cards');
     const isShoesContext = pathname?.includes('/shoes') || currentCategory === 'Sneakers';
 
     // 1. Global Pills (Always first)
@@ -43,11 +44,15 @@ function CategoryPillsInner({ className }: CategoryPillsProps) {
     const isAdminPath = pathname?.includes('/admin/');
     const basePath = pathname || '/browse';
 
-    if (isCardsContext) {
+    if (isPokemonContext) {
+        contextualPills = [
+            { name: 'Pokémon', href: '/pokemon?subCategory=Pok%C3%A9mon' },
+            { name: 'Yu-Gi-Oh!', href: '/pokemon?subCategory=Yu-Gi-Oh!' },
+            { name: 'New Arrivals', href: '/pokemon?sort=createdAt-desc' },
+        ];
+    } else if (isCardsContext) {
         contextualPills = [
             { name: 'Basketball', href: `${basePath}?category=Collector+Cards&subCategory=Basketball+Cards` },
-            { name: 'Pokémon', href: `${basePath}?category=Collector+Cards&subCategory=Pok%C3%A9mon` },
-            { name: 'Yu-Gi-Oh!', href: `${basePath}?category=Collector+Cards&subCategory=Yu-Gi-Oh!` },
             { name: 'Rookies', href: `${basePath}?category=Collector+Cards&subCategory=Rookies` },
             { name: 'New Arrivals', href: `${basePath}?category=Collector+Cards&sort=createdAt-desc` },
         ];

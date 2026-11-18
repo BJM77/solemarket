@@ -9,6 +9,7 @@
  */
 import { STOREFRONTS, resolveStorefrontId } from '@/config/storefronts';
 import { isCoinValue, isCoinsPath } from '@/lib/coin-listings';
+import { isTcgValue } from '@/lib/tcg-listings';
 
 export const COINS_BASE_PATH = STOREFRONTS.coins.basePath; // '/coins'
 
@@ -93,6 +94,25 @@ export function routeCoinsHost(pathname: string, search: string, requestUrl: URL
   return { type: 'rewrite', pathname: withCoinsBase(pathname) };
 }
 
+
+const TCG_REDIRECT_PATHS = new Set(['/browse', '/search', '/cards']);
+
+/** Old basketball-site TCG filters (/browse?subCategory=Pokemon) move to /pokemon. */
+export function tcgFilterRedirect(pathname: string, searchParams: URLSearchParams): string | null {
+  if (!TCG_REDIRECT_PATHS.has(pathname)) return null;
+  const sub = searchParams.get('subCategory');
+  const brand = searchParams.get('brand');
+  const category = searchParams.get('category');
+  if (!isTcgValue(sub) && !isTcgValue(brand) && !isTcgValue(category)) return null;
+  const next = new URLSearchParams();
+  for (const key of ['q', 'sort', 'subCategory']) {
+    const v = searchParams.get(key);
+    if (v && (key !== 'subCategory' || isTcgValue(v))) next.set(key, v);
+  }
+  const qs = next.toString();
+  return `/pokemon${qs ? `?${qs}` : ''}`;
+}
+
 /** Routing decision for a request on benched.au (or any non-coins host). */
 export function routeMainHost(pathname: string, searchParams: URLSearchParams, launched: boolean = STOREFRONTS.coins.launched): StorefrontRoute {
   // Once coins.benched.au is live, benched.au/coins/... moves there for good.
@@ -112,5 +132,7 @@ export function routeMainHost(pathname: string, searchParams: URLSearchParams, l
     const path = `${COINS_BASE_PATH}/browse`;
     return { type: 'redirect', url: launched ? `${coinsPublicUrl(path, true)}${qs ? `?${qs}` : ''}` : `${path}${qs ? `?${qs}` : ''}` };
   }
+  const tcgTo = tcgFilterRedirect(pathname, searchParams);
+  if (tcgTo) return { type: 'redirect', url: tcgTo };
   return { type: 'next' };
 }

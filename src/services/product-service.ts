@@ -9,6 +9,7 @@ import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeSize } from '@/lib/filters/params';
 import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
+import { listingMatchesQuery } from '@/lib/search/inline';
 
 const PAGE_SIZE = 24;
 
@@ -45,6 +46,8 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   // matches its (small) catalog's text in memory instead of with a Firestore prefix query.
   const coinTextTerms = coinsOnly && typeof rawQ === 'string' ? rawQ.toLowerCase().split(/\s+/).filter(Boolean) : [];
   const q = coinsOnly ? undefined : rawQ;
+  const filterTextInMemory = typeof q === 'string' && q.trim().length > 0;
+  const textQuery = filterTextInMemory ? q.trim() : '';
   let category = searchParams.category ? normalizeCategory(searchParams.category) : undefined;
   let categories = searchParams.categories?.map((c: string) => normalizeCategory(c));
 
@@ -253,56 +256,15 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   const [sortField, sortDirection] = effectiveSort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
   let orderByConstraints: QueryConstraint[] = [];
 
-    if (q) {
-    // SCENARIO 1: TEXT SEARCH
-    const qLower = q.toLowerCase().trim();
-    const searchTerms = qLower.split(/\s+/).filter(term => term.length >= 1);
-
-    // Firestore rejects queries whose disjunctive normal form exceeds 30 terms
-    // ("Too many disjunctions"). Every OR branch is multiplied by the 'in' filter size
-    // and by the brand OR, so budget the search branches accordingly.
-    const branchBudget = Math.max(1, Math.floor(30 / (inFilterSize * brandOrBranches)));
-
-    if (searchTerms.length === 1) {
-      const term = searchTerms[0];
-      if (/^\d+$/.test(term) && !inFilterUsed && brandOrBranches === 1) {
-        constraints.push(where('keywords', 'array-contains-any', [term, term + 'c', term + 'p', term + 'oz']));
-        inFilterUsed = true;
-      } else if (branchBudget >= 2) {
-        constraints.push(or(
-          where('keywords', 'array-contains', term),
-          and(
-            where('title_lowercase', '>=', term),
-            where('title_lowercase', '<=', term + '\uf8ff')
-          )
-        ));
-      } else {
-        constraints.push(where('keywords', 'array-contains', term));
-      }
-      orderByConstraints.push(orderBy('title_lowercase', 'asc'));
-    } else {
-      // Keyword matches first (one branch per term), then title-prefix branches while budget allows.
-      const termConditions: any[] = searchTerms.map(term => where('keywords', 'array-contains', term));
-      for (const term of searchTerms) {
-        termConditions.push(
-          and(
-            where('title_lowercase', '>=', term),
-            where('title_lowercase', '<=', term + '\uf8ff')
-          )
-        );
-      }
-      const limitedConditions = termConditions.slice(0, branchBudget);
-      if (limitedConditions.length === 1) {
-        constraints.push(limitedConditions[0]);
-      } else if (limitedConditions.length > 0) {
-        constraints.push(or(...limitedConditions));
-      }
-      orderByConstraints.push(orderBy('title_lowercase', 'asc'));
-    }
-
-    // Any other range filters (Price, Year) must be done IN-MEMORY
+    if (filterTextInMemory) {
+    // The header dropdown matches title/brand/player/model in a client-side
+    // index. A Firestore keywords / title_lowercase prefix query misses
+    // listings that lack those fields or have the term mid-title (e.g. "Jordan"
+    // in "Air Jordan 1"). The live catalog is small enough to load and apply
+    // the same token match in memory, so "See all results" agrees with the dropdown.
     if (priceRange) filterPriceInMemory = true;
     if (yearRange) filterYearInMemory = true;
+    orderByConstraints.push(orderBy(sortField, sortDirection));
 
   } else if (priceRange && ((priceRange[0] > 0) || (priceRange[1] < 10000))) {
     // SCENARIO 2: PRICE RANGE (No Search)
@@ -361,10 +323,10 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   const pokemonCouldAppear = tcgOnly || (hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory);
   // Same for coins: without a category filter, coin listings could be in the server count.
   const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
-  const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
+  const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !filterTextInMemory && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
-  if (searchParams.countOnly) {
+  if (searchParams.countOnly && !filterTextInMemory) {
     if (!countIsExact) return { products: [], hasMore: false };
     try {
       const firestoreMod = await import('firebase/firestore');
@@ -379,9 +341,9 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   // /pokemon asks for every TCG under Collector Cards and filters in memory;
   // the live catalog is small enough to load in one page.
   // The coins storefront filters coins vs bullion in memory; its catalog is small too.
-  const pageSize = tcgOnly || coinsOnly ? 500 : PAGE_SIZE;
+  const pageSize = tcgOnly || coinsOnly || filterTextInMemory ? 500 : PAGE_SIZE;
 
-  if (searchParams.lastId) {
+  if (searchParams.lastId && !filterTextInMemory) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
     const lastDocSnap = await getDoc(lastDocRef);
 
@@ -422,6 +384,7 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
           .filter(Boolean).join(' ').toLowerCase();
         if (!coinTextTerms.every((t) => hay.includes(t))) return false;
       }
+      if (filterTextInMemory && !listingMatchesQuery(p as any, textQuery)) return false;
 
       // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
       if (!isAdminView && !(Number(p.price) > 0)) return false;
@@ -431,7 +394,7 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
         return false;
       }
 
-      // 1. Text Search - Handled by Firestore Prefix Search (see getProducts constraints)
+      // 1. Text Search - listingMatchesQuery (same token match as the header dropdown)
 
       // 2. Year Filter (in memory)
       if (filterYearInMemory && yearRange) {
@@ -559,6 +522,25 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
 
     // Keep the page in the requested order regardless of legacy string prices.
     products = applyClientSort(products, effectiveSort);
+
+    if (searchParams.countOnly && filterTextInMemory) {
+      return { products: [], hasMore: false, totalCount: products.length };
+    }
+
+    if (filterTextInMemory) {
+      let start = 0;
+      if (searchParams.lastId) {
+        const idx = products.findIndex((p: Product) => p.id === searchParams.lastId);
+        start = idx >= 0 ? idx + 1 : 0;
+      }
+      const page = products.slice(start, start + PAGE_SIZE);
+      return {
+        products: page,
+        hasMore: start + page.length < products.length,
+        lastVisibleId: page.length ? page[page.length - 1].id : undefined,
+        totalCount: searchParams.lastId ? undefined : products.length,
+      };
+    }
 
     const hasMore = querySnapshot.docs.length === pageSize;
     const lastVisibleId = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1].id : undefined;

@@ -12,8 +12,9 @@ import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const GRID_LAYOUTS = {
   default: 'w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 gap-3 md:gap-x-4 md:gap-y-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 xl:gap-x-8 mt-4 md:mt-8 overflow-hidden',
-  // 2 / 3 / 5 columns so 15 Just Listed items fill complete rows from md up; 2-col phones keep a comfortable card size.
+  // 2 / 3 / 5 columns so 15 homepage-rail items fill complete rows from md up; 2-col phones keep a comfortable card size.
   justListed: 'w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 gap-3 md:gap-x-4 md:gap-y-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-x-6 xl:gap-x-8 mt-4 md:mt-8 overflow-hidden',
+  homeRail: 'w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 gap-3 md:gap-x-4 md:gap-y-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-x-6 xl:gap-x-8 mt-4 md:mt-8 overflow-hidden',
 } as const;
 
 export interface ProductGridProps {

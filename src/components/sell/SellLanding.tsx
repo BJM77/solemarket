@@ -21,7 +21,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Link from 'next/link';
-import Image from 'next/image';
+import { Logo } from '@/components/logo';
 
 /**
  * Accessibility Strategy:
@@ -334,7 +334,7 @@ export default function SellLandingPage() {
                         <AccordionItem value="item-3">
                             <AccordionTrigger className="text-lg font-semibold py-4">What items can I sell?</AccordionTrigger>
                             <AccordionContent className="text-slate-600 pb-6">
-                                We focus on Shoes (Sneakers, Designer, Vintage) and Collector Cards (Pokémon, NBA, NFL, etc.). If it&apos;s a collectible, Benched is the place for it.
+                                We focus on basketball shoes (Sneakers, Designer, Vintage) and basketball collector cards (NBA, WNBA, NBL, rookies and slabs). If it&apos;s a basketball collectible, Benched is the place for it.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-4">
@@ -351,7 +351,7 @@ export default function SellLandingPage() {
             <footer className="py-12 border-t border-slate-100 bg-slate-50">
                 <div className="container mx-auto px-4 text-center">
                     <div className="flex justify-center mb-6">
-                        <Image src="/logo.svg" alt="Benched.au Logo" width={150} height={40} className="h-8 w-auto" />
+                        <Logo className="h-8" />
                     </div>
                     <p className="text-slate-500 text-sm">© 2026 Benched.au - Australia&apos;s Premier Sneaker & Card Marketplace.</p>
                 </div>

@@ -4,6 +4,7 @@ import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
 import { pageOpenGraph } from '@/lib/seo/og';
+import { composeCategoryTitle } from '@/lib/seo/browse-heading';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import SectionPaginationServer from '@/components/seo/SectionPaginationServer';
 
@@ -85,7 +86,7 @@ export default async function CardsBrowsePage({
       }>
         <InfiniteProductGrid
           key={categoryParam}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} Cards` : header.title || 'All Collector Cards'}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? composeCategoryTitle(subCategoryParam, 'Cards') : header.title || 'All Collector Cards'}
           pageDescription="Browse basketball cards from Australian collectors."
           intro={!searchTerm && !subCategoryParam ? header.intro || undefined : undefined}
           initialFilterState={{

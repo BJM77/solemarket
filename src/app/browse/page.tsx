@@ -13,6 +13,7 @@ const getCachedProducts = unstable_cache(
 );
 import type { Metadata } from 'next';
 import { pageOpenGraph } from '@/lib/seo/og';
+import { composeCategoryTitle } from '@/lib/seo/browse-heading';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 
@@ -123,7 +124,7 @@ export default async function BrowsePage({
         <InfiniteProductGrid
           key={targetCategory || 'all'}
           searchProvider={configuredProvider()}
-          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? `${subCategoryParam} ${targetCategory}` : (targetCategory ? `All ${targetCategory}` : 'The Lineup')}
+          pageTitle={searchTerm ? `Results for "${searchTerm}"` : subCategoryParam ? composeCategoryTitle(subCategoryParam, targetCategory) : (targetCategory ? `All ${targetCategory}` : 'The Lineup')}
           pageDescription="Browse items from thousands of sellers."
           initialFilterState={{
             q: searchTerm,

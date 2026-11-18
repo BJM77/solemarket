@@ -1,4 +1,5 @@
 import { isCoinsHref } from '@/lib/coin-listings';
+import { DEFAULT_CARD_ROOM_ITEMS } from '@/lib/home/card-room';
 
 export interface CategoryCardItem {
   id: string;
@@ -116,8 +117,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     tickerBgColor: '#18181b',
     tickerTextColor: '#ffffff',
     logoUrl: '/benched.png',
-    siteLogoUrl: '/benchedlogo.png',
-    logoDarkUrl: '/benchedlogo.png',
+    siteLogoUrl: '/benched-logo-black.png',
+    logoDarkUrl: '/benched-logo-white.png',
   },
   hero: {
     h1TitleLine1: "AUSTRALIA'S PREMIER",
@@ -159,14 +160,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       enabled: true,
       order: 2,
       customClasses: 'py-16 bg-background/60 border-t border-border',
-      items: [
-        { id: 'c1', name: 'Jordan', logo: '/brand-logos/svg/jordan.svg', href: '/cards?subCategory=Jordan', color: 'bg-red-50/50 dark:bg-red-950/10' },
-        { id: 'c2', name: 'Kobe', logo: '/brand-logos/svg/kobe.svg', href: '/cards?subCategory=Kobe', color: 'bg-purple-50/50 dark:bg-purple-950/10' },
-        { id: 'c3', name: 'Curry', logo: '/brand-logos/svg/curry.svg', href: '/cards?subCategory=Curry', color: 'bg-orange-50/50 dark:bg-orange-950/10' },
-        { id: 'c4', name: 'Rookies', iconName: 'Zap', href: '/cards?subCategory=Rookies', color: 'bg-yellow-50 dark:bg-yellow-950/20' },
-        { id: 'c5', name: 'Top 100', iconName: 'Medal', href: '/cards?subCategory=Top%20100', color: 'bg-orange-50 dark:bg-orange-950/20' },
-        { id: 'c6', name: 'Wembanyama', iconName: 'Trophy', href: '/cards?subCategory=Wembanyama', color: 'bg-emerald-50 dark:bg-emerald-950/20' },
-      ]
+      items: DEFAULT_CARD_ROOM_ITEMS
     },
   ],
   menus: [
