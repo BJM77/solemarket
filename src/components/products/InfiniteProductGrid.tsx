@@ -103,6 +103,10 @@ function InfiniteProductGridInner({
     if (isUserAdmin) return 'admin';
     return userProfile?.role || 'viewer';
   }, [isSuperAdmin, isUserAdmin, userProfile?.role]);
+  // Public storefront grids must use the same eligibility as the header dropdown
+  // and as signed-out shoppers. Admins otherwise see checked-in/sold listings
+  // the lite index omitted, so "See all N" disagreed with the results page.
+  const fetchRole = isAdmin ? userRole : 'viewer';
 
   // Define currentSearchParams BEFORE using it in useInfiniteQuery
   const currentSearchParams = useMemo(
@@ -125,7 +129,7 @@ function InfiniteProductGridInner({
     error,
     isError
   } = useInfiniteQuery({
-    queryKey: ['products', currentSearchParams, userRole],
+    queryKey: ['products', currentSearchParams, fetchRole],
     queryFn: ({ pageParam }) => (searchProvider !== 'firestore' && !isAdmin)
       ? searchProductsAction({ ...currentSearchParams, lastId: pageParam as string | undefined, limit: PAGE_SIZE })
       : getProducts({
@@ -133,7 +137,7 @@ function InfiniteProductGridInner({
         lastId: pageParam as string | undefined,
         limit: PAGE_SIZE,
         page: pageParam ? 2 : 1 // Simple hack to indicate not first page if pageParam exists
-      }, userRole as string),
+      }, fetchRole as string),
     initialPageParam: undefined,
     initialData: canUseInitialData ? { pages: [initialData], pageParams: [undefined] } : undefined,
     // Signed-in users switch role key after auth loads; keep showing the server page meanwhile instead of a skeleton.
@@ -151,9 +155,9 @@ function InfiniteProductGridInner({
   const chips = useMemo(() => activeFilterChips(currentSearchParams, initialFilterState), [currentSearchParams, initialFilterState]);
   const clearHref = useMemo(() => clearFiltersHref(pathname, new URLSearchParams(searchParams.toString())), [pathname, searchParams]);
   const countFor = useCallback(async (f: Partial<ProductSearchParams>) => {
-    const res = await getProducts({ ...(initialFilterState as ProductSearchParams), ...(f as ProductSearchParams), countOnly: true }, userRole as string);
+    const res = await getProducts({ ...(initialFilterState as ProductSearchParams), ...(f as ProductSearchParams), countOnly: true }, fetchRole as string);
     return res.totalCount;
-  }, [initialFilterState, userRole]);
+  }, [initialFilterState, fetchRole]);
   const totalCount = data?.pages[0]?.totalCount;
 
   // Previous/Next on a listing opened from this grid continue through the same filtered query

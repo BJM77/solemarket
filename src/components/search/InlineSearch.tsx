@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils/ui';
 import { getProductUrl } from '@/lib/utils/url';
 import {
   DEFAULT_FILTERS, PRICE_BUCKETS, SORT_OPTIONS, LruCache, buildBrowseHref, cacheKey, formatAud, pushRecent,
-  rowDetail, searchIndex, sizeOptions, type InlineFilters, type SearchCategory, type SearchLite, type SearchSort,
+  rowDetail, searchIndex, sizeOptions, seeAllListingsLabel, type InlineFilters, type SearchCategory, type SearchLite, type SearchSort,
 } from '@/lib/search/inline';
 import {
   COIN_INLINE_TYPES, DEFAULT_COIN_INLINE_FILTERS, coinIndexMetals, coinInlineBrowseHref, coinInlineCacheKey, coinInlineSorts,
@@ -306,8 +306,8 @@ function ResultsPanel({ s, listboxId, activeIndex, setActiveIndex, recent, onPic
             className={cn('flex cursor-pointer items-center justify-between gap-2 border-t border-border px-4 py-2.5 text-sm font-semibold text-primary', activeIndex === rows.length && 'bg-primary/10')}>
             <span>
               {s.loading ? 'Searching…'
-                : s.result && total > 0 ? `See all ${total} result${total === 1 ? '' : 's'}`
-                : s.result ? `No quick matches. Search all listings for “${s.query.trim()}”`
+                : s.result && total > 0 ? seeAllListingsLabel(total, s.query)
+                : s.result ? seeAllListingsLabel(0, s.query)
                 : `Search all listings for “${s.query.trim()}”`}
             </span>
             {s.loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}

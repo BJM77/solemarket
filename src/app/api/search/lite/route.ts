@@ -14,7 +14,7 @@ const MAX_ROWS = 3000;
 
 const FIELDS = [
   'title', 'price', 'category', 'subCategory', 'brand', 'model', 'size', 'year', 'manufacturer',
-  'gradingCompany', 'grade', 'cardNumber', 'createdAt', 'status', 'isDraft', 'storefrontId',
+  'gradingCompany', 'grade', 'cardNumber', 'player', 'keywords', 'createdAt', 'status', 'isDraft', 'storefrontId',
 ];
 
 /** Benched Coins index fields (the coin sell form's facts). */
@@ -26,9 +26,10 @@ const COIN_FIELDS = [...FIELDS, 'metal', 'weight', 'purity', 'denomination', 'co
  */
 const loadIndex = unstable_cache(
   async (): Promise<{ rows: SearchLite[]; builtAt: number; capped: boolean }> => {
+    // Same eligibility as /browse?q=: available + checked-in (sold). Do not require
+    // isDraft==false in the query — legacy listings omit the field and would be dropped.
     const snap = await firestoreDb.collection('products')
-      .where('status', '==', 'available')
-      .where('isDraft', '==', false)
+      .where('status', 'in', ['available', 'sold'])
       .select(...FIELDS)
       .limit(MAX_ROWS)
       .get();
@@ -39,7 +40,7 @@ const loadIndex = unstable_cache(
     }
     return { rows, builtAt: Date.now(), capped: snap.size >= MAX_ROWS };
   },
-  ['search-lite-index-v1'],
+  ['search-lite-index-v2'],
   { revalidate: 120, tags: ['products'] }
 );
 

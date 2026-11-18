@@ -43,6 +43,8 @@ export function matchLandingListings(products: Product[], { query, kind, limit =
     if (!p || !p.id) continue;
     const row = toSearchLite(p.id, p as unknown as Record<string, any>);
     if (!row) continue;
+    // Landing pages only feature live (available) listings, not checked-in/sold.
+    if ((p as any).status && (p as any).status !== 'available') continue;
     if (kind && row.kind !== kind) continue;
     const score = scoreRow(row, tokens);
     if (score <= 0) continue;
@@ -85,6 +87,7 @@ export function matchBrandListings(products: Product[], brand: string, limit = 4
   for (const p of products) {
     if (!p || !p.id) continue;
     if (!toSearchLite(p.id, p as unknown as Record<string, any>)) continue;
+    if ((p as any).status && (p as any).status !== 'available') continue;
     const any = p as any;
     const lead = normalizeText(String(p.title || '')).replace(/^(?:(?:19|20)\d{2}(?:\s?\d{2})?\s)?(?:air\s)?/, '');
     const byField = [any.brand, any.manufacturer, any.subCategory, any.model].some(hasPhrase);

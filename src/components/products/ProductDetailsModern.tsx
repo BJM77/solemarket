@@ -719,6 +719,13 @@ export default function ProductDetailsModern({
     }, [product, productId, markAsViewed]);
 
     const isLoading = isProductLoading || isSellerLoading;
+    // Recreate only when the URL list actually changes (a views-count snapshot would otherwise remount the gallery).
+    const galleryImageKey = (product || initialProduct)?.imageUrls?.join('\0') ?? '';
+    const galleryImages = useMemo(
+        () => (galleryImageKey ? galleryImageKey.split('\0') : []),
+        [galleryImageKey],
+    );
+
 
     // Mobile bottom nav: centre button is BUY for buyers, EDIT for the listing owner, SELL elsewhere.
     const { setBuyAction } = useMobileNav();
@@ -1000,7 +1007,7 @@ export default function ProductDetailsModern({
                         {/* Phones keep a capped, centred photo; desktop gets the full 50% column with thumbnails beside the photo */}
                         <div className="w-full mx-auto md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
-                                images={product.imageUrls}
+                                images={galleryImages}
                                 title={product.title}
                                 isCard={product.category === 'Collector Cards'}
                                 category={product.category}

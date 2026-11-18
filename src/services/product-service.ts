@@ -9,7 +9,7 @@ import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeSize } from '@/lib/filters/params';
 import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
-import { listingMatchesQuery } from '@/lib/search/inline';
+import { isStorefrontSearchable, listingMatchesQuery } from '@/lib/search/inline';
 
 const PAGE_SIZE = 24;
 
@@ -363,6 +363,25 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
       id: doc.id,
       ...doc.data()
     }) as Product);
+
+    // Text search must include checked-in (sold) listings the header dropdown also
+    // returns. Query them separately so we reuse the existing status==available
+    // composite index and do not need a status-in + orderBy index.
+    if (filterTextInMemory) {
+      const seen = new Set(products.map((p: Product) => p.id));
+      try {
+        const soldSnap = await getDocs(query(productsRef, where('status', '==', 'sold'), limit(500)));
+        for (const d of soldSnap.docs) {
+          if (seen.has(d.id)) continue;
+          const row = serializeFirestoreData({ id: d.id, ...d.data() }) as Product;
+          if (!isStorefrontSearchable(row as any)) continue;
+          products.push(row);
+          seen.add(d.id);
+        }
+      } catch (e) {
+        console.warn('Sold listing search backfill failed', e);
+      }
+    }
 
     // In-Memory Filters
     const now = new Date();

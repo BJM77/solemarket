@@ -60,7 +60,7 @@ function createIndexLoader<R, M = undefined>(url: string, ssKey: string, pickMet
   return { getLoaded, load };
 }
 
-const main = createIndexLoader<SearchLite>('/api/search/lite', 'benched_search_lite_v1', () => undefined, (ms) => { lastIndexLoadMs = ms; });
+const main = createIndexLoader<SearchLite>('/api/search/lite', 'benched_search_lite_v2', () => undefined, (ms) => { lastIndexLoadMs = ms; });
 const coins = createIndexLoader<CoinSearchLite, { spot: SpotMap | null }>(
   '/api/search/lite?storefront=coins',
   'benched_search_lite_coins_v1',
