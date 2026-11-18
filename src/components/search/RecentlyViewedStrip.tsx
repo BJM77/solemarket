@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { readRecentViews, forgetRecentView, recentViewsKey, RECENT_VIEWS_EVENT, type RecentStorefront, type RecentView } from '@/lib/recent-views';
 import { cn } from '@/lib/utils/ui';
+import { productCoverStyle } from '@/lib/images/focal-point';
 
 /**
  * Desktop header: thumbnails of the last 5 listings this visitor opened (hidden when empty).
@@ -45,6 +46,7 @@ export function RecentlyViewedStrip({ className, storefront = 'main' }: { classN
               sizes="40px"
               quality={50}
               className="object-cover"
+              style={productCoverStyle({ imageFocalPoints: r.focal ? [r.focal] : undefined }, 0)}
               onError={() => forgetRecentView(r.id)}
             />
           ) : (

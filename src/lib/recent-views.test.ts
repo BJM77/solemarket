@@ -72,3 +72,12 @@ describe('recent views per site', () => {
     expect(recentStorefrontOf('/cards/x/1')).toBe('main');
   });
 });
+
+describe('recent views focal point', () => {
+  it('keeps a clamped seller centre pin with the thumbnail', () => {
+    const [row] = addRecentView([], { ...v('1'), focal: { x: 1.4, y: -0.2 } });
+    expect(row.focal).toEqual({ x: 1, y: 0 });
+    const [plain] = addRecentView([], v('2'));
+    expect(plain.focal).toBeUndefined();
+  });
+});

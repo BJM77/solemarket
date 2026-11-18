@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { formatPrice } from "@/lib/utils/format";
 import { getProductUrl } from "@/lib/utils/url";
+import { productCoverStyle } from '@/lib/images/focal-point';
 
 export interface MontageGridProps {
   products: Product[];
@@ -105,6 +106,7 @@ export default function MontageGrid({ products, lastProductRef, isAdmin = false,
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, (max-width: 1024px) 17vw, (max-width: 1280px) 13vw, 10vw"
               priority={index < 4}
               className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+              style={productCoverStyle(product, 0)}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 

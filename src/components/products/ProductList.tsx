@@ -11,6 +11,7 @@ import EmptyState from '../ui/EmptyState';
 import { Package } from 'lucide-react';
 import { formatPrice } from "@/lib/utils/format";
 import { getProductUrl } from "@/lib/utils/url";
+import { productCoverStyle } from '@/lib/images/focal-point';
 
 interface ProductListProps {
   products: Product[];
@@ -43,7 +44,7 @@ export default function ProductList({ products }: ProductListProps) {
             <TableRow key={product.id}>
               <TableCell>
                 <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
-                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
+                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" style={productCoverStyle(product, 0)} />
                 </div>
               </TableCell>
               <TableCell className="font-medium">{product.title}</TableCell>

@@ -18,5 +18,8 @@ describe('ListingDetailsFallback', () => {
     expect(screen.getByRole('heading', { name: /Jordan Air Jordan 1 Retro High OG/i })).toBeInTheDocument();
     const img = screen.getByRole('img', { name: /Jordan Air Jordan 1 Retro High OG/i });
     expect(img.getAttribute('src') || '').toContain('jordan-1.jpg');
+    const blur = document.querySelector('.listing-photo-blur');
+    expect(blur).not.toBeNull();
+    expect(blur?.getAttribute('src') || blur?.getAttribute('srcset') || '').toContain('jordan-1.jpg');
   });
 });

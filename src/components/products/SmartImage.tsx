@@ -5,6 +5,7 @@ import React from 'react';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";
+import { productCoverStyle } from '@/lib/images/focal-point';
 
 interface SmartImageProps {
     product: Product;
@@ -32,23 +33,14 @@ export function SmartImage({
 }: SmartImageProps) {
     const [error, setError] = React.useState(false);
     const imageUrl = error ? '/wtb-wanted-placeholder.png' : (product.imageUrls?.[imageIndex] || '/wtb-wanted-placeholder.png');
-    const intelligence = product.aiIntelligence?.[imageIndex];
     const imageAlt = alt || product.imageAltTexts?.[imageIndex] || product.title;
 
-    // Default object-position is center
-    let objectPosition = 'center';
-
-    // If AI Smart Crop data exists, calculate the CSS object-position
-    // Note: CSS object-position uses the center point of the focus area.
-    if (intelligence?.smartCrop && !error) {
-        const { x, y } = intelligence.smartCrop;
-        // x and y are 0-1 relative coordinates from AI
-        objectPosition = `${x * 100}% ${y * 100}%`;
-    }
+    // Seller-set imageFocalPoints win over AI smartCrop; both default to centre.
+    const coverStyle = error ? undefined : productCoverStyle(product, imageIndex);
 
     return (
         <div className={cn("relative w-full h-full overflow-hidden bg-white dark:bg-neutral-900", className)}>
-            {/* Main Product Image — object-cover object-center fills the square; edges may be cropped */}
+            {/* Main Product Image — object-cover fills the square; focal point keeps the item in view. */}
             <div className="relative z-10 w-full h-full">
                 <Image
                     src={imageUrl}
@@ -58,8 +50,8 @@ export function SmartImage({
                     fetchPriority={priority ? 'high' : undefined}
                     sizes={sizes}
                     quality={quality}
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                    style={{ objectPosition }}
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={coverStyle}
                     onError={() => setError(true)}
                 />
             </div>

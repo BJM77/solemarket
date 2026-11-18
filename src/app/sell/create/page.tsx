@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
 import { isCoinListing } from '@/lib/coin-listings';
 import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
 import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
 import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
 
@@ -102,6 +103,7 @@ function CreateListingForm() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>([]);
   const [suggestedFields, setSuggestedFields] = useState<string[]>([]);
   const [analysisStage, setAnalysisStage] = useState<string>('');
 
@@ -216,6 +218,7 @@ function CreateListingForm() {
       const nonBlobPreviews = imagePreviews.filter(p => !p.startsWith('blob:'));
       if (nonBlobPreviews.length > 0) {
         sanitizedDraft.imageUrls = nonBlobPreviews;
+        sanitizedDraft.imageFocalPoints = padFocalPoints(imageFocalPoints, nonBlobPreviews.length);
       }
 
       const draftData = sanitizedDraft;
@@ -232,7 +235,7 @@ function CreateListingForm() {
     }, 5000);
 
     return () => clearTimeout(autosaveTimer);
-  }, [formValues, user, currentStep, imagePreviews, editId, isSubmitting, form, router]);
+  }, [formValues, user, currentStep, imagePreviews, imageFocalPoints, editId, isSubmitting, form, router]);
 
   // Initialize from persistence/URL
   useEffect(() => {
@@ -299,6 +302,7 @@ function CreateListingForm() {
 
             const combinedFiles = [...(data.imageUrls || []), ...cachedFiles];
             form.setValue('imageFiles', combinedFiles, { shouldValidate: true });
+            setImageFocalPoints(padFocalPoints(data.imageFocalPoints, combinedPreviews.length));
 
             // Restore small base64 copies for AI (800px, like fresh uploads) so the
             // server action payload stays well under React's 1M-char limit.
@@ -306,6 +310,7 @@ function CreateListingForm() {
             setImageFilesBase64(base64s);
           } else {
             setImagePreviews(data.imageUrls || []);
+            setImageFocalPoints(padFocalPoints(data.imageFocalPoints, (data.imageUrls || []).length));
           }
 
           // Infer type
@@ -451,6 +456,7 @@ function CreateListingForm() {
     const updatedFiles = [...currentFiles, ...newFiles];
     form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
     setImagePreviews(prev => [...prev, ...newPreviews]);
+    setImageFocalPoints(prev => [...prev, ...newPreviews.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
     if (base64s) {
       setImageFilesBase64(prev => [...prev, ...base64s]);
     }
@@ -467,6 +473,7 @@ function CreateListingForm() {
     form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setImageFilesBase64(prev => prev.filter((_, i) => i !== index));
+    setImageFocalPoints(prev => prev.filter((_, i) => i !== index));
     if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
   };
 
@@ -740,6 +747,7 @@ function CreateListingForm() {
       form.setValue('imageFiles', compressedFiles, { shouldValidate: true });
       setImagePreviews(newPreviews);
       setImageFilesBase64(newBase64s);
+      setImageFocalPoints(prev => padFocalPoints(prev, newPreviews.length));
 
       // Optimistic transition: instantly advance to Step 1 while AI works in background
       setCurrentStep(1);
@@ -916,6 +924,7 @@ function CreateListingForm() {
           const listingData = JSON.parse(JSON.stringify({
             ...rest,
             imageUrls: finalUrls,
+            imageFocalPoints: padFocalPoints(imageFocalPoints, finalUrls.length),
             category: values.category || 'Sneakers',
             isVault: false,
           }));
@@ -980,6 +989,7 @@ function CreateListingForm() {
         });
         setImagePreviews([]);
         setImageFilesBase64([]); // Clear base64 cache
+        setImageFocalPoints([]);
         setSuggestedFields([]);
         setAnalyzingFields({});
         setFormHistory([]);
@@ -1033,6 +1043,7 @@ function CreateListingForm() {
       const listingData = JSON.parse(JSON.stringify({
         ...rest,
         imageUrls: finalUrls,
+        imageFocalPoints: padFocalPoints(imageFocalPoints, finalUrls.length),
         category: values.category || 'Sneakers',
         isVault: false,
       }));
@@ -1141,6 +1152,12 @@ function CreateListingForm() {
                 <ImageUploadStep
                   imageFiles={imageFiles}
                   imagePreviews={imagePreviews}
+                  imageFocalPoints={imageFocalPoints}
+                  onFocalChange={(index, point) => setImageFocalPoints((prev) => {
+                    const next = padFocalPoints(prev, imagePreviews.length);
+                    next[index] = point;
+                    return next;
+                  })}
                   onImagesChange={handleImagesChange}
                   onRemoveImage={removeImage}
                   onRotateImage={handleRotateImage}

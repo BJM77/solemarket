@@ -44,6 +44,8 @@ export const CONDITIONS: Record<WizardCategory, string[]> = {
 export interface WizardDraft {
   category?: WizardCategory;
   photos: Record<string, string>; // shot id -> uploaded URL
+  /** Seller-set centre pins, keyed by the same shot id as `photos`. */
+  photoFocals?: Record<string, { x: number; y: number }>;
   title: string;
   brand: string;
   size: string;
@@ -60,7 +62,7 @@ export interface WizardDraft {
 }
 
 export const EMPTY_DRAFT: WizardDraft = {
-  photos: {}, title: '', brand: '', size: '', condition: '', description: '', price: '', isNegotiable: true,
+  photos: {}, photoFocals: {}, title: '', brand: '', size: '', condition: '', description: '', price: '', isNegotiable: true,
   multibuyEnabled: false, multibuyTiers: [], bundleIds: [],
 };
 
@@ -107,6 +109,8 @@ export function validateStep(step: StepId, d: WizardDraft): string[] {
 export function draftToProduct(d: WizardDraft) {
   const order = d.category ? SHOT_LISTS[d.category].map((s) => s.id) : Object.keys(d.photos);
   const imageUrls = order.map((id) => d.photos[id]).filter(Boolean).slice(0, 10);
+  const orderedIds = order.filter((id) => d.photos[id]).slice(0, 10);
+  const imageFocalPoints = orderedIds.map((id) => d.photoFocals?.[id] ?? { x: 0.5, y: 0.5 });
   return {
     title: d.title.trim(),
     description: d.description.trim(),
@@ -116,6 +120,7 @@ export function draftToProduct(d: WizardDraft) {
     size: d.size.trim() || undefined,
     condition: d.condition,
     imageUrls,
+    imageFocalPoints,
     isNegotiable: d.isNegotiable,
     status: 'available' as const,
     quantity: 1,

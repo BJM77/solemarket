@@ -2,7 +2,7 @@
  * Recently viewed listings (desktop header strip). Pure helpers + a tiny localStorage store.
  * Only id, title, a thumbnail URL and the listing URL are kept, newest first, max 5.
  */
-export interface RecentView { id: string; title: string; thumb?: string; url: string; at: number }
+export interface RecentView { id: string; title: string; thumb?: string; url: string; at: number; focal?: { x: number; y: number } }
 
 export const RECENT_VIEWS_KEY = 'benched_recent_views_v1';
 /** Benched Coins keeps its own list, so each site only shows its own listings. */
@@ -60,6 +60,10 @@ export function addRecentView(list: RecentView[], entry: Omit<RecentView, 'at'> 
   if (!isRecentView({ ...entry, at: 0 })) return list.slice(0, max);
   const next: RecentView = { id: entry.id, title: entry.title, url: entry.url, at: entry.at ?? Date.now() };
   if (isOptimizableThumb(entry.thumb)) next.thumb = entry.thumb;
+  const fx = entry.focal?.x, fy = entry.focal?.y;
+  if (typeof fx === 'number' && Number.isFinite(fx) && typeof fy === 'number' && Number.isFinite(fy)) {
+    next.focal = { x: Math.min(1, Math.max(0, fx)), y: Math.min(1, Math.max(0, fy)) };
+  }
   return [next, ...list.filter((r) => r.id !== entry.id)].slice(0, max);
 }
 

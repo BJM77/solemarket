@@ -3,6 +3,8 @@ import type { Product } from '@/lib/types';
 import { GALLERY_SIZES } from '@/lib/listing-nav';
 import { formatPrice } from '@/lib/utils/format';
 import { getGalleryFrameClasses } from './gallery-frame';
+import { ListingPhotoBackdrop } from './ListingPhotoBackdrop';
+import { focalObjectPosition } from '@/lib/images/focal-point';
 
 /**
  * Shown while the listing client chunk hydrates or a Suspense boundary retries.
@@ -22,15 +24,22 @@ export function ListingDetailsFallback({ product }: { product: Product }) {
             className={`relative w-full mx-auto bg-background rounded-2xl overflow-hidden border border-border shadow-2xl ${frameClasses}`}
           >
             {src ? (
-              <Image
-                src={src}
-                alt={product.title}
-                fill
-                priority
-                fetchPriority="high"
-                className="object-contain"
-                sizes={GALLERY_SIZES}
-              />
+              <>
+                <ListingPhotoBackdrop
+                  src={src}
+                  sizes={GALLERY_SIZES}
+                  objectPosition={focalObjectPosition(product.imageFocalPoints, 0)}
+                />
+                <Image
+                  src={src}
+                  alt={product.title}
+                  fill
+                  priority
+                  fetchPriority="high"
+                  className="relative z-[1] object-contain"
+                  sizes={GALLERY_SIZES}
+                />
+              </>
             ) : null}
           </div>
         </div>

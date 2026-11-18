@@ -11,15 +11,18 @@ import {
   isOutsideImageWithLeniency,
   lensBackgroundPosition,
 } from '@/lib/listing-zoom/geometry';
+import { normalizeFocalPoint, type ImageFocalPoint } from '@/lib/images/focal-point';
 
 type Props = {
   open: boolean;
   src: string;
   alt: string;
   onClose: () => void;
+  /** Starting lens focus when the overlay opens, before the pointer moves. */
+  initialFocus?: ImageFocalPoint;
 };
 
-export default function ListingImageZoomOverlay({ open, src, alt, onClose }: Props) {
+export default function ListingImageZoomOverlay({ open, src, alt, onClose, initialFocus }: Props) {
   const imageRef = useRef<HTMLImageElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
@@ -28,8 +31,8 @@ export default function ListingImageZoomOverlay({ open, src, alt, onClose }: Pro
   const [lens, setLens] = useState<{ x: number; y: number; bgX: number; bgY: number; imgW: number; imgH: number; visible: boolean }>({
     x: 0,
     y: 0,
-    bgX: 50,
-    bgY: 50,
+    bgX: initialFocus ? normalizeFocalPoint(initialFocus).x * 100 : 50,
+    bgY: initialFocus ? normalizeFocalPoint(initialFocus).y * 100 : 50,
     imgW: 0,
     imgH: 0,
     visible: false,
@@ -38,6 +41,17 @@ export default function ListingImageZoomOverlay({ open, src, alt, onClose }: Pro
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const focus = initialFocus ? normalizeFocalPoint(initialFocus) : { x: 0.5, y: 0.5 };
+    setLens((current) => ({
+      ...current,
+      bgX: focus.x * 100,
+      bgY: focus.y * 100,
+      visible: false,
+    }));
+  }, [open, src, initialFocus]);
 
   useEffect(() => {
     if (!open) return;

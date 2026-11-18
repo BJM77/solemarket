@@ -16,6 +16,7 @@ import { Pencil } from 'lucide-react';
 import { deleteListing } from '@/app/actions/seller/seller-actions';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import Image from 'next/image';
+import { productCoverStyle } from '@/lib/images/focal-point';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1008,6 +1009,7 @@ export default function ProductDetailsModern({
                         <div className="w-full mx-auto md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
                                 images={galleryImages}
+                                imageFocalPoints={product.imageFocalPoints}
                                 title={product.title}
                                 isCard={product.category === 'Collector Cards'}
                                 category={product.category}
@@ -1641,6 +1643,7 @@ export default function ProductDetailsModern({
                                             fill
                                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 15vw"
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            style={productCoverStyle(item, 0)}
                                         />
                                     </Link>
                                     <div className="mt-2.5 space-y-1 flex-1 flex flex-col justify-between">

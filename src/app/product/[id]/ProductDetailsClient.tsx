@@ -329,6 +329,7 @@ export default function ProductDetailsClient({
                     <div className="lg:max-w-sm mx-auto w-full space-y-4">
                         <ProductImageGallery
                             images={product.imageUrls}
+                            imageFocalPoints={product.imageFocalPoints}
                             title={product.title}
                             isCard={product.category === 'Collector Cards'}
                             category={product.category}

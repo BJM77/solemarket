@@ -192,6 +192,13 @@ export async function createProductAction(
             }
         }
 
+        const { sanitizeImageFocalPoints } = await import('@/lib/images/focal-point');
+        const focals = sanitizeImageFocalPoints(
+            (validData as any).imageFocalPoints ?? (productData as any).imageFocalPoints,
+            (validData.imageUrls || []).length,
+        );
+        if (focals) (finalData as any).imageFocalPoints = focals;
+
         (finalData as any).title_lowercase = validData.title.toLowerCase();
         const keywords = generateKeywords(validData.title);
         if (validData.brand) keywords.push(...generateKeywords(validData.brand));

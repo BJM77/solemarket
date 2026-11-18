@@ -17,6 +17,7 @@ export default function ProductQuickView({ product }: ProductQuickViewProps) {
             <div className="space-y-4">
                 <ProductImageGallery
                     images={product.imageUrls}
+                    imageFocalPoints={product.imageFocalPoints}
                     title={product.title}
                     isCard={product.category === 'Collector Cards'}
                     category={product.category}

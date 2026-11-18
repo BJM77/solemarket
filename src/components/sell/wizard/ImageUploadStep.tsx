@@ -15,10 +15,14 @@ import AICardGrader from '@/components/products/AICardGrader';
 import { ThreeSixtyViewer } from '@/components/products/ThreeSixtyViewer';
 import { cn } from "@/lib/utils/ui";
 import { processListingImages } from "@/lib/utils/image";
+import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
+import { DEFAULT_FOCAL_POINT, type ImageFocalPoint } from '@/lib/images/focal-point';
 
 interface ImageUploadStepProps {
     imageFiles: any[];
     imagePreviews: string[];
+    imageFocalPoints?: ImageFocalPoint[];
+    onFocalChange?: (index: number, point: ImageFocalPoint) => void;
     onImagesChange: (files: File[], previews: string[], base64s: string[]) => void;
     onRemoveImage: (index: number) => void;
     onAutoFill: () => Promise<void>;
@@ -48,6 +52,8 @@ export function ImageUploadStep({
     onApplySuggestions,
     onRotateImage,
     onReplaceImage,
+    imageFocalPoints,
+    onFocalChange,
     form
 }: ImageUploadStepProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -200,8 +206,18 @@ export function ImageUploadStep({
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
                         {imagePreviews.map((p, i) => (
                             <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
-                                <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {onFocalChange ? (
+                                    <ImageFocalPicker
+                                        src={p}
+                                        alt={`Upload ${i + 1}`}
+                                        value={imageFocalPoints?.[i] ?? DEFAULT_FOCAL_POINT}
+                                        onChange={(point) => onFocalChange(i, point)}
+                                        label={`Centre of photo ${i + 1}`}
+                                    />
+                                ) : (
+                                    <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
+                                )}
+                                <div className="absolute top-1 right-1 z-10 flex items-center gap-1">
                                     {onReplaceImage && (imageFiles[i] instanceof File || imageFiles[i] instanceof Blob) && (
                                         <button
                                             onClick={(e) => { e.preventDefault(); setCropIndex(i); }}
@@ -235,6 +251,9 @@ export function ImageUploadStep({
                             </div>
                         ))}
                     </div>
+                    {imagePreviews.length > 0 && onFocalChange && (
+                        <p className="text-[11px] text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
+                    )}
                     {onReplaceImage && imagePreviews.length > 0 && (
                         <p className="text-[11px] text-muted-foreground">Tip: fill the frame on a plain background in good light. Tap a photo, then <Crop className="inline h-3 w-3" /> to crop it tight.</p>
                     )}

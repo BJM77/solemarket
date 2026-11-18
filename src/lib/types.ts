@@ -88,6 +88,12 @@ export type Product = {
   sellerVerified?: boolean;
   sellerIsSuperSeller?: boolean;
   imageUrls: string[];
+  /**
+   * Optional seller-set centre for each photo, parallel to `imageUrls`.
+   * Normalised x/y in 0–1. Missing entries (and existing listings without
+   * this field) display at 0.5/0.5. Not backfilled in Firestore.
+   */
+  imageFocalPoints?: { x: number; y: number }[];
   videoUrl?: string;
   videoThumbnailUrl?: string;
   imageAltTexts?: string[]; // Pillar 1: AI Visual SEO
