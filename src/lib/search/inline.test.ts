@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  toSearchLite, searchIndex, scoreRow, tokenize, listingMatchesQuery, buildBrowseHref, cacheKey, sizeOptions, LruCache,
+  toSearchLite, searchIndex, matchIndexRows, scoreRow, tokenize, listingMatchesQuery, buildBrowseHref, cacheKey, sizeOptions, LruCache,
   rowDetail, formatAud, pushRecent, DEFAULT_FILTERS, isStorefrontSearchable, seeAllListingsLabel, type SearchLite,
 } from './inline';
 
@@ -161,5 +161,50 @@ describe('checked-in listings in searchIndex', () => {
     const { rows, total } = searchIndex([sold, available], 'Jordan', { category: 'all', sort: 'relevance' }, 8);
     expect(total).toBe(2);
     expect(rows.map((r) => r.id).sort()).toEqual(['j1', 'j3']);
+  });
+});
+
+describe('shared index ranking (dropdown + results page)', () => {
+  const live = { status: 'available', isDraft: false };
+  const soldNew = toSearchLite('sold-new', { status: 'sold', title: 'Air Jordan 1 Chicago', price: 300, category: 'Sneakers', size: 'US 10', createdAt: { seconds: 900 } })!;
+  const liveOld = toSearchLite('live-old', { ...live, title: 'Jordan 4 Military Blue', price: 250, category: 'Sneakers', size: '10', createdAt: { seconds: 100 } })!;
+  const liveCard = toSearchLite('live-card', { ...live, title: '1997 Michael Jordan Fleer', price: 80, category: 'Collector Cards', year: 1997, createdAt: { seconds: 500 } })!;
+  const early = toSearchLite('early', { ...live, title: 'Jordan 11 Concord', price: 400, category: 'Sneakers', createdAt: { seconds: 950 }, publicReleaseAt: { seconds: 4_000_000_000 } })!;
+  const index = [soldNew, liveOld, liveCard, early];
+
+  it('flags sold rows and early-access release times', () => {
+    expect(soldNew.sold).toBe(1);
+    expect(liveOld.sold).toBeUndefined();
+    expect(early.rel).toBe(4_000_000_000);
+  });
+
+  it('ranks live listings above checked-in ones in the dropdown', () => {
+    const r = searchIndex(index, 'jordan', { ...DEFAULT_FILTERS, sort: 'newest' }, 8);
+    expect(r.rows.map((x) => x.id)).toEqual(['live-card', 'live-old', 'sold-new']);
+    expect(r.total).toBe(3); // early-access listing hidden until release
+  });
+
+  it('gives the results page the same matches and total as the dropdown', () => {
+    const dropdown = searchIndex(index, 'jordan', DEFAULT_FILTERS, 8);
+    const page = matchIndexRows(index, 'jordan', { sort: 'createdAt-desc' });
+    expect(page.length).toBe(dropdown.total);
+    expect(page.map((x) => x.id)).toEqual(['live-card', 'live-old', 'sold-new']);
+  });
+
+  it('filters by kind, price, year and size on the index', () => {
+    expect(matchIndexRows(index, 'jordan', { kind: 'cards' }).map((x) => x.id)).toEqual(['live-card']);
+    expect(matchIndexRows(index, 'jordan', { kind: 'shoes' }).map((x) => x.id)).toEqual(['live-old', 'sold-new']);
+    expect(matchIndexRows(index, 'jordan', { priceRange: [200, 260] }).map((x) => x.id)).toEqual(['live-old']);
+    expect(matchIndexRows(index, 'jordan', { yearRange: [1990, 2000] }).map((x) => x.id)).toEqual(['live-card']);
+    expect(matchIndexRows(index, 'jordan', { sizes: ['US 10'] }).map((x) => x.id)).toEqual(['live-old', 'sold-new']);
+  });
+
+  it('sorts within live and sold groups; rows without the sort field go last', () => {
+    expect(matchIndexRows(index, 'jordan', { sort: 'price-asc' }).map((x) => x.id)).toEqual(['live-card', 'live-old', 'sold-new']);
+    expect(matchIndexRows(index, 'jordan', { sort: 'year-desc' }).map((x) => x.id)).toEqual(['live-card', 'live-old', 'sold-new']);
+  });
+
+  it('includes early-access listings only when asked (business)', () => {
+    expect(matchIndexRows(index, 'jordan', { includeUnreleased: true }).map((x) => x.id)).toContain('early');
   });
 });
