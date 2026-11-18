@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Upload, Loader2, Camera, Layers, ChevronRight, Footprints, RectangleVertical } from 'lucide-react';
 import { cn } from "@/lib/utils/ui";
 import { CameraCapture } from '@/components/ui/camera-capture';
+import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -123,6 +124,7 @@ export function ListingTypeStep({
                                 <CameraCapture
                                     onCapture={(files) => onImagesSelect(files)}
                                     maxFiles={4}
+                                    captureMode={captureFrameKindFor(selectedType)}
                                     variant="custom"
                                 >
                                     <Button type="button" size="lg" className="w-full">

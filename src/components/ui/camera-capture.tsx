@@ -2,18 +2,26 @@
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2, RotateCw } from 'lucide-react';
+import { Camera, VideoOff, Trash2, CheckCircle, X, Loader2, RotateCw, Frame } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { cn } from "@/lib/utils/ui";
 import { Badge } from '@/components/ui/badge';
+import { CaptureFrameGuide } from '@/components/ui/capture-frame-guide';
+import {
+    CAPTURE_JPEG_QUALITY,
+    captureFrameKindFor,
+    limitLongEdge,
+    mapDisplayRectToSource,
+} from '@/lib/photo-capture/frame';
 
 interface CameraCaptureProps {
     onCapture: (files: File[]) => void;
     maxSizeMB?: number;
-    captureMode?: 'card' | 'coin' | 'general' | 'default';
+    /** Picks the on-screen framing guide: card (2.5:3.5), coin (round), shoe (landscape) or general. */
+    captureMode?: 'card' | 'coin' | 'shoe' | 'general' | 'default';
     variant?: 'button' | 'hero' | 'custom';
     maxFiles?: number;
     children?: React.ReactNode;
@@ -22,6 +30,10 @@ interface CameraCaptureProps {
 export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'default', variant = 'button', maxFiles = 4, children }: CameraCaptureProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const guideRef = useRef<HTMLDivElement>(null);
+    const frameKind = captureFrameKindFor(captureMode === 'default' ? 'general' : captureMode);
+    // Framing guide is on by default; the captured photo is cropped to it so the item fills the listing photo.
+    const [useFrame, setUseFrame] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
@@ -197,26 +209,56 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
 
         const videoWidth = video.videoWidth;
         const videoHeight = video.videoHeight;
+        if (!videoWidth || !videoHeight) return;
 
-        // Auto-rotation fix: If taking a card photo in landscape (width > height) on a mobile device, 
-        // automatically rotate it 90deg clockwise to fit portrait card standards (5x7 aspect).
-        const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const shouldRotate = isMobile && (captureMode === 'card' || captureMode === 'default') && videoWidth > videoHeight;
-
-        if (shouldRotate) {
-            canvas.width = videoHeight;
-            canvas.height = videoWidth;
+        const guideEl = useFrame ? guideRef.current : null;
+        if (guideEl) {
+            // Crop the full-resolution frame to the on-screen guide (plus a small margin).
+            // The preview is object-cover, so map the guide through the same scaling.
+            const videoBox = video.getBoundingClientRect();
+            const guideBox = guideEl.getBoundingClientRect();
+            const src = mapDisplayRectToSource({
+                sourceW: videoWidth,
+                sourceH: videoHeight,
+                displayW: videoBox.width,
+                displayH: videoBox.height,
+                rect: {
+                    x: guideBox.left - videoBox.left,
+                    y: guideBox.top - videoBox.top,
+                    width: guideBox.width,
+                    height: guideBox.height,
+                },
+                fit: 'cover',
+                margin: 0.05,
+            });
+            if (src.width < 2 || src.height < 2) return;
+            const out = limitLongEdge(src.width, src.height);
+            canvas.width = out.width;
+            canvas.height = out.height;
+            context.imageSmoothingQuality = 'high';
             context.clearRect(0, 0, canvas.width, canvas.height);
-            context.save();
-            context.translate(canvas.width / 2, canvas.height / 2);
-            context.rotate(90 * Math.PI / 180);
-            context.drawImage(video, -videoWidth / 2, -videoHeight / 2, videoWidth, videoHeight);
-            context.restore();
+            context.drawImage(video, src.x, src.y, src.width, src.height, 0, 0, out.width, out.height);
         } else {
-            canvas.width = videoWidth;
-            canvas.height = videoHeight;
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(video, 0, 0, videoWidth, videoHeight);
+            // Frame off: keep the whole frame. On phones, a landscape card shot is rotated to portrait.
+            const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const shouldRotate = isMobile && (captureMode === 'card' || captureMode === 'default') && videoWidth > videoHeight;
+            const out = limitLongEdge(videoWidth, videoHeight);
+            context.imageSmoothingQuality = 'high';
+            if (shouldRotate) {
+                canvas.width = out.height;
+                canvas.height = out.width;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.save();
+                context.translate(canvas.width / 2, canvas.height / 2);
+                context.rotate(90 * Math.PI / 180);
+                context.drawImage(video, -out.width / 2, -out.height / 2, out.width, out.height);
+                context.restore();
+            } else {
+                canvas.width = out.width;
+                canvas.height = out.height;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(video, 0, 0, out.width, out.height);
+            }
         }
 
         canvas.toBlob((blob) => {
@@ -229,7 +271,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                 setCapturedFiles(prev => [...prev, file]);
                 setCapturedPreviews(prev => [...prev, URL.createObjectURL(file)]);
             }
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', CAPTURE_JPEG_QUALITY);
     };
 
     const rotateImage = (indexToRotate: number) => {
@@ -339,6 +381,19 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
                             muted
                             className="absolute inset-0 w-full h-full object-cover"
                         />
+                        {useFrame && hasCameraPermission !== false && <CaptureFrameGuide ref={guideRef} kind={frameKind} />}
+                        {hasCameraPermission !== false && (
+                            <button
+                                type="button"
+                                onClick={() => setUseFrame(v => !v)}
+                                aria-pressed={useFrame}
+                                data-testid="capture-frame-toggle"
+                                className="absolute bottom-12 right-4 z-50 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-md"
+                            >
+                                <Frame className="h-4 w-4" />
+                                {useFrame ? 'Frame on' : 'Frame off'}
+                            </button>
+                        )}
                         {isCameraLoading && (
                             <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/50">
                                 <Loader2 className="h-12 w-12 text-orange-700 animate-spin" />
