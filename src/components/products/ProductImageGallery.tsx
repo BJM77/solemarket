@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Badge } from '@/components/ui/badge';
 import { cn } from "@/lib/utils/ui";
 import { GALLERY_SIZES } from '@/lib/listing-nav';
-import { isCardCategory, isCoinCategory } from '@/lib/constants/marketplace';
+import { getGalleryFrameClasses, getGalleryFrameKind } from './gallery-frame';
 import ListingImageZoomOverlay from './ListingImageZoomOverlay';
 import ListingMobileGallery from './ListingMobileGallery';
 import { ZOOM_HOVER_DELAY_MS, isInTopHoverZone } from '@/lib/listing-zoom/geometry';
@@ -139,20 +139,11 @@ export default function ProductImageGallery({
     }
   };
 
-  const getAspectRatio = (cat?: string) => {
-    if (isCoinCategory(cat)) return 'aspect-square';
-    if (isCardCategory(cat)) return 'aspect-[5/7]';
-    return 'aspect-square';
-  };
-
-  const aspectRatio = getAspectRatio(category);
-  // Cap gallery height so phones keep room to scroll: width is limited so the aspect box never exceeds ~50% of the viewport height.
-  // With side thumbnails the desktop photo may use the whole viewport below the site header.
-  // Phones/tablets keep a height cap so the photo does not dominate the page.
-  // On the desktop 50/50 listing layout, drop the max-width so the image fills its column.
-  const heightCap = aspectRatio === 'aspect-[5/7]'
-    ? cn('md:max-w-[calc(50svh*5/7)]', thumbnailsSide ? 'lg:max-w-none' : 'lg:max-w-[calc(68vh*5/7)]')
-    : cn('md:max-w-[50svh]', thumbnailsSide ? 'lg:max-w-none' : 'lg:max-w-[68vh]');
+  // Phones: 4:5 box (coins square) capped at 60svh so title/price stay above the fold; photo stays object-contain (uncropped).
+  // Tablet/desktop keep the per-category ratio and width caps (see gallery-frame.ts).
+  const frameKind = getGalleryFrameKind(category);
+  const aspectRatio = frameKind === 'coin' ? 'aspect-square' : frameKind === 'card' ? 'aspect-[4/5] md:aspect-[5/7]' : 'aspect-square';
+  const frameClasses = getGalleryFrameClasses(category, thumbnailsSide);
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -265,7 +256,7 @@ export default function ProductImageGallery({
         )}
 
         {/* Main Gallery — desktop listing fills the 50% column; mobile height caps stay in place. */}
-        <div className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", aspectRatio, heightCap)}>
+        <div data-testid="listing-gallery-frame" data-frame={frameKind} className={cn("relative w-full mx-auto bg-background rounded-2xl overflow-hidden group border border-border shadow-2xl", thumbnailsSide && "lg:mx-0 lg:flex-1 lg:min-w-0", frameClasses)}>
           
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -302,7 +293,7 @@ export default function ProductImageGallery({
                       </Button>
                     </div>
                   ) : (
-                    <div className="relative w-full h-full px-6 py-4 sm:p-0">
+                    <div className="relative w-full h-full p-1.5 sm:p-0">
                     <div
                       role="button"
                       tabIndex={0}

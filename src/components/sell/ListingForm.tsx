@@ -24,6 +24,7 @@ import { handleStaleDeploy } from "@/lib/stale-deploy";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
+import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
@@ -392,7 +393,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         }
     };
 
-    const captureMode = ['cards', 'Collector Cards', 'trading-cards'].includes(listingType) ? 'card' : 'general';
+    const captureMode = captureFrameKindFor(listingType);
     const STEP_TITLES = [
         "Product Photos",
         "Essential Info",

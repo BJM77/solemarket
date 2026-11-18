@@ -6,8 +6,10 @@ import { useRef, ChangeEvent, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone, RotateCw } from 'lucide-react';
+import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone, RotateCw, Crop } from 'lucide-react';
+import { ImageCropDialog } from '@/components/ui/image-crop-dialog';
 import { CameraCapture } from '@/components/ui/camera-capture';
+import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { useToast } from "@/hooks/use-toast";
 import AICardGrader from '@/components/products/AICardGrader';
 import { ThreeSixtyViewer } from '@/components/products/ThreeSixtyViewer';
@@ -27,6 +29,8 @@ interface ImageUploadStepProps {
     onGradeComplete?: (grade: string) => void;
     onApplySuggestions?: (res: any) => void;
     onRotateImage?: (index: number) => void;
+    /** Replace a not-yet-uploaded photo with a cropped copy. */
+    onReplaceImage?: (index: number, file: File) => void | Promise<void>;
     form: any; // Passed for direct setValue if needed by sub-components
 }
 
@@ -43,6 +47,7 @@ export function ImageUploadStep({
     onGradeComplete,
     onApplySuggestions,
     onRotateImage,
+    onReplaceImage,
     form
 }: ImageUploadStepProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +55,8 @@ export function ImageUploadStep({
     const { toast } = useToast();
     const [showing3D, setShowing3D] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [cropIndex, setCropIndex] = useState<number | null>(null);
+    const cropFile = cropIndex !== null && (imageFiles[cropIndex] instanceof File || imageFiles[cropIndex] instanceof Blob) ? imageFiles[cropIndex] as File : null;
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -124,7 +131,7 @@ export function ImageUploadStep({
         }
     };
 
-    const captureMode = ['cards', 'Collector Cards', 'trading-cards', 'Coins', 'coins'].includes(selectedType) ? 'card' : 'general';
+    const captureMode = captureFrameKindFor(selectedType);
 
     // Target aspect ratio display string
     const getTargetRatio = () => {
@@ -195,6 +202,17 @@ export function ImageUploadStep({
                             <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
                                 <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {onReplaceImage && (imageFiles[i] instanceof File || imageFiles[i] instanceof Blob) && (
+                                        <button
+                                            onClick={(e) => { e.preventDefault(); setCropIndex(i); }}
+                                            className="p-1.5 bg-primary hover:bg-primary/90 rounded-full transition-colors"
+                                            type="button"
+                                            title="Crop to frame"
+                                            aria-label={`Crop photo ${i + 1}`}
+                                        >
+                                            <Crop className="h-4 w-4 text-primary-foreground" />
+                                        </button>
+                                    )}
                                     {onRotateImage && (
                                         <button
                                             onClick={(e) => { e.preventDefault(); onRotateImage(i); }}
@@ -217,6 +235,19 @@ export function ImageUploadStep({
                             </div>
                         ))}
                     </div>
+                    {onReplaceImage && imagePreviews.length > 0 && (
+                        <p className="text-[11px] text-muted-foreground">Tip: fill the frame on a plain background in good light. Tap a photo, then <Crop className="inline h-3 w-3" /> to crop it tight.</p>
+                    )}
+                    <ImageCropDialog
+                        file={cropFile}
+                        kind={captureMode}
+                        onCancel={() => setCropIndex(null)}
+                        onCropped={async (file) => {
+                            const index = cropIndex;
+                            setCropIndex(null);
+                            if (index !== null && onReplaceImage) await onReplaceImage(index, file);
+                        }}
+                    />
 
 
                 </CardContent>

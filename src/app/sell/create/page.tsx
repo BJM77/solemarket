@@ -300,13 +300,9 @@ function CreateListingForm() {
             const combinedFiles = [...(data.imageUrls || []), ...cachedFiles];
             form.setValue('imageFiles', combinedFiles, { shouldValidate: true });
 
-            // Restore base64 representations for AI
-            const base64Promises = cachedFiles.map(f => new Promise<string>((resolve) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result as string);
-              reader.readAsDataURL(f);
-            }));
-            const base64s = await Promise.all(base64Promises);
+            // Restore small base64 copies for AI (800px, like fresh uploads) so the
+            // server action payload stays well under React's 1M-char limit.
+            const base64s = await Promise.all(cachedFiles.map(f => resizeAndCompressImage(f, 800, 0.6)));
             setImageFilesBase64(base64s);
           } else {
             setImagePreviews(data.imageUrls || []);
@@ -422,6 +418,32 @@ function CreateListingForm() {
       }, 'image/jpeg', 0.8);
     };
     img.src = imagePreviews[index];
+  };
+
+  // Swap a not-yet-uploaded photo for a cropped copy (same pipeline as fresh uploads).
+  const handleReplaceImage = async (index: number, cropped: File) => {
+    try {
+      const [result] = await processListingImages([cropped]);
+      const currentFiles = [...(form.getValues('imageFiles') as (File | string)[])];
+      if (index < 0 || index >= currentFiles.length) return;
+      currentFiles[index] = result.file;
+      form.setValue('imageFiles', currentFiles, { shouldValidate: true });
+      setImagePreviews(prev => {
+        const next = [...prev];
+        if (next[index]?.startsWith('blob:')) URL.revokeObjectURL(next[index]);
+        next[index] = result.previewUrl;
+        return next;
+      });
+      setImageFilesBase64(prev => {
+        const next = [...prev];
+        next[index] = result.base64ForAI;
+        return next;
+      });
+      toast({ title: 'Photo cropped', duration: 1500 });
+    } catch (error) {
+      console.error('Crop failed:', error);
+      toast({ title: 'Could not crop that photo.', variant: 'destructive' });
+    }
   };
 
   const handleImagesChange = (newFiles: File[], newPreviews: string[], base64s?: string[]) => {
@@ -1122,6 +1144,7 @@ function CreateListingForm() {
                   onImagesChange={handleImagesChange}
                   onRemoveImage={removeImage}
                   onRotateImage={handleRotateImage}
+                  onReplaceImage={handleReplaceImage}
                   onAutoFill={() => handleAutoFill()}
                   isAnalyzing={isAnalyzing}
                   isRetrying={isRetrying}

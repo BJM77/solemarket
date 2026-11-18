@@ -42,14 +42,16 @@ export interface ProcessedImageResult {
 
 /**
  * Perform single-pass canvas operations on an uploaded file to generate:
- * 1. High-resolution compressed File for marketplace storage (max 1600px, 0.8 quality)
+ * 1. High-resolution compressed File for marketplace storage (max 1600px, 0.85 quality)
  * 2. Low-resolution base64 JPEG URI for rapid Genkit vision analysis (max 800px, 0.6 quality)
  * 3. Instant local blob URL for immediate preview rendering
  */
 export async function processListingImage(
   file: File,
-  highResMaxWidth: number = 1200,
-  highResQuality: number = 0.75,
+  // Matches the 1600px WebP master that uploadImages stores, so listing photos are not softened twice.
+  // This file goes to Firebase Storage (not a server action); the AI copy below stays 800px.
+  highResMaxWidth: number = 1600,
+  highResQuality: number = 0.85,
   aiMaxWidth: number = 800,
   aiQuality: number = 0.6
 ): Promise<ProcessedImageResult> {

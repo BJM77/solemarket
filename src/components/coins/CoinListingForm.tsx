@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ImagePlus, Loader2, X } from 'lucide-react';
+import { Camera, Crop, ImagePlus, Loader2, X } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { getCurrentUserIdToken } from '@/lib/firebase/auth';
 import { uploadImages } from '@/lib/firebase/storage';
@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { CameraCapture } from '@/components/ui/camera-capture';
+import { ImageCropDialog } from '@/components/ui/image-crop-dialog';
 import { getProductUrl } from '@/lib/utils/url';
 import { COIN_SUBCATEGORIES, BULLION_SUBCATEGORIES, coinListingClassification, isBullionListing } from '@/lib/coin-listings';
 import { buildCoinListingData, COIN_METALS, COIN_CONDITIONS, COIN_GRADERS, type CoinFormValues } from '@/lib/coins/listing-form';
@@ -56,6 +58,7 @@ export function CoinListingForm() {
   const [values, setValues] = useState<CoinFormValues>(EMPTY);
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
   const [files, setFiles] = useState<{ file: File | Blob; preview: string }[]>([]);
+  const [cropIndex, setCropIndex] = useState<number | null>(null);
   const [busy, setBusy] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -112,7 +115,7 @@ export function CoinListingForm() {
 
   const photoCount = existingUrls.length + files.length;
 
-  const addFiles = async (list: FileList | null) => {
+  const addFiles = async (list: FileList | File[] | null) => {
     if (!list?.length) return;
     const room = MAX_PHOTOS - photoCount;
     const picked = Array.from(list).filter((f) => f.type.startsWith('image/')).slice(0, Math.max(0, room));
@@ -202,7 +205,7 @@ export function CoinListingForm() {
 
       <section className="space-y-3">
         <Label>Photos ({photoCount}/{MAX_PHOTOS})</Label>
-        <p className="text-xs text-muted-foreground">Show both sides, plus the slab label or certificate if it has one.</p>
+        <p className="text-xs text-muted-foreground">Show both sides, plus the slab label or certificate if it has one. Fill the frame on a plain background in good light.</p>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {existingUrls.map((url) => (
             <div key={url} className="relative aspect-square overflow-hidden rounded-xl border">
@@ -214,6 +217,7 @@ export function CoinListingForm() {
             <div key={f.preview} className="relative aspect-square overflow-hidden rounded-xl border">
               <img src={f.preview} alt="" className="h-full w-full object-cover" />
               <button type="button" aria-label="Remove photo" onClick={() => setFiles((p) => p.filter((_, j) => j !== i))} className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"><X className="h-3 w-3" /></button>
+              <button type="button" aria-label={`Crop photo ${i + 1}`} onClick={() => setCropIndex(i)} className="absolute left-1 bottom-1 rounded-full bg-black/60 p-1 text-white"><Crop className="h-3 w-3" /></button>
             </div>
           ))}
           {photoCount < MAX_PHOTOS && (
@@ -223,8 +227,32 @@ export function CoinListingForm() {
               <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
             </label>
           )}
+          {photoCount < MAX_PHOTOS && (
+            <CameraCapture onCapture={(captured) => addFiles(captured)} captureMode={isBullion ? 'general' : 'coin'} variant="custom" maxFiles={MAX_PHOTOS - photoCount}>
+              <button type="button" className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed text-xs text-muted-foreground hover:border-amber-500" data-testid="coin-camera">
+                <Camera className="h-5 w-5" />
+                Camera
+              </button>
+            </CameraCapture>
+          )}
         </div>
         {err('photos')}
+        <ImageCropDialog
+          file={cropIndex !== null ? files[cropIndex]?.file ?? null : null}
+          kind={isBullion ? 'general' : 'coin'}
+          onCancel={() => setCropIndex(null)}
+          onCropped={async (cropped) => {
+            const index = cropIndex;
+            setCropIndex(null);
+            if (index === null) return;
+            try {
+              const r = await processListingImage(cropped);
+              setFiles((prev) => prev.map((f, j) => (j === index ? { file: r.file, preview: r.previewUrl } : f)));
+            } catch {
+              toast({ title: "Couldn't crop that photo", variant: 'destructive' });
+            }
+          }}
+        />
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
