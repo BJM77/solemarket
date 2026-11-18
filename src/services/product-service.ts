@@ -9,7 +9,8 @@ import { serializeFirestoreData } from "@/lib/utils/serialization";
 import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
 import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeSize } from '@/lib/filters/params';
 import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
-import { isStorefrontSearchable, listingMatchesQuery } from '@/lib/search/inline';
+import { isIndexSort, isStorefrontSearchable, listingMatchesQuery, type SearchKind } from '@/lib/search/inline';
+import { facetCategory } from '@/lib/filters/params';
 
 const PAGE_SIZE = 24;
 
@@ -264,7 +265,9 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
     // the same token match in memory, so "See all results" agrees with the dropdown.
     if (priceRange) filterPriceInMemory = true;
     if (yearRange) filterYearInMemory = true;
-    orderByConstraints.push(orderBy(sortField, sortDirection));
+    // Always createdAt here: ordering by year/views would silently drop listings
+    // missing that field. The requested sort is applied in memory below.
+    orderByConstraints.push(orderBy('createdAt', 'desc'));
 
   } else if (priceRange && ((priceRange[0] > 0) || (priceRange[1] < 10000))) {
     // SCENARIO 2: PRICE RANGE (No Search)
@@ -325,72 +328,20 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
   const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !filterTextInMemory && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
-  // Count-only mode: used by the filter panel to show "Show N results" before applying.
-  if (searchParams.countOnly && !filterTextInMemory) {
-    if (!countIsExact) return { products: [], hasMore: false };
-    try {
-      const firestoreMod = await import('firebase/firestore');
-      const snapshot = await firestoreMod.getCountFromServer(query(productsRef, ...filterArgs));
-      return { products: [], hasMore: false, totalCount: snapshot.data().count };
-    } catch (e) {
-      console.warn('Count failed', e);
-      return { products: [], hasMore: false };
-    }
+  // Storefront text search (/browse?q=, /cards?q=...): use the same cached lite index as
+  // the header dropdown, so both always agree, and read only the listings a page needs.
+  const isAdminRole = userRole === 'admin' || userRole === 'superadmin';
+  const useSharedIndex = filterTextInMemory && !isAdminRole && !coinsOnly && !tcgOnly && !wantsPokemon && !wantsCoins
+    && !searchParams.includePokemon && !searchParams.includeCoins;
+  if (useSharedIndex) {
+    return searchWithSharedIndex();
   }
 
-  // /pokemon asks for every TCG under Collector Cards and filters in memory;
-  // the live catalog is small enough to load in one page.
-  // The coins storefront filters coins vs bullion in memory; its catalog is small too.
-  const pageSize = tcgOnly || coinsOnly || filterTextInMemory ? 500 : PAGE_SIZE;
-
-  if (searchParams.lastId && !filterTextInMemory) {
-    const lastDocRef = doc(db, 'products', searchParams.lastId);
-    const lastDocSnap = await getDoc(lastDocRef);
-
-    if (lastDocSnap.exists()) {
-      finalQuery = query(productsRef, ...queryArgs, startAfter(lastDocSnap), limit(pageSize));
-    } else {
-      return { products: [], hasMore: false };
-    }
-  } else {
-    finalQuery = query(productsRef, ...queryArgs, limit(pageSize));
-  }
-
-  try {
-    const querySnapshot = await getDocs(finalQuery);
-
-    let products = querySnapshot.docs.map((doc: any) => serializeFirestoreData({
-      id: doc.id,
-      ...doc.data()
-    }) as Product);
-
-    // Text search must include checked-in (sold) listings the header dropdown also
-    // returns. Query them separately so we reuse the existing status==available
-    // composite index and do not need a status-in + orderBy index.
-    if (filterTextInMemory) {
-      const seen = new Set(products.map((p: Product) => p.id));
-      try {
-        const soldSnap = await getDocs(query(productsRef, where('status', '==', 'sold'), limit(500)));
-        for (const d of soldSnap.docs) {
-          if (seen.has(d.id)) continue;
-          const row = serializeFirestoreData({ id: d.id, ...d.data() }) as Product;
-          if (!isStorefrontSearchable(row as any)) continue;
-          products.push(row);
-          seen.add(d.id);
-        }
-      } catch (e) {
-        console.warn('Sold listing search backfill failed', e);
-      }
-    }
-
-    // In-Memory Filters
+  /** In-memory filters shared by the Firestore path and the shared-index path. */
+  function passesInMemoryFilters(p: Product): boolean {
     const now = new Date();
-
-    // Tiered Access Filtering
     const isBusinessOrHigher = userRole === 'business' || userRole === 'admin' || userRole === 'superadmin';
-
     const isAdminView = userRole === 'admin' || userRole === 'superadmin';
-    products = products.filter((p: Product) => {
       // 0. TCG listings live in the /pokemon section.
       if (hidePokemon && isPokemonListing(p)) return false;
       if (tcgOnly && !isPokemonListing(p)) return false;
@@ -403,7 +354,6 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
           .filter(Boolean).join(' ').toLowerCase();
         if (!coinTextTerms.every((t) => hay.includes(t))) return false;
       }
-      if (filterTextInMemory && !listingMatchesQuery(p as any, textQuery)) return false;
 
       // 0a. Never show $0 / invalid-price listings publicly (they float to the top of price sorts).
       if (!isAdminView && !(Number(p.price) > 0)) return false;
@@ -414,6 +364,12 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
       }
 
       // 1. Text Search - listingMatchesQuery (same token match as the header dropdown)
+
+      // 1b. Price range (in memory for text search)
+      if (filterPriceInMemory && priceRange) {
+        const price = Number(p.price);
+        if (!(price >= priceRange[0] && price <= priceRange[1])) return false;
+      }
 
       // 2. Year Filter (in memory)
       if (filterYearInMemory && yearRange) {
@@ -537,28 +493,229 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
       // }
 
       return true;
+  }
+
+  function sortInMemory(items: Product[], sortKey: string): Product[] {
+    const [field, dir] = sortKey.split('-');
+    const sign = dir === 'asc' ? 1 : -1;
+    const secs = (v: any): number => {
+      if (!v) return 0;
+      if (typeof v.seconds === 'number') return v.seconds;
+      if (typeof v._seconds === 'number') return v._seconds;
+      if (typeof v.toDate === 'function') return v.toDate().getTime() / 1000;
+      const t = new Date(v).getTime();
+      return Number.isFinite(t) ? t / 1000 : 0;
+    };
+    const val = (p: any): number | undefined => {
+      if (field === 'price') return Number(p.price);
+      if (field === 'year') return p.year ? Number(p.year) : undefined;
+      if (field === 'views') return Number(p.views) || 0;
+      return secs(p.createdAt);
+    };
+    const sorted = [...items].sort((a, b) => {
+      const va = val(a), vb = val(b);
+      if (va === undefined && vb !== undefined) return 1;
+      if (vb === undefined && va !== undefined) return -1;
+      if (va !== undefined && vb !== undefined && va !== vb) return (va - vb) * sign;
+      return secs((b as any).createdAt) - secs((a as any).createdAt);
     });
+    // Live listings first, checked-in (sold) after.
+    return [...sorted.filter((p) => p.status !== 'sold'), ...sorted.filter((p) => p.status === 'sold')];
+  }
+
+  /** Cursor paging over an in-memory list; an unknown cursor ends the list instead of restarting. */
+  function pageByCursor(items: Product[]): ProductsResult {
+    let start = 0;
+    if (searchParams.lastId) {
+      const idx = items.findIndex((p) => p.id === searchParams.lastId);
+      if (idx < 0) return { products: [], hasMore: false };
+      start = idx + 1;
+    }
+    const page = items.slice(start, start + PAGE_SIZE);
+    return {
+      products: page,
+      hasMore: start + page.length < items.length,
+      lastVisibleId: page.length ? page[page.length - 1].id : undefined,
+      totalCount: searchParams.lastId ? undefined : items.length,
+    };
+  }
+
+  /** Firestore-side constraints above, re-checked in memory for listings read by id. */
+  function docMatchesConstraints(p: Product, kind?: SearchKind): boolean {
+    const pc = (p as any).category;
+    if (kind) {
+      const fc = facetCategory(pc);
+      if ((kind === 'shoes' && fc !== 'sneakers') || (kind === 'cards' && fc !== 'cards')) return false;
+    } else if (categories && categories.length > 0) {
+      const allowed = categories.length === 1 ? (RELATED_CATEGORIES[categories[0]] || [categories[0]]) : categories.slice(0, 10);
+      if (!allowed.includes(pc)) return false;
+    } else if (category) {
+      const related = wantsPokemon && !tcgOnly ? undefined : RELATED_CATEGORIES[category];
+      if (!(related && related.length > 1 ? related : [category]).includes(pc)) return false;
+    }
+    if (subCategory && brand && subCategory === brand) {
+      const kw = Array.isArray((p as any).keywords) ? (p as any).keywords : [];
+      if (!(p.subCategory === subCategory || p.brand === brand || kw.includes(subCategory.toLowerCase()))) return false;
+    } else {
+      if (subCategory) {
+        if (isPokemonSubCategory(subCategory) && !tcgOnly) {
+          if (!POKEMON_SUBCATEGORIES.includes(String(p.subCategory || ''))) return false;
+        } else if (p.subCategory !== subCategory) return false;
+      }
+      if (brand && p.brand !== brand) return false;
+    }
+    if (selectedConditions.length && !selectedConditions.includes(String(p.condition || ''))) return false;
+    if (selectedSizes.length && !sizeMatches(p.size, selectedSizes)) return false;
+    if (selectedSellers.length && !selectedSellers.includes(String(p.sellerId || ''))) return false;
+    if (selectedGrading.length && !selectedGrading.includes(String(p.gradingCompany || ''))) return false;
+    if (manufacturer && p.manufacturer !== manufacturer) return false;
+    if (selectedTiers.length && !selectedTiers.includes(String(p.multiCardTier || ''))) return false;
+    if (searchParams.verifiedOnly && (p as any).sellerVerified !== true) return false;
+    if (isUntimed !== undefined && (p as any).isUntimed !== isUntimed) return false;
+    if (searchParams.multibuyEnabled && (p as any).multibuyEnabled !== true) return false;
+    return true;
+  }
+
+  async function searchWithSharedIndex(): Promise<ProductsResult> {
+    const { textSearchListings } = await import('@/app/actions/search/text-search');
+    // Category: the index knows shoes vs cards (same split as the dropdown chips).
+    const kindOf = (c?: string): SearchKind | undefined => {
+      const fc = facetCategory(c);
+      return fc === 'sneakers' ? 'shoes' : fc === 'cards' ? 'cards' : undefined;
+    };
+    let kind: SearchKind | undefined;
+    let categoryNeedsDocs = false;
+    if (categories && categories.length > 0) {
+      const kinds = new Set(categories.map(kindOf));
+      if (kinds.size === 1 && !kinds.has(undefined)) kind = [...kinds][0];
+      else categoryNeedsDocs = true;
+    } else if (category) {
+      kind = kindOf(category);
+      if (!kind) categoryNeedsDocs = true;
+    }
+    const yr = parseRange(yearRange as any);
+    const sizesOnIndex = kind === 'shoes' && selectedSizes.length > 0;
+    // Anything the index rows can't answer is filtered on the listings themselves.
+    const needsDocs = categoryNeedsDocs || !isIndexSort(effectiveSort)
+      || Boolean(subCategory || brand || manufacturer || selectedConditions.length || selectedSellers.length
+        || selectedGrading.length || selectedTiers.length || searchParams.verifiedOnly || isUntimed !== undefined
+        || searchParams.multibuyEnabled || searchParams.minRating || (searchParams.grades && searchParams.grades.length)
+        || searchParams.league || searchParams.team || searchParams.player || searchParams.model
+        || (searchParams.sizeGender && searchParams.sizeGender !== 'all')
+        || (selectedSizes.length > 0 && !sizesOnIndex));
+    const includeUnreleased = userRole === 'business';
+    const indexOpts = {
+      q: textQuery,
+      kind,
+      priceRange: priceRange || null,
+      yearRange: yr || null,
+      sizes: sizesOnIndex ? selectedSizes : undefined,
+      sort: isIndexSort(effectiveSort) ? effectiveSort : undefined,
+      includeUnreleased,
+    };
+
+    try {
+      if (!needsDocs) {
+        const res = await textSearchListings({
+          ...indexOpts,
+          mode: 'page',
+          lastId: searchParams.lastId,
+          pageSize: PAGE_SIZE,
+          countOnly: searchParams.countOnly,
+        });
+        if (searchParams.countOnly) return { products: [], hasMore: false, totalCount: res.total };
+        return {
+          products: res.products,
+          hasMore: res.hasMore,
+          lastVisibleId: res.lastVisibleId,
+          totalCount: searchParams.lastId ? undefined : res.total,
+        };
+      }
+
+      const res = await textSearchListings({ ...indexOpts, mode: 'all' });
+      let matched = res.products.filter((p) => docMatchesConstraints(p, kind) && passesInMemoryFilters(p));
+      matched = sortInMemory(matched, effectiveSort);
+      if (searchParams.countOnly) return { products: [], hasMore: false, totalCount: matched.length };
+      return pageByCursor(matched);
+    } catch (e) {
+      console.error('Shared-index text search failed', e);
+      return { products: [], hasMore: false };
+    }
+  }
+
+  // Count-only mode: used by the filter panel to show "Show N results" before applying.
+  if (searchParams.countOnly && !filterTextInMemory) {
+    if (!countIsExact) return { products: [], hasMore: false };
+    try {
+      const firestoreMod = await import('firebase/firestore');
+      const snapshot = await firestoreMod.getCountFromServer(query(productsRef, ...filterArgs));
+      return { products: [], hasMore: false, totalCount: snapshot.data().count };
+    } catch (e) {
+      console.warn('Count failed', e);
+      return { products: [], hasMore: false };
+    }
+  }
+
+  // /pokemon asks for every TCG under Collector Cards and filters in memory;
+  // the live catalog is small enough to load in one page.
+  // The coins storefront filters coins vs bullion in memory; its catalog is small too.
+  const pageSize = tcgOnly || coinsOnly || filterTextInMemory ? 500 : PAGE_SIZE;
+
+  if (searchParams.lastId && !filterTextInMemory) {
+    const lastDocRef = doc(db, 'products', searchParams.lastId);
+    const lastDocSnap = await getDoc(lastDocRef);
+
+    if (lastDocSnap.exists()) {
+      finalQuery = query(productsRef, ...queryArgs, startAfter(lastDocSnap), limit(pageSize));
+    } else {
+      return { products: [], hasMore: false };
+    }
+  } else {
+    finalQuery = query(productsRef, ...queryArgs, limit(pageSize));
+  }
+
+  try {
+    const querySnapshot = await getDocs(finalQuery);
+
+    let products = querySnapshot.docs.map((doc: any) => serializeFirestoreData({
+      id: doc.id,
+      ...doc.data()
+    }) as Product);
+
+    // Text search outside the shared index (TCG / coins / admin-only views): include
+    // checked-in (sold) listings for shoppers, re-checking this query's own
+    // category / sub-category / brand / etc. so e.g. /cards?q=Jordan never shows sneakers.
+    // Admin queries already cover every status.
+    if (filterTextInMemory && !isAdminRole) {
+      const seen = new Set(products.map((p: Product) => p.id));
+      try {
+        const soldSnap = await getDocs(query(productsRef, where('status', '==', 'sold'), limit(500)));
+        for (const d of soldSnap.docs) {
+          if (seen.has(d.id)) continue;
+          const row = serializeFirestoreData({ id: d.id, ...d.data() }) as Product;
+          if (!isStorefrontSearchable(row as any)) continue;
+          if (!docMatchesConstraints(row)) continue;
+          products.push(row);
+          seen.add(d.id);
+        }
+      } catch (e) {
+        console.warn('Sold listing search backfill failed', e);
+      }
+    }
+
+    // In-Memory Filters
+    products = products.filter((p: Product) => passesInMemoryFilters(p) && (!filterTextInMemory || listingMatchesQuery(p as any, textQuery)));
 
     // Keep the page in the requested order regardless of legacy string prices.
-    products = applyClientSort(products, effectiveSort);
+    // (Text search reads by createdAt, so it applies the requested sort in memory.)
+    products = filterTextInMemory ? sortInMemory(products, effectiveSort) : applyClientSort(products, effectiveSort);
 
     if (searchParams.countOnly && filterTextInMemory) {
       return { products: [], hasMore: false, totalCount: products.length };
     }
 
     if (filterTextInMemory) {
-      let start = 0;
-      if (searchParams.lastId) {
-        const idx = products.findIndex((p: Product) => p.id === searchParams.lastId);
-        start = idx >= 0 ? idx + 1 : 0;
-      }
-      const page = products.slice(start, start + PAGE_SIZE);
-      return {
-        products: page,
-        hasMore: start + page.length < products.length,
-        lastVisibleId: page.length ? page[page.length - 1].id : undefined,
-        totalCount: searchParams.lastId ? undefined : products.length,
-      };
+      return pageByCursor(products);
     }
 
     const hasMore = querySnapshot.docs.length === pageSize;
