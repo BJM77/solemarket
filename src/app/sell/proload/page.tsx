@@ -11,6 +11,8 @@ import { parseFacebookMarketplaceScreenshot } from '@/app/actions/marketplace/pr
 import { createProductAction } from '@/app/actions/marketplace/products';
 import { cn } from "@/lib/utils/ui";
 import { resizeAndCompressImage } from "@/lib/utils/image";
+import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
 import { compressScreenshotForAnalysis, ScreenshotReadError } from "@/lib/utils/screenshot-compress";
 
 // UI Components
@@ -51,7 +53,7 @@ export default function ProloadPage() {
   // Image states
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [screenshotBase64, setScreenshotBase64] = useState<string | null>(null);
-  const [productImages, setProductImages] = useState<{ file?: File; url: string; isNew?: boolean }[]>([]);
+  const [productImages, setProductImages] = useState<{ file?: File; url: string; isNew?: boolean; focal?: ImageFocalPoint }[]>([]);
   
   // Analysis progress state
   const [analysisProgress, setAnalysisProgress] = useState(0);
@@ -192,7 +194,7 @@ export default function ProloadPage() {
         const compressed = await resizeAndCompressImage(file, 1024, 0.7);
         // Create local preview blob URL
         const blobUrl = URL.createObjectURL(file);
-        return { file, url: blobUrl, isNew: true };
+        return { file, url: blobUrl, isNew: true, focal: { ...DEFAULT_FOCAL_POINT } };
       })
     );
     setProductImages(prev => [...prev, ...newImages]);
@@ -286,6 +288,7 @@ export default function ProloadPage() {
       const productPayload = {
         ...formData,
         imageUrls,
+        imageFocalPoints: padFocalPoints(productImages.map((img) => img.focal), imageUrls.length),
         status: isDraftStatus ? 'draft' as const : 'available' as const,
         isDraft: isDraftStatus,
         quantity: 1,
@@ -482,22 +485,27 @@ export default function ProloadPage() {
                     <div className="grid grid-cols-3 gap-3">
                       {productImages.map((img, idx) => (
                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-card group">
-                          <Image
+                          <ImageFocalPicker
                             src={img.url}
                             alt={`Product Photo ${idx + 1}`}
-                            fill
-                            className="object-cover"
+                            value={img.focal ?? DEFAULT_FOCAL_POINT}
+                            onChange={(point) => setProductImages((prev) => prev.map((item, i) => i === idx ? { ...item, focal: point } : item))}
+                            label={`Centre of photo ${idx + 1}`}
                           />
                           <button
                             type="button"
                             onClick={() => removeProductPhoto(idx)}
-                            className="absolute top-1 right-1 bg-black/75 hover:bg-red-950 text-white hover:text-red-600 p-1.5 rounded-lg border border-border transition-all opacity-0 group-hover:opacity-100"
+                            className="absolute top-1 right-1 z-10 bg-black/75 hover:bg-red-950 text-white hover:text-red-600 p-1.5 rounded-lg border border-border transition-all"
+                            aria-label={`Remove photo ${idx + 1}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ))}
                     </div>
+                  )}
+                  {productImages.length > 0 && (
+                    <p className="pt-2 text-[11px] text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
                   )}
 
                   <div className="grid grid-cols-2 gap-3 pt-2">

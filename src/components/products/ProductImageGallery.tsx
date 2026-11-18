@@ -14,7 +14,9 @@ import { GALLERY_SIZES } from '@/lib/listing-nav';
 import { getGalleryFrameClasses, getGalleryFrameKind } from './gallery-frame';
 import ListingImageZoomOverlay from './ListingImageZoomOverlay';
 import ListingMobileGallery from './ListingMobileGallery';
+import { ListingPhotoBackdrop } from './ListingPhotoBackdrop';
 import { ZOOM_HOVER_DELAY_MS, isInTopHoverZone } from '@/lib/listing-zoom/geometry';
+import { focalObjectPosition, productCoverStyle, type ImageFocalPoint } from '@/lib/images/focal-point';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -30,6 +32,8 @@ interface ProductImageGalleryProps {
   thumbnailsSide?: boolean;
   /** Phones only: listing title shown at the start of the row above the photo. */
   mobileTitle?: React.ReactNode;
+  /** Seller-set centre pins, parallel to `images`. */
+  imageFocalPoints?: ImageFocalPoint[];
 }
 
 const conditionColors: Record<string, string> = {
@@ -54,7 +58,8 @@ export default function ProductImageGallery({
   category,
   imageAltTexts = [],
   thumbnailsSide = false,
-  mobileTitle
+  mobileTitle,
+  imageFocalPoints,
 }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -247,7 +252,7 @@ export default function ProductImageGallery({
                   index === selectedIndex ? "ring-2 ring-orange-500 ring-offset-1 ring-offset-background" : "opacity-70"
                 )}
               >
-                <Image src={(item.type === 'video' ? item.thumbnail : item.url)!} alt="" fill className="object-cover" sizes="36px" />
+                <Image src={(item.type === 'video' ? item.thumbnail : item.url)!} alt="" fill className="object-cover" sizes="36px" style={item.type === 'image' ? productCoverStyle({ imageFocalPoints }, videoUrl ? index - 1 : index) : undefined} />
                 {item.type === 'video' && <Play className="absolute inset-0 m-auto w-3 h-3 text-white fill-white" />}
               </button>
             ))}
@@ -305,11 +310,16 @@ export default function ProductImageGallery({
                       onClick={handleImageClick}
                       onKeyDown={handleImageKeyDown}
                     >
+                      <ListingPhotoBackdrop
+                        src={item.url!}
+                        sizes={GALLERY_SIZES}
+                        objectPosition={focalObjectPosition(imageFocalPoints, videoUrl ? index - 1 : index)}
+                      />
                       <Image
                         src={item.url!}
                         alt={imageAltTexts[index] || `${title} - Media ${index + 1}`}
                         fill
-                        className="object-contain"
+                        className="relative z-[1] object-contain"
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : "auto"}
                         placeholder="blur"
@@ -444,6 +454,7 @@ export default function ProductImageGallery({
                     placeholder="blur"
                     blurDataURL={BLUR_DATA_URL}
                     sizes="80px"
+                    style={productCoverStyle({ imageFocalPoints }, videoUrl ? index - 1 : index)}
                   />
                 )}
               </button>
@@ -457,6 +468,7 @@ export default function ProductImageGallery({
           open={isZoomOverlayOpen}
           src={media[selectedIndex].url}
           alt={imageAltTexts[selectedIndex] || `${title} - Zoomed`}
+          initialFocus={imageFocalPoints?.[videoUrl ? selectedIndex - 1 : selectedIndex]}
           onClose={closeZoomOverlay}
         />
       )}
@@ -465,6 +477,7 @@ export default function ProductImageGallery({
         <ListingMobileGallery
           open={isMobileGalleryOpen}
           images={photoUrls}
+          imageFocalPoints={imageFocalPoints}
           initialIndex={photoIndex}
           title={title}
           altTexts={imageAltTexts}
@@ -494,16 +507,25 @@ export default function ProductImageGallery({
                   autoPlay
                 />
               ) : (
-                <Image
-                  src={media[selectedIndex].url!}
-                  alt={imageAltTexts[selectedIndex] || `${title} - Fullscreen`}
-                  fill
-                  sizes={isFullZoom ? "200vw" : "100vw"}
-                  className="object-contain"
-                  priority
-                  placeholder="blur"
-                  blurDataURL={BLUR_DATA_URL}
-                />
+                <>
+                  {!isFullZoom && (
+                    <ListingPhotoBackdrop
+                      src={media[selectedIndex].url!}
+                      sizes="100vw"
+                      objectPosition={focalObjectPosition(imageFocalPoints, videoUrl ? selectedIndex - 1 : selectedIndex)}
+                    />
+                  )}
+                  <Image
+                    src={media[selectedIndex].url!}
+                    alt={imageAltTexts[selectedIndex] || `${title} - Fullscreen`}
+                    fill
+                    sizes={isFullZoom ? "200vw" : "100vw"}
+                    className="relative z-[1] object-contain"
+                    priority
+                    placeholder="blur"
+                    blurDataURL={BLUR_DATA_URL}
+                  />
+                </>
               )}
             </div>
 

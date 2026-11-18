@@ -55,13 +55,35 @@ export interface InlineFilters {
 
 export const DEFAULT_FILTERS: InlineFilters = { category: 'all', sort: 'relevance' };
 
+/** Statuses the storefront search results page and the header dropdown both include. */
+export const STOREFRONT_SEARCH_STATUSES = ['available', 'sold'] as const;
+
+/**
+ * Same eligibility the /browse?q= results page uses for shoppers: live listings
+ * plus checked-in (status "sold", shown as "CHECKED IN") items. Drafts, deleted
+ * listings, $0 prices and empty titles are excluded. Missing `isDraft` is treated
+ * as not-a-draft (legacy rows).
+ */
+export function isStorefrontSearchable(d: Record<string, any> | null | undefined): boolean {
+  if (!d || typeof d.title !== 'string' || !d.title.trim()) return false;
+  if (d.isDraft === true) return false;
+  if (!(STOREFRONT_SEARCH_STATUSES as readonly string[]).includes(String(d.status || ''))) return false;
+  return numericPrice(d) > 0;
+}
+
+/** "Show all 3 listings" — always uses the true match total, never a stale "both". */
+export function seeAllListingsLabel(total: number, query: string): string {
+  const q = query.trim();
+  if (total <= 0) return `No quick matches. Search all listings for “${q}”`;
+  if (total === 1) return 'Show 1 listing';
+  return `Show all ${total} listings`;
+}
+
 /** Raw Firestore listing -> lite index row; null when it must never appear in main-site search. */
 export function toSearchLite(id: string, d: Record<string, any> | null | undefined): SearchLite | null {
-  if (!d || typeof d.title !== 'string' || !d.title.trim()) return null;
-  if (d.status !== 'available' || d.isDraft === true) return null;
+  if (!isStorefrontSearchable(d) || !d) return null;
   if (isPokemonListing(d) || isCoinListing(d)) return null;
   const price = numericPrice(d);
-  if (!(price > 0)) return null;
   const fc = facetCategory(d.category);
   const kind: SearchKind = fc === 'sneakers' ? 'shoes' : fc === 'cards' ? 'cards' : 'other';
   const createdRaw = d.createdAt;
@@ -71,8 +93,9 @@ export function toSearchLite(id: string, d: Record<string, any> | null | undefin
     : createdRaw instanceof Date ? Math.floor(createdRaw.getTime() / 1000)
     : 0;
   const year = Number(d.year);
-  const extra = [d.brand, d.model, d.subCategory, d.manufacturer, d.player, d.gradingCompany, d.grade, d.cardNumber]
-    .filter((v) => typeof v === 'string' || typeof v === 'number')
+  const extra = [d.brand, d.model, d.subCategory, d.manufacturer, d.player, d.gradingCompany, d.grade, d.cardNumber,
+    Array.isArray(d.keywords) ? d.keywords.join(' ') : d.keywords]
+    .filter((v) => v != null && v !== '')
     .map(String).join(' ').trim();
   const row: SearchLite = { id, title: d.title.trim(), kind, price, created };
   if (kind === 'shoes' && d.size) row.size = normalizeSize(d.size);

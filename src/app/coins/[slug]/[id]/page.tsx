@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { Loader2 } from 'lucide-react';
 import { getProductById } from '@/lib/firebase/firestore';
 import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import ProductSchema from '@/components/seo/ProductSchema';
@@ -14,6 +13,8 @@ import { getPublicSellerInfo } from '@/app/actions/seller/public-seller';
 import { isBullionListing, isCoinListing } from '@/lib/coin-listings';
 import { coinsPublicUrl } from '@/lib/storefront-routing';
 import { STOREFRONTS } from '@/config/storefronts';
+import ScrollListingToTop from "@/components/navigation/scroll-listing-to-top";
+import { ListingDetailsFallback } from "@/components/products/ListingDetailsFallback";
 
 /**
  * Coin and bullion listing page: /coins/{slug}/{id} (coins.benched.au/{slug}/{id}).
@@ -89,6 +90,7 @@ export default async function CoinListingPage({ params }: Props) {
 
   return (
     <>
+      <ScrollListingToTop />
       <meta property="og:type" content="product" />
       <ProductSchema
         product={product}
@@ -103,7 +105,7 @@ export default async function CoinListingPage({ params }: Props) {
           { name: product.title, item: coinsPublicUrl(canonicalPath) },
         ]}
       />
-      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-amber-600" /></div>}>
+      <Suspense fallback={<ListingDetailsFallback product={product} />}>
         <ProductDetailsModern
           productId={id}
           initialProduct={product}

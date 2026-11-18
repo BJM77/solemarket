@@ -21,6 +21,8 @@ import { ImageCropDialog } from '@/components/ui/image-crop-dialog';
 import { getProductUrl } from '@/lib/utils/url';
 import { COIN_SUBCATEGORIES, BULLION_SUBCATEGORIES, coinListingClassification, isBullionListing } from '@/lib/coin-listings';
 import { buildCoinListingData, COIN_METALS, COIN_CONDITIONS, COIN_GRADERS, type CoinFormValues } from '@/lib/coins/listing-form';
+import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
 
 const MAX_PHOTOS = 6;
 
@@ -58,6 +60,7 @@ export function CoinListingForm() {
   const [values, setValues] = useState<CoinFormValues>(EMPTY);
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
   const [files, setFiles] = useState<{ file: File | Blob; preview: string }[]>([]);
+  const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>([]);
   const [cropIndex, setCropIndex] = useState<number | null>(null);
   const [busy, setBusy] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -95,7 +98,9 @@ export function CoinListingForm() {
           description: data.description || '',
           allowLocalPickup: data.allowLocalPickup !== false,
         });
-        setExistingUrls(Array.isArray(data.imageUrls) ? data.imageUrls.filter(Boolean) : []);
+        const urls = Array.isArray(data.imageUrls) ? data.imageUrls.filter(Boolean) : [];
+        setExistingUrls(urls);
+        setImageFocalPoints(padFocalPoints(data.imageFocalPoints, urls.length));
       } catch (e: any) {
         toast({ title: "Couldn't load that listing", description: e?.message, variant: 'destructive' });
       } finally {
@@ -129,6 +134,7 @@ export function CoinListingForm() {
       }
     }
     setFiles((prev) => [...prev, ...out]);
+    setImageFocalPoints((prev) => [...prev, ...out.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -151,7 +157,7 @@ export function CoinListingForm() {
       if (!imageUrls.length) throw new Error('Upload failed. Please re-select your photos.');
       setBusy('Publishing…');
       const token = (await getCurrentUserIdToken()) ?? '';
-      const id = await saveDraftListing(token, { ...data, imageUrls } as any, editId || undefined);
+      const id = await saveDraftListing(token, { ...data, imageUrls, imageFocalPoints: padFocalPoints(imageFocalPoints, imageUrls.length) } as any, editId || undefined);
       await publishListing(id, token);
       toast({ title: 'Listed!', description: `"${data.title}" is live on Benched Coins.` });
       router.refresh();
@@ -207,17 +213,43 @@ export function CoinListingForm() {
         <Label>Photos ({photoCount}/{MAX_PHOTOS})</Label>
         <p className="text-xs text-muted-foreground">Show both sides, plus the slab label or certificate if it has one. Fill the frame on a plain background in good light.</p>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {existingUrls.map((url) => (
+          {existingUrls.map((url, i) => (
             <div key={url} className="relative aspect-square overflow-hidden rounded-xl border">
-              <img src={url} alt="" className="h-full w-full object-cover" />
-              <button type="button" aria-label="Remove photo" onClick={() => setExistingUrls((p) => p.filter((u) => u !== url))} className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"><X className="h-3 w-3" /></button>
+              <ImageFocalPicker
+                src={url}
+                alt=""
+                value={imageFocalPoints[i] ?? DEFAULT_FOCAL_POINT}
+                onChange={(point) => setImageFocalPoints((prev) => {
+                  const next = padFocalPoints(prev, photoCount);
+                  next[i] = point;
+                  return next;
+                })}
+                label={`Centre of photo ${i + 1}`}
+              />
+              <button type="button" aria-label="Remove photo" onClick={() => {
+                setExistingUrls((p) => p.filter((u) => u !== url));
+                setImageFocalPoints((p) => p.filter((_, j) => j !== i));
+              }} className="absolute right-1 top-1 z-10 rounded-full bg-black/60 p-1 text-white"><X className="h-3 w-3" /></button>
             </div>
           ))}
           {files.map((f, i) => (
             <div key={f.preview} className="relative aspect-square overflow-hidden rounded-xl border">
-              <img src={f.preview} alt="" className="h-full w-full object-cover" />
-              <button type="button" aria-label="Remove photo" onClick={() => setFiles((p) => p.filter((_, j) => j !== i))} className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"><X className="h-3 w-3" /></button>
-              <button type="button" aria-label={`Crop photo ${i + 1}`} onClick={() => setCropIndex(i)} className="absolute left-1 bottom-1 rounded-full bg-black/60 p-1 text-white"><Crop className="h-3 w-3" /></button>
+              <ImageFocalPicker
+                src={f.preview}
+                alt=""
+                value={imageFocalPoints[existingUrls.length + i] ?? DEFAULT_FOCAL_POINT}
+                onChange={(point) => setImageFocalPoints((prev) => {
+                  const next = padFocalPoints(prev, photoCount);
+                  next[existingUrls.length + i] = point;
+                  return next;
+                })}
+                label={`Centre of photo ${existingUrls.length + i + 1}`}
+              />
+              <button type="button" aria-label="Remove photo" onClick={() => {
+                setFiles((p) => p.filter((_, j) => j !== i));
+                setImageFocalPoints((p) => p.filter((_, j) => j !== existingUrls.length + i));
+              }} className="absolute right-1 top-1 z-10 rounded-full bg-black/60 p-1 text-white"><X className="h-3 w-3" /></button>
+              <button type="button" aria-label={`Crop photo ${i + 1}`} onClick={() => setCropIndex(i)} className="absolute left-1 bottom-1 z-10 rounded-full bg-black/60 p-1 text-white"><Crop className="h-3 w-3" /></button>
             </div>
           ))}
           {photoCount < MAX_PHOTOS && (
@@ -236,6 +268,9 @@ export function CoinListingForm() {
             </CameraCapture>
           )}
         </div>
+        {photoCount > 0 && (
+          <p className="text-xs text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
+        )}
         {err('photos')}
         <ImageCropDialog
           file={cropIndex !== null ? files[cropIndex]?.file ?? null : null}

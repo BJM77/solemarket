@@ -22,6 +22,8 @@ import { formatBundleOffer } from '@/lib/bundles';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { suggestListingDetails } from '@/ai/flows/suggest-listing-details';
 import { cn } from '@/lib/utils/ui';
+import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
+import { DEFAULT_FOCAL_POINT, productCoverStyle } from '@/lib/images/focal-point';
 import { BundleTierPicker } from '@/components/sell/BundleTierPicker';
 import {
   CONDITIONS, EMPTY_DRAFT, SHOT_LISTS, STEPS, WIZARD_CATEGORIES,
@@ -89,7 +91,11 @@ export default function ListingWizard() {
     setUploading((u) => ({ ...u, [shotId]: true }));
     try {
       const [url] = await uploadImages([file], `products/${user.uid}`);
-      setDraft((d) => ({ ...d, photos: { ...d.photos, [shotId]: url } }));
+      setDraft((d) => ({
+        ...d,
+        photos: { ...d.photos, [shotId]: url },
+        photoFocals: { ...d.photoFocals, [shotId]: { ...DEFAULT_FOCAL_POINT } },
+      }));
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e?.message || 'Please try again.', variant: 'destructive' });
     } finally {
@@ -196,7 +202,13 @@ export default function ListingWizard() {
                   <label className={cn('relative flex aspect-square cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-center',
                     url ? 'border-solid border-emerald-500' : 'border-border hover:border-foreground/40')}>
                     {url ? (
-                      <Image src={url} alt={s.label} fill sizes="(max-width: 640px) 50vw, 200px" className="object-cover" />
+                      <ImageFocalPicker
+                        src={url}
+                        alt={s.label}
+                        value={draft.photoFocals?.[s.id] ?? DEFAULT_FOCAL_POINT}
+                        onChange={(point) => update({ photoFocals: { ...draft.photoFocals, [s.id]: point } })}
+                        label={`Centre of ${s.label} photo`}
+                      />
                     ) : uploading[s.id] ? (
                       <Loader2 className="h-6 w-6 animate-spin" aria-label="Uploading" />
                     ) : (
@@ -205,27 +217,48 @@ export default function ListingWizard() {
                         <span className="px-2 text-xs text-muted-foreground">{s.hint}</span>
                       </>
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      aria-label={`${url ? 'Replace' : 'Add'} ${s.label} photo`}
-                      onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
-                    />
+                    {!url && (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        aria-label={`Add ${s.label} photo`}
+                        onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
+                      />
+                    )}
                   </label>
                   <div className="mt-1 flex items-center justify-between gap-1">
                     <span className="text-xs font-bold">{s.label}{s.required && <span className="text-destructive"> *</span>}</span>
                     {url && (
-                      <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={`Remove ${s.label} photo`}
-                        onClick={() => { const { [s.id]: _removed, ...rest } = draft.photos; update({ photos: rest }); }}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center">
+                        <label className="cursor-pointer text-xs font-semibold text-primary underline-offset-2 hover:underline">
+                          Replace
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            aria-label={`Replace ${s.label} photo`}
+                            onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
+                          />
+                        </label>
+                        <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={`Remove ${s.label} photo`}
+                          onClick={() => {
+                            const { [s.id]: _removed, ...rest } = draft.photos;
+                            const { [s.id]: _focal, ...focals } = draft.photoFocals || {};
+                            update({ photos: rest, photoFocals: focals });
+                          }}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </li>
               );
             })}
           </ul>
+          {Object.keys(draft.photos).length > 0 && (
+            <p className="mt-3 text-xs text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
+          )}
         </>
       )}
 
@@ -360,7 +393,7 @@ export default function ListingWizard() {
           <div className="flex gap-2 overflow-x-auto pb-2">
             {shots.filter((s) => draft.photos[s.id]).map((s) => (
               <div key={s.id} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl">
-                <Image src={draft.photos[s.id]} alt={s.label} fill sizes="96px" className="object-cover" />
+                <Image src={draft.photos[s.id]} alt={s.label} fill sizes="96px" className="object-cover" style={productCoverStyle({ imageFocalPoints: [draft.photoFocals?.[s.id] ?? DEFAULT_FOCAL_POINT] }, 0)} />
               </div>
             ))}
           </div>

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { collection, query, where, orderBy, Timestamp, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 import type { Product, Review } from '@/lib/types';
+import { productCoverStyle } from '@/lib/images/focal-point';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -550,7 +551,7 @@ export default function SellerDashboard() {
                             <div className="flex items-center gap-4">
                               <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted/60 border border-border">
                                 {product.imageUrls && product.imageUrls.length > 0 ? (
-                                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" />
+                                  <Image src={product.imageUrls[0]} alt={product.title} fill className="object-cover" style={productCoverStyle(product, 0)} />
                                 ) : (
                                   <div className="flex items-center justify-center w-full h-full text-slate-700">
                                     <Package className="w-5 h-5" />

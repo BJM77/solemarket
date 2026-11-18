@@ -16,6 +16,7 @@ import { Pencil } from 'lucide-react';
 import { deleteListing } from '@/app/actions/seller/seller-actions';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import Image from 'next/image';
+import { productCoverStyle } from '@/lib/images/focal-point';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -719,6 +720,13 @@ export default function ProductDetailsModern({
     }, [product, productId, markAsViewed]);
 
     const isLoading = isProductLoading || isSellerLoading;
+    // Recreate only when the URL list actually changes (a views-count snapshot would otherwise remount the gallery).
+    const galleryImageKey = (product || initialProduct)?.imageUrls?.join('\0') ?? '';
+    const galleryImages = useMemo(
+        () => (galleryImageKey ? galleryImageKey.split('\0') : []),
+        [galleryImageKey],
+    );
+
 
     // Mobile bottom nav: centre button is BUY for buyers, EDIT for the listing owner, SELL elsewhere.
     const { setBuyAction } = useMobileNav();
@@ -1000,7 +1008,8 @@ export default function ProductDetailsModern({
                         {/* Phones keep a capped, centred photo; desktop gets the full 50% column with thumbnails beside the photo */}
                         <div className="w-full mx-auto md:max-w-[420px] lg:max-w-none lg:mx-0 rounded-2xl">
                             <ProductImageGallery
-                                images={product.imageUrls}
+                                images={galleryImages}
+                                imageFocalPoints={product.imageFocalPoints}
                                 title={product.title}
                                 isCard={product.category === 'Collector Cards'}
                                 category={product.category}
@@ -1634,6 +1643,7 @@ export default function ProductDetailsModern({
                                             fill
                                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 15vw"
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            style={productCoverStyle(item, 0)}
                                         />
                                     </Link>
                                     <div className="mt-2.5 space-y-1 flex-1 flex flex-col justify-between">

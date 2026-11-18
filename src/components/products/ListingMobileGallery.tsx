@@ -23,9 +23,12 @@ import {
   wrapIndex,
 } from '@/lib/listing-gallery/gestures';
 
+import { focalObjectPosition, type ImageFocalPoint } from '@/lib/images/focal-point';
+
 type Props = {
   open: boolean;
   images: string[];
+  imageFocalPoints?: ImageFocalPoint[];
   initialIndex: number;
   title: string;
   altTexts?: string[];
@@ -37,6 +40,7 @@ type Gesture = 'none' | 'pinch' | 'pan' | 'swipe';
 export default function ListingMobileGallery({
   open,
   images,
+  imageFocalPoints,
   initialIndex,
   title,
   altTexts = [],
@@ -386,13 +390,20 @@ export default function ListingMobileGallery({
         {counterLabel(index, images.length)}
       </div>
 
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          className="listing-photo-blur absolute inset-0 h-full w-full"
+          style={{ objectPosition: focalObjectPosition(imageFocalPoints, index) }}
+        />
         <img
           ref={imageRef}
           src={src}
           alt={alt}
           draggable={false}
-          className="max-h-full max-w-full select-none object-contain"
+          className="relative z-[1] max-h-full max-w-full select-none object-contain"
           style={{
             transform: `translate(${imageTranslate.x}px, ${imageTranslate.y}px) scale(${transform.scale})`,
             transformOrigin: 'center center',

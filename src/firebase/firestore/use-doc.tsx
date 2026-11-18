@@ -52,35 +52,23 @@ export function useDoc<T = any>(
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
+    // Keep server-provided initialData on screen while Auth/the SDK start.
+    // Flipping isLoading or clearing data here unmounted the listing photo
+    // and made first-time visits look like the image appeared, vanished, then reloaded.
     if (isUserLoading) {
-        setTimeout(() => {
-            setIsLoading(true);
-        }, 0);
         return;
     }
 
     if (!memoizedDocRef) {
-      setTimeout(() => {
-        setData(null);
-        setIsLoading(false);
-        setError(null);
-      }, 0);
       return;
     }
-    
-    if (options.initialData) {
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 0);
+
+    if (!options.initialData) {
+        setIsLoading(true);
     } else {
-        setTimeout(() => {
-            setIsLoading(true);
-        }, 0);
+        setIsLoading(false);
     }
-    
-    setTimeout(() => {
-        setError(null);
-    }, 0);
+    setError(null);
 
     // The ref exists, so the SDK is already loaded; this import resolves from cache.
     let unsubscribe: () => void = () => {};
@@ -92,8 +80,7 @@ export function useDoc<T = any>(
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
           setData({ ...(snapshot.data() as T), id: snapshot.id });
-        } else {
-          // Document does not exist
+        } else if (!options.initialData) {
           setData(null);
         }
         setError(null); // Clear any previous error on successful snapshot (even if doc doesn't exist)
@@ -111,7 +98,7 @@ export function useDoc<T = any>(
              console.error("Firestore Error:", error);
              setError(error);
         }
-        setData(null);
+        if (!options.initialData) setData(null);
         setIsLoading(false);
       }
     );

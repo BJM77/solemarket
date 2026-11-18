@@ -41,3 +41,26 @@ d2('wizard multibuy step', () => {
     e2((draftToProduct({ ...EMPTY_DRAFT, category: 'Collector Cards' }) as any).multibuyEnabled).toBeUndefined();
   });
 });
+
+describe('draftToProduct imageFocalPoints', () => {
+  it('emits a centre-pin array parallel to imageUrls', () => {
+    const category = 'Sneakers' as const;
+    const shots = SHOT_LISTS[category];
+    const photos: Record<string, string> = {};
+    photos[shots[0].id] = 'https://example.com/main.jpg';
+    if (shots[1]) photos[shots[1].id] = 'https://example.com/side.jpg';
+    const p = draftToProduct({
+      ...EMPTY_DRAFT,
+      category,
+      title: 'Test shoe',
+      condition: 'New',
+      price: '100',
+      photos,
+      photoFocals: { [shots[0].id]: { x: 0.2, y: 0.8 } },
+    });
+    expect(p.imageUrls[0]).toBe('https://example.com/main.jpg');
+    expect((p as any).imageFocalPoints[0]).toEqual({ x: 0.2, y: 0.8 });
+    expect((p as any).imageFocalPoints[1]).toEqual({ x: 0.5, y: 0.5 });
+    expect((p as any).imageFocalPoints).toHaveLength(p.imageUrls.length);
+  });
+});

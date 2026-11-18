@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { getProductById } from '@/lib/firebase/firestore';
 import type { Metadata } from 'next';
-import { Loader2 } from 'lucide-react';
 import ProductDetailsModern from '@/components/products/ProductDetailsModern';
 import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
@@ -13,6 +12,8 @@ import { listingSeoState } from "@/lib/seo/listing-status";
 import { isPokemonListing } from "@/lib/pokemon-listings";
 import { listingSeoTitle, schemaSeller } from "@/lib/seo/listing-seo";
 import { getPublicSellerInfo } from "@/app/actions/seller/public-seller";
+import ScrollListingToTop from "@/components/navigation/scroll-listing-to-top";
+import { ListingDetailsFallback } from "@/components/products/ListingDetailsFallback";
 
 // ISR: product pages are cached for 5 minutes instead of rendered on every
 // visit. Price/status stay live because ProductDetailsModern subscribes to the
@@ -130,6 +131,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
+      <ScrollListingToTop />
       <meta property="og:type" content="product" />
       <ProductSchema
         product={product}
@@ -144,7 +146,7 @@ export default async function ProductPage({ params }: Props) {
           { name: product.title, item: `/${section}/${slug}/${id}` },
         ]}
       />
-      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
+      <Suspense fallback={<ListingDetailsFallback product={product} />}>
         <ProductDetailsModern
           productId={id}
           initialProduct={product}

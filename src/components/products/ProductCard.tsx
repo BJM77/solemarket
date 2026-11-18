@@ -51,6 +51,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, X as XIcon } from "lucide-react";
 import { SmartImage } from './SmartImage';
+import { productCoverStyle } from '@/lib/images/focal-point';
 import { isCardCategory } from '@/lib/constants/marketplace';
 import { shortListingTitle, formatShoeSizeBadge } from '@/lib/utils/short-listing-title';
 import { isCoinListing } from '@/lib/coin-listings';
@@ -899,7 +900,8 @@ export default function ProductCard({
           quality={50}
           priority={priority}
           fetchPriority={priority ? 'high' : undefined}
-          className="object-cover object-center"
+          className="object-cover"
+          style={productCoverStyle(product, 0)}
         />
       )}
       <div className="absolute top-1.5 right-1.5 z-10 flex flex-col items-end gap-1">

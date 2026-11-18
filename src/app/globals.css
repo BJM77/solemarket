@@ -363,3 +363,19 @@ html[data-team] .bg-clip-text:is(.from-primary, [class*="from-orange-"]),
 html[data-team] .gradient-text {
   --tw-gradient-stops: hsl(var(--primary-text)), hsl(var(--primary-text));
 }
+
+/* Blurred, slightly darkened copy behind listing main photos that don't fill the frame.
+   Hidden when the user prefers reduced transparency. */
+.listing-photo-blur {
+  pointer-events: none;
+  user-select: none;
+  object-fit: cover;
+  filter: blur(32px) brightness(0.72) saturate(1.05);
+  transform: scale(1.12);
+  transform-origin: center;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .listing-photo-blur {
+    display: none;
+  }
+}

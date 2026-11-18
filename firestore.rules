@@ -42,13 +42,23 @@ service cloud.firestore {
              (!('abnBusinessName' in d) || (resource != null && resource.data.get('abnBusinessName', null) == d.abnBusinessName));
     }
 
+    // Optional seller-set centre pins, parallel to imageUrls. Per-entry 0–1
+    // clamping is enforced in server actions; rules only bound the shape.
+    function isValidFocalPoints(productData) {
+      return !('imageFocalPoints' in productData) ||
+             (productData.imageFocalPoints is list &&
+              productData.imageFocalPoints.size() <= 10 &&
+              productData.imageFocalPoints.size() <= productData.imageUrls.size());
+    }
+
     function isValidProduct(productData) {
       return productData.price >= 0 &&
              productData.price <= 100000 &&
              productData.title.size() > 0 &&
              productData.title.size() <= 200 &&
              productData.imageUrls.size() >= 1 &&
-             productData.imageUrls.size() <= 10;
+             productData.imageUrls.size() <= 10 &&
+             isValidFocalPoints(productData);
     }
 
     // Users

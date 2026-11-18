@@ -23,6 +23,7 @@ export interface DraftListingData {
     floorPrice?: number;
     isVault: boolean;
     imageUrls: string[];
+    imageFocalPoints?: { x: number; y: number }[];
     status: 'draft' | 'available';
     isDraft: boolean;
     
@@ -104,6 +105,14 @@ export async function saveDraftListing(idToken: string, data: Omit<DraftListingD
             delete listingData[key];
         }
     });
+
+    if ('imageFocalPoints' in listingData) {
+        const { sanitizeImageFocalPoints } = await import('@/lib/images/focal-point');
+        const urls = Array.isArray(listingData.imageUrls) ? listingData.imageUrls : [];
+        const focals = sanitizeImageFocalPoints(listingData.imageFocalPoints, urls.length);
+        if (focals) listingData.imageFocalPoints = focals;
+        else delete listingData.imageFocalPoints;
+    }
 
     // Multibuy tiers are seller input: clamp to 0-90% and drop junk.
     if (listingData.multibuyTiers !== undefined) {

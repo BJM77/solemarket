@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   toSearchLite, searchIndex, scoreRow, tokenize, listingMatchesQuery, buildBrowseHref, cacheKey, sizeOptions, LruCache,
-  rowDetail, formatAud, pushRecent, DEFAULT_FILTERS, type SearchLite,
+  rowDetail, formatAud, pushRecent, DEFAULT_FILTERS, isStorefrontSearchable, seeAllListingsLabel, type SearchLite,
 } from './inline';
 
 const live = { status: 'available', isDraft: false };
@@ -20,8 +20,15 @@ describe('toSearchLite', () => {
     expect(rows[3]).toMatchObject({ kind: 'cards', year: 2023 });
     expect(rows[3].extra).toContain('PSA');
   });
-  it('drops non-live, $0, Pokémon and coin listings', () => {
-    expect(toSearchLite('x', { title: 'A', price: 5, status: 'sold' })).toBeNull();
+  it('includes checked-in (sold) listings and rows that omit isDraft', () => {
+    expect(toSearchLite('j3', { title: 'Jordan Air Jordan 1 Retro High OG', price: 180, status: 'sold', category: 'Sneakers', size: 'US 13' })).toMatchObject({
+      id: 'j3', kind: 'shoes', price: 180, size: '13',
+    });
+    expect(toSearchLite('legacy', { title: 'Available legacy', price: 50, status: 'available', category: 'Sneakers' })).not.toBeNull();
+    expect(isStorefrontSearchable({ title: 'Jordan Air Jordan 1 Retro High OG', price: 180, status: 'sold' })).toBe(true);
+  });
+  it('drops drafts, deleted, $0, Pokémon and coin listings', () => {
+    expect(toSearchLite('x', { title: 'A', price: 5, status: 'deleted' })).toBeNull();
     expect(toSearchLite('x', { title: 'A', price: 5, status: 'available', isDraft: true })).toBeNull();
     expect(toSearchLite('x', { ...live, title: 'A', price: 0 })).toBeNull();
     expect(toSearchLite('x', { ...live, title: 'Charizard', price: 5, subCategory: 'Pokémon' })).toBeNull();
@@ -135,5 +142,24 @@ describe('listingMatchesQuery', () => {
     const row = toSearchLite('j1', raw)!;
     expect(searchIndex([row], 'Jordan', DEFAULT_FILTERS, 8).total).toBe(1);
     expect(listingMatchesQuery({ id: 'j1', ...raw }, 'Jordan')).toBe(true);
+  });
+});
+
+describe('seeAllListingsLabel', () => {
+  it('uses the true total rather than a hard-coded both', () => {
+    expect(seeAllListingsLabel(3, 'Jordan')).toBe('Show all 3 listings');
+    expect(seeAllListingsLabel(2, 'Jordan')).toBe('Show all 2 listings');
+    expect(seeAllListingsLabel(1, 'Jordan')).toBe('Show 1 listing');
+    expect(seeAllListingsLabel(0, 'Jordan')).toContain('No quick matches');
+  });
+});
+
+describe('checked-in listings in searchIndex', () => {
+  it('counts a sold listing in the same total as an available one', () => {
+    const sold = toSearchLite('j3', { title: 'Jordan Air Jordan 1 Retro High OG', price: 180, status: 'sold', category: 'Sneakers', size: 'US 13' })!;
+    const available = toSearchLite('j1', { status: 'available', isDraft: false, title: 'Jordan 1 Retro High OG Not For Resale Varsity Red', price: 150, category: 'Sneakers' })!;
+    const { rows, total } = searchIndex([sold, available], 'Jordan', { category: 'all', sort: 'relevance' }, 8);
+    expect(total).toBe(2);
+    expect(rows.map((r) => r.id).sort()).toEqual(['j1', 'j3']);
   });
 });

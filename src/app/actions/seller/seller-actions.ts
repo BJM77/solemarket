@@ -237,6 +237,15 @@ export async function updateListing(idToken: string, productId: string, data: an
             updatePayload.oldPrice = productData.price;
         }
 
+        if ('imageFocalPoints' in data || 'imageUrls' in data) {
+            const { sanitizeImageFocalPoints } = await import('@/lib/images/focal-point');
+            const urls = Array.isArray(updatePayload.imageUrls) ? updatePayload.imageUrls : (productData.imageUrls || []);
+            const incoming = (data.imageFocalPoints != null) ? data.imageFocalPoints : productData.imageFocalPoints;
+            const focals = sanitizeImageFocalPoints(incoming ?? [], urls.length);
+            if (focals) updatePayload.imageFocalPoints = focals;
+            else delete updatePayload.imageFocalPoints;
+        }
+
         await productRef.update(updatePayload);
 
         // Dispatch Price Drop Wishlist alerts in background if price is lowered

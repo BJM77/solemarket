@@ -3,7 +3,6 @@
 import { useState, useRef, ChangeEvent, useEffect, useCallback, useMemo } from 'react';
 import { InlinePriceSuggestion } from '@/components/price-check/InlinePriceSuggestion';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,6 +23,8 @@ import { handleStaleDeploy } from "@/lib/stale-deploy";
 import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
+import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
 import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
@@ -116,6 +117,9 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.imageUrls || []);
+    const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>(
+        padFocalPoints(initialData?.imageFocalPoints, (initialData?.imageUrls || []).length),
+    );
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const { isSuperAdmin } = useUserPermissions();
     const [isAddingSub, setIsAddingSub] = useState(false);
@@ -229,6 +233,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         });
         form.setValue('imageFiles', [...currentFiles, ...validFiles], { shouldValidate: true });
         setImagePreviews(prev => [...prev, ...newPreviews]);
+        setImageFocalPoints(prev => [...prev, ...newPreviews.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
     }, [form, toast]);
 
     const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -241,6 +246,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         const urlToRemove = imagePreviews[index];
         form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        setImageFocalPoints(prev => prev.filter((_, i) => i !== index));
         if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
     };
 
@@ -377,7 +383,8 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             const idToken = await user.getIdToken();
             const result = await updateListing(idToken, initialData.id, {
                 ...cleanData,
-                imageUrls: finalImageUrls
+                imageUrls: finalImageUrls,
+                imageFocalPoints: padFocalPoints(imageFocalPoints, finalImageUrls.length),
             });
 
             if (result.success) {
@@ -459,21 +466,36 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
                                         </div>
                                         {imagePreviews.map((p, i) => (
                                             <div key={p} className="relative aspect-square bg-muted/60 rounded-2xl overflow-hidden border border-border group shadow-sm">
-                                                <Image src={p} fill alt="thumb" className="object-cover" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <ImageFocalPicker
+                                                    src={p}
+                                                    alt="thumb"
+                                                    value={imageFocalPoints[i] ?? DEFAULT_FOCAL_POINT}
+                                                    onChange={(point) => setImageFocalPoints((prev) => {
+                                                        const next = padFocalPoints(prev, imagePreviews.length);
+                                                        next[i] = point;
+                                                        return next;
+                                                    })}
+                                                    label={`Centre of photo ${i + 1}`}
+                                                />
+                                                <div className="absolute top-1 right-1 z-10">
                                                     <Button
                                                         variant="destructive"
                                                         size="icon"
                                                         onClick={() => removeImage(i)}
                                                         className="h-8 w-8 rounded-full"
+                                                        type="button"
+                                                        aria-label={`Remove photo ${i + 1}`}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
-                                                {i === 0 && <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-[10px] text-primary-foreground font-bold rounded">COVER</div>}
+                                                {i === 0 && <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-primary text-[10px] text-primary-foreground font-bold rounded">COVER</div>}
                                             </div>
                                         ))}
                                     </div>
+                                    {imagePreviews.length > 0 && (
+                                        <p className="text-[11px] text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
+                                    )}
 
                                     {imageFiles.length > 0 && (
                                         <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10 flex items-center justify-between">
