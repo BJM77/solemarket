@@ -25,7 +25,7 @@ export const DEFAULT_SUB_CATEGORIES: Record<string, string[]> = {
   ],
   [CATEGORY_ACCESSORIES]: ['Bags', 'Hats', 'Jewelry', 'Other'],
   [CATEGORY_TRADING_CARDS]: [
-    'Basketball', 'Pokémon', 'Yu-Gi-Oh!', 'Rookies', 'New Arrivals'
+    'Basketball', 'Rookies', 'Signed', 'New Arrivals'
   ],
   [CATEGORY_COINS]: [
     'Australian', 'World', 'Gold & Silver', 'Proof Sets', 'New Arrivals'

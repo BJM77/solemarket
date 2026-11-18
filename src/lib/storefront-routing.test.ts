@@ -3,6 +3,7 @@ import { routeCoinsHost, routeMainHost, coinsPublicUrl, mainOriginFor, stripCoin
 
 const coinsUrl = (p: string) => new URL(`https://coins.benched.au${p}`);
 const route = (p: string, search = '') => routeCoinsHost(p, search, coinsUrl(p + search), 'coins.benched.au');
+const searchParamsOf = (s: string) => new URLSearchParams(s);
 
 describe('coins host routing (coins.benched.au)', () => {
   it('serves the coins homepage and pages from /coins internally', () => {
@@ -42,24 +43,24 @@ describe('coins host routing (coins.benched.au)', () => {
 describe('main host routing (benched.au)', () => {
   const sp = (s: string) => new URLSearchParams(s);
   it('serves /coins on benched.au while the subdomain is not launched', () => {
-    expect(routeMainHost('/coins', sp(''), false)).toEqual({ type: 'next' });
-    expect(routeMainHost('/coins/x/abc', sp(''), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/coins', searchParamsOf(''), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/coins/x/abc', searchParamsOf(''), false)).toEqual({ type: 'next' });
   });
   it('moves /coins to coins.benched.au once launched', () => {
-    expect(routeMainHost('/coins', sp(''), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au' });
-    expect(routeMainHost('/coins/browse', sp('q=gold'), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au/browse?q=gold' });
+    expect(routeMainHost('/coins', searchParamsOf(''), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au' });
+    expect(routeMainHost('/coins/browse', searchParamsOf('q=gold'), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au/browse?q=gold' });
   });
   it('sends coin searches on the basketball site to the coins storefront', () => {
-    expect(routeMainHost('/browse', sp('category=Coins'), false)).toEqual({ type: 'redirect', url: '/coins/browse' });
-    expect(routeMainHost('/browse', sp('category=Coins&q=penny&subCategory=Australian+Coins'), false)).toEqual({ type: 'redirect', url: '/coins/browse?q=penny&subCategory=Australian+Coins' });
-    expect(routeMainHost('/browse', sp('category=Bullion'), false)).toEqual({ type: 'redirect', url: '/coins/browse?coinType=bullion' });
-    expect(routeMainHost('/browse', sp('category=Coins'), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au/browse' });
+    expect(routeMainHost('/browse', searchParamsOf('category=Coins'), false)).toEqual({ type: 'redirect', url: '/coins/browse' });
+    expect(routeMainHost('/browse', searchParamsOf('category=Coins&q=penny&subCategory=Australian+Coins'), false)).toEqual({ type: 'redirect', url: '/coins/browse?q=penny&subCategory=Australian+Coins' });
+    expect(routeMainHost('/browse', searchParamsOf('category=Bullion'), false)).toEqual({ type: 'redirect', url: '/coins/browse?coinType=bullion' });
+    expect(routeMainHost('/browse', searchParamsOf('category=Coins'), true)).toEqual({ type: 'redirect', url: 'https://coins.benched.au/browse' });
   });
   it('leaves basketball pages alone', () => {
-    expect(routeMainHost('/browse', sp('category=Sneakers'), false)).toEqual({ type: 'next' });
-    expect(routeMainHost('/cards', sp(''), false)).toEqual({ type: 'next' });
-    expect(routeMainHost('/coincam', sp(''), false)).toEqual({ type: 'next' });
-    expect(routeMainHost('/', sp(''), true)).toEqual({ type: 'next' });
+    expect(routeMainHost('/browse', searchParamsOf('category=Sneakers'), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/cards', searchParamsOf(''), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/coincam', searchParamsOf(''), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/', searchParamsOf(''), true)).toEqual({ type: 'next' });
   });
 });
 
@@ -78,5 +79,21 @@ describe('coins URLs', () => {
     expect(withCoinsBase('/')).toBe('/coins');
     expect(withCoinsBase('/browse')).toBe('/coins/browse');
     expect(withCoinsBase('/coins/browse')).toBe('/coins/browse');
+  });
+});
+
+describe('TCG filters on the basketball site redirect to /pokemon', () => {
+  it('sends old Pokémon and Yu-Gi-Oh browse URLs to /pokemon', () => {
+    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pokemon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pokemon' });
+    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pok%C3%A9mon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pok%C3%A9mon' });
+    expect(routeMainHost('/cards', searchParamsOf('category=Collector+Cards&subCategory=Yu-Gi-Oh!'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Yu-Gi-Oh%21' });
+    expect(routeMainHost('/search', searchParamsOf('subCategory=Magic&q=lightning'), false)).toEqual({ type: 'redirect', url: '/pokemon?q=lightning&subCategory=Magic' });
+  });
+
+  it('does not redirect basketball card filters or the /pokemon page itself', () => {
+    expect(routeMainHost('/browse', searchParamsOf('category=Collector+Cards&subCategory=Basketball+Cards'), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/cards', searchParamsOf('subCategory=Rookies'), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/pokemon', searchParamsOf('subCategory=Pokemon'), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/browse', searchParamsOf('q=Jordan'), false)).toEqual({ type: 'next' });
   });
 });

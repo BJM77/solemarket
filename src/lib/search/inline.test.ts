@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  toSearchLite, searchIndex, scoreRow, tokenize, buildBrowseHref, cacheKey, sizeOptions, LruCache,
+  toSearchLite, searchIndex, scoreRow, tokenize, listingMatchesQuery, buildBrowseHref, cacheKey, sizeOptions, LruCache,
   rowDetail, formatAud, pushRecent, DEFAULT_FILTERS, type SearchLite,
 } from './inline';
 
@@ -112,5 +112,28 @@ describe('display helpers', () => {
     expect(pushRecent(['kyrie', 'lebron'], 'LeBron')).toEqual(['LeBron', 'kyrie']);
     expect(pushRecent(['a', 'b', 'c', 'd', 'e'], 'f')).toEqual(['f', 'a', 'b', 'c', 'd']);
     expect(pushRecent(['a'], '  ')).toEqual(['a']);
+  });
+});
+
+describe('listingMatchesQuery', () => {
+  it('finds mid-title and brand/player/model matches even when keywords are missing', () => {
+    const airJordan = { id: 'j1', title: 'Air Jordan 1 Retro High', price: 250 };
+    const jordanBrand = { id: 'j2', title: 'Nike Dunk Low', brand: 'Jordan', price: 180 };
+    const player = { id: 'j3', title: '2023 Prizm Silver', player: 'Michael Jordan', price: 40 };
+    const model = { id: 'j4', title: 'Flight Club pack', model: 'Jordan 11', price: 90 };
+    expect(listingMatchesQuery(airJordan, 'Jordan')).toBe(true);
+    expect(listingMatchesQuery(jordanBrand, 'jordan')).toBe(true);
+    expect(listingMatchesQuery(player, 'Jordan')).toBe(true);
+    expect(listingMatchesQuery(model, 'Jordan')).toBe(true);
+    expect(listingMatchesQuery(airJordan, 'Kobe')).toBe(false);
+    // Prefix match, same as the dropdown
+    expect(listingMatchesQuery(airJordan, 'Jord')).toBe(true);
+  });
+
+  it('matches the same listings the dropdown index would', () => {
+    const raw = { status: 'available', isDraft: false, title: 'Air Jordan 1 Retro', price: 200, category: 'Sneakers', brand: 'Jordan' };
+    const row = toSearchLite('j1', raw)!;
+    expect(searchIndex([row], 'Jordan', DEFAULT_FILTERS, 8).total).toBe(1);
+    expect(listingMatchesQuery({ id: 'j1', ...raw }, 'Jordan')).toBe(true);
   });
 });

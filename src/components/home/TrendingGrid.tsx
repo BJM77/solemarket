@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default function TrendingGrid({ products, title = "Trending Near You", className = "bg-background py-16 lg:py-24 relative overflow-hidden", priorityCount = 0, layout = "default" }: { products: Product[], title?: string, className?: string, priorityCount?: number, layout?: "default" | "justListed" }) {
+export default function TrendingGrid({ products, title = "Trending Near You", className = "bg-background py-16 lg:py-24 relative overflow-hidden", priorityCount = 0, layout = "default" }: { products: Product[], title?: string, className?: string, priorityCount?: number, layout?: "default" | "justListed" | "homeRail" }) {
     if (!products || products.length === 0) return null;
 
     return (

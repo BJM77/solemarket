@@ -46,6 +46,7 @@ import {
     isCardCategory,
     normalizeCategory
 } from '@/lib/constants/marketplace';
+import { withoutTcgValues } from '@/lib/tcg-listings';
 
 import { ConditionGuide } from '@/components/products/ConditionGuide';
 
@@ -208,7 +209,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const SUB_CATEGORIES: Record<string, string[]> = {
         [CATEGORY_SNEAKERS]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_SNEAKERS] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_SNEAKERS] || [])])),
         [CATEGORY_ACCESSORIES]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_ACCESSORIES] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_ACCESSORIES] || [])])),
-        [CATEGORY_TRADING_CARDS]: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_TRADING_CARDS] || [])])),
+        [CATEGORY_TRADING_CARDS]: withoutTcgValues(Array.from(new Set([...(DEFAULT_SUB_CATEGORIES[CATEGORY_TRADING_CARDS] || []), ...((marketplaceOptions?.subCategories as any)?.[CATEGORY_TRADING_CARDS] || [])]))),
         ['General']: Array.from(new Set([...(DEFAULT_SUB_CATEGORIES['General'] || []), ...((marketplaceOptions?.subCategories as any)?.['General'] || [])]))
     };
 

@@ -79,7 +79,10 @@
     position: relative;
     -webkit-tap-highlight-color: transparent;
     scroll-padding-top: 80px;
-    scroll-behavior: smooth;
+    /* Do not set scroll-behavior here. CSS smooth-scroll on html/body stops
+       Next.js from jumping to the top on route changes (and breaks Back
+       restoration). Hash links still smooth-scroll via data-scroll-behavior
+       on <html>, which Next can disable during navigations. */
   }
   
   img, svg, video, canvas, audio, iframe, embed, object {

@@ -50,7 +50,6 @@ import { CoinCategoryPills } from '@/components/coins/CoinCategoryPills';
 import { QuickFilterChips } from './QuickFilterChips';
 import { exportAllProductsCSV } from '@/app/actions/admin/export';
 import { Download, Search } from 'lucide-react';
-import { AdUnit } from '@/components/ads/AdUnit';
 
 type ViewMode = 'grid' | 'list' | 'montage' | 'compact';
 const PAGE_SIZE = 24;
@@ -524,32 +523,22 @@ function InfiniteProductGridInner({
       <div className="w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-x-6 md:gap-y-8 overflow-hidden">
         {products.map((product, index) => {
           const isLastElement = index === products.length - 1;
-
-          // Inject Ad every 12 items (index 11, 23, etc)
-          const showAd = (index + 1) % 12 === 0;
-
           return (
-            <React.Fragment key={`${product.id}-${index}`}>
-              <div
-                ref={isLastElement ? lastProductElementRef : null}
-              >
-                <ProductCard
-                  product={product}
-                  viewMode={viewMode}
-                  isAdmin={isAdmin}
-                  selectable={isSelectionMode}
-                  selected={selectedIds.has(product.id)}
-                  onToggleSelect={() => toggleSelection(product.id)}
-                  onOpenPriceAssistant={openPriceAssistant}
-                  priority={index < 4}
-                />
-              </div>
-              {showAd && !isCoinsStorefront && typeof AdUnit !== 'undefined' && (
-                <div className="col-span-full py-4">
-                  <AdUnit placement="grid_interstitial" className="w-full aspect-[6/1] md:aspect-[8/1] rounded-2xl" />
-                </div>
-              )}
-            </React.Fragment>
+            <div
+              key={`${product.id}-${index}`}
+              ref={isLastElement ? lastProductElementRef : null}
+            >
+              <ProductCard
+                product={product}
+                viewMode={viewMode}
+                isAdmin={isAdmin}
+                selectable={isSelectionMode}
+                selected={selectedIds.has(product.id)}
+                onToggleSelect={() => toggleSelection(product.id)}
+                onOpenPriceAssistant={openPriceAssistant}
+                priority={index < 4}
+              />
+            </div>
           );
         })}
       </div>

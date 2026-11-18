@@ -2,79 +2,21 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Library, Trophy, Zap, Sparkles, Flag, PenTool as Signature, Medal } from 'lucide-react';
+import { ArrowRight, Library, Trophy, Zap, Sparkles, PenTool, Medal, CircleDollarSign, Layers, type LucideIcon } from 'lucide-react';
 import { cn } from "@/lib/utils/ui";
-
-const CARD_CATEGORIES = [
-    {
-        name: 'Jordan',
-        logo: '/brand-logos/svg/jordan.svg',
-        href: '/cards?subCategory=Jordan',
-        color: 'bg-red-50/50 dark:bg-red-950/10'
-    },
-    {
-        name: 'Kobe',
-        logo: '/brand-logos/svg/kobe.svg',
-        href: '/cards?subCategory=Kobe',
-        color: 'bg-purple-50/50 dark:bg-purple-950/10'
-    },
-    {
-        name: 'Curry',
-        logo: '/brand-logos/svg/curry.svg',
-        href: '/cards?subCategory=Curry',
-        color: 'bg-orange-50/50 dark:bg-orange-950/10'
-    },
-    {
-        name: 'Rookies',
-        icon: Zap,
-        href: '/cards?subCategory=Rookies',
-        color: 'bg-yellow-50 dark:bg-yellow-950/20'
-    },
-    {
-        name: 'Top 100',
-        icon: Medal,
-        href: '/cards?subCategory=Top%20100',
-        color: 'bg-orange-50 dark:bg-orange-950/20'
-    },
-    {
-        name: 'Wembanyama',
-        icon: Sparkles,
-        href: '/cards?subCategory=Wembanyama',
-        color: 'bg-orange-50 dark:bg-orange-950/20'
-    },
-    {
-        name: 'Rookies',
-        icon: Trophy,
-        href: '/cards?subCategory=Rookies',
-        color: 'bg-amber-50 dark:bg-amber-950/20'
-    },
-    {
-        name: 'Signed',
-        icon: Signature,
-        href: '/cards?subCategory=Signed',
-        color: 'bg-emerald-50 dark:bg-emerald-950/20'
-    },
-    {
-        name: 'Flag',
-        icon: Flag,
-        href: '/cards?subCategory=Flag',
-        color: 'bg-slate-50 dark:bg-slate-900/20'
-    },
-    {
-        name: 'Basketball Cards',
-        icon: Library,
-        href: '/cards?subCategory=Basketball%20Cards',
-        color: 'bg-orange-50 dark:bg-orange-950/20'
-    },
-    {
-        name: 'View All',
-        icon: ArrowRight,
-        href: '/cards',
-        color: 'bg-gray-50 dark:bg-gray-800'
-    },
-];
-
 import { useSiteConfig } from '@/providers/SiteConfigProvider';
+import { completeCardRoomItems, DEFAULT_CARD_ROOM_ITEMS } from '@/lib/home/card-room';
+
+const CARD_ROOM_ICONS: Record<string, LucideIcon> = {
+    Zap,
+    Medal,
+    Trophy,
+    Signature: PenTool,
+    Sparkles,
+    Library,
+    CircleDollarSign,
+    Layers,
+};
 
 export default function CardCategoryGrid() {
     const { config } = useSiteConfig();
@@ -84,7 +26,9 @@ export default function CardCategoryGrid() {
 
     const title = section?.title || 'The Card Room';
     const subtitle = section?.subtitle || 'Basketball wax, graded singles, and the newest sets.';
-    const categories = section?.items && section.items.length > 0 ? section.items : CARD_CATEGORIES;
+    const categories = completeCardRoomItems(
+        section?.items && section.items.length > 0 ? section.items : DEFAULT_CARD_ROOM_ITEMS,
+    );
     const containerClasses = section?.customClasses || 'bg-background py-16 lg:py-24 border-b border-border/10 relative overflow-hidden';
 
     return (
@@ -100,9 +44,10 @@ export default function CardCategoryGrid() {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-6">
                     {categories.map((cat, idx) => {
                         const itemKey = ('id' in cat && cat.id) ? cat.id : `${cat.name}-${idx}`;
+                        const Icon = (cat.iconName && CARD_ROOM_ICONS[cat.iconName]) || Sparkles;
                         return (
                             <Link
                                 key={itemKey}
@@ -125,7 +70,7 @@ export default function CardCategoryGrid() {
                                                 sizes="(max-width: 768px) 48px, 96px"
                                             />
                                         ) : (
-                                            <Sparkles className="h-6 w-6 md:h-10 md:w-10 text-muted-foreground" />
+                                            <Icon className="h-6 w-6 md:h-10 md:w-10 text-muted-foreground" />
                                         )}
                                     </div>
                                     <span className="font-black text-foreground text-[10px] md:text-sm uppercase tracking-widest text-center relative z-10">
