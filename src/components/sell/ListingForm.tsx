@@ -24,7 +24,7 @@ import { useFirebase, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { uploadImages } from '@/lib/firebase/storage';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
-import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { DEFAULT_FOCAL_POINT, focalsForUploadOrder, padFocalPoints, type MaybeFocalPoint } from '@/lib/images/focal-point';
 import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { Reorder } from 'framer-motion';
 import { BeforeUnload } from '@/hooks/use-before-unload';
@@ -117,7 +117,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.imageUrls || []);
-    const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>(
+    const [imageFocalPoints, setImageFocalPoints] = useState<MaybeFocalPoint[]>(
         padFocalPoints(initialData?.imageFocalPoints, (initialData?.imageUrls || []).length),
     );
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -233,7 +233,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
         });
         form.setValue('imageFiles', [...currentFiles, ...validFiles], { shouldValidate: true });
         setImagePreviews(prev => [...prev, ...newPreviews]);
-        setImageFocalPoints(prev => [...prev, ...newPreviews.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
+        setImageFocalPoints(prev => [...prev, ...newPreviews.map(() => null)]);
     }, [form, toast]);
 
     const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -384,7 +384,7 @@ export function ListingForm({ initialData, onSuccess, onCancel }: ListingFormPro
             const result = await updateListing(idToken, initialData.id, {
                 ...cleanData,
                 imageUrls: finalImageUrls,
-                imageFocalPoints: padFocalPoints(imageFocalPoints, finalImageUrls.length),
+                imageFocalPoints: focalsForUploadOrder(data.imageFiles, imageFocalPoints),
             });
 
             if (result.success) {

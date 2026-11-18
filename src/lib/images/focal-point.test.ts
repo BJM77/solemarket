@@ -11,6 +11,9 @@ import {
   productCoverStyle,
   sanitizeImageFocalPoints,
   focalObjectPosition,
+  remapFocalPointsByUrl,
+  rotateFocalPointClockwise,
+  selectFocalPoints,
 } from './focal-point';
 
 describe('clampFocalCoord', () => {
@@ -47,12 +50,15 @@ describe('sanitizeImageFocalPoints', () => {
     expect(sanitizeImageFocalPoints([], 0)).toBeUndefined();
   });
 
-  it('pads, trims, and clamps to the image count', () => {
-    expect(sanitizeImageFocalPoints([{ x: 0.1, y: 0.2 }], 3)).toEqual([
-      { x: 0.1, y: 0.2 },
-      { x: 0.5, y: 0.5 },
-      { x: 0.5, y: 0.5 },
-    ]);
+  it('stores nothing when no photo has a real pin (no default pins on legacy or untouched listings)', () => {
+    expect(sanitizeImageFocalPoints([], 3)).toBeUndefined();
+    expect(sanitizeImageFocalPoints([null, null], 2)).toBeUndefined();
+    expect(sanitizeImageFocalPoints([{ x: 0.5, y: 0.5 }, { x: 0.5, y: 0.5 }], 2)).toBeUndefined();
+  });
+
+  it('pads with null, trims, and clamps to the image count', () => {
+    expect(sanitizeImageFocalPoints([{ x: 0.1, y: 0.2 }], 3)).toEqual([{ x: 0.1, y: 0.2 }, null, null]);
+    expect(sanitizeImageFocalPoints([null, { x: 0.3, y: 0.4 }], 2)).toEqual([null, { x: 0.3, y: 0.4 }]);
     expect(sanitizeImageFocalPoints([{ x: 9, y: -2 }, { x: 0.3, y: 0.4 }, { x: 0.1, y: 0.1 }], 2)).toEqual([
       { x: 1, y: 0 },
       { x: 0.3, y: 0.4 },
@@ -61,9 +67,34 @@ describe('sanitizeImageFocalPoints', () => {
 });
 
 describe('padFocalPoints', () => {
-  it('always returns one entry per image', () => {
-    expect(padFocalPoints(undefined, 2)).toEqual([DEFAULT_FOCAL_POINT, DEFAULT_FOCAL_POINT]);
+  it('returns one entry per image, null where the seller has not set a pin', () => {
+    expect(padFocalPoints(undefined, 2)).toEqual([null, null]);
     expect(padFocalPoints([{ x: 0, y: 1 }], 1)).toEqual([{ x: 0, y: 1 }]);
+    expect(padFocalPoints([{ x: 'junk', y: 1 }, { x: 0.5, y: 0.5 }], 2)).toEqual([null, null]);
+  });
+});
+
+describe('remapFocalPointsByUrl', () => {
+  it('keeps each pin on its own photo when photos are removed or reordered', () => {
+    const pins = [{ x: 0.1, y: 0.1 }, { x: 0.2, y: 0.2 }, null];
+    expect(remapFocalPointsByUrl(['a', 'b', 'c'], pins, ['b', 'c'])).toEqual([{ x: 0.2, y: 0.2 }, null]);
+    expect(remapFocalPointsByUrl(['a', 'b', 'c'], pins, ['c', 'a', 'new'])).toEqual([null, { x: 0.1, y: 0.1 }, null]);
+    expect(remapFocalPointsByUrl(['a'], undefined, ['a'])).toEqual([null]);
+  });
+});
+
+describe('selectFocalPoints', () => {
+  it('filters pins with the same predicate as the photos', () => {
+    const previews = ['blob:1', 'https://x/a', 'blob:2', 'https://x/b'];
+    const pins = [{ x: 0.1, y: 0.1 }, { x: 0.2, y: 0.2 }, { x: 0.3, y: 0.3 }, null];
+    expect(selectFocalPoints(previews, pins, (p) => !p.startsWith('blob:'))).toEqual([{ x: 0.2, y: 0.2 }, null]);
+  });
+});
+
+describe('rotateFocalPointClockwise', () => {
+  it('moves the pin with a 90° clockwise rotation', () => {
+    expect(rotateFocalPointClockwise({ x: 0.1, y: 0.2 })).toEqual({ x: 0.8, y: 0.1 });
+    expect(rotateFocalPointClockwise(null)).toBeNull();
   });
 });
 
@@ -83,6 +114,13 @@ describe('productCoverStyle', () => {
     }, 0).objectPosition).toBe('25% 75%');
     expect(productCoverStyle({}, 0).objectPosition).toBe('50% 50%');
     expect(hasSellerFocal(undefined, 0)).toBe(false);
+  });
+
+  it('uses AI smartCrop for photos the seller never pinned (null or legacy default centre)', () => {
+    const ai = [{ smartCrop: { x: 0.25, y: 0.75 } }, { smartCrop: { x: 0.3, y: 0.3 } }];
+    expect(productCoverStyle({ imageFocalPoints: [null, { x: 0.9, y: 0.9 }], aiIntelligence: ai }, 0).objectPosition).toBe('25% 75%');
+    expect(productCoverStyle({ imageFocalPoints: [{ x: 0.5, y: 0.5 }], aiIntelligence: ai }, 0).objectPosition).toBe('25% 75%');
+    expect(productCoverStyle({ imageFocalPoints: [null, { x: 0.9, y: 0.9 }], aiIntelligence: ai }, 1).objectPosition).toBe('90% 90%');
   });
 });
 

@@ -12,7 +12,7 @@ import { createProductAction } from '@/app/actions/marketplace/products';
 import { cn } from "@/lib/utils/ui";
 import { resizeAndCompressImage } from "@/lib/utils/image";
 import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
-import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type MaybeFocalPoint } from '@/lib/images/focal-point';
 import { compressScreenshotForAnalysis, ScreenshotReadError } from "@/lib/utils/screenshot-compress";
 
 // UI Components
@@ -53,7 +53,7 @@ export default function ProloadPage() {
   // Image states
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [screenshotBase64, setScreenshotBase64] = useState<string | null>(null);
-  const [productImages, setProductImages] = useState<{ file?: File; url: string; isNew?: boolean; focal?: ImageFocalPoint }[]>([]);
+  const [productImages, setProductImages] = useState<{ file?: File; url: string; isNew?: boolean; focal?: MaybeFocalPoint }[]>([]);
   
   // Analysis progress state
   const [analysisProgress, setAnalysisProgress] = useState(0);
@@ -194,7 +194,7 @@ export default function ProloadPage() {
         const compressed = await resizeAndCompressImage(file, 1024, 0.7);
         // Create local preview blob URL
         const blobUrl = URL.createObjectURL(file);
-        return { file, url: blobUrl, isNew: true, focal: { ...DEFAULT_FOCAL_POINT } };
+        return { file, url: blobUrl, isNew: true, focal: null };
       })
     );
     setProductImages(prev => [...prev, ...newImages]);
@@ -288,7 +288,11 @@ export default function ProloadPage() {
       const productPayload = {
         ...formData,
         imageUrls,
-        imageFocalPoints: padFocalPoints(productImages.map((img) => img.focal), imageUrls.length),
+        // Same order as imageUrls: existing photos first, then the new uploads.
+        imageFocalPoints: padFocalPoints([
+          ...productImages.filter((img) => !img.isNew).map((img) => img.focal),
+          ...productImages.filter((img) => img.isNew && img.file).map((img) => img.focal),
+        ], imageUrls.length),
         status: isDraftStatus ? 'draft' as const : 'available' as const,
         isDraft: isDraftStatus,
         quantity: 1,

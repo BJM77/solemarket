@@ -33,7 +33,7 @@ interface ProductImageGalleryProps {
   /** Phones only: listing title shown at the start of the row above the photo. */
   mobileTitle?: React.ReactNode;
   /** Seller-set centre pins, parallel to `images`. */
-  imageFocalPoints?: ImageFocalPoint[];
+  imageFocalPoints?: (ImageFocalPoint | null)[];
 }
 
 const conditionColors: Record<string, string> = {

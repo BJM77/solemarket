@@ -238,12 +238,19 @@ export async function updateListing(idToken: string, productId: string, data: an
         }
 
         if ('imageFocalPoints' in data || 'imageUrls' in data) {
-            const { sanitizeImageFocalPoints } = await import('@/lib/images/focal-point');
+            const { sanitizeImageFocalPoints, remapFocalPointsByUrl } = await import('@/lib/images/focal-point');
             const urls = Array.isArray(updatePayload.imageUrls) ? updatePayload.imageUrls : (productData.imageUrls || []);
-            const incoming = (data.imageFocalPoints != null) ? data.imageFocalPoints : productData.imageFocalPoints;
-            const focals = sanitizeImageFocalPoints(incoming ?? [], urls.length);
+            // A client-sent array is positional to the new photo list. Without one, carry the
+            // existing pins across by photo URL so removing/reordering never shifts them.
+            const incoming = Array.isArray(data.imageFocalPoints)
+                ? data.imageFocalPoints
+                : remapFocalPointsByUrl(productData.imageUrls, productData.imageFocalPoints, urls);
+            const focals = sanitizeImageFocalPoints(incoming, urls.length);
             if (focals) updatePayload.imageFocalPoints = focals;
-            else delete updatePayload.imageFocalPoints;
+            else if (productData.imageFocalPoints !== undefined) {
+                const { FieldValue } = await import('firebase-admin/firestore');
+                updatePayload.imageFocalPoints = FieldValue.delete();
+            } else delete updatePayload.imageFocalPoints;
         }
 
         await productRef.update(updatePayload);

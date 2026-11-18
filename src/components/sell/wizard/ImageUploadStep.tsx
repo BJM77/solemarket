@@ -21,7 +21,7 @@ import { DEFAULT_FOCAL_POINT, type ImageFocalPoint } from '@/lib/images/focal-po
 interface ImageUploadStepProps {
     imageFiles: any[];
     imagePreviews: string[];
-    imageFocalPoints?: ImageFocalPoint[];
+    imageFocalPoints?: (ImageFocalPoint | null)[];
     onFocalChange?: (index: number, point: ImageFocalPoint) => void;
     onImagesChange: (files: File[], previews: string[], base64s: string[]) => void;
     onRemoveImage: (index: number) => void;

@@ -22,7 +22,7 @@ import { getProductUrl } from '@/lib/utils/url';
 import { COIN_SUBCATEGORIES, BULLION_SUBCATEGORIES, coinListingClassification, isBullionListing } from '@/lib/coin-listings';
 import { buildCoinListingData, COIN_METALS, COIN_CONDITIONS, COIN_GRADERS, type CoinFormValues } from '@/lib/coins/listing-form';
 import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
-import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { DEFAULT_FOCAL_POINT, padFocalPoints, type MaybeFocalPoint } from '@/lib/images/focal-point';
 
 const MAX_PHOTOS = 6;
 
@@ -60,7 +60,7 @@ export function CoinListingForm() {
   const [values, setValues] = useState<CoinFormValues>(EMPTY);
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
   const [files, setFiles] = useState<{ file: File | Blob; preview: string }[]>([]);
-  const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>([]);
+  const [imageFocalPoints, setImageFocalPoints] = useState<MaybeFocalPoint[]>([]);
   const [cropIndex, setCropIndex] = useState<number | null>(null);
   const [busy, setBusy] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -134,7 +134,7 @@ export function CoinListingForm() {
       }
     }
     setFiles((prev) => [...prev, ...out]);
-    setImageFocalPoints((prev) => [...prev, ...out.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
+    setImageFocalPoints((prev) => [...padFocalPoints(prev, photoCount), ...out.map(() => null)]);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -283,6 +283,13 @@ export function CoinListingForm() {
             try {
               const r = await processListingImage(cropped);
               setFiles((prev) => prev.map((f, j) => (j === index ? { file: r.file, preview: r.previewUrl } : f)));
+              // The old pin no longer matches the cropped photo; clear it.
+              const slot = existingUrls.length + index;
+              setImageFocalPoints((prev) => {
+                const next = padFocalPoints(prev, Math.max(prev.length, slot + 1));
+                next[slot] = null;
+                return next;
+              });
             } catch {
               toast({ title: "Couldn't crop that photo", variant: 'destructive' });
             }

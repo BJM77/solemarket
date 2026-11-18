@@ -23,7 +23,7 @@ export interface DraftListingData {
     floorPrice?: number;
     isVault: boolean;
     imageUrls: string[];
-    imageFocalPoints?: { x: number; y: number }[];
+    imageFocalPoints?: ({ x: number; y: number } | null)[];
     status: 'draft' | 'available';
     isDraft: boolean;
     
@@ -110,7 +110,9 @@ export async function saveDraftListing(idToken: string, data: Omit<DraftListingD
         const { sanitizeImageFocalPoints } = await import('@/lib/images/focal-point');
         const urls = Array.isArray(listingData.imageUrls) ? listingData.imageUrls : [];
         const focals = sanitizeImageFocalPoints(listingData.imageFocalPoints, urls.length);
+        // No real pins: clear any stale ones on an existing draft (merge write), never store defaults.
         if (focals) listingData.imageFocalPoints = focals;
+        else if (draftId) listingData.imageFocalPoints = FieldValue.delete();
         else delete listingData.imageFocalPoints;
     }
 

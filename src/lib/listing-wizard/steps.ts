@@ -1,3 +1,4 @@
+import { toFocalOrNull } from '@/lib/images/focal-point';
 /** Listing wizard model: categories, guided shot lists and per-step validation (pure, unit tested). */
 export const WIZARD_CATEGORIES = ['Sneakers', 'Collector Cards', 'Apparel', 'Accessories'] as const;
 export type WizardCategory = (typeof WIZARD_CATEGORIES)[number];
@@ -110,7 +111,8 @@ export function draftToProduct(d: WizardDraft) {
   const order = d.category ? SHOT_LISTS[d.category].map((s) => s.id) : Object.keys(d.photos);
   const imageUrls = order.map((id) => d.photos[id]).filter(Boolean).slice(0, 10);
   const orderedIds = order.filter((id) => d.photos[id]).slice(0, 10);
-  const imageFocalPoints = orderedIds.map((id) => d.photoFocals?.[id] ?? { x: 0.5, y: 0.5 });
+  // null = seller never moved the pin (AI smartCrop / centre applies); the server drops an all-null list.
+  const imageFocalPoints = orderedIds.map((id) => toFocalOrNull(d.photoFocals?.[id]));
   return {
     title: d.title.trim(),
     description: d.description.trim(),
