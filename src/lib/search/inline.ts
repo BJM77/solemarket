@@ -22,6 +22,10 @@ export interface SearchLite {
   year?: number;
   /** Extra searchable words (brand, model, sub-category, grade...). */
   extra?: string;
+  /** 1 when checked in (status "sold"); ranked below live listings. */
+  sold?: 1;
+  /** Seconds since epoch when an early-access listing becomes public (only set when present). */
+  rel?: number;
 }
 
 export type SearchKind = 'shoes' | 'cards' | 'other';
@@ -86,12 +90,7 @@ export function toSearchLite(id: string, d: Record<string, any> | null | undefin
   const price = numericPrice(d);
   const fc = facetCategory(d.category);
   const kind: SearchKind = fc === 'sneakers' ? 'shoes' : fc === 'cards' ? 'cards' : 'other';
-  const createdRaw = d.createdAt;
-  const created = typeof createdRaw?.seconds === 'number' ? createdRaw.seconds
-    : typeof createdRaw?._seconds === 'number' ? createdRaw._seconds
-    : typeof createdRaw?.toDate === 'function' ? Math.floor(createdRaw.toDate().getTime() / 1000)
-    : createdRaw instanceof Date ? Math.floor(createdRaw.getTime() / 1000)
-    : 0;
+  const created = toEpochSeconds(d.createdAt);
   const year = Number(d.year);
   const extra = [d.brand, d.model, d.subCategory, d.manufacturer, d.player, d.gradingCompany, d.grade, d.cardNumber,
     Array.isArray(d.keywords) ? d.keywords.join(' ') : d.keywords]
@@ -101,7 +100,34 @@ export function toSearchLite(id: string, d: Record<string, any> | null | undefin
   if (kind === 'shoes' && d.size) row.size = normalizeSize(d.size);
   if (Number.isFinite(year) && year > 1800) row.year = year;
   if (extra) row.extra = extra;
+  if (d.status === 'sold') row.sold = 1;
+  const rel = toEpochSeconds(d.publicReleaseAt);
+  if (rel > 0) row.rel = rel;
   return row;
+}
+
+function toEpochSeconds(raw: any): number {
+  if (!raw) return 0;
+  if (typeof raw.seconds === 'number') return raw.seconds;
+  if (typeof raw._seconds === 'number') return raw._seconds;
+  if (typeof raw.toDate === 'function') return Math.floor(raw.toDate().getTime() / 1000);
+  if (raw instanceof Date) return Math.floor(raw.getTime() / 1000);
+  if (typeof raw === 'string' || typeof raw === 'number') {
+    const t = new Date(raw).getTime();
+    return Number.isFinite(t) ? Math.floor(t / 1000) : 0;
+  }
+  if (typeof raw.value === 'string') return toEpochSeconds(raw.value);
+  return 0;
+}
+
+/** Early-access listings stay out of public search until their release time. */
+export function isReleased(row: SearchLite, nowSec = Math.floor(Date.now() / 1000)): boolean {
+  return !row.rel || row.rel <= nowSec;
+}
+
+/** Live listings always rank above checked-in (sold) ones. */
+function soldLast(a: SearchLite, b: SearchLite): number {
+  return (a.sold ? 1 : 0) - (b.sold ? 1 : 0);
 }
 
 /** Lower-case, strip accents/punctuation, collapse whitespace. */
@@ -203,14 +229,73 @@ export interface InlineResult { rows: SearchLite[]; total: number }
 export function searchIndex(index: SearchLite[], query: string, filters: InlineFilters, limit = 8): InlineResult {
   const tokens = tokenize(query);
   const hits: { row: SearchLite; score: number }[] = [];
+  const nowSec = Math.floor(Date.now() / 1000);
   for (const row of index) {
+    if (!isReleased(row, nowSec)) continue;
     if (!passesFilters(row, filters)) continue;
     const score = scoreRow(row, tokens);
     if (score > 0) hits.push({ row, score });
   }
   const cmp = sortComparator(filters.sort);
-  hits.sort(cmp);
+  hits.sort((a, b) => soldLast(a.row, b.row) || cmp(a, b));
   return { rows: hits.slice(0, limit).map((h) => h.row), total: hits.length };
+}
+
+/** Sorts the results page can answer straight from the index. */
+export type IndexSort = 'createdAt-desc' | 'createdAt-asc' | 'price-asc' | 'price-desc' | 'year-asc' | 'year-desc';
+
+export function isIndexSort(sort: string): sort is IndexSort {
+  return /^(createdAt|price|year)-(asc|desc)$/.test(sort);
+}
+
+export interface IndexMatchOptions {
+  /** Restrict to shoes or cards (the same split the dropdown's category chips use). */
+  kind?: SearchKind;
+  /** Inclusive [min, max] price. */
+  priceRange?: [number, number] | null;
+  /** Inclusive [min, max] year; rows without a year are excluded. */
+  yearRange?: [number, number] | null;
+  /** Normalised sizes; only shoe rows with one of these sizes match. */
+  sizes?: string[];
+  sort?: IndexSort;
+  /** Business early access: include listings before their public release. */
+  includeUnreleased?: boolean;
+  nowSec?: number;
+}
+
+/**
+ * The /browse?q= results page: every index row matching the query (same matcher and
+ * eligibility as the dropdown), live listings first, then checked-in ones, each group
+ * in the requested order. Returns the full ordered match list; callers page it.
+ */
+export function matchIndexRows(index: SearchLite[], query: string, opts: IndexMatchOptions = {}): SearchLite[] {
+  const tokens = tokenize(query);
+  const nowSec = opts.nowSec ?? Math.floor(Date.now() / 1000);
+  const sizes = opts.sizes?.length ? new Set(opts.sizes.map((x) => normalizeSize(x))) : null;
+  const hits: { row: SearchLite; score: number }[] = [];
+  for (const row of index) {
+    if (!opts.includeUnreleased && !isReleased(row, nowSec)) continue;
+    if (opts.kind && row.kind !== opts.kind) continue;
+    if (opts.priceRange && (row.price < opts.priceRange[0] || row.price > opts.priceRange[1])) continue;
+    if (opts.yearRange && (!row.year || row.year < opts.yearRange[0] || row.year > opts.yearRange[1])) continue;
+    if (sizes && (!row.size || !sizes.has(row.size))) continue;
+    const score = scoreRow(row, tokens);
+    if (score > 0) hits.push({ row, score });
+  }
+  const [field, dir] = (opts.sort || 'createdAt-desc').split('-') as ['createdAt' | 'price' | 'year', 'asc' | 'desc'];
+  const sign = dir === 'asc' ? 1 : -1;
+  const value = (r: SearchLite): number | undefined => (field === 'price' ? r.price : field === 'year' ? r.year : r.created);
+  hits.sort((a, b) => {
+    const s = soldLast(a.row, b.row);
+    if (s) return s;
+    const va = value(a.row);
+    const vb = value(b.row);
+    if (va === undefined && vb !== undefined) return 1;
+    if (vb === undefined && va !== undefined) return -1;
+    if (va !== undefined && vb !== undefined && va !== vb) return (va - vb) * sign;
+    return b.row.created - a.row.created || (a.row.id < b.row.id ? -1 : a.row.id > b.row.id ? 1 : 0);
+  });
+  return hits.map((h) => h.row);
 }
 
 export function sortComparator(sort: SearchSort) {
