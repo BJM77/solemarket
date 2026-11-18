@@ -94,7 +94,8 @@ export default function ListingWizard() {
       setDraft((d) => ({
         ...d,
         photos: { ...d.photos, [shotId]: url },
-        photoFocals: { ...d.photoFocals, [shotId]: { ...DEFAULT_FOCAL_POINT } },
+        // A new photo starts without a pin (AI smartCrop / centre until the seller sets one).
+        photoFocals: Object.fromEntries(Object.entries(d.photoFocals || {}).filter(([k]) => k !== shotId)),
       }));
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e?.message || 'Please try again.', variant: 'destructive' });

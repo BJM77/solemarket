@@ -19,7 +19,7 @@ type Props = {
   alt: string;
   onClose: () => void;
   /** Starting lens focus when the overlay opens, before the pointer moves. */
-  initialFocus?: ImageFocalPoint;
+  initialFocus?: ImageFocalPoint | null;
 };
 
 export default function ListingImageZoomOverlay({ open, src, alt, onClose, initialFocus }: Props) {
@@ -42,16 +42,19 @@ export default function ListingImageZoomOverlay({ open, src, alt, onClose, initi
     setMounted(true);
   }, []);
 
+  // Depend on primitives so a fresh-but-equal focal object (e.g. a new Firestore
+  // snapshot) does not reset and hide the lens mid-zoom.
+  const focusX = initialFocus ? normalizeFocalPoint(initialFocus).x : 0.5;
+  const focusY = initialFocus ? normalizeFocalPoint(initialFocus).y : 0.5;
   useEffect(() => {
     if (!open) return;
-    const focus = initialFocus ? normalizeFocalPoint(initialFocus) : { x: 0.5, y: 0.5 };
     setLens((current) => ({
       ...current,
-      bgX: focus.x * 100,
-      bgY: focus.y * 100,
+      bgX: focusX * 100,
+      bgY: focusY * 100,
       visible: false,
     }));
-  }, [open, src, initialFocus]);
+  }, [open, src, focusX, focusY]);
 
   useEffect(() => {
     if (!open) return;

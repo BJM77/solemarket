@@ -12,11 +12,12 @@ export const productFormSchema = z.object({
     subCategory: z.string().optional(),
 
     imageUrls: z.array(z.string().url("Invalid image URL")).min(1, "At least one image is required").max(10, "Maximum 10 images"),
-    // Seller-set centre pin, parallel to imageUrls. Coords are clamped 0–1; length is aligned server-side.
+    // Seller-set centre pin, parallel to imageUrls (null = untouched photo, falls back to AI smartCrop).
+    // Coords are clamped 0–1; length is aligned server-side.
     imageFocalPoints: z.array(z.object({
         x: z.coerce.number().transform((n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.5),
         y: z.coerce.number().transform((n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.5),
-    })).max(10).optional(),
+    }).nullable()).max(10).optional(),
 
     // Sneaker & General Specifics
     brand: z.string().optional(),

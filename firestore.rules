@@ -42,13 +42,33 @@ service cloud.firestore {
              (!('abnBusinessName' in d) || (resource != null && resource.data.get('abnBusinessName', null) == d.abnBusinessName));
     }
 
-    // Optional seller-set centre pins, parallel to imageUrls. Per-entry 0–1
-    // clamping is enforced in server actions; rules only bound the shape.
+    // Optional seller-set centre pins, parallel to imageUrls. Each entry is
+    // null (photo not pinned) or {x, y} numbers in 0–1. Rules have no loops,
+    // so each of the (max 10) slots is checked explicitly.
+    function isValidFocalEntry(pins, i) {
+      return pins.size() <= i ||
+             pins[i] == null ||
+             (pins[i] is map &&
+              pins[i].keys().hasOnly(['x', 'y']) &&
+              pins[i].x is number && pins[i].x >= 0 && pins[i].x <= 1 &&
+              pins[i].y is number && pins[i].y >= 0 && pins[i].y <= 1);
+    }
+
     function isValidFocalPoints(productData) {
       return !('imageFocalPoints' in productData) ||
              (productData.imageFocalPoints is list &&
               productData.imageFocalPoints.size() <= 10 &&
-              productData.imageFocalPoints.size() <= productData.imageUrls.size());
+              productData.imageFocalPoints.size() <= productData.imageUrls.size() &&
+              isValidFocalEntry(productData.imageFocalPoints, 0) &&
+              isValidFocalEntry(productData.imageFocalPoints, 1) &&
+              isValidFocalEntry(productData.imageFocalPoints, 2) &&
+              isValidFocalEntry(productData.imageFocalPoints, 3) &&
+              isValidFocalEntry(productData.imageFocalPoints, 4) &&
+              isValidFocalEntry(productData.imageFocalPoints, 5) &&
+              isValidFocalEntry(productData.imageFocalPoints, 6) &&
+              isValidFocalEntry(productData.imageFocalPoints, 7) &&
+              isValidFocalEntry(productData.imageFocalPoints, 8) &&
+              isValidFocalEntry(productData.imageFocalPoints, 9));
     }
 
     function isValidProduct(productData) {

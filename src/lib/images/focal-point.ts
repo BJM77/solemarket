@@ -3,10 +3,13 @@
  *
  * Stored on the listing document as an optional `imageFocalPoints` array
  * parallel to `imageUrls`. Each entry is a normalised {x, y} in 0–1 image
- * space. Existing listings without the field default to the centre (0.5, 0.5)
- * at display time — there is no Firestore backfill.
+ * space, or null when the seller never moved the pin for that photo. Photos
+ * without a pin fall back to AI smartCrop, then the centre, at display time —
+ * there is no Firestore backfill.
  */
 export type ImageFocalPoint = { x: number; y: number };
+/** One entry per photo: a real seller pin, or null when the seller never moved it. */
+export type MaybeFocalPoint = ImageFocalPoint | null;
 
 export const DEFAULT_FOCAL_POINT: ImageFocalPoint = { x: 0.5, y: 0.5 };
 
@@ -17,35 +20,95 @@ export function clampFocalCoord(value: unknown): number {
 }
 
 export function normalizeFocalPoint(value: unknown): ImageFocalPoint {
-  if (!value || typeof value !== 'object') return { ...DEFAULT_FOCAL_POINT };
-  const rec = value as Record<string, unknown>;
-  return { x: clampFocalCoord(rec.x), y: clampFocalCoord(rec.y) };
-}
-
-/** Always returns one point per image, defaulting missing entries to centre. */
-export function padFocalPoints(focals: unknown, imageCount: number): ImageFocalPoint[] {
-  const n = Math.max(0, Math.min(10, Math.floor(imageCount) || 0));
-  const list = Array.isArray(focals) ? focals : [];
-  return Array.from({ length: n }, (_, i) => normalizeFocalPoint(list[i]));
+  return toFocalOrNull(value) ?? { ...DEFAULT_FOCAL_POINT };
 }
 
 /**
- * Server-side sanitiser. Returns undefined when the client did not send an
- * array, so existing documents are left untouched. When present, the array is
- * clamped to 0–1 and resized to match `imageCount` (max 10).
+ * A real seller pin, clamped to 0–1, or null. Missing/invalid entries are null.
+ * An exact centre (0.5, 0.5) is also treated as "not set": earlier forms padded
+ * every photo with it, and a hand-placed pin practically never lands exactly
+ * there, so this lets AI smartCrop apply to those listings without a backfill.
  */
-export function sanitizeImageFocalPoints(focals: unknown, imageCount: number): ImageFocalPoint[] | undefined {
+export function toFocalOrNull(value: unknown): MaybeFocalPoint {
+  if (!value || typeof value !== 'object') return null;
+  const rec = value as Record<string, unknown>;
+  const rx = typeof rec.x === 'number' ? rec.x : Number(rec.x);
+  const ry = typeof rec.y === 'number' ? rec.y : Number(rec.y);
+  if (rec.x == null || rec.y == null || !Number.isFinite(rx) || !Number.isFinite(ry)) return null;
+  const x = clampFocalCoord(rx);
+  const y = clampFocalCoord(ry);
+  if (x === DEFAULT_FOCAL_POINT.x && y === DEFAULT_FOCAL_POINT.y) return null;
+  return { x, y };
+}
+
+/** One entry per image (max 10): the seller's pin, or null when untouched. */
+export function padFocalPoints(focals: unknown, imageCount: number): MaybeFocalPoint[] {
+  const n = Math.max(0, Math.min(10, Math.floor(imageCount) || 0));
+  const list = Array.isArray(focals) ? focals : [];
+  return Array.from({ length: n }, (_, i) => toFocalOrNull(list[i]));
+}
+
+/**
+ * Server-side sanitiser. Returns undefined when there is nothing worth storing
+ * (no array, no images, or no real pins), so untouched photos and legacy
+ * listings never get default pins written. Otherwise returns one entry per
+ * image (null for untouched photos), clamped to 0–1, max 10.
+ */
+export function sanitizeImageFocalPoints(focals: unknown, imageCount: number): MaybeFocalPoint[] | undefined {
   if (!Array.isArray(focals) || imageCount <= 0) return undefined;
-  return padFocalPoints(focals, imageCount);
+  const padded = padFocalPoints(focals, imageCount);
+  return padded.some((p) => p != null) ? padded : undefined;
+}
+
+/**
+ * Carry pins across an image list change by matching photo URLs, so removing
+ * or reordering photos never moves a pin onto a different picture.
+ */
+export function remapFocalPointsByUrl(oldUrls: unknown, oldFocals: unknown, newUrls: unknown): MaybeFocalPoint[] {
+  const before = Array.isArray(oldUrls) ? oldUrls : [];
+  const pins = Array.isArray(oldFocals) ? oldFocals : [];
+  const after = Array.isArray(newUrls) ? newUrls : [];
+  return after.slice(0, 10).map((url) => {
+    const i = before.indexOf(url);
+    return i >= 0 ? toFocalOrNull(pins[i]) : null;
+  });
+}
+
+/** Pick pins for the entries of `items` that pass `keep`, preserving alignment. */
+export function selectFocalPoints<T>(items: T[], focals: unknown, keep: (item: T, index: number) => boolean): MaybeFocalPoint[] {
+  const pins = Array.isArray(focals) ? focals : [];
+  const out: MaybeFocalPoint[] = [];
+  items.forEach((item, i) => {
+    if (keep(item, i)) out.push(toFocalOrNull(pins[i]));
+  });
+  return out;
+}
+
+/**
+ * Upload flows build `finalUrls = [...existing URLs, ...newly uploaded files]`;
+ * reorder the pins (parallel to the form's mixed file list) the same way.
+ */
+export function focalsForUploadOrder(files: unknown[], focals: unknown): MaybeFocalPoint[] {
+  return [
+    ...selectFocalPoints(files, focals, (f) => typeof f === 'string'),
+    ...selectFocalPoints(files, focals, (f) => typeof Blob !== 'undefined' && f instanceof Blob),
+  ];
+}
+
+/** Where a pin lands after the photo is rotated 90° clockwise. */
+export function rotateFocalPointClockwise(focal: unknown): MaybeFocalPoint {
+  const p = toFocalOrNull(focal);
+  if (!p) return null;
+  return toFocalOrNull({ x: 1 - p.y, y: p.x });
 }
 
 export function getImageFocalPoint(focals: unknown, index = 0): ImageFocalPoint {
-  if (!Array.isArray(focals) || focals[index] == null) return { ...DEFAULT_FOCAL_POINT };
-  return normalizeFocalPoint(focals[index]);
+  const p = Array.isArray(focals) ? toFocalOrNull(focals[index]) : null;
+  return p ?? { ...DEFAULT_FOCAL_POINT };
 }
 
 export function hasSellerFocal(focals: unknown, index = 0): boolean {
-  return Array.isArray(focals) && focals[index] != null;
+  return Array.isArray(focals) && toFocalOrNull(focals[index]) != null;
 }
 
 export function focalCssPosition(focal: ImageFocalPoint): string {

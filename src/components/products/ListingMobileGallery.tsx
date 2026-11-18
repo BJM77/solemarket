@@ -28,7 +28,7 @@ import { focalObjectPosition, type ImageFocalPoint } from '@/lib/images/focal-po
 type Props = {
   open: boolean;
   images: string[];
-  imageFocalPoints?: ImageFocalPoint[];
+  imageFocalPoints?: (ImageFocalPoint | null)[];
   initialIndex: number;
   title: string;
   altTexts?: string[];

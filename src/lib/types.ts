@@ -93,7 +93,8 @@ export type Product = {
    * Normalised x/y in 0–1. Missing entries (and existing listings without
    * this field) display at 0.5/0.5. Not backfilled in Firestore.
    */
-  imageFocalPoints?: { x: number; y: number }[];
+  /** Seller centre pins parallel to imageUrls; null = untouched photo (AI smartCrop / centre). */
+  imageFocalPoints?: ({ x: number; y: number } | null)[];
   videoUrl?: string;
   videoThumbnailUrl?: string;
   imageAltTexts?: string[]; // Pillar 1: AI Visual SEO

@@ -43,7 +43,7 @@ d2('wizard multibuy step', () => {
 });
 
 describe('draftToProduct imageFocalPoints', () => {
-  it('emits a centre-pin array parallel to imageUrls', () => {
+  it('emits a pin array parallel to imageUrls, null for untouched photos', () => {
     const category = 'Sneakers' as const;
     const shots = SHOT_LISTS[category];
     const photos: Record<string, string> = {};
@@ -60,7 +60,7 @@ describe('draftToProduct imageFocalPoints', () => {
     });
     expect(p.imageUrls[0]).toBe('https://example.com/main.jpg');
     expect((p as any).imageFocalPoints[0]).toEqual({ x: 0.2, y: 0.8 });
-    expect((p as any).imageFocalPoints[1]).toEqual({ x: 0.5, y: 0.5 });
+    expect((p as any).imageFocalPoints[1] ?? null).toBeNull();
     expect((p as any).imageFocalPoints).toHaveLength(p.imageUrls.length);
   });
 });

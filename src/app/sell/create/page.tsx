@@ -28,7 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
 import { isCoinListing } from '@/lib/coin-listings';
 import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
-import { DEFAULT_FOCAL_POINT, padFocalPoints, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { focalsForUploadOrder, padFocalPoints, rotateFocalPointClockwise, selectFocalPoints, type MaybeFocalPoint } from '@/lib/images/focal-point';
 import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
 import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
 
@@ -103,7 +103,7 @@ function CreateListingForm() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [imageFocalPoints, setImageFocalPoints] = useState<ImageFocalPoint[]>([]);
+  const [imageFocalPoints, setImageFocalPoints] = useState<MaybeFocalPoint[]>([]);
   const [suggestedFields, setSuggestedFields] = useState<string[]>([]);
   const [analysisStage, setAnalysisStage] = useState<string>('');
 
@@ -215,10 +215,12 @@ function CreateListingForm() {
         status: 'draft',
       }));
 
-      const nonBlobPreviews = imagePreviews.filter(p => !p.startsWith('blob:'));
+      const isUploaded = (p: string) => !p.startsWith('blob:');
+      const nonBlobPreviews = imagePreviews.filter(isUploaded);
       if (nonBlobPreviews.length > 0) {
         sanitizedDraft.imageUrls = nonBlobPreviews;
-        sanitizedDraft.imageFocalPoints = padFocalPoints(imageFocalPoints, nonBlobPreviews.length);
+        // Same predicate as the photos, so interleaved local/uploaded photos keep their own pins.
+        sanitizedDraft.imageFocalPoints = selectFocalPoints(imagePreviews, imageFocalPoints, isUploaded);
       }
 
       const draftData = sanitizedDraft;
@@ -411,6 +413,12 @@ function CreateListingForm() {
             next[index] = newUrl;
             return next;
           });
+          // Turn the pin with the photo so it stays on the same spot.
+          setImageFocalPoints(prev => {
+            const next = padFocalPoints(prev, Math.max(prev.length, index + 1));
+            next[index] = rotateFocalPointClockwise(next[index]);
+            return next;
+          });
 
           setImageFilesBase64(prev => {
             const next = [...prev];
@@ -439,6 +447,12 @@ function CreateListingForm() {
         next[index] = result.previewUrl;
         return next;
       });
+      // The old pin no longer matches the cropped photo; let the seller set it again.
+      setImageFocalPoints(prev => {
+        const next = padFocalPoints(prev, Math.max(prev.length, index + 1));
+        next[index] = null;
+        return next;
+      });
       setImageFilesBase64(prev => {
         const next = [...prev];
         next[index] = result.base64ForAI;
@@ -456,7 +470,7 @@ function CreateListingForm() {
     const updatedFiles = [...currentFiles, ...newFiles];
     form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
     setImagePreviews(prev => [...prev, ...newPreviews]);
-    setImageFocalPoints(prev => [...prev, ...newPreviews.map(() => ({ ...DEFAULT_FOCAL_POINT }))]);
+    setImageFocalPoints(prev => [...padFocalPoints(prev, imagePreviews.length), ...newPreviews.map(() => null)]);
     if (base64s) {
       setImageFilesBase64(prev => [...prev, ...base64s]);
     }
@@ -924,7 +938,7 @@ function CreateListingForm() {
           const listingData = JSON.parse(JSON.stringify({
             ...rest,
             imageUrls: finalUrls,
-            imageFocalPoints: padFocalPoints(imageFocalPoints, finalUrls.length),
+            imageFocalPoints: focalsForUploadOrder(currentFiles, imageFocalPoints),
             category: values.category || 'Sneakers',
             isVault: false,
           }));
@@ -1043,7 +1057,7 @@ function CreateListingForm() {
       const listingData = JSON.parse(JSON.stringify({
         ...rest,
         imageUrls: finalUrls,
-        imageFocalPoints: padFocalPoints(imageFocalPoints, finalUrls.length),
+        imageFocalPoints: focalsForUploadOrder(currentFiles, imageFocalPoints),
         category: values.category || 'Sneakers',
         isVault: false,
       }));
