@@ -52,14 +52,22 @@ export function useDoc<T = any>(
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
-    // Keep server-provided initialData on screen while Auth/the SDK start.
-    // Flipping isLoading or clearing data here unmounted the listing photo
-    // and made first-time visits look like the image appeared, vanished, then reloaded.
+    // Keep server-provided initialData on screen while Auth/the SDK start:
+    // clearing it here unmounted the listing photo and made first-time visits
+    // look like the image appeared, vanished, then reloaded. Without
+    // initialData, report loading as before.
     if (isUserLoading) {
+        if (!options.initialData) setIsLoading(true);
         return;
     }
 
+    // No ref (signed out, or the SDK is not ready yet): fall back to the
+    // server-provided data if any, otherwise nothing, and stop loading so
+    // consumers never wait forever (e.g. a stale favourite after sign-out).
     if (!memoizedDocRef) {
+      setData(options.initialData || null);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
@@ -80,7 +88,9 @@ export function useDoc<T = any>(
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
           setData({ ...(snapshot.data() as T), id: snapshot.id });
-        } else if (!options.initialData) {
+        } else if (!options.initialData || !snapshot.metadata.fromCache) {
+          // With initialData, only an empty cache read is ignored; once the
+          // server confirms the document is gone (deleted), clear it.
           setData(null);
         }
         setError(null); // Clear any previous error on successful snapshot (even if doc doesn't exist)
@@ -98,7 +108,8 @@ export function useDoc<T = any>(
              console.error("Firestore Error:", error);
              setError(error);
         }
-        if (!options.initialData) setData(null);
+        // A permission error or other failure must not leave stale data looking live.
+        setData(null);
         setIsLoading(false);
       }
     );
