@@ -37,7 +37,10 @@ export function captureFrameKindFor(type?: string | null): CaptureFrameKind {
   const t = (type || '').toLowerCase().trim();
   if (!t) return 'general';
   if (t === 'card' || t.includes('card')) return 'card';
-  if (t === 'coin' || t.includes('coin') || t.includes('bullion')) return 'coin';
+  // Bullion includes bars, which a round coin guide (and its square crop) would clip,
+  // so bullion uses the general frame (matching the Benched Coins sell form).
+  if (t.includes('bullion')) return 'general';
+  if (t === 'coin' || t.includes('coin')) return 'coin';
   if (t === 'shoe' || t.includes('sneaker') || t.includes('shoe')) return 'shoe';
   return 'general';
 }
@@ -101,7 +104,8 @@ export function mapDisplayRectToSource(opts: {
 
 /** Long edge of exported camera photos; listing storage re-encodes to a 1600px WebP master. */
 export const CAPTURE_MAX_LONG_EDGE = 2000;
-export const CAPTURE_JPEG_QUALITY = 0.85;
+/** High enough that the later 1600px listing re-encode, not this intermediate, sets the final quality. */
+export const CAPTURE_JPEG_QUALITY = 0.92;
 
 /** Scale (w, h) down so the long edge is at most `max`; never upscales. */
 export function limitLongEdge(w: number, h: number, max = CAPTURE_MAX_LONG_EDGE): { width: number; height: number } {

@@ -44,10 +44,11 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
         return (
             <div className={cn(
                 marketTickerSurfaceClass({ compact, waiting: true }),
-                !compact && isPinned ? "hidden md:block" : ""
+                // md:flex keeps the waiting state centred (md:block would override flex).
+                !compact && isPinned ? "hidden md:flex" : ""
             )}>
-                <RefreshCw className="h-3 w-3 animate-spin opacity-40" />
-                <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] opacity-40 animate-pulse">
+                <RefreshCw aria-hidden className="h-3 w-3 animate-spin opacity-70" />
+                <p className={cn("text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]", MARKET_TICKER_THEME_CLASSES.waitingText)}>
                     {error?.message?.includes('index') ? "Bench Warming (Indexing)..." : "Waiting for active listings..."}
                 </p>
                 {error && (
@@ -84,7 +85,7 @@ export function MarketTicker({ compact = false }: { compact?: boolean }) {
                         <Link
                             key={`${item.id}-${i}`}
                             href={url}
-                            className="flex items-center gap-2 md:gap-3 text-primary-foreground hover:text-primary-foreground/80 transition-colors group"
+                            className={cn("flex items-center gap-2 md:gap-3 text-primary-foreground transition-colors group", MARKET_TICKER_THEME_CLASSES.itemHover)}
                         >
                             <span className="flex items-center gap-1 opacity-90">
                                 {TrendingUp && <TrendingUp className={cn(compact ? "h-3 w-3" : "h-3 w-3 md:h-4 md:w-4")} />}

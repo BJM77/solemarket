@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
     ? routeCoinsHost(pathname, request.nextUrl.search, request.nextUrl, host)
     : routeMainHost(pathname, request.nextUrl.searchParams);
   if (route.type === 'redirect') {
-    return NextResponse.redirect(new URL(route.url, request.url), 308);
+    return NextResponse.redirect(new URL(route.url, request.url), route.temporary ? 307 : 308);
   }
   const internalPath = route.type === 'rewrite' ? route.pathname : pathname;
   // Tell server code which storefront this request is for (never trust a client-sent value).

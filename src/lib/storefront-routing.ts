@@ -37,7 +37,7 @@ const MAIN_SITE_SEGMENTS = new Set([
 export type StorefrontRoute =
   | { type: 'next' }
   | { type: 'rewrite'; pathname: string }
-  | { type: 'redirect'; url: string };
+  | { type: 'redirect'; url: string; /** 307 instead of 308 (not cached hard by browsers). */ temporary?: boolean };
 
 export function isCoinsHost(host: string | null | undefined): boolean {
   return resolveStorefrontId(host) === 'coins';
@@ -97,17 +97,27 @@ export function routeCoinsHost(pathname: string, search: string, requestUrl: URL
 
 const TCG_REDIRECT_PATHS = new Set(['/browse', '/search', '/cards']);
 
+/**
+ * Filter values that move a basketball-site search to /pokemon. Stricter than isTcgValue:
+ * a bare "Magic" (or "Magic Cards") could mean Orlando Magic / Magic Johnson here, so only
+ * "Magic: The Gathering" / "MTG" count for Magic.
+ */
+export function isTcgRedirectValue(value: string | null | undefined): boolean {
+  if (!value || !isTcgValue(value)) return false;
+  return !/^magic(\s*cards?)?$/i.test(value.trim());
+}
+
 /** Old basketball-site TCG filters (/browse?subCategory=Pokemon) move to /pokemon. */
 export function tcgFilterRedirect(pathname: string, searchParams: URLSearchParams): string | null {
   if (!TCG_REDIRECT_PATHS.has(pathname)) return null;
   const sub = searchParams.get('subCategory');
   const brand = searchParams.get('brand');
   const category = searchParams.get('category');
-  if (!isTcgValue(sub) && !isTcgValue(brand) && !isTcgValue(category)) return null;
+  if (!isTcgRedirectValue(sub) && !isTcgRedirectValue(brand) && !isTcgRedirectValue(category)) return null;
   const next = new URLSearchParams();
   for (const key of ['q', 'sort', 'subCategory']) {
     const v = searchParams.get(key);
-    if (v && (key !== 'subCategory' || isTcgValue(v))) next.set(key, v);
+    if (v && (key !== 'subCategory' || isTcgRedirectValue(v))) next.set(key, v);
   }
   const qs = next.toString();
   return `/pokemon${qs ? `?${qs}` : ''}`;
@@ -133,6 +143,6 @@ export function routeMainHost(pathname: string, searchParams: URLSearchParams, l
     return { type: 'redirect', url: launched ? `${coinsPublicUrl(path, true)}${qs ? `?${qs}` : ''}` : `${path}${qs ? `?${qs}` : ''}` };
   }
   const tcgTo = tcgFilterRedirect(pathname, searchParams);
-  if (tcgTo) return { type: 'redirect', url: tcgTo };
+  if (tcgTo) return { type: 'redirect', url: tcgTo, temporary: true };
   return { type: 'next' };
 }

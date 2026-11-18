@@ -255,7 +255,7 @@ export function ImageUploadStep({
                         <p className="text-[11px] text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
                     )}
                     {onReplaceImage && imagePreviews.length > 0 && (
-                        <p className="text-[11px] text-muted-foreground">Tip: fill the frame on a plain background in good light. Tap a photo, then <Crop className="inline h-3 w-3" /> to crop it tight.</p>
+                        <p className="text-[11px] text-muted-foreground">Tip: fill the frame on a plain background in good light. Use <Crop className="inline h-3 w-3" /> on a photo to crop it tight.</p>
                     )}
                     <ImageCropDialog
                         file={cropFile}

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getFeaturedProducts, getActiveProducts, getActiveListingCount } from "@/app/actions/marketplace/products";
+import { getFeaturedProducts, getActiveProducts, getActiveListingCount, getMostViewedProducts } from "@/app/actions/marketplace/products";
 import { pickJustListed } from "@/lib/home/just-listed";
 import { pickPopularListings } from "@/lib/home/popular-listings";
 import HeroModern from "@/components/home/HeroModern";
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 async function FeaturedSection() {
-  // 15 most-viewed main-site listings (3 rows of 5 on desktop). Prefer items
+  // 15 most-viewed main-site listings across the catalogue (3 rows of 5 on desktop). Prefer items
   // that are not already in Just Listed, and backfill so the rows stay complete.
-  const [latest, featured] = await Promise.all([getActiveProducts(40), getFeaturedProducts(40)]);
-  const justListed = pickJustListed(latest || [], []);
+  const [latest, featured, mostViewed] = await Promise.all([getActiveProducts(40), getFeaturedProducts(40), getMostViewedProducts(40)]);
+  const justListed = pickJustListed(latest || []);
   const products = pickPopularListings(
-    [...(featured || []), ...(latest || [])],
+    [...(mostViewed || []), ...(featured || []), ...(latest || [])],
     justListed.map((p: { id: string }) => p.id),
   );
   return <TrendingGrid products={products} title="Popular Listings" layout="homeRail" className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
@@ -36,7 +36,7 @@ async function FeaturedSection() {
 async function NewArrivalsSection() {
   // 15 newest main-site listings (3 rows of 5 on desktop).
   const latest = await getActiveProducts(40);
-  const products = pickJustListed(latest || [], []);
+  const products = pickJustListed(latest || []);
   return <TrendingGrid products={products} title="Just Listed" layout="homeRail" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
 }
 

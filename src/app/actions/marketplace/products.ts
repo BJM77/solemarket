@@ -425,6 +425,35 @@ export const getFeaturedProducts = unstable_cache(
     { revalidate: 1, tags: ['products-featured'] }
 );
 
+/**
+ * Most-viewed live listings across the whole catalogue (not just a recent pool), for
+ * the homepage "Popular Listings" rail. Uses the existing (status, views desc,
+ * createdAt desc) index; listings without a views count are left out here and the
+ * rail backfills from the newest listings. Returns [] if the query fails.
+ */
+export const getMostViewedProducts = unstable_cache(
+    async (limitCount: number = 40): Promise<Product[]> => {
+        try {
+            const { firestoreDb } = await import('@/lib/firebase/admin');
+            const snapshot = await firestoreDb.collection('products')
+                .where('status', '==', 'available')
+                .orderBy('views', 'desc')
+                .orderBy('createdAt', 'desc')
+                .limit(Math.max(limitCount, 15))
+                .get();
+            return mainSiteOnly(snapshot.docs.map((doc: any) => serializeFirestoreData({
+                id: doc.id,
+                ...doc.data(),
+            })) as Product[]).slice(0, limitCount);
+        } catch (error) {
+            console.warn('Most-viewed products query failed; Popular Listings uses the recent pool.', error);
+            return [];
+        }
+    },
+    ['products-most-viewed'],
+    { revalidate: 60, tags: ['products-featured'] }
+);
+
 function generateKeywords(text: string): string[] {
     if (!text) return [];
     const words = text.toLowerCase()
