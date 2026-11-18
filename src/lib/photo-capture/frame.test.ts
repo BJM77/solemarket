@@ -14,7 +14,8 @@ describe('captureFrameKindFor', () => {
     expect(captureFrameKindFor('Collector Cards')).toBe('card');
     expect(captureFrameKindFor('card')).toBe('card');
     expect(captureFrameKindFor('coins')).toBe('coin');
-    expect(captureFrameKindFor('Bullion')).toBe('coin');
+    expect(captureFrameKindFor('Bullion')).toBe('general');
+    expect(captureFrameKindFor('bullion coin')).toBe('general');
     expect(captureFrameKindFor('sneakers')).toBe('shoe');
     expect(captureFrameKindFor('general')).toBe('general');
     expect(captureFrameKindFor(undefined)).toBe('general');

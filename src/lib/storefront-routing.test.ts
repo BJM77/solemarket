@@ -84,10 +84,13 @@ describe('coins URLs', () => {
 
 describe('TCG filters on the basketball site redirect to /pokemon', () => {
   it('sends old Pokémon and Yu-Gi-Oh browse URLs to /pokemon', () => {
-    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pokemon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pokemon' });
-    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pok%C3%A9mon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pok%C3%A9mon' });
-    expect(routeMainHost('/cards', searchParamsOf('category=Collector+Cards&subCategory=Yu-Gi-Oh!'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Yu-Gi-Oh%21' });
-    expect(routeMainHost('/search', searchParamsOf('subCategory=Magic&q=lightning'), false)).toEqual({ type: 'redirect', url: '/pokemon?q=lightning&subCategory=Magic' });
+    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pokemon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pokemon', temporary: true });
+    expect(routeMainHost('/browse', searchParamsOf('subCategory=Pok%C3%A9mon'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Pok%C3%A9mon', temporary: true });
+    expect(routeMainHost('/cards', searchParamsOf('category=Collector+Cards&subCategory=Yu-Gi-Oh!'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=Yu-Gi-Oh%21', temporary: true });
+    // A bare "Magic" stays on the basketball site (Orlando Magic, Magic Johnson).
+    expect(routeMainHost('/search', searchParamsOf('subCategory=Magic&q=lightning'), false)).toEqual({ type: 'next' });
+    expect(routeMainHost('/search', searchParamsOf('subCategory=Magic: The Gathering&q=lightning'), false)).toEqual({ type: 'redirect', url: '/pokemon?q=lightning&subCategory=Magic%3A+The+Gathering', temporary: true });
+    expect(routeMainHost('/search', searchParamsOf('subCategory=MTG'), false)).toEqual({ type: 'redirect', url: '/pokemon?subCategory=MTG', temporary: true });
   });
 
   it('does not redirect basketball card filters or the /pokemon page itself', () => {

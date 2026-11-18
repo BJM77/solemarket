@@ -147,7 +147,6 @@ export default function ProductImageGallery({
   // Phones: 4:5 box (coins square) capped at 60svh so title/price stay above the fold; photo stays object-contain (uncropped).
   // Tablet/desktop keep the per-category ratio and width caps (see gallery-frame.ts).
   const frameKind = getGalleryFrameKind(category);
-  const aspectRatio = frameKind === 'coin' ? 'aspect-square' : frameKind === 'card' ? 'aspect-[4/5] md:aspect-[5/7]' : 'aspect-square';
   const frameClasses = getGalleryFrameClasses(category, thumbnailsSide);
 
   const scrollPrev = useCallback((e?: React.MouseEvent) => {
@@ -218,7 +217,7 @@ export default function ProductImageGallery({
 
   if (!media || media.length === 0) {
     return (
-      <div className={cn("relative bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center text-muted-foreground", aspectRatio)}>
+      <div className={cn("relative w-full mx-auto bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center text-muted-foreground", frameClasses)}>
         <div className="flex flex-col items-center">
           <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
           <span className="text-xs font-medium">No Image Available</span>
@@ -310,11 +309,14 @@ export default function ProductImageGallery({
                       onClick={handleImageClick}
                       onKeyDown={handleImageKeyDown}
                     >
-                      <ListingPhotoBackdrop
-                        src={item.url!}
-                        sizes={GALLERY_SIZES}
-                        objectPosition={focalObjectPosition(imageFocalPoints, videoUrl ? index - 1 : index)}
-                      />
+                      {/* The 32px blur is costly: only paint it on the visible slide and its neighbours. */}
+                      {Math.abs(index - selectedIndex) <= 1 && (
+                        <ListingPhotoBackdrop
+                          src={item.url!}
+                          sizes={GALLERY_SIZES}
+                          objectPosition={focalObjectPosition(imageFocalPoints, videoUrl ? index - 1 : index)}
+                        />
+                      )}
                       <Image
                         src={item.url!}
                         alt={imageAltTexts[index] || `${title} - Media ${index + 1}`}

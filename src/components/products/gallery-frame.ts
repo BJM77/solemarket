@@ -20,9 +20,6 @@ export function getGalleryFrameKind(category?: string): GalleryFrameKind {
   return 'other';
 }
 
-/** Mobile max height of the main photo box, as a share of the small viewport height. */
-export const MOBILE_GALLERY_MAX_SVH = 60;
-
 export function getGalleryFrameClasses(category: string | undefined, thumbnailsSide: boolean): string {
   const kind = getGalleryFrameKind(category);
   const mobile = kind === 'coin' ? 'aspect-square max-md:max-h-[60svh]' : 'aspect-[4/5] max-md:max-h-[60svh]';

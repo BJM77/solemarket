@@ -14,9 +14,16 @@ export const MARKET_TICKER_THEME_CLASSES = {
   foreground: 'text-primary-foreground',
   radius: 'rounded-xl',
   weight: 'font-bold',
-  shadow: 'shadow-md shadow-orange-600/20',
+  shadow: 'shadow-md shadow-primary/20',
   badge: 'bg-primary-foreground text-primary rounded-md font-bold',
+  /** Waiting-state message: full-strength text (any fade drops some team themes below WCAG AA). */
+  waitingText: 'text-primary-foreground',
+  /** Ticker item hover: underline instead of fading the text colour (fading fails AA). */
+  itemHover: 'hover:underline underline-offset-4',
 } as const;
+
+/** Text opacities used on the ticker surface; each must keep WCAG AA on every team theme. */
+export const MARKET_TICKER_TEXT_OPACITIES = { waiting: 1, hover: 1 } as const;
 
 export function marketTickerSurfaceClass({
   compact = false,
