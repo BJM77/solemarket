@@ -72,6 +72,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
       ['/shoes', latestListingDate(shoes), 0.9],
       ['/cards', latestListingDate(cards), 0.9],
       ['/pokemon', latestListingDate(tcg), 0.8],
+      ['/multibuy', latestListingDate(main), 0.8],
     ];
     const infoPages = [
       '/sellers', '/card-drops', '/sell', '/drops', '/about', '/how-it-works', '/safety-tips', '/terms',

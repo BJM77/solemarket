@@ -54,6 +54,11 @@ export default function ProductSchema({ product, siteUrl = 'https://benched.au',
       url: `${siteUrl}${getProductUrl(product)}`,
       shippingDetails: {
         '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: typeof (product as any).shippingCost === 'number' ? (product as any).shippingCost : 15,
+          currency: 'AUD',
+        },
         shippingDestination: {
           '@type': 'DefinedRegion',
           addressCountry: 'AU',

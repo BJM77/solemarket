@@ -43,14 +43,18 @@ export default function robots(): MetadataRoute.Robots {
     '/complete-profile',
     '/verify',
     '/api/',
-    '/*?*',
+    '/*?q=*',
+    '/*?sort=*',
+    '/*?minPrice=*',
+    '/*?maxPrice=*',
+    '/*?filter=*',
   ];
 
   return {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/api/og-proxy', '/api/ai-feed', '/api/feeds/google-merchant'],
+        allow: ['/', '/_next/image', '/api/og-proxy', '/api/ai-feed', '/api/feeds/google-merchant'],
         disallow: privateAndAppRoutes,
       },
       {
