@@ -334,10 +334,10 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-4 md:pt-6 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-6 hover:bg-muted/60 text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-4 w-4 mr-2" />
+        <Button variant="ghost" size="sm" onClick={() => router.back()} className="mb-3 hover:bg-muted/60 text-muted-foreground hover:text-foreground -ml-2">
+          <ChevronLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
 
