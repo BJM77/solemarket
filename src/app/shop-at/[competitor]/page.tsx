@@ -17,8 +17,11 @@ export async function generateMetadata({ params }: Props) {
   if (!competitor) return { title: "Page Not Found" };
 
   return {
-    title: `Shopping at ${competitor.name}? | Fund it by Selling on ${brandConfig.company.name}`,
+    title: `Shopping at ${competitor.name}? Fund It by Selling Your Gear`,
     description: `Upgrade your rotation at ${competitor.name} by selling your pre-loved sneakers on ${brandConfig.company.name}. 0% seller fees for new users.`,
+    alternates: {
+      canonical: `/shop-at/${slug}`,
+    },
   };
 }
 

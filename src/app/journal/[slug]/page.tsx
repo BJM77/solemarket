@@ -24,13 +24,21 @@ export async function generateMetadata(
     const article = getArticleBySlug(slug);
     if (!article) return { title: 'Article Not Found' };
 
+    const coverUrl = article.coverImage.startsWith('http')
+        ? article.coverImage
+        : `https://benched.au${article.coverImage.startsWith('/') ? '' : '/'}${article.coverImage}`;
+
     return {
         title: `${article.title}`,
         description: article.excerpt,
+        alternates: {
+            canonical: `/journal/${slug}`,
+        },
         openGraph: {
             title: article.title,
             description: article.excerpt,
-            images: [article.coverImage],
+            url: `https://benched.au/journal/${slug}`,
+            images: [coverUrl],
             type: 'article',
             publishedTime: article.datePublished,
             authors: [article.authorName],
@@ -46,12 +54,16 @@ export default async function JournalArticlePage({ params }: Props) {
         notFound();
     }
 
+    const coverUrl = article.coverImage.startsWith('http')
+        ? article.coverImage
+        : `https://benched.au${article.coverImage.startsWith('/') ? '' : '/'}${article.coverImage}`;
+
     return (
         <article className="bg-background min-h-screen pb-20">
             <ArticleSchema 
                 title={article.title}
                 description={article.excerpt}
-                image={article.coverImage}
+                image={coverUrl}
                 url={`https://benched.au/journal/${article.slug}`}
                 datePublished={article.datePublished}
                 dateModified={article.dateModified}

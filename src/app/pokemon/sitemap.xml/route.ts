@@ -7,11 +7,17 @@ import { STOREFRONTS } from '@/config/storefronts';
 
 export const revalidate = 3600;
 
-function pokemonUrl(path: string): string {
-  const base = STOREFRONTS.pokemon.launched
+function pokemonHomeUrl(): string {
+  return STOREFRONTS.pokemon.launched
     ? STOREFRONTS.pokemon.origin
     : 'https://benched.au/pokemon';
-  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+function pokemonListingUrl(path: string): string {
+  const origin = STOREFRONTS.pokemon.launched
+    ? STOREFRONTS.pokemon.origin
+    : 'https://benched.au';
+  return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 export async function GET() {
@@ -25,12 +31,12 @@ export async function GET() {
 
   const lastmod = latestListingDate(pokemonListings);
   const entries: { loc: string; lastmod?: Date; priority: number }[] = [
-    { loc: pokemonUrl('/'), lastmod, priority: 1 },
+    { loc: pokemonHomeUrl(), lastmod, priority: 1 },
   ];
 
   for (const p of pokemonListings) {
     entries.push({
-      loc: pokemonUrl(getProductUrl(p)),
+      loc: pokemonListingUrl(getProductUrl(p)),
       lastmod: toSitemapDate(p.updatedAt, p.createdAt),
       priority: 0.7,
     });

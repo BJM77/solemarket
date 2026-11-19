@@ -14,8 +14,13 @@ import { brandConfig } from "@/config/brand";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: brandConfig.seo.defaultTitle,
+  title: {
+    absolute: brandConfig.seo.defaultTitle,
+  },
   description: brandConfig.seo.defaultDescription,
+  alternates: {
+    canonical: '/',
+  },
 };
 
 // Enable ISR with 60 second revalidation for fast homepage loading

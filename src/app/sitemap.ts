@@ -76,7 +76,7 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     ];
     const infoPages = [
       '/sellers', '/card-drops', '/sell', '/drops', '/about', '/how-it-works', '/safety-tips', '/terms',
-      '/privacy', '/dmca', '/prohibited-items', '/authenticity', '/report-infringement', '/guides', '/help',
+      '/privacy', '/dmca', '/prohibited-items', '/authenticity', '/report-infringement', '/guides', '/journal', '/help',
       '/size-guide', '/contact',
     ];
     pageRoutes = [
@@ -110,6 +110,29 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     }
 
     pageRoutes.push(...await getGuideRoutes(baseUrl));
+
+    try {
+      const { JOURNAL_ARTICLES } = await import('@/config/journal');
+      pageRoutes.push(...JOURNAL_ARTICLES.map((a) => ({
+        url: `${baseUrl}/journal/${a.slug}`,
+        lastModified: toSitemapDate(a.dateModified, a.datePublished),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      })));
+    } catch (err) {
+      console.error('Sitemap: Error loading journal articles:', err);
+    }
+
+    try {
+      const { TOP_COMPARISONS } = await import('@/config/comparisons');
+      pageRoutes.push(...TOP_COMPARISONS.map((c) => ({
+        url: `${baseUrl}/vs/${c.slug}`,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      })));
+    } catch (err) {
+      console.error('Sitemap: Error loading comparisons:', err);
+    }
 
     // Active seller storefronts: include sellers who have active listings on the platform
     const activeSellerIds = Array.from(new Set(allLive.map((p) => p.sellerId).filter(Boolean)));

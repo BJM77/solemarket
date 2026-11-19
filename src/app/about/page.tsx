@@ -6,7 +6,7 @@ import { ShieldCheck, MapPin, Sparkles, Handshake, Leaf } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: 'About Benched | Australia\'s Local Sneaker Community',
+  title: 'About Us – Australia\'s Local Sneaker & Card Community',
   description: 'Benched is Australia\'s local marketplace for sneakers. Perth-based with nationwide shipping, focused on trust and transparency for sneakerheads.',
   alternates: { canonical: '/about' },
 };

@@ -5,8 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Benched Journal',
+    title: 'Journal & Collector Guides',
     description: 'Expert authentication guides, market reports, and collector spotlights from the Benched AU editorial team.',
+    alternates: {
+        canonical: '/journal',
+    },
 };
 
 export const revalidate = 3600;
