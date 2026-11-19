@@ -70,15 +70,16 @@ export async function uploadImages(
     await uploadBytes(fileRef, master, metadata);
 
     if (isImage) {
-      // Best-effort renditions; failure must never block a listing.
-      await Promise.all(IMAGE_VARIANT_WIDTHS.map(async (w) => {
+      // Best-effort renditions generated non-blocking in background so mobile uploads return immediately.
+      // Failure must never block a listing.
+      Promise.all(IMAGE_VARIANT_WIDTHS.map(async (w) => {
         try {
           const small = await toWebp(master, w, 0.3);
           await uploadBytes(ref(storage, variantPath(fullPath, w)), small, { cacheControl: IMAGE_CACHE_CONTROL, contentType: 'image/webp' });
         } catch (e) {
           console.warn(`Variant w${w} failed`, e);
         }
-      }));
+      })).catch(() => null);
     }
 
     return getDownloadURL(fileRef);

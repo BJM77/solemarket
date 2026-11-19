@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Camera, Check, ChevronLeft, ChevronRight, Loader2, Sparkles, Trash2, AlertCircle } from 'lucide-react';
+import { Camera, Check, ChevronLeft, ChevronRight, ImagePlus, Loader2, Plus, Sparkles, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -78,6 +78,13 @@ export default function ListingWizard() {
     getCurrentUserIdToken().then(t => (t ? listMyBundles(t) : [])).then(setMyBundles).catch(() => setMyBundles([]));
   }, [step, myBundles]);
 
+  // Auto-fill details from photos via AI when entering the details step if title is empty
+  useEffect(() => {
+    if (step === 'details' && !draft.title && Object.keys(draft.photos).length > 0 && !aiBusy) {
+      runAi();
+    }
+  }, [step]);
+
   const errors = useMemo(() => validateStep(step, draft), [step, draft]);
   const update = (patch: Partial<WizardDraft>) => setDraft((d) => ({ ...d, ...patch }));
 
@@ -136,9 +143,36 @@ export default function ListingWizard() {
   };
   const back = () => setStepIndex((i) => Math.max(i - 1, 0));
 
-  const publish = async () => {
+  const publish = async (andNew: boolean = false) => {
     const problems = validateStep('review', draft);
     if (problems.length) { setShowErrors(true); return; }
+
+    if (andNew) {
+      // Rapid reset: snapshot the draft, reset UI immediately, and publish in background
+      const draftToPublish = { ...draft };
+      const currentTokenPromise = getCurrentUserIdToken();
+      setDraft(EMPTY_DRAFT);
+      localStorage.removeItem(DRAFT_KEY);
+      setStepIndex(0);
+      toast({ title: 'Publishing in background', description: 'Draft cleared. Ready for your next listing!' });
+
+      (async () => {
+        try {
+          const token = await currentTokenPromise;
+          if (!token) throw new Error('Please sign in again.');
+          const result = await createProductAction(token, draftToProduct(draftToPublish) as any);
+          if (!result.success) throw new Error((result as any).error || 'Could not publish');
+          if (draftToPublish.bundleIds?.length) {
+            await addListingToBundles(token, (result as any).productId, draftToPublish.bundleIds).catch(() => null);
+          }
+          toast({ title: 'Listing published!', description: `"${draftToPublish.title || 'Item'}" is now live.` });
+        } catch (e: any) {
+          toast({ title: 'Background publish failed', description: e?.message || 'Check your internet connection.', variant: 'destructive' });
+        }
+      })();
+      return;
+    }
+
     setPublishing(true);
     try {
       const token = await getCurrentUserIdToken();
@@ -182,7 +216,10 @@ export default function ListingWizard() {
               type="button"
               role="radio"
               aria-checked={draft.category === c}
-              onClick={() => update({ category: c as WizardCategory, condition: '' })}
+              onClick={() => {
+                update({ category: c as WizardCategory, condition: '' });
+                setStepIndex(1);
+              }}
               className={cn('min-h-24 rounded-2xl border-2 p-4 text-left font-bold transition-colors',
                 draft.category === c ? 'border-primary bg-primary/10' : 'border-border hover:border-foreground/40')}
             >
@@ -194,13 +231,13 @@ export default function ListingWizard() {
 
       {step === 'photos' && (
         <>
-          <p className="mb-4 text-sm text-muted-foreground">Required photos are marked. Clear photos of tags and flaws sell faster and reduce disputes.</p>
+          <p className="mb-4 text-sm text-muted-foreground">Required photos are marked. Take a photo directly or select from your device.</p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {shots.map((s) => {
               const url = draft.photos[s.id];
               return (
                 <li key={s.id} className="flex flex-col">
-                  <label className={cn('relative flex aspect-square cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-center',
+                  <div className={cn('relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-center',
                     url ? 'border-solid border-emerald-500' : 'border-border hover:border-foreground/40')}>
                     {url ? (
                       <ImageFocalPicker
@@ -213,21 +250,35 @@ export default function ListingWizard() {
                     ) : uploading[s.id] ? (
                       <Loader2 className="h-6 w-6 animate-spin" aria-label="Uploading" />
                     ) : (
-                      <>
-                        <Camera className="mb-2 h-6 w-6" aria-hidden />
-                        <span className="px-2 text-xs text-muted-foreground">{s.hint}</span>
-                      </>
+                      <div className="flex flex-col items-center justify-center p-2 w-full h-full">
+                        <Camera className="mb-1 h-5 w-5 text-muted-foreground" aria-hidden />
+                        <span className="px-1 text-xs text-muted-foreground line-clamp-2">{s.hint || s.label}</span>
+                        <div className="mt-2.5 flex items-center justify-center gap-1.5 w-full px-1">
+                          <label className="flex-1 cursor-pointer rounded-lg bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-1 text-[11px] font-bold text-center flex items-center justify-center gap-1">
+                            <Camera className="h-3 w-3" /> Take
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              className="sr-only"
+                              aria-label={`Take ${s.label} photo with camera`}
+                              onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
+                            />
+                          </label>
+                          <label className="flex-1 cursor-pointer rounded-lg bg-muted hover:bg-muted/80 text-foreground py-1.5 px-1 text-[11px] font-semibold text-center flex items-center justify-center gap-1">
+                            <ImagePlus className="h-3 w-3" /> Select
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="sr-only"
+                              aria-label={`Select ${s.label} photo from library`}
+                              onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     )}
-                    {!url && (
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="sr-only"
-                        aria-label={`Add ${s.label} photo`}
-                        onChange={(e) => onPhoto(s.id, e.target.files?.[0])}
-                      />
-                    )}
-                  </label>
+                  </div>
                   <div className="mt-1 flex items-center justify-between gap-1">
                     <span className="text-xs font-bold">{s.label}{s.required && <span className="text-destructive"> *</span>}</span>
                     {url && (
@@ -272,15 +323,17 @@ export default function ListingWizard() {
             <Label htmlFor="wz-title">Title</Label>
             <Input id="wz-title" value={draft.title} maxLength={100} autoComplete="off" placeholder="e.g. Nike Kobe 6 Protro Grinch" onChange={(e) => update({ title: e.target.value })} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className={cn('grid gap-3', draft.category === 'Collector Cards' ? 'grid-cols-1' : 'grid-cols-2')}>
             <div className="space-y-2">
               <Label htmlFor="wz-brand">Brand</Label>
               <Input id="wz-brand" value={draft.brand} autoComplete="off" onChange={(e) => update({ brand: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="wz-size">{draft.category === 'Sneakers' ? 'US size' : 'Size'}</Label>
-              <Input id="wz-size" value={draft.size} inputMode={draft.category === 'Sneakers' ? 'decimal' : 'text'} autoComplete="off" onChange={(e) => update({ size: e.target.value })} />
-            </div>
+            {draft.category !== 'Collector Cards' && (
+              <div className="space-y-2">
+                <Label htmlFor="wz-size">{draft.category === 'Sneakers' ? 'US size' : 'Size'}</Label>
+                <Input id="wz-size" value={draft.size} inputMode={draft.category === 'Sneakers' ? 'decimal' : 'text'} autoComplete="off" onChange={(e) => update({ size: e.target.value })} />
+              </div>
+            )}
           </div>
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium">Condition</legend>
@@ -399,10 +452,17 @@ export default function ListingWizard() {
             ))}
           </div>
           <dl className="divide-y rounded-2xl border text-sm">
-            {[['Category', draft.category], ['Title', draft.title], ['Brand', draft.brand || '-'], ['Size', draft.size || '-'],
-              ['Condition', draft.condition], ['Price', draft.price ? `$${draft.price}` : '-'], ['Offers', draft.isNegotiable ? 'Accepted' : 'Off'],
+            {[
+              ['Category', draft.category],
+              ['Title', draft.title],
+              ['Brand', draft.brand || '-'],
+              ...(draft.category !== 'Collector Cards' ? [['Size', draft.size || '-']] : []),
+              ['Condition', draft.condition],
+              ['Price', draft.price ? `$${draft.price}` : '-'],
+              ['Offers', draft.isNegotiable ? 'Accepted' : 'Off'],
               ['Multi-buy', draft.multibuyEnabled ? (draft.multibuyTiers || []).map(t => `${t.minQuantity}+ = ${t.discountPercent}% off`).join(', ') : 'Off'],
-              ['Bundles', (draft.bundleIds || []).length ? `${draft.bundleIds!.length} selected` : 'None']]
+              ['Bundles', (draft.bundleIds || []).length ? `${draft.bundleIds!.length} selected` : 'None'],
+            ]
               .map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 p-3"><dt className="text-muted-foreground">{k}</dt><dd className="text-right font-semibold">{v}</dd></div>
               ))}
@@ -428,9 +488,20 @@ export default function ListingWizard() {
               Continue <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           ) : (
-            <Button type="button" className="h-12 flex-[2]" onClick={publish} disabled={publishing || anyUploading}>
-              {publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />} Publish listing
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12 flex-1 font-bold border-primary text-primary hover:bg-primary/10"
+                onClick={() => publish(true)}
+                disabled={publishing || anyUploading}
+              >
+                <Plus className="mr-1.5 h-4 w-4" /> Publish & New
+              </Button>
+              <Button type="button" className="h-12 flex-1" onClick={() => publish(false)} disabled={publishing || anyUploading}>
+                {publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />} Publish
+              </Button>
+            </>
           )}
         </div>
       </div>
