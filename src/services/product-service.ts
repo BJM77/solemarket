@@ -460,6 +460,14 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
         if (searchParams.sizeGender === 'men' && (isWomens || isKids)) return false;
       }
 
+      // 7h. Perth Local Pickup Filter (in memory)
+      if (searchParams.localPickupPerth) {
+        const allowPickup = p.allowLocalPickup === true || (p as any).pickupEnabled === true;
+        const text = `${(p as any).location || ''} ${(p as any).sellerLocation || ''} ${p.description || ''} ${(p as any).shippingNotes || ''}`.toLowerCase();
+        const isPerthArea = text.includes('perth') || text.includes('wa') || text.includes('western australia');
+        if (!allowPickup && !isPerthArea) return false;
+      }
+
       // 8. Deal Tiers Filter (in memory)
       if (filterTiersInMemory) {
         if (!p.multiCardTier || !filterTiersInMemory.includes(p.multiCardTier)) return false;

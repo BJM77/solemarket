@@ -6,7 +6,12 @@ import { identifyCardForEbay } from '@/ai/flows/identify-card-autocard';
 import { buildDraftFields } from '@/lib/autocard/draft';
 import { addDraftId } from './draft-store';
 
-export interface BulkDefaults { price?: number; condition?: string }
+export interface BulkDefaults {
+  price?: number;
+  condition?: string;
+  multiCardTier?: 'bronze' | 'silver' | 'gold' | 'platinum' | null;
+  storefrontId?: 'basketball' | 'coins' | 'pokemon' | 'seller';
+}
 
 /** Downscaled JPEG data URI for AI identification. */
 export async function toSmallDataUri(blob: Blob, maxW = 800): Promise<string> {
@@ -37,6 +42,8 @@ export async function createCardDraft(uid: string, front: Blob, back: Blob | nul
   const fields = buildDraftFields(idRes.ok ? idRes.identity : null);
   if (defaults.price && defaults.price > 0) fields.price = defaults.price;
   if (defaults.condition && !String(fields.gradingCompany || 'Raw').match(/PSA|BGS|CGC|SGC/)) fields.condition = defaults.condition;
+  if (defaults.multiCardTier !== undefined) (fields as any).multiCardTier = defaults.multiCardTier;
+  if (defaults.storefrontId !== undefined) (fields as any).storefrontId = defaults.storefrontId;
   const draftId = await saveDraftListing((await getCurrentUserIdToken()) ?? '', {
     ...fields, quantity: 1, isReverseBidding: false, autoRepricingEnabled: false, isVault: false, imageUrls,
   } as any);

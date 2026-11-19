@@ -244,6 +244,9 @@ export async function getGuestOrderByToken(token: string) {
         sellerName: o.sellerName,
         sellerId: o.sellerId,
         buyerName: o.buyerName,
+        paymentSent: !!o.paymentSent,
+        paymentSentAt: o.paymentSentAt || null,
+        paymentSentNote: o.paymentSentNote || null,
         item: item ? { id: item.id, title: item.title, image: item.image, price: item.price, quantity: item.quantity } : null,
         createdAt: o.createdAt,
         payId,
@@ -271,5 +274,19 @@ export async function respondToCounterByToken(token: string, accept: boolean) {
     if (!doc) throw new Error('Order not found.');
     if (!isRequestOrder(doc.data())) throw new Error('This order has no counter-offer.');
     await buyerRespondToRequest(doc.id, accept ? 'accept_counter' : 'decline_counter');
+    return { success: true };
+}
+
+/** Buyer marks that they have dispatched PayID payment with optional reference/note. */
+export async function markGuestPaymentSentByToken(token: string, note?: string) {
+    const doc = await findOrderByToken(token);
+    if (!doc) throw new Error('Order not found.');
+    const o = doc.data() as any;
+    if (o.status !== 'awaiting_payment') throw new Error('Order is not awaiting payment.');
+    await doc.ref.update({
+        paymentSent: true,
+        paymentSentAt: Timestamp.now(),
+        paymentSentNote: typeof note === 'string' ? note.slice(0, 160) : null,
+    });
     return { success: true };
 }

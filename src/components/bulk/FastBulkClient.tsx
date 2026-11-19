@@ -26,6 +26,9 @@ export default function FastBulkClient() {
   const [states, setStates] = useState<Record<string, TaskState<Result>>>({});
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('');
+  const [multiCardTier, setMultiCardTier] = useState<string>('');
+  const [storefrontId, setStorefrontId] = useState<string>('basketball');
+  const [showOptions, setShowOptions] = useState(false);
   const [stage, setStage] = useState<'pick' | 'pair' | 'upload' | 'review'>('pick');
   const [dragOver, setDragOver] = useState(false);
   const queueRef = useRef<TaskQueue<Result> | null>(null);
@@ -41,7 +44,12 @@ export default function FastBulkClient() {
   const reset = () => { photos.forEach((p) => URL.revokeObjectURL(p.url)); setPhotos([]); setPairs([]); setStates({}); setStage('pick'); };
 
   const enqueue = (q: TaskQueue<Result>, p: CardPair<Photo>) => {
-    q.add(p.id, () => createCardDraft(user!.uid, p.front.file, p.back?.file ?? null, { price: parseFloat(price) || undefined, condition: condition || undefined }));
+    q.add(p.id, () => createCardDraft(user!.uid, p.front.file, p.back?.file ?? null, {
+      price: parseFloat(price) || undefined,
+      condition: condition || undefined,
+      multiCardTier: multiCardTier ? (multiCardTier as any) : undefined,
+      storefrontId: storefrontId ? (storefrontId as any) : undefined,
+    }));
   };
 
   const start = () => {
@@ -82,32 +90,131 @@ export default function FastBulkClient() {
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ''; }} data-testid="fast-bulk-input" />
 
       {stage !== 'pick' && (
-        <div className="rounded-xl border border-border bg-white p-3 flex flex-wrap items-end gap-2">
-          <span className="text-sm font-semibold mr-auto">{pairs.length} cards from {photos.length} photos</span>
-          {stage === 'pair' && <>
-            <label className="text-xs font-medium">Order by
-              <select className="block h-9 rounded-md border border-input bg-white px-2 text-sm" value={order} onChange={(e) => reorder(e.target.value as any)}>
-                <option value="time">Capture time</option><option value="name">Filename</option>
-              </select>
-            </label>
-            <label className="text-xs font-medium">Default price
-              <Input className="w-24 h-9" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="$" />
-            </label>
-            <label className="text-xs font-medium">Default condition
-              <select className="block h-9 rounded-md border border-input bg-white px-2 text-sm" value={condition} onChange={(e) => setCondition(e.target.value)}>
-                <option value="">AI guess</option>
-                {CONDITIONS['Collector Cards'].map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </label>
-            <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()}>Add photos</Button>
-            <Button variant="ghost" size="sm" onClick={reset}>Clear</Button>
-            <Button className="text-slate-900 font-semibold" onClick={start} disabled={!pairs.length}>Create {pairs.length} drafts</Button>
-          </>}
-          {stage === 'upload' && <>
-            <span className="text-sm">{counts.done} done · {counts.error} failed · {counts.active} to go</span>
-            {counts.error > 0 && <Button variant="outline" size="sm" onClick={retryFailed}>Retry failed</Button>}
-            <Button className="text-slate-900 font-semibold" onClick={() => setStage('review')} disabled={!finished}>Review drafts</Button>
-          </>}
+        <div className="rounded-xl border border-border bg-white p-3 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-semibold">{pairs.length} cards from {photos.length} photos</span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowOptions((v) => !v)}
+                className="text-xs h-8"
+              >
+                {showOptions ? 'Hide Bulk Options' : '⚙ Bulk Card Options'}
+              </Button>
+              {stage === 'pair' && (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()} className="h-8 text-xs">Add photos</Button>
+                  <Button variant="ghost" size="sm" onClick={reset} className="h-8 text-xs">Clear</Button>
+                  <Button className="h-8 text-xs text-slate-900 font-semibold" onClick={start} disabled={!pairs.length}>Create {pairs.length} drafts</Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Collapsible Bulk Listing Options */}
+          {showOptions && stage === 'pair' && (
+            <div className="rounded-lg border border-dashed border-orange-300 bg-orange-50/50 p-3 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800">Default settings applied to all {pairs.length} cards:</span>
+                <span className="text-muted-foreground">e.g. Set all to $5 or multi-buy tier</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label className="font-medium">Default price (AUD)
+                  <Input
+                    className="h-8 text-xs mt-1"
+                    inputMode="decimal"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="e.g. 5"
+                  />
+                </label>
+                <label className="font-medium">Default condition
+                  <select
+                    className="block w-full h-8 mt-1 rounded-md border border-input bg-white px-2 text-xs"
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                  >
+                    <option value="">AI guess</option>
+                    {CONDITIONS['Collector Cards'].map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </label>
+                <label className="font-medium">Multi-card deal
+                  <select
+                    className="block w-full h-8 mt-1 rounded-md border border-input bg-white px-2 text-xs"
+                    value={multiCardTier}
+                    onChange={(e) => setMultiCardTier(e.target.value)}
+                  >
+                    <option value="">None (Sell singly)</option>
+                    <option value="bronze">Bronze (4 for $15 / $5 ea)</option>
+                    <option value="silver">Silver (3 for $25 / $10 ea)</option>
+                    <option value="gold">Gold (3 for $50 / $20 ea)</option>
+                    <option value="platinum">Platinum (2 for $70 / $40 ea)</option>
+                  </select>
+                </label>
+                <label className="font-medium">Storefront target
+                  <select
+                    className="block w-full h-8 mt-1 rounded-md border border-input bg-white px-2 text-xs"
+                    value={storefrontId}
+                    onChange={(e) => setStorefrontId(e.target.value)}
+                  >
+                    <option value="basketball">Benched (Cards & Kicks)</option>
+                    <option value="pokemon">Pokémon & TCG</option>
+                    <option value="coins">Coins & Bullion</option>
+                  </select>
+                </label>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-[11px] text-muted-foreground">Quick presets:</span>
+                <button
+                  type="button"
+                  onClick={() => { setPrice('5'); setMultiCardTier('bronze'); }}
+                  className="rounded bg-white border border-slate-300 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+                >
+                  $5 Bronze Deal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setPrice('5'); setMultiCardTier(''); }}
+                  className="rounded bg-white border border-slate-300 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+                >
+                  $5 Flat Price
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setStorefrontId('pokemon'); }}
+                  className="rounded bg-white border border-slate-300 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+                >
+                  Target Pokémon Hub
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stage === 'pair' && !showOptions && (
+            <div className="flex flex-wrap items-end gap-2 text-xs">
+              <label className="font-medium">Order by
+                <select className="block h-8 rounded-md border border-input bg-white px-2 text-xs" value={order} onChange={(e) => reorder(e.target.value as any)}>
+                  <option value="time">Capture time</option><option value="name">Filename</option>
+                </select>
+              </label>
+              <label className="font-medium">Quick price
+                <Input className="w-20 h-8 text-xs" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="$" />
+              </label>
+              {price && (
+                <span className="text-xs text-muted-foreground self-center">Default: ${price}</span>
+              )}
+            </div>
+          )}
+
+          {stage === 'upload' && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm">{counts.done} done · {counts.error} failed · {counts.active} to go</span>
+              {counts.error > 0 && <Button variant="outline" size="sm" onClick={retryFailed}>Retry failed</Button>}
+              <Button className="text-slate-900 font-semibold ml-auto" onClick={() => setStage('review')} disabled={!finished}>Review drafts</Button>
+            </div>
+          )}
         </div>
       )}
       {stage === 'upload' && (

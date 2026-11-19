@@ -701,6 +701,26 @@ export default function AdvancedFilterPanel({
 
                     <Separator /></>}
 
+                    {/* Perth Local Pickup Toggle */}
+                    <div className="space-y-3">
+                        <Label className="text-base font-semibold">Location &amp; Delivery</Label>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="perth-pickup"
+                                checked={Boolean(localFilters.localPickupPerth)}
+                                onCheckedChange={(checked) => handleLocalChange('localPickupPerth', checked ? true : undefined)}
+                            />
+                            <label
+                                htmlFor="perth-pickup"
+                                className="text-sm font-medium leading-none cursor-pointer"
+                            >
+                                Perth Local Pickup Only (Cash / Meetup)
+                            </label>
+                        </div>
+                    </div>
+
+                    <Separator />
+
                     {/* Seller Rating */}
                     <div className="space-y-3">
                         <Label className="text-base font-semibold">Minimum Seller Rating</Label>

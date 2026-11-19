@@ -248,6 +248,7 @@ export type ProductSearchParams = {
   player?: string;
   model?: string;
   sizeGender?: 'men' | 'women' | 'kids' | 'all';
+  localPickupPerth?: boolean;
 };
 
 

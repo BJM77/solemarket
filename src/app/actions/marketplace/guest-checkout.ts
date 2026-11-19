@@ -12,6 +12,7 @@ import {
     placeGuestRequest,
     cancelGuestOrderByToken,
     respondToCounterByToken,
+    markGuestPaymentSentByToken,
 } from '@/lib/checkout/guest-server';
 
 type Result<T> = ({ success: true } & T) | { success: false; error: string };
@@ -88,6 +89,20 @@ export async function respondToCounterAction(token: string, accept: boolean): Pr
             return { success: false, error: 'Too many attempts. Please wait a while and try again.' };
         }
         await respondToCounterByToken(String(token || ''), !!accept);
+        return { success: true };
+    } catch (e) {
+        return fail(e);
+    }
+}
+
+/** Buyer marks on /order/[token] that they have sent PayID payment. */
+export async function markGuestPaymentSentAction(token: string, note?: string): Promise<Result<object>> {
+    try {
+        const ip = await clientIp();
+        if (!(await checkRateLimit('guest_payment_sent_ip', { limit: 20, windowSeconds: 3600, identifier: identityHash('ip', ip) }))) {
+            return { success: false, error: 'Too many attempts. Please wait a moment and try again.' };
+        }
+        await markGuestPaymentSentByToken(String(token || ''), note);
         return { success: true };
     } catch (e) {
         return fail(e);

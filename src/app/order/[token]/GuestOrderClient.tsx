@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OrderPaymentInstructionsView, type PaymentDetails } from '@/components/orders/OrderPaymentInstructions';
-import { cancelGuestOrderAction } from '@/app/actions/marketplace/guest-checkout';
+import { cancelGuestOrderAction, markGuestPaymentSentAction } from '@/app/actions/marketplace/guest-checkout';
 import { formatPrice } from '@/lib/utils/format';
 import { toMs } from '@/lib/checkout/holds';
 import { saveGuestOrder, listGuestOrders, localOrderLabel, type LocalGuestOrder } from '@/lib/checkout/guest-orders-local';
@@ -26,6 +26,9 @@ type GuestOrder = PaymentDetails & {
     declineReason?: string | null;
     sellerId?: string;
     cancelReason?: string | null;
+    paymentSent?: boolean;
+    paymentSentAt?: string | null;
+    paymentSentNote?: string | null;
     subtotal?: number;
     shippingCost?: number;
     shippingMethod?: string;
@@ -60,6 +63,7 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [others, setOthers] = useState<LocalGuestOrder[]>([]);
+    const [paymentSentDone, setPaymentSentDone] = useState(false);
 
     // Remember this order on this device ("Your active orders"), with its latest status.
     useEffect(() => {
@@ -155,6 +159,48 @@ export default function GuestOrderClient({ token, order }: { token: string; orde
             {order.status === 'awaiting_payment' && (
                 <>
                     <OrderPaymentInstructionsView d={order} guest onExpire={() => router.refresh()} />
+
+                    {/* Buyer Payment Sent Notification */}
+                    {order.paymentMethod === 'payid' && (
+                        <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4 text-sm space-y-3">
+                            <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-sky-700 shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold text-slate-900">Paid with your banking app?</p>
+                                    <p className="text-slate-700 text-xs mt-0.5">
+                                        Let the seller know your payment is on its way so they can check their bank and package your item.
+                                    </p>
+                                </div>
+                            </div>
+                            {order.paymentSent || paymentSentDone ? (
+                                <div className="rounded-xl bg-white border border-sky-300 p-3 text-xs font-semibold text-sky-900 flex items-center gap-2">
+                                    <Check className="h-4 w-4 text-emerald-600" />
+                                    <span>You marked payment as sent. Waiting for seller confirmation.</span>
+                                </div>
+                            ) : (
+                                <Button
+                                    type="button"
+                                    className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-bold h-10 text-xs"
+                                    disabled={pending}
+                                    onClick={() => {
+                                        setError(null);
+                                        startTransition(async () => {
+                                            const res = await markGuestPaymentSentAction(token);
+                                            if (res.success) {
+                                                setPaymentSentDone(true);
+                                            } else {
+                                                setError(res.error);
+                                            }
+                                        });
+                                    }}
+                                >
+                                    {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+                                    I Have Sent Payment via PayID
+                                </Button>
+                            )}
+                        </div>
+                    )}
+
                     {!isRequest && order.holdActive && (
                         <div className="text-center">
                             <Button

@@ -26,6 +26,7 @@ interface Row {
   condition: string;
   image?: string;
   status: string;
+  multiCardTier?: string | null;
   dirty?: boolean;
   error?: string;
   busy?: boolean;
@@ -43,6 +44,7 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [batchPrice, setBatchPrice] = useState('');
   const [batchCondition, setBatchCondition] = useState('');
+  const [batchTier, setBatchTier] = useState('');
   const [publishing, setPublishing] = useState(false);
   const [checkingAllPrices, setCheckingAllPrices] = useState(false);
   const idKey = extraIds.join(',');
@@ -57,7 +59,15 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
       try {
         const d = await getDraftListing(id, token);
         if (!d || !d.isDraft) { gone.push(id); return null; }
-        return { id, title: d.title || '', price: Number(d.price) || 0, condition: d.condition || '', image: d.imageUrls?.[0], status: d.status };
+        return {
+          id,
+          title: d.title || '',
+          price: Number(d.price) || 0,
+          condition: d.condition || '',
+          image: d.imageUrls?.[0],
+          status: d.status,
+          multiCardTier: (d as any).multiCardTier || null,
+        };
       } catch (e: any) { if (/not found/i.test(e?.message || '')) gone.push(id); return null; }
     }));
     if (gone.length) removeDraftIds(gone);
@@ -133,11 +143,18 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
       ...r, dirty: true,
       ...(price > 0 ? { price } : {}),
       ...(batchCondition ? { condition: batchCondition } : {}),
+      ...(batchTier !== '' ? { multiCardTier: batchTier === 'none' ? null : batchTier } : {}),
     } : r));
   };
 
   const saveRow = async (r: Row, token: string) => {
-    await saveDraftListing(token, { title: r.title.slice(0, 120), price: r.price, condition: r.condition, category: 'Collector Cards' } as any, r.id);
+    await saveDraftListing(token, {
+      title: r.title.slice(0, 120),
+      price: r.price,
+      condition: r.condition,
+      category: 'Collector Cards',
+      multiCardTier: r.multiCardTier ?? null,
+    } as any, r.id);
     patch(r.id, { dirty: false });
   };
 
@@ -238,22 +255,58 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
           Publishing in the background: {jobProgress.processed} of {jobProgress.total} done. You can leave this page.
         </div>
       )}
-      <div className="rounded-xl border border-border bg-white p-3 flex flex-wrap items-end gap-2">
-        <label className="text-xs font-medium">Price (AUD)
-          <Input className="w-28 h-9" inputMode="decimal" value={batchPrice} onChange={(e) => setBatchPrice(e.target.value)} placeholder="e.g. 5" />
-        </label>
-        <label className="text-xs font-medium">Condition
-          <select className="block h-9 rounded-md border border-input bg-white px-2 text-sm" value={batchCondition} onChange={(e) => setBatchCondition(e.target.value)}>
-            <option value="">—</option>
-            {CARD_CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </label>
-        <Button variant="outline" size="sm" onClick={applyBatch}>Apply to {selected.size ? 'selected' : 'all'}</Button>
-        <Button variant="outline" size="sm" onClick={suggestAllPrices} disabled={checkingAllPrices} data-testid="suggest-sold-prices-btn">
-          {checkingAllPrices ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <TrendingUp className="h-3.5 w-3.5 mr-1.5 text-primary" />}
-          Suggest prices from sold comps
-        </Button>
-        <span className="text-xs text-muted-foreground ml-auto">Category: Collector Cards</span>
+      <div className="rounded-xl border border-border bg-white p-3 space-y-2">
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="text-xs font-medium">Batch Price (AUD)
+            <Input className="w-24 h-9" inputMode="decimal" value={batchPrice} onChange={(e) => setBatchPrice(e.target.value)} placeholder="e.g. 5" />
+          </label>
+          <label className="text-xs font-medium">Condition
+            <select className="block h-9 rounded-md border border-input bg-white px-2 text-sm" value={batchCondition} onChange={(e) => setBatchCondition(e.target.value)}>
+              <option value="">Keep current</option>
+              {CARD_CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          <label className="text-xs font-medium">Multi-card Deal
+            <select className="block h-9 rounded-md border border-input bg-white px-2 text-sm" value={batchTier} onChange={(e) => setBatchTier(e.target.value)}>
+              <option value="">Keep current</option>
+              <option value="none">None (Sell singly)</option>
+              <option value="bronze">Bronze (4 for $15 / $5 ea)</option>
+              <option value="silver">Silver (3 for $25 / $10 ea)</option>
+              <option value="gold">Gold (3 for $50 / $20 ea)</option>
+              <option value="platinum">Platinum (2 for $70 / $40 ea)</option>
+            </select>
+          </label>
+          <Button variant="outline" size="sm" onClick={applyBatch} className="h-9">Apply to {selected.size ? 'selected' : 'all'}</Button>
+          <Button variant="outline" size="sm" onClick={suggestAllPrices} disabled={checkingAllPrices} data-testid="suggest-sold-prices-btn" className="h-9">
+            {checkingAllPrices ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <TrendingUp className="h-3.5 w-3.5 mr-1.5 text-primary" />}
+            Suggest prices from sold comps
+          </Button>
+          <span className="text-xs text-muted-foreground ml-auto self-center">Category: Collector Cards</span>
+        </div>
+        <div className="flex items-center gap-2 pt-1 text-xs">
+          <span className="text-muted-foreground text-[11px]">Quick batch presets:</span>
+          <button
+            type="button"
+            onClick={() => { setBatchPrice('5'); setBatchTier('bronze'); }}
+            className="rounded bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+          >
+            $5 + Bronze Deal
+          </button>
+          <button
+            type="button"
+            onClick={() => { setBatchPrice('5'); setBatchTier('none'); }}
+            className="rounded bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+          >
+            $5 Flat (Single)
+          </button>
+          <button
+            type="button"
+            onClick={() => { setBatchTier('none'); }}
+            className="rounded bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] hover:border-primary font-medium"
+          >
+            Remove Deals
+          </button>
+        </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => setSelected(allSelected ? new Set() : new Set(rows.map((r) => r.id)))}>{allSelected ? 'Clear selection' : 'Select all'}</Button>
@@ -291,6 +344,19 @@ export default function DraftReviewGrid({ ids: extraIds = [] }: { ids?: string[]
                 <select className="h-8 flex-1 min-w-0 rounded-md border border-input bg-white px-1 text-sm" value={r.condition} onChange={(e) => patch(r.id, { condition: e.target.value, dirty: true })} aria-label="Condition">
                   {!CARD_CONDITIONS.includes(r.condition) && r.condition && <option value={r.condition}>{r.condition}</option>}
                   {CARD_CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select
+                  className="h-8 w-24 rounded-md border border-input bg-white px-1 text-xs"
+                  value={r.multiCardTier || ''}
+                  onChange={(e) => patch(r.id, { multiCardTier: e.target.value || null, dirty: true })}
+                  aria-label="Deal tier"
+                  title="Multi-card deal tier"
+                >
+                  <option value="">Single</option>
+                  <option value="bronze">Bronze</option>
+                  <option value="silver">Silver</option>
+                  <option value="gold">Gold</option>
+                  <option value="platinum">Platinum</option>
                 </select>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs">
