@@ -189,12 +189,16 @@ export function ImageUploadStep({
                         </div>
                         <div
                              onClick={() => nativeCameraInputRef.current?.click()}
-                             className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary hover:bg-muted/60 cursor-pointer flex flex-col items-center justify-center transition-all group"
+                             className="aspect-square rounded-2xl border-2 border-dashed border-orange-500/40 bg-orange-500/5 hover:border-orange-500 hover:bg-orange-500/10 cursor-pointer flex flex-col items-center justify-center transition-all group relative"
+                             title="Take high-resolution photo with full autofocus and macro support"
                         >
+                            <span className="absolute -top-2 px-1.5 py-0.5 bg-orange-700 text-white text-[8px] font-black uppercase rounded-full tracking-wider shadow-sm">
+                                Recommended
+                            </span>
                             <div className="bg-orange-500/20 p-3 rounded-full group-hover:scale-110 transition-transform">
                                 <Smartphone className="h-6 w-6 text-orange-700" />
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium mt-2 text-muted-foreground text-center">Native<br className="sm:hidden" /> Camera</span>
+                            <span className="text-[10px] sm:text-xs font-bold mt-2 text-foreground text-center">Phone<br className="sm:hidden" /> Camera</span>
                             <input ref={nativeCameraInputRef} type="file" multiple accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
                         </div>
                         <div className="aspect-square relative">

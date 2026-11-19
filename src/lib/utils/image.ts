@@ -49,11 +49,11 @@ export interface ProcessedImageResult {
 export async function processListingImage(
   file: File,
   // Matches the 1600px WebP master that uploadImages stores, so listing photos are not softened twice.
-  // This file goes to Firebase Storage (not a server action); the AI copy below stays 800px.
+  // This file goes to Firebase Storage (not a server action); the AI copy below stays high clarity for cards.
   highResMaxWidth: number = 1600,
-  highResQuality: number = 0.85,
-  aiMaxWidth: number = 800,
-  aiQuality: number = 0.6
+  highResQuality: number = 0.88,
+  aiMaxWidth: number = 1200,
+  aiQuality: number = 0.80
 ): Promise<ProcessedImageResult> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

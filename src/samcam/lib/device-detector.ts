@@ -59,10 +59,8 @@ export function detectDevice(): DeviceProfile {
     isHighEnd,
     hasMacroMode,
     hasNightMode,
-    recommendedAspectRatio: manufacturer === 'apple' ? '4:3' : '16:9',
-    recommendedResolution: manufacturer === 'apple' ? 
-      { width: 1920, height: 1440 } : 
-      { width: 1920, height: 1080 },
+    recommendedAspectRatio: '4:3',
+    recommendedResolution: { width: 2560, height: 1920 },
     aiAcceleration: isHighEnd ? 'full' : 'basic',
   };
 }
@@ -77,8 +75,8 @@ export function getProfileForPreset(presetId: string): DeviceProfile {
         isHighEnd: true,
         hasMacroMode: true,
         hasNightMode: true,
-        recommendedAspectRatio: '16:9',
-        recommendedResolution: { width: 1920, height: 1080 },
+        recommendedAspectRatio: '4:3',
+        recommendedResolution: { width: 2560, height: 1920 },
         aiAcceleration: 'full',
       };
     case 'google':
@@ -89,8 +87,8 @@ export function getProfileForPreset(presetId: string): DeviceProfile {
         isHighEnd: true,
         hasMacroMode: true,
         hasNightMode: true,
-        recommendedAspectRatio: '16:9',
-        recommendedResolution: { width: 1920, height: 1080 },
+        recommendedAspectRatio: '4:3',
+        recommendedResolution: { width: 2560, height: 1920 },
         aiAcceleration: 'full',
       };
     case 'apple':
@@ -102,7 +100,7 @@ export function getProfileForPreset(presetId: string): DeviceProfile {
         hasMacroMode: false,
         hasNightMode: true,
         recommendedAspectRatio: '4:3',
-        recommendedResolution: { width: 1920, height: 1440 },
+        recommendedResolution: { width: 2560, height: 1920 },
         aiAcceleration: 'full',
       };
     case 'oneplus':
@@ -113,8 +111,8 @@ export function getProfileForPreset(presetId: string): DeviceProfile {
         isHighEnd: false,
         hasMacroMode: false,
         hasNightMode: false,
-        recommendedAspectRatio: '16:9',
-        recommendedResolution: { width: 1920, height: 1080 },
+        recommendedAspectRatio: '4:3',
+        recommendedResolution: { width: 2560, height: 1920 },
         aiAcceleration: 'basic',
       };
     case 'generic':
@@ -131,8 +129,8 @@ function getFallbackProfile(): DeviceProfile {
     isHighEnd: false,
     hasMacroMode: false,
     hasNightMode: false,
-    recommendedAspectRatio: '16:9',
-    recommendedResolution: { width: 1920, height: 1080 },
+    recommendedAspectRatio: '4:3',
+    recommendedResolution: { width: 2560, height: 1920 },
     aiAcceleration: 'basic',
   };
 }

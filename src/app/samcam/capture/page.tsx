@@ -83,11 +83,12 @@ interface ReviewData {
 
 // ─── Camera Constraints ──────────────────────────────────────────────
 const getCameraConstraints = (device: DeviceProfile) => {
+  // Use native 4:3 sensor ratio and high ideal resolution for card framing
   const constraints: MediaTrackConstraints = {
     facingMode: 'environment',
-    width: { ideal: 1920 },
-    height: { ideal: 1080 },
-    aspectRatio: { ideal: 16/9 },
+    width: { ideal: 2560 },
+    height: { ideal: 1920 },
+    aspectRatio: { ideal: 4 / 3 },
   };
 
   if (device.manufacturer === 'apple') {
@@ -112,7 +113,6 @@ const getCameraConstraints = (device: DeviceProfile) => {
         { focusMode: 'continuous' },
         { exposureMode: 'auto' },
         { whiteBalanceMode: 'auto' },
-        { 'com.samsung.android.camera.softening': 0.5 },
         { 'com.samsung.android.camera.macro': true },
       ],
     };
@@ -421,19 +421,47 @@ export default function BenchedPhotoBooth() {
 
     try {
       const v = videoRef.current;
-      const c = document.createElement('canvas');
-      
-      c.width = 800; 
-      c.height = 1120;
-      const ctx = c.getContext('2d', { alpha: false })!;
-      
-      const xOffset = (v.videoWidth - 800) / 2;
-      const yOffset = (v.videoHeight - 1120) / 2;
-      ctx.drawImage(v, xOffset, yOffset, 800, 1120, 0, 0, 800, 1120);
+      const vWidth = v.videoWidth || 1920;
+      const vHeight = v.videoHeight || 1440;
 
-      // Run image analysis in the background, non-blocking
-      const imageData = ctx.getImageData(0, 0, 800, 1120);
-      analyzeImageInBackground(imageData, c).then((q) => {
+      // Card aspect ratio: 2.5 / 3.5 = ~0.714
+      const CARD_ASPECT = 2.5 / 3.5;
+      let cropW: number;
+      let cropH: number;
+
+      // Fit the 2.5:3.5 card crop within 85% of the video stream frame
+      if (vWidth / vHeight > CARD_ASPECT) {
+        cropH = Math.round(vHeight * 0.85);
+        cropW = Math.round(cropH * CARD_ASPECT);
+      } else {
+        cropW = Math.round(vWidth * 0.85);
+        cropH = Math.round(cropW / CARD_ASPECT);
+      }
+
+      const xOffset = Math.max(0, Math.round((vWidth - cropW) / 2));
+      const yOffset = Math.max(0, Math.round((vHeight - cropH) / 2));
+
+      // Output canvas capped at 1600px long edge for pristine card detail without bloat
+      const targetHeight = Math.min(1600, cropH);
+      const targetWidth = Math.round(targetHeight * CARD_ASPECT);
+
+      const c = document.createElement('canvas');
+      c.width = targetWidth; 
+      c.height = targetHeight;
+      const ctx = c.getContext('2d', { alpha: false })!;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      ctx.drawImage(v, xOffset, yOffset, cropW, cropH, 0, 0, targetWidth, targetHeight);
+
+      // Run image analysis in the background on an 800px scaled copy
+      const analysisCanvas = document.createElement('canvas');
+      analysisCanvas.width = 600;
+      analysisCanvas.height = 840;
+      const aCtx = analysisCanvas.getContext('2d')!;
+      aCtx.drawImage(c, 0, 0, 600, 840);
+      const imageData = aCtx.getImageData(0, 0, 600, 840);
+      analyzeImageInBackground(imageData, analysisCanvas).then((q) => {
         setLastQuality(q);
         setQualityHistory(prev => [...prev.slice(-9), q]);
       }).catch(err => console.warn('Background analysis failed:', err));
@@ -509,7 +537,7 @@ export default function BenchedPhotoBooth() {
           setCurrentSide('FRONT');
           setIsProcessing(false);
         }
-      }, 'image/jpeg', 0.75);
+      }, 'image/jpeg', 0.92);
 
     } catch (e) {
       console.error("Capture Error", e);

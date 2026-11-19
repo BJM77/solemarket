@@ -91,13 +91,15 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         setError(null);
 
         try {
+            // Cards & coins are compact items best captured with 4:3 native sensor aspect ratio.
+            const preferredAspect = (captureMode === 'card' || captureMode === 'coin' || captureMode === 'default') ? 4 / 3 : 16 / 9;
             // Constraints with fallback support, requesting max resolution and continuous focus
             const constraints: MediaStreamConstraints = {
                 video: {
                     deviceId: deviceId ? { exact: deviceId } : undefined,
                     width: { ideal: 4096 }, // Maximize resolution
-                    height: { ideal: 2160 },
-                    aspectRatio: { ideal: 16 / 9 },
+                    height: { ideal: 3072 },
+                    aspectRatio: { ideal: preferredAspect },
                     facingMode: deviceId ? undefined : 'environment', // Default to back camera
                     // @ts-ignore - advanced constraints are valid but not in all TS definitions
                     advanced: [{ focusMode: "continuous" }]
@@ -141,7 +143,7 @@ export function CameraCapture({ onCapture, maxSizeMB = 10, captureMode = 'defaul
         } finally {
             setIsCameraLoading(false);
         }
-    }, [stream]);
+    }, [stream, captureMode]);
 
     const initializeCamera = useCallback(async () => {
         setCapturedPreviews([]);
