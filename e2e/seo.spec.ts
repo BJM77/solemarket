@@ -37,3 +37,21 @@ test('/sell/guide redirects to the public seller page', async ({ page }) => {
   await page.goto('/sell/guide');
   await expect(page).toHaveURL(/\/sell\/?$/);
 });
+
+test('robots.txt disallows query parameters and allows Google Merchant feed', async ({ request }) => {
+  const res = await request.get('/robots.txt');
+  expect(res.status()).toBe(200);
+  const text = await res.text();
+  expect(text).toContain('Disallow: /*?*');
+  expect(text).toContain('Allow: /api/feeds/google-merchant');
+  expect(text).toContain('sitemap:');
+});
+
+test('Google Merchant Center feed returns valid XML', async ({ request }) => {
+  const res = await request.get('/api/feeds/google-merchant');
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type']).toContain('xml');
+  const text = await res.text();
+  expect(text).toContain('<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">');
+  expect(text).toContain('<title>Benched Australia Marketplace Feed</title>');
+});

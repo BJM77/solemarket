@@ -319,7 +319,7 @@ export default function ProductImageGallery({
                       )}
                       <Image
                         src={item.url!}
-                        alt={imageAltTexts[index] || `${title} - Media ${index + 1}`}
+                        alt={imageAltTexts[index] || `${title}${condition ? ` (${condition})` : ''} - Photo ${index + 1} on Benched Australia`}
                         fill
                         className="relative z-[1] object-contain"
                         priority={index === 0}

@@ -38,7 +38,19 @@ export async function createCardDraft(uid: string, front: Blob, back: Blob | nul
       return await identifyCardForEbay((await getCurrentUserIdToken()) ?? '', f, b);
     } catch (e: any) { return { ok: false as const, error: e?.message || 'Identification failed' }; }
   };
-  const [imageUrls, idRes] = await Promise.all([uploadImages(files, `products/${uid}`), identify()]);
+  const uploadWithRetry = async (retries = 2) => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await uploadImages(files, `products/${uid}`);
+      } catch (err) {
+        if (attempt === retries) throw err;
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    throw new Error('Upload failed after retries');
+  };
+
+  const [imageUrls, idRes] = await Promise.all([uploadWithRetry(), identify()]);
   const fields = buildDraftFields(idRes.ok ? idRes.identity : null);
   if (defaults.price && defaults.price > 0) fields.price = defaults.price;
   if (defaults.condition && !String(fields.gradingCompany || 'Raw').match(/PSA|BGS|CGC|SGC/)) fields.condition = defaults.condition;

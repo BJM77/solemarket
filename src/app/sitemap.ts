@@ -110,6 +110,18 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
 
     pageRoutes.push(...await getGuideRoutes(baseUrl));
 
+    // Active seller storefronts: include sellers who have active listings on the platform
+    const activeSellerIds = Array.from(new Set(allLive.map((p) => p.sellerId).filter(Boolean)));
+    for (const sellerId of activeSellerIds) {
+      const sellerListings = allLive.filter((p) => p.sellerId === sellerId);
+      pageRoutes.push({
+        url: `${baseUrl}/seller/${sellerId}`,
+        lastModified: latestListingDate(sellerListings),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      });
+    }
+
     try {
       const competitors = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/content/conquesting/competitors.json'), 'utf-8'));
       pageRoutes.push(...Object.keys(competitors).map((slug) => ({
