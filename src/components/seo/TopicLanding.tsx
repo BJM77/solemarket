@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import type { SEOTopic } from '@/config/seo-topics';
+import { SEO_TOPICS, type SEOTopic } from '@/config/seo-topics';
 import type { Product } from '@/lib/types';
 import ProductGrid from '@/components/products/ProductGrid';
 import TopicSchema from '@/components/seo/TopicSchema';
@@ -103,6 +103,24 @@ export default function TopicLanding({ topic, section, listings }: { topic: SEOT
           </div>
         </div>
         <FAQSchema questions={faq} />
+
+        <nav aria-label={`More ${sectionName} Collections`} className="max-w-4xl mt-12">
+          <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-3">
+            Explore More {sectionName} Collections
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {SEO_TOPICS.filter((t) => t.category === topic.category && t.slug !== topic.slug).map((t) => (
+              <li key={t.slug}>
+                <Link
+                  href={`/${section}/${t.slug}`}
+                  className="inline-block rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-bold text-foreground hover:border-primary hover:text-primary transition-colors"
+                >
+                  {t.h1}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </div>
   );

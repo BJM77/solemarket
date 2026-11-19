@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { listingSeoTitle, schemaBrand, schemaSeller, LISTING_TITLE_MAX } from './listing-seo';
+import { listingSeoTitle, listingSeoDescription, schemaBrand, schemaSeller, LISTING_TITLE_MAX } from './listing-seo';
 
 describe('listingSeoTitle', () => {
   it('drops specs the title already says and raw condition words', () => {
@@ -19,6 +19,34 @@ describe('listingSeoTitle', () => {
   it('keeps sneaker titles without condition noise', () => {
     expect(listingSeoTitle({ title: 'Nike Kyrie 7 Play for the Future', year: 2021, brand: 'Nike', condition: 'Good' } as any))
       .toBe('Nike Kyrie 7 Play for the Future – 2021');
+  });
+  it('formats transactional sneaker titles with size and AUD price', () => {
+    expect(listingSeoTitle({
+      title: 'Kobe 6 Protro Reverse Grinch',
+      category: 'Sneakers',
+      brand: 'Nike',
+      size: '11',
+      price: 450,
+    } as any)).toBe('Nike Kobe 6 Protro Reverse Grinch (Size US 11) – $450 AUD');
+  });
+});
+
+describe('listingSeoDescription', () => {
+  it('includes size, condition, price, and seller location for sneakers', () => {
+    const desc = listingSeoDescription(
+      {
+        title: 'Nike Kobe 6 Protro Reverse Grinch',
+        category: 'Sneakers',
+        size: '11',
+        condition: 'New with Box',
+        price: 450,
+      } as any,
+      { location: 'Perth, WA' },
+    );
+    expect(desc).toContain('Size US 11');
+    expect(desc).toContain('New with Box');
+    expect(desc).toContain('$450 AUD');
+    expect(desc).toContain('Perth, WA');
   });
 });
 

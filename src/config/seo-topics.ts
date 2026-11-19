@@ -47,6 +47,60 @@ export const SEO_TOPICS: SEOTopic[] = [
         searchQuery: 'Jordan 4',
         keywords: ['jordan 4', 'retro', 'jumpman', 'nike air']
     },
+    {
+        slug: 'kobe',
+        title: 'Buy Nike Kobe Basketball Shoes in Australia | Kobe Protro',
+        h1: 'Nike Kobe Basketball Shoes',
+        description: 'Nike Kobe 4, 5, 6 and 8 Protro basketball shoes listed by Australian hoopers and collectors on Benched. Pay the seller directly by PayID or cash on pickup in Perth.',
+        category: 'Sneakers',
+        searchQuery: 'Kobe',
+        keywords: ['nike kobe', 'kobe protro', 'kobe basketball shoes australia', 'kobe 6', 'kobe 5', 'kobe 8']
+    },
+    {
+        slug: 'jordan',
+        title: 'Buy Air Jordan Sneakers & Basketball Shoes in Australia',
+        h1: 'Air Jordan Sneakers',
+        description: 'Air Jordan retro and performance basketball sneakers listed by Australian sellers on Benched. Message the seller and pay directly by PayID or cash on pickup.',
+        category: 'Sneakers',
+        searchQuery: 'Jordan',
+        keywords: ['air jordan australia', 'buy jordans australia', 'jordan retro', 'nike air jordan']
+    },
+    {
+        slug: 'lebron',
+        title: 'Buy Nike LeBron Basketball Shoes in Australia',
+        h1: 'Nike LeBron Basketball Shoes',
+        description: 'Nike LeBron signature and NXXT Gen basketball shoes listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup.',
+        category: 'Sneakers',
+        searchQuery: 'LeBron',
+        keywords: ['nike lebron', 'lebron basketball shoes', 'lebron 20', 'lebron 21', 'buy lebrons australia']
+    },
+    {
+        slug: 'kd',
+        title: 'Buy Nike KD (Kevin Durant) Basketball Shoes in Australia',
+        h1: 'Nike KD Basketball Shoes',
+        description: 'Nike KD signature basketball shoes listed by Australian sellers on Benched. Inspect photos, message the seller and pay directly by PayID or cash on pickup.',
+        category: 'Sneakers',
+        searchQuery: 'KD',
+        keywords: ['nike kd', 'kevin durant shoes', 'kd 15', 'kd 16', 'kd basketball shoes australia']
+    },
+    {
+        slug: 'curry',
+        title: 'Buy Under Armour Curry Basketball Shoes in Australia',
+        h1: 'Under Armour Curry Basketball Shoes',
+        description: 'Under Armour Curry Flow and signature basketball shoes listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup.',
+        category: 'Sneakers',
+        searchQuery: 'Curry',
+        keywords: ['curry basketball shoes', 'under armour curry', 'steph curry shoes australia', 'curry flow']
+    },
+    {
+        slug: 'gt-cut',
+        title: 'Buy Nike Air Zoom G.T. Cut Basketball Shoes in Australia',
+        h1: 'Nike Air Zoom G.T. Cut',
+        description: 'Nike Air Zoom G.T. Cut 1, 2 and 3 performance basketball shoes listed by Australian sellers on Benched. Pay the seller directly by PayID or cash on pickup.',
+        category: 'Sneakers',
+        searchQuery: 'GT Cut',
+        keywords: ['nike gt cut', 'zoom gt cut', 'gt cut australia', 'nike basketball shoes']
+    },
     // Cards
     {
         slug: 'panini-prizm-basketball',

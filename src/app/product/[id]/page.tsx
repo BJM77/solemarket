@@ -19,5 +19,13 @@ export default async function ProductAliasPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const product = await getProductById(id);
   if (!product) notFound();
-  permanentRedirect(getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId }));
+  permanentRedirect(getProductUrl({
+    id,
+    title: product.title,
+    category: product.category,
+    subCategory: product.subCategory,
+    storefrontId: (product as any).storefrontId,
+    brand: product.brand,
+    size: product.size,
+  }));
 }

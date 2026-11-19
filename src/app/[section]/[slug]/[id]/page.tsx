@@ -7,10 +7,10 @@ import ProductSchema from '@/components/seo/ProductSchema';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 
 import { getProductUrl } from "@/lib/utils/url";
-import { metaDescription, sectionPathForCategory } from "@/lib/seo/text";
+import { sectionPathForCategory } from "@/lib/seo/text";
 import { listingSeoState } from "@/lib/seo/listing-status";
 import { isPokemonListing } from "@/lib/pokemon-listings";
-import { listingSeoTitle, schemaSeller } from "@/lib/seo/listing-seo";
+import { listingSeoTitle, listingSeoDescription, schemaSeller } from "@/lib/seo/listing-seo";
 import { getPublicSellerInfo } from "@/app/actions/seller/public-seller";
 import ScrollListingToTop from "@/components/navigation/scroll-listing-to-top";
 import { ListingDetailsFallback } from "@/components/products/ListingDetailsFallback";
@@ -33,24 +33,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductById(id);
   if (!product) return { title: 'Product Not Found', robots: { index: false } };
 
-  // Build a rich, collector-friendly SEO title and description with set, year, card number, and grade.
-  const specBits = [
-    product.year ? String(product.year) : null,
-    product.brand || product.manufacturer || null,
-    (product as any).set || null,
-    product.cardNumber ? `#${String(product.cardNumber).replace(/^#/, '')}` : null,
-    product.gradingCompany && product.gradingCompany !== 'Raw'
-      ? `${product.gradingCompany} ${product.grade || ''}`.trim()
-      : product.condition || null,
-  ].filter(Boolean);
+  const sellerInfo = product.sellerId
+    ? await getPublicSellerInfo(product.sellerId).catch(() => null)
+    : null;
 
   // The seller's title plus only details it doesn't already say; the layout adds " | Benched".
   const enrichedTitle = listingSeoTitle(product);
-
-  const fallbackDesc = `Buy ${product.title}${specBits.length ? ` (${specBits.join(', ')})` : ''} on Benched Australia. Pay the seller directly by PayID or cash on pickup.`;
-  const description = metaDescription(product.seoDescription || product.description) || fallbackDesc;
-  const canonicalUrl = `https://benched.au${getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId })}`;
-  const primaryImage = product.imageUrls[0];
+  const description = listingSeoDescription(product, sellerInfo as Record<string, any> | null);
+  const canonicalUrl = `https://benched.au${getProductUrl({
+    id,
+    title: product.title,
+    category: product.category,
+    subCategory: product.subCategory,
+    storefrontId: (product as any).storefrontId,
+    brand: product.brand,
+    size: product.size,
+  })}`;
   const siteUrl = 'https://benched.au';
   
   // Facebook's Scraper often rejects direct Firebase Storage URLs due to encoded slashes, 
@@ -119,8 +117,26 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductById(id);
   if (!product) notFound();
 
+  // Soft-deleted or permanently removed listings redirect to the relevant category hub
+  // instead of serving a dead 404 or broken page.
+  if (product.status === 'deleted' || (product as any).status === 'removed') {
+    permanentRedirect(
+      isPokemonListing(product)
+        ? '/pokemon'
+        : sectionPathForCategory(section),
+    );
+  }
+
   // One URL per product: send wrong section/slug variants to the canonical path.
-  const canonicalPath = getProductUrl({ id, title: product.title, category: product.category, subCategory: product.subCategory, storefrontId: (product as any).storefrontId });
+  const canonicalPath = getProductUrl({
+    id,
+    title: product.title,
+    category: product.category,
+    subCategory: product.subCategory,
+    storefrontId: (product as any).storefrontId,
+    brand: product.brand,
+    size: product.size,
+  });
   if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
 
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
@@ -150,7 +166,7 @@ export default async function ProductPage({ params }: Props) {
         <ProductDetailsModern
           productId={id}
           initialProduct={product}
-          initialSeller={null}
+          initialSeller={sellerInfo as any}
           initialRelatedProducts={similarProducts}
         />
       </Suspense>

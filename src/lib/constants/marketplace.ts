@@ -93,3 +93,11 @@ export function isCardCategory(category?: string): boolean {
   const normalized = normalizeCategory(category);
   return normalized === CATEGORY_TRADING_CARDS;
 }
+
+/**
+ * Checks if a category is a sneaker/shoe category.
+ */
+export function isSneakerCategory(category?: string): boolean {
+  const normalized = normalizeCategory(category);
+  return normalized === CATEGORY_SNEAKERS;
+}

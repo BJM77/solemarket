@@ -27,7 +27,7 @@ export default function TopicSchema({ topic, urlPath, listings = [] }: Props) {
             itemListElement: listings.map((p, i) => ({
                 '@type': 'ListItem',
                 position: i + 1,
-                url: `${SITE_URL}${getProductUrl({ id: p.id, title: p.title, category: p.category })}`,
+                url: `${SITE_URL}${getProductUrl(p)}`,
                 name: p.title,
             })),
         },

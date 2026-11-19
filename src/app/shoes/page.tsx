@@ -1,5 +1,6 @@
 import { getPublishedSiteConfig } from '@/lib/site-config/server';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import InfiniteProductGrid from '@/components/products/InfiniteProductGrid';
 import { getCachedCategoryProducts } from '@/lib/cache/products';
 import type { Metadata } from 'next';
@@ -7,6 +8,9 @@ import { pageOpenGraph } from '@/lib/seo/og';
 import { composeCategoryTitle } from '@/lib/seo/browse-heading';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
 import SectionPaginationServer from '@/components/seo/SectionPaginationServer';
+import { SEO_TOPICS } from '@/config/seo-topics';
+
+const SNEAKER_TOPICS = SEO_TOPICS.filter((t) => t.category === 'Sneakers');
 
 export async function generateMetadata({
   searchParams,
@@ -116,6 +120,23 @@ export default async function ShoesBrowsePage({
         />
       </Suspense>
       {Object.keys(resolvedParams).every((k) => k === 'view') && <SectionPaginationServer section="shoes" />}
+      <nav aria-label="Popular Sneaker Lines" className="container mx-auto px-4 py-8 border-t border-border/50 mt-4">
+        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">
+          Shop Popular Basketball &amp; Sneaker Lines
+        </p>
+        <ul className="flex flex-wrap gap-2">
+          {SNEAKER_TOPICS.map((topic) => (
+            <li key={topic.slug}>
+              <Link
+                href={`/shoes/${topic.slug}`}
+                className="inline-block rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-bold text-foreground hover:border-primary hover:text-primary transition-colors"
+              >
+                {topic.h1}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </>
   );
 }

@@ -18,7 +18,15 @@ export function slugify(text: string): string {
   return slug || 'item';
 }
 
-export function getProductUrl(product: { id: string; title: string; category?: string; subCategory?: unknown; storefrontId?: unknown }): string {
+export function getProductUrl(product: {
+  id: string;
+  title: string;
+  category?: string;
+  subCategory?: unknown;
+  storefrontId?: unknown;
+  brand?: string;
+  size?: string;
+}): string {
   let section = 'shoes';
   // Coins and bullion live on the coins storefront (/coins/..., coins.benched.au/...).
   if (isCoinCategory(product.category) || isCoinListing(product)) {
@@ -26,6 +34,18 @@ export function getProductUrl(product: { id: string; title: string; category?: s
   } else if (isCardCategory(product.category)) {
     section = 'cards';
   }
-  const slug = slugify(product.title);
+  let baseTitle = product.title || 'item';
+  if (section === 'shoes') {
+    const brand = String(product.brand ?? '').trim();
+    if (brand && !baseTitle.toLowerCase().includes(brand.toLowerCase())) {
+      baseTitle = `${brand} ${baseTitle}`;
+    }
+    const sizeRaw = String(product.size ?? '').trim();
+    if (sizeRaw && !/\b(size|us\s*\d|uk\s*\d|eu\s*\d)\b/i.test(baseTitle)) {
+      const sizeSlug = /^(us|uk|eu)/i.test(sizeRaw) ? sizeRaw : `us${sizeRaw}`;
+      baseTitle = `${baseTitle} ${sizeSlug}`;
+    }
+  }
+  const slug = slugify(baseTitle);
   return `/${section}/${slug}/${product.id}`;
 }

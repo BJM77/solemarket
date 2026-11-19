@@ -544,14 +544,30 @@ export const getSimilarProductsByCategory = unstable_cache(
             const related = RELATED_CATEGORIES[normalized] || [category];
 
             const currentSnap = await firestoreDb.collection('products').doc(currentId).get();
-            const currentData = currentSnap.exists ? { id: currentId, ...currentSnap.data() } : null;
+            const currentData = currentSnap.exists ? ({ id: currentId, ...currentSnap.data() } as any) : null;
             const currentIsTcg = isPokemonListing(currentData as any);
             const currentIsCoin = isCoinListing(currentData as any);
             const sameSection = (p: Product) =>
                 isPokemonListing(p) === currentIsTcg && isCoinListing(p) === currentIsCoin;
 
+            const targetSize = String(currentData?.size || '').trim().toLowerCase();
+            const targetModel = String(currentData?.model || '').trim().toLowerCase();
+            const targetBrand = String(currentData?.brand || currentData?.manufacturer || '').trim().toLowerCase();
+
+            const similarityScore = (p: Product): number => {
+                let s = 0;
+                const pModel = String(p.model || '').trim().toLowerCase();
+                const pTitle = String(p.title || '').toLowerCase();
+                const pSize = String(p.size || '').trim().toLowerCase();
+                const pBrand = String(p.brand || p.manufacturer || '').trim().toLowerCase();
+                if (targetModel && (pModel === targetModel || pTitle.includes(targetModel))) s += 4;
+                if (targetSize && pSize === targetSize) s += 3;
+                if (targetBrand && (pBrand === targetBrand || pTitle.includes(targetBrand))) s += 2;
+                return s;
+            };
+
             // Over-fetch: Collector Cards mixes sports and TCG, so we filter in memory.
-            const poolSize = Math.max(limitCount * 6, 40);
+            const poolSize = Math.max(limitCount * 6, 48);
 
             try {
                 const snapshot = await firestoreDb.collection('products')
@@ -561,12 +577,15 @@ export const getSimilarProductsByCategory = unstable_cache(
                     .limit(poolSize)
                     .get();
 
-                let products = snapshot.docs.map((doc: any) => serializeFirestoreData({
+                const products = snapshot.docs.map((doc: any) => serializeFirestoreData({
                     id: doc.id,
                     ...doc.data(),
                 })) as Product[];
 
-                return products.filter(p => p.id !== currentId && sameSection(p)).slice(0, limitCount);
+                return products
+                    .filter(p => p.id !== currentId && sameSection(p))
+                    .sort((a, b) => similarityScore(b) - similarityScore(a))
+                    .slice(0, limitCount);
             } catch (indexError) {
                 const fallbackSnapshot = await firestoreDb.collection('products')
                     .where('category', 'in', related)
@@ -574,12 +593,15 @@ export const getSimilarProductsByCategory = unstable_cache(
                     .limit(poolSize)
                     .get();
 
-                let products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
+                const products = fallbackSnapshot.docs.map((doc: any) => serializeFirestoreData({
                     id: doc.id,
                     ...doc.data(),
                 })) as Product[];
 
-                return products.filter(p => p.id !== currentId && sameSection(p)).slice(0, limitCount);
+                return products
+                    .filter(p => p.id !== currentId && sameSection(p))
+                    .sort((a, b) => similarityScore(b) - similarityScore(a))
+                    .slice(0, limitCount);
             }
         } catch (error) {
             console.error("Error fetching similar products:", error);

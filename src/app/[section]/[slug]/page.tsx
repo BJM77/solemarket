@@ -1,78 +1,64 @@
 
-'use client';
-import { useState, useEffect, Suspense, useMemo } from 'react';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { PageHeader } from "@/components/layout/PageHeader";
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
-import type { Product } from '@/lib/types';
-import { useParams } from 'next/navigation';
 import MontageGrid from '@/components/products/MontageGrid';
-import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
+import { getLandingListings } from '@/lib/seo/landing-listings.server';
+import { pageOpenGraph } from '@/lib/seo/og';
+import { isCardCategory, normalizeCategory } from '@/lib/constants/marketplace';
 
-import { normalizeCategory, RELATED_CATEGORIES } from '@/lib/constants/marketplace';
-import { isPokemonListing } from '@/lib/pokemon-listings';
-import { isCoinListing } from '@/lib/coin-listings';
+export const revalidate = 600;
+
+interface Props {
+    params: Promise<{ section: string; slug: string }>;
+}
 
 function toTitleCase(str: string) {
     if (!str) return '';
     return str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-function CategoryPageContent() {
-    const params = useParams();
-    const section = params.section as string;
-    const slug = params.slug as string;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { section, slug } = await params;
+    const titleName = toTitleCase(slug);
+    const normalized = normalizeCategory(section);
+    const kind = isCardCategory(normalized) ? 'cards' : 'shoes';
+    const listings = await getLandingListings(titleName, kind);
+    const title = `Buy ${titleName} in Australia`;
+    const description = `Shop ${titleName} listings from Australian collectors and sellers on Benched. Pay directly by PayID or cash on pickup.`;
+    const path = `/${section}/${slug}`;
+    return {
+        title,
+        description,
+        alternates: { canonical: path },
+        ...(listings.length === 0 ? { robots: { index: false, follow: true } } : {}),
+        openGraph: pageOpenGraph({ title, description, path }),
+    };
+}
 
-    const { firestore } = useFirebase() || {};
+export default async function CategoryPage({ params }: Props) {
+    const { section, slug } = await params;
 
-    const categoryName = toTitleCase(slug);
+    if (section === 'admin') notFound();
+    if (section === 'listings') {
+        // Legacy /listings/[id] shortcut redirects to /product/[id] which resolves to the canonical listing URL
+        permanentRedirect(`/product/${slug}`);
+    }
 
-    // Query by both category and subCategory for efficiency
-    const productsQuery = useMemoFirebase(() => {
-        if (!firestore) return null;
-        const normalizedCategory = normalizeCategory(section);
-        const related = RELATED_CATEGORIES[normalizedCategory] || [normalizedCategory];
-
-        return query(
-            collection(firestore, "products"),
-            where('category', 'in', related),
-            where('subCategory', '==', categoryName),
-            where('status', '==', 'available'),
-            orderBy("createdAt", "desc"),
-            limit(100)
-        );
-    }, [firestore, section, categoryName]);
-
-    const { data: products, isLoading } = useCollection<Product>(productsQuery);
-
-    const pageTitle = `${toTitleCase(slug)}`;
-    const pageDescription = `Browse collectibles in the ${pageTitle} category.`;
+    const titleName = toTitleCase(slug);
+    const normalized = normalizeCategory(section);
+    const kind = isCardCategory(normalized) ? 'cards' : 'shoes';
+    const products = await getLandingListings(titleName, kind);
 
     return (
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <PageHeader
-                    title={pageTitle}
-                    description={pageDescription}
+                    title={titleName}
+                    description={`Browse ${titleName} listings from Australian sellers on Benched.`}
                 />
             </div>
-
-            {isLoading ? (
-                <div className="container mx-auto px-4">
-                    <ProductGridSkeleton count={20} />
-                </div>
-            ) : (
-                <MontageGrid products={(products || []).filter((p) => !isPokemonListing(p) && !isCoinListing(p))} />
-            )}
+            <MontageGrid products={products} />
         </div>
     );
-}
-
-
-export default function CategoryPage() {
-    return (
-        <Suspense fallback={<ProductGridSkeleton count={20} />}>
-            <CategoryPageContent />
-        </Suspense>
-    )
 }

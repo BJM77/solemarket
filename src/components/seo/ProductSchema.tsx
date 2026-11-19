@@ -14,6 +14,9 @@ type Props = {
 export default function ProductSchema({ product, siteUrl = 'https://benched.au', seller = null }: Props) {
   const brand = schemaBrand(product);
 
+  const colorVal = product.colorway || product.color;
+  const sizeVal = product.size;
+
   const additionalProperty = [
     product.year ? { '@type': 'PropertyValue', name: 'Year', value: String(product.year) } : null,
     (product as any).set ? { '@type': 'PropertyValue', name: 'Set', value: String((product as any).set) } : null,
@@ -21,6 +24,9 @@ export default function ProductSchema({ product, siteUrl = 'https://benched.au',
     product.gradingCompany ? { '@type': 'PropertyValue', name: 'Grading Company', value: String(product.gradingCompany) } : null,
     product.grade ? { '@type': 'PropertyValue', name: 'Grade', value: String(product.grade) } : null,
     product.condition ? { '@type': 'PropertyValue', name: 'Condition', value: String(product.condition) } : null,
+    product.model ? { '@type': 'PropertyValue', name: 'Model', value: String(product.model) } : null,
+    sizeVal ? { '@type': 'PropertyValue', name: 'Size (US)', value: String(sizeVal) } : null,
+    colorVal ? { '@type': 'PropertyValue', name: 'Colorway', value: String(colorVal) } : null,
   ].filter(Boolean);
 
   const jsonLd = {
@@ -33,6 +39,9 @@ export default function ProductSchema({ product, siteUrl = 'https://benched.au',
     category: product.category,
     // mpn is the manufacturer's part number (e.g. a sneaker style code); never our listing ID or card number.
     ...(product.styleCode && { mpn: String(product.styleCode) }),
+    ...(product.model && { model: String(product.model) }),
+    ...(sizeVal && { size: String(sizeVal) }),
+    ...(colorVal && { color: String(colorVal) }),
     ...(brand && { brand: { '@type': 'Brand', name: brand } }),
     ...(additionalProperty.length > 0 && { additionalProperty }),
     offers: {

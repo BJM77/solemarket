@@ -27,6 +27,16 @@ describe('getProductUrl', () => {
   it('builds the canonical pretty URL', () => {
     expect(getProductUrl({ id: 'abc', title: 'Pokémon Pikachu', category: 'Collector Cards' })).toBe('/cards/pokemon-pikachu/abc');
   });
+
+  it('enriches sneaker slugs with brand and US size when not already in the title', () => {
+    expect(getProductUrl({
+      id: '12345',
+      title: 'Kobe 6 Protro Reverse Grinch',
+      category: 'Sneakers',
+      brand: 'Nike',
+      size: '11',
+    })).toBe('/shoes/nike-kobe-6-protro-reverse-grinch-us11/12345');
+  });
 });
 
 describe('slugify separators', () => {
