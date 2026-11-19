@@ -64,41 +64,6 @@ export function StructuredData() {
               },
               'query-input': 'required name=search_term_string'
             }
-          },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
-            '@id': `${siteUrl}/#localbusiness`,
-            name: SITE_NAME,
-            image: abs(brandConfig.branding.ogImageUrl),
-            url: siteUrl,
-            ...(phone ? { telephone: phone } : {}),
-            email: brandConfig.contact.email,
-            priceRange: '$$',
-            address: {
-              '@type': 'PostalAddress',
-              ...(brandConfig.contact.address.street ? { streetAddress: brandConfig.contact.address.street } : {}),
-              addressLocality: brandConfig.contact.address.city,
-              addressRegion: brandConfig.contact.address.state,
-              postalCode: brandConfig.contact.address.postcode,
-              addressCountry: brandConfig.contact.address.country
-            },
-            ...(brandConfig.contact.coordinates && {
-              geo: {
-                '@type': 'GeoCoordinates',
-                latitude: brandConfig.contact.coordinates.latitude,
-                longitude: brandConfig.contact.coordinates.longitude
-              }
-            }),
-            openingHoursSpecification: [
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-                opens: '09:00',
-                closes: '17:00'
-              }
-            ],
-            ...(sameAs.length ? { sameAs } : {})
           }
         ]),
       }}

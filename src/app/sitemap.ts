@@ -134,17 +134,19 @@ export default async function sitemap({ id: rawId }: { id: number | string }): P
     }
   }
 
-  // Listing pages (every chunk, offset by id). Coins aren't part of benched.au.
-  // Pokémon / TCG listings are included; their breadcrumb points at /pokemon.
+  // Listing pages (every chunk, offset by id). Coins and Pokémon/TCG have their
+  // dedicated sitemaps (/coins/sitemap.xml and /pokemon/sitemap.xml).
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const activeProducts = await getActiveProducts(PRODUCT_SITEMAP_SIZE, startOffset);
-    productRoutes = activeProducts.filter(p => !isCoinListing(p)).map(p => ({
-      url: `${baseUrl}${getProductUrl(p)}`,
-      lastModified: toSitemapDate(p.updatedAt, p.createdAt),
-      changeFrequency: 'daily',
-      priority: 0.6,
-    }));
+    productRoutes = activeProducts
+      .filter(p => !isCoinListing(p) && !isPokemonListing(p))
+      .map(p => ({
+        url: `${baseUrl}${getProductUrl(p)}`,
+        lastModified: toSitemapDate(p.updatedAt, p.createdAt),
+        changeFrequency: 'daily',
+        priority: 0.6,
+      }));
   } catch (err) {
     console.error(`Sitemap: Error fetching products for chunk ${id}:`, err);
   }

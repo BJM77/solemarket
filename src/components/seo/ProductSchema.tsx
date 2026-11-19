@@ -52,8 +52,36 @@ export default function ProductSchema({ product, siteUrl = 'https://benched.au',
       ...(schemaItemCondition(product.condition) && { itemCondition: schemaItemCondition(product.condition) }),
       availability: listingSeoState(product.status).availability,
       url: `${siteUrl}${getProductUrl(product)}`,
-      // Benched is the marketplace, not the seller. Shipping/returns are set per seller
-      // and not stored in a structured way, so shippingDetails/hasMerchantReturnPolicy are omitted.
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'AU',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 3,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 6,
+            unitCode: 'DAY',
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'AU',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
+      },
       ...(seller && { seller }),
     },
   };

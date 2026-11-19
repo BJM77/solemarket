@@ -38,6 +38,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: '/cards' },
     openGraph: pageOpenGraph({ title, description, path: '/cards' }),
   };
 }

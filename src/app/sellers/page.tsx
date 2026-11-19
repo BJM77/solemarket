@@ -10,6 +10,7 @@ import { SellerHubLinks } from '@/components/sellers/SellerHubLinks';
 export const metadata = {
     title: 'Seller Hub & Our Sellers',
     description: 'Manage and upload your Benched listings, and browse our community of verified sellers.',
+    alternates: { canonical: '/sellers' },
 };
 
 export default async function SellersPage() {

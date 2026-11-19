@@ -8,12 +8,50 @@ export default function robots(): MetadataRoute.Robots {
   if (!STOREFRONTS.coins.launched) sitemaps.push(`${baseUrl}/coins/sitemap.xml`);
   if (!STOREFRONTS.pokemon.launched) sitemaps.push(`${baseUrl}/pokemon/sitemap.xml`);
 
+  const privateAndAppRoutes = [
+    '/admin/',
+    '/profile/',
+    '/checkout',
+    '/order',
+    '/messages',
+    '/sell/wizard',
+    '/sell/create',
+    '/sell/dashboard',
+    '/sell/listings',
+    '/sell/review',
+    '/sell/drafts-review',
+    '/sell/fast-bulk',
+    '/sell/bulk',
+    '/sell/bulk-csv-lister',
+    '/sell/autofast',
+    '/sell/proload',
+    '/sell/settings',
+    '/sell/payouts',
+    '/seller/dashboard',
+    '/seller/analytics',
+    '/seller/bundles',
+    '/seller/price-check',
+    '/seller/onboarding',
+    '/seller/agreement',
+    '/samcam',
+    '/procam',
+    '/coincam',
+    '/shoecam',
+    '/autocard',
+    '/sign-in',
+    '/sign-up',
+    '/complete-profile',
+    '/verify',
+    '/api/',
+    '/*?*',
+  ];
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: ['/', '/api/og-proxy', '/api/ai-feed', '/api/feeds/google-merchant'],
-        disallow: ['/admin/', '/profile/', '/*?*'],
+        disallow: privateAndAppRoutes,
       },
       {
         userAgent: [
@@ -29,7 +67,7 @@ export default function robots(): MetadataRoute.Robots {
           'Meta-ExternalAgent'
         ],
         allow: ['/', '/api/ai-feed'],
-        disallow: ['/admin/', '/profile/', '/*?*'],
+        disallow: privateAndAppRoutes,
       }
     ],
     sitemap: sitemaps.length === 1 ? sitemaps[0] : sitemaps,

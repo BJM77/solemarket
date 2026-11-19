@@ -9,7 +9,10 @@ import { BUNDLE_TIERS, TIER_LABEL, isBundleTier, multibuyFilterState, tierOfferT
 
 export const metadata: Metadata = {
     title: 'Multibuy Deals',
-    description: 'Shop items with bulk discounts. Buy more, save more on sneakers and streetwear.',
+    description: 'Shop items with bulk discounts. Buy more, save more on sneakers, trading cards and collectibles.',
+    alternates: {
+        canonical: '/multibuy',
+    },
     openGraph: {
         title: 'Multibuy Deals',
         description: 'Shop items with bulk discounts. Buy more, save more.',
