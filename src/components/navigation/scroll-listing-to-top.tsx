@@ -20,14 +20,13 @@ function attachListeners() {
   window.addEventListener("popstate", () => {
     historyNavigationPending = true;
   });
-  // A click (link or button) starts a fresh forward navigation.
-  window.addEventListener(
-    "click",
-    () => {
-      historyNavigationPending = false;
-    },
-    { capture: true },
-  );
+  // A pointer interaction (click, touch, pointerdown) starts a fresh forward navigation.
+  const markForward = () => {
+    historyNavigationPending = false;
+  };
+  window.addEventListener("click", markForward, { capture: true });
+  window.addEventListener("pointerdown", markForward, { capture: true });
+  window.addEventListener("touchstart", markForward, { capture: true, passive: true });
 }
 
 if (typeof window !== "undefined") attachListeners();
@@ -64,7 +63,15 @@ export function resetListingScrollStateForTests() {
 export default function ScrollListingToTop() {
   const pathname = usePathname();
   useLayoutEffect(() => {
-    if (shouldScrollListingToTop()) window.scrollTo(0, 0);
+    if (shouldScrollListingToTop()) {
+      window.scrollTo(0, 0);
+      // Secondary frame check in case streaming or layout shift on mobile happens right after mount
+      requestAnimationFrame(() => {
+        if (window.scrollY > 0) {
+          window.scrollTo(0, 0);
+        }
+      });
+    }
   }, [pathname]);
   return null;
 }
