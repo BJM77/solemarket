@@ -105,6 +105,9 @@ import { holdEndsAt, isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout
 import { getListingRequestCountAction } from '@/app/actions/marketplace/requests';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MultiDealSelectionModal } from '@/components/products/MultiDealSelectionModal';
+import { getSellerMultibuyEligibleItems } from '@/app/actions/marketplace/multibuy-items';
+import { isBundleTier } from '@/lib/tier-bundles';
 
 // Below-the-fold / on-demand UI: split into separate chunks to cut product-page JS.
 const ConditionGuide = dynamic(() => import('./ConditionGuide').then((m) => m.ConditionGuide));
@@ -169,6 +172,9 @@ export default function ProductDetailsModern({
     const [sellerMultibuyProducts, setSellerMultibuyProducts] = useState<Product[]>([]);
     const [loadingSellerMultibuy, setLoadingSellerMultibuy] = useState(false);
     const [moreFromSeller, setMoreFromSeller] = useState<Product[]>([]);
+    const [isMultiDealModalOpen, setIsMultiDealModalOpen] = useState(false);
+    const [multiDealCandidates, setMultiDealCandidates] = useState<Product[]>([]);
+    const [loadingMultiDealCandidates, setLoadingMultiDealCandidates] = useState(false);
 
     // Initial load of guest data
     useEffect(() => {
@@ -513,6 +519,25 @@ export default function ProductDetailsModern({
         }
 
         addItem(product, 1);
+
+        // Check if item is part of a multi deal (multiCardTier or fixed bundle)
+        const isMultiDeal = !!(product.multiCardTier || product.multibuyEnabled);
+        if (isMultiDeal && product.sellerId) {
+            setLoadingMultiDealCandidates(true);
+            setIsMultiDealModalOpen(true);
+            getSellerMultibuyEligibleItems({
+                sellerId: product.sellerId,
+                currentProductId: product.id,
+                tier: product.multiCardTier,
+            })
+                .then((res) => {
+                    setMultiDealCandidates(res.products);
+                })
+                .catch(() => setMultiDealCandidates([]))
+                .finally(() => setLoadingMultiDealCandidates(false));
+            return;
+        }
+
         toast({
             title: "Added to Cart!",
             description: `${product.title} is now in your cart. Redirecting to checkout...`,
@@ -1756,6 +1781,15 @@ export default function ProductDetailsModern({
                     product={{ id: product.id || productId, title: product.title, price: product.price }}
                     signInHref={`/sign-in?redirect=${encodeURIComponent(getProductUrl(product))}`}
                     payIdReady={!!seller?.payIdReady}
+                />
+            )}
+            {product && (
+                <MultiDealSelectionModal
+                    open={isMultiDealModalOpen}
+                    onOpenChange={setIsMultiDealModalOpen}
+                    product={product}
+                    eligibleProducts={multiDealCandidates}
+                    loading={loadingMultiDealCandidates}
                 />
             )}
         </main>

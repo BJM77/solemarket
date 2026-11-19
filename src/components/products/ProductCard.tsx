@@ -57,6 +57,8 @@ import { shortListingTitle, formatShoeSizeBadge } from '@/lib/utils/short-listin
 import { isCoinListing } from '@/lib/coin-listings';
 import { coinTileBadge, coinTileTitle } from '@/lib/coins/display';
 import { formatBundleTierBadge } from '@/lib/tier-bundles';
+import { MultiDealSelectionModal } from '@/components/products/MultiDealSelectionModal';
+import { getSellerMultibuyEligibleItems } from '@/app/actions/marketplace/multibuy-items';
 
 
 
@@ -98,6 +100,9 @@ export default function ProductCard({
   const [isDeleted, setIsDeleted] = useState(false);
   const [isRenewing, setIsRenewing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isMultiDealModalOpen, setIsMultiDealModalOpen] = useState(false);
+  const [multiDealCandidates, setMultiDealCandidates] = useState<Product[]>([]);
+  const [loadingMultiDealCandidates, setLoadingMultiDealCandidates] = useState(false);
   const { viewedProductIds } = useViewedProducts();
 
   // HYDRATION FIX: Use state and useEffect to avoid server/client mismatch on dates and auth state
@@ -354,6 +359,25 @@ export default function ProductCard({
     }
 
     addItem(product, 1);
+
+    // If item is part of a multi deal, open the MultiDealSelectionModal
+    const isMultiDeal = !!(product.multiCardTier || product.multibuyEnabled);
+    if (isMultiDeal && product.sellerId) {
+      setLoadingMultiDealCandidates(true);
+      setIsMultiDealModalOpen(true);
+      getSellerMultibuyEligibleItems({
+        sellerId: product.sellerId,
+        currentProductId: product.id,
+        tier: product.multiCardTier,
+      })
+        .then((res) => {
+          setMultiDealCandidates(res.products);
+        })
+        .catch(() => setMultiDealCandidates([]))
+        .finally(() => setLoadingMultiDealCandidates(false));
+      return;
+    }
+
     toast({
       title: 'Added to Cart!',
       description: `${product.title} is in your cart. Heading to checkout...`,
@@ -1196,6 +1220,13 @@ export default function ProductCard({
         isOpen={isLightboxOpen}
         onOpenChange={setIsLightboxOpen}
         title={product.title}
+      />
+      <MultiDealSelectionModal
+        open={isMultiDealModalOpen}
+        onOpenChange={setIsMultiDealModalOpen}
+        product={product}
+        eligibleProducts={multiDealCandidates}
+        loading={loadingMultiDealCandidates}
       />
     </div>
     </>

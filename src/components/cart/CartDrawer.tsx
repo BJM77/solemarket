@@ -13,13 +13,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Plus, Minus, ShoppingBag, Tag, Package } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Tag, Package, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from "@/lib/utils/format";
 import { bundleProgress, isLineEligible, type BundleProgress, type PricedLine } from '@/lib/bundles';
 import { cartItemsToLines } from '@/lib/order-pricing';
 import { TierNudges } from '@/components/cart/TierNudges';
+import { HoldCountdown } from '@/components/checkout/HoldCountdown';
 
 export function CartDrawer() {
     const { items, removeItem, updateQuantity, cartSubtotal, cartTotal, itemCount, isCartOpen, setIsCartOpen, pricing, bundles } = useCart();
@@ -77,6 +78,13 @@ export function CartDrawer() {
                                             <div>
                                                 <h4 className="font-semibold line-clamp-2 leading-tight">{item.title}</h4>
                                                 <CartLinePrice line={pricing.lines[idx]} unitPrice={lines[idx]?.unitPrice ?? item.price} />
+                                                {item.holdExpiresAtMs && (
+                                                    <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                                                        <Clock className="w-3 h-3" />
+                                                        <span>Held: </span>
+                                                        <HoldCountdown compact expiresAt={item.holdExpiresAtMs} />
+                                                    </div>
+                                                )}
                                                 <CartLineOffers
                                                     item={item}
                                                     line={pricing.lines[idx]}

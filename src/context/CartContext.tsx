@@ -22,9 +22,13 @@ import type { FixedPriceBundle } from '@/types/bundles';
 import { useTierSettings } from '@/hooks/use-tier-settings';
 import { calculateCombinedShipping, DEFAULT_SHIPPING_SETTINGS, type ShippingSettings } from '@/lib/pricing';
 import { getShippingSettings } from '@/app/actions/marketplace/shipping-settings';
+import { holdCartItemAction } from '@/app/actions/marketplace/cart-hold';
+import { getDeviceId } from '@/components/checkout/GuestCheckoutDialog';
 
 export interface CartItem extends Product {
   quantity: number;
+  /** Timestamp when 30-min cart hold expires (ms) */
+  holdExpiresAtMs?: number;
 }
 
 interface CartContextType {
@@ -128,20 +132,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, shippingMethod, shippingAddress, toast]);
 
   const addItem = useCallback((product: Product, quantity: number = 1) => {
+    const holdExpiresAtMs = Date.now() + 30 * 60 * 1000;
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
         return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: item.quantity + quantity, holdExpiresAtMs }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity }];
+      return [...prevItems, { ...product, quantity, holdExpiresAtMs }];
     });
+
+    // Request server-side hold (30 minutes)
+    try {
+      const cartHoldId = getDeviceId();
+      holdCartItemAction({ productId: product.id, cartHoldId, durationMinutes: 30 }).catch(() => null);
+    } catch {
+      // non-blocking
+    }
+
     toast({
-      title: "Added to Cart",
-      description: `${product.title} has been added to your cart.`,
+      title: "Held in Cart for 30 Mins",
+      description: `${product.title} has been added. Complete checkout or add more cards before the hold expires.`,
     });
   }, [toast]);
 
