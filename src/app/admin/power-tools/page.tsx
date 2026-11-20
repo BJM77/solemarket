@@ -28,7 +28,16 @@ import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_UIDS } from '@/lib/constants';
 import { getAdminStats, type AdminStats } from '@/app/actions/admin/admin-stats';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 
-const powerTools = [
+interface PowerToolItem {
+    title: string;
+    description: string;
+    icon: any;
+    href: string;
+    color: string;
+    comingSoon?: boolean;
+}
+
+const powerTools: PowerToolItem[] = [
     {
         title: 'Autofast (AutoCard)',
         description: 'Auto-capture straight, cropped front and back card photos on a plain background',
@@ -112,7 +121,6 @@ const powerTools = [
         icon: QrCode,
         href: '/admin/qr-codes',
         color: 'bg-pink-500',
-        comingSoon: true,
     },
     {
         title: 'Shipping Labels',
@@ -120,7 +128,6 @@ const powerTools = [
         icon: Package,
         href: '/admin/shipping',
         color: 'bg-cyan-500',
-        comingSoon: true,
     },
     {
         title: 'MultiCard Fast Lister',

@@ -2,69 +2,72 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { db } from '@/lib/firebase/config';
-import { collection, query, where, getDocs, writeBatch, Timestamp } from 'firebase/firestore';
+import { firestoreDb } from '@/lib/firebase/admin';
 import { getAutoRepricingSettings } from '@/app/admin/auto-repricing/actions';
 import { Product } from '@/lib/types';
-import { sendNotification, getSuperAdminId } from '@/services/notifications';
+import { sendNotification } from '@/services/notifications';
+import { SUPER_ADMIN_UIDS } from '@/lib/constants';
 
-// This flow would be triggered by a scheduled job (e.g., a cron job calling an HTTP endpoint)
-export const autoRepriceProductsFlow = ai.defineFlow(
-    {
-        name: 'autoRepriceProductsFlow',
-        inputSchema: z.null(),
-        outputSchema: z.object({
-            success: z.boolean(),
-            message: z.string(),
-            repricedProducts: z.array(z.string()),
-        }),
-    },
-    async () => {
-        const settings = await getAutoRepricingSettings();
-        if (!settings) {
-            return { success: false, message: 'Auto-repricing settings not configured.', repricedProducts: [] };
+export async function runAutoRepricing(): Promise<{
+    success: boolean;
+    message: string;
+    repricedProducts: string[];
+}> {
+    const settings = await getAutoRepricingSettings();
+    if (!settings) {
+        return { success: false, message: 'Auto-repricing settings not configured.', repricedProducts: [] };
+    }
+
+    const { viewThreshold, priceDropPercentage, waitingPeriodHours } = settings;
+    const now = Date.now();
+    const waitingPeriodMillis = waitingPeriodHours * 60 * 60 * 1000;
+
+    const snapshot = await firestoreDb
+        .collection('products')
+        .where('autoRepricingEnabled', '==', true)
+        .where('uniqueViews', '>=', viewThreshold)
+        .get();
+
+    if (snapshot.empty) {
+        return { success: true, message: 'No products met the view threshold.', repricedProducts: [] };
+    }
+
+    const batch = firestoreDb.batch();
+    const repricedProducts: string[] = [];
+    const notificationsToSend: Promise<any>[] = [];
+    const adminId = SUPER_ADMIN_UIDS[0];
+
+    for (const doc of snapshot.docs) {
+        const product = { id: doc.id, ...doc.data() } as Product;
+
+        // Determine last viewed timestamp
+        let lastViewedMillis: number | null = null;
+        if (product.lastViewedTimestamp) {
+            if (typeof (product.lastViewedTimestamp as any).toMillis === 'function') {
+                lastViewedMillis = (product.lastViewedTimestamp as any).toMillis();
+            } else if (typeof (product.lastViewedTimestamp as any).toDate === 'function') {
+                lastViewedMillis = (product.lastViewedTimestamp as any).toDate().getTime();
+            } else if ((product.lastViewedTimestamp as any) instanceof Date) {
+                lastViewedMillis = (product.lastViewedTimestamp as any).getTime();
+            } else if (typeof product.lastViewedTimestamp === 'string' || typeof product.lastViewedTimestamp === 'number') {
+                lastViewedMillis = new Date(product.lastViewedTimestamp).getTime();
+            }
         }
 
-        const { viewThreshold, priceDropPercentage, waitingPeriodHours } = settings;
-        const now = Timestamp.now();
-        const waitingPeriodMillis = waitingPeriodHours * 60 * 60 * 1000;
+        if (lastViewedMillis && !isNaN(lastViewedMillis)) {
+            const timeSinceLastView = now - lastViewedMillis;
 
-        const productsRef = collection(db, 'products');
-        const q = query(
-            productsRef,
-            where('autoRepricingEnabled', '==', true),
-            where('uniqueViews', '>=', viewThreshold)
-        );
+            if (timeSinceLastView >= waitingPeriodMillis) {
+                const currentPrice = Number(product.price) || 0;
+                if (currentPrice > 0) {
+                    const newPrice = Math.max(1, Math.round(currentPrice * (1 - priceDropPercentage / 100) * 100) / 100);
 
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-            return { success: true, message: 'No products met the view threshold.', repricedProducts: [] };
-        }
-        
-        const batch = writeBatch(db);
-        const repricedProducts: string[] = [];
-        const notificationsToSend: Promise<any>[] = [];
-
-        const adminId = await getSuperAdminId();
-        if (!adminId) {
-            console.warn('Super admin ID not found. Auto-repricing notifications will not be sent.');
-        }
-
-        for (const doc of querySnapshot.docs) {
-            const product = { id: doc.id, ...doc.data() } as Product;
-            
-            if (product.lastViewedTimestamp) {
-                const lastViewedMillis = product.lastViewedTimestamp.toMillis();
-                const timeSinceLastView = now.toMillis() - lastViewedMillis;
-
-                if (timeSinceLastView >= waitingPeriodMillis) {
-                    const newPrice = product.price * (1 - priceDropPercentage / 100);
-                    
-                    // Add update to batch
-                    batch.update(doc.ref, { price: newPrice });
+                    batch.update(doc.ref, {
+                        price: newPrice,
+                        updatedAt: new Date(),
+                    });
                     repricedProducts.push(product.id);
 
-                    // Prepare notification for the admin
                     if (adminId) {
                         const notificationPromise = sendNotification(
                             adminId,
@@ -78,17 +81,36 @@ export const autoRepriceProductsFlow = ai.defineFlow(
                 }
             }
         }
+    }
 
-        if (repricedProducts.length > 0) {
-            await batch.commit();
-            await Promise.all(notificationsToSend);
-            return {
-                success: true,
-                message: `Successfully repriced ${repricedProducts.length} products.`,
-                repricedProducts,
-            };
-        }
+    if (repricedProducts.length > 0) {
+        await batch.commit();
+        await Promise.allSettled(notificationsToSend);
+        return {
+            success: true,
+            message: `Successfully repriced ${repricedProducts.length} product(s).`,
+            repricedProducts,
+        };
+    }
 
-        return { success: true, message: 'No products were eligible for a price drop at this time.', repricedProducts: [] };
+    return {
+        success: true,
+        message: 'No products were eligible for a price drop at this time.',
+        repricedProducts: [],
+    };
+}
+
+export const autoRepriceProductsFlow = ai.defineFlow(
+    {
+        name: 'autoRepriceProductsFlow',
+        inputSchema: z.null(),
+        outputSchema: z.object({
+            success: z.boolean(),
+            message: z.string(),
+            repricedProducts: z.array(z.string()),
+        }),
+    },
+    async () => {
+        return runAutoRepricing();
     }
 );

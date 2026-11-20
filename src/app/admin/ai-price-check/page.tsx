@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, doc, updateDoc, where, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
 import { getAIRecommendedPrice, PricingRecommendation } from '@/app/actions/admin/ai-pricing';
+import { updateProductPrice } from '@/app/actions/marketplace/product-updates';
 import { Loader2, Sparkles, Check, X, ExternalLink, RefreshCw } from 'lucide-react';
 import { getProductUrl } from "@/lib/utils/url";
 import Link from 'next/link';
@@ -74,12 +75,15 @@ const ProductRow = forwardRef<ProductRowRef, { product: Product, idToken: string
         if (!recommendation) return;
         setIsLoading(true);
         try {
-            const productRef = doc(db, 'products', product.id);
-            await updateDoc(productRef, { price: recommendation.recommendedPrice });
-            setStatus('updated');
-        } catch (error) {
+            const res = await updateProductPrice(product.id, recommendation.recommendedPrice, idToken);
+            if (res.success) {
+                setStatus('updated');
+            } else {
+                alert(`Failed to update price: ${res.error || 'Unknown error'}`);
+            }
+        } catch (error: any) {
             console.error("Failed to update price:", error);
-            alert("Failed to update price.");
+            alert(`Failed to update price: ${error?.message || 'Network error'}`);
         } finally {
             setIsLoading(false);
         }

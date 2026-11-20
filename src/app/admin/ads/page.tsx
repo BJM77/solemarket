@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -8,8 +7,9 @@ import { Advertisement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { Plus, BarChart3, Eye, MousePointer } from 'lucide-react';
+import { Plus, BarChart3, Eye, MousePointer, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useUserPermissions } from '@/hooks/use-user-permissions';
 
 const PLACEMENTS = [
     { id: 'home_top_banner', name: 'Home Top Banner', description: 'Displays at the very top of the homepage, below the ticker' },
@@ -19,8 +19,21 @@ const PLACEMENTS = [
 ];
 
 export default function AdsAdminPage() {
+    const { isSuperAdmin, isLoading: isPermissionsLoading } = useUserPermissions();
     const q = useMemoFirebase(() => query(collection(db, 'ads'), orderBy('createdAt', 'desc')), []);
-    const { data: ads, isLoading } = useCollection<Advertisement>(q);
+    const { data: ads, isLoading: isAdsLoading } = useCollection<Advertisement>(q);
+
+    if (isPermissionsLoading) {
+        return <div className="p-8 text-center text-muted-foreground animate-pulse">Checking credentials...</div>;
+    }
+
+    if (!isSuperAdmin) {
+        return <div className="p-8 text-center text-red-500 font-medium">Access Denied: Super Admin required.</div>;
+    }
+
+    const totalImpressions = ads?.reduce((acc, curr) => acc + (Number(curr.impressions) || 0), 0) ?? 0;
+    const totalClicks = ads?.reduce((acc, curr) => acc + (Number(curr.clicks) || 0), 0) ?? 0;
+    const activeCount = ads?.filter(a => a.status === 'active').length ?? 0;
 
     return (
         <div className="space-y-6 p-8">
@@ -44,7 +57,7 @@ export default function AdsAdminPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {ads?.filter(a => a.status === 'active').length || 0}
+                            {activeCount}
                         </div>
                     </CardContent>
                 </Card>
@@ -55,7 +68,7 @@ export default function AdsAdminPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {ads?.reduce((acc, curr) => acc + (curr.impressions || 0), 0).toLocaleString()}
+                            {totalImpressions.toLocaleString()}
                         </div>
                     </CardContent>
                 </Card>
@@ -66,7 +79,7 @@ export default function AdsAdminPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {ads?.reduce((acc, curr) => acc + (curr.clicks || 0), 0).toLocaleString()}
+                            {totalClicks.toLocaleString()}
                         </div>
                     </CardContent>
                 </Card>
@@ -118,35 +131,41 @@ export default function AdsAdminPage() {
                     <CardTitle>All Campaigns</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {ads?.map((ad) => (
-                            <div key={ad.id} className="flex items-center justify-between p-4 border rounded-lg">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-16 w-24 bg-gray-100 rounded-md overflow-hidden relative">
-                                        <img src={ad.imageUrl} alt={ad.title} className="object-cover w-full h-full" />
+                    {isAdsLoading ? (
+                        <div className="flex justify-center p-8">
+                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {ads?.map((ad) => (
+                                <div key={ad.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-16 w-24 bg-gray-100 rounded-md overflow-hidden relative">
+                                            <img src={ad.imageUrl} alt={ad.title} className="object-cover w-full h-full" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold">{ad.title}</h4>
+                                            <p className="text-sm text-muted-foreground">{ad.advertiserName} • {ad.placement}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold">{ad.title}</h4>
-                                        <p className="text-sm text-muted-foreground">{ad.advertiserName} • {ad.placement}</p>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right">
+                                            <div className="text-sm font-medium">{Number(ad.impressions || 0).toLocaleString()} views</div>
+                                            <div className="text-xs text-muted-foreground">{Number(ad.clicks || 0).toLocaleString()} clicks</div>
+                                        </div>
+                                        <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
+                                            {ad.status}
+                                        </Badge>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right">
-                                        <div className="text-sm font-medium">{ad.impressions} views</div>
-                                        <div className="text-xs text-muted-foreground">{ad.clicks} clicks</div>
-                                    </div>
-                                    <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
-                                        {ad.status}
-                                    </Badge>
+                            ))}
+                            {(!ads || ads.length === 0) && (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    No campaigns found. Create one to get started.
                                 </div>
-                            </div>
-                        ))}
-                        {(!ads || ads.length === 0) && (
-                            <div className="text-center py-8 text-muted-foreground">
-                                No campaigns found. Create one to get started.
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
