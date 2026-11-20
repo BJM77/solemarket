@@ -299,7 +299,7 @@ export default function ProductDetailsClient({
             const result = await deleteProductByAdmin(productId, idToken);
             if (!result.success) throw new Error(result.error);
             toast({ title: "Product Deleted", description: result.message });
-            router.push('/browse');
+            router.push('/sell/dashboard');
         } catch (error: any) {
             toast({ variant: "destructive", title: "Deletion Failed", description: error.message || "An error occurred." });
         } finally {

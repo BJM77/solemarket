@@ -44,7 +44,7 @@ export const STOREFRONTS: Record<StorefrontId, StorefrontConfig> = {
     name: 'Benched',
     hosts: ['benched.au', 'www.benched.au'],
     origin: 'https://benched.au',
-    tagline: "Australia's basketball card and sneaker marketplace",
+    tagline: 'Buy and sell basketball sneakers and cards',
     seo: {
       title: 'Benched | Basketball Cards & Sneakers Marketplace Australia',
       description: 'Buy and sell NBA trading cards, graded cards, rookies and sneakers from Australian collectors.',

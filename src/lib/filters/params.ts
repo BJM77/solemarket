@@ -152,7 +152,7 @@ export function facetsFor(category?: string | null): FacetConfig {
     case 'sneakers': return { brand: true, size: true, sneakerCondition: true, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false, grades: false, basketballMetadata: false, sneakerModel: true };
     case 'cards': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: true, grading: true, manufacturer: true, year: true, dealTiers: true, grades: true, basketballMetadata: true, sneakerModel: false };
     case 'coins': return { brand: false, size: false, sneakerCondition: false, cardSubCategory: false, grading: true, manufacturer: false, year: true, dealTiers: false, grades: true, basketballMetadata: false, sneakerModel: false };
-    default: return { brand: true, size: false, sneakerCondition: false, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: false, grades: false, basketballMetadata: false, sneakerModel: false };
+    default: return { brand: true, size: false, sneakerCondition: false, cardSubCategory: false, grading: false, manufacturer: false, year: false, dealTiers: true, grades: false, basketballMetadata: false, sneakerModel: false };
   }
 }
 

@@ -123,7 +123,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   hero: {
     h1TitleLine1: "AUSTRALIA'S PREMIER",
     h1TitleLine2: 'MARKETPLACE.',
-    subText1: 'Buy and sell basketball cards and sneakers.',
+    subText1: 'Buy and sell basketball sneakers and cards.',
     subText2: '',
     buttons: [
       { id: '1', label: 'Shop Sneakers', href: '/shoes', bgColor: '#f26c0d', textColor: '#ffffff' },
@@ -183,7 +183,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     }
   ],
   footer: {
-    tagline: "Australia's Basketball Card & Sneaker Marketplace",
+    tagline: 'Buy and sell basketball sneakers and cards',
     copyright: '',
     showNewsletter: true,
     columns: [

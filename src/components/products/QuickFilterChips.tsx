@@ -20,6 +20,11 @@ const QUICK_PRICES = [
     { label: 'Under $200', value: [0, 200] },
     { label: 'Under $500', value: [0, 500] },
 ];
+const QUICK_TIERS = [
+    { label: 'Bronze Deals', value: 'bronze' },
+    { label: 'Silver Deals', value: 'silver' },
+    { label: 'Gold Deals', value: 'gold' },
+];
 
 export function QuickFilterChips({
     currentFilters,
@@ -28,6 +33,7 @@ export function QuickFilterChips({
     className
 }: QuickFilterChipsProps) {
     const isSneakers = facetCategory(targetCategory) === 'sneakers';
+    const showTierChips = !isSneakers;
     const currentSizes = ((currentFilters.sizes as string[]) || []).map(normalizeSize);
     const currentTiers = (currentFilters.multiCardTiers as string[]) || [];
     const currentSubCategory = currentFilters.subCategory as string;
@@ -126,15 +132,23 @@ export function QuickFilterChips({
                 })}
 
                 {/* Deal Tier Chips */}
-                {currentTiers.map(tier => (
-                    <button
-                        key={`tier-${tier}`}
-                        onClick={() => toggleTier(tier)}
-                        className="px-3 py-1 rounded-full text-xs font-bold transition-all border whitespace-nowrap tap-haptic-subtle bg-primary/10 border-primary text-primary flex items-center gap-1"
-                    >
-                        {tier.charAt(0).toUpperCase() + tier.slice(1)} <X className="h-3 w-3 ml-1" />
-                    </button>
-                ))}
+                {showTierChips && QUICK_TIERS.map(tier => {
+                    const isSelected = currentTiers.includes(tier.value);
+                    return (
+                        <button
+                            key={tier.value}
+                            onClick={() => toggleTier(tier.value)}
+                            className={cn(
+                                "px-3 py-1 rounded-full text-xs font-bold transition-all border whitespace-nowrap tap-haptic-subtle flex items-center gap-1",
+                                isSelected
+                                    ? "bg-primary/10 border-primary text-primary"
+                                    : "bg-muted/30 border-transparent text-muted-foreground hover:border-muted-foreground/30"
+                            )}
+                        >
+                            {tier.label} {isSelected && <X className="h-3 w-3 ml-0.5" />}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

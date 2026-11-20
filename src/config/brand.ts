@@ -144,11 +144,11 @@ export const brandConfig: BrandConfig = {
         abn: process.env.COMPANY_ABN,
         description: getEnv(
             'NEXT_PUBLIC_COMPANY_DESCRIPTION',
-            "Australia's marketplace for basketball cards and sneakers."
+            "Australia's marketplace for basketball sneakers and cards."
         ),
         tagline: getEnv(
             'NEXT_PUBLIC_COMPANY_TAGLINE',
-            'Your Rotation, Upgraded.'
+            'Buy and sell basketball sneakers and cards.'
         ),
         foundedYear: getEnvNumber('COMPANY_FOUNDED_YEAR', 2024),
     },

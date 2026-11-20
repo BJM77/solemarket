@@ -714,7 +714,11 @@ export default function ProductDetailsModern({
                 : await deleteListing(idToken, productId);
             if (!result.success) throw new Error(result.error);
             toast({ title: "Product Deleted", description: result.message || "Listing removed." });
-            router.push(isCoinListing(product) ? '/coins/browse' : '/browse');
+            if (isListingOwner) {
+                router.push('/sell/dashboard');
+            } else {
+                router.push(isCoinListing(product) ? '/coins/browse' : '/browse');
+            }
         } catch (error: any) {
             toast({ variant: "destructive", title: "Deletion Failed", description: error.message || "An error occurred." });
         } finally {
