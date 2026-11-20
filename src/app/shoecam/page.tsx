@@ -67,10 +67,16 @@ export default function ShoeCamDashboard() {
             <Footprints className="w-6 h-6 text-black" />
           </div>
           <h1 className="text-xl font-bold font-headline tracking-tight uppercase text-foreground">
-            SHOECAM<span className="text-primary">.AU</span>
+            BENCHED<span className="text-primary">.AU</span>
           </h1>
+          <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-wider">
+            ShoeCam
+          </Badge>
         </Link>
         <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex text-xs font-bold text-muted-foreground hover:text-foreground">
+            <Link href="/tools">All Tools</Link>
+          </Button>
           <div className="hidden sm:flex bg-muted rounded-full px-4 py-1.5 items-center gap-2 border border-border">
              <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse" />
              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Shoe Booth Connected</span>

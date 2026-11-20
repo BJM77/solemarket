@@ -203,11 +203,12 @@ export function MobileNavContent({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="flex flex-col pl-11 space-y-1 mt-1">
-                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/autofast')}>Autofast (Cards)</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-primary hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/tools')}>All Seller Tools</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam (Sneakers)</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/autofast')}>Autofast – Quick Scan</Button>
                                     <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/fast-bulk')}>Fast Bulk</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/shoecam')}>ShoeCam</Button>
-                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-emerald-700 hover:text-emerald-700 hover:bg-emerald-500/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/proload')}>Proload</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-emerald-700 hover:text-emerald-700 hover:bg-emerald-500/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/sell/proload')}>Proload (FB Import)</Button>
+                                    <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/samcam')}>SamCam – Booth Studio</Button>
                                     {features.research && user && (
                                         <Button variant="ghost" size="sm" className="justify-start h-11 text-muted-foreground hover:text-primary hover:bg-primary/5 text-xs font-bold transition-all" onClick={() => handleLinkClick('/research')}>Research Lab</Button>
                                     )}

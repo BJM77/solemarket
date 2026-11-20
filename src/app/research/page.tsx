@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { ShoppingCart, Search, ExternalLink } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { ShoppingCart, Search, ExternalLink, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +19,29 @@ export default function ResearchPage() {
     const [hasSearched, setHasSearched] = useState(false);
 
     const { toast } = useToast();
+
+    const priceStats = useMemo(() => {
+        const prices = searchResults
+            .map((r) => Number(r.price))
+            .filter((p) => Number.isFinite(p) && p > 0)
+            .sort((a, b) => a - b);
+
+        if (prices.length === 0) return null;
+
+        const sum = prices.reduce((acc, p) => acc + p, 0);
+        const avg = sum / prices.length;
+        const mid = Math.floor(prices.length / 2);
+        const median =
+            prices.length % 2 === 0 ? (prices[mid - 1] + prices[mid]) / 2 : prices[mid];
+
+        return {
+            count: prices.length,
+            avg,
+            median,
+            low: prices[0],
+            high: prices[prices.length - 1],
+        };
+    }, [searchResults]);
 
     const handlePriceSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -88,21 +112,53 @@ export default function ResearchPage() {
                             </form>
 
                             {hasSearched && !isSearching && searchResults.length > 0 && (
-                                <div className="flex flex-col md:flex-row justify-between items-center mb-10 p-6 bg-primary/10 rounded-2xl border border-primary/20 gap-4">
-                                    <div className="text-sm text-foreground/80">
-                                        <strong className="text-primary uppercase tracking-wider text-xs block mb-1">Market Insight</strong>
-                                        Showing real-time API matches. For 100% historical deep-dives, check eBay's official Sold archive.
+                                <div className="space-y-4 mb-10">
+                                    {priceStats && (
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                            <div className="p-4 rounded-2xl bg-muted/60 border border-border">
+                                                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Average</div>
+                                                <div className="text-2xl font-black mt-1">${priceStats.avg.toFixed(0)}</div>
+                                            </div>
+                                            <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20">
+                                                <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Median</div>
+                                                <div className="text-2xl font-black mt-1 text-primary">${priceStats.median.toFixed(0)}</div>
+                                            </div>
+                                            <div className="p-4 rounded-2xl bg-muted/60 border border-border">
+                                                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Low</div>
+                                                <div className="text-2xl font-black mt-1">${priceStats.low.toFixed(0)}</div>
+                                            </div>
+                                            <div className="p-4 rounded-2xl bg-muted/60 border border-border">
+                                                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">High</div>
+                                                <div className="text-2xl font-black mt-1">${priceStats.high.toFixed(0)}</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col md:flex-row justify-between items-center p-6 bg-primary/10 rounded-2xl border border-primary/20 gap-4">
+                                        <div className="text-sm text-foreground/80">
+                                            <strong className="text-primary uppercase tracking-wider text-xs block mb-1">Market Insight ({priceStats?.count ?? searchResults.length} comps)</strong>
+                                            Showing recent eBay AU sold matches. Use the median price as a benchmark or list directly on Benched.
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Button size="sm" asChild className="whitespace-nowrap">
+                                                <Link
+                                                    href={`/sell/create?title=${encodeURIComponent(searchQuery.trim())}${priceStats ? `&price=${Math.round(priceStats.median)}` : ''}`}
+                                                >
+                                                    <PlusCircle className="w-4 h-4 mr-2" />
+                                                    List this item
+                                                </Link>
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="bg-muted/60 border-border text-foreground hover:bg-muted whitespace-nowrap" asChild>
+                                                <a
+                                                    href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                                    eBay Sold Archive
+                                                </a>
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <Button variant="outline" size="sm" className="bg-muted/60 border-border text-foreground hover:bg-muted whitespace-nowrap" asChild>
-                                        <a
-                                            href={`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <ExternalLink className="w-4 h-4 mr-2" />
-                                            Deep Research on eBay
-                                        </a>
-                                    </Button>
                                 </div>
                             )}
 
