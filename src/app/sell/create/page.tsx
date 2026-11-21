@@ -465,7 +465,7 @@ function CreateListingForm() {
 
   const handleMoveImage = (from: number, to: number) => updatePhotos((prev) => movePhoto(prev, from, to));
 
-  const handleFocalChange = (index: number, point: ImageFocalPoint) => updatePhotos((prev) => setPhotoFocal(prev, index, point));
+  const handleFocalChange = (index: number, point: ImageFocalPoint | null) => updatePhotos((prev) => setPhotoFocal(prev, index, point));
 
   const handleAutoFill = async (searchHint?: string) => {
     const currentFiles = form.getValues('imageFiles');

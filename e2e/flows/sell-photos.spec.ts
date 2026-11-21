@@ -23,14 +23,21 @@ test.describe('sell form photos', () => {
     await input.setInputFiles(path.join(process.cwd(), 'public/wtb-wanted-placeholder.png'));
     await expect(photos).toHaveCount(2, { timeout: 30_000 });
 
-    // Pin photo 2 left of centre with the mouse, then make it the main photo.
-    const picker = photos.nth(1).getByTestId('image-focal-picker');
-    // locator.click scrolls the picker clear of the sticky header and checks it gets the click.
-    const box = (await picker.boundingBox())!;
-    // Middle-left: clear of the corner buttons along the top and the 'Make main' button at the bottom.
-    await picker.click({ position: { x: box.width * 0.25, y: box.height * 0.5 } });
-    await photos.nth(1).getByRole('button', { name: 'Make photo 2 the main photo' }).click();
+    // Open photo 2 in the editor, put its pin near the top-left, make it the main photo.
+    await photos.nth(1).getByTestId('sell-photo-edit').click();
+    const editor = page.getByTestId('photo-editor');
+    await expect(editor).toBeVisible();
+    const pinArea = editor.getByTestId('focal-pin-editor');
+    const box = (await pinArea.boundingBox())!;
+    await pinArea.click({ position: { x: box.width * 0.2, y: box.height * 0.2 } });
+    // Keyboard works too: one step right.
+    await editor.getByRole('slider', { name: 'Centre of photo 2' }).press('ArrowRight');
+    await editor.getByRole('button', { name: /Make main photo/ }).click();
+    await expect(editor.getByRole('heading', { name: /main photo/ })).toBeVisible();
+    await editor.getByTestId('photo-editor-done').click();
+    await expect(editor).toHaveCount(0);
     await expect(photos.first().getByText('Main')).toBeVisible();
+    await expect(photos.first().getByText('Centre set')).toBeAttached();
 
     await page.locator('input[name="price"]').fill('12');
     await page.getByRole('button', { name: /^Publish Listing$/ }).click();

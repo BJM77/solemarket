@@ -177,3 +177,28 @@ export function clientPointToFocal(
   const y = (clientY - box.top - r.top) / r.height;
   return { x: clampFocalCoord(x), y: clampFocalCoord(y) };
 }
+
+/**
+ * Move a pin with the keyboard: arrows move 1% (10% with Shift), Home/End jump
+ * to the left/right edge. Returns null for keys that don't move the pin.
+ */
+export function nudgeFocalPoint(focal: unknown, key: string, big = false): ImageFocalPoint | null {
+  const p = normalizeFocalPoint(focal);
+  const step = big ? 0.1 : 0.01;
+  const round = (n: number) => Math.round(clampFocalCoord(n) * 100) / 100;
+  switch (key) {
+    case 'ArrowLeft': return { x: round(p.x - step), y: p.y };
+    case 'ArrowRight': return { x: round(p.x + step), y: p.y };
+    case 'ArrowUp': return { x: p.x, y: round(p.y - step) };
+    case 'ArrowDown': return { x: p.x, y: round(p.y + step) };
+    case 'Home': return { x: 0, y: p.y };
+    case 'End': return { x: 1, y: p.y };
+    default: return null;
+  }
+}
+
+/** Spoken position of a pin, e.g. "40% across, 25% down". */
+export function describeFocalPoint(focal: unknown): string {
+  const p = normalizeFocalPoint(focal);
+  return `${Math.round(p.x * 100)}% across, ${Math.round(p.y * 100)}% down`;
+}

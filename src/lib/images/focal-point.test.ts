@@ -147,3 +147,15 @@ describe('containedImageRect / clientPointToFocal', () => {
     expect(r).toEqual({ left: 25, top: 0, width: 50, height: 100 });
   });
 });
+
+describe('nudgeFocalPoint / describeFocalPoint', () => {
+  it('moves 1% per arrow, 10% with Shift, and stays inside the photo', async () => {
+    const { nudgeFocalPoint, describeFocalPoint } = await import('./focal-point');
+    expect(nudgeFocalPoint({ x: 0.2, y: 0.3 }, 'ArrowLeft')).toEqual({ x: 0.19, y: 0.3 });
+    expect(nudgeFocalPoint({ x: 0.2, y: 0.3 }, 'ArrowUp', true)).toEqual({ x: 0.2, y: 0.2 });
+    expect(nudgeFocalPoint({ x: 0.98, y: 0.3 }, 'ArrowRight', true)).toEqual({ x: 1, y: 0.3 });
+    expect(nudgeFocalPoint(null, 'ArrowDown')).toEqual({ x: 0.5, y: 0.51 });
+    expect(nudgeFocalPoint({ x: 0.2, y: 0.3 }, 'Enter')).toBeNull();
+    expect(describeFocalPoint({ x: 0.4, y: 0.25 })).toBe('40% across, 25% down');
+  });
+});
