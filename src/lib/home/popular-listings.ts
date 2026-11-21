@@ -1,5 +1,7 @@
+import { HOME_RAIL_COUNT } from './home-rail';
+
 /** How many Popular Listings tiles fill 3 rows of 5 on the desktop homepage. */
-export const POPULAR_LISTINGS_COUNT = 15;
+export const POPULAR_LISTINGS_COUNT = HOME_RAIL_COUNT;
 
 /** Rank by view count; original order (typically newest-first) wins ties. */
 export function rankByViews<T extends { id: string; views?: unknown }>(items: T[]): T[] {
@@ -24,8 +26,9 @@ function uniqueById<T extends { id: string }>(items: T[]): T[] {
  * Pick the Popular Listings rail: most viewed first, prefer items that are not
  * already in Just Listed, then backfill from the remaining ranked catalog
  * (including Just Listed if needed) so a 5-column desktop grid can show
- * complete rows. `candidates` may be a mix of featured and other active
- * listings; duplicates are dropped, first occurrence kept for tie-breaks.
+ * complete rows. The grid hides the 15th tile below `md` (2 columns × 7 rows).
+ * `candidates` may be a mix of featured and other active listings; duplicates
+ * are dropped, first occurrence kept for tie-breaks.
  */
 export function pickPopularListings<T extends { id: string; views?: unknown }>(
   candidates: T[],
