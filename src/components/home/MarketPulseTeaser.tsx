@@ -13,13 +13,13 @@ export function MarketPulseTeaser() {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-muted/60 border border-border p-8 rounded-2xl">
                     <div className="flex-1 space-y-4 text-center md:text-left">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent text-accent-foreground rounded-full text-xs font-bold uppercase tracking-widest">
-                            <Activity className="h-3 w-3" /> Live Market Data
+                            <Activity className="h-3 w-3" /> Price Guide Preview
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">
                             Check the <span className="text-primary">Market Pulse</span>
                         </h2>
                         <p className="text-muted-foreground max-w-xl text-lg">
-                            Track real-time prices, volume, and the hottest basketball cards and sneakers in Australia.
+                            A preview of our price guide for basketball cards and sneakers in Australia. Figures are sample data until enough sales are in.
                         </p>
                     </div>
                     

@@ -4,25 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DatasetSchema } from '@/components/seo/DatasetSchema';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { aggregateMarketPulse, SaleDataPoint } from '@/lib/market-pulse/aggregation';
+import { aggregateMarketPulse } from '@/lib/market-pulse/aggregation';
+import { getSampleMarketData } from '@/lib/market-pulse/sample-data';
+import { SampleDataNotice } from '@/components/market-pulse/SampleDataNotice';
 
 interface Props {
     params: Promise<{ slug: string }>;
-}
-
-// Temporary mock fetcher - eventually this reads from your DB based on slug
-async function getMarketDataForSlug(slug: string): Promise<SaleDataPoint[]> {
-    // Return empty array for testing fallback, or populated array if slug is recognized
-    if (slug === 'jordan-1') {
-        return [
-            { id: '1', title: 'Jordan 1 Retro High Chicago', price: 612, soldAt: new Date(Date.now() - 2 * 86400000), category: 'shoes', isVaultVerified: true, grade: 'Brand New' },
-            { id: '2', title: 'Jordan 1 Retro High Chicago', price: 540, soldAt: new Date(Date.now() - 5 * 86400000), category: 'shoes', isVaultVerified: false, grade: 'Lightly Used' },
-            { id: '3', title: 'Jordan 1 Retro High Chicago', price: 738, soldAt: new Date(Date.now() - 10 * 86400000), category: 'shoes', isVaultVerified: true, grade: 'Brand New' },
-            { id: '4', title: 'Jordan 1 Retro High Chicago', price: 490, soldAt: new Date(Date.now() - 15 * 86400000), category: 'shoes', isVaultVerified: false, grade: 'Used' },
-        ];
-    }
-    // Return empty for unmapped items
-    return [];
 }
 
 export async function generateMetadata(
@@ -30,25 +17,27 @@ export async function generateMetadata(
     parent: ResolvingMetadata
 ): Promise<Metadata> {
     const { slug } = await params;
-    const title = `Market Pulse: ${slug.replace(/-/g, ' ').toUpperCase()}`;
+    const title = `Market Pulse (Preview): ${slug.replace(/-/g, ' ').toUpperCase()}`;
     return {
         title: `${title}`,
-        description: `View real-time Australian sale prices, vault verified premiums, and market data for ${slug.replace(/-/g, ' ')}.`,
+        description: `Preview Market Pulse report for ${slug.replace(/-/g, ' ')}. Figures shown are illustrative sample data, not real sales.`,
+        // Sample figures shouldn't be indexed as real prices.
+        robots: { index: false, follow: true },
     };
 }
 
-export const revalidate = 900; // Cache for 15 minutes, as this is live data
+export const revalidate = 900;
 
 export default async function MarketPulseSlugPage({ params }: Props) {
     const { slug } = await params;
-    const rawSales = await getMarketDataForSlug(slug);
+    const rawSales = getSampleMarketData(slug);
     
     if (rawSales.length === 0) {
         // Option to notFound() here, or show a fallback
         return (
             <div className="min-h-screen pt-32 pb-20 text-center">
-                <h1 className="text-3xl font-bold">Insufficient Data</h1>
-                <p className="mt-4 text-muted-foreground">We do not have enough verified sales data for this item yet.</p>
+                <h1 className="text-3xl font-bold">Not Enough Sales Yet</h1>
+                <p className="mt-4 text-muted-foreground">We don&apos;t have enough Benched sales for this item to show a price guide yet.</p>
             </div>
         );
     }
@@ -60,7 +49,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
         <div className="bg-background min-h-screen pt-24 pb-20">
             <DatasetSchema 
                 name={`Market Pulse: ${displayTitle}`}
-                description={`Australian sold prices, volume, and premium index for ${displayTitle}.`}
+                description={`Preview report for ${displayTitle}. Illustrative sample data, not real sales.`}
                 url={`https://benched.au/market-pulse/${slug}`}
                 dateModified={new Date().toISOString()}
                 keywords={[displayTitle, 'price index', 'australian market data']}
@@ -68,9 +57,11 @@ export default async function MarketPulseSlugPage({ params }: Props) {
             
             <div className="max-w-5xl mx-auto px-4">
                 <div className="mb-10">
-                    <div className="text-primary font-bold uppercase tracking-widest text-sm mb-2">Market Pulse Report</div>
+                    <div className="text-primary font-bold uppercase tracking-widest text-sm mb-2">Market Pulse Report (Preview)</div>
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">{displayTitle}</h1>
                 </div>
+
+                <SampleDataNotice className="mb-10" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <Card className="bg-muted/60 border-border">
@@ -79,7 +70,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-4xl font-bold">${pulseData.averagePrice}</div>
-                            <p className="text-xs text-muted-foreground mt-2">Based on {pulseData.volume} local sales</p>
+                            <p className="text-xs text-muted-foreground mt-2">Based on {pulseData.volume} sample sales</p>
                         </CardContent>
                     </Card>
                     
@@ -112,7 +103,7 @@ export default async function MarketPulseSlugPage({ params }: Props) {
                     </Card>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-6 border-b border-border pb-4">Recent Included Sales</h2>
+                <h2 className="text-2xl font-bold mb-6 border-b border-border pb-4">Sample Sales</h2>
                 <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-sm text-left">
                         <thead className="bg-muted/60">
