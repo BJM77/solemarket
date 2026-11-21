@@ -2,12 +2,13 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Activity, ShieldCheck } from 'lucide-react';
+import { SampleDataNotice } from '@/components/market-pulse/SampleDataNotice';
 import { DatasetSchema } from '@/components/seo/DatasetSchema';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Market Pulse Data Index',
-    description: 'Explore verified, Australian market prices and sales volume for the most popular sneakers and basketball cards on Benched.',
+    title: 'Market Pulse (Preview)',
+    description: 'A preview of the Benched Market Pulse price guide for popular sneakers and basketball cards in Australia. Figures shown are sample data for now.',
 };
 
 export const revalidate = 3600; // Cache for 1 hour
@@ -25,7 +26,7 @@ export default function MarketPulseIndexPage() {
         <div className="bg-background min-h-screen pt-24 pb-20">
             <DatasetSchema 
                 name="Benched AU Market Pulse Index"
-                description="Aggregated data index of authentic Australian collectibles sales prices."
+                description="Preview of the Benched Market Pulse price guide. Figures are illustrative sample data, not real sales."
                 url="https://benched.au/market-pulse"
                 dateModified={new Date().toISOString()}
                 keywords={['australian collectible prices', 'sneaker price index', 'card price guide', 'benched market pulse']}
@@ -37,10 +38,12 @@ export default function MarketPulseIndexPage() {
                         Market <span className="text-primary">Pulse</span>
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                        The source of truth for Australian collectibles pricing. 
-                        Live, verified sales data segmented by Vault-authenticated transactions.
+                        A price guide for Australian sneakers and basketball cards, built from sales on Benched.
+                        It&apos;s in preview while we gather enough completed sales.
                     </p>
                 </div>
+
+                <SampleDataNotice className="mb-10 max-w-3xl mx-auto" />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
                     <Card className="bg-muted/60 border-border">
@@ -52,7 +55,7 @@ export default function MarketPulseIndexPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
-                                Across our platform, Vault-verified items command an average <span className="text-foreground font-bold">+18% price premium</span> compared to unverified peer-to-peer sales. Trust pays.
+                                Each report will compare Vault-verified sales with unverified peer-to-peer sales, so you can see what verification is worth. We&apos;ll publish real figures once there are enough sales.
                             </p>
                         </CardContent>
                     </Card>
@@ -61,12 +64,12 @@ export default function MarketPulseIndexPage() {
                         <CardHeader>
                             <CardTitle className="text-primary flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
-                                Real-Time Accuracy
+                                How It Works
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
-                                Our index filters out statistical anomalies (using IQR) and false sales, providing you with the exact market value for items trading hands in Australia today.
+                                Prices are filtered for outliers (using IQR) so one odd sale doesn&apos;t skew the average. Treat every figure as a guide, not an exact value.
                             </p>
                         </CardContent>
                     </Card>
@@ -80,13 +83,13 @@ export default function MarketPulseIndexPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
-                                This dataset is completely open for AI researchers and market analysts. Check our JSON feeds to integrate Benched pricing into your own tools.
+                                A free JSON feed is available at /api/market-pulse. While Market Pulse is in preview it returns the same sample data and marks it as sample.
                             </p>
                         </CardContent>
                     </Card>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-6">Top Tracked Markets</h2>
+                <h2 className="text-2xl font-bold mb-6">Markets in the Preview</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {TOP_MARKETS.map(market => (
                         <Link key={market.slug} href={`/market-pulse/${market.slug}`}>
@@ -95,7 +98,7 @@ export default function MarketPulseIndexPage() {
                                 <h3 className="text-xl font-bold group-hover:underline underline-offset-4">{market.title}</h3>
                                 <div className="mt-4 flex items-center text-sm text-muted-foreground gap-2">
                                     <Activity className="h-4 w-4" />
-                                    View Live Pulse Data &rarr;
+                                    View sample report &rarr;
                                 </div>
                             </div>
                         </Link>
