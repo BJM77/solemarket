@@ -3,6 +3,7 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import { configuredProvider, bulkUpsert } from '@/lib/search';
 import { productToSearchDocument } from '@/lib/search/mapping';
 import { reportError } from '@/lib/monitoring';
+import { isAuthorizedCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -15,7 +16,7 @@ export const maxDuration = 300;
  * search filters (status:=available) exclude.
  */
 export async function GET(request: Request) {
-  if (request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   if (configuredProvider() === 'firestore') {
