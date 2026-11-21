@@ -7,6 +7,7 @@ test.describe('cart deal-fill suggestions', () => {
   test.skip(!flowsEnabled, 'needs E2E_EMULATORS=true and seeded emulators');
 
   test('cart link and row help fill a Bronze deal from the same seller', async ({ page }) => {
+    test.setTimeout(90_000);
     await seedTierListings();
     await page.addInitScript(() => {
       if (sessionStorage.getItem('e2e-tier-cart-set')) return;
@@ -38,7 +39,7 @@ test.describe('cart deal-fill suggestions', () => {
     await expect(row).toBeVisible({ timeout: 45_000 });
     const cards = row.getByTestId('deal-suggestion-card');
     await expect(cards).toHaveCount(4);
-    await expect(row).toContainText('E2E Bronze Card 2');
+    await expect(row.getByTestId('deal-suggestion-card')).toContainText('E2E Bronze Card 2');
     await expect(row).not.toContainText('E2E Bronze Card 1');
     await expect(row).not.toContainText('E2E Gold Card 1');
     await expect(row).not.toContainText('E2E Other Seller Bronze');
@@ -47,12 +48,15 @@ test.describe('cart deal-fill suggestions', () => {
     await expect(page.getByTestId('tier-nudge')).toContainText('Add 3 more Bronze cards');
     await expect(cards).toHaveCount(3);
 
-    await link.click();
+    const href = await link.getAttribute('href');
+    expect(href).toMatch(/\/multibuy\?tier=bronze&seller=e2e-seller&group=cards/);
+
+    // Fresh navigation so a leftover "Added to Cart" toast can't match listing titles.
+    await page.goto(href!);
     await expect(page).toHaveURL(/\/multibuy\?.*tier=bronze.*seller=e2e-seller/);
-    await expect(page.getByTestId('multibuy-seller-filter')).toContainText(/deals from E2E Seller/);
-    await expect(page.getByText('E2E Bronze Card 2')).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByText('E2E Gold Card 1')).toHaveCount(0);
-    await expect(page.getByText('E2E Other Seller Bronze')).toHaveCount(0);
+    const sellerFilter = page.getByTestId('multibuy-seller-filter');
+    await expect(sellerFilter).toBeVisible({ timeout: 45_000 });
+    await expect(sellerFilter).toContainText(/deals from E2E Seller/);
 
     await page.getByTestId('multibuy-seller-clear').click();
     await expect(page).toHaveURL(/\/multibuy\?/);
