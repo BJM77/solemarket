@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { runAutoRepricing } from '@/ai/flows/auto-repricing';
 import { reportError } from '@/lib/monitoring';
+import { isAuthorizedCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request) {
-    if (request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {

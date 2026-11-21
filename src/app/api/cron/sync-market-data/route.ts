@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { syncMarketDataForProduct } from '@/services/market-data-sync';
+import { isAuthorizedCronRequest } from '@/lib/cron-auth';
 
 export const maxDuration = 60;  // Pro tier limits
 export const dynamic = 'force-dynamic';
@@ -9,8 +10,7 @@ const BATCH_SIZE = 2;
 
 export async function GET(request: Request) {
   // 1. Auth via Vercel Cron header
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
