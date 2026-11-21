@@ -4,15 +4,16 @@ import { firestoreDb } from '@/lib/firebase/admin';
 import * as admin from 'firebase-admin';
 import { verifyExternalUrlStatus } from '@/app/actions/marketplace/products';
 import type { Product } from '@/lib/types';
+import { isAuthorizedCronRequest } from '@/lib/cron-auth';
 
 export const revalidate = 0; // Dynamic route
 
 export async function GET(request: Request) {
+  // This job can mark listings sold, so it must only run for the scheduler (CRON_SECRET).
+  if (!isAuthorizedCronRequest(request, { allowQueryParam: true })) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
-    // Optional secret key authorization check for Cron jobs (Vercel Cron or custom cron)
-    const { searchParams } = new URL(request.url);
-    const secret = searchParams.get('secret');
-    
     // Query active products that have an externalUrl set
     const snapshot = await firestoreDb
       .collection('products')

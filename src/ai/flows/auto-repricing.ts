@@ -1,12 +1,18 @@
-'use server';
+import 'server-only';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { FieldValue } from 'firebase-admin/firestore';
 import { firestoreDb } from '@/lib/firebase/admin';
 import { getAutoRepricingSettings } from '@/app/admin/auto-repricing/actions';
-import { Product } from '@/lib/types';
 import { sendNotification } from '@/services/notifications';
 import { SUPER_ADMIN_UIDS } from '@/lib/constants';
+import { decideReprice } from '@/lib/repricing/decide';
+
+// Server-only module (no 'use server'): runAutoRepricing must never be callable as a public
+// server action. It runs from the CRON_SECRET-protected cron route or the admin-gated action.
+
+const BATCH_LIMIT = 400;
 
 export async function runAutoRepricing(): Promise<{
     success: boolean;
@@ -18,85 +24,66 @@ export async function runAutoRepricing(): Promise<{
         return { success: false, message: 'Auto-repricing settings not configured.', repricedProducts: [] };
     }
 
-    const { viewThreshold, priceDropPercentage, waitingPeriodHours } = settings;
-    const now = Date.now();
-    const waitingPeriodMillis = waitingPeriodHours * 60 * 60 * 1000;
-
+    // Needs the (autoRepricingEnabled, uniqueViews) composite index in firestore.indexes.json.
     const snapshot = await firestoreDb
         .collection('products')
         .where('autoRepricingEnabled', '==', true)
-        .where('uniqueViews', '>=', viewThreshold)
+        .where('uniqueViews', '>=', settings.viewThreshold)
         .get();
 
     if (snapshot.empty) {
         return { success: true, message: 'No products met the view threshold.', repricedProducts: [] };
     }
 
-    const batch = firestoreDb.batch();
-    const repricedProducts: string[] = [];
-    const notificationsToSend: Promise<any>[] = [];
+    const now = Date.now();
     const adminId = SUPER_ADMIN_UIDS[0];
+    const repricedProducts: string[] = [];
+    const notices: { title: string; newPrice: number; id: string }[] = [];
+    let batch = firestoreDb.batch();
+    let pending = 0;
 
     for (const doc of snapshot.docs) {
-        const product = { id: doc.id, ...doc.data() } as Product;
+        const data: any = doc.data();
+        // Status, waiting periods and the 50% floor are all checked in decideReprice.
+        const decision = decideReprice(data, settings, now);
+        if (!decision) continue;
 
-        // Determine last viewed timestamp
-        let lastViewedMillis: number | null = null;
-        if (product.lastViewedTimestamp) {
-            if (typeof (product.lastViewedTimestamp as any).toMillis === 'function') {
-                lastViewedMillis = (product.lastViewedTimestamp as any).toMillis();
-            } else if (typeof (product.lastViewedTimestamp as any).toDate === 'function') {
-                lastViewedMillis = (product.lastViewedTimestamp as any).toDate().getTime();
-            } else if ((product.lastViewedTimestamp as any) instanceof Date) {
-                lastViewedMillis = (product.lastViewedTimestamp as any).getTime();
-            } else if (typeof product.lastViewedTimestamp === 'string' || typeof product.lastViewedTimestamp === 'number') {
-                lastViewedMillis = new Date(product.lastViewedTimestamp).getTime();
-            }
-        }
+        batch.update(doc.ref, {
+            price: decision.newPrice,
+            ...(Number(data.originalPrice) > 0 ? {} : { originalPrice: decision.originalPrice }),
+            lastRepricedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+        pending++;
+        repricedProducts.push(doc.id);
+        notices.push({ title: String(data.title || 'Listing'), newPrice: decision.newPrice, id: doc.id });
 
-        if (lastViewedMillis && !isNaN(lastViewedMillis)) {
-            const timeSinceLastView = now - lastViewedMillis;
-
-            if (timeSinceLastView >= waitingPeriodMillis) {
-                const currentPrice = Number(product.price) || 0;
-                if (currentPrice > 0) {
-                    const newPrice = Math.max(1, Math.round(currentPrice * (1 - priceDropPercentage / 100) * 100) / 100);
-
-                    batch.update(doc.ref, {
-                        price: newPrice,
-                        updatedAt: new Date(),
-                    });
-                    repricedProducts.push(product.id);
-
-                    if (adminId) {
-                        const notificationPromise = sendNotification(
-                            adminId,
-                            'system',
-                            'Auto-Repricing Alert',
-                            `The price for "${product.title}" has been automatically reduced to $${newPrice.toFixed(2)}.`,
-                            `/product/${product.id}`
-                        );
-                        notificationsToSend.push(notificationPromise);
-                    }
-                }
-            }
+        if (pending >= BATCH_LIMIT) {
+            await batch.commit();
+            batch = firestoreDb.batch();
+            pending = 0;
         }
     }
+    if (pending > 0) await batch.commit();
 
-    if (repricedProducts.length > 0) {
-        await batch.commit();
-        await Promise.allSettled(notificationsToSend);
-        return {
-            success: true,
-            message: `Successfully repriced ${repricedProducts.length} product(s).`,
-            repricedProducts,
-        };
+    if (!repricedProducts.length) {
+        return { success: true, message: 'No products were eligible for a price drop at this time.', repricedProducts: [] };
+    }
+
+    if (adminId) {
+        await Promise.allSettled(notices.map((n) => sendNotification(
+            adminId,
+            'system',
+            'Auto-Repricing Alert',
+            `The price for "${n.title}" has been automatically reduced to $${n.newPrice.toFixed(2)}.`,
+            `/product/${n.id}`,
+        )));
     }
 
     return {
         success: true,
-        message: 'No products were eligible for a price drop at this time.',
-        repricedProducts: [],
+        message: `Successfully repriced ${repricedProducts.length} product(s).`,
+        repricedProducts,
     };
 }
 

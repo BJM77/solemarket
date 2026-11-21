@@ -797,6 +797,20 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "autoRepricingEnabled",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "uniqueViews",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [
