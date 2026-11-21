@@ -101,7 +101,7 @@ import { PsaCertBadge } from './PsaCertBadge';
 import { StickyProductFooter } from '@/components/products/StickyProductFooter';
 import { GuestCheckoutDialog } from '@/components/checkout/GuestCheckoutDialog';
 import { HoldCountdown } from '@/components/checkout/HoldCountdown';
-import { holdEndsAt, isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
+import { cartHoldId, holdEndsAt, isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
 import { getListingRequestCountAction } from '@/app/actions/marketplace/requests';
 import { useProvenanceData } from '@/hooks/use-provenance-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -490,8 +490,8 @@ export default function ProductDetailsModern({
             window.open(url, '_blank', 'noopener,noreferrer');
             return;
         }
-        if (isOnCheckoutHold(product as any)) {
-            toast(isReservedForBuyer(product as any)
+        if (isOnCheckoutHold(product as any, undefined, cartHoldId(user?.uid))) {
+            toast(isReservedForBuyer(product as any, undefined, cartHoldId(user?.uid))
                 ? { title: 'Reserved', description: 'The seller has reserved this for another buyer. It goes back on sale if they relist it.' }
                 : { title: 'On hold', description: 'Another buyer is paying for this right now. Check back when the timer ends.' });
             return;
@@ -765,7 +765,7 @@ export default function ProductDetailsModern({
     const navHeldByOther = !!navHoldExpiresAt && navHoldExpiresAt > new Date() && (product as any)?.heldBy !== user?.uid;
     const navIsOwner = !!user && user.uid === product?.sellerId;
     const navBuyable = !!product && !navIsOwner && !product.isReverseBidding && !product.isUntimed;
-    const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther || isOnCheckoutHold(product as any);
+    const navBuyDisabled = !product || (product.quantity || 0) <= 0 || (!!product.status && product.status !== 'available') || navHeldByOther || isOnCheckoutHold(product as any, undefined, cartHoldId(user?.uid));
 
     // Buy Now from a listing card while signed out lands here with ?buy=1: open guest checkout.
     useEffect(() => {
@@ -1307,7 +1307,7 @@ export default function ProductDetailsModern({
                                                     );
                                                 }
 
-                                                if (isReservedForBuyer(product as any)) {
+                                                if (isReservedForBuyer(product as any, undefined, cartHoldId(user?.uid))) {
                                                     return (
                                                         <div className="space-y-1 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center" data-testid="listing-reserved">
                                                             <p className="flex items-center justify-center gap-2 text-sm font-bold text-amber-900">
@@ -1318,7 +1318,7 @@ export default function ProductDetailsModern({
                                                     );
                                                 }
 
-                                                if (isOnCheckoutHold(product as any)) {
+                                                if (isOnCheckoutHold(product as any, undefined, cartHoldId(user?.uid))) {
                                                     return (
                                                         <div className="space-y-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center" data-testid="listing-on-hold">
                                                             <p className="flex items-center justify-center gap-2 text-sm font-bold text-amber-900">
@@ -1326,7 +1326,7 @@ export default function ProductDetailsModern({
                                                             </p>
                                                             <p className="text-xs text-amber-800">
                                                                 Another buyer has until{' '}
-                                                                <HoldCountdown compact expiresAt={holdEndsAt(product as any)} onExpire={() => setHoldTick((n) => n + 1)} />{' '}
+                                                                <HoldCountdown compact expiresAt={holdEndsAt(product as any, undefined, cartHoldId(user?.uid))} onExpire={() => setHoldTick((n) => n + 1)} />{' '}
                                                                 to pay. If they don&apos;t, it goes back on sale.
                                                             </p>
                                                         </div>

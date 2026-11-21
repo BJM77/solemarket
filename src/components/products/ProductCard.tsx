@@ -8,7 +8,7 @@ import type { Product } from '@/lib/types';
 import { cn } from "@/lib/utils/ui";;
 import { Badge } from '../ui/badge';
 import { SuperSellerBadge, isSuperSeller } from '@/components/products/SuperSellerBadge';
-import { isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
+import { cartHoldId, isOnCheckoutHold, isReservedForBuyer } from '@/lib/checkout/holds';
 import { Button } from '../ui/button';
 import { ShoppingCart, Eye, Trash2, Loader2, Clock, Users, Edit, MoreHorizontal, ShieldCheck, RefreshCw, Maximize2, Shield, TrendingUp, Coins, Package, Search, ExternalLink, Sparkles, BadgeCheck, Tag, Heart } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -314,9 +314,9 @@ export default function ProductCard({
   // but skips the listing page and goes to checkout.
   const buyerId = user?.uid;
   // Time-dependent, so only after mount (avoids a hydration mismatch).
-  const onCheckoutHold = mounted && isOnCheckoutHold(product as any);
+  const onCheckoutHold = mounted && isOnCheckoutHold(product as any, undefined, cartHoldId(user?.uid));
   // Seller-accepted request: "Reserved" (no timer). Older 30-minute holds: "On hold".
-  const holdLabel = onCheckoutHold && isReservedForBuyer(product as any) ? 'Reserved' : 'On hold';
+  const holdLabel = onCheckoutHold && isReservedForBuyer(product as any, undefined, cartHoldId(user?.uid)) ? 'Reserved' : 'On hold';
   const canBuyNow =
     !onCheckoutHold &&
     !selectable &&

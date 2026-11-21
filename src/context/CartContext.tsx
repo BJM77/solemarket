@@ -22,12 +22,12 @@ import type { FixedPriceBundle } from '@/types/bundles';
 import { useTierSettings } from '@/hooks/use-tier-settings';
 import { calculateCombinedShipping, DEFAULT_SHIPPING_SETTINGS, type ShippingSettings } from '@/lib/pricing';
 import { getShippingSettings } from '@/app/actions/marketplace/shipping-settings';
-import { holdCartItemAction } from '@/app/actions/marketplace/cart-hold';
-import { getDeviceId } from '@/components/checkout/GuestCheckoutDialog';
+import { holdCartItemAction, releaseCartHoldAction } from '@/app/actions/marketplace/cart-hold';
+import { getIdTokenLazy } from '@/lib/firebase/lazy';
 
 export interface CartItem extends Product {
   quantity: number;
-  /** Timestamp when 30-min cart hold expires (ms) */
+  /** When the server-side 30-min cart hold expires (ms). Only set once the server confirms it. */
   holdExpiresAtMs?: number;
 }
 
@@ -132,30 +132,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, shippingMethod, shippingAddress, toast]);
 
   const addItem = useCallback((product: Product, quantity: number = 1) => {
-    const holdExpiresAtMs = Date.now() + 30 * 60 * 1000;
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
         return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity, holdExpiresAtMs }
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity, holdExpiresAtMs }];
+      return [...prevItems, { ...product, quantity }];
     });
 
-    // Request server-side hold (30 minutes)
-    try {
-      const cartHoldId = getDeviceId();
-      holdCartItemAction({ productId: product.id, cartHoldId, durationMinutes: 30 }).catch(() => null);
-    } catch {
-      // non-blocking
-    }
+    // Signed-in buyers get a real 30-minute server hold (guests don't). The countdown is shown
+    // only once the server confirms it, so the cart never claims a hold that doesn't exist.
+    getIdTokenLazy()
+      .then((idToken) => (idToken ? holdCartItemAction({ productId: product.id, idToken }) : null))
+      .then((res) => {
+        if (!res?.success || !res.expiresAtMs) return;
+        const expiresAtMs = res.expiresAtMs;
+        setItems((prev) => prev.map((item) => (item.id === product.id ? { ...item, holdExpiresAtMs: expiresAtMs } : item)));
+      })
+      .catch(() => null);
 
     toast({
-      title: "Held in Cart for 30 Mins",
-      description: `${product.title} has been added. Complete checkout or add more cards before the hold expires.`,
+      title: "Added to Cart",
+      description: `${product.title} has been added to your cart.`,
     });
   }, [toast]);
 
@@ -181,13 +183,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, [toast]);
 
+  const releaseHolds = useCallback((productIds: string[]) => {
+    if (!productIds.length) return;
+    getIdTokenLazy()
+      .then((idToken) => {
+        if (!idToken) return;
+        productIds.forEach((productId) => { releaseCartHoldAction({ productId, idToken }).catch(() => null); });
+      })
+      .catch(() => null);
+  }, []);
+
   const removeItem = useCallback((productId: string) => {
-    setItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+    setItems((prevItems) => {
+      if (prevItems.some((item) => item.id === productId && item.holdExpiresAtMs)) releaseHolds([productId]);
+      return prevItems.filter((item) => item.id !== productId);
+    });
     toast({
       title: "Item Removed",
       variant: "destructive",
     });
-  }, [toast]);
+  }, [toast, releaseHolds]);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
@@ -202,11 +217,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [removeItem]);
 
   const clearCart = useCallback(() => {
-    setItems([]);
+    setItems((prevItems) => {
+      releaseHolds(prevItems.filter((item) => item.holdExpiresAtMs && item.holdExpiresAtMs > Date.now()).map((item) => item.id));
+      return [];
+    });
     setShippingAddress(null);
     localStorage.removeItem('benched-cart');
     localStorage.removeItem('benched-shipping-address');
-  }, []);
+  }, [releaseHolds]);
 
   // Fixed-price bundles for the sellers in the cart (refetched when the seller set changes).
   const [bundles, setBundles] = useState<FixedPriceBundle[]>([]);

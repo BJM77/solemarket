@@ -15,7 +15,7 @@ import { assertCheckoutPaymentAllowed, generatePaymentReference, normalizePaymen
 import type { Deal } from '@/types/deals';
 import type { FixedPriceBundle } from '@/types/bundles';
 import { sendTelegramNotification } from '@/lib/telegram';
-import { availableQuantity, activeHolds } from '@/lib/checkout/holds';
+import { availableQuantity, activeHolds, cartHoldId } from '@/lib/checkout/holds';
 import { REQUEST_TTL_MS, assertRequestLimit } from '@/lib/checkout/requests';
 import { assertRequestable, countOpenByIdentity, notifyNewRequest } from '@/lib/checkout/requests-server';
 import { readBlocks, resolveBuyerMobile } from '@/lib/checkout/blocks-server';
@@ -146,8 +146,10 @@ export async function createOrderAction(items: CartItem[], idToken: string, opti
                 }
                 assertRequestable(product, 'buy', buyerId);
                 // Units reserved for other buyers (or older 30-minute holds) don't count.
-                if (availableQuantity(product as any, now.getTime()) < item.quantity) {
-                    throw new Error(activeHolds(product as any, now.getTime()).length
+                // The buyer's own 30-minute cart hold doesn't count against them.
+                const ownCartHold = cartHoldId(buyerId);
+                if (availableQuantity(product as any, now.getTime(), ownCartHold) < item.quantity) {
+                    throw new Error(activeHolds(product as any, now.getTime(), ownCartHold).length
                         ? `Sorry, ${product.title} is reserved for another buyer right now.`
                         : `Not enough stock for ${product.title}.`);
                 }

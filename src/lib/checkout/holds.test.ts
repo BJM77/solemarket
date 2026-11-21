@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
     HOLD_MS, MAX_ACTIVE_HOLDS, activeHolds, addHold, assertCanHold, assertHoldLimits, availableQuantity,
     countActiveHoldOrders, formatCountdown, holdEndsAt, holdExpiry, isActiveHoldOrder, isOnCheckoutHold,
-    pruneHolds, resolvePaidStock, toMs,
+    pruneHolds, resolvePaidStock, toMs, cartHoldId, isReservedForBuyer,
 } from './holds';
 
 const T = Date.parse('2026-11-11T00:00:00Z');
@@ -120,5 +120,28 @@ describe('helpers', () => {
         expect(formatCountdown(30 * 60_000)).toBe('30:00');
         expect(formatCountdown(61_001)).toBe('01:02');
         expect(formatCountdown(-5)).toBe('00:00');
+    });
+});
+
+describe('cart holds', () => {
+    const held = live({ checkoutHolds: [{ orderId: 'cart:buyer-1', qty: 1, expiresAtMs: T + HOLD_MS }] });
+
+    it('keys cart holds by uid and has none for guests', () => {
+        expect(cartHoldId('buyer-1')).toBe('cart:buyer-1');
+        expect(cartHoldId(null)).toBeUndefined();
+    });
+
+    it("blocks other buyers but not the buyer who holds it", () => {
+        expect(isOnCheckoutHold(held, T)).toBe(true);
+        expect(() => assertCanHold(held, 1, T)).toThrow(/on hold for another buyer/);
+        expect(isOnCheckoutHold(held, T, cartHoldId('buyer-1'))).toBe(false);
+        expect(availableQuantity(held, T, cartHoldId('buyer-1'))).toBe(1);
+        expect(() => assertCanHold(held, 1, T, null, cartHoldId('buyer-1'))).not.toThrow();
+        expect(isOnCheckoutHold(held, T, cartHoldId('buyer-2'))).toBe(true);
+        expect(isReservedForBuyer(held, T, cartHoldId('buyer-1'))).toBe(false);
+    });
+
+    it('frees the item when the cart hold expires', () => {
+        expect(isOnCheckoutHold(held, T + HOLD_MS + 1)).toBe(false);
     });
 });
