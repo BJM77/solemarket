@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getFeaturedProducts, getActiveProducts, getActiveListingCount, getMostViewedProducts } from "@/app/actions/marketplace/products";
 import { pickJustListed } from "@/lib/home/just-listed";
 import { pickPopularListings } from "@/lib/home/popular-listings";
+import { HOME_RAIL_COUNT, HOME_RAIL_LAST_TILE_CLASS, HOME_RAIL_MOBILE_COUNT } from "@/lib/home/home-rail";
 import HeroModern from "@/components/home/HeroModern";
 import BrandLogos from "@/components/home/BrandLogos";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -27,7 +28,8 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 async function FeaturedSection() {
-  // 15 most-viewed main-site listings across the catalogue (3 rows of 5 on desktop). Prefer items
+  // 15 most-viewed main-site listings across the catalogue (3 rows of 5 on desktop;
+  // 2 columns × 7 rows on mobile, with the 15th card hidden below md). Prefer items
   // that are not already in Just Listed, and backfill so the rows stay complete.
   const [latest, featured, mostViewed] = await Promise.all([getActiveProducts(40), getFeaturedProducts(40), getMostViewedProducts(40)]);
   const justListed = pickJustListed(latest || []);
@@ -39,7 +41,7 @@ async function FeaturedSection() {
 }
 
 async function NewArrivalsSection() {
-  // 15 newest main-site listings (3 rows of 5 on desktop).
+  // 15 newest main-site listings (3 rows of 5 on desktop; 2×7 on mobile).
   const latest = await getActiveProducts(40);
   const products = pickJustListed(latest || []);
   return <TrendingGrid products={products} title="Just Listed" layout="homeRail" priorityCount={5} className="bg-background pt-4 md:pt-8 pb-4 md:pb-8 relative overflow-hidden" />;
@@ -59,8 +61,8 @@ function TrendingSkeleton() {
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {[...Array(15)].map((_, i) => (
-            <div key={i} className="space-y-3">
+          {[...Array(HOME_RAIL_COUNT)].map((_, i) => (
+            <div key={i} className={i === HOME_RAIL_MOBILE_COUNT ? `space-y-3 ${HOME_RAIL_LAST_TILE_CLASS}` : 'space-y-3'}>
               <Skeleton className="h-64 w-full rounded-2xl" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-3/4" />

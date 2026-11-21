@@ -9,8 +9,10 @@ import { QuickView } from './QuickView';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { useUserPermissions } from '@/hooks/use-user-permissions';
+import { homeRailItemClassName } from '@/lib/home/home-rail';
 
-// 2 / 3 / 5 columns so 15 homepage-rail items fill complete rows from md up; 2-col phones keep a comfortable card size.
+// 2 / 3 / 5 columns so 15 homepage-rail items fill complete rows from md up.
+// Below md the 15th card is hidden (2 columns × 7 rows). Equal gap-3 on phones.
 const HOME_RAIL_GRID = 'w-screen max-w-[100vw] ml-[calc(50%-50vw)] px-3 md:w-auto md:max-w-full md:ml-0 md:px-0 grid grid-cols-2 gap-3 md:gap-x-4 md:gap-y-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-x-6 xl:gap-x-8 mt-4 md:mt-8 overflow-hidden';
 
 const GRID_LAYOUTS = {
@@ -50,9 +52,18 @@ export default function ProductGrid({ products, priorityCount = 6, layout = 'def
     <div
       className={GRID_LAYOUTS[layout]}
     >
-      {products.map((product, index) => (
-        <ProductCard key={product.id} product={product} priority={index < priorityCount} />
-      ))}
+      {products.map((product, index) => {
+        const itemClass = homeRailItemClassName(index, layout);
+        const card = <ProductCard product={product} priority={index < priorityCount} />;
+        if (!itemClass) {
+          return <ProductCard key={product.id} product={product} priority={index < priorityCount} />;
+        }
+        return (
+          <div key={product.id} className={itemClass}>
+            {card}
+          </div>
+        );
+      })}
     </div>
   );
 }
