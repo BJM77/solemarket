@@ -22,9 +22,6 @@ export const MARKET_TICKER_THEME_CLASSES = {
   itemHover: 'hover:underline underline-offset-4',
 } as const;
 
-/** Text opacities used on the ticker surface; each must keep WCAG AA on every team theme. */
-export const MARKET_TICKER_TEXT_OPACITIES = { waiting: 1, hover: 1 } as const;
-
 export function marketTickerSurfaceClass({
   compact = false,
   waiting = false,

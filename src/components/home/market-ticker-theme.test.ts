@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { contrastRatio, hexToRgb, type RGB } from '@/lib/team-themes/color';
 import { allTeamChoices, buildTeamThemeVars } from '@/lib/team-themes/theme';
-import { MARKET_TICKER_TEXT_OPACITIES, MARKET_TICKER_THEME_CLASSES, marketTickerSurfaceClass } from './market-ticker-theme';
 
 /** Default Benched orange and ink text from globals.css (:root --primary / --primary-foreground). */
 const BENCHED_ORANGE = hexToRgb('#f26c0d');
@@ -17,32 +16,9 @@ function hslTripletToRgb(t: string): RGB {
   return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
 }
 
-describe('market ticker theme', () => {
-  it('uses the same primary tokens and button-like feel as the homepage buttons', () => {
-    expect(MARKET_TICKER_THEME_CLASSES.background).toBe('bg-primary');
-    expect(MARKET_TICKER_THEME_CLASSES.foreground).toBe('text-primary-foreground');
-    expect(MARKET_TICKER_THEME_CLASSES.radius).toBe('rounded-xl');
-    expect(MARKET_TICKER_THEME_CLASSES.weight).toBe('font-bold');
-
-    const surface = marketTickerSurfaceClass();
-    expect(surface).toContain('bg-primary');
-    expect(surface).toContain('text-primary-foreground');
-    expect(surface).toContain('rounded-xl');
-    expect(surface).toContain('font-bold');
-    expect(surface).toContain('shadow-md');
-    expect(surface).not.toContain('w-full');
-  });
-
-  it('keeps compact and waiting variants on the same theme tokens', () => {
-    const compact = marketTickerSurfaceClass({ compact: true });
-    const waiting = marketTickerSurfaceClass({ waiting: true });
-    for (const cls of [compact, waiting]) {
-      expect(cls).toContain('bg-primary');
-      expect(cls).toContain('text-primary-foreground');
-      expect(cls).toContain('rounded-xl');
-    }
-  });
-
+describe('market ticker theme colours', () => {
+  // What the bar looks like when rendered (tokens, waiting and hover text) is
+  // checked in MarketTicker.test.tsx; this covers the colours behind the tokens.
   it('default Benched orange ticker text and inverted price badge meet WCAG AA', () => {
     expect(contrastRatio(BENCHED_ORANGE, BENCHED_INK)).toBeGreaterThanOrEqual(4.5);
   });
@@ -54,21 +30,5 @@ describe('market ticker theme', () => {
       const fg = hslTripletToRgb(vars['--primary-foreground']);
       expect(contrastRatio(bg, fg), `${choice} ticker`).toBeGreaterThanOrEqual(4.5);
     }
-  });
-
-  it('waiting-state and hover text keep WCAG AA on every theme once their opacity is blended in', () => {
-    const blend = (fg: RGB, bg: RGB, a: number): RGB => [0, 1, 2].map((i) => Math.round(fg[i] * a + bg[i] * (1 - a))) as RGB;
-    const themes: [string, RGB, RGB][] = [['benched', BENCHED_ORANGE, BENCHED_INK]];
-    for (const choice of allTeamChoices()) {
-      const vars = buildTeamThemeVars(choice)!;
-      themes.push([choice, hslTripletToRgb(vars['--primary']), hslTripletToRgb(vars['--primary-foreground'])]);
-    }
-    for (const [name, bg, fg] of themes) {
-      for (const [state, alpha] of Object.entries(MARKET_TICKER_TEXT_OPACITIES)) {
-        expect(contrastRatio(bg, blend(fg, bg, alpha)), `${name} ${state}`).toBeGreaterThanOrEqual(4.5);
-      }
-    }
-    // A faded variant would fail somewhere: guard against reintroducing one.
-    expect(themes.some(([, bg, fg]) => contrastRatio(bg, blend(fg, bg, 0.4)) < 4.5)).toBe(true);
   });
 });
