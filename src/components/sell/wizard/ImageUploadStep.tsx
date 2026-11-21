@@ -6,8 +6,7 @@ import { useRef, ChangeEvent, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone, RotateCw, Crop } from 'lucide-react';
-import { ImageCropDialog } from '@/components/ui/image-crop-dialog';
+import { Upload, Trash2, Sparkles, Loader2, ImagePlus, Smartphone, Pencil, Crosshair } from 'lucide-react';
 import { CameraCapture } from '@/components/ui/camera-capture';
 import { captureFrameKindFor } from '@/lib/photo-capture/frame';
 import { useToast } from "@/hooks/use-toast";
@@ -15,14 +14,15 @@ import AICardGrader from '@/components/products/AICardGrader';
 import { ThreeSixtyViewer } from '@/components/products/ThreeSixtyViewer';
 import { cn } from "@/lib/utils/ui";
 import { processListingImages } from "@/lib/utils/image";
-import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
-import { DEFAULT_FOCAL_POINT, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { PhotoEditorDialog } from '@/components/sell/PhotoEditorDialog';
+import { focalCssPosition, normalizeFocalPoint, type ImageFocalPoint } from '@/lib/images/focal-point';
 import { isLocalPhoto, type ListingPhoto } from '@/lib/images/listing-photos';
 
 interface ImageUploadStepProps {
     /** The sell form's photos, in display order (index 0 is the main photo). */
     photos: ListingPhoto[];
-    onFocalChange?: (index: number, point: ImageFocalPoint) => void;
+    /** Set a photo's centre pin, or null to clear it. */
+    onFocalChange?: (index: number, point: ImageFocalPoint | null) => void;
     onImagesChange: (files: File[], previews: string[], base64s: string[]) => void;
     onRemoveImage: (index: number) => void;
     /** Move a photo to a new position (0 makes it the main photo). */
@@ -64,9 +64,9 @@ export function ImageUploadStep({
     const { toast } = useToast();
     const [showing3D, setShowing3D] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const [cropIndex, setCropIndex] = useState<number | null>(null);
-    const cropPhoto = cropIndex !== null ? photos[cropIndex] : undefined;
-    const cropFile = cropPhoto && isLocalPhoto(cropPhoto) ? cropPhoto.file as File : null;
+    // The photo open in the editor, by id so it stays selected while photos move.
+    const [editId, setEditId] = useState<string | null>(null);
+    const editIndex = editId ? photos.findIndex((p) => p.id === editId) : -1;
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -214,78 +214,53 @@ export function ImageUploadStep({
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
                         {photos.map(({ id, preview: p, focal }, i) => (
                             <div key={id} data-testid="sell-photo" className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
-                                {onFocalChange ? (
-                                    <ImageFocalPicker
-                                        src={p}
-                                        alt={`Upload ${i + 1}`}
-                                        value={focal ?? DEFAULT_FOCAL_POINT}
-                                        onChange={(point) => onFocalChange(i, point)}
-                                        label={`Centre of photo ${i + 1}`}
-                                    />
-                                ) : (
-                                    <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
-                                )}
-                                {i === 0 ? (
+                                {/* A plain button: page scroll works over it, and tapping opens the photo editor. */}
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setEditId(id); }}
+                                    className="absolute inset-0 h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                    aria-label={`Edit photo ${i + 1}${i === 0 ? ' (main photo)' : ''}`}
+                                    data-testid="sell-photo-edit"
+                                >
+                                    <Image src={p} fill alt="" unoptimized className="object-cover" style={{ objectPosition: focalCssPosition(normalizeFocalPoint(focal)) }} sizes="160px" />
+                                    {focal && (
+                                        <span className="pointer-events-none absolute top-1 left-1 rounded-full bg-black/70 p-1 text-white" title="Centre set">
+                                            <Crosshair aria-hidden className="h-3 w-3" />
+                                            <span className="sr-only">Centre set</span>
+                                        </span>
+                                    )}
+                                </button>
+                                {i === 0 && (
                                     <span className="pointer-events-none absolute bottom-1 left-1 z-10 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">Main</span>
-                                ) : onMoveImage ? (
-                                    <button
-                                        onClick={(e) => { e.preventDefault(); onMoveImage(i, 0); }}
-                                        className="absolute bottom-1 left-1 z-10 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-black/90"
-                                        type="button"
-                                        aria-label={`Make photo ${i + 1} the main photo`}
-                                    >
-                                        Make main
-                                    </button>
-                                ) : null}
-                                <div className="absolute top-1 right-1 z-10 flex items-center gap-1">
-                                    {onReplaceImage && isLocalPhoto(photos[i]) && (
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); setCropIndex(i); }}
-                                            className="p-1.5 bg-primary hover:bg-primary/90 rounded-full transition-colors"
-                                            type="button"
-                                            title="Crop to frame"
-                                            aria-label={`Crop photo ${i + 1}`}
-                                        >
-                                            <Crop className="h-4 w-4 text-primary-foreground" />
-                                        </button>
-                                    )}
-                                    {onRotateImage && (
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); onRotateImage(i); }}
-                                            className="p-1.5 bg-orange-600 hover:bg-orange-500 rounded-full transition-colors"
-                                            type="button"
-                                            title="Rotate 90°"
-                                        >
-                                            <RotateCw className="h-4 w-4 text-foreground" />
-                                        </button>
-                                    )}
-                                    <button
-                                        onClick={(e) => { e.preventDefault(); onRemoveImage(i); }}
-                                        className="p-1.5 bg-red-600 hover:bg-red-500 rounded-full transition-colors"
-                                        type="button"
-                                        title="Remove Image"
-                                    >
-                                        <Trash2 className="h-4 w-4 text-foreground" />
-                                    </button>
-                                </div>
+                                )}
+                                <span aria-hidden className="pointer-events-none absolute bottom-1 right-1 z-10 rounded-full bg-black/70 p-1 text-white">
+                                    <Pencil className="h-3 w-3" />
+                                </span>
+                                <button
+                                    onClick={(e) => { e.preventDefault(); onRemoveImage(i); }}
+                                    className="absolute top-1 right-1 z-10 p-1.5 bg-black/70 hover:bg-black/90 rounded-full transition-colors"
+                                    type="button"
+                                    aria-label={`Remove photo ${i + 1}`}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5 text-white" />
+                                </button>
                             </div>
                         ))}
                     </div>
-                    {imagePreviews.length > 0 && onFocalChange && (
-                        <p className="text-[11px] text-muted-foreground">{FOCAL_HINT} so the item stays in the middle of listing tiles.</p>
+                    {imagePreviews.length > 0 && (
+                        <p className="text-[11px] text-muted-foreground">Tap a photo to set the item&apos;s centre, crop or rotate it. Tip: fill the frame on a plain background in good light.</p>
                     )}
-                    {onReplaceImage && imagePreviews.length > 0 && (
-                        <p className="text-[11px] text-muted-foreground">Tip: fill the frame on a plain background in good light. Use <Crop className="inline h-3 w-3" /> on a photo to crop it tight.</p>
-                    )}
-                    <ImageCropDialog
-                        file={cropFile}
-                        kind={captureMode}
-                        onCancel={() => setCropIndex(null)}
-                        onCropped={async (file) => {
-                            const index = cropIndex;
-                            setCropIndex(null);
-                            if (index !== null && onReplaceImage) await onReplaceImage(index, file);
-                        }}
+                    <PhotoEditorDialog
+                        photo={editIndex >= 0 ? photos[editIndex] : null}
+                        index={editIndex}
+                        count={photos.length}
+                        cropKind={captureMode}
+                        onClose={() => setEditId(null)}
+                        onFocalChange={(point) => onFocalChange?.(editIndex, point)}
+                        onRotate={onRotateImage ? () => onRotateImage(editIndex) : undefined}
+                        onCrop={onReplaceImage ? (file) => onReplaceImage(editIndex, file) : undefined}
+                        onMakeMain={onMoveImage ? () => onMoveImage(editIndex, 0) : undefined}
+                        onRemove={() => { const i = editIndex; setEditId(null); onRemoveImage(i); }}
                     />
 
 
