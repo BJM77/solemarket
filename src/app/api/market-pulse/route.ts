@@ -1,18 +1,6 @@
 import { NextResponse } from 'next/server';
 import { aggregateMarketPulse } from '@/lib/market-pulse/aggregation';
-
-// Mock DB fallback
-async function getMarketDataForSlug(slug: string) {
-    if (slug === 'jordan-1') {
-        return [
-            { id: '1', title: 'Jordan 1 Retro High Chicago', price: 612, soldAt: new Date(Date.now() - 2 * 86400000), category: 'shoes', isVaultVerified: true, grade: 'Brand New' },
-            { id: '2', title: 'Jordan 1 Retro High Chicago', price: 540, soldAt: new Date(Date.now() - 5 * 86400000), category: 'shoes', isVaultVerified: false, grade: 'Lightly Used' },
-            { id: '3', title: 'Jordan 1 Retro High Chicago', price: 738, soldAt: new Date(Date.now() - 10 * 86400000), category: 'shoes', isVaultVerified: true, grade: 'Brand New' },
-            { id: '4', title: 'Jordan 1 Retro High Chicago', price: 490, soldAt: new Date(Date.now() - 15 * 86400000), category: 'shoes', isVaultVerified: false, grade: 'Used' },
-        ];
-    }
-    return [];
-}
+import { MARKET_PULSE_IS_SAMPLE, MARKET_PULSE_SAMPLE_NOTICE, getSampleMarketData } from '@/lib/market-pulse/sample-data';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -24,7 +12,9 @@ export async function GET(request: Request) {
             '@context': 'https://schema.org',
             '@type': 'DataCatalog',
             name: 'Benched Market Pulse',
-            description: 'Australian collectibles market price index',
+            description: 'Preview of the Benched price guide. Figures are illustrative sample data, not real sales.',
+            isSampleData: MARKET_PULSE_IS_SAMPLE,
+            notice: MARKET_PULSE_SAMPLE_NOTICE,
             dataset: [
                 'jordan-1', 'nike-dunk-low', 'kobe-6', 
                 'panini-prizm-basketball', 'michael-jordan-fleer', 
@@ -34,7 +24,7 @@ export async function GET(request: Request) {
     }
 
     // Return specific pulse dataset
-    const rawSales = await getMarketDataForSlug(slug);
+    const rawSales = getSampleMarketData(slug);
     
     if (rawSales.length === 0) {
         return NextResponse.json({ error: 'Data not found or insufficient sales volume' }, { status: 404 });
@@ -46,7 +36,9 @@ export async function GET(request: Request) {
         '@context': 'https://schema.org',
         '@type': 'Dataset',
         name: `Market Pulse: ${slug.replace(/-/g, ' ').toUpperCase()}`,
-        description: `Australian sold prices for ${slug.replace(/-/g, ' ')}`,
+        description: `Preview figures for ${slug.replace(/-/g, ' ')}. Illustrative sample data, not real sales.`,
+        isSampleData: MARKET_PULSE_IS_SAMPLE,
+        notice: MARKET_PULSE_SAMPLE_NOTICE,
         data: {
             averagePrice: pulseData.averagePrice,
             medianPrice: pulseData.medianPrice,

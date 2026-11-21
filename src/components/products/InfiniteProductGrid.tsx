@@ -325,6 +325,13 @@ function InfiniteProductGridInner({
           params.set(key, String(value));
         } else {
           params.delete(key);
+          // ?seller= is an alias for sellers; ?group= is an alias for tierGroup.
+          if (key === 'sellers') {
+            params.delete('seller');
+            params.delete('sellerId');
+            params.delete('sellerName');
+          }
+          if (key === 'tierGroup') params.delete('group');
         }
       }
       return params.toString();
