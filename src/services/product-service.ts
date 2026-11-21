@@ -464,7 +464,8 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
       if (searchParams.localPickupPerth) {
         const allowPickup = p.allowLocalPickup === true || (p as any).pickupEnabled === true;
         const text = `${(p as any).location || ''} ${(p as any).sellerLocation || ''} ${p.description || ''} ${(p as any).shippingNotes || ''}`.toLowerCase();
-        const isPerthArea = text.includes('perth') || text.includes('wa') || text.includes('western australia');
+        // Whole words only: a bare includes('wa') matched "wave", "swap", "hawaii"...
+        const isPerthArea = /\bperth\b|\bwa\b|\bwestern australia\b/.test(text);
         if (!allowPickup && !isPerthArea) return false;
       }
 

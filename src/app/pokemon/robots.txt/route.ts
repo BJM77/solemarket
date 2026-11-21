@@ -21,7 +21,7 @@ export function GET() {
     'Disallow: /checkout',
     'Disallow: /order',
     'Disallow: /messages',
-    'Disallow: /sell',
+    'Disallow: /sell/',
     'Disallow: /samcam',
     'Disallow: /autocard',
     'Disallow: /api/',

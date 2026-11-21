@@ -55,7 +55,7 @@ export function clearSequence() {
 
 function toEntry(p: Product): ListingNavEntry | null {
   if (!p?.id || (p as any).isDraft) return null;
-  return { id: p.id, url: getProductUrl({ id: p.id, title: p.title || '', category: p.category, subCategory: p.subCategory, storefrontId: (p as any).storefrontId }), image: p.imageUrls?.[0] || undefined };
+  return { id: p.id, url: getProductUrl({ id: p.id, title: p.title || '', category: p.category, subCategory: p.subCategory, storefrontId: (p as any).storefrontId, brand: (p as any).brand, size: (p as any).size }), image: p.imageUrls?.[0] || undefined };
 }
 
 /** Fetch one page of a source with the same rules as the browse grid (viewer: available only). */

@@ -13,7 +13,7 @@ export function GET() {
     'Disallow: /checkout',
     'Disallow: /order',
     'Disallow: /messages',
-    'Disallow: /sell',
+    'Disallow: /sell/',
     'Disallow: /coincam',
     'Disallow: /api/',
     'Disallow: /*?q=*',

@@ -1,5 +1,6 @@
 import { getLiveListings } from '@/lib/seo/landing-listings.server';
 import { isCoinListing } from '@/lib/coin-listings';
+import { isPokemonListing } from '@/lib/pokemon-listings';
 import { getProductUrl } from '@/lib/utils/url';
 import { schemaBrand } from '@/lib/seo/listing-seo';
 import { schemaItemCondition } from '@/lib/seo/item-condition';
@@ -29,7 +30,9 @@ export async function GET() {
 
   try {
     const live = await getLiveListings();
-    products = live.filter((p) => !isCoinListing(p));
+    // benched.au is basketball sneakers and cards only: coins and Pokémon/TCG have their own
+    // storefronts, and Merchant Center rejects items without a real price.
+    products = live.filter((p) => !isCoinListing(p) && !isPokemonListing(p) && Number(p.price) > 0);
   } catch (err) {
     console.error('Google Merchant Feed error:', err);
   }

@@ -137,7 +137,17 @@ export default async function ProductPage({ params }: Props) {
     brand: product.brand,
     size: product.size,
   });
-  if (canonicalPath !== `/${section}/${slug}/${id}`) permanentRedirect(canonicalPath);
+  // The title-only slug (what search rows and older links produce) renders directly instead of
+  // costing an extra redirect; the page's rel=canonical still points at canonicalPath.
+  const titleOnlyPath = getProductUrl({
+    id,
+    title: product.title,
+    category: product.category,
+    subCategory: product.subCategory,
+    storefrontId: (product as any).storefrontId,
+  });
+  const requestedPath = `/${section}/${slug}/${id}`;
+  if (requestedPath !== canonicalPath && requestedPath !== titleOnlyPath) permanentRedirect(canonicalPath);
 
   const { getSimilarProductsByCategory } = await import('@/app/actions/marketplace/products');
   const [similarProducts, sellerInfo] = await Promise.all([
