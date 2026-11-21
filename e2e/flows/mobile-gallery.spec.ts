@@ -28,6 +28,19 @@ test.describe('mobile listing photo gallery', () => {
     await expect(gallery).toHaveCount(0);
   });
 
+  test('the photo frame is 4:5 and no taller than 60% of the screen, with the whole photo shown', async ({ page }) => {
+    await page.goto('/product/e2e-live-1');
+    const frame = page.getByTestId('listing-gallery-frame');
+    await expect(page.getByTestId('listing-main-photo')).toBeVisible({ timeout: 45_000 });
+    const box = (await frame.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(box.height).toBeLessThanOrEqual(viewport.height * 0.6 + 1);
+    expect(box.width / box.height).toBeCloseTo(4 / 5, 1);
+    // Main photo is never cropped (object-contain inside the frame).
+    const fit = await page.getByTestId('listing-main-photo').locator('img').last().evaluate((img) => getComputedStyle(img).objectFit);
+    expect(fit).toBe('contain');
+  });
+
   test('the browser back button closes the gallery without leaving the listing', async ({ page }) => {
     await page.goto('/product/e2e-live-1');
     await expect(page.getByTestId('listing-main-photo')).toBeVisible({ timeout: 45_000 });

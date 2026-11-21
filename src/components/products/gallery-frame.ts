@@ -20,9 +20,36 @@ export function getGalleryFrameKind(category?: string): GalleryFrameKind {
   return 'other';
 }
 
+/** The frame's shape as numbers (width / height), so it can be tested without class strings. */
+export type GalleryFrameSpec = {
+  /** Phones (below md): aspect ratio of the photo box. */
+  phoneAspect: number;
+  /** Phones: the box never grows taller than this share of the screen height. */
+  phoneMaxScreenHeight: number;
+  /** Tablet and desktop: aspect ratio of the photo box. */
+  tabletAspect: number;
+};
+
+export function getGalleryFrameSpec(category?: string): GalleryFrameSpec {
+  const kind = getGalleryFrameKind(category);
+  return {
+    phoneAspect: kind === 'coin' ? 1 : 4 / 5,
+    phoneMaxScreenHeight: 0.6,
+    tabletAspect: kind === 'card' ? 5 / 7 : 1,
+  };
+}
+
+/** Phone box height for a screen: 4:5 (or square) of the width, capped at 60% of the height. */
+export function phoneFrameHeight(spec: GalleryFrameSpec, screenWidth: number, screenHeight: number): number {
+  return Math.min(screenWidth / spec.phoneAspect, screenHeight * spec.phoneMaxScreenHeight);
+}
+
+// Literal class names (Tailwind only generates classes it can see written out).
+const PHONE_CLASSES = { coin: 'aspect-square max-md:max-h-[60svh]', other: 'aspect-[4/5] max-md:max-h-[60svh]' } as const;
+
 export function getGalleryFrameClasses(category: string | undefined, thumbnailsSide: boolean): string {
   const kind = getGalleryFrameKind(category);
-  const mobile = kind === 'coin' ? 'aspect-square max-md:max-h-[60svh]' : 'aspect-[4/5] max-md:max-h-[60svh]';
+  const mobile = kind === 'coin' ? PHONE_CLASSES.coin : PHONE_CLASSES.other;
   if (kind === 'card') {
     return [
       mobile,
