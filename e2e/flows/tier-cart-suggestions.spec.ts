@@ -39,7 +39,7 @@ test.describe('cart deal-fill suggestions', () => {
     await expect(row).toBeVisible({ timeout: 45_000 });
     const cards = row.getByTestId('deal-suggestion-card');
     await expect(cards).toHaveCount(4);
-    await expect(row.getByTestId('deal-suggestion-card')).toContainText('E2E Bronze Card 2');
+    await expect(row.getByTestId('deal-suggestion-card').filter({ hasText: 'E2E Bronze Card 2' })).toHaveCount(1);
     await expect(row).not.toContainText('E2E Bronze Card 1');
     await expect(row).not.toContainText('E2E Gold Card 1');
     await expect(row).not.toContainText('E2E Other Seller Bronze');
