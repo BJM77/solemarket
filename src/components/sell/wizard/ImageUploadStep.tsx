@@ -17,14 +17,16 @@ import { cn } from "@/lib/utils/ui";
 import { processListingImages } from "@/lib/utils/image";
 import { ImageFocalPicker, FOCAL_HINT } from '@/components/sell/ImageFocalPicker';
 import { DEFAULT_FOCAL_POINT, type ImageFocalPoint } from '@/lib/images/focal-point';
+import { isLocalPhoto, type ListingPhoto } from '@/lib/images/listing-photos';
 
 interface ImageUploadStepProps {
-    imageFiles: any[];
-    imagePreviews: string[];
-    imageFocalPoints?: (ImageFocalPoint | null)[];
+    /** The sell form's photos, in display order (index 0 is the main photo). */
+    photos: ListingPhoto[];
     onFocalChange?: (index: number, point: ImageFocalPoint) => void;
     onImagesChange: (files: File[], previews: string[], base64s: string[]) => void;
     onRemoveImage: (index: number) => void;
+    /** Move a photo to a new position (0 makes it the main photo). */
+    onMoveImage?: (from: number, to: number) => void;
     onAutoFill: () => Promise<void>;
     isAnalyzing: boolean;
     isRetrying?: boolean;
@@ -39,10 +41,10 @@ interface ImageUploadStepProps {
 }
 
 export function ImageUploadStep({
-    imageFiles,
-    imagePreviews,
+    photos,
     onImagesChange,
     onRemoveImage,
+    onMoveImage,
     onAutoFill,
     isAnalyzing,
     isRetrying,
@@ -52,17 +54,19 @@ export function ImageUploadStep({
     onApplySuggestions,
     onRotateImage,
     onReplaceImage,
-    imageFocalPoints,
     onFocalChange,
     form
 }: ImageUploadStepProps) {
+    const imageFiles = photos.map((p) => p.url ?? p.file);
+    const imagePreviews = photos.map((p) => p.preview);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const nativeCameraInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const [showing3D, setShowing3D] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [cropIndex, setCropIndex] = useState<number | null>(null);
-    const cropFile = cropIndex !== null && (imageFiles[cropIndex] instanceof File || imageFiles[cropIndex] instanceof Blob) ? imageFiles[cropIndex] as File : null;
+    const cropPhoto = cropIndex !== null ? photos[cropIndex] : undefined;
+    const cropFile = cropPhoto && isLocalPhoto(cropPhoto) ? cropPhoto.file as File : null;
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -107,7 +111,7 @@ export function ImageUploadStep({
             const newPreviews = results.map((r: any) => r.previewUrl);
             const base64s = results.map((r: any) => r.base64ForAI);
 
-            let currentTotalSize = imageFiles.reduce((acc, file) => acc + (file.size || 0), 0);
+            let currentTotalSize = photos.reduce((acc, p) => acc + (p.file?.size || 0), 0);
             const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
 
             const filteredFiles: File[] = [];
@@ -185,7 +189,7 @@ export function ImageUploadStep({
                                 <Upload className="h-6 w-6 text-primary" />
                             </div>
                             <span className="text-[10px] sm:text-xs font-medium mt-2 text-muted-foreground">Upload</span>
-                            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
+                            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" data-testid="photo-upload-input" />
                         </div>
                         <div
                              onClick={() => nativeCameraInputRef.current?.click()}
@@ -208,21 +212,33 @@ export function ImageUploadStep({
                     </div>
 
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
-                        {imagePreviews.map((p, i) => (
-                            <div key={p} className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
+                        {photos.map(({ id, preview: p, focal }, i) => (
+                            <div key={id} data-testid="sell-photo" className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border group">
                                 {onFocalChange ? (
                                     <ImageFocalPicker
                                         src={p}
                                         alt={`Upload ${i + 1}`}
-                                        value={imageFocalPoints?.[i] ?? DEFAULT_FOCAL_POINT}
+                                        value={focal ?? DEFAULT_FOCAL_POINT}
                                         onChange={(point) => onFocalChange(i, point)}
                                         label={`Centre of photo ${i + 1}`}
                                     />
                                 ) : (
                                     <Image src={p} fill alt={`Upload ${i + 1}`} className="object-cover" />
                                 )}
+                                {i === 0 ? (
+                                    <span className="pointer-events-none absolute bottom-1 left-1 z-10 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">Main</span>
+                                ) : onMoveImage ? (
+                                    <button
+                                        onClick={(e) => { e.preventDefault(); onMoveImage(i, 0); }}
+                                        className="absolute bottom-1 left-1 z-10 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-black/90"
+                                        type="button"
+                                        aria-label={`Make photo ${i + 1} the main photo`}
+                                    >
+                                        Make main
+                                    </button>
+                                ) : null}
                                 <div className="absolute top-1 right-1 z-10 flex items-center gap-1">
-                                    {onReplaceImage && (imageFiles[i] instanceof File || imageFiles[i] instanceof Blob) && (
+                                    {onReplaceImage && isLocalPhoto(photos[i]) && (
                                         <button
                                             onClick={(e) => { e.preventDefault(); setCropIndex(i); }}
                                             className="p-1.5 bg-primary hover:bg-primary/90 rounded-full transition-colors"
@@ -335,7 +351,7 @@ export function ImageUploadStep({
 
             {selectedType === 'collector-cards' && (
                 <AICardGrader
-                    imageFiles={imageFiles.filter(f => f instanceof File || f instanceof Blob)}
+                    imageFiles={photos.filter(isLocalPhoto).map((p) => p.file as File)}
                     onGradeComplete={onGradeComplete}
                     onApplySuggestions={onApplySuggestions!}
                 />

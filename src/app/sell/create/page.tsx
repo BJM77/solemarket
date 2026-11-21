@@ -28,7 +28,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ListingTypeStep } from '@/components/sell/wizard/ListingTypeStep';
 import { isCoinListing } from '@/lib/coin-listings';
 import { ImageUploadStep } from '@/components/sell/wizard/ImageUploadStep';
-import { focalsForUploadOrder, padFocalPoints, rotateFocalPointClockwise, selectFocalPoints, type MaybeFocalPoint } from '@/lib/images/focal-point';
+import { focalCssPosition, normalizeFocalPoint, type ImageFocalPoint } from '@/lib/images/focal-point';
+import {
+  addPhotos,
+  cropPhoto,
+  draftPhotoFields,
+  listingPhotoFields,
+  localFiles,
+  movePhoto,
+  photoFormValues,
+  photoFromFile,
+  removePhoto,
+  restoreDraftPhotos,
+  revokePhotoPreview,
+  rotatePhoto,
+  setPhotoFocal,
+  type ListingPhoto,
+} from '@/lib/images/listing-photos';
 import { DetailsStep } from '@/components/sell/wizard/DetailsStep';
 import { PricingAndDeliveryStep } from '@/components/sell/wizard/PricingAndDeliveryStep';
 
@@ -102,14 +118,12 @@ function CreateListingForm() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [imageFocalPoints, setImageFocalPoints] = useState<MaybeFocalPoint[]>([]);
+  // One array of photo objects (file/URL, preview, AI copy, pin) so they can't drift apart.
+  const [photos, setPhotosState] = useState<ListingPhoto[]>([]);
+  const photosRef = useRef<ListingPhoto[]>([]);
   const [suggestedFields, setSuggestedFields] = useState<string[]>([]);
   const [analysisStage, setAnalysisStage] = useState<string>('');
 
-  // Performance Optimization: Cache pre-processed base64 images for Gemini vision calls
-  const [imageFilesBase64, setImageFilesBase64] = useState<string[]>([]);
-  
   // UX Optimizations: Track undo history snapshots and active backfilling fields
   const [formHistory, setFormHistory] = useState<ListingFormValues[]>([]);
   const [analyzingFields, setAnalyzingFields] = useState<Record<string, boolean>>({});
@@ -190,6 +204,15 @@ function CreateListingForm() {
 
   const isTradingCard = form.watch('category') === 'Collector Cards';
 
+  /** Update the photo list and keep the form's imageFiles field (used for validation) in step. */
+  const updatePhotos = useCallback((update: (prev: ListingPhoto[]) => ListingPhoto[]) => {
+    const next = update(photosRef.current);
+    if (next === photosRef.current) return;
+    photosRef.current = next;
+    setPhotosState(next);
+    form.setValue('imageFiles', photoFormValues(next), { shouldValidate: true });
+  }, [form]);
+
   const imageFiles = form.watch('imageFiles');
   const formValues = form.watch();
 
@@ -198,9 +221,8 @@ function CreateListingForm() {
   // Cache local image files to IndexedDB whenever they change
   useEffect(() => {
     if (!editId) return;
-    const localFiles = imageFiles.filter(f => f instanceof File || f instanceof Blob) as File[];
-    saveListingImagesCache(editId, localFiles);
-  }, [imageFiles, editId]);
+    saveListingImagesCache(editId, localFiles(photos) as File[]);
+  }, [photos, editId]);
 
   // Background Autosave
   useEffect(() => {
@@ -215,13 +237,9 @@ function CreateListingForm() {
         status: 'draft',
       }));
 
-      const isUploaded = (p: string) => !p.startsWith('blob:');
-      const nonBlobPreviews = imagePreviews.filter(isUploaded);
-      if (nonBlobPreviews.length > 0) {
-        sanitizedDraft.imageUrls = nonBlobPreviews;
-        // Same predicate as the photos, so interleaved local/uploaded photos keep their own pins.
-        sanitizedDraft.imageFocalPoints = selectFocalPoints(imagePreviews, imageFocalPoints, isUploaded);
-      }
+      // Only photos already uploaded are autosaved, each with its own pin.
+      const photoFields = draftPhotoFields(photosRef.current);
+      if (photoFields) Object.assign(sanitizedDraft, photoFields);
 
       const draftData = sanitizedDraft;
 
@@ -237,7 +255,7 @@ function CreateListingForm() {
     }, 5000);
 
     return () => clearTimeout(autosaveTimer);
-  }, [formValues, user, currentStep, imagePreviews, imageFocalPoints, editId, isSubmitting, form, router]);
+  }, [formValues, user, currentStep, photos, editId, isSubmitting, form, router]);
 
   // Initialize from persistence/URL
   useEffect(() => {
@@ -296,24 +314,15 @@ function CreateListingForm() {
           });
 
           // Recover local image files from IndexedDB cache if available
-          const cachedFiles = await getListingImagesCache(editId);
-          if (cachedFiles && cachedFiles.length > 0) {
-            const localPreviews = cachedFiles.map(f => URL.createObjectURL(f));
-            const combinedPreviews = [...(data.imageUrls || []), ...localPreviews];
-            setImagePreviews(combinedPreviews);
-
-            const combinedFiles = [...(data.imageUrls || []), ...cachedFiles];
-            form.setValue('imageFiles', combinedFiles, { shouldValidate: true });
-            setImageFocalPoints(padFocalPoints(data.imageFocalPoints, combinedPreviews.length));
-
-            // Restore small base64 copies for AI (800px, like fresh uploads) so the
-            // server action payload stays well under React's 1M-char limit.
-            const base64s = await Promise.all(cachedFiles.map(f => resizeAndCompressImage(f, 800, 0.6)));
-            setImageFilesBase64(base64s);
-          } else {
-            setImagePreviews(data.imageUrls || []);
-            setImageFocalPoints(padFocalPoints(data.imageFocalPoints, (data.imageUrls || []).length));
-          }
+          const cachedFiles = (await getListingImagesCache(editId)) || [];
+          // Restore small base64 copies for AI (800px, like fresh uploads) so the
+          // server action payload stays well under React's 1M-char limit.
+          const cached = await Promise.all(cachedFiles.map(async (file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+            base64: await resizeAndCompressImage(file, 800, 0.6),
+          })));
+          updatePhotos(() => restoreDraftPhotos(data.imageUrls, data.imageFocalPoints, cached));
 
           // Infer type
           if (data.category === 'Sneakers') setSelectedType('sneakers');
@@ -334,7 +343,7 @@ function CreateListingForm() {
       }
     };
     loadDraft();
-  }, [editId, user, form, toast, searchParams, router]);
+  }, [editId, user, form, toast, searchParams, router, updatePhotos]);
 
   // Restores the snapshot of form values prior to the last AI overwrite
   const undoLastAIAction = useCallback(() => {
@@ -343,6 +352,8 @@ function CreateListingForm() {
     setFormHistory(prev => prev.slice(0, -1));
 
     Object.entries(previousSnapshot).forEach(([key, value]) => {
+      // AI never changes photos; the snapshot can't hold File objects anyway.
+      if (key === 'imageFiles') return;
       form.setValue(key as any, value);
     });
 
@@ -362,9 +373,9 @@ function CreateListingForm() {
   };
 
   const handleRotateImage = (index: number) => {
-    const currentFiles = form.getValues('imageFiles') as File[];
-    const file = currentFiles[index];
-    if (!file) return;
+    const photo = photosRef.current[index];
+    if (!photo) return;
+    const photoId = photo.id;
 
     const img = new window.Image();
     img.onload = () => {
@@ -381,7 +392,8 @@ function CreateListingForm() {
 
       canvas.toBlob((blob) => {
         if (blob) {
-          const rotatedFile = new File([blob], file.name || `rotated_${Date.now()}.jpg`, { type: 'image/jpeg' });
+          const name = photo.file instanceof File && photo.file.name ? photo.file.name : `rotated_${Date.now()}.jpg`;
+          const rotatedFile = new File([blob], name, { type: 'image/jpeg' });
           const newUrl = URL.createObjectURL(rotatedFile);
 
           const canvasAI = document.createElement('canvas');
@@ -403,61 +415,32 @@ function CreateListingForm() {
           ctxAI?.drawImage(canvas, 0, 0, wAI, hAI);
           const base64ForAI = canvasAI.toDataURL('image/jpeg', 0.6);
 
-          const updatedFiles = [...currentFiles];
-          updatedFiles[index] = rotatedFile;
-          form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
-
-          setImagePreviews(prev => {
-            const next = [...prev];
-            if (next[index]?.startsWith('blob:')) URL.revokeObjectURL(next[index]);
-            next[index] = newUrl;
-            return next;
-          });
-          // Turn the pin with the photo so it stays on the same spot.
-          setImageFocalPoints(prev => {
-            const next = padFocalPoints(prev, Math.max(prev.length, index + 1));
-            next[index] = rotateFocalPointClockwise(next[index]);
-            return next;
-          });
-
-          setImageFilesBase64(prev => {
-            const next = [...prev];
-            next[index] = base64ForAI;
-            return next;
-          });
+          // Find the photo again by id: the seller may have moved or removed photos meanwhile.
+          const at = photosRef.current.findIndex((p) => p.id === photoId);
+          if (at < 0) { URL.revokeObjectURL(newUrl); return; }
+          revokePhotoPreview(photosRef.current[at]);
+          // The pin turns with the photo so it stays on the same spot.
+          updatePhotos((prev) => rotatePhoto(prev, at, { file: rotatedFile, preview: newUrl, base64: base64ForAI }));
 
           toast({ title: 'Image rotated 90°', duration: 1500 });
         }
       }, 'image/jpeg', 0.8);
     };
-    img.src = imagePreviews[index];
+    img.crossOrigin = 'anonymous';
+    img.src = photo.preview;
   };
 
-  // Swap a not-yet-uploaded photo for a cropped copy (same pipeline as fresh uploads).
+  // Swap a photo for a cropped copy (same pipeline as fresh uploads).
   const handleReplaceImage = async (index: number, cropped: File) => {
+    const photoId = photosRef.current[index]?.id;
+    if (!photoId) return;
     try {
       const [result] = await processListingImages([cropped]);
-      const currentFiles = [...(form.getValues('imageFiles') as (File | string)[])];
-      if (index < 0 || index >= currentFiles.length) return;
-      currentFiles[index] = result.file;
-      form.setValue('imageFiles', currentFiles, { shouldValidate: true });
-      setImagePreviews(prev => {
-        const next = [...prev];
-        if (next[index]?.startsWith('blob:')) URL.revokeObjectURL(next[index]);
-        next[index] = result.previewUrl;
-        return next;
-      });
+      const at = photosRef.current.findIndex((p) => p.id === photoId);
+      if (at < 0) return;
+      revokePhotoPreview(photosRef.current[at]);
       // The old pin no longer matches the cropped photo; let the seller set it again.
-      setImageFocalPoints(prev => {
-        const next = padFocalPoints(prev, Math.max(prev.length, index + 1));
-        next[index] = null;
-        return next;
-      });
-      setImageFilesBase64(prev => {
-        const next = [...prev];
-        next[index] = result.base64ForAI;
-        return next;
-      });
+      updatePhotos((prev) => cropPhoto(prev, at, { file: result.file, preview: result.previewUrl, base64: result.base64ForAI }));
       toast({ title: 'Photo cropped', duration: 1500 });
     } catch (error) {
       console.error('Crop failed:', error);
@@ -466,30 +449,23 @@ function CreateListingForm() {
   };
 
   const handleImagesChange = (newFiles: File[], newPreviews: string[], base64s?: string[]) => {
-    const currentFiles = form.getValues('imageFiles');
-    const updatedFiles = [...currentFiles, ...newFiles];
-    form.setValue('imageFiles', updatedFiles, { shouldValidate: true });
-    setImagePreviews(prev => [...prev, ...newPreviews]);
-    setImageFocalPoints(prev => [...padFocalPoints(prev, imagePreviews.length), ...newPreviews.map(() => null)]);
-    if (base64s) {
-      setImageFilesBase64(prev => [...prev, ...base64s]);
-    }
+    updatePhotos((prev) => addPhotos(prev, newFiles.map((file, i) => photoFromFile(file, newPreviews[i], base64s?.[i]))));
 
     // PROACTIVE AI: Trigger analysis if we have enough images and fields are empty
-    if (updatedFiles.length >= 2 && !form.getValues('title')) {
+    if (photosRef.current.length >= 2 && !form.getValues('title')) {
       handleAutoFill();
     }
   };
 
   const removeImage = (index: number) => {
-    const currentFiles = form.getValues('imageFiles');
-    const urlToRemove = imagePreviews[index];
-    form.setValue('imageFiles', currentFiles.filter((_, i) => i !== index), { shouldValidate: true });
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    setImageFilesBase64(prev => prev.filter((_, i) => i !== index));
-    setImageFocalPoints(prev => prev.filter((_, i) => i !== index));
-    if (urlToRemove && urlToRemove.startsWith('blob:')) URL.revokeObjectURL(urlToRemove);
+    const { photos: next, removed } = removePhoto(photosRef.current, index);
+    updatePhotos(() => next);
+    revokePhotoPreview(removed);
   };
+
+  const handleMoveImage = (from: number, to: number) => updatePhotos((prev) => movePhoto(prev, from, to));
+
+  const handleFocalChange = (index: number, point: ImageFocalPoint) => updatePhotos((prev) => setPhotoFocal(prev, index, point));
 
   const handleAutoFill = async (searchHint?: string) => {
     const currentFiles = form.getValues('imageFiles');
@@ -520,25 +496,18 @@ function CreateListingForm() {
       setAnalysisStage('Optimizing photos...');
       
       // Load pre-compressed base64 data URIs from cache, falling back to on-the-fly compression if missing
-      const filesToProcess = currentFiles.slice(0, 3);
+      const photosToProcess = photosRef.current.slice(0, 3);
       const aiPhotoPayload: string[] = [];
 
-      for (let i = 0; i < filesToProcess.length; i++) {
-        const f = filesToProcess[i];
-        if (typeof f === 'string') {
-          aiPhotoPayload.push(f);
-        } else if (f instanceof File || f instanceof Blob) {
-          if (imageFilesBase64[i]) {
-            aiPhotoPayload.push(imageFilesBase64[i]);
-          } else {
-            const base64 = await resizeAndCompressImage(f, 800, 0.6);
-            aiPhotoPayload.push(base64);
-            setImageFilesBase64(prev => {
-              const next = [...prev];
-              next[i] = base64;
-              return next;
-            });
-          }
+      for (const photo of photosToProcess) {
+        if (photo.url) {
+          aiPhotoPayload.push(photo.url);
+        } else if (photo.base64) {
+          aiPhotoPayload.push(photo.base64);
+        } else if (photo.file) {
+          const base64 = await resizeAndCompressImage(photo.file, 800, 0.6);
+          aiPhotoPayload.push(base64);
+          updatePhotos((prev) => prev.map((p) => (p.id === photo.id ? { ...p, base64 } : p)));
         }
       }
 
@@ -754,14 +723,9 @@ function CreateListingForm() {
       // 1. Process files in a single pass canvas operation
       const processedResults = await processListingImages(files);
       
-      const compressedFiles = processedResults.map((r: any) => r.file);
-      const newPreviews = processedResults.map((r: any) => r.previewUrl);
-      const newBase64s = processedResults.map((r: any) => r.base64ForAI);
-
-      form.setValue('imageFiles', compressedFiles, { shouldValidate: true });
-      setImagePreviews(newPreviews);
-      setImageFilesBase64(newBase64s);
-      setImageFocalPoints(prev => padFocalPoints(prev, newPreviews.length));
+      const newBase64s = processedResults.map((r: any) => r.base64ForAI as string);
+      photosRef.current.forEach(revokePhotoPreview);
+      updatePhotos(() => processedResults.map((r: any) => photoFromFile(r.file, r.previewUrl, r.base64ForAI)));
 
       // Optimistic transition: instantly advance to Step 1 while AI works in background
       setCurrentStep(1);
@@ -857,7 +821,7 @@ function CreateListingForm() {
   const nextStep = async () => {
     const fieldsToValidate: any[] = [];
     if (currentStep === 1) {
-      if (imageFiles.length === 0) {
+      if (photosRef.current.length === 0) {
         toast({
           title: "Photos Required",
           description: "Please upload at least one photo to proceed.",
@@ -916,29 +880,24 @@ function CreateListingForm() {
       }
 
       const values = form.getValues();
-      const currentFiles = [...values.imageFiles];
-      const newFiles = currentFiles.filter(
-        (f: any) => f instanceof File || f instanceof Blob
-      ) as (File | Blob)[];
-      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
+      // Snapshot now: "Publish & New" clears the form while this upload runs.
+      const photosToPublish = photosRef.current;
+      const newFiles = localFiles(photosToPublish);
 
       const performPublish = async () => {
         try {
-          let finalUrls = existingUrls;
-          if (newFiles.length > 0) {
-            const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
-            finalUrls = [...existingUrls, ...uploaded];
-          }
+          const uploaded = newFiles.length > 0 ? await uploadImages(newFiles, `products/${user.uid}`) : [];
+          // Photos keep the order the seller arranged, each with its own pin.
+          const photoFields = listingPhotoFields(photosToPublish, uploaded);
 
-          if (!finalUrls.length) {
+          if (!photoFields.imageUrls.length) {
             throw new Error("Upload failed. Please re-select your images.");
           }
 
           const { imageFiles, ...rest } = values;
           const listingData = JSON.parse(JSON.stringify({
             ...rest,
-            imageUrls: finalUrls,
-            imageFocalPoints: focalsForUploadOrder(currentFiles, imageFocalPoints),
+            ...photoFields,
             category: values.category || 'Sneakers',
             isVault: false,
           }));
@@ -1001,9 +960,9 @@ function CreateListingForm() {
           multibuyTiers: [],
           acceptsPayId: true,
         });
-        setImagePreviews([]);
-        setImageFilesBase64([]); // Clear base64 cache
-        setImageFocalPoints([]);
+        // The background publish still holds its own snapshot of these photos.
+        photosRef.current = [];
+        setPhotosState([]);
         setSuggestedFields([]);
         setAnalyzingFields({});
         setFormHistory([]);
@@ -1041,23 +1000,14 @@ function CreateListingForm() {
     setIsSubmitting(true);
     try {
       const values = form.getValues();
-      const currentFiles = values.imageFiles;
-      const newFiles = currentFiles.filter(
-        (f: any) => f instanceof File || f instanceof Blob
-      ) as (File | Blob)[];
-      const existingUrls = currentFiles.filter((f: any) => typeof f === 'string') as string[];
-
-      let finalUrls = existingUrls;
-      if (newFiles.length > 0) {
-        const uploaded = await uploadImages(newFiles, `products/${user.uid}`);
-        finalUrls = [...existingUrls, ...uploaded];
-      }
+      const photosToSave = photosRef.current;
+      const newFiles = localFiles(photosToSave);
+      const uploaded = newFiles.length > 0 ? await uploadImages(newFiles, `products/${user.uid}`) : [];
 
       const { imageFiles, ...rest } = values;
       const listingData = JSON.parse(JSON.stringify({
         ...rest,
-        imageUrls: finalUrls,
-        imageFocalPoints: focalsForUploadOrder(currentFiles, imageFocalPoints),
+        ...listingPhotoFields(photosToSave, uploaded),
         category: values.category || 'Sneakers',
         isVault: false,
       }));
@@ -1164,16 +1114,11 @@ function CreateListingForm() {
               {/* 1. Photos Section */}
               <div className="space-y-4">
                 <ImageUploadStep
-                  imageFiles={imageFiles}
-                  imagePreviews={imagePreviews}
-                  imageFocalPoints={imageFocalPoints}
-                  onFocalChange={(index, point) => setImageFocalPoints((prev) => {
-                    const next = padFocalPoints(prev, imagePreviews.length);
-                    next[index] = point;
-                    return next;
-                  })}
+                  photos={photos}
+                  onFocalChange={handleFocalChange}
                   onImagesChange={handleImagesChange}
                   onRemoveImage={removeImage}
+                  onMoveImage={handleMoveImage}
                   onRotateImage={handleRotateImage}
                   onReplaceImage={handleReplaceImage}
                   onAutoFill={() => handleAutoFill()}
@@ -1258,12 +1203,13 @@ function CreateListingForm() {
                 <div className="flex flex-col">
                   {/* Photo Section */}
                   <div className="aspect-square bg-background relative flex items-center justify-center overflow-hidden border-b border-border">
-                    {imagePreviews[0] ? (
+                    {photos[0] ? (
                       <Image
-                        src={imagePreviews[0]}
+                        src={photos[0].preview}
                         alt="Preview"
                         fill
                         className="object-cover animate-in fade-in duration-300"
+                        style={{ objectPosition: focalCssPosition(normalizeFocalPoint(photos[0].focal)) }}
                         unoptimized
                       />
                     ) : (
@@ -1276,10 +1222,10 @@ function CreateListingForm() {
                       </div>
                     )}
                     
-                    {imagePreviews.length > 1 && (
+                    {photos.length > 1 && (
                       <div className="absolute bottom-4 left-4 flex gap-2">
                         <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold tracking-wider text-white shadow-sm border border-border">
-                          + {imagePreviews.length - 1} Photos
+                          + {photos.length - 1} Photos
                         </span>
                       </div>
                     )}

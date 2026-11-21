@@ -80,6 +80,13 @@ export async function productDoc(id: string): Promise<any> {
   return (await db.doc(`products/${id}`).get()).data();
 }
 
+/** The listing with this exact title (emulator only). */
+export async function productByTitle(title: string): Promise<any> {
+  const { db } = await emulatorDb();
+  const snap = await db.collection('products').where('title', '==', title).limit(1).get();
+  return snap.empty ? undefined : { id: snap.docs[0].id, ...snap.docs[0].data() };
+}
+
 /** Remove (or restore) a seller's PayID in the emulator. */
 export async function setSellerPayId(uid: string, payId: string | null) {
   const { db } = await emulatorDb();
