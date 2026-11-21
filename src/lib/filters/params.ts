@@ -79,11 +79,28 @@ export function parseFilterSearchParams(
     }
   }
   if (params.sizes) params.sizes = [...new Set((params.sizes as string[]).map(normalizeSize))];
+  normalizeSellerAndGroupParams(params);
   return params as ProductSearchParams;
 }
 
+const SELLER_ALIASES = ['seller', 'sellerId'] as const;
+
+/** Map ?seller= / ?sellerId= onto `sellers`, and ?group= onto `tierGroup`. */
+export function normalizeSellerAndGroupParams(params: Record<string, any>): void {
+  const sellers = Array.isArray(params.sellers) ? params.sellers.map(String) : [];
+  for (const key of SELLER_ALIASES) {
+    const raw = params[key];
+    if (typeof raw === 'string' && raw.trim()) sellers.push(raw.trim());
+  }
+  const unique = [...new Set(sellers.map((s) => s.trim()).filter(Boolean))];
+  if (unique.length) params.sellers = unique;
+  const group = params.tierGroup || params.group;
+  if (group === 'cards' || group === 'coins') params.tierGroup = group;
+  else delete params.tierGroup;
+}
+
 /** Keys never shown as removable "Active" chips. */
-const NON_CHIP_KEYS = new Set(['view', 'sort', 'page', 'category', 'categories', 'limit', 'lastId', 'status', 'includePokemon', 'includeCoins', 'tcgOnly', 'coinsOnly', 'coinType']);
+const NON_CHIP_KEYS = new Set(['view', 'sort', 'page', 'category', 'categories', 'limit', 'lastId', 'status', 'includePokemon', 'includeCoins', 'tcgOnly', 'coinsOnly', 'coinType', 'tier', 'multibuyEnabled']);
 
 export interface ActiveChip { key: string; value?: string; label: string }
 
@@ -98,12 +115,18 @@ export function activeFilterChips(params: Partial<ProductSearchParams>, pageDefa
     const def = (pageDefaults as any)[key];
     if (def !== undefined && JSON.stringify(def) === JSON.stringify(value)) continue;
     if (key === 'brand' && params.subCategory === value) continue;
+    if (key === 'seller' || key === 'sellerId' || key === 'sellerName' || key === 'group') continue;
     if (key === 'priceRange' && Array.isArray(value)) { chips.push({ key, label: `Price: ${formatPriceRange(value as [number, number])}` }); continue; }
     if (key === 'yearRange' && Array.isArray(value)) { chips.push({ key, label: `Year: ${value[0]}–${value[1]}` }); continue; }
+    if (key === 'tierGroup') {
+      chips.push({ key, label: value === 'coins' ? 'Coins' : 'Cards' });
+      continue;
+    }
     if (Array.isArray(value)) {
       for (const v of value) {
-        const prefix = key === 'sizes' ? 'Size: US ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'grades' ? 'Grade: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : '';
-        chips.push({ key, value: String(v), label: `${prefix}${v}` });
+        const prefix = key === 'sizes' ? 'Size: US ' : key === 'gradingCompanies' ? 'Grader: ' : key === 'grades' ? 'Grade: ' : key === 'conditions' ? '' : key === 'multiCardTiers' ? 'Deal: ' : key === 'sellers' ? 'From ' : '';
+        const labelValue = key === 'sellers' ? (params.sellerName && value.length === 1 ? String(params.sellerName) : String(v)) : String(v);
+        chips.push({ key, value: String(v), label: `${prefix}${labelValue}` });
       }
       continue;
     }

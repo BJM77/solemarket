@@ -249,6 +249,8 @@ export type ProductSearchParams = {
   model?: string;
   sizeGender?: 'men' | 'women' | 'kids' | 'all';
   localPickupPerth?: boolean;
+  /** Cards vs coins bundle group (from /multibuy?group=). */
+  tierGroup?: 'cards' | 'coins';
 };
 
 

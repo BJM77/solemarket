@@ -155,3 +155,30 @@ export async function seedNavListings() {
   ];
   for (const [id, data] of docs) await db.doc(`products/${id}`).set({ ...base, ...data, updatedAt: at(0) });
 }
+
+/** Bronze / Gold sports cards for the cart deal-fill flow (emulator only). */
+export async function seedTierListings() {
+  const { db, admin } = await emulatorDb();
+  const base = {
+    sellerId: 'e2e-seller', sellerName: 'E2E Seller', category: 'Collector Cards', subCategory: 'Basketball',
+    condition: 'Near Mint', quantity: 1, imageUrls: ['/placeholder.png'], description: 'Seeded for tier-deal e2e.',
+    acceptsPayId: true, acceptsCash: true, status: 'available', isDraft: false, isPrivate: false,
+    multibuyEnabled: true, checkoutHolds: [],
+  };
+  const at = (minsAgo: number) => admin.firestore.Timestamp.fromMillis(Date.now() - minsAgo * 60_000);
+  for (let i = 1; i <= 5; i++) {
+    await db.doc(`products/e2e-bronze-${i}`).set({
+      ...base, title: `E2E Bronze Card ${i}`, price: 6 + i, multiCardTier: 'bronze',
+      createdAt: at(i), updatedAt: at(0),
+    });
+  }
+  await db.doc('products/e2e-gold-1').set({
+    ...base, title: 'E2E Gold Card 1', price: 18, multiCardTier: 'gold',
+    createdAt: at(8), updatedAt: at(0),
+  });
+  await db.doc('products/e2e-bronze-other').set({
+    ...base, sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller',
+    title: 'E2E Other Seller Bronze', price: 7, multiCardTier: 'bronze',
+    createdAt: at(9), updatedAt: at(0),
+  });
+}

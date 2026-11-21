@@ -11,6 +11,7 @@ import { parseRange, sizeQueryVariants, sizeMatches, applyClientSort, normalizeS
 import { aliasesForTeamFilter } from '@/lib/filters/team-aliases';
 import { isIndexSort, isStorefrontSearchable, listingMatchesQuery, type SearchKind } from '@/lib/search/inline';
 import { facetCategory } from '@/lib/filters/params';
+import { tierGroupFor } from '@/lib/tier-bundles';
 
 const PAGE_SIZE = 24;
 
@@ -89,7 +90,14 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   // Normalize and ensure arrays for multi-select filters
   const selectedConditions = Array.isArray(conditions) ? conditions : (conditions ? [conditions] : []);
   const selectedSizes = (Array.isArray(searchParams.sizes) ? searchParams.sizes : (searchParams.sizes ? [searchParams.sizes] : [])).map((x: string) => normalizeSize(x));
-  const selectedSellers = Array.isArray(sellers) ? sellers : (sellers ? [sellers] : []);
+  const selectedSellers = Array.from(new Set(([
+    ...(Array.isArray(sellers) ? sellers : (sellers ? [sellers] : [])),
+    ...(typeof searchParams.sellerId === 'string' ? [searchParams.sellerId] : []),
+    ...(typeof (searchParams as any).seller === 'string' ? [(searchParams as any).seller] : []),
+  ]).map((s) => String(s).trim()).filter(Boolean)));
+  // Seller + multibuy + tier + createdAt needs a composite index we have not deployed.
+  // Use the existing (sellerId, status, createdAt) index and filter the rest in memory.
+  const sellerScopedMultibuy = Boolean(searchParams.multibuyEnabled && selectedSellers.length === 1);
   const selectedGrading = Array.isArray(gradingCompanies) ? gradingCompanies : (gradingCompanies ? [gradingCompanies] : []);
   const selectedTiers = Array.isArray(searchParams.multiCardTiers) ? searchParams.multiCardTiers : (searchParams.multiCardTiers ? [searchParams.multiCardTiers] : []);
 
@@ -231,8 +239,18 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   }
 
   // Multibuy Filter
-  if (searchParams.multibuyEnabled) {
+  if (searchParams.multibuyEnabled && !sellerScopedMultibuy) {
     constraints.push(where('multibuyEnabled', '==', true));
+  }
+
+  if (sellerScopedMultibuy) {
+    constraints = [];
+    if (userRole === 'admin' || userRole === 'superadmin') {
+      if (searchParams.status) constraints.push(where('status', '==', searchParams.status));
+    } else {
+      constraints.push(where('status', '==', 'available'));
+    }
+    constraints.push(where('sellerId', '==', selectedSellers[0]));
   }
 
   // Firestore allows only ONE field to have inequality filters.
@@ -257,7 +275,13 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   const [sortField, sortDirection] = effectiveSort.split('-') as ['createdAt' | 'price' | 'year' | 'views' | 'title', 'asc' | 'desc'];
   let orderByConstraints: QueryConstraint[] = [];
 
-    if (filterTextInMemory) {
+    if (sellerScopedMultibuy) {
+    if (priceRange) filterPriceInMemory = true;
+    if (yearRange) filterYearInMemory = true;
+    // Keep this query on the deployed (sellerId, status, createdAt) index.
+    orderByConstraints.push(orderBy('createdAt', 'desc'));
+
+  } else if (filterTextInMemory) {
     // The header dropdown matches title/brand/player/model in a client-side
     // index. A Firestore keywords / title_lowercase prefix query misses
     // listings that lack those fields or have the term mid-title (e.g. "Jordan"
@@ -326,7 +350,7 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   const pokemonCouldAppear = tcgOnly || (hidePokemon && !(category && /sneaker|shoe|coin/i.test(category)) && !subCategory);
   // Same for coins: without a category filter, coin listings could be in the server count.
   const coinsCouldAppear = hideCoins && !category && !(categories && categories.length > 0);
-  const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !filterTextInMemory && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
+  const countIsExact = !coinsOnly && !pokemonCouldAppear && !coinsCouldAppear && !filterTextInMemory && !sellerScopedMultibuy && !(filterConditionsInMemory || filterSizesInMemory || filterSellersInMemory || filterGradingInMemory || filterTiersInMemory || filterPriceInMemory || filterYearInMemory || searchParams.minRating || searchParams.grades || searchParams.league || searchParams.team || searchParams.player || searchParams.model || searchParams.sizeGender);
 
   // Storefront text search (/browse?q=, /cards?q=...): use the same cached lite index as
   // the header dropdown, so both always agree, and read only the listings a page needs.
@@ -349,6 +373,8 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
       if (hideCoins && isCoinListing(p)) return false;
       // 0c. The coins storefront only shows coins/bullion (never basketball cards or sneakers).
       if (!matchesCoinFlags(p, searchParams)) return false;
+      const wantedGroup = searchParams.tierGroup;
+      if ((wantedGroup === 'cards' || wantedGroup === 'coins') && tierGroupFor(p.category) !== wantedGroup) return false;
       if (coinTextTerms.length) {
         const hay = [p.title, p.description, p.brand, p.subCategory, p.year, (p as any).denomination, (p as any).metal, (p as any).country]
           .filter(Boolean).join(' ').toLowerCase();
@@ -653,7 +679,7 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   }
 
   // Count-only mode: used by the filter panel to show "Show N results" before applying.
-  if (searchParams.countOnly && !filterTextInMemory) {
+  if (searchParams.countOnly && !filterTextInMemory && !sellerScopedMultibuy) {
     if (!countIsExact) return { products: [], hasMore: false };
     try {
       const firestoreMod = await import('firebase/firestore');
@@ -668,9 +694,9 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
   // /pokemon asks for every TCG under Collector Cards and filters in memory;
   // the live catalog is small enough to load in one page.
   // The coins storefront filters coins vs bullion in memory; its catalog is small too.
-  const pageSize = tcgOnly || coinsOnly || filterTextInMemory ? 500 : PAGE_SIZE;
+  const pageSize = tcgOnly || coinsOnly || filterTextInMemory || sellerScopedMultibuy ? 500 : PAGE_SIZE;
 
-  if (searchParams.lastId && !filterTextInMemory) {
+  if (searchParams.lastId && !filterTextInMemory && !sellerScopedMultibuy) {
     const lastDocRef = doc(db, 'products', searchParams.lastId);
     const lastDocSnap = await getDoc(lastDocRef);
 
@@ -713,17 +739,17 @@ async function queryProducts(searchParams: ProductSearchParams & { countOnly?: b
     }
 
     // In-Memory Filters
-    products = products.filter((p: Product) => passesInMemoryFilters(p) && (!filterTextInMemory || listingMatchesQuery(p as any, textQuery)));
+    products = products.filter((p: Product) => passesInMemoryFilters(p) && (!filterTextInMemory || listingMatchesQuery(p as any, textQuery)) && (!sellerScopedMultibuy || docMatchesConstraints(p)));
 
     // Keep the page in the requested order regardless of legacy string prices.
     // (Text search reads by createdAt, so it applies the requested sort in memory.)
-    products = filterTextInMemory ? sortInMemory(products, effectiveSort) : applyClientSort(products, effectiveSort);
+    products = (filterTextInMemory || sellerScopedMultibuy) ? sortInMemory(products, effectiveSort) : applyClientSort(products, effectiveSort);
 
-    if (searchParams.countOnly && filterTextInMemory) {
+    if (searchParams.countOnly && (filterTextInMemory || sellerScopedMultibuy)) {
       return { products: [], hasMore: false, totalCount: products.length };
     }
 
-    if (filterTextInMemory) {
+    if (filterTextInMemory || sellerScopedMultibuy) {
       return pageByCursor(products);
     }
 
