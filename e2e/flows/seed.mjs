@@ -57,5 +57,30 @@ for (let i = 1; i <= 3; i++) {
     ...base, title: `E2E Draft Card ${i}`, price: 5 + i, status: 'draft', isDraft: true,
   });
 }
+
+// Bronze / Gold cards for the cart "fill the deal" suggestions (sports cards, not TCG).
+const tierBase = {
+  sellerId: 'e2e-seller', sellerName: 'E2E Seller', category: 'Collector Cards', subCategory: 'Basketball',
+  condition: 'Near Mint', quantity: 1, imageUrls: ['/placeholder.png'], description: 'Seeded for tier-deal e2e.',
+  acceptsPayId: true, acceptsCash: true, status: 'available', isDraft: false, isPrivate: false,
+  multibuyEnabled: true,
+};
+const at = (minsAgo) => admin.firestore.Timestamp.fromMillis(Date.now() - minsAgo * 60_000);
+for (let i = 1; i <= 5; i++) {
+  await db.doc(`products/e2e-bronze-${i}`).set({
+    ...tierBase, title: `E2E Bronze Card ${i}`, price: 6 + i, multiCardTier: 'bronze',
+    createdAt: at(i), updatedAt: at(0),
+  });
+}
+await db.doc('products/e2e-gold-1').set({
+  ...tierBase, title: 'E2E Gold Card 1', price: 18, multiCardTier: 'gold',
+  createdAt: at(8), updatedAt: at(0),
+});
+await db.doc('products/e2e-bronze-other').set({
+  ...tierBase, sellerId: 'e2e-seller-cash', sellerName: 'E2E Cash Seller',
+  title: 'E2E Other Seller Bronze', price: 7, multiCardTier: 'bronze',
+  createdAt: at(9), updatedAt: at(0),
+});
+
 console.log('Seeded emulators for', projectId);
 process.exit(0);

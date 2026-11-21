@@ -45,6 +45,19 @@ describe('filter params', () => {
     expect(sortOptionsFor('Sneakers').map((o) => o.value)).not.toContain('title-asc');
     expect(sortOptionsFor('Collector Cards').map((o) => o.value)).toContain('year-desc');
   });
+  it('maps ?seller= and ?group= onto sellers and tierGroup', () => {
+    const p = parseFilterSearchParams(new URLSearchParams('tier=bronze&seller=abc&group=cards&sellerName=Jake'));
+    expect(p.sellers).toEqual(['abc']);
+    expect(p.tierGroup).toBe('cards');
+    expect(p.sellerName).toBe('Jake');
+    const chips = activeFilterChips(p);
+    expect(chips.map((c) => c.label)).toEqual(['From Jake', 'Cards']);
+  });
+  it('ignores an invalid group and keeps an explicit sellers list', () => {
+    const p = parseFilterSearchParams(new URLSearchParams('sellers=a,b&group=shoes'));
+    expect(p.sellers).toEqual(['a', 'b']);
+    expect(p.tierGroup).toBeUndefined();
+  });
   it('price sort is numeric even for string prices', () => {
     const items = [{ price: 100 }, { price: '15' }, { price: 300 }, { price: '$3,400' }, { price: 5 }];
     expect(applyClientSort(items, 'price-desc').map((i) => i.price)).toEqual(['$3,400', 300, 100, '15', 5]);
