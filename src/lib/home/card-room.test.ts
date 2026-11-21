@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CARD_ROOM_COUNT, DEFAULT_CARD_ROOM_ITEMS, completeCardRoomItems } from './card-room';
+import { parseFilterSearchParams } from '@/lib/filters/params';
+import { MARKETPLACE_CATEGORIES } from '@/config/categories';
 
 describe('completeCardRoomItems', () => {
   it('defaults to 10 basketball-card tiles in 2 rows of 5, with no TCG', () => {
@@ -25,5 +27,37 @@ describe('completeCardRoomItems', () => {
     );
     const extra = [...DEFAULT_CARD_ROOM_ITEMS, { id: 'c11', name: 'LeBron', href: '/cards?q=LeBron' }];
     expect(completeCardRoomItems(extra)).toHaveLength(11);
+  });
+});
+
+describe('default Card Room links', () => {
+  // How the /cards grid reads each tile's link (the same parser it uses on the URL).
+  const filters = (href: string) => parseFilterSearchParams(new URL(href, 'https://benched.au').searchParams);
+  const cardSubCategories = new Set(
+    (MARKETPLACE_CATEGORIES.find((c) => c.name === 'Collector Cards')?.subcategories || []).map((s) => s.name),
+  );
+
+  it('player and rookie tiles search titles instead of an exact sub-category tag', () => {
+    const byName = Object.fromEntries(DEFAULT_CARD_ROOM_ITEMS.map((i) => [i.name, filters(i.href)]));
+    expect(byName.Jordan).toMatchObject({ q: 'Jordan' });
+    expect(byName.Kobe).toMatchObject({ q: 'Kobe' });
+    expect(byName.Curry).toMatchObject({ q: 'Curry' });
+    expect(byName.Wembanyama).toMatchObject({ q: 'Wembanyama' });
+    expect(byName.Rookies).toMatchObject({ q: 'Rookie' });
+    for (const f of [byName.Jordan, byName.Kobe, byName.Curry, byName.Wembanyama, byName.Rookies]) {
+      expect(f.subCategory).toBeUndefined();
+    }
+  });
+
+  it('any sub-category a tile filters on is a real Collector Cards sub-category', () => {
+    for (const item of DEFAULT_CARD_ROOM_ITEMS) {
+      const sub = filters(item.href).subCategory;
+      if (sub) expect(cardSubCategories.has(sub), `${item.name} -> ${sub}`).toBe(true);
+    }
+  });
+
+  it('the Under $50 tile is read as a price filter', () => {
+    const under50 = DEFAULT_CARD_ROOM_ITEMS.find((i) => i.name === 'Under $50')!;
+    expect(filters(under50.href).priceRange).toEqual([0, 50]);
   });
 });
