@@ -1,83 +1,86 @@
 'use server';
 
 import { firestoreDb } from '@/lib/firebase/admin';
-import { Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 import { ensureActionAuth } from '@/lib/action-utils';
+import { checkRateLimit } from '@/lib/rate-limit-guard';
+import { HOLD_MS, activeHolds, availableQuantity, cartHoldId, heldByOtherLegacy, pruneHolds } from '@/lib/checkout/holds';
+
+/** Cart holds never last longer than the standard 30-minute hold. */
+const MAX_CART_HOLD_MS = HOLD_MS;
 
 /**
- * Places or extends a 30-minute cart hold on items so a buyer has time
- * to browse additional multi-deal cards without losing their selections.
+ * Places or extends a signed-in buyer's 30-minute cart hold on one unit of a listing, so they
+ * have time to add more multi-deal cards. The hold is a `checkoutHolds` entry keyed
+ * `cart:<uid>`: it blocks other buyers, but the same buyer's checkout, request and the seller's
+ * accept all ignore it. Guests get no server hold (the cart timer is client-side only).
  */
 export async function holdCartItemAction(params: {
   productId: string;
-  cartHoldId: string;
-  durationMinutes?: number;
   idToken?: string;
+  durationMinutes?: number;
 }): Promise<{ success: boolean; expiresAtMs?: number; error?: string }> {
-  const { productId, cartHoldId, durationMinutes = 30, idToken } = params;
-
-  if (!productId || !cartHoldId) {
-    return { success: false, error: 'Product ID and Cart Hold ID required' };
-  }
+  const { productId, idToken } = params;
+  if (!productId || typeof productId !== 'string') return { success: false, error: 'Product ID required' };
+  if (!idToken) return { success: false, error: 'Sign in to hold items.' };
 
   try {
-    let buyerKey = cartHoldId;
-    if (idToken) {
-      try {
-        const auth = await ensureActionAuth(idToken);
-        if (auth?.uid) buyerKey = auth.uid;
-      } catch {
-        // Fallback to cartHoldId if guest or unauthenticated
-      }
+    const auth = await ensureActionAuth(idToken);
+    const uid = auth.uid;
+    if (!(await checkRateLimit('cart_hold_uid', { limit: 30, windowSeconds: 3600, identifier: uid }))) {
+      return { success: false, error: 'Too many holds. Please wait a moment and try again.' };
     }
 
-    const now = Date.now();
-    const expiresAtMs = now + durationMinutes * 60 * 1000;
-    const expiresAt = new Date(expiresAtMs);
-
+    const requested = Number(params.durationMinutes ?? 30) * 60_000;
+    const durationMs = Math.min(MAX_CART_HOLD_MS, Math.max(60_000, Number.isFinite(requested) ? requested : MAX_CART_HOLD_MS));
+    const holdId = cartHoldId(uid)!;
     const docRef = firestoreDb.collection('products').doc(productId);
 
-    return await firestoreDb.runTransaction(async (transaction: any) => {
-      const snap = await transaction.get(docRef);
+    return await firestoreDb.runTransaction(async (t: any) => {
+      const snap = await t.get(docRef);
       if (!snap.exists) throw new Error('Product not found');
-      const data = snap.data();
-
-      // Check existing legacy hold
-      const currentHoldExpiresAt = data.holdExpiresAt?.toDate?.();
-      const isCurrentlyHeld = currentHoldExpiresAt && currentHoldExpiresAt > new Date(now);
-      if (isCurrentlyHeld && data.heldBy && data.heldBy !== buyerKey && data.heldBy !== cartHoldId) {
-        throw new Error('This card is currently reserved by another buyer.');
+      const data = snap.data() || {};
+      const now = Date.now();
+      if (data.status !== 'available') throw new Error('This item is no longer available.');
+      if (data.sellerId && data.sellerId === uid) throw new Error('You cannot hold your own listing.');
+      if (heldByOtherLegacy(data, uid, now)) throw new Error('This card is currently reserved by another buyer.');
+      if (availableQuantity(data, now, holdId) < 1) {
+        throw new Error(activeHolds(data, now, holdId).length
+          ? 'This card is on hold for another buyer right now.'
+          : 'This item is out of stock.');
       }
 
-      // Check checkoutHolds array
-      const holds = Array.isArray(data.checkoutHolds) ? data.checkoutHolds : [];
-      const activeOtherHolds = holds.filter(
-        (h: any) => h && Number(h.expiresAtMs) > now && h.orderId !== cartHoldId && h.orderId !== buyerKey
-      );
-
-      const availableQty = (data.quantity ?? 1) - activeOtherHolds.reduce((sum: number, h: any) => sum + (h.qty || 1), 0);
-      if (availableQty <= 0) {
-        throw new Error('This card is on hold for another buyer right now.');
-      }
-
-      // Update checkoutHolds array
-      const updatedHolds = [
-        ...holds.filter((h: any) => h && Number(h.expiresAtMs) > now && h.orderId !== cartHoldId && h.orderId !== buyerKey),
-        { orderId: cartHoldId, qty: 1, expiresAtMs, isCartHold: true }
-      ];
-
-      transaction.update(docRef, {
-        checkoutHolds: updatedHolds,
-        heldBy: buyerKey,
-        holdExpiresAt: Timestamp.fromDate(expiresAt),
-        holdReason: 'checkout',
+      const expiresAtMs = now + durationMs;
+      t.update(docRef, {
+        checkoutHolds: [...pruneHolds(data, now, holdId), { orderId: holdId, qty: 1, expiresAtMs }],
         updatedAt: FieldValue.serverTimestamp(),
       });
-
       return { success: true, expiresAtMs };
     });
   } catch (err: any) {
-    console.error('holdCartItemAction error:', err);
+    console.error('holdCartItemAction error:', err?.message || err);
     return { success: false, error: err?.message || 'Could not hold item' };
+  }
+}
+
+/** Releases the signed-in buyer's cart hold on a listing (removed from cart). */
+export async function releaseCartHoldAction(params: { productId: string; idToken?: string }): Promise<{ success: boolean }> {
+  const { productId, idToken } = params;
+  if (!productId || !idToken) return { success: false };
+  try {
+    const auth = await ensureActionAuth(idToken);
+    const holdId = cartHoldId(auth.uid)!;
+    const docRef = firestoreDb.collection('products').doc(productId);
+    await firestoreDb.runTransaction(async (t: any) => {
+      const snap = await t.get(docRef);
+      if (!snap.exists) return;
+      const data = snap.data() || {};
+      const holds = Array.isArray(data.checkoutHolds) ? data.checkoutHolds : [];
+      if (!holds.some((h: any) => h?.orderId === holdId)) return;
+      t.update(docRef, { checkoutHolds: pruneHolds(data, Date.now(), holdId), updatedAt: FieldValue.serverTimestamp() });
+    });
+    return { success: true };
+  } catch {
+    return { success: false };
   }
 }

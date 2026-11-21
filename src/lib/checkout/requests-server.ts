@@ -12,7 +12,7 @@ import { sendNotification } from '@/services/notifications';
 import { pushOrderToSeller, pushRequestToBuyer } from '@/lib/notifications/push-server';
 import { SELLER_ORDERS_PATH } from '@/lib/notifications/push-payload';
 import { serializeFirestoreData } from '@/lib/utils/serialization';
-import { RESERVED_UNTIL_MS, addHold, assertCanHold, availableQuantity } from './holds';
+import { RESERVED_UNTIL_MS, addHold, assertCanHold, availableQuantity, cartHoldId, pruneHolds } from './holds';
 import {
     MAX_OPEN_REQUESTS, REQUEST_TTL_MS, assertRequestLimit, countOpenRequestsForListing, countOpenUnits,
     NEEDS_PAYID_MESSAGE, effectiveRequestStatus, isRequestOrder, nextRequestState, planAcceptPayment, validateOfferAmount,
@@ -198,15 +198,18 @@ async function readForReserve(t: any, order: any) {
     return { ids, qtyById, docs, others };
 }
 
-function planReserve(ctx: Awaited<ReturnType<typeof readForReserve>>, orderId: string, nowMs: number): ReservePlan {
+function planReserve(ctx: Awaited<ReturnType<typeof readForReserve>>, orderId: string, nowMs: number, buyerId?: string | null): ReservePlan {
+    // The buyer's own cart hold doesn't block their accepted request; it's replaced by the reservation.
+    const ownCartHold = cartHoldId(buyerId);
     const productWrites: ReservePlan['productWrites'] = [];
     const soldOut = new Set<string>();
     ctx.docs.forEach((doc: any, k: number) => {
         if (!doc.exists) throw new Error('This listing no longer exists.');
         const p = { ...doc.data(), id: doc.id };
         const qty = ctx.qtyById.get(ctx.ids[k]) || 1;
-        assertCanHold(p, qty, nowMs);
-        const holds = addHold(p, { orderId, qty, expiresAtMs: RESERVED_UNTIL_MS, reserved: true }, nowMs);
+        assertCanHold(p, qty, nowMs, null, ownCartHold);
+        const base = ownCartHold ? { ...p, checkoutHolds: pruneHolds(p, nowMs, ownCartHold) } : p;
+        const holds = addHold(base, { orderId, qty, expiresAtMs: RESERVED_UNTIL_MS, reserved: true }, nowMs);
         productWrites.push({ ref: doc.ref, data: { checkoutHolds: holds, updatedAt: FieldValue.serverTimestamp() } });
         if (availableQuantity({ ...p, checkoutHolds: holds }, nowMs) <= 0) soldOut.add(doc.id);
     });
@@ -304,7 +307,7 @@ export async function sellerRespondToRequest(orderId: string, actor: Actor, acti
             const patch = nextRequestState(order, 'accept', nowMs);
             const pay = await readAcceptPayment(t, orderRef, order);
             const ctx = await readForReserve(t, order);
-            const plan = planReserve(ctx, snap.id, nowMs);
+            const plan = planReserve(ctx, snap.id, nowMs, order.buyerId);
             const agreed = order.requestType === 'offer' ? Number(order.offerAmount) : Number(order.items?.[0]?.discountedPrice ?? order.askingPrice);
             const payPatch = applyAcceptPayment(t, orderRef, pay);
             t.update(orderRef, {
@@ -395,7 +398,7 @@ export async function buyerRespondToRequest(orderId: string, action: 'accept_cou
             const blocks = await readBlocks(who, [String(order.sellerId)], t);
             const pay = await readAcceptPayment(t, orderRef, order);
             const ctx = await readForReserve(t, order);
-            const plan = planReserve(ctx, snap.id, nowMs);
+            const plan = planReserve(ctx, snap.id, nowMs, order.buyerId);
             assertNotBlocked(blocks, who, [String(order.sellerId)]);
             if (pay.plan === 'needs_payid') throw new Error("The seller hasn't set up PayID for posted orders yet. Please try again later or contact the seller.");
             const payPatch = applyAcceptPayment(t, orderRef, pay);
