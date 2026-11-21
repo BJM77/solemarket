@@ -42,9 +42,11 @@ test('robots.txt disallows query parameters and allows Google Merchant feed', as
   const res = await request.get('/robots.txt');
   expect(res.status()).toBe(200);
   const text = await res.text();
-  expect(text).toContain('Disallow: /*?*');
+  // Only crawl-wasting query params are blocked (not every query string).
+  expect(text).toContain('Disallow: /*?q=*');
+  expect(text).toContain('Disallow: /*?sort=*');
   expect(text).toContain('Allow: /api/feeds/google-merchant');
-  expect(text).toContain('sitemap:');
+  expect(text).toMatch(/^Sitemap: /m);
 });
 
 test('Google Merchant Center feed returns valid XML', async ({ request }) => {
