@@ -27,6 +27,14 @@ export interface CheckoutHold {
     reserved?: boolean;
 }
 
+/**
+ * A signed-in buyer's 30-minute cart hold uses this id, so their own checkout, request and
+ * the seller's accept can ignore it (it only blocks *other* buyers).
+ */
+export function cartHoldId(buyerId: string | null | undefined): string | undefined {
+    return buyerId ? `cart:${buyerId}` : undefined;
+}
+
 /** expiresAtMs used for seller-accepted reservations (max JS date: effectively never). */
 export const RESERVED_UNTIL_MS = 8_640_000_000_000_000;
 
@@ -78,19 +86,19 @@ export function availableQuantity(p: HoldableProduct, now: number = Date.now(), 
 }
 
 /** True when a listing is live but every unit is held by someone's checkout. */
-export function isOnCheckoutHold(p: HoldableProduct, now: number = Date.now()): boolean {
+export function isOnCheckoutHold(p: HoldableProduct, now: number = Date.now(), excludeOrderId?: string): boolean {
     if (!p || (p.status && p.status !== 'available')) return false;
-    return activeHolds(p, now).length > 0 && availableQuantity(p, now) <= 0;
+    return activeHolds(p, now, excludeOrderId).length > 0 && availableQuantity(p, now, excludeOrderId) <= 0;
 }
 
 /** True when every unit is taken and at least one is a seller-accepted reservation ("Reserved"). */
-export function isReservedForBuyer(p: HoldableProduct, now: number = Date.now()): boolean {
-    return isOnCheckoutHold(p, now) && activeHolds(p, now).some((h) => h.reserved);
+export function isReservedForBuyer(p: HoldableProduct, now: number = Date.now(), excludeOrderId?: string): boolean {
+    return isOnCheckoutHold(p, now, excludeOrderId) && activeHolds(p, now, excludeOrderId).some((h) => h.reserved);
 }
 
 /** When the soonest timed hold ends (ms), for "On hold, frees up in mm:ss". Reservations don't count. */
-export function holdEndsAt(p: HoldableProduct, now: number = Date.now()): number | null {
-    const a = activeHolds(p, now).filter((h) => !h.reserved);
+export function holdEndsAt(p: HoldableProduct, now: number = Date.now(), excludeOrderId?: string): number | null {
+    const a = activeHolds(p, now, excludeOrderId).filter((h) => !h.reserved);
     return a.length ? Math.min(...a.map((h) => Number(h.expiresAtMs))) : null;
 }
 
@@ -114,14 +122,14 @@ export function heldByOtherLegacy(p: HoldableProduct, buyerKey: string | null, n
  * Can `qty` units be held now? Throws a buyer-friendly error if not.
  * Expired holds are treated as available (they're pruned when the new hold is written).
  */
-export function assertCanHold(p: HoldableProduct & { title?: string }, qty: number, now: number = Date.now(), buyerKey: string | null = null): void {
+export function assertCanHold(p: HoldableProduct & { title?: string }, qty: number, now: number = Date.now(), buyerKey: string | null = null, excludeOrderId?: string): void {
     const name = p?.title || 'This item';
     if (!Number.isInteger(qty) || qty < 1) throw new Error('Invalid item quantity.');
     if (!p || p.status !== 'available') throw new Error(`${name} is no longer available.`);
     if (heldByOtherLegacy(p, buyerKey, now)) throw new Error(`Sorry, ${name} is currently reserved by another buyer.`);
-    if (availableQuantity(p, now) < qty) {
-        throw new Error(activeHolds(p, now).length
-            ? (activeHolds(p, now).some((h) => h.reserved)
+    if (availableQuantity(p, now, excludeOrderId) < qty) {
+        throw new Error(activeHolds(p, now, excludeOrderId).length
+            ? (activeHolds(p, now, excludeOrderId).some((h) => h.reserved)
                 ? `Sorry, ${name} is reserved for another buyer.`
                 : `Sorry, ${name} is on hold for another buyer right now. Check back in a few minutes.`)
             : `Not enough stock for ${name}.`);
