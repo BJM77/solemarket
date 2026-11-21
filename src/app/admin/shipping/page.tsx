@@ -136,7 +136,7 @@ export default function ShippingLabelsPage() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Shippo Dispatch Ready</AlertTitle>
                 <AlertDescription>
-                    Connects directly to orders awaiting dispatch. If Shippo API keys are not supplied in the environment, fallback sandbox tracking will be generated automatically.
+                    Lists orders awaiting dispatch. Label printing needs a shipping label service, which isn't set up yet; until then, book labels with the carrier directly.
                 </AlertDescription>
             </Alert>
 

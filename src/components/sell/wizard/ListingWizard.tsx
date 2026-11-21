@@ -78,13 +78,6 @@ export default function ListingWizard() {
     getCurrentUserIdToken().then(t => (t ? listMyBundles(t) : [])).then(setMyBundles).catch(() => setMyBundles([]));
   }, [step, myBundles]);
 
-  // Auto-fill details from photos via AI when entering the details step if title is empty
-  useEffect(() => {
-    if (step === 'details' && !draft.title && Object.keys(draft.photos).length > 0 && !aiBusy) {
-      runAi();
-    }
-  }, [step]);
-
   const errors = useMemo(() => validateStep(step, draft), [step, draft]);
   const update = (patch: Partial<WizardDraft>) => setDraft((d) => ({ ...d, ...patch }));
 
@@ -147,47 +140,31 @@ export default function ListingWizard() {
     const problems = validateStep('review', draft);
     if (problems.length) { setShowErrors(true); return; }
 
-    if (andNew) {
-      // Rapid reset: snapshot the draft, reset UI immediately, and publish in background
-      const draftToPublish = { ...draft };
-      const currentTokenPromise = getCurrentUserIdToken();
-      setDraft(EMPTY_DRAFT);
-      localStorage.removeItem(DRAFT_KEY);
-      setStepIndex(0);
-      toast({ title: 'Publishing in background', description: 'Draft cleared. Ready for your next listing!' });
-
-      (async () => {
-        try {
-          const token = await currentTokenPromise;
-          if (!token) throw new Error('Please sign in again.');
-          const result = await createProductAction(token, draftToProduct(draftToPublish) as any);
-          if (!result.success) throw new Error((result as any).error || 'Could not publish');
-          if (draftToPublish.bundleIds?.length) {
-            await addListingToBundles(token, (result as any).productId, draftToPublish.bundleIds).catch(() => null);
-          }
-          toast({ title: 'Listing published!', description: `"${draftToPublish.title || 'Item'}" is now live.` });
-        } catch (e: any) {
-          toast({ title: 'Background publish failed', description: e?.message || 'Check your internet connection.', variant: 'destructive' });
-        }
-      })();
-      return;
-    }
-
+    // The draft stays on screen (and in localStorage) until the listing is actually created,
+    // so a failed publish never loses the seller's work. "Publish & New" then starts fresh.
+    const draftToPublish = draft;
     setPublishing(true);
     try {
       const token = await getCurrentUserIdToken();
       if (!token) throw new Error('Please sign in again.');
-      const result = await createProductAction(token, draftToProduct(draft) as any);
+      const result = await createProductAction(token, draftToProduct(draftToPublish) as any);
       if (!result.success) throw new Error((result as any).error || 'Could not publish');
-      if (draft.bundleIds?.length) {
-        await addListingToBundles(token, (result as any).productId, draft.bundleIds).catch(() => null);
+      if (draftToPublish.bundleIds?.length) {
+        await addListingToBundles(token, (result as any).productId, draftToPublish.bundleIds).catch(() => null);
       }
-      localStorage.removeItem(DRAFT_KEY);
+      if (andNew) {
+        setDraft(EMPTY_DRAFT);
+        try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+        setStepIndex(0);
+        toast({ title: 'Listing submitted', description: `"${draftToPublish.title || 'Item'}" will appear once it passes review. Ready for your next listing.` });
+        return;
+      }
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       toast({ title: 'Listing submitted', description: 'It will appear once it passes review.' });
       router.push(`/product/${(result as any).productId}`);
     } catch (e: any) {
       if (handleStaleDeploy(e)) return;
-      toast({ title: 'Publish failed', description: e?.message, variant: 'destructive' });
+      toast({ title: 'Publish failed', description: `${e?.message || 'Please try again.'} Your listing is still here.`, variant: 'destructive' });
     } finally {
       setPublishing(false);
     }

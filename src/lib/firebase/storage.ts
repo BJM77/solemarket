@@ -70,8 +70,10 @@ export async function uploadImages(
     await uploadBytes(fileRef, master, metadata);
 
     if (isImage) {
-      // Best-effort renditions generated non-blocking in background so mobile uploads return immediately.
-      // Failure must never block a listing.
+      // Best-effort renditions generated in the background so mobile uploads return immediately.
+      // Failure must never block a listing. Nothing on the site depends on them: listing photos
+      // always load the master URL through next/image, so a missing -w400/-w1000 copy (e.g. the
+      // seller left the page early) can't break a photo.
       Promise.all(IMAGE_VARIANT_WIDTHS.map(async (w) => {
         try {
           const small = await toWebp(master, w, 0.3);

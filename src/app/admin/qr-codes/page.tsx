@@ -168,6 +168,9 @@ export default function QrCodesPage() {
                             title: product.title,
                             category: product.category,
                             subCategory: product.subCategory,
+                            storefrontId: (product as any).storefrontId,
+                            brand: product.brand,
+                            size: product.size != null ? String(product.size) : undefined,
                         });
                         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://benched.au';
                         const productUrl = `${siteUrl}${path}`;

@@ -40,7 +40,7 @@ export async function GET() {
         seller_name: data.sellerName || 'Verified Seller',
         seller_verified: data.sellerVerified || false,
         image_url: data.imageUrls?.[0] || '',
-        product_url: `${baseUrl}${getProductUrl({ id: doc.id, title: data.title || "", category: data.category })}`,
+        product_url: `${baseUrl}${getProductUrl({ id: doc.id, title: data.title || "", category: data.category, subCategory: data.subCategory, storefrontId: data.storefrontId, brand: data.brand, size: data.size != null ? String(data.size) : undefined })}`,
         purchase_options: ['PayID (paid directly to the seller)', 'Cash on pickup'],
       };
     });

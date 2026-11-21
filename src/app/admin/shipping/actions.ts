@@ -103,66 +103,68 @@ export async function createShippingLabel(
 
         const orderData = orderSnap.data();
 
-        // Check if Shippo API key is configured in the environment
+        // No label provider is set up (Shippo is a paid service and isn't configured). Never
+        // invent a tracking number or mark the order labelled without a real label.
         const shippoApiKey = process.env.SHIPPO_API_KEY;
-        let labelUrl = '';
-        let trackingNumber = '';
-
-        if (shippoApiKey) {
-            try {
-                // Call Shippo API
-                const shippoRes = await fetch('https://api.goshippo.com/shipments/', {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `ShippoToken ${shippoApiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        address_from: {
-                            name: 'Benched Marketplace',
-                            street1: 'PO Box 100',
-                            city: 'Perth',
-                            state: 'WA',
-                            zip: '6000',
-                            country: 'AU',
-                        },
-                        address_to: {
-                            name: orderData?.buyerName || 'Buyer',
-                            street1: orderData?.shippingAddress?.street || '1 Main St',
-                            city: orderData?.shippingAddress?.city || 'Perth',
-                            state: orderData?.shippingAddress?.state || 'WA',
-                            zip: orderData?.shippingAddress?.zip || '6000',
-                            country: 'AU',
-                        },
-                        parcels: [
-                            {
-                                length: String(parcel.lengthCm),
-                                width: String(parcel.widthCm),
-                                height: String(parcel.heightCm),
-                                distance_unit: 'cm',
-                                weight: String(parcel.weightKg),
-                                mass_unit: 'kg',
-                            },
-                        ],
-                        async: false,
-                    }),
-                });
-
-                if (shippoRes.ok) {
-                    const shippoData = await shippoRes.json();
-                    labelUrl = shippoData.rates?.[0]?.label_url || '';
-                    trackingNumber = shippoData.rates?.[0]?.tracking_number || '';
-                }
-            } catch (err) {
-                console.warn('Shippo API call failed, falling back to simulated sandbox label:', err);
-            }
+        if (!shippoApiKey) {
+            return {
+                success: false,
+                message: 'Shipping label service not configured. Book the label with the carrier directly and add the tracking number to the order.',
+            };
         }
 
-        // If Shippo is not configured or in sandbox/mock mode:
-        if (!labelUrl) {
-            const mockTracking = `AU${Date.now().toString().slice(-8)}EXP`;
-            trackingNumber = mockTracking;
-            labelUrl = `https://benched.au/api/shipping/mock-label?orderId=${encodeURIComponent(orderId)}&tracking=${encodeURIComponent(mockTracking)}`;
+        let labelUrl = '';
+        let trackingNumber = '';
+        try {
+            const shippoRes = await fetch('https://api.goshippo.com/shipments/', {
+                method: 'POST',
+                headers: {
+                    Authorization: `ShippoToken ${shippoApiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address_from: {
+                        name: 'Benched Marketplace',
+                        street1: 'PO Box 100',
+                        city: 'Perth',
+                        state: 'WA',
+                        zip: '6000',
+                        country: 'AU',
+                    },
+                    address_to: {
+                        name: orderData?.buyerName || 'Buyer',
+                        street1: orderData?.shippingAddress?.street || '',
+                        city: orderData?.shippingAddress?.city || '',
+                        state: orderData?.shippingAddress?.state || '',
+                        zip: orderData?.shippingAddress?.zip || '',
+                        country: 'AU',
+                    },
+                    parcels: [
+                        {
+                            length: String(parcel.lengthCm),
+                            width: String(parcel.widthCm),
+                            height: String(parcel.heightCm),
+                            distance_unit: 'cm',
+                            weight: String(parcel.weightKg),
+                            mass_unit: 'kg',
+                        },
+                    ],
+                    async: false,
+                }),
+            });
+            if (shippoRes.ok) {
+                const shippoData = await shippoRes.json();
+                labelUrl = shippoData.rates?.[0]?.label_url || '';
+                trackingNumber = shippoData.rates?.[0]?.tracking_number || '';
+            }
+        } catch (err) {
+            console.warn('Shippo API call failed:', err);
+        }
+
+        // Only a real label counts. (A Shippo shipment only returns rates; a label must be
+        // purchased separately, so without that step there is no label to record.)
+        if (!labelUrl || !trackingNumber) {
+            return { success: false, message: 'The label service did not return a label, so nothing was saved. Book the label with the carrier directly.' };
         }
 
         await orderRef.update({
