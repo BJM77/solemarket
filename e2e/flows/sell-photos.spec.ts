@@ -23,11 +23,12 @@ test.describe('sell form photos', () => {
     await input.setInputFiles(path.join(process.cwd(), 'public/wtb-wanted-placeholder.png'));
     await expect(photos).toHaveCount(2, { timeout: 30_000 });
 
-    // Pin photo 2 near its top-left corner with the mouse, then make it the main photo.
+    // Pin photo 2 left of centre with the mouse, then make it the main photo.
     const picker = photos.nth(1).getByTestId('image-focal-picker');
     // locator.click scrolls the picker clear of the sticky header and checks it gets the click.
     const box = (await picker.boundingBox())!;
-    await picker.click({ position: { x: box.width * 0.2, y: box.height * 0.2 } });
+    // Middle-left: clear of the corner buttons along the top and the 'Make main' button at the bottom.
+    await picker.click({ position: { x: box.width * 0.25, y: box.height * 0.5 } });
     await photos.nth(1).getByRole('button', { name: 'Make photo 2 the main photo' }).click();
     await expect(photos.first().getByText('Main')).toBeVisible();
 
